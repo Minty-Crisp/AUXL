@@ -3315,7 +3315,7 @@ components: false,
 this.skyCosmicSunData = {
 entity: 'a-sky',
 data:'background 1',
-id:'background1',
+id:'skyCosmicSun',
 sources:false,
 text: false,
 geometry: false,
