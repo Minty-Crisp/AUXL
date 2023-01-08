@@ -2,6 +2,8 @@
 A-Frame UX Library Engine
 built specifically for use with [A-Frame](https://github.com/aframevr/)
 
+[View Example](https://minty-crisp.github.io/AUXL/)
+
 # v0.1 Summary :
 - Datas, Cores & Layers for in-scene object entities with Details Prompt & Scene Tracking
 - Menu Generator w/ Scene Tracking
