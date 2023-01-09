@@ -19,7 +19,15 @@ built specifically for use with [A-Frame](https://github.com/aframevr/)
 # AUXL v0.1 is still an in progress build!
 Further testing, minor fixes and updates still required for a solid base version including basic documentation and a few scenario examples as well.
 
-# v0.2 Roadmap :
+# v0.2+ Roadmap :
+- v0.1 System Improvements
+- Controls Abstraction Layer
+- 3D Object Inspection
+- More Object/Image Galleries
+- AR Background & GPS Support
+- Horizon, Foley & Weather Spawns
+- Venue|Stage|Forum
+- Question, Polls & Feedback
 - Inventory & Item System
 - Quest System
 - Magic System
