@@ -1178,12 +1178,11 @@ let menuNum = 0;
 		menu.layer = Layer(menu.id, menu.layers);
 		menu.layer.AddAllToScene(true);
 		//menu.layer.ChangeParent({property: 'look-at', value: '#camera'})
-		//AddToMenuSceneTracker();
 	}//MenuGen
 
 	const MenuRemove = () => {
 		menu.layer.RemoveAllFromScene(true);
-		//RemoveFromSceneTracker();
+		RemoveFromMenuSceneTracker();
 	}
 
 	const ToggleOptionClicking = () => {
@@ -2144,6 +2143,7 @@ const Book = (core, npc) => {
 
 		book.selectJumpMenu = Menu(selectJumpData);
 		book.selectJumpMenu.MenuGen();
+		book.selectJumpMenu.AddToMenuSceneTracker(book.selectJumpMenu);
 		//disable main el clickable class
 		//Need to update after creating book control component
 		npc.GetEl().classList.toggle('clickable', false);
@@ -2522,6 +2522,7 @@ author: 'Made by Minty Crisp!',
 		//disable autoScriptEmoticon();
 		ham.GetEl().removeEventListener('click', openCloseMenu);
 		ham.RemoveFromScene(false, false, true);
+		ham.systemOpen = false;
 	}
 
 	const openCloseMenu = () => {
@@ -3777,21 +3778,15 @@ zone:{
 skyStarLayer: {AddAllToScene: null},
 },
 start:{
-npc0:{Spawn: null},
-//HamGirl:{Start: null},
+HamGirl:{Start: null},
 eventTesting:{AddToScene: null, EnableDetail: 'This is a test detail to read.'},
 soundTesting:{AddToScene: null},
-
 nodeFloor:{
 IfElse: {cond: 'testVar',
 ifTrue: {
-nodeFloor:{AddToScene: null,ChangeSelf: {property: 'material', value: {color: '#90e024', emissive: '#90e024'}}},
-},
+nodeFloor:{AddToScene: null,ChangeSelf: {property: 'material', value: {color: '#90e024', emissive: '#90e024'}}},},
 ifFalse: {
-nodeFloor:{AddToScene: null,ChangeSelf: {property: 'material', value: {color: '#24a6e0', emissive: '#24a6e0'}}},
-},}
-},
-
+nodeFloor:{AddToScene: null,ChangeSelf: {property: 'material', value: {color: '#24a6e0', emissive: '#24a6e0'}}},},}},
 },
 delay:{
 5000:{eventTesting:{EmitEvent: 'customevent'},},
@@ -3806,7 +3801,7 @@ interaction:{
 click: {eventTesting: {ChangeSelf: {property: 'material', value: {color: '#24a6e0', emissive: '#24a6e0'}}},},
 },
 exit:{
-//HamGirl:{Remove: null},
+HamGirl:{Remove: null},
 },
 map:{
 data: this.zone0Data.zone0Node0In0,
@@ -3822,7 +3817,7 @@ sceneText: true,
 },
 zone:{},
 start:{
-//npc1:{Spawn: null},
+npc0:{Spawn: null},
 },
 delay:{
 },
@@ -3869,7 +3864,7 @@ sceneText: true,
 },
 zone:{},
 start:{
-
+npc1:{Spawn: null},
 },
 delay:{
 
