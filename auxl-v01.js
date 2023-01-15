@@ -1,236 +1,9 @@
 //
 //AUXL : A-Frame UX Library
 //v0.1 Engine
-//Created by Minty-Crisp (mintycrisp.com)
-
-//V0.1 In Progress
-
+//https://github.com/Minty-Crisp/AUXL
 //
-//ToDo
-
-//Current Issues :
-//NPC's book functions like JumpSelect and Jump need to be fixed 
-//Update Book readtimeline to use the nodeScene if/else, get flag, set flag, maybe even delay, interval, etc...
-
-//Important minor additions :
-//Sound Object Gen!
-//Grow|Shrink Scene transition
-//Data object's JS source delay/promise loader for external scripts
-//Hamburger Menu having access to settings that can control a-scene properties like fog
-
-//Basic Wiki Documentation
-
-//Example AUXL Scenario to Showcase all Features
-
-/*
-AUXL Engine v0.1 Release Notes
-
-v0.1 Summary
-Datas, Cores & Layers for in-scene object entities with Details Prompt & Scene Tracking
-Menu Generator w/ Scene Tracking
-Carousel Image Viewer w/ Scene Tracking
-Map Nodes & Zones for Dynamic Scene Swapping with Locks & Keys
-Scene Swap with Start, Delay, Interval, Interaction, Event & Exit checks with Conditionals/Flag Support for Cores, Layers and Special Objects
-NPC Avatar Book Progressive Text Tree Viewer with Conditionals/Flag Support & Scene Tracking
-3D Companion (Hamburger Menu) Control Settings
-VR/2D Mode Player w/ Scene Transitions Animations
-Misc : Color Theory Swatch Generator
-Components : Dev Debug (swap-controls & detect-input), attach and support interaction event components
-
-ToDo : Documentation
-Function overview descriptions
-Data, Core & Layer examples
-Menu Gen examples
-MapZone w/ Node Scene Script examples
-NPC w/ Book examples
-
-Core Functions -
-core.AddToScene(parent,fromLayer,isOther)
-core.RemoveFromScene(parent,fromLayer,isOther)
-core.ChangeSelf({property,value})
-core.ChangeSelfArray(...setAlt)
-core.Animate(animProps)
-core.GetEl()
-core.EmitEvent(eventName)
-core.SetFlag({flag, value})
-core.GetFlag(varName)
-core.ClickRun(el)
-core.FuseClickRun(el)
-core.CursorDownRun(el)
-core.CursorEnterRun(el)
-core.CursorLeaveRun(el)
-core.CursorUpRun(el)
-prepDetails(text)
-detailPrompt_open()
-detailPrompt_close()
-openClose()
-core.EnableDetail() : On click will display a window of data text
-core.DisableDetail()
-
-Layer Functions -
-layer.AddAllToScene(isOther)
-layerOrder(object)
-layer.RemoveAllFromScene(isOther)
-layer.GetParentEl()
-layer.ChangeParent(property, value)
-layer.ChangeAll(property, value)
-layer.AnimateParent(animProps)
-layer.AnimateAll(animProps)
-layer.GetChild(child)
-
-Player Functions -
-player.TempDisableClick()
-player.SetFlag()
-player.GetFlag()
-
-Menu Functions -
-menu.MenuGen()
-menu.MenuRemove()
-menu.ToggleOptionClicking()
-menu.AddToMenuSceneTracker(obj)
-menu.RemoveFromMenuSceneTracker()
-
-SceneNode Functions -
-core.IfElse(objRef, {cond, ifTrue, ifFalse})
-core.SetFlag(objRef, flagInfo)
-core.AddToTimeIntEvtTracker({name,type,method,params,event})
-core.RemoveFromTimeIntEvtTracker(name)
-core.ClearSceneTimeIntEvt()
-core.ClearScene()
-core.AThisObjMethod(object, func, params)
-readTimeline(time)
-core.Info()
-core.Zone()
-AddToZoneTracker
-RemoveFromZoneTracker
-core.Start()
-core.Delay()
-core.Interval()
-core.Event()
-core.Interaction()
-core.Exit()
-core.Map()
-core.StartScene()
-sceneTextDisplay
-
-MapZone Functions - w/ Lock & Keys
-core.ReadMapData()
-core.StartScene(nodeName)
-core.ClearScene()
-core.MoveMenuGen()
-core.MenuMoveClick(el)
-core.Move(connect)
-core.ClearZone()
-
-Book Functions -
-lineReader(book,time)
-timeReader(book,page)
-pageReader(book)
-bookReader(book)
-readTimeline({page,time})
-book.Next()
-book.Jump({timeline, page})
-book.SelectJump(...jumpOptions)
-book.Restart()
-book.Click(el)
-
-SpeechSystem Functions -
-core.Start()
-core.Skip()
-Stop()
-Kill(interval)
-core.KillStop()
-core.ChangeCore(setAlt)
-core.ChangeCoreArray(...setAlt)
-core.DisplaySpeech({role,speech})
-core.AddToTimeIntEvtTracker({name,type,method,params})
-core.RemoveFromTimeIntEvtTracker(name)
-
-NPC Functions -
-npc.Spawn()
-npc.Despawn()
-npc.AddToNPCSceneTracker()
-npc.RemoveFromNPCSceneTracker()
-npc.EnableSpeech()
-npc.DisableSpeech()
-npc.Speak({role,speech})
-npc.NextPage()
-npc.ResetBook()
-
-HamMenu Functions -
-autoScriptEmoticon()
-ham.Start()
-ham.Remove()
-openCloseMenu()
-systemMenuGen()
-closeSystemMenu()
-ham.SystemMenuClick(el)
-travelSettings()
-travelSettingsMenuGen()
-closeTravelSettingsMenu()
-ham.TravelSettingsMenuClick(el)
-sceneSettings()
-
-ClickTest Functions -
-core.Click()
-
-Carousel Functions -
-carousel.Click(el)
-carousel.Show()
-carousel.Remove()
-carousel.AddToCarouselSceneTracker()
-carousel.RemoveFromCarouselSceneTracker()
-
-Misc Functions -
-colorsHexGen(color) : Generates color and/or color theory swatch
-
-Components :
-swap-controls Component : Swap between Desktop/Mouse and VR Quest Controls
-detect-inputs Component : Display Controller Input Event Info
-attach Component : attach id to entity
-clickfunc
-clickrun
-fusingrun
-mousedownrun
-mouseenterrun
-mouseleaverun
-mouseuprun
-eventrun - In Progress (custom event name component)
-
-Node Scene Launch Conditions -
-info - Use in Data only
-zone - Core and Layers only currently
-start
-delay
-interval
-event
-interaction
-exit
-
-Node Scene Examples -
-Interval :
-5000: {run: {
-hamComp:{SetFlag:{flag: 'testVar', value: 'false'},},}, 
-loop: '2',
-end: 'testVar'},
-
-Node Scene Functions -
-SetFlag
-IfElse
-
-IfElse Example :
-hamComp:{IfElse: {cond: 'testVar', ifTrue: {hamComp: {AddToScene: null},}, ifFalse: null}},
-
-
-v0.2 Roadmap :
-
-Inventory & Item System
-Quest System
-Magic System
-Spell Casting
-Mob Generator
-
-*/
+//Created by Minty-Crisp (mintycrisp.com)
 
 //
 //A-Frame UX Library
@@ -246,6 +19,30 @@ init: function () {
 const sceneEl = document.querySelector('a-scene');
 const head = document.querySelector('head');
 let aThis = this;
+this.expStarted = false;
+//Menu
+const stickyMenu = document.getElementById('stickyMenu');
+const beginDiv = document.getElementById('beginDiv');
+const startButton = document.getElementById('startButton');
+const menuModeButton = document.getElementById('menuModeButton');
+const audioButton = document.getElementById('audioButton');
+const viewInfo = document.getElementById('viewInfo');
+const expInfo = document.getElementById('expInfo');
+const infoClose = document.getElementById('infoClose');
+this.menuOpen = true;
+this.infoOpen = false;
+//Audio
+this.audioEnabled = false;
+//Controls
+this.controls = 'Desktop';
+let playerRig;
+let camera;
+let cameraUI;
+let playerFloor;
+let mouseController;
+let vrController;
+let vrControllerUI;
+
 //Core, Layer & Aux currently spawned in scene.
 this.spawned = {};
 this.zoneSpawned = {};
@@ -298,6 +95,166 @@ this.events = {};
 //this.menus = {};
 //this.npcs = {};
 //this.carousels = {};
+
+//
+//HTML Menu
+function toggleMenu(){
+	if(aThis.menuOpen){
+		//Close Menu
+		beginDiv.style.display = 'none';
+		aThis.menuOpen = false;
+		if(aThis.infoOpen){
+			toggleInfo();
+		}
+	} else {
+		//Open Menu
+		beginDiv.style.display = 'flex';
+		aThis.menuOpen = true;
+	}
+}
+stickyMenu.addEventListener('click', toggleMenu);
+
+//
+//Start Experience
+function startExp(){
+	if(aThis.expStarted){}else{
+		startButton.innerHTML = 'Resume'
+		aThis.zone0.StartScene();
+		updateControls();
+		aThis.expStarted = true;
+	}
+	toggleMenu();
+}
+startButton.addEventListener('click', startExp);
+
+//
+//Controls
+//VR
+function disableVRControls(){
+	//Disable VR Controls
+	//vrController visible to true
+	vrController.setAttribute('visible',false);
+	//vrControllerUI visible to true
+	vrControllerUI.setAttribute('visible',false);
+	//vrController cursor property
+	vrController.removeAttribute('cursor');
+	//vrController raycaster property
+	vrController.removeAttribute('raycaster');
+	//vrController laser-controls property
+	vrController.removeAttribute('laser-controls');
+}
+function enableVRControls(){
+	//Enable VR Controls
+	//vrController visible to true
+	vrController.setAttribute('visible',true);
+	//vrControllerUI visible to true
+	vrControllerUI.setAttribute('visible',true);
+	//vrController raycaster property
+	vrController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
+	//vrController cursor property
+	vrController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController', mouseCursorStylesEnabled: 'true'});
+	//vrController laser-controls property
+	vrController.setAttribute('laser-controls',{hand: 'right'});
+	//Update Controls
+	aThis.controls = 'VR';
+	//menuModeButton.innerHTML = 'Mode : VR'
+}
+//Desktop
+function disableDesktopControls(){
+	//Disable Desktop Controls
+	//Remove Desktop WASD Controls
+	playerRig.removeAttribute('wasd-controls');
+	//Set mouseController to invisible
+	mouseController.setAttribute('visible',false);
+	//Set mouseController raycaster to false
+	mouseController.removeAttribute('raycaster');
+	//Remove cursor attribute
+	mouseController.removeAttribute('cursor');
+}
+function enableDesktopControls(){
+	//Enable Desktop Controls
+	//Remove Desktop WASD Controls
+	playerRig.setAttribute('wasd-controls',{enabled: 'true', acceleration: 25});
+	//Set mouseController to invisible
+	mouseController.setAttribute('visible',true);
+	//Set mouseController raycaster to false
+	mouseController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
+	//Remove cursor attribute
+	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
+	//Update Controls
+	aThis.controls = 'Desktop';
+	//menuModeButton.innerHTML = 'Mode : Desktop'
+}
+//Mobile
+function disableMobileControls(){
+
+}
+function enableMobileControls(){
+
+}
+//Update Controls
+function updateControls(){
+	if(aThis.controls === 'Desktop'){
+		disableMobileControls();
+		disableVRControls();
+		enableDesktopControls();
+	} else if(aThis.controls === 'Mobile'){
+		disableVRControls();
+		disableDesktopControls();
+		enableMobileControls();
+	} else if(aThis.controls === 'VR'){
+		disableDesktopControls();
+		disableMobileControls();
+		enableVRControls();
+	}
+}
+//Menu Button Controls
+function changeControls(){
+	if(aThis.controls === 'Desktop'){
+		aThis.controls = 'VR';
+		menuModeButton.innerHTML = 'Mode : VR'
+	} else if(aThis.controls === 'Mobile'){
+		//Implement Mobile Controls
+	} else if(aThis.controls === 'VR'){
+		aThis.controls = 'Desktop';
+		menuModeButton.innerHTML = 'Mode : Desktop'
+	}
+	if(aThis.expStarted){
+		updateControls();
+	}
+}
+menuModeButton.addEventListener('click', changeControls);
+
+//
+//Audio
+function toggleAudio(){
+	if(aThis.audioEnabled){
+		//Disable Audio
+		aThis.audioEnabled = false;
+		audioButton.innerHTML = 'Sound : Disabled';
+	} else {
+		//Enable Audio
+		aThis.audioEnabled = true;
+		audioButton.innerHTML = 'Sound : Enabled';
+	}
+}
+audioButton.addEventListener('click', toggleAudio);
+
+//
+//Instructions
+function toggleInfo(){
+	if(aThis.infoOpen){
+		//Close Info
+		expInfo.style.display = 'none';
+		aThis.infoOpen = false;
+	} else {
+		//Open Info
+		expInfo.style.display = 'flex';
+		aThis.infoOpen = true;
+	}
+}
+viewInfo.addEventListener('click', toggleInfo);
+infoClose.addEventListener('click', toggleInfo);
 
 //
 //Support
@@ -372,13 +329,13 @@ function hexToRGB(h) {
 	return {r,g,b};
 }
 
-let r = Math.floor(Math.random()*255);
-let r0 = r/255;
-let g = Math.floor(Math.random()*255);
-let g0 = g/255;
-let b = Math.floor(Math.random()*255);
-let b0 = b/255;
-let base = RGBToHex(r,g,b);
+let r;
+let r0;
+let g;
+let g0;
+let b;
+let b0;
+let base;
 let baseRGB;
 
 //If color doesn't exist then create a randomized one
@@ -576,9 +533,9 @@ const Core = (data) => {
 
 		core.el = {};
 
-		if(core.entity === 'PreAdded'){
+		if(core.entity === 'preAdded'){
 			core.el = document.getElementById(core.id);
-			return core.el
+			return core.el;
 		} else if(core.entity){
 			core.el = document.createElement(core.entity);
 		} else {
@@ -587,7 +544,13 @@ const Core = (data) => {
 		//console.log('generating...');
 		//console.log(core);
 
-		if(core.text){core.el.setAttribute('text', core.text)}
+		//Sound
+		if(this.audioEnabled){
+			if(core.sound){core.el.setAttribute('sound', core.sound)};
+		}
+
+		//Text
+		if(core.text){core.el.setAttribute('text', core.text)};
 		//console.log(JSON.stringify(data.id.id));
 
 		//core.el.setAttribute('id', core.id.id);
@@ -645,7 +608,7 @@ const Core = (data) => {
 		let needParent = parent || false;
 		let fromLayer = layer || false;
 		Generate();
-		if(core.entity === 'PreAdded'){} else {
+		if(core.entity === 'preAdded'){} else {
 			if(needParent){
 				core.parent = needParent;
 				needParent.appendChild(core.el);
@@ -659,8 +622,6 @@ const Core = (data) => {
 				AddToSceneTracker();
 			}
 		}
-
-		
 		//console.log(core)
 	}
 
@@ -682,7 +643,7 @@ const Core = (data) => {
 			//console.log(core.el)
 			sceneEl.removeChild(core.el);
 		}
-		if(core.entity === 'PreAdded'){} else {
+		if(core.entity === 'preAdded'){} else {
 			if(fromLayer || other){} else {
 				RemoveFromSceneTracker();
 			}
@@ -912,9 +873,9 @@ const Layer = (id, all) => {
 	let layer = {id, all};
 	layer.children = {};
 	layer.secondParents = [];
+	layer.thirdParents = [];
 
 	const AddAllToScene = (other) => {
-//lets push each one in order to an array to then remove on sequence
 		for(let each in all){
 			if(each === 'parent'){
 				all[each].core.AddToScene(false, true);
@@ -932,51 +893,66 @@ const Layer = (id, all) => {
 							all[each][a].core.AddToScene(all.parent.core.core.el, true);
 						} else {
 							for(let b in all[each][a]){
-								if(b === 'parent'){
-									console.log('Add Support for More Layers');
-								} else {
+								if(b === 'core'){
 									layer.children[all[each][a].core.core.id] = {obj: all[each][a][b], parent: all[each].parent.core.core.el};
 									//console.log(layer.children)
 									all[each][a][b].AddToScene(all[each].parent.core.core.el, true);
+								} else {
+									if(b === 'parent'){
+										layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b].core, parent: all[each].parent.core.core.el};
+										layer.thirdParents.push(all[each][a][b].core);
+										//console.log(layer.children)
+										all[each][a][b].core.AddToScene(all[each].parent.core.core.el, true);
+									} else {
+										for(let c in all[each][a][b]){
+											if(c === 'parent'){
+												console.log('Add support for more layers')
+											} else {
+												layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b][c], parent: all[each][a].parent.core.core.el};
+												//console.log(layer.children)
+												all[each][a][b][c].AddToScene(all[each][a].parent.core.core.el, true);
+											}
+										}
+									}
 								}
 							}
 						}
 					}
 				}
-		   }
-		}
-		if(id === 'playerLayer'){} else {
-			if(other){} else {
-				AddToSceneTracker();
 			}
+		}
+		if(other){} else {
+			AddToSceneTracker();
 		}
 	}
 
 	function layerOrder(object) {
-	  let result = [[], [], []];
-
-	  function traverse(object, depth) {
+	let result = [[], [], [], []];
+	function traverse(object, depth) {
 		for (let key in object) {
-		  if (object.hasOwnProperty(key)) {
-			if (key === "core") {
-				//console.log('Hit core');
-				//console.log(object[key]);
-			  result[depth].push(object[key]);
-			} else if (key === "parent" && object[key].hasOwnProperty("core")) {
-				//console.log('Hit a Parent');
-				//console.log(object[key])
-			  result[depth].push(object[key].core);
-			} else if (typeof object[key] === "object") {
-				//console.log('Hit End');
-				//console.log(object[key]);
-			  traverse(object[key], depth + 1);
+			if (object.hasOwnProperty(key)) {
+				if (key === 'core') {
+					//console.log('Hit core');
+					//console.log(object[key]);
+					//console.log(result);
+					result[depth].push(object[key]);
+				} else if (key === "parent" && object[key].hasOwnProperty('core')) {
+					//console.log('Hit a Parent');
+					//console.log(object[key]);
+					//console.log(result);
+					result[depth].push(object[key].core);
+				} else if (typeof object[key] === 'object') {
+					//console.log('Hit End');
+					//console.log(object[key]);
+					//console.log(result);
+					traverse(object[key], depth + 1);
+				}
 			}
-		  }
 		}
-	  }
+	}
 
-	  traverse(object, 0);
-	  return result;
+	traverse(object, 0);
+	return result;
 	}
 	let accessOrder = layerOrder(layer.all);
 
@@ -1061,11 +1037,20 @@ const Player = (layer) => {
 	//blink
 
 	//Controlled by swap-controls component
-	layer.controls = 'desktop';
+	//layer.controls = 'desktop';
 
 	//Initialize Player
-	layer.AddAllToScene();
+	layer.AddAllToScene(true);
 	//document.getElementById('camera').setAttribute('camera', 'active', true);
+
+	//Update Control Variables
+	playerRig = document.getElementById('playerRig');
+	camera = document.getElementById('camera');
+	cameraUI = document.getElementById('cameraUI');
+	playerFloor = document.getElementById('playerFloor');
+	mouseController = document.getElementById('mouseController');
+	vrController = document.getElementById('vrController');
+	vrControllerUI = document.getElementById('vrControllerUI');
 
 	const SetFlag = ({flag, value}) => {
 		layer[flag] = value;
@@ -1249,7 +1234,7 @@ let sceneText = SpeechSystem(textBubble);
 					AThisObjMethod(a,b,ifTrue[a][b]);
 				}
 			}
-		} else if (aThis[objRef].GetFlag(cond) === 'false') {
+		} else if (aThis[objRef].GetFlag(cond) === 'false' || !aThis[objRef].GetFlag(cond)) {
 			//run ifFalse
 			for(let a in ifFalse){
 				//console.log(ifFalse);
@@ -1952,45 +1937,46 @@ const Book = (core, npc) => {
 //facilitate interaction between user, objects and story.
 
 	function* lineReader(book,time){
-for(let line in time){
-	//console.log(line);//id,timeline,transition,textBubble,... key name
-	//console.log(time[line]);//id,timeline,transition,textBubble,... value object
+		for(let line in time){
+			//console.log(line);//id,timeline,transition,textBubble,... key name
+			//console.log(time[line]);//id,timeline,transition,textBubble,... value object
 
-	//Ignore Page Data
-	if(line === 'id' || line === 'description' ||line === 'tags' ||line === 'nextPage' ||line === 'prevPage' ||line === 'timeline'){
-	//page data only
-	} else if(line === 'autoTextBubble'){
-		//Need a good check condition for this.func() and not this.obj.func()
+			//Ignore Page Data
+			if(line === 'id' || line === 'description' ||line === 'tags' ||line === 'nextPage' ||line === 'prevPage' ||line === 'timeline'){
+			//page data only
+			} else if(line === 'pureFunction'){
+				//pure functions
+				//not object generated methods
+				//Need a good check condition for this.func() and not this.obj.func()
 
-		//console.log(line)
-		//console.log(time)
-		//console.log(time[line])
-		//console.log(aThis[line])
-		//aThis[line](time[line])
-		//console.log('autoTextBubble');
-		//autoTextBubble();
-		//console.log(aThis[line]);
-		aThis[line](time[line])
-	} else {
-		//console.log(line);
-		//console.log(time[line]);
-		for(let a in time[line]){
-			//console.log(a);//AddToScene / ChangeSelf
-			//console.log(time[line]);//{AddToScene: null} / {ChangeSelf: {mat...}}
-			//console.log(time[line][a]);//null / {material: {opacity: 0.5}}
-			//console.log('Executing...');
-			//console.log(line);
-			//console.log(a);
-			//console.log(aThis[line][a]);
-			aThis[line][a](time[line][a]);
-		}
+				//console.log(line)
+				//console.log(time)
+				//console.log(time[line])
+				//console.log(aThis[line])
+				//aThis[line](time[line])
+				//console.log('pureFunction');
+				//console.log(aThis[line]);
+				aThis[line](time[line])
+			} else {
+				//console.log(line);
+				//console.log(time[line]);
+				for(let a in time[line]){
+					//console.log(a);//AddToScene / ChangeSelf
+					//console.log(time[line]);//{AddToScene: null} / {ChangeSelf: {mat...}}
+					//console.log(time[line][a]);//null / {material: {opacity: 0.5}}
+					//console.log('Executing...');
+					//console.log(line);
+					//console.log(a);
+					//console.log(aThis[line][a]);
+					aThis[line][a](time[line][a]);
+				}
 
-	}//else
+			}//else
 
-}//for line in time
-//console.log(book);
-//console.log('Stop here please.');
-yield;
+		}//for line in time
+		//console.log(book);
+		//console.log('Stop here please.');
+		yield;
 
 	}
 
@@ -2092,9 +2078,9 @@ yield;
 	//page - 'page0'
 	//time - 'timeline6'
 		for(let line in core.pages[page][time]){
-			if(line === 'autoTextBubble'){
+			if(line === 'pureFunction'){
 				//Need a good check condition for this.func() and not this.obj.func()
-				//console.log('autoTextBubble');
+				//console.log('pureFunction');
 				//console.log(aThis[line]);
 				aThis[line](time[line])
 			} else {
@@ -2138,27 +2124,22 @@ yield;
 
 	const SelectJump = (jumpOptions) => {
 	//gen a menu that displays options which when selected jump to a specific timeline#
-
-		console.log(jumpOptions);
 		let selectedTime;
 		let selectedPage = false;
-
-		//Jump({selectedTime, selectedPage});
-
 		let selectJumpData = {
 		id: 'selectJump',
-		prompt: 'Where to?',
+		prompt: 'When to?',
 		options: {},
 		actions: {},
 		data: aThis.menuBaseData,
-		cursorObj: npc.id,
-		pos: new THREE.Vector3(1,1.5,0),
-		//method: 'Jump',
+		cursorObj: npc.core.id,
+		pos: new THREE.Vector3(1,1.5,-0.5),
+		method: 'Click',
 		}
 
 		for(let a = 0; a < jumpOptions.length; a++){
-			selectJumpData.options['option'+a] = jumpOptions[a];
-			selectJumpData.actions['action'+a] = jumpOptions[a];
+			selectJumpData.options['option'+a] = jumpOptions[a][0];
+			selectJumpData.actions['action'+a] = jumpOptions[a][1];
 		}
 
 		book.selectJumpMenu = Menu(selectJumpData);
@@ -2168,26 +2149,7 @@ yield;
 		npc.GetEl().classList.toggle('clickable', false);
 	}
 
-	const Restart = () => {
-		ClearScene();
-		book = bookReader(core);
-		Next();
-	}
-
-	const Click = (el) => {
-
-		let result = el.getAttribute('result');
-		//console.log('Book Click');
-		//console.log(result);
-		book.selectJumpMenu.MenuRemove();
-		Jump({timeline: result});
-		Next();
-		//Need to update after creating book control component
-		npc.GetEl().classList.toggle('clickable', true);
-
-	}
-
-	return {core, book, Next, Jump, SelectJump, readTimeline, Restart, Click,};
+	return {core, book, Next, Jump, SelectJump, readTimeline};
 }
 
 //
@@ -2264,7 +2226,6 @@ const SpeechSystem = (core) => {
 			}
 		}, 20); //Interval
 		aThis.intervals.textDisplayInterval = core.textDisplayInterval;
-
 	}
 
 	const AddToTimeIntEvtTracker = ({name,type,method,params}) => {
@@ -2295,6 +2256,7 @@ let book;
 //bubble.core.position.y = core.core.position.y - 0.5;
 //bubble.core.position.z = core.core.position.z + 0.25;
 let text = SpeechSystem(bubble);
+let menuTimeout;
 
 	const Spawn = () => {
 		//Reset book on each spawn
@@ -2365,6 +2327,7 @@ let text = SpeechSystem(bubble);
 			//Reset Book
 			book = Book(bookData, npc);
 			NextPage();
+			NextPage();
 			//npc.ChangeSelf({property: 'material', value: {opacity: 1}});
 			//npc.ChangeSelf({property: 'text', value: {value: 'Menu'}});
 			//console.log('Book Ready!');
@@ -2373,14 +2336,99 @@ let text = SpeechSystem(bubble);
 		}
 	}
 
+	const Click = (el) => {
+		let result = el.getAttribute('result');
+		Jump({timeline: result});
+		book.Next();
+
+		//Need to update after creating book control component
+		npc.GetEl().classList.toggle('clickable', true);
+		//Timeout
+		menuTimeout = setTimeout(function () {
+			book.book.selectJumpMenu.MenuRemove();
+			clearTimeout(menuTimeout);
+		}, 250); //Delay
+	}
+
 	const Jump = ({timeline, page}) => {
 		book.Jump({timeline, page})
 	}
+
 	const SelectJump = (jumpOptions) => {
 		book.SelectJump(jumpOptions);
 	}
 
-return {npc, Spawn, Despawn, EnableSpeech, DisableSpeech, Speak, NextPage, ResetBook, Jump, SelectJump}
+	const AThisObjMethod = (object, func, params) => {
+		//console.log(object);
+		//console.log(func);
+		//console.log(params);
+		//console.log(aThis[object]);
+		aThis[object][func](params);
+	}
+
+	const IfElse = (obj) => {
+//objRef, {cond, ifTrue, ifFalse}
+/*
+IfElse: {
+npc0:{cond: 'testVar',
+ifTrue: {
+npc0:{Speak:{role: 'Dev', speech:'Is True'}},
+},
+ifFalse: {
+npc0:{Speak:{role: 'Dev', speech:'Is False'}},
+},}
+}*/
+		//ifTrue
+		//ifFalse
+		//for loop for above objects with key name as object and value key as method and that value the params
+		//console.log(obj)//entire ifElse object
+		let objRef = Object.keys(obj);
+		//console.log(Object.keys(obj))//this.obj name
+		let cond = obj[objRef].cond;
+		let ifTrue = obj[objRef].ifTrue;
+		let ifFalse = obj[objRef].ifFalse;
+		//console.log(cond)//cond name
+		//console.log(ifTrue)
+		//console.log(ifFalse)
+
+		//console.log(aThis[objRef].GetFlag(cond))
+		if(aThis[objRef].GetFlag(cond) === 'true') {
+			//run ifTrue
+			for(let a in ifTrue){
+				//console.log(ifTrue);
+				//console.log(a);
+				//console.log(ifTrue[a]);
+				for(let b in ifTrue[a]){
+					AThisObjMethod(a,b,ifTrue[a][b]);
+				}
+			}
+		} else if (aThis[objRef].GetFlag(cond) === 'false' || !aThis[objRef].GetFlag(cond)) {
+			//run ifFalse
+			for(let a in ifFalse){
+				//console.log(ifFalse);
+				//console.log(a);//this.object name should match objRef
+				//console.log(ifFalse[a]);//method w/ params
+				for(let b in ifFalse[a]){
+					AThisObjMethod(a,b,ifFalse[a][b]);
+				}
+			}
+		}
+
+	}
+
+	const SetFlag = ({flag, value}) => {
+		npc[flag] = value;
+		//console.log(flag);
+		//console.log(core[flag]);
+	}
+
+	const GetFlag = (varName) => {
+		//console.log(varName)
+		//console.log(core[varName])
+		return npc[varName];
+	}
+
+return {npc, Spawn, Despawn, EnableSpeech, DisableSpeech, Speak, NextPage, ResetBook, Click, Jump, SelectJump, AThisObjMethod, IfElse, SetFlag, GetFlag}
 }
 
 //
@@ -2728,14 +2776,14 @@ const mat4 = {src: './assets/img/vwave/4.jpg', shader: "flat", color: "#FFFFFF",
 //Player
 //Works with Swap-Controls component which needs to be integrated
 this.playerRigData = {
-entity: 'PreAdded',
 data:'Player Base',
 id:'playerRig',
+entity: 'preAdded',
 sources: false,
 text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1},
-material: {shader: "standard", color: "#228da7", opacity: 1},
-position: new THREE.Vector3(0,0,0),
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0.5),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -2746,9 +2794,9 @@ components: {
 },};
 
 this.cameraData = {
-entity: 'PreAdded',
 data:'Camera Entity',
 id:'camera',
+entity: 'preAdded',
 sources: false,
 text: false,
 geometry: false,
@@ -2939,6 +2987,31 @@ components: {visible: false},
 };
 
 //
+//Menu
+
+//Menu Button Base
+this.menuBaseData = {
+data:'menu part',
+id:'menuBaseTemp',
+sources:false,
+text: {value:'Hmmm...', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.04, width: 0.4, height: 0.15},
+material: {shader: "standard", color: "#c1664b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#c1664b", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{
+click1:{property: 'scale', from: '1 1 1', to: '1.05 1.05 1.05', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+click2:{property: 'material.emissiveIntensity', from: '0.6',to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera',
+},
+};
+
+//
 //Companion Hamburger Menu Dude Data
 this.hamCompData = {
 data:'HAM',
@@ -2967,6 +3040,23 @@ eventrun:{event: 'testEventHit',cursorObj: 'hamComp', method: 'FuseClickRun', pa
 
 //
 //NPC
+this.npc0Data = {
+data:'NPC 0',
+id:'npc0',
+sources: false,
+text: {value:'^-^', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
+position: new THREE.Vector3(0.3,1,-0.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.4, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}  },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera', 
+},
+};
 this.npc1Data = {
 data:'NPC 1',
 id:'npc1',
@@ -3020,6 +3110,24 @@ components: {
 ['look-at']:'#camera', },
 };
 
+//Sound Testing
+this.soundTestingData = {
+data:'Sound Testing',
+id:'soundTesting',
+sources: false,
+sound: {src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['sound','a-ent'],
+components: false,
+};
+
 //
 //Details & Prompt
 
@@ -3055,7 +3163,6 @@ mixins: false,
 classes: ['clickable','a-ent'],
 components: {detailprompt:{type: 'detail'}},
 };
-
 
 //
 //Carousel
@@ -3159,7 +3266,23 @@ mixins: false,
 classes: ['clickable','a-ent'],
 components: false,
 };
-//NPC 
+//NPC
+this.npc0TextBubbleData = {
+data:'npc text bubble on top',
+id:'npc0TextBubble',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.45, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.15},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.25,0.25,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera',},
+};
 this.npc1TextBubbleData = {
 data:'npc text bubble on top',
 id:'npc1TextBubble',
@@ -3194,31 +3317,6 @@ components: {
 };
 
 //
-//Menu
-
-//Menu Button Base
-this.menuBaseData = {
-data:'menu part',
-id:'menuBaseTemp',
-sources:false,
-text: {value:'Hmmm...', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
-geometry: {primitive: 'box', depth: 0.04, width: 0.4, height: 0.15},
-material: {shader: "standard", color: "#c1664b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#c1664b", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{
-click1:{property: 'scale', from: '1 1 1', to: '1.05 1.05 1.05', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
-click2:{property: 'material.emissiveIntensity', from: '0.6',to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
-},
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-['look-at']:'#camera',
-},
-};
-
-//
 //Environment
 
 //Floor
@@ -3227,7 +3325,7 @@ components: {
 //Node Floor
 this.nodeFloorData = {
 data:'full floor',
-id:'nodeFloorCore',
+id:'nodeFloor',
 sources:false,
 text: false,
 geometry: {primitive: 'sphere', radius: 50, segmentsWidth: 10, segmentsHeight: 10, phiLength: 180},
@@ -3279,9 +3377,9 @@ components: false,
 
 //3GradDualSky
 this.skyGradData = {
-entity: 'a-sky',
 data: 'sky gradient',
 id: 'skyGrad',
+entity: 'a-sky',
 sources: false,
 text: false,
 geometry: false,
@@ -3295,9 +3393,9 @@ classes: ['a-ent'],
 components: false,
 };
 this.skyStarAlphaData = {
-entity: 'a-sky',
 data: 'sky alpha',
 id: 'skyStarAlpha',
+entity: 'a-sky',
 sources: false,
 text: false,
 geometry: false,
@@ -3313,9 +3411,9 @@ components: false,
 
 //Cosmic Sun 
 this.skyCosmicSunData = {
-entity: 'a-sky',
 data:'background 1',
 id:'skyCosmicSun',
+entity: 'a-sky',
 sources:false,
 text: false,
 geometry: false,
@@ -3329,137 +3427,65 @@ classes: ['a-ent'],
 components: false,
 };
 
-
 //
-//Overview of Auxl Features Book
+//NPC Speech
 
-//page1Data
-this.pageOverview1Data = {
+//NPC 0 Pages
+this.npc0BookTestPage1Data = {
 info:{
-id:'pageOverview1Data',
-description:'An overview of the features and abilities of the Auxl system.',
-tags:'intro, tutorial, overview, auxl, features',
+id:'npc0BookTestPage1',
+description:'A basic example of a NPC with Speech.',
+tags:'npc0',
 nextPage: null,
 prevPage: null,
 timeline:'linear',
 },
 timeline0:{
-textBubble: {Start: null, DisplaySpeech: {role: 'Dev', speech: 'Welcome to the Auxl Intro Book!'}},
+npc0:{Speak:{role: 'Dev', speech:'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac metus sodales, rhoncus tellus at, pretium mi.'}, SetFlag:{flag: 'testVar', value: 'true'},},
 },
 timeline1:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'Auxl is a Javascript Scripting System and Library.'}},
+npc0:{IfElse: {npc0:{cond: 'testVar',
+ifTrue: {
+npc0:{Speak:{role: 'Dev', speech:'Is True'}},},
+ifFalse: {
+npc0:{Speak:{role: 'Dev', speech:'Is False'}},},}}},
 },
 timeline2:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'The library holds collections of presets from entities, materials, scenes and more.'}},
+npc0:{Speak:{role: 'Dev', speech:'Jump to Text section.'}, SelectJump:[['Answer 1','timeline3'], ['Answer 2','timeline4'], ['Answer 3','timeline5']]},
 },
 timeline3:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'The entries support the object scripting system which itself controls the scene and all assets within it.'}},
+npc0:{Speak:{role: 'Dev', speech:'Jumped to the Answer 1 section.'}, Jump: {timeline: 'timeline6'}},
 },
 timeline4:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'Like the one controlling this scene. Currently just text, but let\'s spice it up a bit next.'}},
+npc0:{Speak:{role: 'Dev', speech:'Jumped to the Answer 2 section.'}, Jump: {timeline: 'timeline6'}},
 },
 timeline5:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'BAM!'}},
-skyStarLayer:{AddAllToScene: null},
-fullFloorLayer:{AddAllToScene: null},
-hamDudeCore:{ChangeSelf: {property: 'text', value: {value: '0_0'}}},
+npc0:{Speak:{role: 'Dev', speech:'Jumped to the Answer 3 section.'}},
 },
 timeline6:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'A multi-layered core floor, an animated multi-layered core a-sky and an animated entity multi-instruction spawn. Not bad.'}},
+npc0:{Speak:{role: 'Dev', speech:'Nullam sed ante a velit porttitor semper. Donec quis lacus a tellus interdum venenatis.'}},
 },
 timeline7:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'What is given can of course be taken. Ready to zap the cube...'}},
+npc0:{Speak:{role: 'Dev', speech:'End and Restart'}},
 },
 timeline8:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'Shazam!'}},
+npc0: {ResetBook: true},
 },
-timeline9:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'All scene objects start as a set of data in Object format regarding required and optional entity settings.'}},
-},
-timeline10:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'That data is the turned into a Core which gives it a basic set of powers like being able to add/remove itself from the scene, change or even animate too.'}},
-},
-timeline11:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'For example that cube. We defined a data set of a big ol\'Cube and turned it into a Core. Lets add it to the scene as is.'}},
-},
-timeline12:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'Now we have added the cube, but lets change the color next...'}},
-},
-timeline13:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'Color coolified! Lets give it a spin now...'}},
-},
-timeline14:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'Twirlcadabra!'}},
-},
-timeline15:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'The first cube was added with all 3 instructions at the same time and here we have it part by part.'}},
-},
-timeline16:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'Now let\'s try clearing the everything spawned from our tracker.'}},
-},
-timeline17:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'And there goes the neighborhood.'}},
-bookOverviewAuxlFeatures: {ClearScene: null},
-},
-timeline18:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'Now choose 1 of 3 things to spawn'}},
-bookOverviewAuxlFeatures:{SelectJump:['timeline19', 'timeline20', 'timeline21']},
-},
-timeline19:{
-skyStarLayer:{AddAllToScene: null},
-bookOverviewAuxlFeatures:{Jump: {timeline: 'timeline22'}},
-},
-timeline20:{
-fullFloorLayer:{AddAllToScene: null},
-bookOverviewAuxlFeatures:{Jump: {timeline: 'timeline22'}},
-},
-timeline21:{
-},
-timeline22:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'Let us swap out cores for our textBubble to a new config.'}},
-},
-timeline23:{
-textBubble: {ChangeCoreArray:[{property: 'geometry', value: this.textBubbleSideData.geometry}, {property: 'position', value: this.textBubbleSideData.position}, {property: 'text', value: this.textBubbleSideData.text}], 
-DisplaySpeech: {role: 'Dev', speech: 'Transform Polygons!'}},
-},
-timeline24:{
-textBubble: {ChangeCoreArray:[{property: 'geometry', value: this.textBubbleTopData.geometry}, {property: 'position', value: this.textBubbleTopData.position}, {property: 'text', value: this.textBubbleTopData.text}], 
-DisplaySpeech: {role: 'Dev', speech: 'Transform Polygons Again!'}},
-},
-timeline25:{
-textBubble: {ChangeCoreArray:[{property: 'geometry', value: this.textBubbleBottomData.geometry}, {property: 'position', value: this.textBubbleBottomData.position}, {property: 'text', value: this.textBubbleBottomData.text}], 
-DisplaySpeech: {role: 'Dev', speech: '...Okay go back...'}},
-},
-timeline26:{
-textBubble: {DisplaySpeech: {role: 'Dev', speech: 'Now we will restart back to the beginning...'}},
-},
-timeline27:{
-textBubble: {KillStop: null},
-bookOverviewAuxlFeatures: {Restart: null},
-},
-
-
-
 
 };
-
-//bookData
-this.bookOverviewAuxlFeaturesData = {
+//NPC 0 Book
+this.npc0BookTestData = {
 info:{
-id:'bookOverviewAuxlFeatures',
-description:'An overview of the features and abilities of the Auxl system.',
-tags:'intro, tutorial, overview, auxl, features',
+id:'npc0BookTest',
+description:'A basic example of a NPC.',
+tags:'npc',
 timeline: 'linear',
 },
 //pages
 pages:{
-page0: this.pageOverview1Data,
+page0: this.npc0BookTestPage1Data,
 },
 };
-
-
-//
-//NPC Speech Test
 
 //NPC 1 Pages
 this.npc1BookTestPage1Data = {
@@ -3526,7 +3552,7 @@ timeline17:{
 npc1:{Speak:{role: 'Ham', speech:'Integer at suscipit turpis. Mauris dignissim orci at iaculis malesuada.'}},
 },
 timeline18:{
-npc1:{Speak:{role: 'Ham', speech:'Jump to Text section.'}, SelectJump:['timeline19', 'timeline20', 'timeline21']},
+npc1:{Speak:{role: 'Ham', speech:'Jump to Text section.'}, SelectJump:[['Timeline 19','timeline19'], ['Timeline 20','timeline20'], ['Timeline 21','timeline21']]},
 },
 timeline19:{
 npc1:{Speak:{role: 'Ham', speech:'timeline19'}, Jump: {timeline: 'timeline22'}},
@@ -3613,10 +3639,6 @@ pages:{
 page0: this.npc2BookTestPage1Data,
 },
 };
-
-/*
-hamComp:{IfElse: {cond: 'masterKey', ifTrue: {hamComp: {AddToScene: null},}, ifFalse: null}},
-*/
 
 //
 //Animations
@@ -3755,11 +3777,25 @@ zone:{
 skyStarLayer: {AddAllToScene: null},
 },
 start:{
-HamGirl:{Start: null},
+npc0:{Spawn: null},
+//HamGirl:{Start: null},
 eventTesting:{AddToScene: null, EnableDetail: 'This is a test detail to read.'},
+soundTesting:{AddToScene: null},
+
+nodeFloor:{
+IfElse: {cond: 'testVar',
+ifTrue: {
+nodeFloor:{AddToScene: null,ChangeSelf: {property: 'material', value: {color: '#90e024', emissive: '#90e024'}}},
+},
+ifFalse: {
+nodeFloor:{AddToScene: null,ChangeSelf: {property: 'material', value: {color: '#24a6e0', emissive: '#24a6e0'}}},
+},}
+},
+
 },
 delay:{
 5000:{eventTesting:{EmitEvent: 'customevent'},},
+5001:{soundTesting:{EmitEvent: 'playSound'},},
 },
 interval:{
 },
@@ -3770,7 +3806,7 @@ interaction:{
 click: {eventTesting: {ChangeSelf: {property: 'material', value: {color: '#24a6e0', emissive: '#24a6e0'}}},},
 },
 exit:{
-HamGirl:{Remove: null},
+//HamGirl:{Remove: null},
 },
 map:{
 data: this.zone0Data.zone0Node0In0,
@@ -3786,7 +3822,7 @@ sceneText: true,
 },
 zone:{},
 start:{
-npc1:{Spawn: null},
+//npc1:{Spawn: null},
 },
 delay:{
 },
@@ -3918,7 +3954,7 @@ sceneText: true,
 },
 zone:{},
 start:{
-npc2:{Spawn: null},
+//npc2:{Spawn: null},
 },
 delay:{},
 interval:{},
@@ -3985,7 +4021,7 @@ this.textBubbleTop = Core(this.textBubbleTopData);
 //Environment
 
 //Node Floor
-this.nodeFloorCore = Core(this.nodeFloorData);
+this.nodeFloor = Core(this.nodeFloorData);
 
 //Full Floor
 this.fullFloor = Core(this.fullFloorData);
@@ -4013,6 +4049,10 @@ this.HamGirl = HamMenu('HamGirl',this.hamComp);
 
 //
 //NPCs
+this.npc0Core = Core(this.npc0Data);
+this.npc0TextBubble = Core(this.npc0TextBubbleData);
+this.npc0 = NPC(this.npc0Core, this.npc0BookTestData, this.npc0TextBubble);
+
 this.npc1Core = Core(this.npc1Data);
 this.npc1TextBubble = Core(this.npc1TextBubbleData);
 this.npc1 = NPC(this.npc1Core, this.npc1BookTestData, this.npc1TextBubble);
@@ -4024,7 +4064,10 @@ this.npc2 = NPC(this.npc2Core, this.npc2BookTestData, this.npc2TextBubble);
 //
 //Scripted Events Testing Object
 this.eventTesting = Core(this.eventTestingData);
-//this.hamCompClick = ClickTest(this.hamComp);
+//this.eventTestingClick = ClickTest(this.eventTesting);
+
+//Sound
+this.soundTesting = Core(this.soundTestingData);
 
 //
 //World Atlas & Map
@@ -4044,7 +4087,6 @@ this.zone0Node1Out = SceneNode(this.zone0Node1OutData);
 this.zone0Node2Out = SceneNode(this.zone0Node2OutData);
 //Map Zone 0
 this.zone0 = MapZone(this.zone0Data);
-this.zone0.StartScene();
 
 //Zone 1
 //
@@ -4055,112 +4097,10 @@ this.zone1Node0In0 = SceneNode(this.zone1Node0In0Data);
 //Map Zone 1
 this.zone1 = MapZone(this.zone1Data);
 
-
 },//Init
 
 
 });//End of AUXL
-
-
-//
-//Dev | Desktop <-> VR Controller Control Swap Component
-AFRAME.registerComponent('swap-controls', {
-	dependencies: ['auxl'],
-//schema: {
-	//bar: {type: 'number'},
-	//baz: {type: 'string'}
-//},
-init: function () {
-//Do something when component first attached.
-//Called once when the component is initialized. Used to set up initial state and instantiate variables.
-const auxl = document.querySelector('a-scene').systems.auxl;
-const stickySwapControls = document.querySelector('#stickySwapControls');
-const player = document.querySelector('#player');
-const camera = document.querySelector('#camera');
-const cameraUI = document.querySelector('#cameraUI');
-const playerFloor = document.querySelector('#playerFloor');
-const mouseController = document.querySelector('#mouseController');
-const vrController = document.querySelector('#vrController');
-const vrControllerUI = document.querySelector('#vrControllerUI');
-//Default Controls
-let vrControls = false;
-
-function swapControls(){
-
-if(vrControls){
-	//VR to Desktop
-
-	//Disable VR Controls
-	//vrController visible to true
-	vrController.setAttribute('visible',false);
-	//vrControllerUI visible to true
-	vrControllerUI.setAttribute('visible',false);
-	//vrController cursor property
-	vrController.removeAttribute('cursor');
-	//vrController raycaster property
-	vrController.removeAttribute('raycaster');
-	//vrController laser-controls property
-	vrController.removeAttribute('laser-controls');
-
-	//Enable Desktop Controls
-	//Remove Desktop WASD Controls
-	player.setAttribute('wasd-controls',{enabled: 'true', acceleration: 25});
-	//Set mouseController to invisible
-	mouseController.setAttribute('visible',true);
-	//Set mouseController raycaster to false
-	mouseController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-	//Remove cursor attribute
-	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
-
-	//Set HTML UI
-	stickySwapControls.innerHTML = "Controls:Desktop";
-
-	//VR Controls are Off
-	vrControls = false;
-	//Update AUXL Player Controller
-	auxl.player.controls = 'desktop';
-} else {
-	//Desktop to VR
-
-	//Disable Desktop Controls
-	//Remove Desktop WASD Controls
-	player.removeAttribute('wasd-controls');
-	//Set mouseController to invisible
-	mouseController.setAttribute('visible',false);
-	//Set mouseController raycaster to false
-	mouseController.removeAttribute('raycaster');
-	//Remove cursor attribute
-	mouseController.removeAttribute('cursor');
-
-	//Enable VR Controls
-	//vrController visible to true
-	vrController.setAttribute('visible',true);
-	//vrControllerUI visible to true
-	vrControllerUI.setAttribute('visible',true);
-	//vrController raycaster property
-	vrController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
-	//vrController cursor property
-	vrController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController', mouseCursorStylesEnabled: 'true'});
-	//vrController laser-controls property
-	vrController.setAttribute('laser-controls',{hand: 'right'});
-
-	//Set HTML UI
-	stickySwapControls.innerHTML = "Controls:VR";
-
-	//VR Controls are On
-	vrControls = true;
-	//Update AUXL Player Controller
-	auxl.player.controls = 'vr';
-}
-
-
-}//End Swap Controls
-
-
-stickySwapControls.addEventListener('click', swapControls);
-
-    }//End Init
-});
 
 //
 //Dev - Detect Inputs
@@ -4533,124 +4473,47 @@ AFRAME.registerComponent('mouseuprun', {
 	}
 });
 
-
-/* SCRIPT
-
-Create an overview book as well as a book on each subject
-
-Hello and thank you for visiting!
-
-My digital name is Minty Crisp (irl you can call me Justin), it's nice to meet you.
-
-You can find more about me, if you are interested in supporting my work or interested in collaborating with me at mintycrisp.com .
-
-Today I will show something I've been dreaming up for a while as a way to create more interesting and dynamic XR scenes.
-
-The A-Frame UX Library v0.1 Engine or AUXL for short.
-
-AUXL provides a variety of critical object, scene and scenario building tools at the javascript level that allows for a more streamlined creation process.
-
-It's basically a Javascript scripting system and JSON structured data library with various UX add-ons built for the A-Frame XR renderer.
-
-The AUXL XR Engine is still very much a work in progress being released under the GNU GPLv3, but it's ready to be shared and tested while I continue improvements as well as additional features.
-
-To better understand what AUXL can currently do currently, I'll explain some of the important features we can see in action now.
-
-We'll start with the most basic function of the AUXL system which is creating in-scene objects.
-
-To create an in-scene object, we start with a Library Data Object.
-
-A Library Data Object is a JSON structured variable that contains all of the necessary information to spawn an object in-scene.
-
-It includes information such as ID, Settings, Geometry, Model, Material, Text, Position, Rotation, Scale, Animations, Mixins, Classes & Components.
-
-This structure allows for creating presets of objects as well as libraries of smaller data to mix and match for greater diversity and control.
-
-That set of information is then used to form a Library Core Object.
-
-The Library Core Object provides the vital functions like a spawn controller, the access to and editing of the object, object specific flag checks and settings as well as event support.
-
-That provides you with major core functions like core.AddToScene(), core.RemoveFromScene(), core.ChangeSelf(), core.Animate(), core.EmitEvent(), core.SetFlag(), core.GetFlag(), core.ClickRun(), etc...
-
-As well as minor support functions like core.GetEl() to connect with the object in-scene.
-
-The next step up from this single Core object is to combine multiple Cores into a Library Layered Object.
-
-We start from a single Parent Core and add additional children/grandchildren Cores to build out a more complex object.
-
-The layered object provides wrapped function access to control the Layer like a single object as well as accessing any individual parts.
-
-Functions like layer.AddAllToScene(), layer.RemoveAllFromScene(), layer.ChangeParent(), layer.ChangeAll(), layer.AnimateParent(), layer.AnimateAll(), layer.GetChild(), etc...
-
-With access to just these Cores and Layers, we can already start to build out an XR scene and provide some interactions.
-
-At this point we've basically got a Javascript Entity Spawner that creates A-Frame HTML entities with all our given properties.
-
-Combine these Core/Layer functions with any A-Frame components to give objects all the advanced controls you require and update them on the fly.
-
-Using this method of a JSON Data set, Core object and Layered object creation, we can build out a Library of objects to be used in our scenes and scenarios.
-
-From this Library of prebuilt objects, we can define a scene layout and event create a map to connect our scenes together.
-
-An individual area on a Map is called a Node Scene.
-
-The Node Scene defines the overall layout of the entire scene built from Cores and Layers.
-
-You can specify that objects do something at node start, after a delay, on interval, on interaction, on exit, etc...
-
-You have access to all the Core and Layer functions like spawning, despawning, animating, changing, etc...
-
-Additionaly, the Node Scene script allows you customize the object actions with If|If/Else conditional checking and flag setting.
-
-Connecting multiple Node Scenes, you can create a Zone Map that allows for travel like Scene Swapping.
-
-The Zone Map allows you to configure Core|Layer objects that would belong to a generalized area and wouldn't normally be swapped out when traveling between nodes unless you enter a new zone.
-
-Nodes and Zones can be used to build out maps of all complexities in addition to supporting If|If/Else conditional checking and flag setting for travel control.
-
-An example to better understand the concept is to think about if you wanted to recreate traveling between rooms within a House and then exiting the house to the outside world of the town you live in.
-
-The Zone would define the basic room shape and textures, but each node fills in all the room details.
-
-You start in the living room and a couch spawns, the wall changes to a window and move to a bedroom which despawns couch and adds a bed then changes another wall to a doorway.
-
-When you finally exit outside, all Zone walls and node objects despawn then the Outside zone takes over and adds your house, then street items as if you walked outside.
-
-That brings us up to Cores, Layers, Node Scenes and Zone Maps so far that we can script into a scenario.
-
-An important support function is the actual Player which is built from a Layered object to be an adjustable controller with swapping support for VR and non-VR use.
-
-The Player Layer rig has animations set up to assist in Scene Swapping without discomfort using various transitions too.
-
-Some basic UX features that add additional interaction ability and scene functions we have the ability to generate menus, an open/close detailed prompt and carousel image viewer.
-
-You can generate a Menu with a Prompt and Options for the player to choose from and have it execute what on selection.
-
-For example, we use a Menu to display all the Travel options that allow the player to move between Nodes and Zones.
-
-You can also add an open/closed detailed prompt to an object to access more info on it.
-
-As well as view images within a Carousel like view controller.
-
-Additionaly, in keeping with the idea of classic 2D sites that utilize a Hamburger Menu to control your website URL switching, you can also add a Hamburger Companion.
-
-The Companion allows the player access to a main menu. They can make setting changes, view info and otherwise assist in experiencing the XR world!
-
-And finally, we have a NPC like Book &amp; Page speech and interaction scripting system.
-
-The NPC like system allows you to define various speech scenarios you can interact with.
-
-The speech system also supports conditionals, flags, menus and jumps to provide a tree like conversation flow.
-
-That is a basic overview of all the current features provided by AUXL v0.1.
-
-
----------------------
-
-The ways to mix and match to create various XR scene
-
-With this set of features as is, I imagine various Visual Novel, Interactive Fiction, Exploration, Hidden Object and Puzzles games that are vastly easier to create with these set
-
-
-
+//External Components
+/*
+Look-At 
+https://github.com/supermedium/superframe/tree/master/components/look-at/ 
 */
+!function(e){function t(n){if(o[n])return o[n].exports;var i=o[n]={exports:{},id:n,loaded:!1};return e[n].call(i.exports,i,i.exports,t),i.loaded=!0,i.exports}var o={};return t.m=e,t.c=o,t.p="",t(0)}([function(e,t){var o=AFRAME.utils.debug,n=AFRAME.utils.coordinates,i=o("components:look-at:warn"),r=n.isCoordinates||n.isCoordinate;delete AFRAME.components["look-at"],AFRAME.registerComponent("look-at",{schema:{default:"0 0 0",parse:function(e){return r(e)||"object"==typeof e?n.parse(e):e},stringify:function(e){return"object"==typeof e?n.stringify(e):e}},init:function(){this.target3D=null,this.vector=new THREE.Vector3,this.cameraListener=AFRAME.utils.bind(this.cameraListener,this),this.el.addEventListener("componentinitialized",this.cameraListener),this.el.addEventListener("componentremoved",this.cameraListener)},update:function(){var e,t=this,o=t.data;return!o||"object"==typeof o&&!Object.keys(o).length?t.remove():"object"==typeof o?this.lookAt(new THREE.Vector3(o.x,o.y,o.z)):(e=t.el.sceneEl.querySelector(o),e?e.hasLoaded?t.beginTracking(e):e.addEventListener("loaded",function(){t.beginTracking(e)}):void i('"'+o+'" does not point to a valid entity to look-at'))},tick:function(){var e=new THREE.Vector3;return function(t){var o=this.target3D;o&&(o.getWorldPosition(e),this.lookAt(e))}}(),remove:function(){this.el.removeEventListener("componentinitialized",this.cameraListener),this.el.removeEventListener("componentremoved",this.cameraListener)},beginTracking:function(e){this.target3D=e.object3D},cameraListener:function(e){e.detail&&"camera"===e.detail.name&&this.update()},lookAt:function(e){var t=this.vector,o=this.el.object3D;this.el.getObject3D("camera")?t.subVectors(o.position,e).add(o.position):t.copy(e),o.lookAt(t)}})}]);
+
+/* //threeColorGradientShader shader
+https://github.com/tlaukkan/aframe-three-color-gradient-shader
+if (typeof AFRAME === 'undefined') {
+    throw new Error('Component attempted to register before AFRAME was available.');
+}*/
+AFRAME.registerShader('threeColorGradientShader', {
+    schema: {
+        topColor: {type: 'color', default: '1 0 0', is: 'uniform'},
+        middleColor: {type: 'color', default: '0 1 0', is: 'uniform'},
+        bottomColor: {type: 'color', default: '0 0 1', is: 'uniform'}
+    },
+
+    vertexShader: [
+        'varying vec3 vWorldPosition;',
+        'void main() {',
+        ' vec4 worldPosition = modelMatrix * vec4( position, 1.0 );',
+        ' vWorldPosition = worldPosition.xyz;',
+        ' gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );',
+        '}'
+    ].join('\n'),
+
+    fragmentShader: [
+        'uniform vec3 bottomColor;',
+        'uniform vec3 middleColor;',
+        'uniform vec3 topColor;',
+        'uniform float offset;',
+        'varying vec3 vWorldPosition;',
+        'void main() {',
+        ' float h = normalize( vWorldPosition ).y;',
+        ' if (h>0.0) {',
+        '   gl_FragColor = vec4( mix( middleColor, topColor, max( pow( max(h, 0.0 ), 0.8 ), 0.0 ) ), 1.0 );',
+        ' } else {',
+        '   gl_FragColor = vec4( mix( middleColor, bottomColor, max( pow( max(-h, 0.0 ), 0.8 ), 0.0 ) ), 1.0 );',
+        ' }',
+        '}'
+    ].join('\n')
+});

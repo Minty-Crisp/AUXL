@@ -13,14 +13,16 @@ built specifically for use with [A-Frame](https://github.com/aframevr/)
 - NPC Avatar Book Progressive Text Tree Viewer with Conditionals/Flag Support & Scene Tracking
 - 3D Companion (Hamburger Menu) Control Settings
 - VR/2D Mode Player w/ Scene Transitions Animations
+- HTML System Menu to Start Experience, Adjust Controls|Audio & View Instructions
 - Misc : Color Theory Swatch Generator
-- Components : Dev Debug (swap-controls & detect-input), attach and support interaction event components
+- Components : detect-input(dev debug), attach and support interaction event components
 
 # AUXL v0.1 is still an in progress build!
-Further testing, minor fixes and updates still required for a solid base version including basic documentation and a few scenario examples as well.
+Further testing, minor fixes and visual polish are still needed for a solid base version including basic documentation and a few scenario examples as well.
 
 # v0.2+ Roadmap :
 - v0.1 System Improvements
+- Seperation of System & Data
 - Controls Abstraction Layer
 - 3D Object Inspection
 - More Object/Image Galleries
