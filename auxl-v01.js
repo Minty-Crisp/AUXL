@@ -3021,7 +3021,7 @@ sources: false,
 text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
-position: new THREE.Vector3(0.3,1,-0.5),
+position: new THREE.Vector3(1,1,-0.25),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.4, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}  },
@@ -3092,6 +3092,23 @@ components: {
 ['look-at']:'#camera', 
 },
 };
+this.npcMintyData = {
+data:'NPC Minty',
+id:'npcMinty',
+sources: false,
+text: {value:'^-^', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
+position: new THREE.Vector3(0,1.1,-0.75),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.15, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}  },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera', 
+},
+};
 
 //Testing Object for Interactions and Events
 this.eventTestingData = {
@@ -3101,7 +3118,7 @@ sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {shader: "standard", color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(-0.5,1.25,-0.5),
+position: new THREE.Vector3(-0.75,1.25,-0.5),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}  },
@@ -3316,6 +3333,22 @@ classes: ['clickable','a-ent'],
 components: {
 ['look-at']:'#camera',},
 };
+this.npcMintyTextBubbleData = {
+data:'npc text bubble on top',
+id:'npcMintyTextBubble',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.7, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.75, height: 0.15},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.25,0.25,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera',},
+};
 
 //
 //Environment
@@ -3431,12 +3464,12 @@ components: false,
 //
 //NPC Speech
 
-//NPC 0 Pages
+//NPC 0
 this.npc0BookTestPage1Data = {
 info:{
 id:'npc0BookTestPage1',
 description:'A basic example of a NPC with Speech.',
-tags:'npc0',
+tags:'npc',
 nextPage: null,
 prevPage: null,
 timeline:'linear',
@@ -3474,7 +3507,6 @@ npc0: {ResetBook: true},
 },
 
 };
-//NPC 0 Book
 this.npc0BookTestData = {
 info:{
 id:'npc0BookTest',
@@ -3488,7 +3520,7 @@ page0: this.npc0BookTestPage1Data,
 },
 };
 
-//NPC 1 Pages
+//NPC 1
 this.npc1BookTestPage1Data = {
 info:{
 id:'npc1BookTestPage1',
@@ -3587,7 +3619,6 @@ npc1: {Restart: null},
 },
 
 };
-//NPC 1 Book
 this.npc1BookTestData = {
 info:{
 id:'npc1BookTest',
@@ -3601,12 +3632,12 @@ page0: this.npc1BookTestPage1Data,
 },
 };
 
-//NPC 2 Pages
+//NPC 2
 this.npc2BookTestPage1Data = {
 info:{
 id:'npc2BookTestPage1',
 description:'A basic example of a NPC with Speech.',
-tags:'npc1',
+tags:'npc',
 nextPage: null,
 prevPage: null,
 timeline:'linear',
@@ -3627,7 +3658,6 @@ timeline3:{
 npc2: {ResetBook: true},
 },
 };
-//NPC 2 Book
 this.npc2BookTestData = {
 info:{
 id:'npc2BookTest',
@@ -3638,6 +3668,195 @@ timeline: 'linear',
 //pages
 pages:{
 page0: this.npc2BookTestPage1Data,
+},
+};
+
+//NPC Minty
+this.npcMintyBookTestPage1Data = {
+info:{
+id:'npcMintyBookTestPage1',
+description:'An explainer NPC to show off the AUXL system.',
+tags:'npc',
+nextPage: null,
+prevPage: null,
+timeline:'linear',
+},
+timeline0:{
+npcMinty:{Speak:{role: 'Minty', speech:'Hello and thank you for visiting!'}},
+},
+timeline1:{
+npcMinty:{Speak:{role: 'Minty', speech:'My digital name is Minty Crisp (irl you can call me Justin), it\'s nice to meet you.'}},
+},
+timeline2:{
+npcMinty:{Speak:{role: 'Minty', speech:'You can find more about me, if you are interested in supporting my work or interested in collaborating with me at mintycrisp.com .'}},
+},
+timeline3:{
+npcMinty:{Speak:{role: 'Minty', speech:'Today I will show something I\'ve been dreaming up for a while as a way to create more interesting and dynamic XR scenes.'}},
+},
+timeline4:{
+npcMinty:{Speak:{role: 'Minty', speech:'The A-Frame UX Library v0.1 Engine or AUXL for short.'}},
+},
+timeline5:{
+npcMinty:{Speak:{role: 'Minty', speech:'AUXL provides a variety of critical object, scene and scenario building tools at the javascript level that allows for a more streamlined creation process.'}},
+},
+timeline6:{
+npcMinty:{Speak:{role: 'Minty', speech:'It\'s basically a Javascript scripting system and JSON structured data library with various UX add-ons built for the A-Frame XR renderer.'}},
+},
+timeline7:{
+npcMinty:{Speak:{role: 'Minty', speech:'The AUXL XR Engine is still very much a work in progress being released under the MIT license, but it\'s ready to be shared and tested while I continue improvements as well as additional features.'}},
+},
+timeline8:{
+npcMinty:{Speak:{role: 'Minty', speech:'To better understand what AUXL can currently do currently, I\'ll explain some of the important features we can see in action now.'}},
+},
+timeline9:{
+npcMinty:{Speak:{role: 'Minty', speech:'We\'ll start with the most basic function of the AUXL system which is creating in-scene objects.'}},
+},
+timeline10:{
+npcMinty:{Speak:{role: 'Minty', speech:'To create an in-scene object, we start with a Library Data Object.'}},
+},
+timeline11:{
+npcMinty:{Speak:{role: 'Minty', speech:'A Library Data Object is a JSON structured variable that contains all of the necessary information to spawn an object in-scene.'}},
+},
+timeline12:{
+npcMinty:{Speak:{role: 'Minty', speech:'It includes information such as ID, Settings, Geometry, Model, Material, Text, Position, Rotation, Scale, Animations, Mixins, Classes & Components.'}},
+},
+timeline13:{
+npcMinty:{Speak:{role: 'Minty', speech:'This structure allows for creating presets of objects as well as libraries of smaller data to mix and match for greater diversity and control.'}},
+},
+timeline14:{
+npcMinty:{Speak:{role: 'Minty', speech:'That set of information is then used to form a Library Core Object.'}},
+},
+timeline15:{
+npcMinty:{Speak:{role: 'Minty', speech:'The Library Core Object provides the vital functions like a spawn controller, the access to and editing of the object, object specific flag checks and settings as well as event support.'}},
+},
+timeline16:{
+npcMinty:{Speak:{role: 'Minty', speech:'That provides you with major core functions like core.AddToScene(), core.RemoveFromScene(), core.ChangeSelf(), core.Animate(), core.EmitEvent(), core.SetFlag(), core.GetFlag(), core.ClickRun(), etc...'}},
+},
+timeline17:{
+npcMinty:{Speak:{role: 'Minty', speech:'As well as minor support functions like core.GetEl() to connect with the object in-scene.'}},
+},
+timeline18:{
+npcMinty:{Speak:{role: 'Minty', speech:'The next step up from this single Core object is to combine multiple Cores into a Library Layered Object.'}},
+},
+timeline19:{
+npcMinty:{Speak:{role: 'Minty', speech:'We start from a single Parent Core and add additional children/grandchildren Cores to build out a more complex object.'}},
+},
+timeline20:{
+npcMinty:{Speak:{role: 'Minty', speech:'The layered object provides wrapped function access to control the Layer like a single object as well as accessing any individual parts.'}},
+},
+timeline21:{
+npcMinty:{Speak:{role: 'Minty', speech:'Functions like layer.AddAllToScene(), layer.RemoveAllFromScene(), layer.ChangeParent(), layer.ChangeAll(), layer.AnimateParent(), layer.AnimateAll(), layer.GetChild(), etc...'}},
+},
+timeline22:{
+npcMinty:{Speak:{role: 'Minty', speech:'With access to just these Cores and Layers, we can already start to build out an XR scene and provide some interactions.'}},
+},
+timeline23:{
+npcMinty:{Speak:{role: 'Minty', speech:'At this point we\'ve basically got a Javascript Entity Spawner that creates A-Frame HTML entities with all our given properties.'}},
+},
+timeline24:{
+npcMinty:{Speak:{role: 'Minty', speech:'Combine these Core/Layer functions with any A-Frame components to give objects all the advanced controls you require and update them on the fly.'}},
+},
+timeline25:{
+npcMinty:{Speak:{role: 'Minty', speech:'Using this method of a JSON Data set, Core object and Layered object creation, we can build out a Library of objects to be used in our scenes and scenarios.'}},
+},
+timeline26:{
+npcMinty:{Speak:{role: 'Minty', speech:'From this Library of prebuilt objects, we can define a scene layout and even create a map to connect our scenes together.'}},
+},
+timeline27:{
+npcMinty:{Speak:{role: 'Minty', speech:'An individual area on a Map is called a Node Scene.'}},
+},
+timeline28:{
+npcMinty:{Speak:{role: 'Minty', speech:'The Node Scene defines the overall layout of the entire scene built from Cores and Layers.'}},
+},
+timeline29:{
+npcMinty:{Speak:{role: 'Minty', speech:'You can specify that objects do something at node start, after a delay, on interval, on interaction, on event, on exit, etc...'}},
+},
+timeline30:{
+npcMinty:{Speak:{role: 'Minty', speech:'You have access to all the Core and Layer functions like spawning, despawning, animating, changing, etc...'}},
+},
+timeline31:{
+npcMinty:{Speak:{role: 'Minty', speech:'Additionaly, the Node Scene script allows you customize the object actions with If|If/Else conditional checking and flag setting.'}},
+},
+timeline32:{
+npcMinty:{Speak:{role: 'Minty', speech:'Connecting multiple Node Scenes, you can create a Zone Map that allows for travel like Scene Swapping.'}},
+},
+timeline33:{
+npcMinty:{Speak:{role: 'Minty', speech:'The Zone Map allows you to configure Core|Layer objects that would belong to a generalized area and wouldn\'t normally be swapped out when traveling between nodes unless you enter a new zone.'}},
+},
+timeline34:{
+npcMinty:{Speak:{role: 'Minty', speech:'Nodes and Zones can be used to build out maps of all complexities in addition to supporting If|If/Else conditional checking and flag setting for travel control.'}},
+},
+timeline35:{
+npcMinty:{Speak:{role: 'Minty', speech:'An example to better understand the concept is to think about if you wanted to recreate traveling between rooms within a House and then exiting the house to the outside world of the town you live in.'}},
+},
+timeline36:{
+npcMinty:{Speak:{role: 'Minty', speech:'The Zone would define the basic room shape and textures, but each node fills in all the room details.'}},
+},
+timeline37:{
+npcMinty:{Speak:{role: 'Minty', speech:'You start in the living room and a couch spawns, the wall changes to a window and move to a bedroom which despawns couch and adds a bed then changes another wall to a doorway.'}},
+},
+timeline38:{
+npcMinty:{Speak:{role: 'Minty', speech:'When you finally exit outside, all Zone walls and node objects despawn then the Outside zone takes over and adds your house, then street items as if you walked outside.'}},
+},
+timeline39:{
+npcMinty:{Speak:{role: 'Minty', speech:'That brings us up to Cores, Layers, Node Scenes and Zone Maps so far that we can script into a scenario.'}},
+},
+timeline40:{
+npcMinty:{Speak:{role: 'Minty', speech:'An important support function is the actual Player which is built from a Layered object to be an adjustable controller with swapping support for VR and non-VR use.'}},
+},
+timeline41:{
+npcMinty:{Speak:{role: 'Minty', speech:'The Player Layer rig has animations set up to assist in Scene Swapping without discomfort using various transitions too.'}},
+},
+timeline42:{
+npcMinty:{Speak:{role: 'Minty', speech:'Some basic UX features that add additional interaction ability and scene functions we have the ability to generate menus, an open/close detailed prompt and carousel image viewer.'}},
+},
+timeline43:{
+npcMinty:{Speak:{role: 'Minty', speech:'You can generate a Menu with a Prompt and Options for the player to choose from and have it execute what on selection.'}},
+},
+timeline44:{
+npcMinty:{Speak:{role: 'Minty', speech:'For example, we use a Menu to display all the Travel options that allow the player to move between Nodes and Zones.'}},
+},
+timeline45:{
+npcMinty:{Speak:{role: 'Minty', speech:'You can also add an open/closed detailed prompt to an object to access more info on it.'}},
+},
+timeline46:{
+npcMinty:{Speak:{role: 'Minty', speech:'As well as view images within a Carousel like view controller.'}},
+},
+timeline47:{
+npcMinty:{Speak:{role: 'Minty', speech:'Additionaly, in keeping with the idea of classic 2D sites that utilize a Hamburger Menu to control your website URL switching, you can also add a Hamburger Companion.'}},
+},
+timeline48:{
+npcMinty:{Speak:{role: 'Minty', speech:'The Companion allows the player access to a main menu. They can make setting changes, view info and otherwise assist in experiencing the XR world!'}},
+},
+timeline49:{
+npcMinty:{Speak:{role: 'Minty', speech:'And finally, we have a NPC like Book|Page speech and interaction scripting system.'}},
+},
+timeline50:{
+npcMinty:{Speak:{role: 'Minty', speech:'The NPC like system allows you to define various speech scenarios you can interact with.'}},
+},
+timeline51:{
+npcMinty:{Speak:{role: 'Minty', speech:'The speech system also supports conditionals, flags, menus and jumps to provide a tree like conversation flow.'}},
+},
+timeline52:{
+npcMinty:{Speak:{role: 'Minty', speech:'That is a basic overview of all the current features provided by AUXL v0.1.'}},
+},
+timeline52:{
+npcMinty:{Speak:{role: 'Minty', speech:'Thank you for taking the time to visit and learn!'}},
+},
+timeline54:{
+npcMinty: {ResetBook: true},
+},
+};
+this.npcMintyBookTestData = {
+info:{
+id:'npcMintyBookTest',
+description:'An explainer NPC to show off the AUXL system.',
+tags:'npc',
+timeline: 'linear',
+},
+//pages
+pages:{
+page0: this.npcMintyBookTestPage1Data,
 },
 };
 
@@ -3778,6 +3997,7 @@ zone:{
 skyStarLayer: {AddAllToScene: null},
 },
 start:{
+npcMinty:{Spawn:null},
 HamGirl:{Start: null},
 eventTesting:{AddToScene: null, EnableDetail: 'This is a test detail to read.'},
 soundTesting:{AddToScene: null},
@@ -3854,7 +4074,7 @@ map:{
 data: this.zone0Data.zone0Node0Out,
 },
 };
-//Outdoor Node 1 - Connects to all 2nd zone
+//Outdoor Node 1
 this.zone0Node1OutData = {
 info:{
 id:'zone0Node1Out',
@@ -3877,7 +4097,7 @@ map:{
 data: this.zone0Data.zone0Node1Out,
 },
 };
-//Outdoor Node 2 - Locked
+//Outdoor Node 2
 this.zone0Node2OutData = {
 info:{
 id:'zone0Node2Out',
@@ -3949,7 +4169,7 @@ sceneText: true,
 },
 zone:{},
 start:{
-//npc2:{Spawn: null},
+npc2:{Spawn: null},
 },
 delay:{},
 interval:{},
@@ -4055,6 +4275,11 @@ this.npc1 = NPC(this.npc1Core, this.npc1BookTestData, this.npc1TextBubble);
 this.npc2Core = Core(this.npc2Data);
 this.npc2TextBubble = Core(this.npc2TextBubbleData);
 this.npc2 = NPC(this.npc2Core, this.npc2BookTestData, this.npc2TextBubble);
+
+//Minty|Overview
+this.npcMintyCore = Core(this.npcMintyData);
+this.npcMintyTextBubble = Core(this.npcMintyTextBubbleData);
+this.npcMinty = NPC(this.npcMintyCore, this.npcMintyBookTestData, this.npcMintyTextBubble);
 
 //
 //Scripted Events Testing Object
