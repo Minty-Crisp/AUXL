@@ -135,6 +135,10 @@ transform: translate(-50%, -50%);
 border-radius: 15%;
 }
 
+#vrHandButton{
+display: none;
+}
+
 :root {
     --active-brightness: 0.45;
     --border-radius: 5px;

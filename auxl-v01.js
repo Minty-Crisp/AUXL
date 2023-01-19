@@ -2818,6 +2818,7 @@ const ObjsGenRing = (data) => {
 	//gen.otherTypeRadius
 	//gen.yPos
 	//gen.ranYPos
+	//gen.yPosFlex
 	//gen.ranScaleX
 	//gen.ranScaleY
 	//gen.ranScaleZ
@@ -2908,15 +2909,19 @@ const ObjsGenRing = (data) => {
 			//Scale adjustment needs affect gen.sameTypeRadius
 			//Need to spawn equal amount in each quadrant?
 
+			if(gen.ranYPos){
+				posY = Math.random() * (gen.yPosFlex - gen.yPos) + gen.yPos;
+			}
+
 			//Position
-			positionVec3 = randomPosition(gen.outerRingRadius, gen.yPos);
+			positionVec3 = randomPosition(gen.outerRingRadius, posY);
 			objData.position = positionVec3;
 
 			//CHANGE CONDITION TO BE CHECKABLE TO AVOID INFINITE LOOPS
 			checkAllData: while (true) {
 				if(a === 0){
 					if(distance(positionVec3.x,positionVec3.z,0,0) < gen.innerRingRadius) {
-						positionVec3 = randomPosition(gen.outerRingRadius, gen.yPos);
+						positionVec3 = randomPosition(gen.outerRingRadius, posY);
 						continue checkAllData;
 					} else {
 						objData.position = positionVec3;
@@ -2925,7 +2930,7 @@ const ObjsGenRing = (data) => {
 				for(let z=0; z < all.length; z++) {
 					//Check the distance, if too close, change and repeat
 					if(distance(positionVec3.x, positionVec3.z, all[z].core.position.x, all[z].core.position.z) < gen.sameTypeRadius || distance(positionVec3.x,positionVec3.z,0,0) < gen.innerRingRadius) {
-						positionVec3 = randomPosition(gen.outerRingRadius, gen.yPos);
+						positionVec3 = randomPosition(gen.outerRingRadius, posY);
 						continue checkAllData;
 					} else {
 						objData.position = positionVec3;
@@ -4257,7 +4262,8 @@ innerRingRadius: 3,
 sameTypeRadius: 1,
 otherTypeRadius: 1,
 yPos: aThis.spawnTestingData.geometry.height/2,
-ranYPos: false,
+ranYPos: true,
+yPosFlex: 1,
 ranScaleX: true,
 ranScaleY: true,
 ranScaleZ: true,
