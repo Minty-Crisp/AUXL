@@ -8,12 +8,13 @@ built specifically for use with [A-Frame](https://github.com/aframevr/)
 - Datas, Cores & Layers for in-scene object entities with Details Prompt & Scene Tracking
 - Menu Generator w/ Scene Tracking
 - Carousel Image Viewer w/ Scene Tracking
+- Multi Object Randomized Environment Spawner w/ Scene Tracking
 - Map Nodes & Zones for Dynamic Scene Swapping with Locks & Keys
 - Scene Swap with Start, Delay, Interval, Interaction, Event & Exit checks with Conditionals/Flag Support for Cores, Layers and Special Objects
 - NPC Avatar Book Progressive Text Tree Viewer with Conditionals/Flag Support & Scene Tracking
 - 3D Companion (Hamburger Menu) Control Settings
 - VR/2D Mode Player w/ Scene Transitions Animations
-- HTML System Menu to Start Experience, Adjust Controls|Audio & View Instructions
+- HTML System Menu to Start Experience, Adjust Controls for Desktop/VR/Mobile, Toggle Audio & View Scenario Instructions
 - Misc : Color Theory Swatch Generator
 - Components : detect-input(dev debug), attach and support interaction event components
 

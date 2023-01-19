@@ -35,6 +35,8 @@ this.infoOpen = false;
 this.audioEnabled = false;
 //Controls
 this.controls = 'Desktop';
+this.vrHand = 'right';
+this.mobilePermissionGranted = false;
 let playerRig;
 let camera;
 let cameraUI;
@@ -48,6 +50,7 @@ this.spawned = {};
 this.zoneSpawned = {};
 this.nodeSpawned = {};
 this.menuSpawned = {};
+this.genSpawned = {};
 this.npcSpawned = {};
 this.carouselSpawned = {};
 
@@ -61,6 +64,8 @@ function clearSpawned(spawned){
 				aThis[spawn].core.RemoveFromScene();
 			} else if (aThis[spawn].type === 'layer'){
 				aThis[spawn].layer.RemoveAllFromScene();
+			} else if (spawned[spawn].type === 'gen'){
+				aThis[spawn].DespawnAll();
 			} else if (spawned[spawn].type === 'npc'){
 				aThis[spawn].Despawn();
 			}  else if (spawned[spawn].type === 'carousel'){
@@ -154,16 +159,16 @@ function enableVRControls(){
 	//vrController cursor property
 	vrController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController', mouseCursorStylesEnabled: 'true'});
 	//vrController laser-controls property
-	vrController.setAttribute('laser-controls',{hand: 'right'});
+	vrController.setAttribute('laser-controls',{hand: aThis.vrHand});
 	//Update Controls
 	aThis.controls = 'VR';
-	//menuModeButton.innerHTML = 'Mode : VR'
 }
 //Desktop
 function disableDesktopControls(){
 	//Disable Desktop Controls
 	//Remove Desktop WASD Controls
-	playerRig.removeAttribute('wasd-controls');
+	//playerRig.removeAttribute('wasd-controls');
+	playerRig.removeAttribute('movement-controls');
 	//Set mouseController to invisible
 	mouseController.setAttribute('visible',false);
 	//Set mouseController raycaster to false
@@ -174,7 +179,8 @@ function disableDesktopControls(){
 function enableDesktopControls(){
 	//Enable Desktop Controls
 	//Remove Desktop WASD Controls
-	playerRig.setAttribute('wasd-controls',{enabled: 'true', acceleration: 25});
+	//playerRig.setAttribute('wasd-controls',{enabled: 'true', acceleration: 25});
+	playerRig.setAttribute('movement-controls',{enabled: 'true', controls: 'keyboard', speed: 0.1, fly: false, constrainToNavMesh: false, camera: '#camera'});
 	//Set mouseController to invisible
 	mouseController.setAttribute('visible',true);
 	//Set mouseController raycaster to false
@@ -183,14 +189,38 @@ function enableDesktopControls(){
 	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
 	//Update Controls
 	aThis.controls = 'Desktop';
-	//menuModeButton.innerHTML = 'Mode : Desktop'
 }
 //Mobile
 function disableMobileControls(){
-
+	sceneEl.setAttribute('device-orientation-permission-ui', {enabled: false});
+	playerRig.removeAttribute('movement-controls');
+	//Set mouseController to invisible
+	mouseController.setAttribute('visible',false);
+	//Set mouseController raycaster to false
+	mouseController.removeAttribute('raycaster');
+	//Remove cursor attribute
+	mouseController.removeAttribute('cursor');
 }
 function enableMobileControls(){
-
+//deviceorientationpermissiongranted
+//deviceorientationpermissionrejected
+//deviceorientationpermissionrequested
+	sceneEl.setAttribute('device-orientation-permission-ui', {enabled: true});
+	sceneEl.addEventListener('deviceorientationpermissiongranted', function(){
+		aThis.mobilePermissionGranted = true;
+	});
+	sceneEl.addEventListener('deviceorientationpermissionrejected', function(){
+		aThis.mobilePermissionGranted = false;
+	});
+	playerRig.setAttribute('movement-controls',{enabled: 'true', controls: 'touch', speed: 0.1, fly: false, constrainToNavMesh: false, camera: '#camera'});
+	//Set mouseController to invisible
+	mouseController.setAttribute('visible',true);
+	//Set mouseController raycaster to false
+	mouseController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
+	//Remove cursor attribute
+	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
+	//Update Controls
+	aThis.controls = 'Mobile';
 }
 //Update Controls
 function updateControls(){
@@ -212,10 +242,13 @@ function updateControls(){
 function changeControls(){
 	if(aThis.controls === 'Desktop'){
 		aThis.controls = 'VR';
-		menuModeButton.innerHTML = 'Mode : VR'
-	} else if(aThis.controls === 'Mobile'){
-		//Implement Mobile Controls
+		menuModeButton.innerHTML = 'Mode : VR';
+		vrHandButton.style.display = 'flex';
 	} else if(aThis.controls === 'VR'){
+		vrHandButton.style.display = 'none';
+		aThis.controls = 'Mobile';
+		menuModeButton.innerHTML = 'Mode : Mobile';
+	} else if(aThis.controls === 'Mobile'){
 		aThis.controls = 'Desktop';
 		menuModeButton.innerHTML = 'Mode : Desktop'
 	}
@@ -224,6 +257,20 @@ function changeControls(){
 	}
 }
 menuModeButton.addEventListener('click', changeControls);
+
+function changeVRHand(){
+	if(aThis.vrHand === 'right'){
+		aThis.vrHand = 'left';
+		vrHandButton.innerHTML = 'Hand : Left';
+	} else {
+		aThis.vrHand = 'right';
+		vrHandButton.innerHTML = 'Hand : Right';
+	}
+	if(aThis.expStarted){
+		updateControls();
+	}
+}
+vrHandButton.addEventListener('click', changeVRHand);
 
 //
 //Audio
@@ -1311,18 +1358,18 @@ AThisObjMethod(aThis.running[ran].object,aThis.running[ran].method,aThis.running
 	}
 
 	const ClearScene = () => {
-	//Clear Core | Layer Scene Tracked Items
-
-	//Run Exit section of current Node
+		//Clear Core | Layer Scene Tracked Items
+		//Run Exit section of current Node
 		Exit();
 
-	//console.log('Clearing Scene...')
-	//console.log(aThis.nodeSpawned);
+		//console.log('Clearing Scene...')
+		//console.log(aThis.nodeSpawned);
 		//Clear Timeout, Intervals and Event Listeners first
 		ClearSceneTimeIntEvt();
 		clearSpawned(aThis.nodeSpawned);
 
 		//What if these were added in Zone?
+		clearSpawned(aThis.genSpawned);
 		clearSpawned(aThis.menuSpawned);
 		clearSpawned(aThis.npcSpawned);
 		clearSpawned(aThis.carouselSpawned);
@@ -1601,8 +1648,8 @@ AThisObjMethod(aThis.running[ran].object,aThis.running[ran].method,aThis.running
 						}
 					}
 				} else if(time === 'info') {
-
-				}else {
+					//Data only
+				} else {
 					console.log('Hit Other Timeline, Please Investigate');
 					//console.log('Executing Timeline...');
 					//console.log(time);//timeline
@@ -1674,7 +1721,6 @@ AThisObjMethod(aThis.running[ran].object,aThis.running[ran].method,aThis.running
 	}
 
 	const StartScene = () => {
-		Zone();
 		Start();
 		Delay();
 		Interval();
@@ -1709,9 +1755,10 @@ core.mapMenu;
 core.nodes = {};
 core.info;
 core.currentNode;
+core.zoneLoaded = false;
 //core.nodes.nodeName.map = {connect0:{},connect1:{}};
-//console.log('Running Map Zone...')
-//console.log(mapZoneData)
+//console.log('Running Map Zone...');
+//console.log(mapZoneData);
 
 //Map Movement Support
 let timeout;
@@ -1746,8 +1793,13 @@ let newNode;
 	ReadMapData();
 
 	const StartScene = (nodeName) => {
-		core.currentNode = nodeName || Object.keys(core.nodes)[0];
+		//core.currentNode = nodeName || Object.keys(core.nodes)[0];
+		core.currentNode = nodeName || core.map.info.start;
 		core.currentZone = core.info.id;
+		if(core.zoneLoaded){} else {
+			aThis[core.map.info.start].Zone();
+			core.zoneLoaded = true;
+		}
 		aThis[core.currentNode].StartScene();
 		MoveMenuGen();
 		//console.log('Scene Start');
@@ -1768,7 +1820,7 @@ let newNode;
 			data: aThis.menuBaseData,
 			cursorObj: core.currentZone,
 			method: 'MenuMoveClick',
-			pos: new THREE.Vector3(-0.25,1.5,-1),
+			pos: new THREE.Vector3(-1,1.5,-1),
 		}
 		//console.log(core.map);
 		//console.log(core.map[core.currentNode]);
@@ -1853,6 +1905,7 @@ let newNode;
 					} else {
 						//switch zones / object control
 						ClearZone();
+						core.zoneLoaded = false;
 						aThis[newNode.inZone].StartScene(newNode.node)
 					}
 				clearTimeout(timeout);
@@ -1890,8 +1943,6 @@ let newNode;
 				}, 1050);
 			} else if (aThis.player.layer.transition === 'instant'){}
 		}
-
-
 	}
 
 	const ClearZone = () => {
@@ -2548,7 +2599,7 @@ author: 'Made by Minty Crisp!',
 			data: aThis.menuBaseData,
 			cursorObj: name,
 			method: 'SystemMenuClick',
-			pos: new THREE.Vector3(0.5,1.5,-0.5),
+			pos: new THREE.Vector3(0.5,1.5,-0.6),
 		}
 
 		let currNum = 0;
@@ -2605,7 +2656,7 @@ author: 'Made by Minty Crisp!',
 			data: aThis.menuBaseData,
 			cursorObj: name,
 			method: 'TravelSettingsMenuClick',
-			pos: new THREE.Vector3(0.5,1.5,-0.5),
+			pos: new THREE.Vector3(0.5,1.5,-0.6),
 			//layout: 'vertical',
 		}
 
@@ -2751,6 +2802,171 @@ const Carousel = (id,mainData,buttonData,...materials) => {
 
 }
 
+//
+//Ring Spawn
+const ObjsGenRing = (data) => {
+	let gen = Object.assign({}, data);
+	let ogData = Object.assign({}, data.objData);
+	let objData = JSON.parse(JSON.stringify(data.objData));
+
+	//gen.id
+	//gen.objData
+	//gen.total
+	//gen.outerRingRadius
+	//gen.innerRingRadius
+	//gen.sameTypeRadius
+	//gen.otherTypeRadius
+	//gen.yPos
+	//gen.ranYPos
+	//gen.ranScaleX
+	//gen.ranScaleY
+	//gen.ranScaleZ
+	//gen.scaleFlex
+	//gen.ranRotX
+	//gen.ranRotY
+	//gen.ranRotZ
+	//gen.ranColor
+	//gen.ranTexture
+
+	let all = [];
+	let posX;
+	let posY;
+	let posZ;
+	let positionVec3;
+	let scaleX;
+	let scaleY;
+	let scaleZ;
+	let rotX;
+	let rotY;
+	let rotZ;
+	let color;
+
+	//Function to calculate distance between two points
+	function distance(x1, z1, x2, z2) {
+		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(z2 - z1, 2) * 1.0);
+	}
+
+	function randomPosition(radius, yPos){
+		posX = Math.random() * (radius*2) - radius;
+		posZ = Math.random() * (radius*2) - radius;
+		return new THREE.Vector3(posX, yPos, posZ);
+	}
+
+	const genCores = () => {
+
+		for(let a = 0; a < gen.total; a++){
+			objData.id = ogData.id + a;
+
+			//Color
+			if(gen.ranColor){
+				color = colorsHexGen().base;
+				objData.material.color = color;
+				if(objData.material.emissive){
+					objData.material.emissive = color;
+				}
+			}
+			//Texture
+			if(gen.ranTexture){
+				objData.material.src = patterns[Math.floor(Math.random()*patterns.length)];
+			}
+			//Rotation
+			if(gen.ranRotX){
+				rotX = Math.random() * 360;
+			} else {
+				rotX = objData.rotation.x;
+			}
+			if(gen.ranRotY){
+				rotY = Math.random() * 360;
+			} else {
+				rotY = objData.rotation.y;
+			}
+			if(gen.ranRotZ){
+				rotZ = Math.random() * 360;
+			} else {
+				rotZ = objData.rotation.z;
+			}
+			objData.rotation = new THREE.Vector3(rotX, rotY, rotZ);
+
+			//Scale
+			if(gen.ranScaleX){
+				scaleX = Math.random() * gen.scaleFlex + 1;
+			} else {
+				scaleX = gen.objData.scale.x;
+			}
+			if(gen.ranScaleY){
+				scaleY = Math.random() * gen.scaleFlex + 1;
+			} else {
+				scaleY = gen.objData.scale.Y;
+			}
+			if(gen.ranScaleZ){
+				scaleZ = Math.random() * gen.scaleFlex + 1;
+			} else {
+				scaleZ = gen.objData.scale.z;
+			}
+			objData.scale = new THREE.Vector3(scaleX, scaleY, scaleZ);
+
+			//Scale adjustment needs affect gen.sameTypeRadius
+			//Need to spawn equal amount in each quadrant?
+
+			//Position
+			positionVec3 = randomPosition(gen.outerRingRadius, gen.yPos);
+			objData.position = positionVec3;
+
+			//CHANGE CONDITION TO BE CHECKABLE TO AVOID INFINITE LOOPS
+			checkAllData: while (true) {
+				if(a === 0){
+					if(distance(positionVec3.x,positionVec3.z,0,0) < gen.innerRingRadius) {
+						positionVec3 = randomPosition(gen.outerRingRadius, gen.yPos);
+						continue checkAllData;
+					} else {
+						objData.position = positionVec3;
+					}
+				}
+				for(let z=0; z < all.length; z++) {
+					//Check the distance, if too close, change and repeat
+					if(distance(positionVec3.x, positionVec3.z, all[z].core.position.x, all[z].core.position.z) < gen.sameTypeRadius || distance(positionVec3.x,positionVec3.z,0,0) < gen.innerRingRadius) {
+						positionVec3 = randomPosition(gen.outerRingRadius, gen.yPos);
+						continue checkAllData;
+					} else {
+						objData.position = positionVec3;
+					}
+				}
+				break;
+			}
+			//Add randomized Core to All
+			all.push(Core(objData));
+		}
+	}
+
+	const SpawnAll = () => {
+		for(let a = 0; a < gen.total; a++){
+			all[a].AddToScene(false, false, true);
+		}
+		AddToSceneTracker();
+	}
+
+	const DespawnAll = () => {
+		for(let a = 0; a < gen.total; a++){
+			all[a].RemoveFromScene();
+		}
+		RemoveFromSceneTracker();
+	}
+
+	const AddToSceneTracker = () => {
+		//Scene Tracking of Assets
+		if(aThis.zoneSpawned[gen.id]){} else {
+			aThis.genSpawned[gen.id] = {type: 'gen', obj: gen};
+		}
+	}
+
+	const RemoveFromSceneTracker = () => {
+		//Clear Tracking of Asset
+		delete aThis.genSpawned[gen.id];
+	}
+
+	return {all, genCores, SpawnAll, DespawnAll, AddToSceneTracker, RemoveFromSceneTracker};
+}
+
 /********************************************************************/
 //
 //Materials Library
@@ -2768,6 +2984,96 @@ const mat1 = {src: './assets/img/vwave/1.jpg', shader: "flat", color: "#FFFFFF",
 const mat2 = {src: './assets/img/vwave/2.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
 const mat3 = {src: './assets/img/vwave/3.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
 const mat4 = {src: './assets/img/vwave/4.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
+
+//Tiles
+
+//Kenny
+const pattern01 = './assets/img/tiles/kenny/pattern_01.png';
+const pattern02 = './assets/img/tiles/kenny/pattern_02.png';
+const pattern03 = './assets/img/tiles/kenny/pattern_03.png';
+const pattern04 = './assets/img/tiles/kenny/pattern_04.png';
+const pattern05 = './assets/img/tiles/kenny/pattern_05.png';
+const pattern06 = './assets/img/tiles/kenny/pattern_06.png';
+const pattern07 = './assets/img/tiles/kenny/pattern_07.png';
+const pattern08 = './assets/img/tiles/kenny/pattern_08.png';
+const pattern09 = './assets/img/tiles/kenny/pattern_09.png';
+const pattern10 = './assets/img/tiles/kenny/pattern_10.png';
+const pattern11 = './assets/img/tiles/kenny/pattern_11.png';
+const pattern12 = './assets/img/tiles/kenny/pattern_12.png';
+const pattern13 = './assets/img/tiles/kenny/pattern_13.png';
+const pattern14 = './assets/img/tiles/kenny/pattern_14.png';
+const pattern15 = './assets/img/tiles/kenny/pattern_15.png';
+const pattern16 = './assets/img/tiles/kenny/pattern_16.png';
+const pattern17 = './assets/img/tiles/kenny/pattern_17.png';
+const pattern18 = './assets/img/tiles/kenny/pattern_18.png';
+const pattern19 = './assets/img/tiles/kenny/pattern_19.png';
+const pattern20 = './assets/img/tiles/kenny/pattern_20.png';
+const pattern21 = './assets/img/tiles/kenny/pattern_21.png';
+const pattern22 = './assets/img/tiles/kenny/pattern_22.png';
+const pattern23 = './assets/img/tiles/kenny/pattern_23.png';
+const pattern24 = './assets/img/tiles/kenny/pattern_24.png';
+const pattern25 = './assets/img/tiles/kenny/pattern_25.png';
+const pattern26 = './assets/img/tiles/kenny/pattern_26.png';
+const pattern27 = './assets/img/tiles/kenny/pattern_27.png';
+const pattern28 = './assets/img/tiles/kenny/pattern_28.png';
+const pattern29 = './assets/img/tiles/kenny/pattern_29.png';
+const pattern30 = './assets/img/tiles/kenny/pattern_30.png';
+const pattern31 = './assets/img/tiles/kenny/pattern_31.png';
+const pattern32 = './assets/img/tiles/kenny/pattern_32.png';
+const pattern33 = './assets/img/tiles/kenny/pattern_33.png';
+const pattern34 = './assets/img/tiles/kenny/pattern_34.png';
+const pattern35 = './assets/img/tiles/kenny/pattern_35.png';
+const pattern36 = './assets/img/tiles/kenny/pattern_36.png';
+const pattern37 = './assets/img/tiles/kenny/pattern_37.png';
+const pattern38 = './assets/img/tiles/kenny/pattern_38.png';
+const pattern39 = './assets/img/tiles/kenny/pattern_39.png';
+const pattern40 = './assets/img/tiles/kenny/pattern_40.png';
+const pattern41 = './assets/img/tiles/kenny/pattern_41.png';
+const pattern42 = './assets/img/tiles/kenny/pattern_42.png';
+const pattern43 = './assets/img/tiles/kenny/pattern_43.png';
+const pattern44 = './assets/img/tiles/kenny/pattern_44.png';
+const pattern45 = './assets/img/tiles/kenny/pattern_45.png';
+const pattern46 = './assets/img/tiles/kenny/pattern_46.png';
+const pattern47 = './assets/img/tiles/kenny/pattern_47.png';
+const pattern48 = './assets/img/tiles/kenny/pattern_48.png';
+const pattern49 = './assets/img/tiles/kenny/pattern_49.png';
+const pattern50 = './assets/img/tiles/kenny/pattern_50.png';
+const pattern51 = './assets/img/tiles/kenny/pattern_51.png';
+const pattern52 = './assets/img/tiles/kenny/pattern_52.png';
+const pattern53 = './assets/img/tiles/kenny/pattern_53.png';
+const pattern54 = './assets/img/tiles/kenny/pattern_54.png';
+const pattern55 = './assets/img/tiles/kenny/pattern_55.png';
+const pattern56 = './assets/img/tiles/kenny/pattern_56.png';
+const pattern57 = './assets/img/tiles/kenny/pattern_57.png';
+const pattern58 = './assets/img/tiles/kenny/pattern_58.png';
+const pattern59 = './assets/img/tiles/kenny/pattern_59.png';
+const pattern60 = './assets/img/tiles/kenny/pattern_60.png';
+const pattern61 = './assets/img/tiles/kenny/pattern_61.png';
+const pattern62 = './assets/img/tiles/kenny/pattern_62.png';
+const pattern63 = './assets/img/tiles/kenny/pattern_63.png';
+const pattern64 = './assets/img/tiles/kenny/pattern_64.png';
+const pattern65 = './assets/img/tiles/kenny/pattern_65.png';
+const pattern66 = './assets/img/tiles/kenny/pattern_66.png';
+const pattern67 = './assets/img/tiles/kenny/pattern_67.png';
+const pattern68 = './assets/img/tiles/kenny/pattern_68.png';
+const pattern69 = './assets/img/tiles/kenny/pattern_69.png';
+const pattern70 = './assets/img/tiles/kenny/pattern_70.png';
+const pattern71 = './assets/img/tiles/kenny/pattern_71.png';
+const pattern72 = './assets/img/tiles/kenny/pattern_72.png';
+const pattern73 = './assets/img/tiles/kenny/pattern_73.png';
+const pattern74 = './assets/img/tiles/kenny/pattern_74.png';
+const pattern75 = './assets/img/tiles/kenny/pattern_75.png';
+const pattern76 = './assets/img/tiles/kenny/pattern_76.png';
+const pattern77 = './assets/img/tiles/kenny/pattern_77.png';
+const pattern78 = './assets/img/tiles/kenny/pattern_78.png';
+const pattern79 = './assets/img/tiles/kenny/pattern_79.png';
+const pattern80 = './assets/img/tiles/kenny/pattern_80.png';
+const pattern81 = './assets/img/tiles/kenny/pattern_81.png';
+const pattern82 = './assets/img/tiles/kenny/pattern_82.png';
+const pattern83 = './assets/img/tiles/kenny/pattern_83.png';
+const pattern84 = './assets/img/tiles/kenny/pattern_84.png';
+
+const patterns = [pattern01,pattern02,pattern03,pattern04,pattern05,pattern06,pattern07,pattern08,pattern09,pattern10,pattern11,pattern12,pattern13,pattern14,pattern15,pattern16,pattern17,pattern18,pattern19,pattern20,pattern21,pattern22,pattern23,pattern24,pattern25,pattern26,pattern27,pattern28,pattern29,pattern30,pattern31,pattern32,pattern33,pattern34,pattern35,pattern36,pattern37,pattern38,pattern39,pattern40,pattern41,pattern42,pattern43,pattern44,pattern45,pattern46,pattern47,pattern48,pattern49,pattern50,pattern51,pattern52,pattern53,pattern54,pattern55,pattern56,pattern57,pattern58,pattern59,pattern60,pattern61,pattern62,pattern63,pattern64,pattern65,pattern66,pattern67,pattern68,pattern69,pattern70,pattern71,pattern72,pattern73,pattern74,pattern75,pattern76,pattern77,pattern78,pattern79,pattern80,pattern81,pattern82,pattern83,pattern84];
 
 /********************************************************************/
 //
@@ -2791,7 +3097,8 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-['wasd-controls']:{enabled: true, acceleration: 25},
+//['wasd-controls']:{enabled: true, acceleration: 25},
+['movement-controls']:{enabled: true, controls: 'gamepad, keyboard, touch', speed: 0.3, fly: false, constrainToNavMesh: false, camera: '#camera',},
 },};
 
 this.cameraData = {
@@ -2809,7 +3116,7 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-['look-controls']:{pointerLockEnabled: false},
+['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: false, magicWindowTrackingEnabled: true},
 ['wasd-controls']:{enabled: false},
 },};
 
@@ -3092,7 +3399,7 @@ components: {
 ['look-at']:'#camera', 
 },
 };
-this.npcMintyData = {
+this.npcMintyCubeData = {
 data:'NPC Minty',
 id:'npcMinty',
 sources: false,
@@ -3109,6 +3416,28 @@ components: {
 ['look-at']:'#camera', 
 },
 };
+this.npcMintyData = {
+data:'npcMinty',
+id:'npcMinty',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0.1,-1.1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{
+morphtalk:{property: 'gltf-morph__talk.value', from: 0, to: 1, dur: 500, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true,},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components:{
+['gltf-model']:'./assets/3d/avatar/mc1-1.glb',
+//['animation-mixer']:{timeScale:1},
+//['gltf-morph']:{morphtarget:'Fcl_ALL_Joy', value:1}
+['gltf-morph__talk']:{morphtarget:'target_43', value:0},
+},
+};
 
 //Testing Object for Interactions and Events
 this.eventTestingData = {
@@ -3117,15 +3446,16 @@ id:'eventTesting',
 sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
+material: {shader: "standard", src: pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
 position: new THREE.Vector3(-0.75,1.25,-0.5),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}  },
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
-['look-at']:'#camera', },
+//['look-at']:'#camera', 
+},
 };
 
 //Sound Testing
@@ -3193,7 +3523,7 @@ sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.1, width: 1, height: 1},
 material: false,
-position: new THREE.Vector3(-1,1.5,-2),
+position: new THREE.Vector3(0,1.5,-2),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
@@ -3340,6 +3670,22 @@ sources:false,
 text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.7, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
 geometry: {primitive: 'box', depth: 0.025, width: 0.75, height: 0.15},
 material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.25,1.65,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera',},
+};
+this.npcMintyCubeTextBubbleData = {
+data:'npc text bubble on top',
+id:'npcMintyCubeTextBubble',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.7, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.75, height: 0.15},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
 position: new THREE.Vector3(0.25,0.25,-0.05),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -3363,7 +3709,7 @@ id:'nodeFloor',
 sources:false,
 text: false,
 geometry: {primitive: 'sphere', radius: 50, segmentsWidth: 10, segmentsHeight: 10, phiLength: 180},
-material: {shader: "standard", src: './assets/img/tiles/grid-border.png', repeat: '100 100',color: "#ff71ce", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#ff71ce", emissiveIntensity: 0.8, side: 'front',},
+material: {shader: "standard", src: pattern45, repeat: '100 100',color: "#298625", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#298625", emissiveIntensity: 0.8, side: 'front'},
 position: new THREE.Vector3(0,-1,0),
 rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(0.5,0.5,0.02),
@@ -3405,6 +3751,26 @@ classes: ['a-ent'],
 components: false,
 };
 
+
+//Walls
+//
+
+//Node Wall
+this.nodeWallData = {
+data:'node wall',
+id:'nodeWall',
+sources:false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 10, height: 2.5},
+material: {shader: "standard", src: pattern18, repeat: '10 2.5',color: "#80401f", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#80401f", emissiveIntensity: 0.8, side: 'double'},
+position: new THREE.Vector3(0,1.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
 
 //Background | Sky
 //
@@ -3860,6 +4226,49 @@ page0: this.npcMintyBookTestPage1Data,
 },
 };
 
+
+//Testing Data
+this.spawnTestingData = {
+data:'Ring Spawn Testing',
+id:'ringSpawnTesting',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
+};
+
+//
+//Multi Obj Gen
+this.multiTestingData = {
+id: 'multiTesting',
+objData: aThis.spawnTestingData,
+total: 10,
+outerRingRadius: 6,
+innerRingRadius: 3,
+sameTypeRadius: 1,
+otherTypeRadius: 1,
+yPos: aThis.spawnTestingData.geometry.height/2,
+ranYPos: false,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 1,
+ranRotX: true,
+ranRotY: true,
+ranRotZ: true,
+ranColor: true,
+ranTexture: true,
+};
+
 //
 //Animations
 
@@ -3962,8 +4371,8 @@ info:{
 id: 'zone0',
 name: 'Home',
 zoneNum: 0,
+start: 'zone0Node0In0',
 },
-
 zone0Node0In0:{
 connect0: {inZone: true, node: 'zone0Node0In1',},
 },
@@ -3994,19 +4403,17 @@ description: 'HomeBase starting point for Zone 0.',
 sceneText: true,
 },
 zone:{
-skyStarLayer: {AddAllToScene: null},
+skyStarLayer:{AddAllToScene: null},
+nodeFloor:{AddToScene: null},
 },
 start:{
 npcMinty:{Spawn:null},
+multiTesting:{genCores: null, SpawnAll: null},
 HamGirl:{Start: null},
 eventTesting:{AddToScene: null, EnableDetail: 'This is a test detail to read.'},
 soundTesting:{AddToScene: null},
-nodeFloor:{
-IfElse: {cond: 'testVar',
-ifTrue: {
-nodeFloor:{AddToScene: null,ChangeSelf: {property: 'material', value: {color: '#90e024', emissive: '#90e024'}}},},
-ifFalse: {
-nodeFloor:{AddToScene: null,ChangeSelf: {property: 'material', value: {color: '#24a6e0', emissive: '#24a6e0'}}},},}},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern57, color: "#226c93", emissive: "#226c93",},}},
+nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern18, color: "#80401f", emissive: "#80401f",}}},
 },
 delay:{
 5000:{eventTesting:{EmitEvent: 'customevent'},},
@@ -4015,7 +4422,7 @@ delay:{
 interval:{
 },
 event:{
-customevent: {eventTesting: {ChangeSelf: {property: 'material', value: {color: '#90e024', emissive: '#90e024'}}},},
+customevent: {eventTesting: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},},
 },
 interaction:{
 click: {eventTesting: {ChangeSelf: {property: 'material', value: {color: '#24a6e0', emissive: '#24a6e0'}}},},
@@ -4038,6 +4445,8 @@ sceneText: true,
 zone:{},
 start:{
 npc0:{Spawn: null},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern58, color: "#1a597b", emissive: "#1a597b",},}},
+nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern21, color: "#9f4618", emissive: "#9f4618",}}},
 },
 delay:{
 },
@@ -4062,6 +4471,7 @@ sceneText: true,
 zone:{},
 start:{
 carousel1:{Show: null},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern59, color: "#5a182a", emissive: "#5a182a",},}},
 },
 delay:{
 
@@ -4082,9 +4492,12 @@ name: 'Travel Station',
 description: 'Right next door to the HomeBase building. Go back or travel the world.',
 sceneText: true,
 },
-zone:{},
+zone:{
+
+},
 start:{
 npc1:{Spawn: null},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern78, color: "#4d0b1d", emissive: "#4d0b1d",},}},
 },
 delay:{
 
@@ -4105,8 +4518,11 @@ name: 'Janitor Closet',
 description: 'A Locked Room.',
 sceneText: true,
 },
-zone:{},
-start:{},
+zone:{
+},
+start:{
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern74, color: "#421ea2", emissive: "#421ea2",},}},
+},
 delay:{},
 interval:{},
 event:{},
@@ -4124,6 +4540,7 @@ info:{
 id: 'zone1',
 name: 'Forest',
 zoneNum: 1,
+start: 'zone1Node0Out',
 },
 zone1Node0Out:{
 connect0: {inZone: 'zone0', node: 'zone0Node1Out',},
@@ -4144,9 +4561,12 @@ name: 'Zone 1 Forest Exterior',
 description: 'Landing Area for Zone 1',
 sceneText: true,
 },
-zone:{},
+zone:{
+skyStarLayer:{AddAllToScene: null},
+nodeFloor:{AddToScene: null},
+},
 start:{
-skyCosmicSun:{AddToScene: null}
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern45, color: "#298625", emissive: "#298625",},}},
 },
 delay:{
 
@@ -4169,6 +4589,7 @@ sceneText: true,
 },
 zone:{},
 start:{
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern44, color: "#1d601a", emissive: "#1d601a",},}},
 npc2:{Spawn: null},
 },
 delay:{},
@@ -4238,6 +4659,28 @@ this.textBubbleTop = Core(this.textBubbleTopData);
 //Node Floor
 this.nodeFloor = Core(this.nodeFloorData);
 
+//Node Walls
+this.nodeWallData.id = 'nodeWall1';
+this.nodeWallData.position = new THREE.Vector3(0,1.25,-5);
+this.nodeWall1 = Core(this.nodeWallData);
+this.nodeWallData.id = 'nodeWall2';
+this.nodeWallData.position = new THREE.Vector3(0,0,10);
+this.nodeWall2 = Core(this.nodeWallData);
+this.nodeWallData.id = 'nodeWall3';
+this.nodeWallData.position = new THREE.Vector3(-5,0,5);
+this.nodeWallData.rotation = new THREE.Vector3(0,90,0);
+this.nodeWall3 = Core(this.nodeWallData);
+this.nodeWallData.id = 'nodeWall4';
+this.nodeWallData.position = new THREE.Vector3(5,0,5);
+this.nodeWall4 = Core(this.nodeWallData);
+this.nodeWallsData = {
+parent: {core: this.nodeWall1}, 
+child0: {core: this.nodeWall2},
+child1: {core: this.nodeWall3},
+child2: {core: this.nodeWall4},}
+this.nodeWalls = Layer('nodeWalls',this.nodeWallsData);
+
+
 //Full Floor
 this.fullFloor = Core(this.fullFloorData);
 this.fullFloorGrid = Core(this.fullFloorGridData);
@@ -4277,8 +4720,9 @@ this.npc2TextBubble = Core(this.npc2TextBubbleData);
 this.npc2 = NPC(this.npc2Core, this.npc2BookTestData, this.npc2TextBubble);
 
 //Minty|Overview
-this.npcMintyCore = Core(this.npcMintyData);
-this.npcMintyTextBubble = Core(this.npcMintyTextBubbleData);
+//this.npcMintyCore = Core(this.npcMintyData);
+this.npcMintyCore = Core(this.npcMintyCubeData);
+this.npcMintyTextBubble = Core(this.npcMintyCubeTextBubbleData);
 this.npcMinty = NPC(this.npcMintyCore, this.npcMintyBookTestData, this.npcMintyTextBubble);
 
 //
@@ -4288,6 +4732,9 @@ this.eventTesting = Core(this.eventTestingData);
 
 //Sound
 this.soundTesting = Core(this.soundTestingData);
+
+//Multi Obj Spawn Testing
+this.multiTesting = ObjsGenRing(this.multiTestingData);
 
 //
 //World Atlas & Map

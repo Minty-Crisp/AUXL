@@ -14,6 +14,10 @@
 </head>
 <!-- A-Frame UX Library Engine v0.1 -->
 <script src="./auxl-v01.js"></script>
+<!-- A-Frame Extras -->	
+<script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+<!-- GLTF Morph  -->
+<script src="https://rawcdn.githack.com/elbobo/aframe-gltf-morph-component/07e9b80bd382cc1c19223468d35c453e7c76e9a2/dist/aframe-gltf-morph-component.js"></script>
 <body>
 <!-- Sticky -->
 <div id="stickyBar" class="sticky flexRow">
@@ -29,6 +33,7 @@
 <div id="beginDiv">
 <li><button class="menu" id="startButton">Start</button></li>
 <li><button id="menuModeButton" class="flexCol">Mode : Desktop</button></li>
+<li><button id="vrHandButton" class="flexCol">Hand : Right</button></li>
 <li><button id="audioButton" class="flexCol">Sound : Disabled</button></li>
 <li><button id="viewInfo" class="flexCol">View Instructions</button></li>
 </div>
@@ -41,6 +46,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac metus so
 <a-scene
 auxl
 vr-mode-ui="enabled: false;"
+device-orientation-permission-ui="enabled: false"
 renderer="antialias: true; colorManagement: true; sortObjects: true"
 >
 <!-- - - - - - - - - - - Assets - - - - - - - - - - -->
@@ -54,16 +60,15 @@ renderer="antialias: true; colorManagement: true; sortObjects: true"
 </a-assets>
 <!-- - - - - - - - - - - Player Controls - - - - - - - - - - -->
 <a-entity id="playerRig" position="0 0 0.5"
-wasd-controls="enabled: true; acceleration: 25;"
 ><a-camera id="camera"
 position="0 1.6 0"
-look-controls="pointerLockEnabled: false"
+look-controls="enabled: true; reverseMouseDrag: false; reverseTouchDrag: false; touchEnabled: true; mouseEnabled: true; pointerLockEnabled: false; magicWindowTrackingEnabled: true"
 wasd-controls="enabled: false;"
 ></a-camera></a-entity>
 <!-- - - - - - - - - - - Lights - - - - - - - - - - -->
 <!-- Directional -->
 <a-entity id="directionalLight"
-  light="type: directional; intensity: 0.5; castShadow: false" position="0 0.65 0.25"
+  light="type: directional; intensity: 0.5; castShadow: false" position="0.25 0.65 0.25"
 ></a-entity>
 <!-- Ambient -->
 <a-entity id="ambientLight"
