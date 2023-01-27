@@ -3856,7 +3856,7 @@ daypos:{property: 'position', from: new THREE.Vector3(1,1,-1), to: new THREE.Vec
 mixins: false,
 classes: ['a-ent'],
 components: {
-light: {type: 'directional', intensity: 0.5, castShadow: false},
+light: {type: 'directional', intensity: 0.05, castShadow: false},
 },
 };
 
@@ -3935,7 +3935,7 @@ id:'nodeFloor',
 sources:false,
 text: false,
 geometry: {primitive: 'circle', radius: 150, segments: 32, thetaStart: 0, thetaLength: 360},
-material: {shader: "standard", color: "#581a53", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#581a53", emissiveIntensity: 0.2, side: 'front'},
+material: {shader: "standard", color: "#27693d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#27693d", emissiveIntensity: 0.2, side: 'front'},
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(0.5,0.5,0.02),
