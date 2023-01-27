@@ -5,6 +5,8 @@
 //
 //Created by Minty-Crisp (mintycrisp.com)
 
+//AUXL Demo Scenario
+
 //
 //A-Frame UX Library
 AFRAME.registerSystem('auxl', {
@@ -123,10 +125,15 @@ stickyMenu.addEventListener('click', toggleMenu);
 //Start Experience
 function startExp(){
 	if(aThis.expStarted){}else{
-		startButton.innerHTML = 'Resume'
-		aThis.zone0.StartScene();
-		updateControls();
-		aThis.expStarted = true;
+		let timeoutSpawn = setTimeout(function () {
+			startButton.innerHTML = 'Resume'
+			aThis.zone0.StartScene();
+			updateControls();
+			aThis.expStarted = true;
+			dayNight();
+			clearTimeout(timeoutSpawn);
+		}, 425);
+		playerSpawnAnim();
 	}
 	toggleMenu();
 }
@@ -168,7 +175,7 @@ function disableDesktopControls(){
 	//Disable Desktop Controls
 	//Remove Desktop WASD Controls
 	//playerRig.removeAttribute('wasd-controls');
-	playerRig.removeAttribute('movement-controls');
+	//playerRig.removeAttribute('movement-controls');
 	//Set mouseController to invisible
 	mouseController.setAttribute('visible',false);
 	//Set mouseController raycaster to false
@@ -180,7 +187,7 @@ function enableDesktopControls(){
 	//Enable Desktop Controls
 	//Remove Desktop WASD Controls
 	//playerRig.setAttribute('wasd-controls',{enabled: 'true', acceleration: 25});
-	playerRig.setAttribute('movement-controls',{enabled: 'true', controls: 'keyboard', speed: 0.1, fly: false, constrainToNavMesh: false, camera: '#camera'});
+	//playerRig.setAttribute('movement-controls',{enabled: 'true', controls: 'keyboard', speed: 0.1, fly: false, constrainToNavMesh: false, camera: '#camera'});
 	//Set mouseController to invisible
 	mouseController.setAttribute('visible',true);
 	//Set mouseController raycaster to false
@@ -193,7 +200,7 @@ function enableDesktopControls(){
 //Mobile
 function disableMobileControls(){
 	sceneEl.setAttribute('device-orientation-permission-ui', {enabled: false});
-	playerRig.removeAttribute('movement-controls');
+	//playerRig.removeAttribute('movement-controls');
 	//Set mouseController to invisible
 	mouseController.setAttribute('visible',false);
 	//Set mouseController raycaster to false
@@ -212,7 +219,7 @@ function enableMobileControls(){
 	sceneEl.addEventListener('deviceorientationpermissionrejected', function(){
 		aThis.mobilePermissionGranted = false;
 	});
-	playerRig.setAttribute('movement-controls',{enabled: 'true', controls: 'touch', speed: 0.1, fly: false, constrainToNavMesh: false, camera: '#camera'});
+	//playerRig.setAttribute('movement-controls',{enabled: 'false', controls: 'touch', speed: 0.1, fly: false, constrainToNavMesh: false, camera: '#camera'});
 	//Set mouseController to invisible
 	mouseController.setAttribute('visible',true);
 	//Set mouseController raycaster to false
@@ -302,6 +309,10 @@ function toggleInfo(){
 }
 viewInfo.addEventListener('click', toggleInfo);
 infoClose.addEventListener('click', toggleInfo);
+
+//
+//Environmental Settings
+this.timeInDay = 360000;
 
 //
 //Support
@@ -582,7 +593,7 @@ const Core = (data) => {
 
 		if(core.entity === 'preAdded'){
 			core.el = document.getElementById(core.id);
-			return core.el;
+			//return core.el;
 		} else if(core.entity){
 			core.el = document.createElement(core.entity);
 		} else {
@@ -780,7 +791,11 @@ const Core = (data) => {
 
 	const GetEl = () => {
 		//return core.id;
+
 		let aEl = document.getElementById(core.id);
+		if(aEl){}else{
+			console.log(core.id)
+		}
 		return aEl;
 	}
 
@@ -1036,6 +1051,10 @@ const Layer = (id, all) => {
 		return layer.all.parent.core.GetEl();
 	}
 
+	const EmitEventParent = (eventName) => {
+		all.parent.core.EmitEvent(eventName);
+	}
+
 	const ChangeParent = (property, value) => {
 		all.parent.core.ChangeSelf(property, value);
 	}
@@ -1064,13 +1083,58 @@ const Layer = (id, all) => {
 		}
 	}
 
-	const GetChild = (child) => {
+	const GetChild = (childName) => {
 
 		//return specific child to access their indv change/animate/remove funcs
+		let result = [];
+		function traverse(object, depth) {
+			for (let key in object) {
+				if (object.hasOwnProperty(key)) {
+					if (key === 'core') {
+						//console.log('Hit core');
+						//console.log(object[key]);
+						//console.log(result);
+						//result[depth].push(object[key]);
+						if(object[key].core.id === childName){
+							//console.log('Child Hit!');
+							//console.log(object[key].core.id);
+							//console.log(object[key]);
+							result.push(object[key]);
+							return;
+						}
+					} else if (key === "parent" && object[key].hasOwnProperty('core')) {
+						//console.log('Hit a Parent');
+						//console.log(object[key].core);
+						//console.log(result);
+						//result[depth].push(object[key].core);
+						if(object[key].core.core.id === childName){
+							//console.log('Child Hit!');
+							//console.log(object[key].core.core.id);
+							//console.log(object[key].core);
+							result.push(object[key].core);
+							return;
+						}
+					} else if (typeof object[key] === 'object') {
+						//console.log('Hit End');
+						//console.log(object[key]);
+						//console.log(result);
+						traverse(object[key], depth + 1);
+					}
+				}
+			}
+		}
 
+		traverse(layer.all, 0);
+		if(result[0]){
+			//console.log(result[0]);
+			return result[0];
+		} else {
+			//console.log(result);
+			console.log('Unable to find child');
+		}
 	}
 
-	return {layer, AddAllToScene, RemoveAllFromScene, GetParentEl, ChangeParent, ChangeAll, AnimateParent, AnimateAll, GetChild};
+	return {layer, AddAllToScene, RemoveAllFromScene, GetParentEl, EmitEventParent, ChangeParent, ChangeAll, AnimateParent, AnimateAll, GetChild};
 }
 
 //
@@ -1138,6 +1202,37 @@ const Player = (layer) => {
 	}
 
 	return {layer, SetFlag, GetFlag, TempDisableClick}
+}
+//Spawn Function
+function playerSpawnAnim(){
+	if(aThis.player.layer.transition === 'blink'){
+		aThis.player.TempDisableClick();
+		aThis.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
+		aThis.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
+		aThis.blink1Screen.EmitEvent('blink');
+		aThis.blink2Screen.EmitEvent('blink');
+		timeout2 = setTimeout(function () {
+			aThis.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
+			aThis.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
+			clearTimeout(timeout2);
+		}, 1200);
+	} else if (aThis.player.layer.transition === 'fade'){
+		aThis.player.TempDisableClick();
+		aThis.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
+		aThis.fadeScreen.EmitEvent('fade');
+		timeout2 = setTimeout(function () {
+			aThis.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
+			clearTimeout(timeout2);
+		}, 1200);
+	} else if (aThis.player.layer.transition === 'sphere'){
+		aThis.player.TempDisableClick();
+		aThis.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
+		aThis.sphereScreen.EmitEvent('sphere');
+		timeout2 = setTimeout(function () {
+			aThis.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
+			clearTimeout(timeout2);
+		}, 1200);
+	} else if (aThis.player.layer.transition === 'instant'){}
 }
 
 //
@@ -1909,39 +2004,12 @@ let newNode;
 						aThis[newNode.inZone].StartScene(newNode.node)
 					}
 				clearTimeout(timeout);
-			}, 450);
+			}, 425);
 			//Instant, Shrink/Grow, Fade, Sphere, Blink
 			//console.log(aThis.player)
 			//console.log(aThis.player.layer)
 			//console.log(aThis.player.layer.transition)
-			if(aThis.player.layer.transition === 'blink'){
-				aThis.player.TempDisableClick();
-				aThis.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
-				aThis.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
-				aThis.blink1Screen.EmitEvent('blink');
-				aThis.blink2Screen.EmitEvent('blink');
-				timeout2 = setTimeout(function () {
-					aThis.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
-					aThis.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
-					clearTimeout(timeout2);
-				}, 1050);
-			} else if (aThis.player.layer.transition === 'fade'){
-				aThis.player.TempDisableClick();
-				aThis.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
-				aThis.fadeScreen.EmitEvent('fade');
-				timeout2 = setTimeout(function () {
-					aThis.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
-					clearTimeout(timeout2);
-				}, 1050);
-			} else if (aThis.player.layer.transition === 'sphere'){
-				aThis.player.TempDisableClick();
-				aThis.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
-				aThis.sphereScreen.EmitEvent('sphere');
-				timeout2 = setTimeout(function () {
-					aThis.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
-					clearTimeout(timeout2);
-				}, 1050);
-			} else if (aThis.player.layer.transition === 'instant'){}
+			playerSpawnAnim();
 		}
 	}
 
@@ -2704,16 +2772,6 @@ author: 'Made by Minty Crisp!',
 return{ham, Start, Remove, SystemMenuClick, TravelSettingsMenuClick};
 }
 
-//HamComp ClickRun Component External
-const ClickTest = (core) => {
-
-	const Click = () =>{
-		console.log('Running Seperate Click Method');
-	}
-
-return {core, Click}
-}
-
 //
 //Carousel
 const Carousel = (id,mainData,buttonData,...materials) => {
@@ -2803,7 +2861,7 @@ const Carousel = (id,mainData,buttonData,...materials) => {
 }
 
 //
-//Ring Spawn
+//Objs Gen Ring Spawn
 const ObjsGenRing = (data) => {
 	let gen = Object.assign({}, data);
 	let ogData = Object.assign({}, data.objData);
@@ -2816,7 +2874,6 @@ const ObjsGenRing = (data) => {
 	//gen.innerRingRadius
 	//gen.sameTypeRadius
 	//gen.otherTypeRadius
-	//gen.yPos
 	//gen.ranYPos
 	//gen.yPosFlex
 	//gen.ranScaleX
@@ -2871,57 +2928,53 @@ const ObjsGenRing = (data) => {
 				objData.material.src = patterns[Math.floor(Math.random()*patterns.length)];
 			}
 			//Rotation
+			rotX = objData.rotation.x;
+			rotY = objData.rotation.y;
+			rotZ = objData.rotation.z;
 			if(gen.ranRotX){
-				rotX = Math.random() * 360;
-			} else {
-				rotX = objData.rotation.x;
+				rotX += Math.random() * 360;
 			}
 			if(gen.ranRotY){
-				rotY = Math.random() * 360;
-			} else {
-				rotY = objData.rotation.y;
+				rotY += Math.random() * 360;
 			}
 			if(gen.ranRotZ){
-				rotZ = Math.random() * 360;
-			} else {
-				rotZ = objData.rotation.z;
+				rotZ += Math.random() * 360;
 			}
 			objData.rotation = new THREE.Vector3(rotX, rotY, rotZ);
 
 			//Scale
+			scaleX = gen.objData.scale.x;
+			scaleY = gen.objData.scale.y;
+			scaleZ = gen.objData.scale.z;
 			if(gen.ranScaleX){
-				scaleX = Math.random() * gen.scaleFlex + 1;
-			} else {
-				scaleX = gen.objData.scale.x;
+				scaleX += Math.random() * gen.scaleFlex;
 			}
 			if(gen.ranScaleY){
-				scaleY = Math.random() * gen.scaleFlex + 1;
-			} else {
-				scaleY = gen.objData.scale.Y;
+				scaleY += Math.random() * gen.scaleFlex;
 			}
 			if(gen.ranScaleZ){
-				scaleZ = Math.random() * gen.scaleFlex + 1;
-			} else {
-				scaleZ = gen.objData.scale.z;
+				scaleZ += Math.random() * gen.scaleFlex;
 			}
 			objData.scale = new THREE.Vector3(scaleX, scaleY, scaleZ);
 
 			//Scale adjustment needs affect gen.sameTypeRadius
 			//Need to spawn equal amount in each quadrant?
-
+			posY = gen.objData.position.y;
 			if(gen.ranYPos){
-				posY = Math.random() * (gen.yPosFlex - gen.yPos) + gen.yPos;
+				posY += Math.random() * gen.yPosFlex;
 			}
 
 			//Position
 			positionVec3 = randomPosition(gen.outerRingRadius, posY);
 			objData.position = positionVec3;
 
-			//CHANGE CONDITION TO BE CHECKABLE TO AVOID INFINITE LOOPS
-			checkAllData: while (true) {
+			//Max attempts to check for avoiding collision
+			let checking = 42;
+			checkAllData: while (checking > 0) {
 				if(a === 0){
 					if(distance(positionVec3.x,positionVec3.z,0,0) < gen.innerRingRadius) {
 						positionVec3 = randomPosition(gen.outerRingRadius, posY);
+						checking--;
 						continue checkAllData;
 					} else {
 						objData.position = positionVec3;
@@ -2931,6 +2984,7 @@ const ObjsGenRing = (data) => {
 					//Check the distance, if too close, change and repeat
 					if(distance(positionVec3.x, positionVec3.z, all[z].core.position.x, all[z].core.position.z) < gen.sameTypeRadius || distance(positionVec3.x,positionVec3.z,0,0) < gen.innerRingRadius) {
 						positionVec3 = randomPosition(gen.outerRingRadius, posY);
+						checking--;
 						continue checkAllData;
 					} else {
 						objData.position = positionVec3;
@@ -3102,8 +3156,8 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-//['wasd-controls']:{enabled: true, acceleration: 25},
-['movement-controls']:{enabled: true, controls: 'gamepad, keyboard, touch', speed: 0.3, fly: false, constrainToNavMesh: false, camera: '#camera',},
+['wasd-controls']:{enabled: true, acceleration: 25},
+//['movement-controls']:{enabled: true, controls: 'gamepad, keyboard, touch', speed: 0.3, fly: false, constrainToNavMesh: false, camera: '#camera',},
 },};
 
 this.cameraData = {
@@ -3121,7 +3175,7 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: false, magicWindowTrackingEnabled: true},
+//['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: false, magicWindowTrackingEnabled: true},
 ['wasd-controls']:{enabled: false},
 },};
 
@@ -3158,8 +3212,12 @@ material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
 position: new THREE.Vector3(0,0,-0.5),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(0.75,0.75,0.75),
-animations: false,
-mixins: ['clickAnimation'],
+animations: {
+click:{property: 'scale', from: '0.75 0.75 0.75', to: '0.15 0.15 0.15', dur: 100, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+click2:{property: 'scale', from: '0.15 0.15 0.15', to: '0.25 0.25 0.25', dur: 25, delay: 100, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+clickreset:{property: 'scale', from: '0.25 0.25 0.25', to: '0.75 0.75 0.75', dur: 300, delay: 400, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+},
+mixins: false,
 classes: ['a-ent','player'],
 components: {
 raycaster:{enabled: 'true', autoRefresh: 'true', objects: '.clickable', origin: new THREE.Vector3(0,0,0), direction: new THREE.Vector3(0,0,-1), far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'},
@@ -3228,8 +3286,9 @@ position: new THREE.Vector3(0,0,-0.15),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: {
-fadein:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fade'},
-fadeout:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 600, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fade'}, 
+fadein:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fade'},
+
+fadeout:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fade'}, 
 },
 mixins: false,
 classes: ['a-ent','player','clickable'],
@@ -3247,10 +3306,11 @@ position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{
-spherein1:{property: 'geometry.thetaLength', from: 0, to: 180, dur: 400, delay: 0, loop: 'false', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
-spherein2: {property: 'geometry.thetaStart', from: 90, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
-sphereout1:{property: 'geometry.thetaLength', from: 180, to: 0, dur: 400, delay: 600, loop: 'false', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
-sphereout2: {property: 'geometry.thetaStart', from: 0, to: 90, dur: 400, delay: 600, loop: 'false', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
+spherein1:{property: 'geometry.thetaLength', from: 0, to: 180, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
+spherein2: {property: 'geometry.thetaStart', from: 90, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
+
+sphereout1:{property: 'geometry.thetaLength', from: 180, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
+sphereout2: {property: 'geometry.thetaStart', from: 0, to: 90, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
 },
 mixins: false,
 classes: ['a-ent','player'],
@@ -3268,10 +3328,11 @@ position: new THREE.Vector3(0,2.5,-0.15),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{
-blinkin:{property: 'object3D.position.y', from: 2.5, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-blinkopacin: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-blinkout:{property: 'object3D.position.y', from: 1, to: 2.5, dur: 400, delay: 600, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 600, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+blinkin:{property: 'object3D.position.y', from: 2.5, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+blinkopacin: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+
+blinkout:{property: 'object3D.position.y', from: 1, to: 2.5, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
 },
 mixins: false,
 classes: ['a-ent','player'],
@@ -3289,10 +3350,11 @@ position: new THREE.Vector3(0,-2.5,-0.15),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{
-blinkin:{property: 'object3D.position.y', from: -2.5, to: -1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-blinkopacin: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-blinkout:{property: 'object3D.position.y', from: -1, to: -2.5, dur: 400, delay: 600, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 600, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+blinkin:{property: 'object3D.position.y', from: -2.5, to: -1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+blinkopacin: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+
+blinkout:{property: 'object3D.position.y', from: -1, to: -2.5, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
 },
 mixins: false,
 classes: ['a-ent','player'],
@@ -3704,6 +3766,165 @@ components: {
 //
 //Environment
 
+//
+//Lights
+
+//Directional - Built-in
+this.directionalLightData = {
+data:'directionalLight',
+id:'directionalLight',
+entity: 'preAdded',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(-1,1,-1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+daylight:{property: 'light.intensity', from: 0.1, to: 1.25, dur: aThis.timeInDay/4, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+daypos:{property: 'position', from: new THREE.Vector3(-1,1,-1), to: new THREE.Vector3(1,1,1), dur: aThis.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+light: {type: 'directional', intensity: 1, castShadow: false},
+},
+};
+
+//Ambient - Built-in
+this.ambientLightData = {
+data:'ambientLight',
+id:'ambientLight',
+entity: 'preAdded',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+daylight:{property: 'light.intensity', from: 0.7, to: 0.4, dur: aThis.timeInDay/2, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+daycolor:{property: 'light.color', from: '#99154E', to: '#fffb96', dur: aThis.timeInDay/4, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+light: {type: 'ambient', intensity: 1, color: '#716a9a'},
+},
+};
+
+//Directional 2
+this.directionalLight2Data = {
+data:'directionalLight2',
+id:'directionalLight2',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(1,1,1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+nightlight:{property: 'light.intensity', from: 0.3, to: 0.1, dur: aThis.timeInDay/4, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+daypos:{property: 'position', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(-1,1,-1), dur: aThis.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+light: {type: 'directional', intensity: 0.1, castShadow: false},
+},
+};
+
+//Directional 3
+this.directionalLight3Data = {
+data:'directionalLight3',
+id:'directionalLight3',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(1,1,-1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+daylight:{property: 'light.intensity', from: 0.05, to: 0.1, dur: aThis.timeInDay/4, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+daypos:{property: 'position', from: new THREE.Vector3(1,1,-1), to: new THREE.Vector3(-1,1,-1), dur: aThis.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunrise'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+light: {type: 'directional', intensity: 0.5, castShadow: false},
+},
+};
+
+//Sun
+this.sunOuterData = {
+data:'sunOuter',
+id:'sunOuter',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(-10,45,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{daynight:{property: 'object3D.rotation.x', from: -5, to: 355, dur: aThis.timeInDay, delay: 0, loop: 'true', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true,startEvents: 'sunrise'},},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+this.sunData = {
+data:'sun',
+id:'sun',
+sources: false,
+text: false,
+geometry: {primitive: 'circle', radius: 30, segments: 32},
+material: {shader: "standard", color: "#F0A500", opacity: 1, side: 'front', emissive: '#F0A500', emissiveIntensity: 1, roughness: 0.42},
+position: new THREE.Vector3(0,0,-350),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Moon
+this.moonOuterData = {
+data:'moonOuter',
+id:'moonOuter',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(170,45,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{daynight:{property: 'object3D.rotation.x', from: 175, to: 535, dur: aThis.timeInDay, delay: 0, loop: 'true', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true,startEvents: 'sunrise'},},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+this.moonData = {
+data:'moon',
+id:'moon',
+sources: false,
+text: false,
+geometry: {primitive: 'circle', radius: 24, segments: 32},
+material: {shader: "standard", color: "#5c2196", opacity: 1, side: 'front', emissive: '#5c2196', emissiveIntensity: 0.75, roughness: 0.42},
+position: new THREE.Vector3(0,0,-350),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+
 //Floor
 //
 
@@ -3713,44 +3934,17 @@ data:'full floor',
 id:'nodeFloor',
 sources:false,
 text: false,
-geometry: {primitive: 'sphere', radius: 50, segmentsWidth: 10, segmentsHeight: 10, phiLength: 180},
-material: {shader: "standard", src: pattern45, repeat: '100 100',color: "#298625", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#298625", emissiveIntensity: 0.8, side: 'front'},
-position: new THREE.Vector3(0,-1,0),
+geometry: {primitive: 'circle', radius: 150, segments: 32, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#581a53", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#581a53", emissiveIntensity: 0.2, side: 'front'},
+position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(0.5,0.5,0.02),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-//Full Floor
-this.fullFloorData = {
-data:'full floor',
-id:'fullFloor',
-sources:false,
-text: false,
-geometry: {primitive: 'plane', width: 100, height: 100, segmentsHeight: 1, segmentsWidth: 1},
-material: {shader: "standard",color: "#0c905e", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#0c905e", emissiveIntensity: 0.25, side: 'double',},
-position: new THREE.Vector3(0,-0.15,0),
-rotation: new THREE.Vector3(-90,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-this.fullFloorGridData = {
-data:'full floor grid',
-id:'fullFloorGrid',
-sources:false,
-text: false,
-geometry: {primitive: 'plane', width: 100, height: 100, segmentsHeight: 1, segmentsWidth: 1},
-material: {shader: "standard", src: './assets/img/tiles/grid-border.png', repeat: '100 100',color: "#ff71ce", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#ff71ce", emissiveIntensity: 0.8, side: 'double', transparent: 'true',},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
+animations: {
+daycolor:{property: 'material.color', from: '#613381', to: '#298625', dur: 90000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunrise'},
+daycolor2:{property: 'material.color', from: '#298625', to: '#613381', dur: 180000, delay: 180000, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunrise'},
+nightcolor:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunset'},
+nightcolor2:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90000, delay: 90000, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunset'},
+},
 mixins: false,
 classes: ['a-ent'],
 components: false,
@@ -3761,14 +3955,29 @@ components: false,
 //
 
 //Node Wall
+this.nodeWallParentData = {
+data:'node wall',
+id:'nodeWallParent',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,2,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
 this.nodeWallData = {
 data:'node wall',
 id:'nodeWall',
 sources:false,
 text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 10, height: 2.5},
+geometry: {primitive: 'box', depth: 0.25, width: 20, height: 4},
 material: {shader: "standard", src: pattern18, repeat: '10 2.5',color: "#80401f", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#80401f", emissiveIntensity: 0.8, side: 'double'},
-position: new THREE.Vector3(0,1.25,0),
+position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -3788,11 +3997,16 @@ entity: 'a-sky',
 sources: false,
 text: false,
 geometry: false,
-material: {shader: 'threeColorGradientShader', topColor: '#01cdfe', middleColor: '#fffb96', bottomColor: '#b967ff'},
+material: {shader: 'threeColorGradientShader', topColor: '#613381', middleColor: '#99154E', bottomColor: '#b967ff'},
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-animations: false,
+animations: {
+sunrisetop:{property: 'material.topColor', from: '#613381', to: '#01cdfe', dur: aThis.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+sunrisemid:{property: 'material.middleColor', from: '#99154E', to: '#fffb96', dur: aThis.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'}, 
+sunsettop:{property: 'material.topColor', from: '#01cdfe', to: '#613381', dur: aThis.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunset'},
+sunsetmid:{property: 'material.middleColor', from: '#fffb96', to: '#99154E', dur: aThis.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunset'}, 
+},
 mixins: false,
 classes: ['a-ent'],
 components: false,
@@ -3809,24 +4023,6 @@ position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(0.95, 0.95, 0.95),
 animations:{rotate: {property: 'object3D.rotation.z', from: 0, to: 360, dur: 4000000, delay: 0, loop: 'true', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true}, },
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-//Cosmic Sun 
-this.skyCosmicSunData = {
-data:'background 1',
-id:'skyCosmicSun',
-entity: 'a-sky',
-sources:false,
-text: false,
-geometry: false,
-material: {shader: "flat", src: "./assets/img/360/cosmic-sun.jpg", color: '#FFFFFF'},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
 mixins: false,
 classes: ['a-ent'],
 components: false,
@@ -4231,49 +4427,244 @@ page0: this.npcMintyBookTestPage1Data,
 },
 };
 
-
-//Testing Data
+//Multi Obj Gen Testing
+//Data
 this.spawnTestingData = {
 data:'Ring Spawn Testing',
 id:'ringSpawnTesting',
 sources: false,
 text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
 material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,0,0),
+position: new THREE.Vector3(0,0.25,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
 classes: ['a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
+components: false,
 };
-
-//
-//Multi Obj Gen
+//Multi
 this.multiTestingData = {
 id: 'multiTesting',
 objData: aThis.spawnTestingData,
-total: 10,
-outerRingRadius: 6,
+total: 30,
+outerRingRadius: 30,
 innerRingRadius: 3,
 sameTypeRadius: 1,
 otherTypeRadius: 1,
-yPos: aThis.spawnTestingData.geometry.height/2,
 ranYPos: true,
-yPosFlex: 1,
+yPosFlex: 4,
 ranScaleX: true,
 ranScaleY: true,
 ranScaleZ: true,
-scaleFlex: 1,
+scaleFlex: 3,
 ranRotX: true,
 ranRotY: true,
 ranRotZ: true,
 ranColor: true,
 ranTexture: true,
 };
+
+//Environment Basics
+//
+//Snow Mountains
+//Snow Mountains Basic
+this.snowMountainsBasicData = {
+data:'snowMountainsBasicData',
+id:'snowMountainsBasic',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Multi Snow Mountains Basic
+this.multiSnowMountainsBasicData = {
+id: 'multiSnowMountainsBasic',
+objData: aThis.snowMountainsBasicData,
+total: 30,
+outerRingRadius: 30,
+innerRingRadius: 3,
+sameTypeRadius: 2,
+otherTypeRadius: 1,
+ranYPos: true,
+yPosFlex: 2,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: true,
+ranRotY: true,
+ranRotZ: true,
+ranColor: true,
+ranTexture: true,
+};
+//
+//Rainy Forest Basic
+this.rainyForestBasicData = {
+data:'rainyForestBasicData',
+id:'rainyForestBasic',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Multi Forest Basic
+this.multiRainyForestBasicData = {
+id: 'multiRainyForestBasic',
+objData: aThis.rainyForestBasicData,
+total: 30,
+outerRingRadius: 30,
+innerRingRadius: 3,
+sameTypeRadius: 2,
+otherTypeRadius: 1,
+ranYPos: true,
+yPosFlex: 2,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: true,
+ranRotY: true,
+ranRotZ: true,
+ranColor: true,
+ranTexture: true,
+};
+//
+//Grassy Hills
+//Basic
+this.grassyHillsBasicData = {
+data:'grassyHillsBasicData',
+id:'grassyHillsBasic',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Multi
+this.multiGrassyHillsBasicData = {
+id: 'multiGrassyHillsBasic',
+objData: aThis.grassyHillsBasicData,
+total: 30,
+outerRingRadius: 30,
+innerRingRadius: 3,
+sameTypeRadius: 2,
+otherTypeRadius: 1,
+ranYPos: true,
+yPosFlex: 2,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: true,
+ranRotY: true,
+ranRotZ: true,
+ranColor: true,
+ranTexture: true,
+};
+//
+//Desert Plains
+//Basic
+this.desertPlainsBasicData = {
+data:'desertPlainsBasicData',
+id:'desertPlainsBasic',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Multi
+this.multiDesertPlainsBasicData = {
+id: 'multiDesertPlainsBasic',
+objData: aThis.desertPlainsBasicData,
+total: 30,
+outerRingRadius: 30,
+innerRingRadius: 3,
+sameTypeRadius: 2,
+otherTypeRadius: 1,
+ranYPos: true,
+yPosFlex: 2,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: true,
+ranRotY: true,
+ranRotZ: true,
+ranColor: true,
+ranTexture: true,
+};
+//
+//Ocean Beach
+//Basic
+this.oceanBeachBasicData = {
+data:'oceanBeachBasicData',
+id:'oceanBeachBasic',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Multi
+this.multiOceanBeachBasicData = {
+id: 'multiOceanBeachBasic',
+objData: aThis.oceanBeachBasicData,
+total: 30,
+outerRingRadius: 30,
+innerRingRadius: 3,
+sameTypeRadius: 2,
+otherTypeRadius: 1,
+ranYPos: true,
+yPosFlex: 2,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: true,
+ranRotY: true,
+ranRotZ: true,
+ranColor: true,
+ranTexture: true,
+};
+
+
+
+
 
 //
 //Animations
@@ -4367,65 +4758,1365 @@ this.animStuffData = {
 	//startEvents: 'testevent',
 };
 
+
+//Kenny Assets
+
+//flower_purpleA
+this.flower_purpleAData = {
+data:'flower_purpleA',
+id:'flower_purpleA',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(2,2,2),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/flower_purpleA.glb',
+},
+};
+//flower_redA
+this.flower_redAData = {
+data:'flower_redA',
+id:'flower_redA',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(2,2,2),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/flower_redA.glb',
+},
+};
+//flower_yellowA
+this.flower_yellowAData = {
+data:'flower_yellowA',
+id:'flower_yellowA',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(2,2,2),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/flower_yellowA.glb',
+},
+};
+//grass_large
+this.grass_largeData = {
+data:'grass_large',
+id:'grass_large',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0.15,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(6,3,6),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/grass_large.glb',
+},
+};
+//grass_leafsLarge
+this.grass_leafsLargeData = {
+data:'grass_leafsLarge',
+id:'grass_leafsLarge',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0.15,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(6,3,6),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/grass_leafsLarge.glb',
+},
+};
+//pine
+this.pineData = {
+data:'pine',
+id:'pine',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/pine.glb',
+},
+};
+//pineCrooked
+this.pineCrookedData = {
+data:'pineCrooked',
+id:'pineCrooked',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/pineCrooked.glb',
+},
+};
+//plant_bush
+this.plant_bushData = {
+data:'plant_bush',
+id:'plant_bush',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/plant_bush.glb',
+},
+};
+//plant_bushLarge
+this.plant_bushLargeData = {
+data:'plant_bushLarge',
+id:'plant_bushLarge',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/plant_bushLarge.glb',
+},
+};
+//rockFormationLarge
+this.rockFormationLargeData = {
+data:'rockFormationLarge',
+id:'rockFormationLarge',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rockFormationLarge.glb',
+},
+};
+//rockFormationMedium
+this.rockFormationMediumData = {
+data:'rockFormationMedium',
+id:'rockFormationMedium',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rockFormationMedium.glb',
+},
+};
+//rockFormationSmall
+this.rockFormationSmallData = {
+data:'rockFormationSmall',
+id:'rockFormationSmall',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rockFormationSmall.glb',
+},
+};
+//rockLarge
+this.rockLargeData = {
+data:'rockLarge',
+id:'rockLarge',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rockLarge.glb',
+},
+};
+//rockMedium
+this.rockMediumData = {
+data:'rockMedium',
+id:'rockMedium',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rockMedium.glb',
+},
+};
+//rockSmall
+this.rockSmallData = {
+data:'rockSmall',
+id:'rockSmall',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rockSmall.glb',
+},
+};
+//shovelDirt
+this.shovelDirtData = {
+data:'shovelDirt',
+id:'shovelDirt',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/shovelDirt.glb',
+},
+};
+//tree_cone
+this.tree_coneData = {
+data:'tree_cone',
+id:'tree_cone',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_cone.glb',
+},
+};
+//tree_default
+this.tree_defaultData = {
+data:'tree_default',
+id:'tree_default',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_default.glb',
+},
+};
+//tree_fat
+this.tree_fatData = {
+data:'tree_fat',
+id:'tree_fat',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_fat.glb',
+},
+};
+//tree_oak
+this.tree_oakData = {
+data:'tree_oak',
+id:'tree_oak',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_oak.glb',
+},
+};
+//tree_palm
+this.tree_palmData = {
+data:'tree_palm',
+id:'tree_palm',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_palm.glb',
+},
+};
+//tree_palmBend
+this.tree_palmBendData = {
+data:'tree_palmBend',
+id:'tree_palmBend',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_palmBend.glb',
+},
+};
+//tree_palmDetailedShort
+this.tree_palmDetailedShortData = {
+data:'tree_palmDetailedShort',
+id:'tree_palmDetailedShort',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_palmDetailedShort.glb',
+},
+};
+//tree_palmDetailedTall
+this.tree_palmDetailedTallData = {
+data:'tree_palmDetailedTall',
+id:'tree_palmDetailedTall',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_palmDetailedTall.glb',
+},
+};
+//tree_pineDefaultA
+this.tree_pineDefaultAData = {
+data:'tree_pineDefaultA',
+id:'tree_pineDefaultA',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineDefaultA.glb',
+},
+};
+//tree_pineDefaultB
+this.tree_pineDefaultBData = {
+data:'tree_pineDefaultB',
+id:'tree_pineDefaultB',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineDefaultB.glb',
+},
+};
+//tree_pineGroundA
+this.tree_pineGroundAData = {
+data:'tree_pineGroundA',
+id:'tree_pineGroundA',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineGroundA.glb',
+},
+};
+//tree_pineGroundB
+this.tree_pineGroundBData = {
+data:'tree_pineGroundB',
+id:'tree_pineGroundB',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineGroundB.glb',
+},
+};
+//tree_pineRoundA
+this.tree_pineRoundAData = {
+data:'tree_pineRoundA',
+id:'tree_pineRoundA',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineRoundA.glb',
+},
+};
+//tree_pineRoundB
+this.tree_pineRoundBData = {
+data:'tree_pineRoundB',
+id:'tree_pineRoundB',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineRoundB.glb',
+},
+};
+//tree_pineRoundC
+this.tree_pineRoundCData = {
+data:'tree_pineRoundC',
+id:'tree_pineRoundC',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineRoundC.glb',
+},
+};
+//tree_pineRoundD
+this.tree_pineRoundDData = {
+data:'tree_pineRoundD',
+id:'tree_pineRoundD',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineRoundD.glb',
+},
+};
+//tree_pineRoundE
+this.tree_pineRoundEData = {
+data:'tree_pineRoundE',
+id:'tree_pineRoundE',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineRoundE.glb',
+},
+};
+//tree_pineRoundF
+this.tree_pineRoundFData = {
+data:'tree_pineRoundF',
+id:'tree_pineRoundF',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineRoundF.glb',
+},
+};
+//tree_pineSmallA
+this.tree_pineSmallAData = {
+data:'tree_pineSmallA',
+id:'tree_pineSmallA',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineSmallA.glb',
+},
+};
+//tree_pineSmallB
+this.tree_pineSmallBData = {
+data:'tree_pineSmallB',
+id:'tree_pineSmallB',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineSmallB.glb',
+},
+};
+//tree_pineSmallC
+this.tree_pineSmallCData = {
+data:'tree_pineSmallC',
+id:'tree_pineSmallC',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineSmallC.glb',
+},
+};
+//tree_pineSmallD
+this.tree_pineSmallDData = {
+data:'tree_pineSmallD',
+id:'tree_pineSmallD',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineSmallD.glb',
+},
+};
+//trunk
+this.trunkData = {
+data:'trunk',
+id:'trunk',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/trunk.glb',
+},
+};
+//trunkLong
+this.trunkLongData = {
+data:'trunkLong',
+id:'trunkLong',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/trunkLong.glb',
+},
+};
+
+//Flowers
+this.multiFlowerPurpleAData = {
+id: 'multiFlowerPurpleA',
+objData: aThis.flower_purpleAData,
+total: 5,
+outerRingRadius: 10,
+innerRingRadius: 1.5,
+sameTypeRadius: 1,
+otherTypeRadius: 1,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 0.25,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multiFlowerRedAData = {
+id: 'multiFlowerRedA',
+objData: aThis.flower_redAData,
+total: 5,
+outerRingRadius: 10,
+innerRingRadius: 1.5,
+sameTypeRadius: 1,
+otherTypeRadius: 1,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 0.25,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multiFlowerYellowAData = {
+id: 'multiFlowerYellowA',
+objData: aThis.flower_yellowAData,
+total: 5,
+outerRingRadius: 10,
+innerRingRadius: 1.5,
+sameTypeRadius: 1,
+otherTypeRadius: 1,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 0.25,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+//Grass
+this.multiGrassLargeData = {
+id: 'multiGrassLarge',
+objData: aThis.grass_largeData,
+total: 30,
+outerRingRadius: 30,
+innerRingRadius: 2,
+sameTypeRadius: 3,
+otherTypeRadius: 1,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: false,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multiGrassLeafsLargeData = {
+id: 'multiGrassLeafsLarge',
+objData: aThis.grass_leafsLargeData,
+total: 10,
+outerRingRadius: 30,
+innerRingRadius: 2,
+sameTypeRadius: 4,
+otherTypeRadius: 1,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: false,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+//Trees
+this.multitree_pineGroundAData = {
+id: 'multitree_pineGroundA',
+objData: aThis.tree_pineGroundAData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineGroundBData = {
+id: 'multitree_pineGroundB',
+objData: aThis.tree_pineGroundBData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineRoundAData = {
+id: 'multitree_pineRoundA',
+objData: aThis.tree_pineRoundAData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineRoundBData = {
+id: 'multitree_pineRoundB',
+objData: aThis.tree_pineRoundBData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineRoundCData = {
+id: 'multitree_pineRoundC',
+objData: aThis.tree_pineRoundCData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineRoundDData = {
+id: 'multitree_pineRoundD',
+objData: aThis.tree_pineRoundDData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineRoundEData = {
+id: 'multitree_pineRoundE',
+objData: aThis.tree_pineRoundEData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineRoundFData = {
+id: 'multitree_pineRoundF',
+objData: aThis.tree_pineRoundFData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineSmallAData = {
+id: 'multitree_pineSmallA',
+objData: aThis.tree_pineSmallAData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineSmallBData = {
+id: 'multitree_pineSmallB',
+objData: aThis.tree_pineSmallBData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineSmallCData = {
+id: 'multitree_pineSmallC',
+objData: aThis.tree_pineSmallCData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineSmallDData = {
+id: 'multitree_pineSmallD',
+objData: aThis.tree_pineSmallDData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitrunkData = {
+id: 'multitrunk',
+objData: aThis.trunkData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 1,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitrunkLongData = {
+id: 'multitrunkLong',
+objData: aThis.trunkLongData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 1,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multipineData = {
+id: 'multipine',
+objData: aThis.pineData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multipineCrookedData = {
+id: 'multipineCrooked',
+objData: aThis.pineCrookedData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_coneData = {
+id: 'multitree_cone',
+objData: aThis.tree_coneData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_defaultData = {
+id: 'multitree_default',
+objData: aThis.tree_defaultData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 5,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_fatData = {
+id: 'multitree_fat',
+objData: aThis.tree_fatData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 15,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_oakData = {
+id: 'multitree_oak',
+objData: aThis.tree_oakData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 15,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineDefaultAData = {
+id: 'multitree_pineDefaultA',
+objData: aThis.tree_pineDefaultAData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 15,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+this.multitree_pineDefaultBData = {
+id: 'multitree_pineDefaultB',
+objData: aThis.tree_pineDefaultBData,
+total: 5,
+outerRingRadius: 50,
+innerRingRadius: 15,
+sameTypeRadius: 3,
+otherTypeRadius: 2,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
+
+//Atlas Outline
+//
+//Floating Island
+//Clouds, statues, broken temples
+
+//Snow Mountains w/Underground Cave
+//Mountains, rocks, snowy hills
+
+//Rainy Forest
+//Trees, bushes
+
+//Grassy Hills w/Cabin House
+//Hills, Cabin
+
+//Desert Plains
+//Cactus, Plataues
+
+//Ocean Beach w/Underwater
+//Small hills, water front
+
+
 //
 //World Atlas Map & Node Data
 
+//Floating Island - Connects to all zones
 //
 //Zone 0
 this.zone0Data = {
 info:{
 id: 'zone0',
-name: 'Home',
+name: 'Zone0',
 zoneNum: 0,
-start: 'zone0Node0In0',
+start: 'zone0Node0',
 },
-zone0Node0In0:{
-connect0: {inZone: true, node: 'zone0Node0In1',},
-},
-zone0Node0In1:{
-connect0: {inZone: true, node: 'zone0Node0In0',},
-connect1: {inZone: true, node: 'zone0Node0Out'},
-},
-zone0Node0Out:{
-connect0: {inZone: true, node: 'zone0Node0In1'},
-connect1: {inZone: true, node: 'zone0Node1Out',},
-},
-zone0Node1Out:{
-connect0: {inZone: true, node: 'zone0Node0Out',},
-connect1: {inZone: true, node: 'zone0Node2Out', locked: true, key: 'masterKey', keepKey: true},
-connect2: {inZone: 'zone1', node: 'zone1Node0Out',},
-},
-zone0Node2Out:{
-connect0: {inZone: true, node: 'zone0Node1Out'},
+zone0Node0:{
+connect0: {inZone: 'zone1', node: 'zone1Node0',},
+connect1: {inZone: 'zone2', node: 'zone2Node0',},
+connect2: {inZone: 'zone3', node: 'zone3Node0',},
+connect3: {inZone: 'zone4', node: 'zone4Node0',},
+connect4: {inZone: 'zone5', node: 'zone5Node0',},
 },
 };
-
-//Indoor Node 0 [HomeBase & Starter Node]
-this.zone0Node0In0Data = {
+//Node 0
+this.zone0Node0Data = {
 info:{
-id:'zone0Node0In0',
-name: 'Your Home Bedroom',
-description: 'HomeBase starting point for Zone 0.',
+id:'zone0Node0',
+name: 'Floating Island',
+description: 'Starting Zone',
 sceneText: true,
 },
 zone:{
-skyStarLayer:{AddAllToScene: null},
-nodeFloor:{AddToScene: null},
 },
 start:{
-npcMinty:{Spawn:null},
-multiTesting:{genCores: null, SpawnAll: null},
 HamGirl:{Start: null},
+npcMinty:{Spawn:null},
 eventTesting:{AddToScene: null, EnableDetail: 'This is a test detail to read.'},
 soundTesting:{AddToScene: null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern57, color: "#226c93", emissive: "#226c93",},}},
-nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern18, color: "#80401f", emissive: "#80401f",}}},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern49, repeat: '50 50',color: "#27693d", emissive: "#27693d",},}},
+multiFlowerPurpleA:{genCores: null, SpawnAll: null},
+multiFlowerRedA:{genCores: null, SpawnAll: null},
+multiFlowerYellowA:{genCores: null, SpawnAll: null},
+multiGrassLarge:{genCores: null, SpawnAll: null},
+multiGrassLeafsLarge:{genCores: null, SpawnAll: null},
+multitree_pineGroundA:{genCores: null, SpawnAll: null},
+multitree_pineGroundB:{genCores: null, SpawnAll: null},
+multitree_pineRoundA:{genCores: null, SpawnAll: null},
+multitree_pineRoundB:{genCores: null, SpawnAll: null},
+multitree_pineRoundC:{genCores: null, SpawnAll: null},
+multitree_pineRoundD:{genCores: null, SpawnAll: null},
+multitree_pineRoundE:{genCores: null, SpawnAll: null},
+multitree_pineRoundF:{genCores: null, SpawnAll: null},
+multitree_pineSmallA:{genCores: null, SpawnAll: null},
+multitree_pineSmallB:{genCores: null, SpawnAll: null},
+multitree_pineSmallC:{genCores: null, SpawnAll: null},
+multitree_pineSmallD:{genCores: null, SpawnAll: null},
+multitrunk:{genCores: null, SpawnAll: null},
+multitrunkLong:{genCores: null, SpawnAll: null},
+multipine:{genCores: null, SpawnAll: null},
+multipineCrooked:{genCores: null, SpawnAll: null},
+multitree_cone:{genCores: null, SpawnAll: null},
+multitree_default:{genCores: null, SpawnAll: null},
+multitree_fat:{genCores: null, SpawnAll: null},
+multitree_oak:{genCores: null, SpawnAll: null},
+multitree_pineDefaultA:{genCores: null, SpawnAll: null},
+multitree_pineDefaultB:{genCores: null, SpawnAll: null},
 },
 delay:{
-5000:{eventTesting:{EmitEvent: 'customevent'},},
-5001:{soundTesting:{EmitEvent: 'playSound'},},
+1000:{eventTesting:{EmitEvent: 'customevent'},soundTesting:{EmitEvent: 'playSound'},},
 },
 interval:{
+
 },
 event:{
 customevent: {eventTesting: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},},
@@ -4437,174 +6128,364 @@ exit:{
 HamGirl:{Remove: null},
 },
 map:{
-data: this.zone0Data.zone0Node0In0,
-},
-};
-//Indoor Node 1
-this.zone0Node0In1Data = {
-info:{
-id:'zone0Node0In1',
-name: 'Your Living Room',
-description: 'Secondary room in starting HomeBase indoor zone and connection to outside.',
-sceneText: true,
-},
-zone:{},
-start:{
-npc0:{Spawn: null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern58, color: "#1a597b", emissive: "#1a597b",},}},
-nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern21, color: "#9f4618", emissive: "#9f4618",}}},
-},
-delay:{
-},
-interval:{},
-event:{},
-interaction:{},
-exit:{
-
-},
-map:{
-data: this.zone0Data.zone0Node0In1,
-},
-};
-//Outdoor Node 0
-this.zone0Node0OutData = {
-info:{
-id:'zone0Node0Out',
-name: 'Front Porch',
-description: 'Right outside the HomeBase building. Go back inside head to travel station.',
-sceneText: true,
-},
-zone:{},
-start:{
-carousel1:{Show: null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern59, color: "#5a182a", emissive: "#5a182a",},}},
-},
-delay:{
-
-},
-interval:{},
-event:{},
-interaction:{},
-exit:{},
-map:{
-data: this.zone0Data.zone0Node0Out,
-},
-};
-//Outdoor Node 1
-this.zone0Node1OutData = {
-info:{
-id:'zone0Node1Out',
-name: 'Travel Station',
-description: 'Right next door to the HomeBase building. Go back or travel the world.',
-sceneText: true,
-},
-zone:{
-
-},
-start:{
-npc1:{Spawn: null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern78, color: "#4d0b1d", emissive: "#4d0b1d",},}},
-},
-delay:{
-
-},
-interval:{},
-event:{},
-interaction:{},
-exit:{},
-map:{
-data: this.zone0Data.zone0Node1Out,
-},
-};
-//Outdoor Node 2
-this.zone0Node2OutData = {
-info:{
-id:'zone0Node2Out',
-name: 'Janitor Closet',
-description: 'A Locked Room.',
-sceneText: true,
-},
-zone:{
-},
-start:{
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern74, color: "#421ea2", emissive: "#421ea2",},}},
-},
-delay:{},
-interval:{},
-event:{},
-interaction:{},
-exit:{},
-map:{
-data: this.zone0Data.zone0Node2Out,
+data: this.zone0Data.zone0Node0,
 },
 };
 
+
+
+//Snow Mountains w/Underground Cave
 //
 //Zone 1
 this.zone1Data = {
 info:{
 id: 'zone1',
-name: 'Forest',
-zoneNum: 1,
-start: 'zone1Node0Out',
+name: 'Zone1',
+zoneNum: 0,
+start: 'zone1Node0',
 },
-zone1Node0Out:{
-connect0: {inZone: 'zone0', node: 'zone0Node1Out',},
-connect1: {inZone: true, node: 'zone1Node0In0',},
+zone1Node0:{
+connect0: {inZone: 'zone0', node: 'zone0Node0',},
+connect1: {inZone: true, node: 'zone1Node1',},
+connect2: {inZone: 'zone2', node: 'zone2Node0',},
 },
-zone1Node0In0:{
-connect0: {inZone: true, node: 'zone1Node0Out',},
-connect1: {inZone: 'zone0', node: 'zone0Node0In0',},
+zone1Node1:{
+connect0: {inZone: true, node: 'zone1Node0',},
 },
-
 };
-
-//Outdoor Node 1
-this.zone1Node0OutData = {
+//Node 0
+this.zone1Node0Data = {
 info:{
-id:'zone1Node0Out',
-name: 'Zone 1 Forest Exterior',
-description: 'Landing Area for Zone 1',
+id:'zone1Node0',
+name: 'Snowy Mountains',
+description: 'Open Tundra',
 sceneText: true,
 },
 zone:{
-skyStarLayer:{AddAllToScene: null},
-nodeFloor:{AddToScene: null},
 },
 start:{
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern45, color: "#298625", emissive: "#298625",},}},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern69, color: "#d6a9ba", emissive: "#d6a9ba",},}},
+multiSnowMountainsBasic:{genCores: null, SpawnAll: null},
 },
 delay:{
 
 },
-interval:{},
-event:{},
-interaction:{},
-exit:{},
+interval:{
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
 map:{
-data: this.zone1Data.zone1Node0Out,
+data: this.zone1Data.zone1Node0,
 },
 };
-//Indoor Node 1
-this.zone1Node0In0Data = {
+//Node 1
+this.zone1Node1Data = {
 info:{
-id:'zone1Node0In0',
-name: 'Zone 1 Forest Interior',
-description: 'Indoor Zone 1 and 1way Return to HomeBase.',
+id:'zone1Node1',
+name: 'Mountain Cave',
+description: 'Underground Shelter',
 sceneText: true,
 },
-zone:{},
-start:{
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern44, color: "#1d601a", emissive: "#1d601a",},}},
-npc2:{Spawn: null},
+zone:{
 },
-delay:{},
-interval:{},
-event:{},
-interaction:{},
-exit:{},
+start:{
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern37, color: "#bc8fa0", emissive: "#bc8fa0",},}},
+nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern81, repeat: '5 1.25', color: "#bc8fa0", emissive: "#bc8fa0",}}},
+npc1:{Spawn: null},
+},
+delay:{
+
+},
+interval:{
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
 map:{
-data: this.zone1Data.zone1Node0In0,
+data: this.zone1Data.zone1Node1,
+},
+};
+
+//Rainy Forest
+//
+//Zone 2
+this.zone2Data = {
+info:{
+id: 'zone2',
+name: 'Zone2',
+zoneNum: 0,
+start: 'zone2Node0',
+},
+zone2Node0:{
+connect0: {inZone: 'zone0', node: 'zone0Node0',},
+connect1: {inZone: 'zone1', node: 'zone1Node0',},
+connect2: {inZone: 'zone3', node: 'zone3Node0',},
+},
+};
+//Node 2
+this.zone2Node0Data = {
+info:{
+id:'zone2Node0',
+name: 'Rainy Forest',
+description: 'Deep Wetlands',
+sceneText: true,
+},
+zone:{
+},
+start:{
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern24, color: "#228343", emissive: "#228343",},}},
+multiRainyForestBasic:{genCores: null, SpawnAll: null},
+},
+delay:{
+
+},
+interval:{
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
+map:{
+data: this.zone2Data.zone2Node0,
+},
+};
+
+//Grassy Hills w/Cabin House
+//
+//Zone 3
+this.zone3Data = {
+info:{
+id: 'zone3',
+name: 'Zone3',
+zoneNum: 0,
+start: 'zone3Node0',
+},
+zone3Node0:{
+connect0: {inZone: 'zone0', node: 'zone0Node0',},
+connect1: {inZone: 'zone2', node: 'zone2Node0',},
+connect2: {inZone: true, node: 'zone3Node1', locked: true, key: 'masterKey', keepKey: true},
+connect3: {inZone: 'zone4', node: 'zone4Node0',},
+},
+zone3Node1:{
+connect0: {inZone: true, node: 'zone3Node0',},
+},
+};
+//Node 0
+this.zone3Node0Data = {
+info:{
+id:'zone3Node0',
+name: 'Grassy Hills',
+description: 'Vast Plains',
+sceneText: true,
+},
+zone:{
+},
+start:{
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern49, color: "#47a868", emissive: "#47a868",},}},
+multiGrassyHillsBasic:{genCores: null, SpawnAll: null},
+},
+delay:{
+
+},
+interval:{
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
+map:{
+data: this.zone3Data.zone3Node0,
+},
+};
+//Node 1
+this.zone3Node1Data = {
+info:{
+id:'zone3Node1',
+name: 'Hill Cabin',
+description: 'Farm Shelter',
+sceneText: true,
+},
+zone:{
+
+},
+start:{
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern50, repeat: '100 100',color: "#763a3a", emissive: "#763a3a",},}},
+nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
+},
+delay:{
+
+},
+interval:{
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
+map:{
+data: this.zone3Data.zone3Node1,
+},
+};
+
+//Desert Plains
+//
+//Zone 4
+this.zone4Data = {
+info:{
+id: 'zone4',
+name: 'Zone4',
+zoneNum: 0,
+start: 'zone4Node0',
+},
+zone4Node0:{
+connect0: {inZone: 'zone0', node: 'zone0Node0',},
+connect1: {inZone: 'zone3', node: 'zone3Node0',},
+connect2: {inZone: 'zone5', node: 'zone5Node0',},
+},
+};
+//Node 0
+this.zone4Node0Data = {
+info:{
+id:'zone4Node0',
+name: 'Open Desert',
+description: 'Dry Plains',
+sceneText: true,
+},
+zone:{
+},
+start:{
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern58, color: "#c1bd52", emissive: "#c1bd52",},}},
+npc2:{Spawn: null},
+multiDesertPlainsBasic:{genCores: null, SpawnAll: null},
+},
+delay:{
+
+},
+interval:{
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
+map:{
+data: this.zone4Data.zone4Node0,
+},
+};
+
+//Ocean Beach w/Underwater
+//
+//Zone 5
+this.zone5Data = {
+info:{
+id: 'zone5',
+name: 'Zone5',
+zoneNum: 0,
+start: 'zone5Node0',
+},
+zone5Node0:{
+connect0: {inZone: 'zone0', node: 'zone0Node0',},
+connect1: {inZone: 'zone4', node: 'zone4Node0',},
+connect2: {inZone: true, node: 'zone5Node1',},
+},
+zone5Node1:{
+connect0: {inZone: true, node: 'zone5Node0',},
+},
+};
+//Node 0
+this.zone5Node0Data = {
+info:{
+id:'zone5Node0',
+name: 'Ocean Beach',
+description: 'Rolling Sands',
+sceneText: true,
+},
+zone:{
+},
+start:{
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern55, color: "#b4933c", emissive: "#b4933c",},}},
+multiOceanBeachBasic:{genCores: null, SpawnAll: null},
+},
+delay:{
+
+},
+interval:{
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
+map:{
+data: this.zone5Data.zone5Node0,
+},
+};
+//Node 1
+this.zone5Node1Data = {
+info:{
+id:'zone5Node1',
+name: 'Underwater',
+description: 'Submerged',
+sceneText: true,
+},
+zone:{
+
+},
+start:{
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern83, color: "#3c86b4", emissive: "#3c86b4",},}},
+nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern80, repeat: '5 1.25', color: "#3c86b4", emissive: "#3c86b4",}}},
+},
+delay:{
+
+},
+interval:{
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
+map:{
+data: this.zone5Data.zone5Node1,
 },
 };
 
@@ -4650,10 +6531,6 @@ this.playerLayer = Layer('playerLayer', this.playerAll);
 //Main User Player
 this.player = Player(this.playerLayer);
 
-//
-//Carousel
-this.carousel1 = Carousel('carousel1',this.carouselViewData, this.carouselButtonData, mat0, mat1, mat2, mat3, mat4);
-
 //Speech System TextBubble
 this.textBubbleSide = Core(this.textBubbleSideData);
 this.textBubbleBottom = Core(this.textBubbleBottomData);
@@ -4662,49 +6539,56 @@ this.textBubbleTop = Core(this.textBubbleTopData);
 //
 //Environment
 
+//Lights
+this.directionalLight = Core(this.directionalLightData);
+this.directionalLight2 = Core(this.directionalLight2Data);
+this.directionalLight3 = Core(this.directionalLight3Data);
+this.ambientLight = Core(this.ambientLightData);
+//Sun
+this.sunOuter = Core(this.sunOuterData);
+this.sun = Core(this.sunData);
+this.sunLayerData = {
+parent: {core: this.sunOuter},
+child0: {core: this.sun},
+}
+this.sunLayer = Layer('sunLayer', this.sunLayerData);
+//Moon
+this.moonOuter = Core(this.moonOuterData);
+this.moon = Core(this.moonData);
+this.moonLayerData = {
+parent: {core: this.moonOuter},
+child0: {core: this.moon},
+}
+this.moonLayer = Layer('moonLayer', this.moonLayerData);
+
 //Node Floor
 this.nodeFloor = Core(this.nodeFloorData);
 
 //Node Walls
+this.nodeWallParent = Core(this.nodeWallParentData);
 this.nodeWallData.id = 'nodeWall1';
-this.nodeWallData.position = new THREE.Vector3(0,1.25,-5);
+this.nodeWallData.position = new THREE.Vector3(0,0,-10);
 this.nodeWall1 = Core(this.nodeWallData);
 this.nodeWallData.id = 'nodeWall2';
 this.nodeWallData.position = new THREE.Vector3(0,0,10);
 this.nodeWall2 = Core(this.nodeWallData);
 this.nodeWallData.id = 'nodeWall3';
-this.nodeWallData.position = new THREE.Vector3(-5,0,5);
+this.nodeWallData.position = new THREE.Vector3(-10,0,0);
 this.nodeWallData.rotation = new THREE.Vector3(0,90,0);
 this.nodeWall3 = Core(this.nodeWallData);
 this.nodeWallData.id = 'nodeWall4';
-this.nodeWallData.position = new THREE.Vector3(5,0,5);
+this.nodeWallData.position = new THREE.Vector3(10,0,0);
 this.nodeWall4 = Core(this.nodeWallData);
 this.nodeWallsData = {
-parent: {core: this.nodeWall1}, 
-child0: {core: this.nodeWall2},
-child1: {core: this.nodeWall3},
-child2: {core: this.nodeWall4},}
+parent: {core: this.nodeWallParent}, 
+child0: {core: this.nodeWall1}, 
+child1: {core: this.nodeWall2},
+child2: {core: this.nodeWall3},
+child3: {core: this.nodeWall4},}
 this.nodeWalls = Layer('nodeWalls',this.nodeWallsData);
-
-
-//Full Floor
-this.fullFloor = Core(this.fullFloorData);
-this.fullFloorGrid = Core(this.fullFloorGridData);
-this.fullFloorLayer = {
-parent: {core: this.fullFloor}, 
-child0: {core: this.fullFloorGrid},}
-this.fullFloorLayer = Layer('fullFloorLayer',this.fullFloorLayer);
 
 //3Grad Dual Sky
 this.skyGrad = Core(this.skyGradData);
-this.skyStarAlpha = Core(this.skyStarAlphaData);
-this.skyLayer = {
-parent: {core: this.skyGrad}, 
-child0: {core: this.skyStarAlpha},}
-this.skyStarLayer = Layer('skyStarLayer',this.skyLayer);
-
-//Cosmic Sun Sky
-this.skyCosmicSun = Core(this.skyCosmicSunData);
 
 //
 //Hamburger Menu Companion
@@ -4742,33 +6626,187 @@ this.soundTesting = Core(this.soundTestingData);
 //Multi Obj Spawn Testing
 this.multiTesting = ObjsGenRing(this.multiTestingData);
 
+//Environment Basics
+this.multiSnowMountainsBasic = ObjsGenRing(this.multiSnowMountainsBasicData);
+this.multiRainyForestBasic = ObjsGenRing(this.multiRainyForestBasicData);
+this.multiGrassyHillsBasic = ObjsGenRing(this.multiGrassyHillsBasicData);
+this.multiDesertPlainsBasic = ObjsGenRing(this.multiDesertPlainsBasicData);
+this.multiOceanBeachBasic = ObjsGenRing(this.multiOceanBeachBasicData);
+
+//Forest Multi
+this.multiFlowerPurpleA = ObjsGenRing(this.multiFlowerPurpleAData);
+this.multiFlowerRedA = ObjsGenRing(this.multiFlowerRedAData);
+this.multiFlowerYellowA = ObjsGenRing(this.multiFlowerYellowAData);
+this.multiGrassLarge = ObjsGenRing(this.multiGrassLargeData);
+this.multiGrassLeafsLarge = ObjsGenRing(this.multiGrassLeafsLargeData);
+this.multitree_pineGroundA = ObjsGenRing(this.multitree_pineGroundAData);
+this.multitree_pineGroundB = ObjsGenRing(this.multitree_pineGroundBData);
+this.multitree_pineRoundA = ObjsGenRing(this.multitree_pineRoundAData);
+this.multitree_pineRoundB = ObjsGenRing(this.multitree_pineRoundBData);
+this.multitree_pineRoundC = ObjsGenRing(this.multitree_pineRoundCData);
+this.multitree_pineRoundD = ObjsGenRing(this.multitree_pineRoundDData);
+this.multitree_pineRoundE = ObjsGenRing(this.multitree_pineRoundEData);
+this.multitree_pineRoundF = ObjsGenRing(this.multitree_pineRoundFData);
+this.multitree_pineSmallA = ObjsGenRing(this.multitree_pineSmallAData);
+this.multitree_pineSmallB = ObjsGenRing(this.multitree_pineSmallBData);
+this.multitree_pineSmallC = ObjsGenRing(this.multitree_pineSmallCData);
+this.multitree_pineSmallD = ObjsGenRing(this.multitree_pineSmallDData);
+this.multitrunk = ObjsGenRing(this.multitrunkData);
+this.multitrunkLong = ObjsGenRing(this.multitrunkLongData);
+this.multipine = ObjsGenRing(this.multipineData);
+this.multipineCrooked = ObjsGenRing(this.multipineCrookedData);
+this.multitree_cone = ObjsGenRing(this.multitree_coneData);
+this.multitree_default = ObjsGenRing(this.multitree_defaultData);
+this.multitree_fat = ObjsGenRing(this.multitree_fatData);
+this.multitree_oak = ObjsGenRing(this.multitree_oakData);
+this.multitree_pineDefaultA = ObjsGenRing(this.multitree_pineDefaultAData);
+this.multitree_pineDefaultB = ObjsGenRing(this.multitree_pineDefaultBData);
+
+
+
+//Forest
+/*
+this.flower_purpleA = Core(this.flower_purpleAData);
+this.flower_redA = Core(this.flower_redAData);
+this.flower_yellowA = Core(this.flower_yellowAData);
+this.grass_large = Core(this.grass_largeData);
+this.grass_leafsLarge = Core(this.grass_leafsLargeData);
+this.pine = Core(this.pineData);
+this.pineCrooked = Core(this.pineCrookedData);
+this.plant_bush = Core(this.plant_bushData);
+this.plant_bushLarge = Core(this.plant_bushLargeData);
+this.rockFormationLarge = Core(this.rockFormationLargeData);
+this.rockFormationMedium = Core(this.rockFormationMediumData);
+this.rockFormationSmall = Core(this.rockFormationSmallData);
+this.rockLarge = Core(this.rockLargeData);
+this.rockMedium = Core(this.rockMediumData);
+this.rockSmall = Core(this.rockSmallData);
+this.shovelDirt = Core(this.shovelDirtData);
+this.tree_cone = Core(this.tree_coneData);
+this.tree_default = Core(this.tree_defaultData);
+this.tree_fat = Core(this.tree_fatData);
+this.tree_oak = Core(this.tree_oakData);
+this.tree_palm = Core(this.tree_palmData);
+this.tree_palmBend = Core(this.tree_palmBendData);
+this.tree_palmDetailedShort = Core(this.tree_palmDetailedShortData);
+this.tree_palmDetailedTall = Core(this.tree_palmDetailedTallData);
+this.tree_pineDefaultA = Core(this.tree_pineDefaultAData);
+this.tree_pineDefaultB = Core(this.tree_pineDefaultBData);
+this.tree_pineGroundA = Core(this.tree_pineGroundAData);
+this.tree_pineGroundB = Core(this.tree_pineGroundBData);
+this.tree_pineRoundA = Core(this.tree_pineRoundAData);
+this.tree_pineRoundB = Core(this.tree_pineRoundBData);
+this.tree_pineRoundC = Core(this.tree_pineRoundCData);
+this.tree_pineRoundD = Core(this.tree_pineRoundDData);
+this.tree_pineRoundE = Core(this.tree_pineRoundEData);
+this.tree_pineRoundF = Core(this.tree_pineRoundFData);
+this.tree_pineSmallA = Core(this.tree_pineSmallAData);
+this.tree_pineSmallB = Core(this.tree_pineSmallBData);
+this.tree_pineSmallC = Core(this.tree_pineSmallCData);
+this.tree_pineSmallD = Core(this.tree_pineSmallDData);
+this.trunk = Core(this.trunkData);
+this.trunkLong = Core(this.trunkLongData);
+*/
+
 //
 //World Atlas & Map
 //Define at end of Init to ensure all objects are ready
 
+//Floating Island - Connects to all zones
 //Zone 0
 //
-//Node 0 In 0
-this.zone0Node0In0 = SceneNode(this.zone0Node0In0Data);
-//Node 0 In 1
-this.zone0Node0In1 = SceneNode(this.zone0Node0In1Data);
-//Node 0 Out
-this.zone0Node0Out = SceneNode(this.zone0Node0OutData);
-//Node 1 Out
-this.zone0Node1Out = SceneNode(this.zone0Node1OutData);
-//Node 2 Out
-this.zone0Node2Out = SceneNode(this.zone0Node2OutData);
+//Node 0
+this.zone0Node0 = SceneNode(this.zone0Node0Data);
 //Map Zone 0
 this.zone0 = MapZone(this.zone0Data);
 
+//Snow Mountains w/Underground Cave
 //Zone 1
 //
-//Node 0 Out 0
-this.zone1Node0Out = SceneNode(this.zone1Node0OutData);
-//Node 0 Int
-this.zone1Node0In0 = SceneNode(this.zone1Node0In0Data);
+//Node 0
+this.zone1Node0 = SceneNode(this.zone1Node0Data);
+//Node 1
+this.zone1Node1 = SceneNode(this.zone1Node1Data);
 //Map Zone 1
 this.zone1 = MapZone(this.zone1Data);
+
+//Rainy Forest
+//Zone 2
+//
+//Node 0
+this.zone2Node0 = SceneNode(this.zone2Node0Data);
+//Map Zone 2
+this.zone2 = MapZone(this.zone2Data);
+
+//Grassy Hills w/Cabin House
+//Zone 3
+//
+//Node 0
+this.zone3Node0 = SceneNode(this.zone3Node0Data);
+//Node 1
+this.zone3Node1 = SceneNode(this.zone3Node1Data);
+//Map Zone 3
+this.zone3 = MapZone(this.zone3Data);
+
+//Desert Plains
+//Zone 4
+//
+//Node 0
+this.zone4Node0 = SceneNode(this.zone4Node0Data);
+//Map Zone 4
+this.zone4 = MapZone(this.zone4Data);
+
+//Ocean Beach w/Underwater
+//Zone 5
+//
+//Node 0
+this.zone5Node0 = SceneNode(this.zone5Node0Data);
+//Node 1
+this.zone5Node1 = SceneNode(this.zone5Node1Data);
+//Map Zone 5
+this.zone5 = MapZone(this.zone5Data);
+
+//
+//Environmental Globals
+this.directionalLight.AddToScene(false, false, true);
+this.directionalLight2.AddToScene(false, false, true);
+this.directionalLight3.AddToScene(false, false, true);
+this.ambientLight.AddToScene(false, false, true);
+this.skyGrad.AddToScene(false, false, true);
+this.sunLayer.AddAllToScene(true);
+this.moonLayer.AddAllToScene(true);
+this.nodeFloor.AddToScene(false, false, true);
+
+//DayNight
+function dayNight(){
+
+	aThis.directionalLight.EmitEvent('sunrise');
+	aThis.directionalLight2.EmitEvent('sunrise');
+	aThis.directionalLight3.EmitEvent('sunrise');
+	aThis.ambientLight.EmitEvent('sunrise');
+	aThis.sunLayer.EmitEventParent('sunrise');
+	aThis.moonLayer.EmitEventParent('sunrise');
+	aThis.skyGrad.EmitEvent('sunrise');
+
+	aThis.skyGrad.SetFlag({flag:'day', value: true});
+	//SkyGrad Color Anim
+	//Timeout
+	let timeoutDayNight = setTimeout(function () {
+		aThis.skyGrad.SetFlag({flag:'day', value: false});
+		aThis.skyGrad.EmitEvent('sunset');
+		let intervalDayNight = setInterval(function() {
+			if(aThis.skyGrad.GetFlag('day')){
+				aThis.skyGrad.SetFlag({flag:'day', value: false});
+				aThis.skyGrad.EmitEvent('sunset');
+			}else{
+				aThis.skyGrad.SetFlag({flag:'day', value: true});
+				aThis.skyGrad.EmitEvent('sunrise');
+			}
+		//clearInterval(intervalDayNight);
+		}, aThis.timeInDay/2); //Interval
+	}, aThis.timeInDay/2 - aThis.timeInDay/24); //Delay
+}
+
 
 },//Init
 

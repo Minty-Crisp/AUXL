@@ -14,10 +14,6 @@
 </head>
 <!-- A-Frame UX Library Engine v0.1 -->
 <script src="./auxl-v01.js"></script>
-<!-- A-Frame Extras -->	
-<script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
-<!-- GLTF Morph  -->
-<script src="https://rawcdn.githack.com/elbobo/aframe-gltf-morph-component/07e9b80bd382cc1c19223468d35c453e7c76e9a2/dist/aframe-gltf-morph-component.js"></script>
 <body>
 <!-- Sticky -->
 <div id="stickyBar" class="sticky flexRow">
@@ -40,13 +36,13 @@
 <!-- Experience Instructions -->
 <div id="expInfo">
 <li><button id="infoClose" class="flexCol">Close</button></li>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac metus sodales, rhoncus tellus at, pretium mi. Cras lobortis est enim, in vulputate odio ullamcorper in. In lobortis metus nec justo blandit, a lobortis nunc pretium. Donec finibus massa ut tortor dapibus laoreet. Ut diam nulla, rhoncus eu turpis sed, viverra eleifend nulla. Suspendisse accumsan nunc eros, et porta tellus ornare nec. Donec at velit non orci pretium mattis sit amet ac nunc. Duis sollicitudin eros venenatis orci luctus, eu volutpat mauris condimentum. Ut aliquam orci in quam elementum, vel elementum nisi posuere. Interdum et malesuada fames ac ante ipsum primis in faucibus. Phasellus eleifend enim porta lacus consequat, nec pulvinar sem efficitur.
+An example scenario of traversing a variety of different areas and showcasing the initial features and functions of A-Frame UX Library engine v0.1.
 </div>
 <main>
 <a-scene
 auxl
 vr-mode-ui="enabled: false;"
-device-orientation-permission-ui="enabled: true"
+device-orientation-permission-ui="enabled: true; deviceMotionMessage: Allow access to Motion and Orientation?"
 renderer="antialias: true; colorManagement: true; sortObjects: true"
 >
 <!-- - - - - - - - - - - Assets - - - - - - - - - - -->
@@ -68,9 +64,8 @@ wasd-controls="enabled: false;"
 <!-- - - - - - - - - - - Lights - - - - - - - - - - -->
 <!-- Directional -->
 <a-entity id="directionalLight"
-  light="type: directional; intensity: 0.5; castShadow: false" position="0.25 0.65 0.25"
+light="type: directional; intensity: 1; castShadow: false" position="0.5 0.65 0.25"
 ></a-entity>
-<!-- Ambient -->
 <a-entity id="ambientLight"
 light="type: ambient; color: #716a9a; intensity: 0.5"
 ></a-entity> 
