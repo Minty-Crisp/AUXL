@@ -17,6 +17,10 @@ AFRAME.registerSystem('auxl', {
 
 init: function () {
 
+// System
+/********************************************************************/
+//
+
 //Establish a-frame objects
 const sceneEl = document.querySelector('a-scene');
 const head = document.querySelector('head');
@@ -1837,6 +1841,35 @@ AThisObjMethod(aThis.running[ran].object,aThis.running[ran].method,aThis.running
 
 	return {core, IfElse, SetFlag, ClearScene, AThisObjMethod, Info, Zone, Start, Delay, Interval, Event, Interaction, Exit, Map, StartScene}
 }
+//DayNight
+function dayNight(){
+
+	aThis.directionalLight.EmitEvent('sunrise');
+	aThis.directionalLight2.EmitEvent('sunrise');
+	aThis.directionalLight3.EmitEvent('sunrise');
+	aThis.ambientLight.EmitEvent('sunrise');
+	aThis.sunLayer.EmitEventParent('sunrise');
+	aThis.moonLayer.EmitEventParent('sunrise');
+	aThis.skyGrad.EmitEvent('sunrise');
+
+	aThis.skyGrad.SetFlag({flag:'day', value: true});
+	//SkyGrad Color Anim
+	//Timeout
+	let timeoutDayNight = setTimeout(function () {
+		aThis.skyGrad.SetFlag({flag:'day', value: false});
+		aThis.skyGrad.EmitEvent('sunset');
+		let intervalDayNight = setInterval(function() {
+			if(aThis.skyGrad.GetFlag('day')){
+				aThis.skyGrad.SetFlag({flag:'day', value: false});
+				aThis.skyGrad.EmitEvent('sunset');
+			}else{
+				aThis.skyGrad.SetFlag({flag:'day', value: true});
+				aThis.skyGrad.EmitEvent('sunrise');
+			}
+		//clearInterval(intervalDayNight);
+		}, aThis.timeInDay/2); //Interval
+	}, aThis.timeInDay/2 - aThis.timeInDay/24); //Delay
+}
 
 //
 //mapRegionDistrictTerritoryZoneSection
@@ -1915,7 +1948,7 @@ let newNode;
 			data: aThis.menuBaseData,
 			cursorObj: core.currentZone,
 			method: 'MenuMoveClick',
-			pos: new THREE.Vector3(-1,1.5,-1),
+			pos: new THREE.Vector3(-1.5,1.5,-1),
 		}
 		//console.log(core.map);
 		//console.log(core.map[core.currentNode]);
@@ -3026,10 +3059,152 @@ const ObjsGenRing = (data) => {
 	return {all, genCores, SpawnAll, DespawnAll, AddToSceneTracker, RemoveFromSceneTracker};
 }
 
+//
+//Memory Mini Game
+const MemoryGame = (...data) => {
+
+	//Layered Object Generation
+	let memoryLayerData = {}
+	let memoryNullParentData = JSON.parse(JSON.stringify(aThis.nullParentData));
+	memoryNullParentData.id = 'memoryParent';
+	memoryNullParentData.position = new THREE.Vector3(0,1,-2);
+	let memoryNullParent = Core(memoryNullParentData);
+	memoryLayerData['parent'] = {};
+	memoryLayerData['parent'].core = memoryNullParent;
+	let memoryObjData = {};
+	let memoryCores = {};
+	for(let each in data){
+		memoryObjData = data[each];
+		memoryObjData.id = 'memory' + each;
+		//memoryObjData.material = materials[each];
+		memoryCores[each] = Core(memoryObjData);
+		memoryLayerData['child'+each] = {};
+		memoryLayerData['child'+each].core = memoryCores[each];
+	}
+	let memory = Layer('memory',memoryLayerData);
+
+	//Game Support
+	let allSequence = [];
+	let playerSequence = [];
+	let currInSequence = 0;
+	let currMaxSequence = 1;
+	let highScore = 1;
+	let sequenceChunk = 5;
+	let pauseClick = true;
+
+	const SpawnGame = () => {
+		memory.AddAllToScene();
+		GenRanSequence();
+		PlaySequence();
+		SequenceListeners();
+	}
+
+	const GenRanSequence = () => {
+		for(let a = 0; a < sequenceChunk; a++){
+			allSequence.push(Math.floor(Math.random()*4))
+		}
+		console.log(allSequence);
+	}
+
+	const PlaySequence = () => {
+		console.log('Playing Sequence');
+		pauseClick = true;
+		if(currMaxSequence >= allSequence.length){
+			GenRanSequence();
+		}
+		let current = 0;
+
+		let intervalPlay = setInterval(function() {
+			memoryCores[allSequence[current]].EmitEvent('select');
+			current++;
+			if(current >= currMaxSequence){
+				pauseClick = false;
+				clearInterval(intervalPlay);
+			}
+		}, 750); //Interval
+	}
+
+	function checkSequence(){
+		console.log(allSequence);
+		console.log(playerSequence);
+		console.log(currInSequence);
+		console.log(playerSequence[currInSequence]);
+		console.log(allSequence[currInSequence]);
+		if(playerSequence[currInSequence] === allSequence[currInSequence]){
+			console.log('Match');
+			currInSequence++;
+
+		} else {
+			console.log('Game Over');
+			if(currMaxSequence-1 > highScore){
+				highScore = currMaxSequence-1;
+				console.log('New High Score : ' + highScore);
+			} else {
+				let currentScore = currMaxSequence-1;
+				console.log('Sequence Score : ' + currentScore);
+			}
+
+			//Reset
+			currInSequence = 0;
+			currMaxSequence = 1;
+			allSequence = [];
+			playerSequence = [];
+			GenRanSequence();
+			PlaySequence();
+		}
+		if(currInSequence >= currMaxSequence){
+			console.log('Correct Sequence');
+			currInSequence = 0;
+			currMaxSequence++;
+			playerSequence = [];
+			PlaySequence();
+		}
+
+	}
+
+	//listen for first click to start the countdown timer based on how long current sequence is and a timer for in-between single clicks to timeout as well
+	function memoryClick(){
+		if(pauseClick){}else{
+			console.log('Memory Click')
+			console.log(this.id)
+			let selection;
+			if(this.id === 'memory0'){
+				selection = 0;
+			} else if(this.id === 'memory1'){
+				selection = 1;
+			} else if(this.id === 'memory2'){
+				selection = 2;
+			} else if(this.id === 'memory3'){
+				selection = 3;
+			}
+			playerSequence.push(selection);
+			checkSequence();
+		}
+
+	}
+	const SequenceListeners = () => {
+		for(let each in memoryCores){
+			memoryCores[each].GetEl().addEventListener('click', memoryClick);
+		}
+	}
+
+	return{memory, SpawnGame, PlaySequence};
+}
+
+// Library Data
 /********************************************************************/
 //
+
 //Materials Library
 //
+
+//mintyGreen - #3EB489
+//mintyPink - #C14B76
+//vaporPink - #ff71ce
+//vaporBlue - #01cdfe
+//vaporGreen - #05ffa1
+//vaporPurple - #b967ff
+//vaporYellow - #fffb96
 
 //Grass Material
 const grassMaterial = {shader: "standard", color: "#55be71", opacity: 1, metalness: 0.1, roughness: 0.9, emissive: "#397e4b", emissiveIntensity: 0.2};
@@ -3134,7 +3309,101 @@ const pattern84 = './assets/img/tiles/kenny/pattern_84.png';
 
 const patterns = [pattern01,pattern02,pattern03,pattern04,pattern05,pattern06,pattern07,pattern08,pattern09,pattern10,pattern11,pattern12,pattern13,pattern14,pattern15,pattern16,pattern17,pattern18,pattern19,pattern20,pattern21,pattern22,pattern23,pattern24,pattern25,pattern26,pattern27,pattern28,pattern29,pattern30,pattern31,pattern32,pattern33,pattern34,pattern35,pattern36,pattern37,pattern38,pattern39,pattern40,pattern41,pattern42,pattern43,pattern44,pattern45,pattern46,pattern47,pattern48,pattern49,pattern50,pattern51,pattern52,pattern53,pattern54,pattern55,pattern56,pattern57,pattern58,pattern59,pattern60,pattern61,pattern62,pattern63,pattern64,pattern65,pattern66,pattern67,pattern68,pattern69,pattern70,pattern71,pattern72,pattern73,pattern74,pattern75,pattern76,pattern77,pattern78,pattern79,pattern80,pattern81,pattern82,pattern83,pattern84];
 
-/********************************************************************/
+//
+//Animations Library
+
+//360 Rotation
+this.animSpinData = {
+	name: 'animspin',
+	property: 'object3D.rotation.y', 
+	from: '0', 
+	to: '360', 
+	dur: 20000, 
+	delay: 0, 
+	loop: 'true', 
+	dir: 'normal', 
+	easing: 'linear', 
+	elasticity: 400, 
+	autoplay: true, 
+	enabled: true
+};
+//Animation Test 1
+this.animTest1Data = {
+	name: 'animtest1',
+	property: 'object3D.scale.y',
+	to: 0.25,
+	dur: 3000,
+	delay: 0,
+	loop: '1',
+	dir: 'alternate',
+	easing:'easeInOutSine',
+	elasticity: 400,
+	autoplay: 'true',
+	enabled: 'true',
+};
+//Animation Test 2
+this.animTest2Data = {
+	name: 'animtest2',
+	property: 'object3D.scale.x',
+	to: 2,
+	dur: 3000,
+	delay: 0,
+	loop: '1',
+	dir: 'alternate',
+	easing:'easeInOutSine',
+	elasticity: 400,
+	autoplay: 'true',
+	enabled: 'true',
+};
+//Animation Test 3
+this.animTest3Data = {
+	name: 'animtest3',
+	property: 'object3D.scale.z',
+	to: 4,
+	dur: 3000,
+	delay: 0,
+	loop: '1',
+	dir: 'alternate',
+	easing:'easeInOutSine',
+	elasticity: 400,
+	autoplay: 'true',
+	enabled: 'true',
+};
+//Animation Click
+this.animClickData = {
+	name: 'animClick',
+	property: 'scale',
+	from: new THREE.Vector3(0, 0 ,0),
+	to: new THREE.Vector3(1, 1, 1),
+	dur: 1000,
+	delay: 0,
+	loop: '0',
+	dir: 'normal',
+	easing:'easeInOutSine',
+	elasticity: 400,
+	autoplay: 'true',
+	enabled: 'true',
+};
+//Animation Test 4
+this.animStuffData = {
+	name: 'animstuff',
+	property: 'object3D.rotation.z',
+	from: 0,
+	to: 360,
+	dur: 5000,
+	delay: 0,
+	loop: '10',
+	dir: 'normal',
+	easing:'linear',
+	elasticity: 400,
+	autoplay: 'true',
+	enabled: 'true',
+	//startEvents: 'testevent',
+};
+
+
+
+
 //
 //Data Library
 
@@ -3362,9 +3631,25 @@ components: {visible: false},
 };
 
 //
-//Menu
+//Null Parent Template
+this.nullParentData = {
+data:'nullParent',
+id:'nullParent',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['nullParent','a-ent'],
+components: false,
+};
 
-//Menu Button Base
+//
+//Menu Button Base Template
 this.menuBaseData = {
 data:'menu part',
 id:'menuBaseTemp',
@@ -3414,7 +3699,229 @@ eventrun:{event: 'testEventHit',cursorObj: 'hamComp', method: 'FuseClickRun', pa
 };
 
 //
-//NPC
+//Details & Prompt
+
+//Detail Main View
+this.detailMainData = {
+data:'detail main',
+id:'detailMain',
+sources:false,
+text: {value:'Details...', color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.065, side: 'double'},
+geometry: {primitive: 'box', depth: 0.1, width: 1, height: 1},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0,1.5,-1.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0,0,0),
+animations:{opening:{property: 'scale', from: '0.001 0.001 0.001', to: '1 1 1', dur: 500, delay: 50, loop: 'false', dir: 'linear', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true, startEvents: 'open'}, close: {property: 'scale', from: '1 1 1', to: '0.001 0.001 0.001', dur: 500, delay: 50, loop: false, dir: 'linear', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'close'}},
+mixins: false,
+classes: ['a-ent'],
+components: {detailprompt:{type: 'detail'}},
+};
+//Detail Close Button
+this.detailCloseData = {
+data:'detail close',
+id:'detailClose',
+sources:false,
+text: {value:'X', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.065, side: 'double'},
+geometry: {primitive: 'box', depth: 0.1, width: 0.25, height: 0.25},
+material: {shader: "standard", color: "#c14b4b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#c14b4b", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.5,0.5,0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0,0,0),
+animations:{opening:{property: 'scale', from: '0.001 0.001 0.001', to: '1 1 1', dur: 500, delay: 50, loop: 'false', dir: 'linear', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true, startEvents: 'open'}, close: {property: 'scale', from: '1 1 1', to: '0.001 0.001 0.001', dur: 500, delay: 50, loop: false, dir: 'linear', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'close'}},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {detailprompt:{type: 'detail'}},
+};
+
+//
+//Carousel
+
+//Carousel Main View
+this.carouselViewData = {
+data: 'Carousel View',
+id:'carouselView',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.1, width: 1, height: 1},
+material: false,
+position: new THREE.Vector3(0,1.5,-2),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Carousel Thumbnail Button Previews
+this.carouselButtonData = {
+data: 'Carousel Thumbnail',
+id:'thumbnail',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.1, width: 0.2, height: 0.2},
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {clickfunc: {clickObj: 'carousel1'}},
+};
+
+//
+//Text Bubbles
+
+//Scene Text Template
+this.sceneTextData = {
+data:'Scene display text.',
+id:'sceneText',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 1.9, zOffset: 0.025, side: 'front', wrapCount: 75, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 2, height: 0.3},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0,0.69,-0.8),
+rotation: new THREE.Vector3(-30,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+//Side Text Template
+this.textBubbleSideData = {
+data:'text bubble to the side of user/character',
+id:'textBubbleSide',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.45, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.15},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.375,1.7,-0.65),
+rotation: new THREE.Vector3(5,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+//Bottom Text Template
+this.textBubbleBottomData = {
+data:'text bubble on bottom',
+id:'textBubbleBottom',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 1.9, zOffset: 0.025, side: 'front', wrapCount: 75, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 2, height: 0.3},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0,0.69,-0.8),
+rotation: new THREE.Vector3(-30,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+//Top Text Template
+this.textBubbleTopData = {
+data:'text bubble on top',
+id:'textBubbleTop',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 1.9, zOffset: 0.025, side: 'front', wrapCount: 75, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 2, height: 0.3},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0,2.05,-1.25),
+rotation: new THREE.Vector3(15,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+//
+//NPC Text Bubbles
+this.npc0TextBubbleData = {
+data:'npc text bubble on top',
+id:'npc0TextBubble',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.45, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.15},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.25,0.25,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera',},
+};
+this.npc1TextBubbleData = {
+data:'npc text bubble on top',
+id:'npc1TextBubble',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.45, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.15},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.25,0.25,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera',},
+};
+this.npc2TextBubbleData = {
+data:'npc text bubble on top',
+id:'npc2TextBubble',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.45, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.15},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.25,0.25,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera',},
+};
+this.npcMintyTextBubbleData = {
+data:'npc text bubble on top',
+id:'npcMintyTextBubble',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.7, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.75, height: 0.15},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.25,1.65,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera',},
+};
+this.npcMintyCubeTextBubbleData = {
+data:'npc text bubble on top',
+id:'npcMintyCubeTextBubble',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.7, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.75, height: 0.15},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.25,0.25,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera',},
+};
+
+//
+//NPCs Avatars
 this.npc0Data = {
 data:'NPC 0',
 id:'npc0',
@@ -3506,530 +4013,8 @@ components:{
 },
 };
 
-//Testing Object for Interactions and Events
-this.eventTestingData = {
-data:'Event Testing',
-id:'eventTesting',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(-0.75,1.25,-0.5),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
-};
-
-//Sound Testing
-this.soundTestingData = {
-data:'Sound Testing',
-id:'soundTesting',
-sources: false,
-sound: {src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['sound','a-ent'],
-components: false,
-};
-
 //
-//Details & Prompt
-
-//Detail Main View
-this.detailMainData = {
-data:'detail main',
-id:'detailMain',
-sources:false,
-text: {value:'Details...', color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.065, side: 'double'},
-geometry: {primitive: 'box', depth: 0.1, width: 1, height: 1},
-material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,1.5,-1.5),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(0,0,0),
-animations:{opening:{property: 'scale', from: '0.001 0.001 0.001', to: '1 1 1', dur: 500, delay: 50, loop: 'false', dir: 'linear', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true, startEvents: 'open'}, close: {property: 'scale', from: '1 1 1', to: '0.001 0.001 0.001', dur: 500, delay: 50, loop: false, dir: 'linear', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'close'}},
-mixins: false,
-classes: ['a-ent'],
-components: {detailprompt:{type: 'detail'}},
-};
-//Detail Close Button
-this.detailCloseData = {
-data:'detail close',
-id:'detailClose',
-sources:false,
-text: {value:'X', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.065, side: 'double'},
-geometry: {primitive: 'box', depth: 0.1, width: 0.25, height: 0.25},
-material: {shader: "standard", color: "#c14b4b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#c14b4b", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0.5,0.5,0.05),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(0,0,0),
-animations:{opening:{property: 'scale', from: '0.001 0.001 0.001', to: '1 1 1', dur: 500, delay: 50, loop: 'false', dir: 'linear', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true, startEvents: 'open'}, close: {property: 'scale', from: '1 1 1', to: '0.001 0.001 0.001', dur: 500, delay: 50, loop: false, dir: 'linear', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'close'}},
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {detailprompt:{type: 'detail'}},
-};
-
-//
-//Carousel
-
-//Carousel Main View
-this.carouselViewData = {
-data: 'Carousel View',
-id:'carouselView',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.1, width: 1, height: 1},
-material: false,
-position: new THREE.Vector3(0,1.5,-2),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-//Carousel Thumbnail Button Previews
-this.carouselButtonData = {
-data: 'Carousel Thumbnail',
-id:'thumbnail',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.1, width: 0.2, height: 0.2},
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {clickfunc: {clickObj: 'carousel1'}},
-};
-
-//
-//Speech System TextBubble
-//Scene Text
-this.sceneTextData = {
-data:'Scene display text.',
-id:'sceneText',
-sources:false,
-text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 1.9, zOffset: 0.025, side: 'front', wrapCount: 75, baseline: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 2, height: 0.3},
-material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,0.69,-0.8),
-rotation: new THREE.Vector3(-30,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-//Side
-this.textBubbleSideData = {
-data:'text bubble to the side of user/character',
-id:'textBubbleSide',
-sources:false,
-text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.45, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.15},
-material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0.375,1.7,-0.65),
-rotation: new THREE.Vector3(5,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-//Bottom
-this.textBubbleBottomData = {
-data:'text bubble on bottom',
-id:'textBubbleBottom',
-sources:false,
-text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 1.9, zOffset: 0.025, side: 'front', wrapCount: 75, baseline: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 2, height: 0.3},
-material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,0.69,-0.8),
-rotation: new THREE.Vector3(-30,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-//Top
-this.textBubbleTopData = {
-data:'text bubble on top',
-id:'textBubbleTop',
-sources:false,
-text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 1.9, zOffset: 0.025, side: 'front', wrapCount: 75, baseline: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 2, height: 0.3},
-material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,2.05,-1.25),
-rotation: new THREE.Vector3(15,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-//NPC
-this.npc0TextBubbleData = {
-data:'npc text bubble on top',
-id:'npc0TextBubble',
-sources:false,
-text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.45, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.15},
-material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0.25,0.25,-0.05),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-['look-at']:'#camera',},
-};
-this.npc1TextBubbleData = {
-data:'npc text bubble on top',
-id:'npc1TextBubble',
-sources:false,
-text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.45, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.15},
-material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0.25,0.25,-0.05),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-['look-at']:'#camera',},
-};
-this.npc2TextBubbleData = {
-data:'npc text bubble on top',
-id:'npc2TextBubble',
-sources:false,
-text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.45, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.15},
-material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0.25,0.25,-0.05),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-['look-at']:'#camera',},
-};
-this.npcMintyTextBubbleData = {
-data:'npc text bubble on top',
-id:'npcMintyTextBubble',
-sources:false,
-text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.7, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 0.75, height: 0.15},
-material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0.25,1.65,-0.05),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-['look-at']:'#camera',},
-};
-this.npcMintyCubeTextBubbleData = {
-data:'npc text bubble on top',
-id:'npcMintyCubeTextBubble',
-sources:false,
-text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.7, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 0.75, height: 0.15},
-material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0.25,0.25,-0.05),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-['look-at']:'#camera',},
-};
-
-//
-//Environment
-
-//
-//Lights
-
-//Directional - Built-in
-this.directionalLightData = {
-data:'directionalLight',
-id:'directionalLight',
-entity: 'preAdded',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(-1,1,-1),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-daylight:{property: 'light.intensity', from: 0.1, to: 1.25, dur: aThis.timeInDay/4, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
-daypos:{property: 'position', from: new THREE.Vector3(-1,1,-1), to: new THREE.Vector3(1,1,1), dur: aThis.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
-},
-mixins: false,
-classes: ['a-ent'],
-components: {
-light: {type: 'directional', intensity: 1, castShadow: false},
-},
-};
-
-//Ambient - Built-in
-this.ambientLightData = {
-data:'ambientLight',
-id:'ambientLight',
-entity: 'preAdded',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-daylight:{property: 'light.intensity', from: 0.7, to: 0.4, dur: aThis.timeInDay/2, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
-daycolor:{property: 'light.color', from: '#99154E', to: '#fffb96', dur: aThis.timeInDay/4, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
-},
-mixins: false,
-classes: ['a-ent'],
-components: {
-light: {type: 'ambient', intensity: 1, color: '#716a9a'},
-},
-};
-
-//Directional 2
-this.directionalLight2Data = {
-data:'directionalLight2',
-id:'directionalLight2',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(1,1,1),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-nightlight:{property: 'light.intensity', from: 0.3, to: 0.1, dur: aThis.timeInDay/4, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
-daypos:{property: 'position', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(-1,1,-1), dur: aThis.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
-
-},
-mixins: false,
-classes: ['a-ent'],
-components: {
-light: {type: 'directional', intensity: 0.1, castShadow: false},
-},
-};
-
-//Directional 3
-this.directionalLight3Data = {
-data:'directionalLight3',
-id:'directionalLight3',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(1,1,-1),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-daylight:{property: 'light.intensity', from: 0.05, to: 0.1, dur: aThis.timeInDay/4, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
-daypos:{property: 'position', from: new THREE.Vector3(1,1,-1), to: new THREE.Vector3(-1,1,-1), dur: aThis.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunrise'},
-},
-mixins: false,
-classes: ['a-ent'],
-components: {
-light: {type: 'directional', intensity: 0.05, castShadow: false},
-},
-};
-
-//Sun
-this.sunOuterData = {
-data:'sunOuter',
-id:'sunOuter',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(-10,45,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{daynight:{property: 'object3D.rotation.x', from: -5, to: 355, dur: aThis.timeInDay, delay: 0, loop: 'true', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true,startEvents: 'sunrise'},},
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-this.sunData = {
-data:'sun',
-id:'sun',
-sources: false,
-text: false,
-geometry: {primitive: 'circle', radius: 30, segments: 32},
-material: {shader: "standard", color: "#F0A500", opacity: 1, side: 'front', emissive: '#F0A500', emissiveIntensity: 1, roughness: 0.42},
-position: new THREE.Vector3(0,0,-350),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-//Moon
-this.moonOuterData = {
-data:'moonOuter',
-id:'moonOuter',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(170,45,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{daynight:{property: 'object3D.rotation.x', from: 175, to: 535, dur: aThis.timeInDay, delay: 0, loop: 'true', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true,startEvents: 'sunrise'},},
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-this.moonData = {
-data:'moon',
-id:'moon',
-sources: false,
-text: false,
-geometry: {primitive: 'circle', radius: 24, segments: 32},
-material: {shader: "standard", color: "#5c2196", opacity: 1, side: 'front', emissive: '#5c2196', emissiveIntensity: 0.75, roughness: 0.42},
-position: new THREE.Vector3(0,0,-350),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-
-//Floor
-//
-
-//Node Floor
-this.nodeFloorData = {
-data:'full floor',
-id:'nodeFloor',
-sources:false,
-text: false,
-geometry: {primitive: 'circle', radius: 150, segments: 32, thetaStart: 0, thetaLength: 360},
-material: {shader: "standard", color: "#27693d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#27693d", emissiveIntensity: 0.2, side: 'front'},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(-90,0,0),
-scale: new THREE.Vector3(0.5,0.5,0.02),
-animations: {
-daycolor:{property: 'material.color', from: '#613381', to: '#298625', dur: 90000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunrise'},
-daycolor2:{property: 'material.color', from: '#298625', to: '#613381', dur: 180000, delay: 180000, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunrise'},
-nightcolor:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunset'},
-nightcolor2:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90000, delay: 90000, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunset'},
-},
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-
-//Walls
-//
-
-//Node Wall
-this.nodeWallParentData = {
-data:'node wall',
-id:'nodeWallParent',
-sources:false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,2,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-this.nodeWallData = {
-data:'node wall',
-id:'nodeWall',
-sources:false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 20, height: 4},
-material: {shader: "standard", src: pattern18, repeat: '10 2.5',color: "#80401f", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#80401f", emissiveIntensity: 0.8, side: 'double'},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-//Background | Sky
-//
-
-//3GradDualSky
-this.skyGradData = {
-data: 'sky gradient',
-id: 'skyGrad',
-entity: 'a-sky',
-sources: false,
-text: false,
-geometry: false,
-material: {shader: 'threeColorGradientShader', topColor: '#613381', middleColor: '#99154E', bottomColor: '#b967ff'},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-sunrisetop:{property: 'material.topColor', from: '#613381', to: '#01cdfe', dur: aThis.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
-sunrisemid:{property: 'material.middleColor', from: '#99154E', to: '#fffb96', dur: aThis.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'}, 
-sunsettop:{property: 'material.topColor', from: '#01cdfe', to: '#613381', dur: aThis.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunset'},
-sunsetmid:{property: 'material.middleColor', from: '#fffb96', to: '#99154E', dur: aThis.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunset'}, 
-},
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-this.skyStarAlphaData = {
-data: 'sky alpha',
-id: 'skyStarAlpha',
-entity: 'a-sky',
-sources: false,
-text: false,
-geometry: false,
-material: {shader: "flat", src:'./assets/img/360/star-alpha.png', alphaTest: 0.89, transparent: true,},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(0.95, 0.95, 0.95),
-animations:{rotate: {property: 'object3D.rotation.z', from: 0, to: 360, dur: 4000000, delay: 0, loop: 'true', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true}, },
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-//
-//NPC Speech
+//NPC Speech Book & Pages
 
 //NPC 0
 this.npc0BookTestPage1Data = {
@@ -4086,7 +4071,6 @@ pages:{
 page0: this.npc0BookTestPage1Data,
 },
 };
-
 //NPC 1
 this.npc1BookTestPage1Data = {
 info:{
@@ -4198,7 +4182,6 @@ pages:{
 page0: this.npc1BookTestPage1Data,
 },
 };
-
 //NPC 2
 this.npc2BookTestPage1Data = {
 info:{
@@ -4210,12 +4193,14 @@ prevPage: null,
 timeline:'linear',
 },
 timeline0:{
-//npc2:{IfElse: {cond: 'masterKey', ifTrue: {npc2:{Speak:{role: 'Ham', speech:'Did you find where the Key goes?'}},}, ifFalse: {npc2:{Speak:{role: 'Ham', speech:'I found this key, but I don\'t know what it is used for. Would you like it?'}},}}},
-
-npc2:{Speak:{role: 'Ham', speech:'I found this key, but I don\'t know what it is used for. Would you like it?'}},
+npc2:{IfElse: {npc2:{cond: 'masterKey',
+ifTrue: {
+npc2:{Speak:{role: 'Ham', speech:'Did you find where the Key goes?'}, Jump: {timeline: 'timeline2'},},
+},ifFalse: {
+npc2:{Speak:{role: 'Ham', speech:'I found this key, but I don\'t know what it is used for. Would you like it?'}},},}}},
 },
 timeline1:{
-npc2:{Speak:{role: 'Ham', speech:'Here you go!'}},
+npc2:{Speak:{role: 'Ham', speech:'Here you go!'}, SetFlag: {flag: 'masterKey', value: 'true'}},
 player:{SetFlag: {flag: 'masterKey', value: 'true'}},
 },
 timeline2:{
@@ -4237,7 +4222,6 @@ pages:{
 page0: this.npc2BookTestPage1Data,
 },
 };
-
 //NPC Minty
 this.npcMintyBookTestPage1Data = {
 info:{
@@ -4427,16 +4411,166 @@ page0: this.npcMintyBookTestPage1Data,
 },
 };
 
-//Multi Obj Gen Testing
-//Data
-this.spawnTestingData = {
-data:'Ring Spawn Testing',
-id:'ringSpawnTesting',
+//
+//Testing
+
+//Testing Object for Interactions and Events
+this.eventTestingData = {
+data:'Event Testing',
+id:'eventTesting',
 sources: false,
 text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,0.25,0),
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(-0.75,1.25,-0.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
+};
+//Sound Testing
+this.soundTestingData = {
+data:'Sound Testing',
+id:'soundTesting',
+sources: false,
+sound: {src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['sound','a-ent'],
+components: false,
+};
+
+//
+//Environment
+
+//Lights
+//
+
+//Directional - Built-in
+this.directionalLightData = {
+data:'directionalLight',
+id:'directionalLight',
+entity: 'preAdded',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(-1,1,-1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+daylight:{property: 'light.intensity', from: 0.1, to: 1.25, dur: aThis.timeInDay/4, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+daypos:{property: 'position', from: new THREE.Vector3(-1,1,-1), to: new THREE.Vector3(1,1,1), dur: aThis.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+light: {type: 'directional', intensity: 1, castShadow: false},
+},
+};
+
+//Ambient - Built-in
+this.ambientLightData = {
+data:'ambientLight',
+id:'ambientLight',
+entity: 'preAdded',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+daylight:{property: 'light.intensity', from: 0.7, to: 0.4, dur: aThis.timeInDay/2, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+daycolor:{property: 'light.color', from: '#99154E', to: '#fffb96', dur: aThis.timeInDay/4, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+light: {type: 'ambient', intensity: 1, color: '#716a9a'},
+},
+};
+
+//Directional 2
+this.directionalLight2Data = {
+data:'directionalLight2',
+id:'directionalLight2',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(1,1,1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+nightlight:{property: 'light.intensity', from: 0.3, to: 0.1, dur: aThis.timeInDay/4, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+daypos:{property: 'position', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(-1,1,-1), dur: aThis.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+light: {type: 'directional', intensity: 0.1, castShadow: false},
+},
+};
+
+//Directional 3
+this.directionalLight3Data = {
+data:'directionalLight3',
+id:'directionalLight3',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(1,1,-1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+daylight:{property: 'light.intensity', from: 0.05, to: 0.1, dur: aThis.timeInDay/4, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+daypos:{property: 'position', from: new THREE.Vector3(1,1,-1), to: new THREE.Vector3(-1,1,-1), dur: aThis.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunrise'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+light: {type: 'directional', intensity: 0.05, castShadow: false},
+},
+};
+
+//Sun
+this.sunOuterData = {
+data:'sunOuter',
+id:'sunOuter',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(-10,45,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{daynight:{property: 'object3D.rotation.x', from: -5, to: 355, dur: aThis.timeInDay, delay: 0, loop: 'true', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true,startEvents: 'sunrise'},},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+this.sunData = {
+data:'sun',
+id:'sun',
+sources: false,
+text: false,
+geometry: {primitive: 'circle', radius: 30, segments: 32},
+material: {shader: "standard", color: "#F0A500", opacity: 1, side: 'front', emissive: '#F0A500', emissiveIntensity: 1, roughness: 0.42},
+position: new THREE.Vector3(0,0,-350),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -4444,40 +4578,31 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-//Multi
-this.multiTestingData = {
-id: 'multiTesting',
-objData: aThis.spawnTestingData,
-total: 30,
-outerRingRadius: 30,
-innerRingRadius: 3,
-sameTypeRadius: 1,
-otherTypeRadius: 1,
-ranYPos: true,
-yPosFlex: 4,
-ranScaleX: true,
-ranScaleY: true,
-ranScaleZ: true,
-scaleFlex: 3,
-ranRotX: true,
-ranRotY: true,
-ranRotZ: true,
-ranColor: true,
-ranTexture: true,
-};
 
-//Environment Basics
-//
-//Snow Mountains
-//Snow Mountains Basic
-this.snowMountainsBasicData = {
-data:'snowMountainsBasicData',
-id:'snowMountainsBasic',
+//Moon
+this.moonOuterData = {
+data:'moonOuter',
+id:'moonOuter',
 sources: false,
 text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,0.25,0),
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(170,45,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{daynight:{property: 'object3D.rotation.x', from: 175, to: 535, dur: aThis.timeInDay, delay: 0, loop: 'true', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true,startEvents: 'sunrise'},},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+this.moonData = {
+data:'moon',
+id:'moon',
+sources: false,
+text: false,
+geometry: {primitive: 'circle', radius: 24, segments: 32},
+material: {shader: "standard", color: "#5c2196", opacity: 1, side: 'front', emissive: '#5c2196', emissiveIntensity: 0.75, roughness: 0.42},
+position: new THREE.Vector3(0,0,-350),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -4485,37 +4610,87 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-//Multi Snow Mountains Basic
-this.multiSnowMountainsBasicData = {
-id: 'multiSnowMountainsBasic',
-objData: aThis.snowMountainsBasicData,
-total: 30,
-outerRingRadius: 30,
-innerRingRadius: 3,
-sameTypeRadius: 2,
-otherTypeRadius: 1,
-ranYPos: true,
-yPosFlex: 2,
-ranScaleX: true,
-ranScaleY: true,
-ranScaleZ: true,
-scaleFlex: 3,
-ranRotX: true,
-ranRotY: true,
-ranRotZ: true,
-ranColor: true,
-ranTexture: true,
-};
+
+//Background | Sky
 //
-//Rainy Forest Basic
-this.rainyForestBasicData = {
-data:'rainyForestBasicData',
-id:'rainyForestBasic',
+
+//3GradDualSky
+this.skyGradData = {
+data: 'sky gradient',
+id: 'skyGrad',
+entity: 'a-sky',
 sources: false,
 text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,0.25,0),
+geometry: false,
+material: {shader: 'threeColorGradientShader', topColor: '#613381', middleColor: '#99154E', bottomColor: '#b967ff'},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+sunrisetop:{property: 'material.topColor', from: '#613381', to: '#01cdfe', dur: aThis.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+sunrisemid:{property: 'material.middleColor', from: '#99154E', to: '#fffb96', dur: aThis.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'}, 
+sunsettop:{property: 'material.topColor', from: '#01cdfe', to: '#613381', dur: aThis.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunset'},
+sunsetmid:{property: 'material.middleColor', from: '#fffb96', to: '#99154E', dur: aThis.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunset'}, 
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Alpha Stars
+this.skyStarAlphaData = {
+data: 'sky alpha',
+id: 'skyStarAlpha',
+entity: 'a-sky',
+sources: false,
+text: false,
+geometry: false,
+material: {shader: "flat", src:'./assets/img/360/star-alpha.png', alphaTest: 0.89, transparent: true,},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0.95, 0.95, 0.95),
+animations:{rotate: {property: 'object3D.rotation.z', from: 0, to: 360, dur: 4000000, delay: 0, loop: 'true', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true}, },
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Floor
+//
+
+//Node Floor
+this.nodeFloorData = {
+data:'full floor',
+id:'nodeFloor',
+sources:false,
+text: false,
+geometry: {primitive: 'circle', radius: 150, segments: 32, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#27693d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#27693d", emissiveIntensity: 0.2, side: 'front'},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(-90,0,0),
+scale: new THREE.Vector3(0.5,0.5,0.02),
+animations: {
+daycolor:{property: 'material.color', from: '#613381', to: '#298625', dur: 90000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunrise'},
+daycolor2:{property: 'material.color', from: '#298625', to: '#613381', dur: 180000, delay: 180000, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunrise'},
+nightcolor:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunset'},
+nightcolor2:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90000, delay: 90000, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunset'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Walls
+//
+
+//Node Wall
+this.nodeWallParentData = {
+data:'node wall',
+id:'nodeWallParent',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,2,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -4523,38 +4698,14 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-//Multi Forest Basic
-this.multiRainyForestBasicData = {
-id: 'multiRainyForestBasic',
-objData: aThis.rainyForestBasicData,
-total: 30,
-outerRingRadius: 30,
-innerRingRadius: 3,
-sameTypeRadius: 2,
-otherTypeRadius: 1,
-ranYPos: true,
-yPosFlex: 2,
-ranScaleX: true,
-ranScaleY: true,
-ranScaleZ: true,
-scaleFlex: 3,
-ranRotX: true,
-ranRotY: true,
-ranRotZ: true,
-ranColor: true,
-ranTexture: true,
-};
-//
-//Grassy Hills
-//Basic
-this.grassyHillsBasicData = {
-data:'grassyHillsBasicData',
-id:'grassyHillsBasic',
-sources: false,
+this.nodeWallData = {
+data:'node wall',
+id:'nodeWall',
+sources:false,
 text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,0.25,0),
+geometry: {primitive: 'box', depth: 0.25, width: 20, height: 4},
+material: {shader: "standard", src: pattern18, repeat: '10 2.5',color: "#80401f", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#80401f", emissiveIntensity: 0.8, side: 'double'},
+position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -4562,204 +4713,9 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-//Multi
-this.multiGrassyHillsBasicData = {
-id: 'multiGrassyHillsBasic',
-objData: aThis.grassyHillsBasicData,
-total: 30,
-outerRingRadius: 30,
-innerRingRadius: 3,
-sameTypeRadius: 2,
-otherTypeRadius: 1,
-ranYPos: true,
-yPosFlex: 2,
-ranScaleX: true,
-ranScaleY: true,
-ranScaleZ: true,
-scaleFlex: 3,
-ranRotX: true,
-ranRotY: true,
-ranRotZ: true,
-ranColor: true,
-ranTexture: true,
-};
-//
-//Desert Plains
-//Basic
-this.desertPlainsBasicData = {
-data:'desertPlainsBasicData',
-id:'desertPlainsBasic',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,0.25,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-//Multi
-this.multiDesertPlainsBasicData = {
-id: 'multiDesertPlainsBasic',
-objData: aThis.desertPlainsBasicData,
-total: 30,
-outerRingRadius: 30,
-innerRingRadius: 3,
-sameTypeRadius: 2,
-otherTypeRadius: 1,
-ranYPos: true,
-yPosFlex: 2,
-ranScaleX: true,
-ranScaleY: true,
-ranScaleZ: true,
-scaleFlex: 3,
-ranRotX: true,
-ranRotY: true,
-ranRotZ: true,
-ranColor: true,
-ranTexture: true,
-};
-//
-//Ocean Beach
-//Basic
-this.oceanBeachBasicData = {
-data:'oceanBeachBasicData',
-id:'oceanBeachBasic',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,0.25,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-//Multi
-this.multiOceanBeachBasicData = {
-id: 'multiOceanBeachBasic',
-objData: aThis.oceanBeachBasicData,
-total: 30,
-outerRingRadius: 30,
-innerRingRadius: 3,
-sameTypeRadius: 2,
-otherTypeRadius: 1,
-ranYPos: true,
-yPosFlex: 2,
-ranScaleX: true,
-ranScaleY: true,
-ranScaleZ: true,
-scaleFlex: 3,
-ranRotX: true,
-ranRotY: true,
-ranRotZ: true,
-ranColor: true,
-ranTexture: true,
-};
-
-
-
-
 
 //
-//Animations
-
-//360 Rotation
-this.animSpinData = {
-	name: 'animspin',
-	property: 'object3D.rotation.y', 
-	from: '0', 
-	to: '360', 
-	dur: 20000, 
-	delay: 0, 
-	loop: 'true', 
-	dir: 'normal', 
-	easing: 'linear', 
-	elasticity: 400, 
-	autoplay: true, 
-	enabled: true
-};
-//Animation Test 1
-this.animTest1Data = {
-	name: 'animtest1',
-	property: 'object3D.scale.y',
-	to: 0.25,
-	dur: 3000,
-	delay: 0,
-	loop: '1',
-	dir: 'alternate',
-	easing:'easeInOutSine',
-	elasticity: 400,
-	autoplay: 'true',
-	enabled: 'true',
-};
-//Animation Test 2
-this.animTest2Data = {
-	name: 'animtest2',
-	property: 'object3D.scale.x',
-	to: 2,
-	dur: 3000,
-	delay: 0,
-	loop: '1',
-	dir: 'alternate',
-	easing:'easeInOutSine',
-	elasticity: 400,
-	autoplay: 'true',
-	enabled: 'true',
-};
-//Animation Test 3
-this.animTest3Data = {
-	name: 'animtest3',
-	property: 'object3D.scale.z',
-	to: 4,
-	dur: 3000,
-	delay: 0,
-	loop: '1',
-	dir: 'alternate',
-	easing:'easeInOutSine',
-	elasticity: 400,
-	autoplay: 'true',
-	enabled: 'true',
-};
-//Animation Click
-this.animClickData = {
-	name: 'animClick',
-	property: 'scale',
-	from: new THREE.Vector3(0, 0 ,0),
-	to: new THREE.Vector3(1, 1, 1),
-	dur: 1000,
-	delay: 0,
-	loop: '0',
-	dir: 'normal',
-	easing:'easeInOutSine',
-	elasticity: 400,
-	autoplay: 'true',
-	enabled: 'true',
-};
-//Animation Test 4
-this.animStuffData = {
-	name: 'animstuff',
-	property: 'object3D.rotation.z',
-	from: 0,
-	to: 360,
-	dur: 5000,
-	delay: 0,
-	loop: '10',
-	dir: 'normal',
-	easing:'linear',
-	elasticity: 400,
-	autoplay: 'true',
-	enabled: 'true',
-	//startEvents: 'testevent',
-};
-
-
-//Kenny Assets
+//Scene Assets
 
 //flower_purpleA
 this.flower_purpleAData = {
@@ -5482,6 +5438,9 @@ components:{
 },
 };
 
+//
+//Scene Object Spawners
+
 //Flowers
 this.multiFlowerPurpleAData = {
 id: 'multiFlowerPurpleA',
@@ -6026,25 +5985,329 @@ ranColor: false,
 ranTexture: false,
 };
 
-//Atlas Outline
+//Environmental Basics
 //
-//Floating Island
-//Clouds, statues, broken temples
-
-//Snow Mountains w/Underground Cave
-//Mountains, rocks, snowy hills
-
-//Rainy Forest
-//Trees, bushes
-
-//Grassy Hills w/Cabin House
-//Hills, Cabin
-
+//Snow Mountains
+//Snow Mountains Basic
+this.snowMountainsBasicData = {
+data:'snowMountainsBasicData',
+id:'snowMountainsBasic',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Multi Snow Mountains Basic
+this.multiSnowMountainsBasicData = {
+id: 'multiSnowMountainsBasic',
+objData: aThis.snowMountainsBasicData,
+total: 30,
+outerRingRadius: 30,
+innerRingRadius: 3,
+sameTypeRadius: 2,
+otherTypeRadius: 1,
+ranYPos: true,
+yPosFlex: 2,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: true,
+ranRotY: true,
+ranRotZ: true,
+ranColor: true,
+ranTexture: true,
+};
+//
+//Rainy Forest Basic
+this.rainyForestBasicData = {
+data:'rainyForestBasicData',
+id:'rainyForestBasic',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Multi Forest Basic
+this.multiRainyForestBasicData = {
+id: 'multiRainyForestBasic',
+objData: aThis.rainyForestBasicData,
+total: 30,
+outerRingRadius: 30,
+innerRingRadius: 3,
+sameTypeRadius: 2,
+otherTypeRadius: 1,
+ranYPos: true,
+yPosFlex: 2,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: true,
+ranRotY: true,
+ranRotZ: true,
+ranColor: true,
+ranTexture: true,
+};
+//
+//Grassy Hills
+//Basic
+this.grassyHillsBasicData = {
+data:'grassyHillsBasicData',
+id:'grassyHillsBasic',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Multi
+this.multiGrassyHillsBasicData = {
+id: 'multiGrassyHillsBasic',
+objData: aThis.grassyHillsBasicData,
+total: 30,
+outerRingRadius: 30,
+innerRingRadius: 3,
+sameTypeRadius: 2,
+otherTypeRadius: 1,
+ranYPos: true,
+yPosFlex: 2,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: true,
+ranRotY: true,
+ranRotZ: true,
+ranColor: true,
+ranTexture: true,
+};
+//
 //Desert Plains
-//Cactus, Plataues
+//Basic
+this.desertPlainsBasicData = {
+data:'desertPlainsBasicData',
+id:'desertPlainsBasic',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Multi
+this.multiDesertPlainsBasicData = {
+id: 'multiDesertPlainsBasic',
+objData: aThis.desertPlainsBasicData,
+total: 30,
+outerRingRadius: 30,
+innerRingRadius: 3,
+sameTypeRadius: 2,
+otherTypeRadius: 1,
+ranYPos: true,
+yPosFlex: 2,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: true,
+ranRotY: true,
+ranRotZ: true,
+ranColor: true,
+ranTexture: true,
+};
+//
+//Ocean Beach
+//Basic
+this.oceanBeachBasicData = {
+data:'oceanBeachBasicData',
+id:'oceanBeachBasic',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Multi
+this.multiOceanBeachBasicData = {
+id: 'multiOceanBeachBasic',
+objData: aThis.oceanBeachBasicData,
+total: 30,
+outerRingRadius: 30,
+innerRingRadius: 3,
+sameTypeRadius: 2,
+otherTypeRadius: 1,
+ranYPos: true,
+yPosFlex: 2,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: true,
+ranRotY: true,
+ranRotZ: true,
+ranColor: true,
+ranTexture: true,
+};
 
-//Ocean Beach w/Underwater
-//Small hills, water front
+
+//
+//Testing
+
+//Multi Obj Gen Testing
+//Data
+this.spawnTestingData = {
+data:'Ring Spawn Testing',
+id:'ringSpawnTesting',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Multi
+this.multiTestingData = {
+id: 'multiTesting',
+objData: aThis.spawnTestingData,
+total: 30,
+outerRingRadius: 30,
+innerRingRadius: 3,
+sameTypeRadius: 1,
+otherTypeRadius: 1,
+ranYPos: true,
+yPosFlex: 4,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 3,
+ranRotX: true,
+ranRotY: true,
+ranRotZ: true,
+ranColor: true,
+ranTexture: true,
+};
+
+
+//
+//Memory Game
+
+//Memory 0
+this.memory0Data = {
+data:'0',
+id:'memory0',
+sources:false,
+text: false,
+geometry: {primitive: 'triangle', vertexA: '0 0.5 0', vertexB: '-0.5 -0.5 0', vertexC: '0.5 -0.5 0'},
+material: {shader: "standard", color: "#3EB489", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#3EB489", emissiveIntensity: 0.2, side: 'double'},
+position: new THREE.Vector3(-0.6,1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+},
+mixins: false,
+classes: ['clickable','memory','a-ent'],
+components: false,
+};
+
+//Memory 1
+this.memory1Data = {
+data:'1',
+id:'memory1',
+sources:false,
+text: false,
+geometry: {primitive: 'plane', width: 0.75, height: 0.75,},
+material: {shader: "standard", color: "#C14B76", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#C14B76", emissiveIntensity: 0.2, side: 'double'},
+position: new THREE.Vector3(0.6,1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+},
+mixins: false,
+classes: ['clickable','memory','a-ent'],
+components: false,
+};
+
+//Memory 2
+this.memory2Data = {
+data:'2',
+id:'memory2',
+sources:false,
+text: false,
+geometry: {primitive: 'plane', width: 0.15, height: 0.75,},
+material: {shader: "standard", color: "#ce782f", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#ce782f", emissiveIntensity: 0.2, side: 'double'},
+position: new THREE.Vector3(-0.6,0,0),
+rotation: new THREE.Vector3(0,0,45),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+},
+mixins: false,
+classes: ['clickable','memory','a-ent'],
+components: false,
+};
+
+//Memory 3
+this.memory3Data = {
+data:'3',
+id:'memory3',
+sources:false,
+text: false,
+geometry: {primitive: 'circle', radius: 0.5, segments: 16, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#4b54c1", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#4b54c1", emissiveIntensity: 0.2, side: 'double'},
+position: new THREE.Vector3(0.6,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+},
+mixins: false,
+classes: ['clickable','memory','a-ent'],
+components: false,
+};
+
 
 
 //
@@ -6248,9 +6511,9 @@ zone:{
 start:{
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern24, color: "#228343", emissive: "#228343",},}},
 multiRainyForestBasic:{genCores: null, SpawnAll: null},
+memory:{SpawnGame: null},
 },
 delay:{
-
 },
 interval:{
 },
@@ -6489,9 +6752,10 @@ data: this.zone5Data.zone5Node1,
 },
 };
 
+
+// Core, Layer & Aux Library
 /********************************************************************/
 //
-//Core, Layer & Aux Library
 
 //
 //Player
@@ -6531,69 +6795,17 @@ this.playerLayer = Layer('playerLayer', this.playerAll);
 //Main User Player
 this.player = Player(this.playerLayer);
 
+
+//Hamburger Menu Companion
+this.hamComp = Core(this.hamCompData);
+this.HamGirl = HamMenu('HamGirl',this.hamComp);
+
+
+//
 //Speech System TextBubble
 this.textBubbleSide = Core(this.textBubbleSideData);
 this.textBubbleBottom = Core(this.textBubbleBottomData);
 this.textBubbleTop = Core(this.textBubbleTopData);
-
-//
-//Environment
-
-//Lights
-this.directionalLight = Core(this.directionalLightData);
-this.directionalLight2 = Core(this.directionalLight2Data);
-this.directionalLight3 = Core(this.directionalLight3Data);
-this.ambientLight = Core(this.ambientLightData);
-//Sun
-this.sunOuter = Core(this.sunOuterData);
-this.sun = Core(this.sunData);
-this.sunLayerData = {
-parent: {core: this.sunOuter},
-child0: {core: this.sun},
-}
-this.sunLayer = Layer('sunLayer', this.sunLayerData);
-//Moon
-this.moonOuter = Core(this.moonOuterData);
-this.moon = Core(this.moonData);
-this.moonLayerData = {
-parent: {core: this.moonOuter},
-child0: {core: this.moon},
-}
-this.moonLayer = Layer('moonLayer', this.moonLayerData);
-
-//Node Floor
-this.nodeFloor = Core(this.nodeFloorData);
-
-//Node Walls
-this.nodeWallParent = Core(this.nodeWallParentData);
-this.nodeWallData.id = 'nodeWall1';
-this.nodeWallData.position = new THREE.Vector3(0,0,-10);
-this.nodeWall1 = Core(this.nodeWallData);
-this.nodeWallData.id = 'nodeWall2';
-this.nodeWallData.position = new THREE.Vector3(0,0,10);
-this.nodeWall2 = Core(this.nodeWallData);
-this.nodeWallData.id = 'nodeWall3';
-this.nodeWallData.position = new THREE.Vector3(-10,0,0);
-this.nodeWallData.rotation = new THREE.Vector3(0,90,0);
-this.nodeWall3 = Core(this.nodeWallData);
-this.nodeWallData.id = 'nodeWall4';
-this.nodeWallData.position = new THREE.Vector3(10,0,0);
-this.nodeWall4 = Core(this.nodeWallData);
-this.nodeWallsData = {
-parent: {core: this.nodeWallParent}, 
-child0: {core: this.nodeWall1}, 
-child1: {core: this.nodeWall2},
-child2: {core: this.nodeWall3},
-child3: {core: this.nodeWall4},}
-this.nodeWalls = Layer('nodeWalls',this.nodeWallsData);
-
-//3Grad Dual Sky
-this.skyGrad = Core(this.skyGradData);
-
-//
-//Hamburger Menu Companion
-this.hamComp = Core(this.hamCompData);
-this.HamGirl = HamMenu('HamGirl',this.hamComp);
 
 //
 //NPCs
@@ -6625,6 +6837,61 @@ this.soundTesting = Core(this.soundTestingData);
 
 //Multi Obj Spawn Testing
 this.multiTesting = ObjsGenRing(this.multiTestingData);
+
+//
+//Environment
+
+//Lights
+this.directionalLight = Core(this.directionalLightData);
+this.directionalLight2 = Core(this.directionalLight2Data);
+this.directionalLight3 = Core(this.directionalLight3Data);
+this.ambientLight = Core(this.ambientLightData);
+
+//Sun
+this.sunOuter = Core(this.sunOuterData);
+this.sun = Core(this.sunData);
+this.sunLayerData = {
+parent: {core: this.sunOuter},
+child0: {core: this.sun},
+}
+this.sunLayer = Layer('sunLayer', this.sunLayerData);
+//Moon
+this.moonOuter = Core(this.moonOuterData);
+this.moon = Core(this.moonData);
+this.moonLayerData = {
+parent: {core: this.moonOuter},
+child0: {core: this.moon},
+}
+this.moonLayer = Layer('moonLayer', this.moonLayerData);
+
+//3Grad Dual Sky
+this.skyGrad = Core(this.skyGradData);
+
+//Node Floor
+this.nodeFloor = Core(this.nodeFloorData);
+
+//Node Walls
+this.nodeWallParent = Core(this.nodeWallParentData);
+this.nodeWallData.id = 'nodeWall1';
+this.nodeWallData.position = new THREE.Vector3(0,0,-10);
+this.nodeWall1 = Core(this.nodeWallData);
+this.nodeWallData.id = 'nodeWall2';
+this.nodeWallData.position = new THREE.Vector3(0,0,10);
+this.nodeWall2 = Core(this.nodeWallData);
+this.nodeWallData.id = 'nodeWall3';
+this.nodeWallData.position = new THREE.Vector3(-10,0,0);
+this.nodeWallData.rotation = new THREE.Vector3(0,90,0);
+this.nodeWall3 = Core(this.nodeWallData);
+this.nodeWallData.id = 'nodeWall4';
+this.nodeWallData.position = new THREE.Vector3(10,0,0);
+this.nodeWall4 = Core(this.nodeWallData);
+this.nodeWallsData = {
+parent: {core: this.nodeWallParent}, 
+child0: {core: this.nodeWall1}, 
+child1: {core: this.nodeWall2},
+child2: {core: this.nodeWall3},
+child3: {core: this.nodeWall4},}
+this.nodeWalls = Layer('nodeWalls',this.nodeWallsData);
 
 //Environment Basics
 this.multiSnowMountainsBasic = ObjsGenRing(this.multiSnowMountainsBasicData);
@@ -6661,8 +6928,6 @@ this.multitree_fat = ObjsGenRing(this.multitree_fatData);
 this.multitree_oak = ObjsGenRing(this.multitree_oakData);
 this.multitree_pineDefaultA = ObjsGenRing(this.multitree_pineDefaultAData);
 this.multitree_pineDefaultB = ObjsGenRing(this.multitree_pineDefaultBData);
-
-
 
 //Forest
 /*
@@ -6709,8 +6974,25 @@ this.trunkLong = Core(this.trunkLongData);
 */
 
 //
+//Memory
+this.memory = MemoryGame(this.memory0Data,this.memory1Data,this.memory2Data,this.memory3Data,);
+
+
+
+//
 //World Atlas & Map
 //Define at end of Init to ensure all objects are ready
+
+//
+//Environmental Globals
+this.directionalLight.AddToScene(false, false, true);
+this.directionalLight2.AddToScene(false, false, true);
+this.directionalLight3.AddToScene(false, false, true);
+this.ambientLight.AddToScene(false, false, true);
+this.skyGrad.AddToScene(false, false, true);
+this.sunLayer.AddAllToScene(true);
+this.moonLayer.AddAllToScene(true);
+this.nodeFloor.AddToScene(false, false, true);
 
 //Floating Island - Connects to all zones
 //Zone 0
@@ -6765,48 +7047,6 @@ this.zone5Node0 = SceneNode(this.zone5Node0Data);
 this.zone5Node1 = SceneNode(this.zone5Node1Data);
 //Map Zone 5
 this.zone5 = MapZone(this.zone5Data);
-
-//
-//Environmental Globals
-this.directionalLight.AddToScene(false, false, true);
-this.directionalLight2.AddToScene(false, false, true);
-this.directionalLight3.AddToScene(false, false, true);
-this.ambientLight.AddToScene(false, false, true);
-this.skyGrad.AddToScene(false, false, true);
-this.sunLayer.AddAllToScene(true);
-this.moonLayer.AddAllToScene(true);
-this.nodeFloor.AddToScene(false, false, true);
-
-//DayNight
-function dayNight(){
-
-	aThis.directionalLight.EmitEvent('sunrise');
-	aThis.directionalLight2.EmitEvent('sunrise');
-	aThis.directionalLight3.EmitEvent('sunrise');
-	aThis.ambientLight.EmitEvent('sunrise');
-	aThis.sunLayer.EmitEventParent('sunrise');
-	aThis.moonLayer.EmitEventParent('sunrise');
-	aThis.skyGrad.EmitEvent('sunrise');
-
-	aThis.skyGrad.SetFlag({flag:'day', value: true});
-	//SkyGrad Color Anim
-	//Timeout
-	let timeoutDayNight = setTimeout(function () {
-		aThis.skyGrad.SetFlag({flag:'day', value: false});
-		aThis.skyGrad.EmitEvent('sunset');
-		let intervalDayNight = setInterval(function() {
-			if(aThis.skyGrad.GetFlag('day')){
-				aThis.skyGrad.SetFlag({flag:'day', value: false});
-				aThis.skyGrad.EmitEvent('sunset');
-			}else{
-				aThis.skyGrad.SetFlag({flag:'day', value: true});
-				aThis.skyGrad.EmitEvent('sunrise');
-			}
-		//clearInterval(intervalDayNight);
-		}, aThis.timeInDay/2); //Interval
-	}, aThis.timeInDay/2 - aThis.timeInDay/24); //Delay
-}
-
 
 },//Init
 
