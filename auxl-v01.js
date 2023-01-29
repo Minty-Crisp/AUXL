@@ -390,6 +390,13 @@ function hexToRGB(h) {
 	//return "rgb("+ +r + "," + +g + "," + +b + ")";
 	return {r,g,b};
 }
+//Pick Random Color from Color Family
+function colorFamilyGen(color){
+//In-Progress
+//Creating an arrays for each color section with preselected colors to randomly choose from 
+}
+
+
 
 let r;
 let r0;
@@ -1359,17 +1366,21 @@ let core = Object.assign({}, sceneData);
 let textBubble= Core(this.sceneTextData);
 let sceneText = SpeechSystem(textBubble);
 
-	const IfElse = (objRef, {cond, ifTrue, ifFalse}) => {
-//npcBook1:{IfElse: {cond: 'bookFlag1', ifTrue: {testBook1: 	{AddToScene: null},}, ifFalse: {testBook2: {AddToScene: null},},}},
+	const IfElse = (objRef, condObj,{cond, ifTrue, ifFalse}) => {
+
+		//Uses text for true, text and undefined for false
+		//Test using bools only
+
 		//ifTrue
 		//ifFalse
 		//for loop for above objects with key name as object and value key as method and that value the params
 		//console.log(objRef)//this.obj name
+		//console.log(condObj)//this.obj name used to check Condition from
 		//console.log(cond)//cond name
 		//console.log(ifTrue)
 		//console.log(ifFalse)
-		//console.log(aThis[objRef].GetFlag(cond))
-		if(aThis[objRef].GetFlag(cond) === 'true') {
+		//console.log(aThis[condObj].GetFlag(cond))
+		if(aThis[condObj].GetFlag(cond)) {
 			//run ifTrue
 			for(let a in ifTrue){
 				//console.log(ifTrue);
@@ -1379,7 +1390,7 @@ let sceneText = SpeechSystem(textBubble);
 					AThisObjMethod(a,b,ifTrue[a][b]);
 				}
 			}
-		} else if (aThis[objRef].GetFlag(cond) === 'false' || !aThis[objRef].GetFlag(cond)) {
+		} else {
 			//run ifFalse
 			for(let a in ifFalse){
 				//console.log(ifFalse);
@@ -1394,6 +1405,9 @@ let sceneText = SpeechSystem(textBubble);
 	}
 
 	const SetFlag = (objRef, flagInfo) => {
+		//console.log('Setting Flag')
+		//console.log(objRef)
+		//console.log(flagInfo)
 		//access variables
 		let flag = '';
 		let value = '';
@@ -1415,14 +1429,19 @@ let sceneText = SpeechSystem(textBubble);
 		AThisObjMethod(objRef,'SetFlag',params);
 	}
 
-	const AddToTimeIntEvtTracker = ({name,type,method,params,event}) => {
+	const AddToTimeIntEvtTracker = ({name,type,id,method,params,event}) => {
+		//console.log({name,type,id,method,params,event})
+		let nameId = name+id;
 		if(type === 'timeout'){
-			aThis.running[name] = {type, name};
+			aThis.running[nameId] = {type, name, id, nameId};
 		} else if (type === 'interval'){
-			aThis.running[name] = {type, name};
+			aThis.running[nameId] = {type, name, id, nameId};
 		} else if (type === 'interaction' || type === 'event'){
-			aThis.running[name] = {type, name, method, params, event};
+			//console.log({name,type,id,method,params,event})
+			//console.log(nameId);
+			aThis.running[nameId] = {type, name, id, nameId, method, params, event};
 		}
+		//console.log(aThis.running);
 	}
 
 	const RemoveFromTimeIntEvtTracker = (name) => {
@@ -1430,30 +1449,37 @@ let sceneText = SpeechSystem(textBubble);
 	}
 
 	const ClearSceneTimeIntEvt = () => {
-		//console.log(aThis.running)
+		//console.log(aThis.running);
 		for(let ran in aThis.running){
-		//console.log(ran);//name of ID
-		//console.log(aThis.running[ran]);//object
+			//console.log(ran);//name of ID
+			//console.log(aThis.running[ran]);//object
 			if(aThis.running[ran].type === 'timeout'){
-					//console.log('clearing timeout');
-					//console.log(aThis.running[ran].name);
-					//console.log(aThis.timeouts[aThis.running[ran].name]);
-					//clearTimeout(aThis.running[ran].name);
-					clearTimeout(aThis.timeouts[aThis.running[ran].name]);
-					//console.log(aThis.running)
+				//console.log('clearing timeout');
+				//console.log(aThis.running[ran].nameId);
+				//console.log(aThis.timeouts[aThis.running[ran].nameId]);
+				//clearTimeout(aThis.running[ran].nameId);
+				clearTimeout(aThis.timeouts[aThis.running[ran].nameId]);
+				delete aThis.timeouts[aThis.running[ran].nameId];
 			} else if (aThis.running[ran].type === 'interval'){
-					//console.log('clearing interval');
-					clearInterval(aThis.intervals[aThis.running[ran].name]);
+				//console.log('clearing interval');
+				//console.log(aThis.running[ran].nameId);
+				//console.log(aThis.intervals);
+				clearInterval(aThis.intervals[aThis.running[ran].nameId]);
+				delete aThis.intervals[aThis.running[ran].nameId];
 			} else if (aThis.running[ran].type === 'interaction' || aThis.running[ran].type === 'event'){
 				//Event
-				//console.log('Need to remove an interaction.')
+				//console.log('clearing interaction|event');
+				//console.log(aThis.running[ran].name);
+				//console.log(aThis.running[ran].event);
 aThis[aThis.running[ran].name].GetEl().removeEventListener(aThis.running[ran].event, function(){
 AThisObjMethod(aThis.running[ran].object,aThis.running[ran].method,aThis.running[ran].params);
 });
 			}
 			RemoveFromTimeIntEvtTracker(ran);
 		}
-
+		//console.log(aThis.running);
+		//console.log(aThis.timeouts);
+		//console.log(aThis.intervals);
 	}
 
 	const ClearScene = () => {
@@ -1528,36 +1554,28 @@ AThisObjMethod(aThis.running[ran].object,aThis.running[ran].method,aThis.running
 					//console.log(b);//func name
 					//console.log(core[time][line][a][b]);//params
 					if(b === 'IfElse'){
-						AddToTimeIntEvtTracker({name: line, type: 'timeout'});
-						aThis.timeouts[line] = setTimeout(function () {
-							//console.log('IfElse Timeout Hit')
-							IfElse(a,core[time][line][a][b]);
-							clearTimeout(aThis.timeouts[line]);
-						}, line); //Delay
-					} else if(b === 'SetFlag'){
-						AddToTimeIntEvtTracker({name: line, type: 'timeout'});
-						aThis.timeouts[line] = setTimeout(function () {
-							//console.log('SetFlag Timeout Hit')
-							SetFlag(a,core[time][line][a][b]);
-							clearTimeout(aThis.timeouts[line]);
-						}, line); //Delay
-
-
+						//console.log('IfElse Timeout');
+						for(let c in core[time][line][a][b]){
+							//console.log(core[time][line][a][b][c]);//params
+							AddToTimeIntEvtTracker({name: line, type: 'timeout', id: a});
+							aThis.timeouts[line+a] = setTimeout(function () {
+								//console.log('IfElse Timeout Hit');
+								IfElse(a,c,core[time][line][a][b][c]);
+								clearTimeout(aThis.timeouts[line+a]);
+							}, line); //Delay
+						}
 					} else {
-						AddToTimeIntEvtTracker({name: line, type: 'timeout'});
-						aThis.timeouts[line] = setTimeout(function () {
+						//console.log('Normal Timeout');
+						AddToTimeIntEvtTracker({name: line, type: 'timeout', id: a});
+						aThis.timeouts[line+a] = setTimeout(function () {
 							//console.log('Timeout Hit')
 							AThisObjMethod(a,b,core[time][line][a][b]);
-							clearTimeout(aThis.timeouts[line]);
+							clearTimeout(aThis.timeouts[line+a]);
 						}, line); //Delay
 					}
 				}
 			}
 		} else if(time === 'interval'){
-			//5000: {run: {
-			//hamComp:{SetFlag:{flag: 'testVar', value: 'false'},},}, 
-			//loop: 'infinite',
-			//end: 'TestVar'},
 			//console.log('Interval Running...');
 			for(let a in core[time][line]){
 				//console.log(time);//interval
@@ -1579,64 +1597,46 @@ AThisObjMethod(aThis.running[ran].object,aThis.running[ran].method,aThis.running
 							//console.log(c);//method
 							//console.log(core[time][line][a][b][c]);//parms
 							if(c === 'IfElse'){
-								AddToTimeIntEvtTracker({name: line, type: 'interval'});
-								aThis.intervals[line] = setInterval(function() {
-									//Interval Functions
-									//Check for End Condition
-									if(aThis[b].GetFlag(endCond) === 'true'){
-										clearInterval(aThis.intervals[line]);
-										RemoveFromTimeIntEvtTracker(line);
-									}
-									//console.log('IfElse Interval Hit')
-									IfElse(b,core[time][line][a][b][c]);
-									//Check and update Loop Total
-									if(loopTotal === 'infinite'){} else {
-										ranTotal++;
-										if(ranTotal >= loopTotal){
-											clearInterval(aThis.intervals[line]);
-											RemoveFromTimeIntEvtTracker(line);
+								for(let d in core[time][line][a][b][c]){
+									AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
+									aThis.intervals[line+b] = setInterval(function() {
+										//Interval Functions
+										//Check for End Condition
+										if(aThis[b].GetFlag(endCond) === 'true'){
+											clearInterval(aThis.intervals[line+b]);
+											RemoveFromTimeIntEvtTracker(line+b);
 										}
-									}
-								}, line); //Interval
-							} else if(c === 'SetFlag'){
-								AddToTimeIntEvtTracker({name: line, type: 'interval'});
-								aThis.intervals[line] = setInterval(function() {
-									//Interval Functions
-									//Check for End Condition
-									if(aThis[b].GetFlag(endCond) === 'true'){
-										clearInterval(aThis.intervals[line]);
-										RemoveFromTimeIntEvtTracker(line);
-									}
-									console.log('SetFlag Interval Hit')
-									SetFlag(b,core[time][line][a][b][c]);
-									//Check and update Loop Total
-									if(loopTotal === 'infinite'){} else {
-										ranTotal++;
-										if(ranTotal >= loopTotal){
-											clearInterval(aThis.intervals[line]);
-											RemoveFromTimeIntEvtTracker(line);
+										//console.log('IfElse Interval Hit')
+										IfElse(b,d,core[time][line][a][b][c][d]);
+										//Check and update Loop Total
+										if(loopTotal === 'infinite'){} else {
+											ranTotal++;
+											if(ranTotal >= loopTotal){
+												clearInterval(aThis.intervals[line+b]);
+												RemoveFromTimeIntEvtTracker(line+b);
+											}
 										}
-									}
-								}, line); //Interval
+									}, line); //Interval
+								}
 							} else {
+								//console.log('Normal Interval');
 								let method = c;
 								let params = core[time][line][a][b][c];
-								AddToTimeIntEvtTracker({name: line, type: 'interval'});
-								aThis.intervals[line] = setInterval(function() {
+								AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
+								aThis.intervals[line+b] = setInterval(function() {
 									//Interval Functions
 									//Check for End Condition
 									if(aThis[b].GetFlag(endCond) === 'true'){
-										clearInterval(aThis.intervals[line]);
-										RemoveFromTimeIntEvtTracker(line);
+										clearInterval(aThis.intervals[line+b]);
+										RemoveFromTimeIntEvtTracker(line+b);
 									}
-									//console.log('Interval Hit')
 									AThisObjMethod(b,method,params);
 									//Check and update Loop Total
 									if(loopTotal === 'infinite'){} else {
 										ranTotal++;
 										if(ranTotal >= loopTotal){
-											clearInterval(aThis.intervals[line]);
-											RemoveFromTimeIntEvtTracker(line);
+											clearInterval(aThis.intervals[line+b]);
+											RemoveFromTimeIntEvtTracker(line+b);
 										}
 									}
 									//clearInterval(interval);
@@ -1657,15 +1657,38 @@ AThisObjMethod(aThis.running[ran].object,aThis.running[ran].method,aThis.running
 				for(let b in core[time][line][a]){
 					//console.log(b);//func name
 					//console.log(core[time][line][a][b]);//params
-					let object = a;
-					let method = b;
-					let params = core[time][line][a][b];
-					//aThis.interactions[object];
-					//aThis.running[ran].name;
-					AddToTimeIntEvtTracker({name: object, type: 'interaction', method, params, event: line});
-					aThis[object].GetEl().addEventListener(line, function(){
-						AThisObjMethod(object,method,params);
-					});
+					let object;
+					let method;
+					let params;
+					if(b === 'IfElse'){
+						//console.log('IfElse Interaction');
+						for(let c in core[time][line][a][b]){
+							//console.log(core[time][line][a][b]);//condObject w/params and iftrue/iffalse
+							//console.log(core[time][line][a][b][c]);//cond, iftrue, ifflase
+							//console.log(a)//this.object name
+							//console.log(b)//ifelse
+							//console.log(c)//condObj
+							object = a;
+							params = core[time][line][a][b][c];
+
+							AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
+							aThis[object].GetEl().addEventListener(line, function(){
+								IfElse(object,c,params);
+								//AThisObjMethod(object,method,params);
+							});
+						}
+					} else {
+						//console.log('Normal Interaction');
+						object = a;
+						method = b;
+						params = core[time][line][a][b];
+						//aThis.interactions[object];
+						//aThis.running[ran].name;
+						AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
+						aThis[object].GetEl().addEventListener(line, function(){
+							AThisObjMethod(object,method,params);
+						});
+					}
 				}
 				//aThis[line][a](core[time][line][a]);
 			}
@@ -1680,15 +1703,55 @@ AThisObjMethod(aThis.running[ran].object,aThis.running[ran].method,aThis.running
 				for(let b in core[time][line][a]){
 					//console.log(b);//func name
 					//console.log(core[time][line][a][b]);//params
+					let object;
+					let method;
+					let params;
+					if(b === 'IfElse'){
+						//console.log('IfElse Event');
+						for(let c in core[time][line][a][b]){
+							//console.log(core[time][line][a][b]);//condObject w/params and iftrue/iffalse
+							//console.log(core[time][line][a][b][c]);//cond, iftrue, ifflase
+							//console.log(a)//this.object name
+							//console.log(b)//ifelse
+							//console.log(c)//condObj
+							object = a;
+							params = core[time][line][a][b][c];
+
+							AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+							aThis[object].GetEl().addEventListener(line, function(){
+								IfElse(object,c,params);
+								//AThisObjMethod(object,method,params);
+							});
+						}
+					} else {
+						//console.log('Normal Event');
+						object = a;
+						method = b;
+						params = core[time][line][a][b];
+						//aThis.interactions[object];
+						//aThis.running[ran].name;
+						AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+						aThis[object].GetEl().addEventListener(line, function(){
+							AThisObjMethod(object,method,params);
+						});
+					}
+
+
+					/*
 					let object = a;
 					let method = b;
 					let params = core[time][line][a][b];
+					//console.log(line)
+					//console.log(object)
+					//console.log(method)
+					//console.log(params)
 					//aThis.interactions[object];
 					//aThis.running[ran].name;
-					AddToTimeIntEvtTracker({name: object, type: 'event', method, params, event: line});
+					AddToTimeIntEvtTracker({name: object, type: 'event', id: line, method, params, event: line});
 					aThis[object].GetEl().addEventListener(line, function(){
 						AThisObjMethod(object,method,params);
 					});
+					*/
 				}
 				//aThis[line][a](core[time][line][a]);
 			}
@@ -1703,9 +1766,11 @@ AThisObjMethod(aThis.running[ran].object,aThis.running[ran].method,aThis.running
 					//console.log(a);//method name. can be universal like IfElse
 					//console.log(core[time][line][a]);//params
 					if(a === 'IfElse'){
-						IfElse(line, core[time][line][a]);
-					} else if (a === 'SetFlag') {
-						SetFlag(line,core[time][line][a]);
+						for(let b in core[time][line][a]){
+							//console.log(b);
+							//console.log(core[time][line][a][b]);
+							IfElse(line,b,core[time][line][a][b]);
+						}
 					} else {
 						AThisObjMethod(line,a,core[time][line][a]);
 					}
@@ -1717,19 +1782,18 @@ AThisObjMethod(aThis.running[ran].object,aThis.running[ran].method,aThis.running
 					//console.log(a);//method name. can be universal like IfElse
 					//console.log(core[time][line][a]);//params
 					if(a === 'IfElse'){
-						IfElse(line,core[time][line][a]);
-					} else if (a === 'SetFlag') {
-						SetFlag(line,core[time][line][a]);
+						for(let b in core[time][line][a]){
+							//console.log(b);
+							//console.log(core[time][line][a][b]);
+							IfElse(line,b,core[time][line][a][b]);
+						}
 					} else {
 						AThisObjMethod(line,a,core[time][line][a]);
 					}
 				} else if(time === 'zone'){
 					if(a === 'IfElse'){
-						console.log('IfElse shouldnt be used in Zone. Move to Start.');
+						console.log('IfElse shouldnt be used in Zone. Move to Other.');
 						//IfElse(line,core[time][line][a]);
-					} else if (a === 'SetFlag') {
-						console.log('SetFlag shouldnt be used in Zone. Move to Start.');
-						//SetFlag(line,core[time][line][a]);
 					} else {
 						//Check if Zone element already exists
 						//console.log('Adding Zone Element');
@@ -2331,7 +2395,8 @@ const SpeechSystem = (core) => {
 
 	const Kill = (interval) => {
 		core.speaking = false;
-		clearInterval(core.textDisplayInterval);
+		clearInterval(aThis.intervals[core.core.id]);
+		delete aThis.intervals[core.core.id];
 	}
 
 	const KillStop = () => {
@@ -2361,8 +2426,8 @@ const SpeechSystem = (core) => {
 			core.GetEl().removeEventListener('skip',{});
 		});
 
-	AddToTimeIntEvtTracker({name: 'textDisplayInterval', type: 'interval'});
-		core.textDisplayInterval = setInterval(function() {
+		AddToTimeIntEvtTracker({name: 'textDisplayInterval', type: 'interval', id: core.core.id});
+		aThis.intervals[core.core.id] = setInterval(function() {
 			//Interval Functions
 			if(currChar < speech.length){
 				currText += speech[currChar];
@@ -2377,16 +2442,16 @@ const SpeechSystem = (core) => {
 				core.GetEl().setAttribute('text',{value: currText});
 			}
 		}, 20); //Interval
-		aThis.intervals.textDisplayInterval = core.textDisplayInterval;
 	}
 
-	const AddToTimeIntEvtTracker = ({name,type,method,params}) => {
+	const AddToTimeIntEvtTracker = ({name,type,id,method,params}) => {
+		let nameId = name+id;
 		if(type === 'timeout'){
-			aThis.running[name] = {type, name};
+			aThis.running[nameId] = {type, name, id, nameId};
 		} else if (type === 'interval'){
-			aThis.running[name] = {type, name};
-		} else if (type === 'event'){
-			aThis.running[name] = {type, name, method, params};
+			aThis.running[nameId] = {type, name, id, nameId};
+		} else if (type === 'interaction' || type === 'event'){
+			aThis.running[nameId] = {type, name, id, nameId, method, params, event};
 		}
 	}
 
@@ -2519,47 +2584,36 @@ let menuTimeout;
 	}
 
 	const IfElse = (obj) => {
-//objRef, {cond, ifTrue, ifFalse}
-/*
-IfElse: {
-npc0:{cond: 'testVar',
-ifTrue: {
-npc0:{Speak:{role: 'Dev', speech:'Is True'}},
-},
-ifFalse: {
-npc0:{Speak:{role: 'Dev', speech:'Is False'}},
-},}
-}*/
 		//ifTrue
 		//ifFalse
 		//for loop for above objects with key name as object and value key as method and that value the params
-		//console.log(obj)//entire ifElse object
+		console.log(obj)//entire ifElse object
 		let objRef = Object.keys(obj);
-		//console.log(Object.keys(obj))//this.obj name
+		console.log(Object.keys(obj))//this.obj name
 		let cond = obj[objRef].cond;
 		let ifTrue = obj[objRef].ifTrue;
 		let ifFalse = obj[objRef].ifFalse;
-		//console.log(cond)//cond name
-		//console.log(ifTrue)
-		//console.log(ifFalse)
+		console.log(cond)//cond name
+		console.log(ifTrue)
+		console.log(ifFalse)
 
-		//console.log(aThis[objRef].GetFlag(cond))
-		if(aThis[objRef].GetFlag(cond) === 'true') {
+		console.log(aThis[objRef].GetFlag(cond))
+		if(aThis[objRef].GetFlag(cond)) {
 			//run ifTrue
 			for(let a in ifTrue){
-				//console.log(ifTrue);
-				//console.log(a);
-				//console.log(ifTrue[a]);
+				console.log(ifTrue);
+				console.log(a);
+				console.log(ifTrue[a]);
 				for(let b in ifTrue[a]){
 					AThisObjMethod(a,b,ifTrue[a][b]);
 				}
 			}
-		} else if (aThis[objRef].GetFlag(cond) === 'false' || !aThis[objRef].GetFlag(cond)) {
+		} else {
 			//run ifFalse
 			for(let a in ifFalse){
-				//console.log(ifFalse);
-				//console.log(a);//this.object name should match objRef
-				//console.log(ifFalse[a]);//method w/ params
+				console.log(ifFalse);
+				console.log(a);//this.object name should match objRef
+				console.log(ifFalse[a]);//method w/ params
 				for(let b in ifFalse[a]){
 					AThisObjMethod(a,b,ifFalse[a][b]);
 				}
@@ -3096,7 +3150,12 @@ const MemoryGame = (...data) => {
 		memory.AddAllToScene();
 		GenRanSequence();
 		PlaySequence();
-		SequenceListeners();
+		AddSequenceListeners();
+	}
+
+	const DespawnGame = () => {
+		RemoveSequenceListeners();
+		memory.RemoveAllFromScene();
 	}
 
 	const GenRanSequence = () => {
@@ -3182,13 +3241,20 @@ const MemoryGame = (...data) => {
 		}
 
 	}
-	const SequenceListeners = () => {
+
+	const AddSequenceListeners = () => {
 		for(let each in memoryCores){
 			memoryCores[each].GetEl().addEventListener('click', memoryClick);
 		}
 	}
 
-	return{memory, SpawnGame, PlaySequence};
+	const RemoveSequenceListeners = () => {
+		for(let each in memoryCores){
+			memoryCores[each].GetEl().removeEventListener('click', memoryClick);
+		}
+	}
+
+	return{memory, SpawnGame, DespawnGame, PlaySequence};
 }
 
 // Library Data
@@ -4027,10 +4093,11 @@ prevPage: null,
 timeline:'linear',
 },
 timeline0:{
-npc0:{Speak:{role: 'Dev', speech:'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac metus sodales, rhoncus tellus at, pretium mi.'}, SetFlag:{flag: 'testVar', value: 'true'},},
+npc0:{Speak:{role: 'Dev', speech:'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac metus sodales, rhoncus tellus at, pretium mi.'}, SetFlag:{flag: 'testSpeechVar', value: false},},
+player:{SetFlag:{flag: 'testSpeechVar', value: true},},
 },
 timeline1:{
-npc0:{IfElse: {npc0:{cond: 'testVar',
+npc0:{IfElse: {player:{cond: 'testSpeechVar',
 ifTrue: {
 npc0:{Speak:{role: 'Dev', speech:'Is True'}},},
 ifFalse: {
@@ -4200,8 +4267,8 @@ npc2:{Speak:{role: 'Ham', speech:'Did you find where the Key goes?'}, Jump: {tim
 npc2:{Speak:{role: 'Ham', speech:'I found this key, but I don\'t know what it is used for. Would you like it?'}},},}}},
 },
 timeline1:{
-npc2:{Speak:{role: 'Ham', speech:'Here you go!'}, SetFlag: {flag: 'masterKey', value: 'true'}},
-player:{SetFlag: {flag: 'masterKey', value: 'true'}},
+npc2:{Speak:{role: 'Ham', speech:'Here you go!'}, SetFlag: {flag: 'masterKey', value: true}},
+player:{SetFlag: {flag: 'masterKey', value: true}},
 },
 timeline2:{
 npc2:{Speak:{role: 'Ham', speech:'Good luck finding where it goes!'}},
@@ -4423,6 +4490,74 @@ text: false,
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {shader: "standard", src: pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
 position: new THREE.Vector3(-0.75,1.25,-0.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
+};
+this.eventTesting2Data = {
+data:'Event Testing 2',
+id:'eventTesting2',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#3999a5", emissive: '#3999a5', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0.75,1.25,-0.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
+};
+this.eventTesting3Data = {
+data:'Event Testing 3',
+id:'eventTesting3',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: pattern22, repeat: '1 1', color: "#ad482a", emissive: '#ad482a', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,1.25,-0.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
+};
+this.eventTesting4Data = {
+data:'Event Testing 4',
+id:'eventTesting4',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: pattern27, repeat: '1 1', color: "#d2e025", emissive: '#d2e025', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,2,-0.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
+};
+this.eventTesting5Data = {
+data:'Event Testing 5',
+id:'eventTesting5',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: pattern33, repeat: '1 1', color: "#25e074", emissive: '#25e074', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,1.5,-0.25),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
@@ -6342,9 +6477,9 @@ sceneText: true,
 zone:{
 },
 start:{
+
 HamGirl:{Start: null},
 npcMinty:{Spawn:null},
-eventTesting:{AddToScene: null, EnableDetail: 'This is a test detail to read.'},
 soundTesting:{AddToScene: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern49, repeat: '50 50',color: "#27693d", emissive: "#27693d",},}},
 multiFlowerPurpleA:{genCores: null, SpawnAll: null},
@@ -6376,16 +6511,16 @@ multitree_pineDefaultA:{genCores: null, SpawnAll: null},
 multitree_pineDefaultB:{genCores: null, SpawnAll: null},
 },
 delay:{
-1000:{eventTesting:{EmitEvent: 'customevent'},soundTesting:{EmitEvent: 'playSound'},},
+
 },
 interval:{
 
 },
 event:{
-customevent: {eventTesting: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},},
+
 },
 interaction:{
-click: {eventTesting: {ChangeSelf: {property: 'material', value: {color: '#24a6e0', emissive: '#24a6e0'}}},},
+
 },
 exit:{
 HamGirl:{Remove: null},
@@ -6394,7 +6529,6 @@ map:{
 data: this.zone0Data.zone0Node0,
 },
 };
-
 
 
 //Snow Mountains w/Underground Cave
@@ -6429,17 +6563,98 @@ zone:{
 start:{
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern69, color: "#d6a9ba", emissive: "#d6a9ba",},}},
 multiSnowMountainsBasic:{genCores: null, SpawnAll: null},
+eventTesting:{AddToScene: null, EnableDetail: 'This is a test detail to read.'},
+eventTesting2:{AddToScene: null, EnableDetail: 'This is another test detail to read.'},
+eventTesting3:{AddToScene: null,},
+eventTesting4:{AddToScene: null,},
 },
 delay:{
-
+2000:{
+eventTesting:{EmitEvent: 'customevent1'},
+},
+4000:{
+eventTesting:{IfElse: {player:{cond: 'testDelayVar',
+ifTrue: {
+eventTesting:{EmitEvent: 'customevent3'},
+},ifFalse: {
+eventTesting:{EmitEvent: 'customevent2'},
+},}}},
+},
+6000:{
+player:{SetFlag:{flag: 'testDelayVar', value: true},},
+},
+8000:{
+eventTesting:{IfElse: {player:{cond: 'testDelayVar',
+ifTrue: {
+eventTesting:{EmitEvent: 'customevent3'},
+},ifFalse: {
+eventTesting:{EmitEvent: 'customevent2'},
+},}}},
+},
 },
 interval:{
+
+5000: {run: {eventTesting2:{IfElse: {eventTesting2: {cond: 'testIntervalVar',
+ifTrue: {
+eventTesting2:{EmitEvent: 'customevent5',SetFlag:{flag: 'testIntervalVar', value: false},},
+},
+ifFalse: {
+eventTesting2:{EmitEvent: 'customevent6',SetFlag:{flag: 'testIntervalVar', value: true},},
+},
+},}},}, loop: 'infinite'},
+6000: {run: {
+eventTesting4:{EmitEvent: 'testintervalevent'},
+}, loop: 'infinite'},
 },
 event:{
-
+customevent1: {
+eventTesting: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},
+},
+customevent2: {
+eventTesting: {ChangeSelf: {property: 'material', value: {color: '#3630c7', emissive: '#3630c7'}}},
+},
+customevent3: {
+eventTesting: {ChangeSelf: {property: 'material', value: {color: '#c73076', emissive: '#c73076'}}},
+},
+customevent4: {
+eventTesting: {ChangeSelf: {property: 'material', value: {color: '#d1e62f', emissive: '#d1e62f'}}},
+},
+customevent5: {
+eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},
+},
+customevent6: {
+eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#d1e62f', emissive: '#d1e62f'}}},
+},
+customevent7: {
+eventTesting3: {ChangeSelf: {property: 'material', value: {color: '#1da356', emissive: '#1da356'}}},
+},
+customevent8: {
+eventTesting3: {ChangeSelf: {property: 'material', value: {color: '#a72fe6', emissive: '#a72fe6'}}},
+},
+customevent9: {
+eventTesting4: {ChangeSelf: {property: 'material', value: {color: '#5c3724', emissive: '#5c3724'}}},
+},
+customevent10: {
+eventTesting4: {ChangeSelf: {property: 'material', value: {color: '#e62f2f', emissive: '#e62f2f'}}},
+},
+testintervalevent: {
+eventTesting4:{IfElse: {eventTesting4:{cond: 'testInteractionVar',
+ifTrue: {
+eventTesting4:{EmitEvent: 'customevent9',SetFlag:{flag: 'testInteractionVar', value: false},},
+},ifFalse: {
+eventTesting4:{EmitEvent: 'customevent10',SetFlag:{flag: 'testInteractionVar', value: true},},
+},}}},
+},
 },
 interaction:{
-
+click: {
+eventTesting3:{IfElse: {eventTesting3:{cond: 'testInteractionVar',
+ifTrue: {
+eventTesting3:{EmitEvent: 'customevent7',SetFlag:{flag: 'testInteractionVar', value: false},},
+},ifFalse: {
+eventTesting3:{EmitEvent: 'customevent8',SetFlag:{flag: 'testInteractionVar', value: true},},
+},}}},
+},
 },
 exit:{
 
@@ -6524,7 +6739,7 @@ interaction:{
 
 },
 exit:{
-
+memory:{DespawnGame: null},
 },
 map:{
 data: this.zone2Data.zone2Node0,
@@ -6562,6 +6777,7 @@ sceneText: true,
 zone:{
 },
 start:{
+npc0:{Spawn: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern49, color: "#47a868", emissive: "#47a868",},}},
 multiGrassyHillsBasic:{genCores: null, SpawnAll: null},
 },
@@ -6595,6 +6811,14 @@ zone:{
 
 },
 start:{
+ifElseCheckForTesting124:{IfElse: {player:{cond: 'testSpeechVar',
+ifTrue: {
+eventTesting5:{AddToScene: null},
+},ifFalse: {
+eventTesting4:{AddToScene: null},
+},}}
+},
+
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern50, repeat: '100 100',color: "#763a3a", emissive: "#763a3a",},}},
 nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
 },
@@ -6695,8 +6919,10 @@ description: 'Rolling Sands',
 sceneText: true,
 },
 zone:{
+eventTesting5:{AddToScene: null,},
 },
 start:{
+eventTesting5:{SetFlag:{flag: 'testExitVar', value: true},},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern55, color: "#b4933c", emissive: "#b4933c",},}},
 multiOceanBeachBasic:{genCores: null, SpawnAll: null},
 },
@@ -6712,7 +6938,12 @@ interaction:{
 
 },
 exit:{
-
+eventTesting5:{IfElse: {eventTesting5:{cond: 'testExitVar',
+ifTrue: {
+eventTesting5:{ChangeSelf:{property: 'material', value: {src: pattern55,color: "#1f5298", emissive: "#1f5298",},}},
+},ifFalse: {
+eventTesting5:{ChangeSelf:{property: 'material', value: {src: pattern54,color: "#9b206c", emissive: "#9b206c",},}},
+},}}},
 },
 map:{
 data: this.zone5Data.zone5Node0,
@@ -6730,6 +6961,7 @@ zone:{
 
 },
 start:{
+eventTesting5:{SetFlag:{flag: 'testExitVar', value: false},},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern83, color: "#3c86b4", emissive: "#3c86b4",},}},
 nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern80, repeat: '5 1.25', color: "#3c86b4", emissive: "#3c86b4",}}},
 },
@@ -6745,7 +6977,12 @@ interaction:{
 
 },
 exit:{
-
+eventTesting5:{IfElse: {eventTesting5:{cond: 'testExitVar',
+ifTrue: {
+eventTesting5:{ChangeSelf:{property: 'material', value: {src: pattern55,color: "#1f5298", emissive: "#1f5298",},}},
+},ifFalse: {
+eventTesting5:{ChangeSelf:{property: 'material', value: {src: pattern54,color: "#9b206c", emissive: "#9b206c",},}},
+},}}},
 },
 map:{
 data: this.zone5Data.zone5Node1,
@@ -6830,7 +7067,10 @@ this.npcMinty = NPC(this.npcMintyCore, this.npcMintyBookTestData, this.npcMintyT
 //
 //Scripted Events Testing Object
 this.eventTesting = Core(this.eventTestingData);
-//this.eventTestingClick = ClickTest(this.eventTesting);
+this.eventTesting2 = Core(this.eventTesting2Data);
+this.eventTesting3 = Core(this.eventTesting3Data);
+this.eventTesting4 = Core(this.eventTesting4Data);
+this.eventTesting5 = Core(this.eventTesting5Data);
 
 //Sound
 this.soundTesting = Core(this.soundTestingData);
