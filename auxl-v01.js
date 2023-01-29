@@ -59,7 +59,6 @@ this.menuSpawned = {};
 this.genSpawned = {};
 this.npcSpawned = {};
 this.carouselSpawned = {};
-
 function clearSpawned(spawned){
 	for(let spawn in spawned){
 		//console.log(spawn);//name of ID
@@ -97,15 +96,11 @@ function clearSpawned(spawned){
 		delete spawned[spawn];
 	}
 }
-
 this.running = {};
 this.timeouts = {};
 this.intervals = {};
 this.interactions = {};
 this.events = {};
-//this.menus = {};
-//this.npcs = {};
-//this.carousels = {};
 
 //
 //HTML Menu
@@ -166,7 +161,7 @@ function enableVRControls(){
 	//vrControllerUI visible to true
 	vrControllerUI.setAttribute('visible',true);
 	//vrController raycaster property
-	vrController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
+	vrController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
 	//vrController cursor property
 	vrController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController', mouseCursorStylesEnabled: 'true'});
 	//vrController laser-controls property
@@ -1212,7 +1207,17 @@ const Player = (layer) => {
 
 	}
 
-	return {layer, SetFlag, GetFlag, TempDisableClick}
+	const EnableLocomotion = () => {
+		aThis.locomotionUILayer.AddAllToScene(true);
+		playerRig.setAttribute('belt',{uiid: 'beltUIParent', controller1id: 'vrController', courserid: 'mouseController',});
+	}
+
+	const DisableLocomotion = () => {
+		playerRig.removeAttribute('belt');
+		aThis.locomotionUILayer.RemoveAllFromScene();
+	}
+
+	return {layer, SetFlag, GetFlag, TempDisableClick, EnableLocomotion, DisableLocomotion}
 }
 //Spawn Function
 function playerSpawnAnim(){
@@ -3467,9 +3472,6 @@ this.animStuffData = {
 	//startEvents: 'testevent',
 };
 
-
-
-
 //
 //Data Library
 
@@ -3491,7 +3493,8 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-['wasd-controls']:{enabled: true, acceleration: 25},
+//belt:{uiid: 'beltUIParent', controller1id: 'vrController', courserid: 'mouseController',},
+//['wasd-controls']:{enabled: true, acceleration: 25},
 //['movement-controls']:{enabled: true, controls: 'gamepad, keyboard, touch', speed: 0.3, fly: false, constrainToNavMesh: false, camera: '#camera',},
 },};
 
@@ -3551,6 +3554,8 @@ animations: {
 click:{property: 'scale', from: '0.75 0.75 0.75', to: '0.15 0.15 0.15', dur: 100, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
 click2:{property: 'scale', from: '0.15 0.15 0.15', to: '0.25 0.25 0.25', dur: 25, delay: 100, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
 clickreset:{property: 'scale', from: '0.25 0.25 0.25', to: '0.75 0.75 0.75', dur: 300, delay: 400, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+hoverenter:{property: 'material.color', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
+hoverleave:{property: 'material.color', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
 },
 mixins: false,
 classes: ['a-ent','player'],
@@ -3569,7 +3574,10 @@ material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
 position: new THREE.Vector3(0,0,-1),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(0.15,0.15,0.15),
-animations: false,
+animations: {
+hoverenter:{property: 'raycaster.lineColor', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
+hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
+},
 mixins: false,
 classes: ['a-ent','player'],
 components: {
@@ -3694,6 +3702,224 @@ blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0,
 mixins: false,
 classes: ['a-ent','player'],
 components: {visible: false},
+};
+
+//
+//Belt Locomotion UI
+
+//Belt UI
+this.beltUIParentData = {
+data:'beltUIParentData',
+id:'beltUIParent',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['nullParent','a-ent'],
+components: false,
+};
+
+//directionForward
+//Locomotion Forward UI
+this.locomotionForwardUIData = {
+data:'locomotionForwardUIData',
+id:'locomotionForwardUI',
+sources:false,
+text: false,
+geometry: {primitive: 'cone', openEnded: true, height: 0.4, radiusBottom: 1.5, radiusTop: 2, segmentsHeight: 6, segmentsRadial: 24, thetaStart: 0, thetaLength: 360},
+material: {shader: "flat", color: "#5c174b", opacity: 0.3, side: 'double'},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+brakeon: {property: 'object3D.position.y', from: 1, to: 0.25, dur: 1250, delay: 250, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'brakeOn'},
+brakeoff: {property: 'object3D.position.y', from: 0.25, to: 1, dur: 700, delay: 100, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'brakeOff'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+
+//directionReverse
+//Locomotion Reverse UI
+this.locomotionReverseUIData = {
+data:'locomotionReverseUIData',
+id:'locomotionReverseUI',
+sources:false,
+text: false,
+geometry: {primitive: 'cone', openEnded: true, height: 0.001, radiusBottom: 1.25, radiusTop: 1.5, segmentsHeight: 1, segmentsRadial: 24, thetaStart: 0, thetaLength: 360},
+material: {shader: "flat", color: "#46113a", opacity: 0.3, side: 'double'},
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+brakeon: {property: 'object3D.position.y', from: 0.75, to: 0.1, dur: 1150, delay: 350, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'brakeOn'},
+brakeoff: {property: 'object3D.position.y', from: 0.1, to: 0.75, dur: 700, delay: 250, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'brakeOff'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+
+//directionBrake1
+//Locomotion Brake 1 UI
+this.locomotionBrake1UIData = {
+data:'locomotionBrake1UIData',
+id:'locomotionBrake1UI',
+sources:false,
+text: false,
+geometry: {primitive: 'cone', openEnded: true, height: 0.01, radiusBottom: 0.75, radiusTop: 1, segmentsHeight: 1, segmentsRadial: 8, thetaStart: 0, thetaLength: 30},
+material: {shader: "flat", color: "red", opacity: 0.3, side: 'double'},
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+brakeon: {property: 'object3D.position.y', from: 0.5, to: 0.1, dur: 1050, delay: 450, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'brakeOn'},
+brakeoff: {property: 'object3D.position.y', from: 0.1, to: 0.5, dur: 1050, delay: 450, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'brakeOff'},
+},
+mixins: false,
+classes: ['clickable','a-ent', 'directionBrake'],
+components: false,
+};
+
+//directionBrake2
+//Locomotion Brake 2 UI
+this.locomotionBrake2UIData = {
+data:'locomotionBrake2UIData',
+id:'locomotionBrake2UI',
+sources:false,
+text: false,
+geometry: {primitive: 'cone', openEnded: true, height: 0.01, radiusBottom: 0.75, radiusTop: 1, segmentsHeight: 1, segmentsRadial: 8, thetaStart: 90, thetaLength: 30},
+material: {shader: "flat", color: "red", opacity: 0.3, side: 'double'},
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+brakeon: {property: 'object3D.position.y', from: 0.5, to: 0.1, dur: 1050, delay: 450, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'brakeOn'},
+brakeoff: {property: 'object3D.position.y', from: 0.1, to: 0.5, dur: 1050, delay: 450, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'brakeOff'},
+},
+mixins: false,
+classes: ['clickable','a-ent', 'directionBrake'],
+components: false,
+};
+
+//directionBrake3
+//Locomotion Brake 3 UI
+this.locomotionBrake3UIData = {
+data:'locomotionBrake3UIData',
+id:'locomotionBrake3UI',
+sources:false,
+text: false,
+geometry: {primitive: 'cone', openEnded: true, height: 0.01, radiusBottom: 0.75, radiusTop: 1, segmentsHeight: 1, segmentsRadial: 8, thetaStart: 180, thetaLength: 30},
+material: {shader: "flat", color: "red", opacity: 0.3, side: 'double'},
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+brakeon: {property: 'object3D.position.y', from: 0.5, to: 0.1, dur: 1050, delay: 450, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'brakeOn'},
+brakeoff: {property: 'object3D.position.y', from: 0.1, to: 0.5, dur: 1050, delay: 450, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'brakeOff'},
+},
+mixins: false,
+classes: ['clickable','a-ent', 'directionBrake'],
+components: false,
+};
+
+//directionBrake4
+//Locomotion Brake 4 UI
+this.locomotionBrake4UIData = {
+data:'locomotionBrake4UIData',
+id:'locomotionBrake4UI',
+sources:false,
+text: false,
+geometry: {primitive: 'cone', openEnded: true, height: 0.01, radiusBottom: 0.75, radiusTop: 1, segmentsHeight: 1, segmentsRadial: 8, thetaStart: 270, thetaLength: 30},
+material: {shader: "flat", color: "red", opacity: 0.3, side: 'double'},
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+brakeon: {property: 'object3D.position.y', from: 0.5, to: 0.1, dur: 1050, delay: 450, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'brakeOn'},
+brakeoff: {property: 'object3D.position.y', from: 0.1, to: 0.5, dur: 1050, delay: 450, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'brakeOff'},
+},
+mixins: false,
+classes: ['clickable','a-ent', 'directionBrake'],
+components: false,
+};
+
+
+//
+//Teleportation Points
+
+//
+//Teleport Parent
+this.teleportParentData = {
+data:'teleportParentData',
+id:'teleportParent',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(-90,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+click1pos: {property: 'object3D.position.y', from: 0.1, to: 0.75, dur: 2000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click1'},
+click1rot: {property: 'object3D.rotation.x', from: -90, to: 720, dur: 2000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click1'},
+posreset: {property: 'object3D.position.y', from: 0.75, to: 0.1, dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset'},
+rotreset: {property: 'object3D.rotation.x', from: 720, to: -90, dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset'},
+posresetinstant: {property: 'object3D.position.y', from: 0.75, to: 0.1, dur: 50, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'resetInstant'},
+rotresetinstant: {property: 'object3D.rotation.x', from: 720, to: -90, dur: 50, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'resetInstant'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Confirm
+this.teleportConfirmData = {
+data:'teleportConfirmData',
+id:'teleportConfirm',
+sources:false,
+text: {value:'Teleport Here', wrapCount: 45, width: 5, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center', opacity: 0.75},
+geometry: {primitive: 'circle', radius: 0.75, segments: 16, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#838282", opacity: 0.75, metalness: 0.6, roughness: 0.4, emissive: "#838282", emissiveIntensity: 0.2, side: 'double'},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent', 'clickable', 'teleporter', 'teleport'],
+components: {
+teleportation:null,
+},
+};
+//Cancel
+this.teleportCancelData = {
+data:'teleportCancelData',
+id:'teleportCancel',
+sources:false,
+text: {value:'Cancel', wrapCount: 45, width: 5, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center', opacity: 0},
+geometry: {primitive: 'circle', radius: 0.75, segments: 16, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#838282", opacity: 0, metalness: 0.6, roughness: 0.4, emissive: "#838282", emissiveIntensity: 0.2, side: 'double'},
+position: new THREE.Vector3(0,1.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0.5,0.5,0.5),
+animations: {
+click1opac: {property: 'material.opacity', from: 0, to: 0.75, dur: 1000, delay: 1800, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click1'},
+click1textopac: {property: 'text.opacity', from: 0, to: 1, dur: 1000, delay: 1800, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click1'},
+click1opacreset: {property: 'material.opacity', from: 0.75, to: 0, dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset'},
+click1textopacreset: {property: 'text.opacity', from: 1, to: 0, dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset'},
+click1opacresetinstant: {property: 'material.opacity', from: 0.75, to: 0, dur: 50, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'resetInstant'},
+click1textopacresetinstant: {property: 'text.opacity', from: 1, to: 0, dur: 50, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'resetInstant'},
+},
+mixins: false,
+classes: ['a-ent', 'clickable', 'teleporter', 'cancel'],
+components: {
+teleportation:null,
+},
 };
 
 //
@@ -6316,50 +6542,6 @@ ranColor: true,
 ranTexture: true,
 };
 
-
-//
-//Testing
-
-//Multi Obj Gen Testing
-//Data
-this.spawnTestingData = {
-data:'Ring Spawn Testing',
-id:'ringSpawnTesting',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#bdc338", emissive: '#bdc338', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,0.25,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-//Multi
-this.multiTestingData = {
-id: 'multiTesting',
-objData: aThis.spawnTestingData,
-total: 30,
-outerRingRadius: 30,
-innerRingRadius: 3,
-sameTypeRadius: 1,
-otherTypeRadius: 1,
-ranYPos: true,
-yPosFlex: 4,
-ranScaleX: true,
-ranScaleY: true,
-ranScaleZ: true,
-scaleFlex: 3,
-ranRotX: true,
-ranRotY: true,
-ranRotZ: true,
-ranColor: true,
-ranTexture: true,
-};
-
-
 //
 //Memory Game
 
@@ -6477,7 +6659,7 @@ sceneText: true,
 zone:{
 },
 start:{
-
+player:{EnableLocomotion:null},
 HamGirl:{Start: null},
 npcMinty:{Spawn:null},
 soundTesting:{AddToScene: null},
@@ -6523,6 +6705,7 @@ interaction:{
 
 },
 exit:{
+//player:{DisableLocomotion:null},
 HamGirl:{Remove: null},
 },
 map:{
@@ -7007,7 +7190,6 @@ this.fadeScreen = Core(this.fadeScreenData);
 this.sphereScreen = Core(this.sphereScreenData);
 this.blink1Screen = Core(this.blink1ScreenData);
 this.blink2Screen = Core(this.blink2ScreenData);
-
 this.playerAll = {
 parent: {core: this.playerRig},
 child0: {
@@ -7025,18 +7207,134 @@ child1: {
 },
 child2: {core: this.playerFloor},
 }
-
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
 this.playerLayer = Layer('playerLayer', this.playerAll);
-
 //Main User Player
 this.player = Player(this.playerLayer);
 
+//
+//Locomotion UI
+this.beltUIParent = Core(this.beltUIParentData);
+this.locomotionForwardUI = Core(this.locomotionForwardUIData);
+this.locomotionReverseUI = Core(this.locomotionReverseUIData);
+this.locomotionBrake1UI = Core(this.locomotionBrake1UIData);
+this.locomotionBrake2UI = Core(this.locomotionBrake2UIData);
+this.locomotionBrake3UI = Core(this.locomotionBrake3UIData);
+this.locomotionBrake4UI = Core(this.locomotionBrake4UIData);
+this.locomotionUIAllData = {
+	parent: {core: this.beltUIParent},
+	child0: {core: this.locomotionForwardUI},
+	child1: {core: this.locomotionReverseUI},
+	child2: {core: this.locomotionBrake1UI},
+	child3: {core: this.locomotionBrake2UI},
+	child4: {core: this.locomotionBrake3UI},
+	child5: {core: this.locomotionBrake4UI},
+}
+this.locomotionUILayer = Layer('locomotionUILayer', this.locomotionUIAllData);
 
+//
+//Teleportation Points
+
+//Origin
+let tele0Color = colorsHexGen().base;
+this.teleportParentData.id = 'teleportOriginParent';
+this.teleportParentData.position = new THREE.Vector3(0,0.1,0);
+this.teleportOriginParent = Core(this.teleportParentData);
+this.teleportConfirmData.id = 'teleportOriginConfirm';
+this.teleportConfirmData.material.color = tele0Color;
+this.teleportConfirmData.material.emissive = tele0Color;
+this.teleportOriginConfirm = Core(this.teleportConfirmData);
+this.teleportCancelData.id = 'teleportOriginCancel';
+this.teleportCancelData.material.color = tele0Color.compl;
+this.teleportCancelData.material.emissive = tele0Color.compl;
+this.teleportOriginCancel = Core(this.teleportCancelData);
+this.teleportOriginData = {
+	parent: {core: this.teleportOriginParent},
+	child0: {core: this.teleportOriginConfirm},
+	child1: {core: this.teleportOriginCancel},
+}
+this.teleportOriginLayer = Layer('teleportOriginLayer', this.teleportOriginData);
+//1
+let tele1Color = colorsHexGen().base;
+this.teleportParentData.id = 'teleport1Parent';
+this.teleportParentData.position = new THREE.Vector3(-5,0.1,-5);
+this.teleport1Parent = Core(this.teleportParentData);
+this.teleportConfirmData.id = 'teleport1Confirm';
+this.teleportConfirmData.material.color = tele1Color;
+this.teleportConfirmData.material.emissive = tele1Color;
+this.teleport1Confirm = Core(this.teleportConfirmData);
+this.teleportCancelData.id = 'teleport1Cancel';
+this.teleportCancelData.material.color = tele1Color.compl;
+this.teleportCancelData.material.emissive = tele1Color.compl;
+this.teleport1Cancel = Core(this.teleportCancelData);
+this.teleport1Data = {
+	parent: {core: this.teleport1Parent},
+	child0: {core: this.teleport1Confirm},
+	child1: {core: this.teleport1Cancel},
+}
+this.teleport1Layer = Layer('teleport1Layer', this.teleport1Data);
+//2
+let tele2Color = colorsHexGen().base;
+this.teleportParentData.id = 'teleport2Parent';
+this.teleportParentData.position = new THREE.Vector3(-5,0.1,5);
+this.teleport2Parent = Core(this.teleportParentData);
+this.teleportConfirmData.id = 'teleport2Confirm';
+this.teleportConfirmData.material.color = tele2Color;
+this.teleportConfirmData.material.emissive = tele2Color;
+this.teleport2Confirm = Core(this.teleportConfirmData);
+this.teleportCancelData.id = 'teleport2Cancel';
+this.teleportCancelData.material.color = tele2Color.compl;
+this.teleportCancelData.material.emissive = tele2Color.compl;
+this.teleport2Cancel = Core(this.teleportCancelData);
+this.teleport2Data = {
+	parent: {core: this.teleport2Parent},
+	child0: {core: this.teleport2Confirm},
+	child1: {core: this.teleport2Cancel},
+}
+this.teleport2Layer = Layer('teleport1Layer', this.teleport2Data);
+//3
+let tele3Color = colorsHexGen().base;
+this.teleportParentData.id = 'teleport3Parent';
+this.teleportParentData.position = new THREE.Vector3(5,0.1,-5);
+this.teleport3Parent = Core(this.teleportParentData);
+this.teleportConfirmData.id = 'teleport3Confirm';
+this.teleportConfirmData.material.color = tele3Color;
+this.teleportConfirmData.material.emissive = tele3Color;
+this.teleport3Confirm = Core(this.teleportConfirmData);
+this.teleportCancelData.id = 'teleport3Cancel';
+this.teleportCancelData.material.color = tele3Color.compl;
+this.teleportCancelData.material.emissive = tele3Color.compl;
+this.teleport3Cancel = Core(this.teleportCancelData);
+this.teleport3Data = {
+	parent: {core: this.teleport3Parent},
+	child0: {core: this.teleport3Confirm},
+	child1: {core: this.teleport3Cancel},
+}
+this.teleport3Layer = Layer('teleport1Layer', this.teleport3Data);
+//4
+let tele4Color = colorsHexGen().base;
+this.teleportParentData.id = 'teleport4Parent';
+this.teleportParentData.position = new THREE.Vector3(5,0.1,5);
+this.teleport4Parent = Core(this.teleportParentData);
+this.teleportConfirmData.id = 'teleport4Confirm';
+this.teleportConfirmData.material.color = tele4Color;
+this.teleportConfirmData.material.emissive = tele4Color;
+this.teleport4Confirm = Core(this.teleportConfirmData);
+this.teleportCancelData.id = 'teleport4Cancel';
+this.teleportCancelData.material.color = tele4Color.compl;
+this.teleportCancelData.material.emissive = tele4Color.compl;
+this.teleport4Cancel = Core(this.teleportCancelData);
+this.teleport4Data = {
+	parent: {core: this.teleport4Parent},
+	child0: {core: this.teleport4Confirm},
+	child1: {core: this.teleport4Cancel},
+}
+this.teleport4Layer = Layer('teleport4Layer', this.teleport4Data);
+
+//
 //Hamburger Menu Companion
 this.hamComp = Core(this.hamCompData);
 this.HamGirl = HamMenu('HamGirl',this.hamComp);
-
 
 //
 //Speech System TextBubble
@@ -7072,11 +7370,8 @@ this.eventTesting3 = Core(this.eventTesting3Data);
 this.eventTesting4 = Core(this.eventTesting4Data);
 this.eventTesting5 = Core(this.eventTesting5Data);
 
-//Sound
+//Sound Testing
 this.soundTesting = Core(this.soundTestingData);
-
-//Multi Obj Spawn Testing
-this.multiTesting = ObjsGenRing(this.multiTestingData);
 
 //
 //Environment
@@ -7217,8 +7512,6 @@ this.trunkLong = Core(this.trunkLongData);
 //Memory
 this.memory = MemoryGame(this.memory0Data,this.memory1Data,this.memory2Data,this.memory3Data,);
 
-
-
 //
 //World Atlas & Map
 //Define at end of Init to ensure all objects are ready
@@ -7233,6 +7526,13 @@ this.skyGrad.AddToScene(false, false, true);
 this.sunLayer.AddAllToScene(true);
 this.moonLayer.AddAllToScene(true);
 this.nodeFloor.AddToScene(false, false, true);
+
+//Teleportation Points
+this.teleportOriginLayer.AddAllToScene(true);
+this.teleport1Layer.AddAllToScene(true);
+this.teleport2Layer.AddAllToScene(true);
+this.teleport3Layer.AddAllToScene(true);
+this.teleport4Layer.AddAllToScene(true);
 
 //Floating Island - Connects to all zones
 //Zone 0
@@ -7664,18 +7964,664 @@ AFRAME.registerComponent('mouseuprun', {
 	}
 });
 
+//
+//Locomotion Globals
+//Brake Engaged by Default
+let moveTo = false;
+let moveBack = false;
+let moveBrake = true;
+let brakeReady = true;
+let brakeToggle = false;
+let brakeReset; //Delay
+let moveSpeedDefault = 0.075;
+let moveSpeedSlow = 0.03;
+
+//
+//Locomotion Belt
+AFRAME.registerComponent('belt', {
+	//dependencies: ['auxl'],
+    schema: {
+        uiid: {type: 'string', default: 'ui'},
+        controller1id: {type: 'string', default: 'controller1'},
+        controller2id: {type: 'string', default: 'controller2'},
+		courserid: {type: 'string', default: 'mouseCursor'},
+    },
+
+init: function () {
+	//Do something when component first attached.
+	//this.auxl = document.querySelector('a-scene').systems.auxl;
+
+	// Set up the tick throttling.
+	this.throttledFunction = AFRAME.utils.throttle(this.everySome, 30, this);
+
+	//Schema Imoprt
+	//
+	//Controller Elements
+	this.controller1 = document.getElementById(this.data.controller1id);
+	this.controller2 = document.getElementById(this.data.controller2id);
+	//Cursor Element
+	this.mouseCursor = document.getElementById(this.data.courserid);
+	//UI to attach
+	this.ui = document.getElementById(this.data.uiid);
+
+	//
+	//Band Controller Support
+	const directionForward = document.getElementById('locomotionForwardUI');
+	const directionReverse = document.getElementById('locomotionReverseUI');
+	const directionBrake1 = document.getElementById('locomotionBrake1UI');
+	const directionBrake2 = document.getElementById('locomotionBrake2UI');
+	const directionBrake3 = document.getElementById('locomotionBrake3UI');
+	const directionBrake4 = document.getElementById('locomotionBrake4UI');
+
+	//Walk Support
+	this.camera = document.getElementById('camera');
+	this.player = document.getElementById('playerRig');
+	this.ui = document.getElementById('beltUIParent');
+    this.positionCam = new THREE.Vector3();
+    this.positionPlayer = new THREE.Vector3();
+    this.positionNew = new THREE.Vector3();
+    this.positionTemp = new THREE.Vector3();
+	this.quaternion = new THREE.Quaternion();
+	this.vector;
+	this.angle;
+	//this.theta;
+
+	//Attach to Player Support
+	this.elPosVec3New = new THREE.Vector3();
+
+	//Controller Check Support
+	this.controller1PosVec3Now = new THREE.Vector3();
+	this.controller1PosVec3Init = new THREE.Vector3();
+	//Clone entity's starting rotation
+	this.controller1PosVec3Init.copy(this.controller1.object3D.rotation);
+
+	//User Direction Support
+	this.velocity;
+	this.userPreviousPos = this.player.getAttribute('position');
+	this.userPos;
+	this.userRot;
+	this.userPov;
+	this.userTravel;
+	this.userView;
+	this.newX;
+	this.newZ;
+
+	//Controller Event Listeners
+	//
+	//directionForward
+	directionForward.addEventListener('mouseenter', function(){
+		if(moveTo){}else{
+			moveTo = true;
+		}
+	});
+	directionForward.addEventListener('mouseleave', function(){
+		if(moveTo){
+			moveTo = false;
+		}
+	});
+	//directionReverse
+	directionReverse.addEventListener('mouseenter', function(){
+		if(moveBack){}else{
+			moveBack = true;
+		}
+	});
+	directionReverse.addEventListener('mouseleave', function(){
+		if(moveBack){
+			moveBack = false;
+		}
+	});
+	//directionBrakes
+	document.querySelectorAll('.directionBrake').forEach(item => {
+		item.addEventListener('mouseenter', event => {
+			//Brake is disabled for 1.5 seconds after engaging
+			if(brakeReady){
+				if(brakeToggle){
+					//Set reset switch toggle
+					brakeToggle = false;
+					//Set reset timer switch toggle
+					brakeReady = false;
+					//Brake On
+					moveBrake = true;
+					//set brake color to red
+					directionBrake1.setAttribute('material', {color: 'red'});
+					directionBrake2.setAttribute('material', {color: 'red'});
+					directionBrake3.setAttribute('material', {color: 'red'});
+					directionBrake4.setAttribute('material', {color: 'red'});
+					//anim positition for forward/reverse bar and brakes
+					directionForward.emit('brakeOn',{});
+					directionReverse.emit('brakeOn',{});
+					directionBrake1.emit('brakeOn',{});
+					directionBrake2.emit('brakeOn',{});
+					directionBrake3.emit('brakeOn',{});
+					directionBrake4.emit('brakeOn',{});
+				} else {
+					//Set reset switch toggle
+					brakeToggle = true;
+					//Set reset timer switch toggle
+					brakeReady = false;
+					//Brake Off
+					moveBrake = false;
+					//set brake color to default
+					directionBrake1.setAttribute('material', {color: 'black'});
+					directionBrake2.setAttribute('material', {color: 'black'});
+					directionBrake3.setAttribute('material', {color: 'black'});
+					directionBrake4.setAttribute('material', {color: 'black'});
+					//anim positition for forward/reverse bar back to default
+					directionForward.emit('brakeOff',{});
+					directionReverse.emit('brakeOff',{});
+					directionBrake1.emit('brakeOff',{});
+					directionBrake2.emit('brakeOff',{});
+					directionBrake3.emit('brakeOff',{});
+					directionBrake4.emit('brakeOff',{});
+				}
+			}
+		})
+	});
+	document.querySelectorAll('.directionBrake').forEach(item => {
+		item.addEventListener('mouseleave', event => {
+			//This will start the reset timer to allow the brake to be re-engadged
+			//Brake Reset Timeout
+			brakeReset = setTimeout(function () {
+				//Set reset switch toggle
+				brakeReady = true;
+			}, 2250); //Delay
+		})
+	});
+
+//End Init
+},
+
+everySome: function (time, timeDelta) {
+	//Do something on every scene tick or frame.
+	//console.log('everysome running');
+	//console.log(move);
+	if(moveBrake){
+		if(moveTo) {
+			this.walk('forward', moveSpeedSlow);
+		} else if(moveBack) {
+			this.walk('reverse', moveSpeedSlow);
+		}//end while
+	} else {
+		if(moveTo) {
+			this.walk('forward', moveSpeedDefault);
+		} else if(moveBack) {
+			this.walk('reverse', moveSpeedDefault);
+		}//end while
+	}//end moveBrake
+},
+
+tick: function (time, timeDelta) {
+	//Do something on every scene tick or frame.
+
+	//Throttle
+	this.throttledFunction();
+
+	//Run uiSync Function
+	this.uiSync();
+
+},
+
+//Function to calculate distance between two points
+distance: function(x1, y1, x2,  y2) {
+    //Calculating distance
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) * 1.0);
+},
+
+uiSync: function () {
+//uiSync
+//Clone current the entity this component is attached to's position
+this.elPosVec3New.copy(this.el.object3D.position);
+//No Offsets as UI Parent is at 0 0 0
+//Set position for UI at 3js level for speed!
+this.ui.object3D.position.copy(this.elPosVec3New);
+},
+
+walk: function (action, speed) {
+//console.log('walking');
+
+this.vector = new THREE.Vector3();
+this.positionNew = new THREE.Vector3();
+
+
+this.velocity = speed;
+//Get Camera Vec3
+this.camera.object3D.getWorldDirection(this.vector);
+this.positionPlayer.copy(this.player.object3D.position);
+//Math out the Angle
+//Degrees
+//this.angle = Math.atan2(this.vector.x,this.vector.z) * 180 / Math.PI;
+//Radians
+this.angle = Math.atan2(this.vector.x,this.vector.z);
+// 0 < θ < π/2
+
+if(action === 'forward'){
+	//check which quadrant the vector is in
+	if(this.angle > 0 && this.angle < Math.PI/2) {
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
+		//console.log('1');
+	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
+		//console.log('2');
+	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+		this.angle += Math.PI;
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
+		//console.log('3');
+	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+		this.angle += (Math.PI * 2);
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
+		//console.log('4');
+	} else {
+		this.positionNew.x = this.positionPlayer.x;
+		this.positionNew.z = this.positionPlayer.z;
+		//console.log('0');
+	}
+} else if(action === 'reverse'){
+	//check which quadrant the vector is in
+	if(this.angle > 0 && this.angle < Math.PI/2) {
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
+		//console.log('1');
+	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
+		//console.log('2');
+	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+		this.angle += Math.PI;
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
+		//console.log('3');
+	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+		this.angle += (Math.PI * 2);
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
+		//console.log('4');
+	} else {
+		this.positionNew.x = this.positionPlayer.x;
+		this.positionNew.z = this.positionPlayer.z;
+		//console.log('0');
+	}
+}
+
+this.positionNew.y = this.positionPlayer.y;
+
+//No Offsets as UI Parent is at 0 0 0
+//Set position for UI at 3js level for speed!
+this.player.object3D.position.copy(this.positionNew);
+//console.log(this.angle);
+//console.log(this.positionNew);
+
+},
+
+//Check wether entity is far enough away from the user to force a respawn
+userDirection: function (){
+	//Get User's current XZ position
+	this.userPos = this.player.getAttribute('position');
+	//Check current User Rotation view
+	//let userRot = user.getAttribute('rotation');
+	this.userRot = this.camera.getAttribute('rotation');
+
+	//Could use userTravel and userView to determine a shorter distance in which a particle is flagged for respawn. Think as soon as something is out of the users view like they just walked past it.
+
+	//Check which direction the user is traveling
+	if((this.userPreviousPos.x + this.userPos.x < 0) && (this.userPreviousPos.z + this.userPos.z < 0)){
+		//northWest -x-z
+		this.userTravel = 'northWest';
+	} else if((this.userPreviousPos.x + this.userPos.x < 0) && (this.userPreviousPos.z + this.userPos.z > 0)){
+		//southWest -x +z
+		this.userTravel = 'southWest';
+	} else if((this.userPreviousPos.x + this.userPos.x > 0) && (this.userPreviousPos.z + this.userPos.z > 0)){
+		//southEast +x+z
+		this.userTravel = 'southEast';
+	} else if((this.userPreviousPos.x + this.userPos.x > 0) && (this.userPreviousPos.z + this.userPos.z < 0)){
+		//northEast +x-z
+		this.userTravel = 'northEast';
+	} else {
+		//Default
+		this.userTravel = 'northEast';
+	}
+	//After previous to current position check, update the previous position value to be compared against on the next run cycle
+	this.userPreviousPos = this.userPos;
+
+	//If POV Rotation is more then 360 or -360, divide it by sets of 360 to obtain 0-360 degrees to assign from
+	if( this.userRot.y > 360) {
+		let radials = this.userRot.y / 360;
+		//Test Logging
+		//console.log(radials);
+		//console.log(Math.floor(radials));
+		this.userPov = ((Math.floor(radials)) * 360 ) - this.userRot.y;
+		this.userPov *= -1;
+	} else if(this.userRot.y < -360) {
+		let radials = this.userRot.y / 360;
+		this.userPov = ((Math.floor(radials)) * 360 ) - this.userRot.y;
+		this.userPov *= -1;
+	} else {
+		this.userPov = this.userRot.y;
+	}
+
+	//Check which direciton the User is facing
+	if ((this.userPov > 0 && this.userPov < 15) || (this.userPov > 345 && this.userPov < 360)) {
+			//North
+			this.userView = 'north';
+	   } else if (this.userPov > 255 && this.userPov > 285) {
+			//East
+			this.userView = 'east';
+		} else if (this.userPov > 75 && this.userPov < 105) {
+			//West
+			this.userView = 'west';
+		} else if (this.userPov > 165 && this.userPov < 195) {
+			//South
+			this.userView = 'south';
+		} else if ((this.userPov < 0 && this.userPov > -15) || (this.userPov < -345 && this.userPov > -360)) {
+			//North
+			this.userView = 'north';
+	   } else if (this.userPov < -255 && this.userPov > -285) {
+			//West
+			this.userView = 'west';
+		} else if (this.userPov < -75 && this.userPov > -105) {
+			//East
+			this.userView = 'east';
+		} else if (this.userPov < -165 && this.userPov > -195) {
+			//South
+			this.userView = 'south';
+		} else if (this.userPov > 15 && this.userPov < 75) {//
+			//North West
+			this.userView = 'northWest';
+	   } else if (this.userPov > 105 && this.userPov < 165) {//
+			//South West
+			this.userView = 'southWest';
+		} else if (this.userPov > 195 && this.userPov < 255) {//
+			//South East
+			this.userView = 'southEast';
+		} else if (this.userPov > 285 && this.userPov < 345) {//
+			//North East
+			this.userView = 'northEast';
+		} else if (this.userPov < -15 && this.userPov > -75 ) {//Negative direction
+			//North East
+			this.userView = 'northEast';
+	   } else if (this.userPov < -105 && this.userPov > -165) {
+			//South East
+			this.userView = 'southEast';
+		} else if (this.userPov < -195 && this.userPov > -255) {
+			//South West
+			this.userView = 'southWest';
+		} else if (this.userPov < -285 && this.userPov > -345) {
+			//North West
+			this.userView = 'northWest';
+		} else {
+			this.userView = 'north';
+		}
+
+	//Test Logging
+	console.log("User Direction: " + this.userView);
+
+
+	//Depending on the User's facing direction, spawn in that quadrant
+	if(this.userView === "northWest"){// -x -z
+		this.positionTemp.x = (this.velocity + this.positionPlayer.x) * -1;
+		this.positionTemp.z = (this.velocity + this.positionPlayer.z) * -1;
+		this.positionTemp.z += this.positionPlayer.z;
+	} else if(this.userView === "southWest"){// -x +z
+		this.positionTemp.x = (this.velocity + this.positionPlayer.x) * -1;
+		this.positionTemp.z =(this.velocity + this.positionPlayer.z);
+	} else if(this.userView === "southEast"){// +x +z
+		this.positionTemp.x = (this.velocity + this.positionPlayer.x);
+		this.positionTemp.z =(this.velocity + this.positionPlayer.z);
+	} else if(this.userView === "northEast"){// +x -z
+		this.positionTemp.x = (this.velocity + this.positionPlayer.x);
+		this.positionTemp.z =(this.velocity + this.positionPlayer.z) * -1;
+	} else if(this.userView === "north"){// +-x -z
+		this.positionTemp.x = (this.velocity + this.positionPlayer.x);
+		this.positionTemp.z =(this.velocity + this.positionPlayer.z) * -1;
+	} else if(this.userView === "west"){// -x +-z
+		this.positionTemp.x = (this.velocity + this.positionPlayer.x) * -1;
+		this.positionTemp.z =(this.velocity + this.positionPlayer.z);
+	} else if(this.userView === "east"){// +x +-z
+		this.positionTemp.x = (this.velocity + this.positionPlayer.x);
+		this.positionTemp.z =(this.velocity + this.positionPlayer.z);
+	} else if(this.userView === "south"){// +-x +z
+		this.positionTemp.x = (this.velocity + this.positionPlayer.x);
+		this.positionTemp.z =(this.velocity + this.positionPlayer.z);
+	} else {
+		this.positionTemp.x = 0;
+		this.positionTemp.z = 0;
+	}
+	this.positionNew = new THREE.Vector3(this.positionTemp.x, 0, this.positionTemp.z);
+},//spawnwithuser
+
+});
+
+//
+//Teleportation
+AFRAME.registerComponent('teleportation',{
+dependencies: ['auxl'],
+init: function(){
+	//AUXL
+	const aThis = document.querySelector('a-scene').systems.auxl;
+	//Scene
+	var sceneEl = document.querySelector('a-scene');
+	//This element
+	let element = this.el;
+	//Player Rig 
+	let user = document.getElementById('playerRig');
+	//User View
+	let userView = document.getElementById('camera');
+
+	//current Teleportation methods
+	//instant
+	//fade
+	//locomotion - NEEDS TO BE ADDED TO AUXL MENUS
+	//sphere
+	//blink
+	let teleportType = aThis.player.layer.transition;
+
+	//Support
+	//let timeout;
+	let posTimeout;
+	let timeout2;
+	let teleportPos;
+	let userPos;
+	let newPosition;
+	let allTeleportors;
+	let userPov;
+	let rotationParams;
+
+	//Spawn Function
+	function playerTeleportAnim(){
+		if(aThis.player.layer.transition === 'blink'){
+			aThis.player.TempDisableClick();
+			aThis.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
+			aThis.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
+			aThis.blink1Screen.EmitEvent('blink');
+			aThis.blink2Screen.EmitEvent('blink');
+			timeout2 = setTimeout(function () {
+				aThis.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
+				aThis.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
+				clearTimeout(timeout2);
+			}, 1200);
+		} else if (aThis.player.layer.transition === 'fade'){
+			aThis.player.TempDisableClick();
+			aThis.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
+			aThis.fadeScreen.EmitEvent('fade');
+			timeout2 = setTimeout(function () {
+				aThis.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
+				clearTimeout(timeout2);
+			}, 1200);
+		} else if (aThis.player.layer.transition === 'sphere'){
+			aThis.player.TempDisableClick();
+			aThis.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
+			aThis.sphereScreen.EmitEvent('sphere');
+			timeout2 = setTimeout(function () {
+				aThis.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
+				clearTimeout(timeout2);
+			}, 1200);
+		} else if (aThis.player.layer.transition === 'instant'){}
+	}
+
+	//Reset Teleportation Circles
+	function resetTeleCircles(){
+		allTeleportors = document.querySelectorAll('.teleporter');
+		for (let i= 0; i < allTeleportors.length; i++){
+			if (allTeleportors[i].parentNode.getAttribute('active') === 'true') {
+				allTeleportors[i].emit('resetInstant',{});
+				allTeleportors[i].nextSibling.emit('resetInstant',{});
+			}
+		}
+	}
+
+	//Prep Movement
+	function prepMove(){
+		//Do an reset on element to not interfer with anim
+		element.emit('reset',{});//select circle
+		element.nextSibling.emit('reset',{});//cancel circle
+		//Clone current entity's position User
+		newPosition.copy(teleportPos);
+		//Reset User's Y back to 0 - Flat Mode
+		newPosition.y = 0;
+	}
+
+	//Initialize 
+	if (element.classList.contains('teleport')) {
+		active = false; //is the button active for teleport
+		//Set parent wrapper's active status
+		element.parentNode.setAttribute('active', 'false');
+
+	} else if (element.classList.contains('cancel')) {
+		active = true; //is the button active for cancel
+		element.classList.toggle('clickable', false);
+		//Set parent wrapper's active status
+		element.parentNode.setAttribute('active', 'false');
+	}
+	//Reset Event
+	this.el.addEventListener('reset', function() {
+		if (element.classList.contains('teleport')) {
+			active = false; //is the button active for teleport
+			//Reset parent wrapper's active status
+			element.parentNode.setAttribute('active', 'false');
+		} else if (element.classList.contains('cancel')) {
+			active = true; //is the button active for cancel
+			element.classList.toggle('clickable', false);
+			//Reset parent wrapper's active status
+			element.parentNode.setAttribute('active', 'false');
+		}
+	});
+	//Reset Instant Event
+	this.el.addEventListener('resetInstant', function() {
+		if (element.classList.contains('teleport')) {
+			active = false; //is the button active for teleport
+			//Reset parent wrapper's active status
+			element.parentNode.setAttribute('active', 'false');
+		} else if (element.classList.contains('cancel')) {
+			active = true; //is the button active for cancel
+			element.classList.toggle('clickable', false);
+			//Reset parent wrapper's active status
+			element.parentNode.setAttribute('active', 'false');
+		}
+	});
+
+	//Listen for Click to teleport
+	this.el.addEventListener('click', function(){
+		if(element.parentNode.getAttribute('active') === 'false') {
+			//default state
+			//Allow cancel circle to be viewable and clickable
+			element.nextSibling.classList.toggle('clickable', true);
+			element.nextSibling.emit('click1',{});
+			//Set rotation anim for select circle
+			userPov = userView.getAttribute('rotation');
+			rotationParams = {
+				property: 'object3D.rotation.y',
+				to: userPov.y,
+				dur: 500,
+				delay: 0,
+				loop: 'false',
+				dir: 'normal',
+				easing:'easeInOutSine',
+				elasticity: 400,
+				autoplay: 'true',
+				enabled: 'true',
+				};
+			element.parentNode.setAttribute('animation__rotateToUser', rotationParams);
+			//if clicked once and activated, setAttribute that be checked for reset
+			element.parentNode.setAttribute('active', 'true');
+		} else {
+			//circle1 and circle2 are ready to be clicked
+			//if circle1 was selected, teleport user and reset properties
+			//if circle2 was selcted, reset properties
+			if (element.classList.contains('teleport')) {
+				teleportPos = element.parentNode.getAttribute('position');
+				userPos = user.getAttribute('position');
+				newPosition = new THREE.Vector3();
+
+				//Teleportation Type
+				if (teleportType === 'instant') {
+					resetTeleCircles();
+					prepMove();
+					posTimeout = setTimeout(function () {
+						user.object3D.position.copy(newPosition);
+					}, 150);
+				} else if (teleportType === 'fade') {
+					playerTeleportAnim();
+					prepMove();
+					posTimeout = setTimeout(function () {
+						resetTeleCircles();
+						user.object3D.position.copy(newPosition);
+					}, 1050);
+				} else if (teleportType === 'locomotion') {
+					//Create locomotion animation based on teleported Pos
+					let travelParams = {
+						property: 'position',
+						from: {x: userPos.x, y: 0, z: userPos.z},
+						to: {x: teleportPos.x, y: 0, z: teleportPos.z},
+						dur: 1000,
+						delay: 0,
+						loop: 'false',
+						dir: 'normal',
+						easing:'easeInOutSine',
+						elasticity: 400,
+						autoplay: 'true',
+						enabled: 'true',
+						};
+					user.setAttribute('animation__locomotion', travelParams);
+					element.nextSibling.emit('reset',{});//cancel circle
+					resetTeleCircles();
+				} else if (teleportType === 'sphere') {
+					playerTeleportAnim();
+					prepMove();
+					posTimeout = setTimeout(function () {
+						resetTeleCircles();
+						user.object3D.position.copy(newPosition);
+					}, 1000); //Delay
+				} else if (teleportType === 'blink') {
+					playerTeleportAnim();
+					prepMove();
+					posTimeout = setTimeout(function () {
+						resetTeleCircles();
+						user.object3D.position.copy(newPosition);
+					}, 800); //Delay
+				}
+
+			} else if (element.classList.contains('cancel')) {
+				element.emit('reset',{});
+			}
+
+		}
+	});
+},
+});
+
+//
 //External Components
-/*
-Look-At 
-https://github.com/supermedium/superframe/tree/master/components/look-at/ 
-*/
+//
+
+//
+//Look-At  - https://github.com/supermedium/superframe/tree/master/components/look-at/ 
 !function(e){function t(n){if(o[n])return o[n].exports;var i=o[n]={exports:{},id:n,loaded:!1};return e[n].call(i.exports,i,i.exports,t),i.loaded=!0,i.exports}var o={};return t.m=e,t.c=o,t.p="",t(0)}([function(e,t){var o=AFRAME.utils.debug,n=AFRAME.utils.coordinates,i=o("components:look-at:warn"),r=n.isCoordinates||n.isCoordinate;delete AFRAME.components["look-at"],AFRAME.registerComponent("look-at",{schema:{default:"0 0 0",parse:function(e){return r(e)||"object"==typeof e?n.parse(e):e},stringify:function(e){return"object"==typeof e?n.stringify(e):e}},init:function(){this.target3D=null,this.vector=new THREE.Vector3,this.cameraListener=AFRAME.utils.bind(this.cameraListener,this),this.el.addEventListener("componentinitialized",this.cameraListener),this.el.addEventListener("componentremoved",this.cameraListener)},update:function(){var e,t=this,o=t.data;return!o||"object"==typeof o&&!Object.keys(o).length?t.remove():"object"==typeof o?this.lookAt(new THREE.Vector3(o.x,o.y,o.z)):(e=t.el.sceneEl.querySelector(o),e?e.hasLoaded?t.beginTracking(e):e.addEventListener("loaded",function(){t.beginTracking(e)}):void i('"'+o+'" does not point to a valid entity to look-at'))},tick:function(){var e=new THREE.Vector3;return function(t){var o=this.target3D;o&&(o.getWorldPosition(e),this.lookAt(e))}}(),remove:function(){this.el.removeEventListener("componentinitialized",this.cameraListener),this.el.removeEventListener("componentremoved",this.cameraListener)},beginTracking:function(e){this.target3D=e.object3D},cameraListener:function(e){e.detail&&"camera"===e.detail.name&&this.update()},lookAt:function(e){var t=this.vector,o=this.el.object3D;this.el.getObject3D("camera")?t.subVectors(o.position,e).add(o.position):t.copy(e),o.lookAt(t)}})}]);
 
-/* //threeColorGradientShader shader
-https://github.com/tlaukkan/aframe-three-color-gradient-shader
-if (typeof AFRAME === 'undefined') {
-    throw new Error('Component attempted to register before AFRAME was available.');
-}*/
+//
+//threeColorGradientShader shader - https://github.com/tlaukkan/aframe-three-color-gradient-shader
 AFRAME.registerShader('threeColorGradientShader', {
     schema: {
         topColor: {type: 'color', default: '1 0 0', is: 'uniform'},
