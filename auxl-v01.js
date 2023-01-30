@@ -3151,6 +3151,9 @@ const ObjsGenRing = (data) => {
 //Memory Mini Game
 const MemoryGame = (...data) => {
 
+	//Add a game over anim and delay
+
+	//Game Objects
 	//Layered Object Generation
 	let memoryLayerData = {}
 	let memoryNullParentData = JSON.parse(JSON.stringify(aThis.nullParentData));
@@ -3171,25 +3174,69 @@ const MemoryGame = (...data) => {
 	}
 	let memory = Layer('memory',memoryLayerData);
 
+	//UI
+	//Game Status
+	aThis.memoryUIData.text = {value:'High Score : 0 | Game Ready', wrapCount: 45, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'};
+	aThis.memoryUIData.position = new THREE.Vector3(0,2.6,-2);
+	aThis.memoryUIData.id = 'memoryUI1';
+	let memoryUI1 =  Core(aThis.memoryUIData);
+
+	//Sequence Status
+	aThis.memoryUIData.text = {value:'Sequence : *', wrapCount: 45, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'};
+	aThis.memoryUIData.position = new THREE.Vector3(0,0.35,-2);
+	aThis.memoryUIData.id = 'memoryUI2';
+	let memoryUI2 =  Core(aThis.memoryUIData);
+
 	//Game Support
+	let playSequenceInterval;
+	let roundCompleteTimeout1;
+	let roundCompleteTimeout2;
 	let allSequence = [];
 	let playerSequence = [];
 	let currInSequence = 0;
 	let currMaxSequence = 1;
-	let highScore = 1;
+	let sequenceRef = '*';
+	let sequenceTempArray = [];
+	let currentScore = 0;
+	let highScore = 0;
 	let sequenceChunk = 5;
 	let pauseClick = true;
+	let gameStarted = false;
+
+	const AddSequenceListeners = () => {
+		for(let each in memoryCores){
+			memoryCores[each].GetEl().addEventListener('click', memoryClick);
+		}
+	}
+
+	const RemoveSequenceListeners = () => {
+		for(let each in memoryCores){
+			memoryCores[each].GetEl().removeEventListener('click', memoryClick);
+		}
+	}
 
 	const SpawnGame = () => {
-		memory.AddAllToScene();
-		GenRanSequence();
-		PlaySequence();
+		memory.AddAllToScene(true);
+		memoryUI1.AddToScene(false, false, true);
+		memoryUI2.AddToScene(false, false, true);
 		AddSequenceListeners();
+		GameMenuGen();
 	}
 
 	const DespawnGame = () => {
 		RemoveSequenceListeners();
+		memory.gameMenu.MenuRemove()
 		memory.RemoveAllFromScene();
+		memoryUI1.RemoveFromScene();
+		memoryUI2.RemoveFromScene();
+	}
+
+	const StartGame = () => {
+		GenRanSequence();
+		gameStarted = true;
+		memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Game Started'}});
+		memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
+		PlaySequence();
 	}
 
 	const GenRanSequence = () => {
@@ -3207,17 +3254,17 @@ const MemoryGame = (...data) => {
 		}
 		let current = 0;
 
-		let intervalPlay = setInterval(function() {
+		playSequenceInterval = setInterval(function() {
 			memoryCores[allSequence[current]].EmitEvent('select');
 			current++;
 			if(current >= currMaxSequence){
 				pauseClick = false;
-				clearInterval(intervalPlay);
+				clearInterval(playSequenceInterval);
 			}
 		}, 750); //Interval
 	}
 
-	function checkSequence(){
+	const CheckSequence = () => {
 		console.log(allSequence);
 		console.log(playerSequence);
 		console.log(currInSequence);
@@ -3226,33 +3273,63 @@ const MemoryGame = (...data) => {
 		if(playerSequence[currInSequence] === allSequence[currInSequence]){
 			console.log('Match');
 			currInSequence++;
-
+			//push selection to front of sequenceRef and remove the last item
+			sequenceTempArray.unshift('X');
+			sequenceTempArray.pop();
+			sequenceRef = sequenceTempArray.join("");
+			memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
 		} else {
 			console.log('Game Over');
+			gameStarted = false;
 			if(currMaxSequence-1 > highScore){
 				highScore = currMaxSequence-1;
 				console.log('New High Score : ' + highScore);
 			} else {
-				let currentScore = currMaxSequence-1;
+				//let currentScore = currMaxSequence-1;
 				console.log('Sequence Score : ' + currentScore);
 			}
-
 			//Reset
-			currInSequence = 0;
-			currMaxSequence = 1;
-			allSequence = [];
-			playerSequence = [];
-			GenRanSequence();
-			PlaySequence();
+			ResetGame();
 		}
 		if(currInSequence >= currMaxSequence){
 			console.log('Correct Sequence');
 			currInSequence = 0;
 			currMaxSequence++;
+			currentScore++;
+			memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Current : ' + currentScore}});
+			sequenceTempArray = [];
+			for(let a = 1; a <= currMaxSequence; a++){
+				sequenceTempArray.push('*');
+			}
+			sequenceRef = sequenceTempArray.join("");
+			memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
 			playerSequence = [];
-			PlaySequence();
-		}
+			roundCompleteTimeout1 = setTimeout(function () {
+				roundComplete();
+				roundCompleteTimeout2 = setTimeout(function () {
+					PlaySequence();
+					clearTimeout(roundCompleteTimeout2);
+				}, 1500);
+				clearTimeout(roundCompleteTimeout1);
+			}, 500);
 
+
+		}
+	}
+
+	const ResetGame = () => {
+		clearInterval(playSequenceInterval);
+		clearTimeout(roundCompleteTimeout1);
+		clearTimeout(roundCompleteTimeout2);
+		currentScore = 0;
+		currInSequence = 0;
+		currMaxSequence = 1;
+		allSequence = [];
+		playerSequence = [];
+		sequenceTempArray = [];
+		pauseClick = true;
+		gameStarted = false;
+		memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Game Over'}});
 	}
 
 	//listen for first click to start the countdown timer based on how long current sequence is and a timer for in-between single clicks to timeout as well
@@ -3271,24 +3348,52 @@ const MemoryGame = (...data) => {
 				selection = 3;
 			}
 			playerSequence.push(selection);
-			checkSequence();
+			CheckSequence();
 		}
-
 	}
 
-	const AddSequenceListeners = () => {
+	function roundComplete(){
 		for(let each in memoryCores){
-			memoryCores[each].GetEl().addEventListener('click', memoryClick);
+			memoryCores[each].EmitEvent('roundComplete');
 		}
 	}
 
-	const RemoveSequenceListeners = () => {
-		for(let each in memoryCores){
-			memoryCores[each].GetEl().removeEventListener('click', memoryClick);
+	const GameMenuGen = () => {
+
+		memory.GameMenuData = {
+			id: 'memoryGameMenu',
+			prompt: 'Memory Game',
+			options: {option0: '0'},
+			actions: {action0: '0'},
+			data: aThis.menuBaseData,
+			cursorObj: 'memory',
+			method: 'GameMenuClick',
+			pos: new THREE.Vector3(0.75,1.55,-2),
+		}
+		memory.GameMenuData.options['option'+0] = 'Play Game';
+		memory.GameMenuData.actions['action'+0] = 'playGame';
+		memory.GameMenuData.options['option'+1] = 'Reset Game';
+		memory.GameMenuData.actions['action'+1] = 'resetGame';
+
+		memory.gameMenu = Menu(memory.GameMenuData);
+		memory.gameMenu.MenuGen();
+	}
+
+	const GameMenuClick = (el) => {
+		let result = el.getAttribute('result');
+		//console.log(result);
+		if(result === 'playGame'){
+			if(gameStarted){}else{
+				StartGame();
+			}
+		} else if(result === 'resetGame'){
+			if(gameStarted){
+				ResetGame();
+			}
 		}
 	}
 
-	return{memory, SpawnGame, DespawnGame, PlaySequence};
+	return{memory, SpawnGame, DespawnGame, GameMenuClick};
 }
 
 // Library Data
@@ -6588,6 +6693,7 @@ scale: new THREE.Vector3(1,1,1),
 animations: {
 click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
 click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
 },
 mixins: false,
 classes: ['clickable','memory','a-ent'],
@@ -6608,6 +6714,7 @@ scale: new THREE.Vector3(1,1,1),
 animations: {
 click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
 click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
 },
 mixins: false,
 classes: ['clickable','memory','a-ent'],
@@ -6628,6 +6735,7 @@ scale: new THREE.Vector3(1,1,1),
 animations: {
 click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
 click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
 },
 mixins: false,
 classes: ['clickable','memory','a-ent'],
@@ -6648,12 +6756,29 @@ scale: new THREE.Vector3(1,1,1),
 animations: {
 click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
 click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
 },
 mixins: false,
 classes: ['clickable','memory','a-ent'],
 components: false,
 };
 
+//Memory UI
+this.memoryUIData = {
+data:'memoryUIData',
+id:'memoryUI',
+sources:false,
+text: {value:'Memory Game UI', wrapCount: 45, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+geometry: {primitive: 'plane', width: '2', height: '0.25'},
+material: {shader: "standard", color: "#3EB489", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#3EB489", emissiveIntensity: 0.2, side: 'double'},
+position: new THREE.Vector3(0,2.6,-2),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['memory','a-ent'],
+components: false,
+};
 
 
 //
