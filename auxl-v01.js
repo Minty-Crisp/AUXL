@@ -39,6 +39,8 @@ this.menuOpen = true;
 this.infoOpen = false;
 //Audio
 this.audioEnabled = false;
+//HTML Controls
+const controllerBlock = document.getElementById('controllerBlock');
 //Controls
 this.controls = 'Desktop';
 this.vrHand = 'right';
@@ -50,7 +52,9 @@ let playerFloor;
 let mouseController;
 let vrController;
 let vrControllerUI;
-const controllerBlock = document.getElementById('controllerBlock');
+this.joystickReader = '';
+this.controller1Reader = '';
+this.controller2Reader = '';
 //Core, Layer & Aux currently spawned in scene.
 this.spawned = {};
 this.zoneSpawned = {};
@@ -3151,8 +3155,6 @@ const ObjsGenRing = (data) => {
 //Memory Mini Game
 const MemoryGame = (...data) => {
 
-	//Add a game over anim and delay
-
 	//Game Objects
 	//Layered Object Generation
 	let memoryLayerData = {}
@@ -3191,6 +3193,8 @@ const MemoryGame = (...data) => {
 	let playSequenceInterval;
 	let roundCompleteTimeout1;
 	let roundCompleteTimeout2;
+	let gameOverTimeout1;
+	let gameOverTimeout2;
 	let allSequence = [];
 	let playerSequence = [];
 	let currInSequence = 0;
@@ -3288,8 +3292,14 @@ const MemoryGame = (...data) => {
 				//let currentScore = currMaxSequence-1;
 				console.log('Sequence Score : ' + currentScore);
 			}
-			//Reset
-			ResetGame();
+			gameOverTimeout1 = setTimeout(function () {
+				gameOverAnim();
+				gameOverTimeout2 = setTimeout(function () {
+					ResetGame();
+					clearTimeout(gameOverTimeout2);
+				}, 2000);
+			}, 250);
+
 		}
 		if(currInSequence >= currMaxSequence){
 			console.log('Correct Sequence');
@@ -3305,13 +3315,13 @@ const MemoryGame = (...data) => {
 			memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
 			playerSequence = [];
 			roundCompleteTimeout1 = setTimeout(function () {
-				roundComplete();
+				roundCompleteAnim();
 				roundCompleteTimeout2 = setTimeout(function () {
 					PlaySequence();
 					clearTimeout(roundCompleteTimeout2);
 				}, 1500);
 				clearTimeout(roundCompleteTimeout1);
-			}, 500);
+			}, 250);
 
 
 		}
@@ -3352,9 +3362,15 @@ const MemoryGame = (...data) => {
 		}
 	}
 
-	function roundComplete(){
+	function roundCompleteAnim(){
 		for(let each in memoryCores){
 			memoryCores[each].EmitEvent('roundComplete');
+		}
+	}
+
+	function gameOverAnim(){
+		for(let each in memoryCores){
+			memoryCores[each].EmitEvent('gameOver');
 		}
 	}
 
@@ -3715,7 +3731,8 @@ hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-['detect-inputs']:null,
+['joystick-listener']:null,
+//['detect-inputs']:null,
 visible: 'false',
 },
 };
@@ -6694,6 +6711,8 @@ animations: {
 click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
 click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
 roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
+gameover1: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
+gameover2: {property: 'material.emissiveIntensity', from: '0.8', to: '0.2', dur: 250, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
 },
 mixins: false,
 classes: ['clickable','memory','a-ent'],
@@ -6715,6 +6734,8 @@ animations: {
 click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
 click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
 roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
+gameover1: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
+gameover2: {property: 'material.emissiveIntensity', from: '0.8', to: '0.2', dur: 250, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
 },
 mixins: false,
 classes: ['clickable','memory','a-ent'],
@@ -6736,6 +6757,8 @@ animations: {
 click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
 click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
 roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
+gameover1: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
+gameover2: {property: 'material.emissiveIntensity', from: '0.8', to: '0.2', dur: 250, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
 },
 mixins: false,
 classes: ['clickable','memory','a-ent'],
@@ -6757,6 +6780,8 @@ animations: {
 click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
 click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
 roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
+gameover1: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
+gameover2: {property: 'material.emissiveIntensity', from: '0.8', to: '0.2', dur: 250, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
 },
 mixins: false,
 classes: ['clickable','memory','a-ent'],
@@ -8117,6 +8142,124 @@ AFRAME.registerComponent('mouseuprun', {
 });
 
 //
+//Dev - Detect Inputs
+AFRAME.registerComponent('joystick-listener', {
+	dependencies: ['auxl'],
+//schema: {
+	//bar: {type: 'number'},
+	//baz: {type: 'string'}
+//},
+
+init: function () {
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.joystickReader = this.auxl.joystickReader;
+	this.controller1Reader = this.auxl.controller1Reader;
+	this.controller2Reader = this.auxl.controller2Reader;
+	//Controls
+	//HMD View - Mouse Movement
+	//Main Trigger Click - Mouse Left Click
+	//Secondary Trigger Click - Mouse Right Click
+	//Joystick Directional - WASD
+	//Button 1 - Q
+	//Button 2 - E
+
+	//
+	//Event Listeners
+
+	//Quest
+	//
+
+	//Triggers
+	//
+	//Main Trigger
+	document.body.addEventListener('triggerdown', function (e) {
+		//console.log('main trigger');
+		this.controller1Reader = 'trigger';
+	});
+	document.body.addEventListener('triggerup', function (e) {
+		//console.log('main trigger');
+		this.controller1Reader = '';
+	});
+	//
+	//Secondary Trigger
+	document.body.addEventListener('gripdown', function (e) {
+		//console.log('secondary trigger');
+		this.controller2Reader = 'trigger';
+	});
+	document.body.addEventListener('gripup', function (e) {
+		//console.log('secondary trigger');
+		this.controller2Reader = '';
+	});
+
+	//Buttons
+	//
+	//Right Controller - Button 1 (A)
+	document.body.addEventListener('abuttondown', function (e) {
+		//console.log('button 1');
+		this.controller1Reader = 'a';
+	});
+	document.body.addEventListener('abuttonup', function (e) {
+		//console.log('button 1');
+		this.controller1Reader = '';
+	});
+	//
+	//Right Controller - Button 2 (B)
+	document.body.addEventListener('bbuttondown', function (e) {
+		//console.log('button 2');
+		this.controller1Reader = 'b';
+	});
+	document.body.addEventListener('bbuttonup', function (e) {
+		//console.log('button 2');
+		this.controller1Reader = '';
+	});
+	//
+	//Left Controller - Button 1 (X)
+	document.body.addEventListener('xbuttondown', function (e) {
+		//console.log('button 1');
+		this.controller2Reader = 'x';
+	});
+	document.body.addEventListener('xbuttonup', function (e) {
+		//console.log('button 1');
+		this.controller2Reader = '';
+	});
+	//
+	//Left Controller - Button 2 (Y)
+	document.body.addEventListener('ybuttondown', function (e) {
+		//console.log('button 2');
+		this.controller2Reader = 'y';
+	});
+	document.body.addEventListener('ybuttonup', function (e) {
+		//console.log('button 2');
+		this.controller2Reader = '';
+	});
+
+	//Joystick
+	//
+	//Main Controller
+	this.el.addEventListener('thumbstickmoved', function (e) {
+		if (e.detail.y > 0.95) { 
+			this.joystickReader = 'down';
+		}
+		if (e.detail.y < -0.95) { 
+			this.joystickReader = 'up';
+		}
+		if (e.detail.x < -0.95) { 
+			this.joystickReader = 'left';
+		}
+		if (e.detail.x > 0.95) { 
+			this.joystickReader = 'right';
+		}
+	});
+	this.el.addEventListener('thumbsticktouchend', function (e) {
+		this.joystickReader = '';
+	});
+
+
+
+    }//End Init
+});
+
+//
 //Locomotion Globals
 //Brake Engaged by Default
 let moveTo = false;
@@ -8133,7 +8276,7 @@ let moveSpeedSlow = 0.03;
 //
 //Locomotion Belt
 AFRAME.registerComponent('belt', {
-	//dependencies: ['auxl'],
+	dependencies: ['auxl'],
     schema: {
         uiid: {type: 'string', default: 'ui'},
         controller1id: {type: 'string', default: 'controller1'},
@@ -8144,10 +8287,18 @@ AFRAME.registerComponent('belt', {
 
 init: function () {
 	//Do something when component first attached.
-	//this.auxl = document.querySelector('a-scene').systems.auxl;
-
+	this.auxl = document.querySelector('a-scene').systems.auxl;
 	// Set up the tick throttling.
 	this.throttledFunction = AFRAME.utils.throttle(this.everySome, 30, this);
+
+	//AUXL Connection Import
+	this.joystickReader = this.auxl.joystickReader;
+	this.controller1Reader = this.auxl.controller1Reader;
+	this.controller2Reader = this.auxl.controller2Reader;
+
+	//Dev Display of Quest Controlers
+	this.displayInput = document.querySelector('#displayInput');
+	this.displayInputText = {value: 'No Input', color: 'white', align: 'center'}
 
 	//Schema Imoprt
 	//
@@ -8187,6 +8338,10 @@ init: function () {
 	const htmlLeft = document.getElementById('left');
 	const htmlRight = document.getElementById('right');
 	const htmlDown = document.getElementById('down');
+	const htmlselect = document.getElementById('select');
+	const htmlstart = document.getElementById('start');
+	const htmla = document.getElementById('a');
+	const htmlb = document.getElementById('b');
 
 	//Walk Support
 	this.camera = document.getElementById('camera');
@@ -8215,31 +8370,100 @@ init: function () {
 	this.newX;
 	this.newZ;
 
-	//Belt Controller Event Listeners
+
+	//Move Forward
+	function movingForward(){
+		if(moveTo){}else{
+			moveTo = true;
+		}
+	}
+	//Cancel Forward
+	function cancelForward(){
+		if(moveTo){
+			moveTo = false;
+		}
+	}
+	//Move Reverse
+	function movingReverse(){
+		if(moveBack){}else{
+			moveBack = true;
+		}
+	}
+	//Cancel Reverse
+	function cancelReverse(){
+		if(moveBack){
+			moveBack = false;
+		}
+	}
+	//Move Left
+	function movingLeft(){
+		if(moveLeft){}else{
+			moveLeft = true;
+		}
+	}
+	//Cancel Left
+	function cancelLeft(){
+		if(moveLeft){
+			moveLeft = false;
+		}
+	}
+	//Move Right
+	function movingRight(){
+		if(moveRight){}else{
+			moveRight = true;
+		}
+	}
+	//Cancel Right
+	function cancelRight(){
+		if(moveRight){
+			moveRight = false;
+		}
+	}
+
+	//Toggle Speed Change
+	function toggleSpeed(){
+		console.log('Toggling Speed');
+		//Brake is disabled for 1.5 seconds after engaging
+		if(brakeReady){
+			if(brakeToggle){
+				console.log('Break On');
+				//Set reset switch toggle
+				brakeToggle = false;
+				//Set reset timer switch toggle
+				brakeReady = false;
+				//Brake On
+				moveBrake = true;
+			} else {
+				console.log('Break Off');
+				//Set reset switch toggle
+				brakeToggle = true;
+				//Set reset timer switch toggle
+				brakeReady = false;
+				//Brake Off
+				moveBrake = false;
+			}
+		}
+	}
+	//Buffer for Toggling Speed Change
+	function brakeReadyBuffer(){
+		brakeReset = setTimeout(function () {
+			//Set reset switch toggle
+			brakeReady = true;
+		}, 250); //Delay
+	}
+
 	//
+	//VR Event Listeners
+
+	//Belt Controller Event Listeners
 	if(this.movetype === 'vr'){
 		//directionForward
-		directionForward.addEventListener('mouseenter', function(){
-			if(moveTo){}else{
-				moveTo = true;
-			}
-		});
-		directionForward.addEventListener('mouseleave', function(){
-			if(moveTo){
-				moveTo = false;
-			}
-		});
+		directionForward.addEventListener('mouseenter', movingForward);
+		directionForward.addEventListener('mouseleave', cancelForward);
 		//directionReverse
-		directionReverse.addEventListener('mouseenter', function(){
-			if(moveBack){}else{
-				moveBack = true;
-			}
-		});
-		directionReverse.addEventListener('mouseleave', function(){
-			if(moveBack){
-				moveBack = false;
-			}
-		});
+		directionReverse.addEventListener('mouseenter', movingReverse);
+		directionReverse.addEventListener('mouseleave', cancelReverse);
+		//This format does not like functions inside, adjust to allow
 		//directionBrakes
 		document.querySelectorAll('.directionBrake').forEach(item => {
 			item.addEventListener('mouseenter', event => {
@@ -8297,6 +8521,38 @@ init: function () {
 				}, 2250); //Delay
 			})
 		});
+
+		//
+		//Quest Controller
+
+		//Needs a component attached to the joystick to pass along the event details
+		//Joystick
+		//
+		//Left Controller
+		this.el.addEventListener('thumbstickmoved', function (e) {
+			if (e.detail.y > 0.95) { 
+				console.log('down')
+			}
+			if (e.detail.y < -0.95) { 
+				console.log('up')
+			}
+			if (e.detail.x < -0.95) { 
+				console.log('left')
+			}
+			if (e.detail.x > 0.95) { 
+				console.log('right')
+			}
+		});
+		//
+		//Right Controller - Button 2 (B)
+		document.body.addEventListener('bbuttondown', function (e) {
+			console.log('button 2 Down');
+		});
+		//
+		//Right Controller - Button 2 (B)
+		document.body.addEventListener('bbuttonup', function (e) {
+			console.log('button 2 Up');
+		});
 	}
 
 
@@ -8305,116 +8561,57 @@ init: function () {
 	//Key Down - WASD | QE
 	document.body.addEventListener('keydown', function (e) {
 		if (e.key === 'w' || e.key === 'W') {
-			//Start moving player
-			//console.log('up');
-			if(moveTo){}else{
-				moveTo = true;
-			}
+			movingForward();
 		} else if (e.key === 'a' || e.key === 'A') {
-			//Start moving player
-			//console.log('left');
-			if(moveLeft){}else{
-				moveLeft = true;
-			}
+			movingLeft();
 		} else if (e.key === 's' || e.key === 'S') {
-			//Start moving player
-			//console.log('down');
-			if(moveBack){}else{
-				moveBack = true;
-			}
+			movingReverse();
 		} else if (e.key === 'd' || e.key === 'D') {
-			//Start moving player
-			//console.log('right');
-			if(moveRight){}else{
-				moveRight = true;
-			}
+			movingRight();
 		} else if (e.key === 'q' || e.key === 'Q') {
-			//Start moving player
+			//Special Button 1
 			//console.log('button 1');
 		} else if (e.key === 'e' || e.key === 'E') {
-			//Start moving player
+			//Special Button 2
 			//console.log('button 2');
+			console.log('Toggle Speed');
+			toggleSpeed();
 		}
 	});
 	//Key Down - WASD | QE
 	document.body.addEventListener('keyup', function (e) {
 		if (e.key === 'w' || e.key === 'W') {
-			//Start moving player
-			//console.log('up');
-			if(moveTo){
-				moveTo = false;
-			}
+			cancelForward();
 		} else if (e.key === 'a' || e.key === 'A') {
-			//Start moving player
-			//console.log('left');
-			if(moveLeft){
-				moveLeft = false;
-			}
+			cancelLeft();
 		} else if (e.key === 's' || e.key === 'S') {
-			//Start moving player
-			//console.log('down');
-			if(moveBack){
-				moveBack = false;
-			}
+			cancelReverse();
 		} else if (e.key === 'd' || e.key === 'D') {
-			//Start moving player
-			//console.log('right');
-			if(moveRight){
-				moveRight = false;
-			}
+			cancelRight();
 		} else if (e.key === 'q' || e.key === 'Q') {
-			//Start moving player
+			//Special Button 1
 			//console.log('button 1');
 		} else if (e.key === 'e' || e.key === 'E') {
-			//Start moving player
+			//Special Button 2
 			//console.log('button 2');
+			brakeReadyBuffer();
 		}
 	});
 
 	//HTML Controller Event Listeners
 	//
 	//Mouse Down
-	htmlUp.addEventListener('mousedown', function(){
-		if(moveTo){}else{
-			moveTo = true;
-		}
-	});
-	htmlLeft.addEventListener('mousedown', function(){
-		if(moveLeft){}else{
-			moveLeft = true;
-		}
-	});
-	htmlRight.addEventListener('mousedown', function(){
-		if(moveRight){}else{
-			moveRight = true;
-		}
-	});
-	htmlDown.addEventListener('mousedown', function(){
-		if(moveBack){}else{
-			moveBack = true;
-		}
-	});
+	htmlUp.addEventListener('mousedown', movingForward);
+	htmlLeft.addEventListener('mousedown', movingLeft);
+	htmlRight.addEventListener('mousedown', movingRight);
+	htmlDown.addEventListener('mousedown', movingReverse);
+	htmlb.addEventListener('mousedown', toggleSpeed);
 	//Mouse Up
-	htmlUp.addEventListener('mouseup', function(){
-		if(moveTo){
-			moveTo = false;
-		}
-	});
-	htmlLeft.addEventListener('mouseup', function(){
-		if(moveLeft){
-			moveLeft = false;
-		}
-	});
-	htmlRight.addEventListener('mouseup', function(){
-		if(moveRight){
-			moveRight = false;
-		}
-	});
-	htmlDown.addEventListener('mouseup', function(){
-		if(moveBack){
-			moveBack = false;
-		}
-	});
+	htmlUp.addEventListener('mouseup', cancelForward);
+	htmlLeft.addEventListener('mouseup', cancelLeft);
+	htmlRight.addEventListener('mouseup', cancelRight);
+	htmlDown.addEventListener('mouseup', cancelReverse);
+	htmlb.addEventListener('mouseup', brakeReadyBuffer);
 
 //End Init
 },
@@ -8466,12 +8663,16 @@ distance: function(x1, y1, x2,  y2) {
 },
 
 uiSync: function () {
-//uiSync
-//Clone current the entity this component is attached to's position
-this.elPosVec3New.copy(this.el.object3D.position);
-//No Offsets as UI Parent is at 0 0 0
-//Set position for UI at 3js level for speed!
-this.ui.object3D.position.copy(this.elPosVec3New);
+	//uiSync
+	//Clone current the entity this component is attached to's position
+	this.elPosVec3New.copy(this.el.object3D.position);
+	//No Offsets as UI Parent is at 0 0 0
+	//Set position for UI at 3js level for speed!
+	this.ui.object3D.position.copy(this.elPosVec3New);
+
+	//Dev Testing
+	this.displayInputText.value = this.joystickReader;
+	this.displayInput.setAttribute('text',this.displayInputText);
 },
 
 walk: function (action, speed) {
