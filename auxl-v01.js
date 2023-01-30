@@ -50,7 +50,7 @@ let playerFloor;
 let mouseController;
 let vrController;
 let vrControllerUI;
-
+const controllerBlock = document.getElementById('controllerBlock');
 //Core, Layer & Aux currently spawned in scene.
 this.spawned = {};
 this.zoneSpawned = {};
@@ -166,6 +166,8 @@ function enableVRControls(){
 	vrController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController', mouseCursorStylesEnabled: 'true'});
 	//vrController laser-controls property
 	vrController.setAttribute('laser-controls',{hand: aThis.vrHand});
+	//Enable VR Locomotion
+	aThis.player.EnableVRLocomotion();
 	//Update Controls
 	aThis.controls = 'VR';
 }
@@ -193,6 +195,8 @@ function enableDesktopControls(){
 	mouseController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 	//Remove cursor attribute
 	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
+	//Enable Desktop Locomotion
+	aThis.player.EnableDesktopLocomotion();
 	//Update Controls
 	aThis.controls = 'Desktop';
 }
@@ -206,6 +210,8 @@ function disableMobileControls(){
 	mouseController.removeAttribute('raycaster');
 	//Remove cursor attribute
 	mouseController.removeAttribute('cursor');
+	//HTML Controller
+	controllerBlock.style.display = 'none';
 }
 function enableMobileControls(){
 //deviceorientationpermissiongranted
@@ -225,6 +231,10 @@ function enableMobileControls(){
 	mouseController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 	//Remove cursor attribute
 	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
+	//HTML Controller
+	controllerBlock.style.display = 'flex';
+	//Enable Desktop Locomotion
+	aThis.player.EnableMobileLocomotion();
 	//Update Controls
 	aThis.controls = 'Mobile';
 }
@@ -1207,17 +1217,36 @@ const Player = (layer) => {
 
 	}
 
-	const EnableLocomotion = () => {
+	const EnableVRLocomotion = () => {
+		playerRig.removeAttribute('belt');
 		aThis.locomotionUILayer.AddAllToScene(true);
-		playerRig.setAttribute('belt',{uiid: 'beltUIParent', controller1id: 'vrController', courserid: 'mouseController',});
+		playerRig.setAttribute('belt',{uiid: 'beltUIParent', controller1id: 'vrController', courserid: 'mouseController', movetype: 'vr'});
+	}
+
+	const EnableDesktopLocomotion = () => {
+		playerRig.removeAttribute('belt');
+		if(document.getElementById('beltUIParent')){
+			aThis.locomotionUILayer.RemoveAllFromScene();
+		}
+		playerRig.setAttribute('belt',{uiid: false, controller1id: false, courserid: 'mouseController', movetype: 'desktop'});
+	}
+
+	const EnableMobileLocomotion = () => {
+		playerRig.removeAttribute('belt');
+		if(document.getElementById('beltUIParent')){
+			aThis.locomotionUILayer.RemoveAllFromScene();
+		}
+		playerRig.setAttribute('belt',{uiid: false, controller1id: false, courserid: 'mouseController', movetype: 'mobile'});
 	}
 
 	const DisableLocomotion = () => {
 		playerRig.removeAttribute('belt');
-		aThis.locomotionUILayer.RemoveAllFromScene();
+		if(document.getElementById('beltUIParent')){
+			aThis.locomotionUILayer.RemoveAllFromScene();
+		}
 	}
 
-	return {layer, SetFlag, GetFlag, TempDisableClick, EnableLocomotion, DisableLocomotion}
+	return {layer, SetFlag, GetFlag, TempDisableClick, EnableVRLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion}
 }
 //Spawn Function
 function playerSpawnAnim(){
@@ -3863,15 +3892,15 @@ sources:false,
 text: false,
 geometry: false,
 material: false,
-position: new THREE.Vector3(0,0.1,0),
+position: new THREE.Vector3(0,0.025,0),
 rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: {
-click1pos: {property: 'object3D.position.y', from: 0.1, to: 0.75, dur: 2000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click1'},
+click1pos: {property: 'object3D.position.y', from: 0.025, to: 0.75, dur: 2000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click1'},
 click1rot: {property: 'object3D.rotation.x', from: -90, to: 720, dur: 2000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click1'},
-posreset: {property: 'object3D.position.y', from: 0.75, to: 0.1, dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset'},
+posreset: {property: 'object3D.position.y', from: 0.75, to: 0.025, dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset'},
 rotreset: {property: 'object3D.rotation.x', from: 720, to: -90, dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset'},
-posresetinstant: {property: 'object3D.position.y', from: 0.75, to: 0.1, dur: 50, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'resetInstant'},
+posresetinstant: {property: 'object3D.position.y', from: 0.75, to: 0.025, dur: 50, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'resetInstant'},
 rotresetinstant: {property: 'object3D.rotation.x', from: 720, to: -90, dur: 50, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'resetInstant'},
 },
 mixins: false,
@@ -6659,7 +6688,6 @@ sceneText: true,
 zone:{
 },
 start:{
-player:{EnableLocomotion:null},
 HamGirl:{Start: null},
 npcMinty:{Spawn:null},
 soundTesting:{AddToScene: null},
@@ -6705,7 +6733,6 @@ interaction:{
 
 },
 exit:{
-//player:{DisableLocomotion:null},
 HamGirl:{Remove: null},
 },
 map:{
@@ -7238,7 +7265,7 @@ this.locomotionUILayer = Layer('locomotionUILayer', this.locomotionUIAllData);
 //Origin
 let tele0Color = colorsHexGen().base;
 this.teleportParentData.id = 'teleportOriginParent';
-this.teleportParentData.position = new THREE.Vector3(0,0.1,0);
+this.teleportParentData.position = new THREE.Vector3(0,0.025,0);
 this.teleportOriginParent = Core(this.teleportParentData);
 this.teleportConfirmData.id = 'teleportOriginConfirm';
 this.teleportConfirmData.material.color = tele0Color;
@@ -7257,7 +7284,7 @@ this.teleportOriginLayer = Layer('teleportOriginLayer', this.teleportOriginData)
 //1
 let tele1Color = colorsHexGen().base;
 this.teleportParentData.id = 'teleport1Parent';
-this.teleportParentData.position = new THREE.Vector3(-5,0.1,-5);
+this.teleportParentData.position = new THREE.Vector3(-5,0.025,-5);
 this.teleport1Parent = Core(this.teleportParentData);
 this.teleportConfirmData.id = 'teleport1Confirm';
 this.teleportConfirmData.material.color = tele1Color;
@@ -7276,7 +7303,7 @@ this.teleport1Layer = Layer('teleport1Layer', this.teleport1Data);
 //2
 let tele2Color = colorsHexGen().base;
 this.teleportParentData.id = 'teleport2Parent';
-this.teleportParentData.position = new THREE.Vector3(-5,0.1,5);
+this.teleportParentData.position = new THREE.Vector3(-5,0.025,5);
 this.teleport2Parent = Core(this.teleportParentData);
 this.teleportConfirmData.id = 'teleport2Confirm';
 this.teleportConfirmData.material.color = tele2Color;
@@ -7295,7 +7322,7 @@ this.teleport2Layer = Layer('teleport1Layer', this.teleport2Data);
 //3
 let tele3Color = colorsHexGen().base;
 this.teleportParentData.id = 'teleport3Parent';
-this.teleportParentData.position = new THREE.Vector3(5,0.1,-5);
+this.teleportParentData.position = new THREE.Vector3(5,0.025,-5);
 this.teleport3Parent = Core(this.teleportParentData);
 this.teleportConfirmData.id = 'teleport3Confirm';
 this.teleportConfirmData.material.color = tele3Color;
@@ -7314,7 +7341,7 @@ this.teleport3Layer = Layer('teleport1Layer', this.teleport3Data);
 //4
 let tele4Color = colorsHexGen().base;
 this.teleportParentData.id = 'teleport4Parent';
-this.teleportParentData.position = new THREE.Vector3(5,0.1,5);
+this.teleportParentData.position = new THREE.Vector3(5,0.025,5);
 this.teleport4Parent = Core(this.teleportParentData);
 this.teleportConfirmData.id = 'teleport4Confirm';
 this.teleportConfirmData.material.color = tele4Color;
@@ -7969,6 +7996,8 @@ AFRAME.registerComponent('mouseuprun', {
 //Brake Engaged by Default
 let moveTo = false;
 let moveBack = false;
+let moveRight = false;
+let moveLeft = false;
 let moveBrake = true;
 let brakeReady = true;
 let brakeToggle = false;
@@ -7985,6 +8014,7 @@ AFRAME.registerComponent('belt', {
         controller1id: {type: 'string', default: 'controller1'},
         controller2id: {type: 'string', default: 'controller2'},
 		courserid: {type: 'string', default: 'mouseCursor'},
+		movetype: {type: 'string', default: 'vr'},
     },
 
 init: function () {
@@ -7997,21 +8027,41 @@ init: function () {
 	//Schema Imoprt
 	//
 	//Controller Elements
-	this.controller1 = document.getElementById(this.data.controller1id);
-	this.controller2 = document.getElementById(this.data.controller2id);
+	if(this.data.controller1id){
+		this.controller1 = document.getElementById(this.data.controller1id);
+	}
+	//this.controller2 = document.getElementById(this.data.controller2id);
 	//Cursor Element
 	this.mouseCursor = document.getElementById(this.data.courserid);
 	//UI to attach
-	this.ui = document.getElementById(this.data.uiid);
+	if(this.data.uuid){
+		this.ui = document.getElementById(this.data.uiid);
+	}
+	//Movement Type
+	this.movetype = this.data.movetype;
 
 	//
 	//Band Controller Support
-	const directionForward = document.getElementById('locomotionForwardUI');
-	const directionReverse = document.getElementById('locomotionReverseUI');
-	const directionBrake1 = document.getElementById('locomotionBrake1UI');
-	const directionBrake2 = document.getElementById('locomotionBrake2UI');
-	const directionBrake3 = document.getElementById('locomotionBrake3UI');
-	const directionBrake4 = document.getElementById('locomotionBrake4UI');
+	let directionForward;
+	let directionReverse;
+	let directionBrake1;
+	let directionBrake2;
+	let directionBrake3;
+	let directionBrake4;
+	if(this.movetype === 'vr'){
+		directionForward = document.getElementById('locomotionForwardUI');
+		directionReverse = document.getElementById('locomotionReverseUI');
+		directionBrake1 = document.getElementById('locomotionBrake1UI');
+		directionBrake2 = document.getElementById('locomotionBrake2UI');
+		directionBrake3 = document.getElementById('locomotionBrake3UI');
+		directionBrake4 = document.getElementById('locomotionBrake4UI');
+	}
+
+	//HTML Controller Support
+	const htmlUp = document.getElementById('up');
+	const htmlLeft = document.getElementById('left');
+	const htmlRight = document.getElementById('right');
+	const htmlDown = document.getElementById('down');
 
 	//Walk Support
 	this.camera = document.getElementById('camera');
@@ -8029,12 +8079,6 @@ init: function () {
 	//Attach to Player Support
 	this.elPosVec3New = new THREE.Vector3();
 
-	//Controller Check Support
-	this.controller1PosVec3Now = new THREE.Vector3();
-	this.controller1PosVec3Init = new THREE.Vector3();
-	//Clone entity's starting rotation
-	this.controller1PosVec3Init.copy(this.controller1.object3D.rotation);
-
 	//User Direction Support
 	this.velocity;
 	this.userPreviousPos = this.player.getAttribute('position');
@@ -8046,86 +8090,205 @@ init: function () {
 	this.newX;
 	this.newZ;
 
-	//Controller Event Listeners
+	//Belt Controller Event Listeners
 	//
-	//directionForward
-	directionForward.addEventListener('mouseenter', function(){
+	if(this.movetype === 'vr'){
+		//directionForward
+		directionForward.addEventListener('mouseenter', function(){
+			if(moveTo){}else{
+				moveTo = true;
+			}
+		});
+		directionForward.addEventListener('mouseleave', function(){
+			if(moveTo){
+				moveTo = false;
+			}
+		});
+		//directionReverse
+		directionReverse.addEventListener('mouseenter', function(){
+			if(moveBack){}else{
+				moveBack = true;
+			}
+		});
+		directionReverse.addEventListener('mouseleave', function(){
+			if(moveBack){
+				moveBack = false;
+			}
+		});
+		//directionBrakes
+		document.querySelectorAll('.directionBrake').forEach(item => {
+			item.addEventListener('mouseenter', event => {
+				//Brake is disabled for 1.5 seconds after engaging
+				if(brakeReady){
+					if(brakeToggle){
+						//Set reset switch toggle
+						brakeToggle = false;
+						//Set reset timer switch toggle
+						brakeReady = false;
+						//Brake On
+						moveBrake = true;
+						//set brake color to red
+						directionBrake1.setAttribute('material', {color: 'red'});
+						directionBrake2.setAttribute('material', {color: 'red'});
+						directionBrake3.setAttribute('material', {color: 'red'});
+						directionBrake4.setAttribute('material', {color: 'red'});
+						//anim positition for forward/reverse bar and brakes
+						directionForward.emit('brakeOn',{});
+						directionReverse.emit('brakeOn',{});
+						directionBrake1.emit('brakeOn',{});
+						directionBrake2.emit('brakeOn',{});
+						directionBrake3.emit('brakeOn',{});
+						directionBrake4.emit('brakeOn',{});
+					} else {
+						//Set reset switch toggle
+						brakeToggle = true;
+						//Set reset timer switch toggle
+						brakeReady = false;
+						//Brake Off
+						moveBrake = false;
+						//set brake color to default
+						directionBrake1.setAttribute('material', {color: 'black'});
+						directionBrake2.setAttribute('material', {color: 'black'});
+						directionBrake3.setAttribute('material', {color: 'black'});
+						directionBrake4.setAttribute('material', {color: 'black'});
+						//anim positition for forward/reverse bar back to default
+						directionForward.emit('brakeOff',{});
+						directionReverse.emit('brakeOff',{});
+						directionBrake1.emit('brakeOff',{});
+						directionBrake2.emit('brakeOff',{});
+						directionBrake3.emit('brakeOff',{});
+						directionBrake4.emit('brakeOff',{});
+					}
+				}
+			})
+		});
+		document.querySelectorAll('.directionBrake').forEach(item => {
+			item.addEventListener('mouseleave', event => {
+				//This will start the reset timer to allow the brake to be re-engadged
+				//Brake Reset Timeout
+				brakeReset = setTimeout(function () {
+					//Set reset switch toggle
+					brakeReady = true;
+				}, 2250); //Delay
+			})
+		});
+	}
+
+
+	//Keyboard Controller Event Listeners
+	//
+	//Key Down - WASD | QE
+	document.body.addEventListener('keydown', function (e) {
+		if (e.key === 'w' || e.key === 'W') {
+			//Start moving player
+			//console.log('up');
+			if(moveTo){}else{
+				moveTo = true;
+			}
+		} else if (e.key === 'a' || e.key === 'A') {
+			//Start moving player
+			//console.log('left');
+			if(moveLeft){}else{
+				moveLeft = true;
+			}
+		} else if (e.key === 's' || e.key === 'S') {
+			//Start moving player
+			//console.log('down');
+			if(moveBack){}else{
+				moveBack = true;
+			}
+		} else if (e.key === 'd' || e.key === 'D') {
+			//Start moving player
+			//console.log('right');
+			if(moveRight){}else{
+				moveRight = true;
+			}
+		} else if (e.key === 'q' || e.key === 'Q') {
+			//Start moving player
+			//console.log('button 1');
+		} else if (e.key === 'e' || e.key === 'E') {
+			//Start moving player
+			//console.log('button 2');
+		}
+	});
+	//Key Down - WASD | QE
+	document.body.addEventListener('keyup', function (e) {
+		if (e.key === 'w' || e.key === 'W') {
+			//Start moving player
+			//console.log('up');
+			if(moveTo){
+				moveTo = false;
+			}
+		} else if (e.key === 'a' || e.key === 'A') {
+			//Start moving player
+			//console.log('left');
+			if(moveLeft){
+				moveLeft = false;
+			}
+		} else if (e.key === 's' || e.key === 'S') {
+			//Start moving player
+			//console.log('down');
+			if(moveBack){
+				moveBack = false;
+			}
+		} else if (e.key === 'd' || e.key === 'D') {
+			//Start moving player
+			//console.log('right');
+			if(moveRight){
+				moveRight = false;
+			}
+		} else if (e.key === 'q' || e.key === 'Q') {
+			//Start moving player
+			//console.log('button 1');
+		} else if (e.key === 'e' || e.key === 'E') {
+			//Start moving player
+			//console.log('button 2');
+		}
+	});
+
+	//HTML Controller Event Listeners
+	//
+	//Mouse Down
+	htmlUp.addEventListener('mousedown', function(){
 		if(moveTo){}else{
 			moveTo = true;
 		}
 	});
-	directionForward.addEventListener('mouseleave', function(){
-		if(moveTo){
-			moveTo = false;
+	htmlLeft.addEventListener('mousedown', function(){
+		if(moveLeft){}else{
+			moveLeft = true;
 		}
 	});
-	//directionReverse
-	directionReverse.addEventListener('mouseenter', function(){
+	htmlRight.addEventListener('mousedown', function(){
+		if(moveRight){}else{
+			moveRight = true;
+		}
+	});
+	htmlDown.addEventListener('mousedown', function(){
 		if(moveBack){}else{
 			moveBack = true;
 		}
 	});
-	directionReverse.addEventListener('mouseleave', function(){
+	//Mouse Up
+	htmlUp.addEventListener('mouseup', function(){
+		if(moveTo){
+			moveTo = false;
+		}
+	});
+	htmlLeft.addEventListener('mouseup', function(){
+		if(moveLeft){
+			moveLeft = false;
+		}
+	});
+	htmlRight.addEventListener('mouseup', function(){
+		if(moveRight){
+			moveRight = false;
+		}
+	});
+	htmlDown.addEventListener('mouseup', function(){
 		if(moveBack){
 			moveBack = false;
 		}
-	});
-	//directionBrakes
-	document.querySelectorAll('.directionBrake').forEach(item => {
-		item.addEventListener('mouseenter', event => {
-			//Brake is disabled for 1.5 seconds after engaging
-			if(brakeReady){
-				if(brakeToggle){
-					//Set reset switch toggle
-					brakeToggle = false;
-					//Set reset timer switch toggle
-					brakeReady = false;
-					//Brake On
-					moveBrake = true;
-					//set brake color to red
-					directionBrake1.setAttribute('material', {color: 'red'});
-					directionBrake2.setAttribute('material', {color: 'red'});
-					directionBrake3.setAttribute('material', {color: 'red'});
-					directionBrake4.setAttribute('material', {color: 'red'});
-					//anim positition for forward/reverse bar and brakes
-					directionForward.emit('brakeOn',{});
-					directionReverse.emit('brakeOn',{});
-					directionBrake1.emit('brakeOn',{});
-					directionBrake2.emit('brakeOn',{});
-					directionBrake3.emit('brakeOn',{});
-					directionBrake4.emit('brakeOn',{});
-				} else {
-					//Set reset switch toggle
-					brakeToggle = true;
-					//Set reset timer switch toggle
-					brakeReady = false;
-					//Brake Off
-					moveBrake = false;
-					//set brake color to default
-					directionBrake1.setAttribute('material', {color: 'black'});
-					directionBrake2.setAttribute('material', {color: 'black'});
-					directionBrake3.setAttribute('material', {color: 'black'});
-					directionBrake4.setAttribute('material', {color: 'black'});
-					//anim positition for forward/reverse bar back to default
-					directionForward.emit('brakeOff',{});
-					directionReverse.emit('brakeOff',{});
-					directionBrake1.emit('brakeOff',{});
-					directionBrake2.emit('brakeOff',{});
-					directionBrake3.emit('brakeOff',{});
-					directionBrake4.emit('brakeOff',{});
-				}
-			}
-		})
-	});
-	document.querySelectorAll('.directionBrake').forEach(item => {
-		item.addEventListener('mouseleave', event => {
-			//This will start the reset timer to allow the brake to be re-engadged
-			//Brake Reset Timeout
-			brakeReset = setTimeout(function () {
-				//Set reset switch toggle
-				brakeReady = true;
-			}, 2250); //Delay
-		})
 	});
 
 //End Init
@@ -8140,14 +8303,22 @@ everySome: function (time, timeDelta) {
 			this.walk('forward', moveSpeedSlow);
 		} else if(moveBack) {
 			this.walk('reverse', moveSpeedSlow);
-		}//end while
+		} else if(moveRight) {
+			this.walk('right', moveSpeedSlow);
+		} else if(moveLeft) {
+			this.walk('left', moveSpeedSlow);
+		}
 	} else {
 		if(moveTo) {
 			this.walk('forward', moveSpeedDefault);
 		} else if(moveBack) {
 			this.walk('reverse', moveSpeedDefault);
-		}//end while
-	}//end moveBrake
+		} else if(moveRight) {
+			this.walk('right', moveSpeedDefault);
+		} else if(moveLeft) {
+			this.walk('left', moveSpeedDefault);
+		}
+	}
 },
 
 tick: function (time, timeDelta) {
@@ -8157,7 +8328,9 @@ tick: function (time, timeDelta) {
 	this.throttledFunction();
 
 	//Run uiSync Function
-	this.uiSync();
+	if(this.movetype === 'vr'){
+		this.uiSync();
+	}
 
 },
 
@@ -8244,6 +8417,58 @@ if(action === 'forward'){
 		this.positionNew.z = this.positionPlayer.z;
 		//console.log('0');
 	}
+} else if(action === 'right'){
+	//check which quadrant the vector is in
+	if(this.angle > 0 && this.angle < Math.PI/2) {
+		this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
+		//console.log('1');
+	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+		this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
+		//console.log('2');
+	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+		this.angle += Math.PI;
+		this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
+		//console.log('3');
+	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+		this.angle += (Math.PI * 2);
+		this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
+		//console.log('4');
+	} else {
+		this.positionNew.x = this.positionPlayer.x;
+		this.positionNew.z = this.positionPlayer.z;
+		//console.log('0');
+	}
+
+} else if(action === 'left'){
+	//check which quadrant the vector is in
+	if(this.angle > 0 && this.angle < Math.PI/2) {
+		this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
+		//console.log('1');
+	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+		this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
+		//console.log('2');
+	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+		this.angle += Math.PI;
+		this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
+		//console.log('3');
+	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+		this.angle += (Math.PI * 2);
+		this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
+		//console.log('4');
+	} else {
+		this.positionNew.x = this.positionPlayer.x;
+		this.positionNew.z = this.positionPlayer.z;
+		//console.log('0');
+	}
+
 }
 
 this.positionNew.y = this.positionPlayer.y;
@@ -8256,7 +8481,6 @@ this.player.object3D.position.copy(this.positionNew);
 
 },
 
-//Check wether entity is far enough away from the user to force a respawn
 userDirection: function (){
 	//Get User's current XZ position
 	this.userPos = this.player.getAttribute('position');

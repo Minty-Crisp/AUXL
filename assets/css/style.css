@@ -139,6 +139,98 @@ border-radius: 15%;
 display: none;
 }
 
+
+/* HTML Controller */
+
+/* Controller Block */
+#controllerBlock {
+display: none;
+position: absolute;
+justify-content: space-around;
+width: 100%;
+height: 20%;
+top: 70%;
+}
+
+.column {
+width: 33%;
+display: flex;
+flex-direction: column;
+justify-content: space-around;
+}
+
+.col1 {
+justify-content: space-around;
+}
+
+.col2 {
+justify-content: flex-end;
+margin-bottom: 1rem;
+}
+
+.col3 {
+justify-content: center;
+}
+
+.directions{
+display: flex;
+justify-content: space-evenly;
+}
+
+.startselect{
+display: flex;
+justify-content: space-evenly;
+}
+
+.ab{
+display: flex;
+justify-content: space-evenly;
+}
+
+.a{
+display: flex;
+justify-content: flex-start;
+margin-top: 2rem;
+}
+
+.b{
+display: flex;
+justify-content: flex-end;
+margin-bottom: 2rem;
+}
+.directionButtons {
+height: 8em;
+}
+
+.startSelectButtons {
+height: 3.5em;
+padding: 0 1.25em 0 1.6em;
+}
+
+.abButtons {
+height: 5em;
+}
+
+.directionButtons, .startSelectButtons, .ab button{
+background-color: transparent;
+border-radius: 4px;
+border: 0;
+box-shadow: inset 0 0 0 2px #e5e2e2;
+color: #e5e2e2 !important;
+cursor: pointer;
+display: inline-block;
+font-size: 0.8em;
+font-weight: 900;
+height: 3.5em;
+letter-spacing: 0.35em;
+overflow: hidden;
+padding: 1em 2em 1em 2.5em;
+text-align: center;
+text-decoration: none;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+
 :root {
     --active-brightness: 0.45;
     --border-radius: 5px;
