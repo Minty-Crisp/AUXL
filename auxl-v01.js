@@ -331,8 +331,27 @@ this.timeInDay = 360000;
 //Support
 
 //Color Theory Hex Generator
-function colorsHexGen(color){
-//Could allow importing the main color family to choose from. Like start with a random red and build from there or import a specifc hex and build from there
+function colorsHexGen(color, family){
+
+//Colors Generated :
+//Base
+//Complementary
+//Split-complementary
+//Triadic
+//Tetradic
+//Analagous
+//Monochrome
+
+let r;
+let r0;
+let g;
+let g0;
+let b;
+let b0;
+let base;
+let baseRGB;
+let familyCheck = false;
+const colorFamily =['red','orange','yellow','lime','blue','cyan','magenta','maroon','olive','green','purple','teal','navy','silver','grey','black','white'];
 
 //Support Functions
 function HSLToRGB(h,s,l) {
@@ -399,46 +418,100 @@ function hexToRGB(h) {
 	//return "rgb("+ +r + "," + +g + "," + +b + ")";
 	return {r,g,b};
 }
-//Pick Random Color from Color Family
-function colorFamilyGen(color){
-//In-Progress
-//Creating an arrays for each color section with preselected colors to randomly choose from 
+function randomColorFamily(){
+	return colorFamily[Math.floor(Math.random()*(colorFamily.length-2))];
+	//Ignore last 2 Black/White
 }
 
-
-
-let r;
-let r0;
-let g;
-let g0;
-let b;
-let b0;
-let base;
-let baseRGB;
-
-//If color doesn't exist then create a randomized one
+//Check if color input is useable
 if(color){
-//color is Hex
-base = color;
-baseRGB = hexToRGB(base);
+	if(color[0] === '#' && color.length === 4 || color[0] === '#' && color.length === 7){} else {
+		color = false;
+	}
+}
+//Check if family input is useable
+if(family){
+	for(let each in colorFamily){
+		if(family === colorFamily[each]){
+			familyCheck = true;
+			break;
+		}
+	}
+	if(familyCheck){} else {
+		family = randomColorFamily();
+	}
+}
 
-//convert Hex to RGB
-r = baseRGB.r;
-r0 = r/255;
-g = baseRGB.g;
-g0 = g/255;
-b = baseRGB.b;
-b0 = b/255;
+//Generate Color Values
+if(color){
+	//color is Hex
+	base = color;
+	baseRGB = hexToRGB(base);
 
+	//convert Hex to RGB
+	r = baseRGB.r;
+	r0 = r/255;
+	g = baseRGB.g;
+	g0 = g/255;
+	b = baseRGB.b;
+	b0 = b/255;
 } else {
-
-r = Math.floor(Math.random()*255);
-r0 = r/255;
-g = Math.floor(Math.random()*255);
-g0 = g/255;
-b = Math.floor(Math.random()*255);
-b0 = b/255;
-base = RGBToHex(r,g,b);
+	if(!family){
+		family = randomColorFamily();
+	}
+	if(family === 'red'){
+		r = Math.floor(Math.random()*55)+200;
+		g = b = 0;
+	} else if(family === 'orange'){
+		r = Math.floor(Math.random()*105)+150;
+		g = Math.floor(r*0.65);
+		b = 0;
+	} else if(family === 'yellow'){
+		r = g = Math.floor(Math.random()*55)+200;
+		b = 0;
+	} else if(family === 'lime'){
+		g = Math.floor(Math.random()*55)+200;
+		r = b = 0;
+	} else if(family === 'blue'){
+		b = Math.floor(Math.random()*55)+200;
+		r = g = 0;
+	} else if(family === 'cyan'){
+		g = b = Math.floor(Math.random()*55)+200;
+		r = 0;
+	} else if(family === 'magenta'){
+		r = b = Math.floor(Math.random()*55)+200;
+		g = 0;
+	} else if(family === 'maroon'){
+		r = Math.floor(Math.random()*28)+100;
+		b = g = 0;
+	} else if(family === 'olive'){
+		r = g = Math.floor(Math.random()*28)+100;
+		b = 0;
+	} else if(family === 'green'){
+		g = Math.floor(Math.random()*28)+100;
+		r = b = 0;
+	} else if(family === 'purple'){
+		r = b = Math.floor(Math.random()*28)+100;
+		g = 0;
+	} else if(family === 'teal'){
+		g = b = Math.floor(Math.random()*28)+100;
+		r = 0;
+	} else if(family === 'navy'){
+		b = Math.floor(Math.random()*28)+100;
+		r = g = 0;
+	} else if(family === 'black'){
+		r = g = b = Math.floor(Math.random()*42);
+	} else if(family === 'white'){
+		r = g = b = Math.floor(Math.random()*35)+220;
+	} else if(family === 'silver'){
+		r = g = b = Math.floor(Math.random()*42)+170;
+	} else if(family === 'grey'){
+		r = g = b = Math.floor(Math.random()*28)+100;
+	}
+	r0 = r/255;
+	g0 = g/255;
+	b0 = b/255;
+	base = RGBToHex(r,g,b);
 }
 
 //Convert RGB to HSL for Color Theory support
@@ -547,17 +620,6 @@ let dark = RGBToHex(r*(1-spread),g*(1-spread),b*(1-spread));
 //green_dark = green_primary * (1 - scaling_factor)
 //blue_dark = blue_primary * (1 - scaling_factor)
 
-
-
-//Colors :
-//Base
-//Complementary
-//Split-complementary
-//Triadic
-//Tetradic
-//Analagous
-//Monochrome
-
 return {base, light, dark, compl, splitCompl, triadic, tetradic, analag};
 
 }
@@ -575,6 +637,7 @@ console.log(newColor1.tetradic[2]);
 console.log(newColor1.analag[0]);
 console.log(newColor1.analag[1]);
 console.log(newColor1.analag[2]);
+//Color Families : red, orange, yellow, lime, blue, cyan, magenta, maroon, olive, green, purple, teal, navy, silver, gray, black, white
 */
 
 //Entity Core
@@ -1222,29 +1285,29 @@ const Player = (layer) => {
 	}
 
 	const EnableVRLocomotion = () => {
-		playerRig.removeAttribute('belt');
+		playerRig.removeAttribute('locomotion');
 		aThis.locomotionUILayer.AddAllToScene(true);
-		playerRig.setAttribute('belt',{uiid: 'beltUIParent', controller1id: 'vrController', courserid: 'mouseController', movetype: 'vr'});
+		playerRig.setAttribute('locomotion',{uiid: 'beltUIParent', controller1id: 'vrController', courserid: 'mouseController', movetype: 'vr'});
 	}
 
 	const EnableDesktopLocomotion = () => {
-		playerRig.removeAttribute('belt');
+		playerRig.removeAttribute('locomotion');
 		if(document.getElementById('beltUIParent')){
 			aThis.locomotionUILayer.RemoveAllFromScene();
 		}
-		playerRig.setAttribute('belt',{uiid: false, controller1id: false, courserid: 'mouseController', movetype: 'desktop'});
+		playerRig.setAttribute('locomotion',{uiid: false, controller1id: false, courserid: 'mouseController', movetype: 'desktop'});
 	}
 
 	const EnableMobileLocomotion = () => {
-		playerRig.removeAttribute('belt');
+		playerRig.removeAttribute('locomotion');
 		if(document.getElementById('beltUIParent')){
 			aThis.locomotionUILayer.RemoveAllFromScene();
 		}
-		playerRig.setAttribute('belt',{uiid: false, controller1id: false, courserid: 'mouseController', movetype: 'mobile'});
+		playerRig.setAttribute('locomotion',{uiid: false, controller1id: false, courserid: 'mouseController', movetype: 'mobile'});
 	}
 
 	const DisableLocomotion = () => {
-		playerRig.removeAttribute('belt');
+		playerRig.removeAttribute('locomotion');
 		if(document.getElementById('beltUIParent')){
 			aThis.locomotionUILayer.RemoveAllFromScene();
 		}
@@ -3643,7 +3706,7 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-//belt:{uiid: 'beltUIParent', controller1id: 'vrController', courserid: 'mouseController',},
+//locomotion:{uiid: 'beltUIParent', controller1id: 'vrController', courserid: 'mouseController',},
 //['wasd-controls']:{enabled: true, acceleration: 25},
 //['movement-controls']:{enabled: true, controls: 'gamepad, keyboard, touch', speed: 0.3, fly: false, constrainToNavMesh: false, camera: '#camera',},
 },};
@@ -3731,8 +3794,7 @@ hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-['joystick-listener']:null,
-//['detect-inputs']:null,
+['detect-inputs']:null,
 visible: 'false',
 },
 };
@@ -7779,128 +7841,125 @@ AFRAME.registerComponent('detect-inputs', {
 //},
 
 init: function () {
-//Do something when component first attached.
-//Called once when the component is initialized. Used to set up initial state and instantiate variables.
+	//Display Input Selections
+	//HMD View - Mouse Movement
+	//Main Trigger Click - Mouse Left Click
+	//Secondary Trigger Click - Mouse Right Click
+	//Joystick Directional - WASD
+	//Button 1 - Q
+	//Button 2 - E
 
-//Display Input Selections
-//HMD View - Mouse Movement
-//Main Trigger Click - Mouse Left Click
-//Secondary Trigger Click - Mouse Right Click
-//Joystick Directional - WASD
-//Button 1 - Q
-//Button 2 - E
+	const displayInput = document.querySelector('#displayInput');
 
-const displayInput = document.querySelector('#displayInput');
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
 
-let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+	function updateInput(input){
 
-function updateInput(input){
+	displayInputText.value = input;
+	displayInput.setAttribute('text',displayInputText);
 
-displayInputText.value = input;
-displayInput.setAttribute('text',displayInputText);
-
-}
+	}
 
 
-//
-//Event Listeners
+	//
+	//Event Listeners
 
-//Desktop
-//
+	//Desktop
+	//
 
-//Mouse
-//
-//Left Click
-document.body.addEventListener('click', function (e) {
-	updateInput('main click');
-});
-//
-//Right Click
-document.body.addEventListener('contextmenu', function (e) {
-	updateInput('secondary click');
-});
+	//Mouse
+	//
+	//Left Click
+	document.body.addEventListener('click', function (e) {
+		updateInput('main click');
+	});
+	//
+	//Right Click
+	document.body.addEventListener('contextmenu', function (e) {
+		updateInput('secondary click');
+	});
 
-//Keyboard
-//
-//Key Down - WASD | QE
-document.body.addEventListener('keydown', function (e) {
-	if (e.key === 'w' || e.key === 'W') {
-		//Start moving player
-		updateInput('up');
-	} else if (e.key === 'a' || e.key === 'A') {
-		//Start moving player
-		updateInput('left');
-	} else if (e.key === 's' || e.key === 'S') {
-		//Start moving player
-		updateInput('down');
-	} else if (e.key === 'd' || e.key === 'D') {
-		//Start moving player
-		updateInput('right');
-	} else if (e.key === 'q' || e.key === 'Q') {
-		//Start moving player
+	//Keyboard
+	//
+	//Key Down - WASD | QE
+	document.body.addEventListener('keydown', function (e) {
+		if (e.key === 'w' || e.key === 'W') {
+			//Start moving player
+			updateInput('up');
+		} else if (e.key === 'a' || e.key === 'A') {
+			//Start moving player
+			updateInput('left');
+		} else if (e.key === 's' || e.key === 'S') {
+			//Start moving player
+			updateInput('down');
+		} else if (e.key === 'd' || e.key === 'D') {
+			//Start moving player
+			updateInput('right');
+		} else if (e.key === 'q' || e.key === 'Q') {
+			//Start moving player
+			updateInput('button 1');
+		} else if (e.key === 'e' || e.key === 'E') {
+			//Start moving player
+			updateInput('button 2');
+		}
+	});//End keydown
+
+
+	//Quest
+	//
+
+	//Triggers
+	//
+	//Main Trigger
+	document.body.addEventListener('triggerdown', function (e) {
+		updateInput('main trigger');
+	});
+
+	//
+	//Secondary Trigger
+	document.body.addEventListener('gripdown', function (e) {
+		updateInput('secondary trigger');
+	});
+
+	//Buttons
+	//
+	//Right Controller - Button 1 (A)
+	document.body.addEventListener('abuttondown', function (e) {
 		updateInput('button 1');
-	} else if (e.key === 'e' || e.key === 'E') {
-		//Start moving player
+	});
+	//
+	//Right Controller - Button 2 (B)
+	document.body.addEventListener('bbuttondown', function (e) {
 		updateInput('button 2');
-	}
-});//End keydown
+	});
+	//
+	//Left Controller - Button 1 (X)
+	document.body.addEventListener('xbuttondown', function (e) {
+		updateInput('button 1');
+	});
+	//
+	//Left Controller - Button 2 (Y)
+	document.body.addEventListener('ybuttondown', function (e) {
+		updateInput('button 2');
+	});
 
-
-//Quest
-//
-
-//Triggers
-//
-//Main Trigger
-document.body.addEventListener('triggerdown', function (e) {
-	updateInput('main trigger');
-});
-
-//
-//Secondary Trigger
-document.body.addEventListener('gripdown', function (e) {
-	updateInput('secondary trigger');
-});
-
-//Buttons
-//
-//Right Controller - Button 1 (A)
-document.body.addEventListener('abuttondown', function (e) {
-	updateInput('button 1');
-});
-//
-//Right Controller - Button 2 (B)
-document.body.addEventListener('bbuttondown', function (e) {
-	updateInput('button 2');
-});
-//
-//Left Controller - Button 1 (X)
-document.body.addEventListener('xbuttondown', function (e) {
-	updateInput('button 1');
-});
-//
-//Left Controller - Button 2 (Y)
-document.body.addEventListener('ybuttondown', function (e) {
-	updateInput('button 2');
-});
-
-//Joystick
-//
-//Left Controller
-this.el.addEventListener('thumbstickmoved', function (e) {
-	if (e.detail.y > 0.95) { 
-		updateInput('down')
-	}
-	if (e.detail.y < -0.95) { 
-		updateInput('up')
-	}
-	if (e.detail.x < -0.95) { 
-		updateInput('left')
-	}
-	if (e.detail.x > 0.95) { 
-		updateInput('right')
-	}
-});
+	//Joystick
+	//
+	//Left Controller
+	this.el.addEventListener('thumbstickmoved', function (e) {
+		if (e.detail.y > 0.95) { 
+			updateInput('down');
+		}
+		if (e.detail.y < -0.95) { 
+			updateInput('up');
+		}
+		if (e.detail.x < -0.95) { 
+			updateInput('left');
+		}
+		if (e.detail.x > 0.95) { 
+			updateInput('right');
+		}
+	});
 
 
 
@@ -8142,124 +8201,6 @@ AFRAME.registerComponent('mouseuprun', {
 });
 
 //
-//Dev - Detect Inputs
-AFRAME.registerComponent('joystick-listener', {
-	dependencies: ['auxl'],
-//schema: {
-	//bar: {type: 'number'},
-	//baz: {type: 'string'}
-//},
-
-init: function () {
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-	this.joystickReader = this.auxl.joystickReader;
-	this.controller1Reader = this.auxl.controller1Reader;
-	this.controller2Reader = this.auxl.controller2Reader;
-	//Controls
-	//HMD View - Mouse Movement
-	//Main Trigger Click - Mouse Left Click
-	//Secondary Trigger Click - Mouse Right Click
-	//Joystick Directional - WASD
-	//Button 1 - Q
-	//Button 2 - E
-
-	//
-	//Event Listeners
-
-	//Quest
-	//
-
-	//Triggers
-	//
-	//Main Trigger
-	document.body.addEventListener('triggerdown', function (e) {
-		//console.log('main trigger');
-		this.controller1Reader = 'trigger';
-	});
-	document.body.addEventListener('triggerup', function (e) {
-		//console.log('main trigger');
-		this.controller1Reader = '';
-	});
-	//
-	//Secondary Trigger
-	document.body.addEventListener('gripdown', function (e) {
-		//console.log('secondary trigger');
-		this.controller2Reader = 'trigger';
-	});
-	document.body.addEventListener('gripup', function (e) {
-		//console.log('secondary trigger');
-		this.controller2Reader = '';
-	});
-
-	//Buttons
-	//
-	//Right Controller - Button 1 (A)
-	document.body.addEventListener('abuttondown', function (e) {
-		//console.log('button 1');
-		this.controller1Reader = 'a';
-	});
-	document.body.addEventListener('abuttonup', function (e) {
-		//console.log('button 1');
-		this.controller1Reader = '';
-	});
-	//
-	//Right Controller - Button 2 (B)
-	document.body.addEventListener('bbuttondown', function (e) {
-		//console.log('button 2');
-		this.controller1Reader = 'b';
-	});
-	document.body.addEventListener('bbuttonup', function (e) {
-		//console.log('button 2');
-		this.controller1Reader = '';
-	});
-	//
-	//Left Controller - Button 1 (X)
-	document.body.addEventListener('xbuttondown', function (e) {
-		//console.log('button 1');
-		this.controller2Reader = 'x';
-	});
-	document.body.addEventListener('xbuttonup', function (e) {
-		//console.log('button 1');
-		this.controller2Reader = '';
-	});
-	//
-	//Left Controller - Button 2 (Y)
-	document.body.addEventListener('ybuttondown', function (e) {
-		//console.log('button 2');
-		this.controller2Reader = 'y';
-	});
-	document.body.addEventListener('ybuttonup', function (e) {
-		//console.log('button 2');
-		this.controller2Reader = '';
-	});
-
-	//Joystick
-	//
-	//Main Controller
-	this.el.addEventListener('thumbstickmoved', function (e) {
-		if (e.detail.y > 0.95) { 
-			this.joystickReader = 'down';
-		}
-		if (e.detail.y < -0.95) { 
-			this.joystickReader = 'up';
-		}
-		if (e.detail.x < -0.95) { 
-			this.joystickReader = 'left';
-		}
-		if (e.detail.x > 0.95) { 
-			this.joystickReader = 'right';
-		}
-	});
-	this.el.addEventListener('thumbsticktouchend', function (e) {
-		this.joystickReader = '';
-	});
-
-
-
-    }//End Init
-});
-
-//
 //Locomotion Globals
 //Brake Engaged by Default
 let moveTo = false;
@@ -8274,8 +8215,8 @@ let moveSpeedDefault = 0.075;
 let moveSpeedSlow = 0.03;
 
 //
-//Locomotion Belt
-AFRAME.registerComponent('belt', {
+//Locomotion
+AFRAME.registerComponent('locomotion', {
 	dependencies: ['auxl'],
     schema: {
         uiid: {type: 'string', default: 'ui'},
@@ -8290,15 +8231,6 @@ init: function () {
 	this.auxl = document.querySelector('a-scene').systems.auxl;
 	// Set up the tick throttling.
 	this.throttledFunction = AFRAME.utils.throttle(this.everySome, 30, this);
-
-	//AUXL Connection Import
-	this.joystickReader = this.auxl.joystickReader;
-	this.controller1Reader = this.auxl.controller1Reader;
-	this.controller2Reader = this.auxl.controller2Reader;
-
-	//Dev Display of Quest Controlers
-	this.displayInput = document.querySelector('#displayInput');
-	this.displayInputText = {value: 'No Input', color: 'white', align: 'center'}
 
 	//Schema Imoprt
 	//
@@ -8524,35 +8456,6 @@ init: function () {
 
 		//
 		//Quest Controller
-
-		//Needs a component attached to the joystick to pass along the event details
-		//Joystick
-		//
-		//Left Controller
-		this.el.addEventListener('thumbstickmoved', function (e) {
-			if (e.detail.y > 0.95) { 
-				console.log('down')
-			}
-			if (e.detail.y < -0.95) { 
-				console.log('up')
-			}
-			if (e.detail.x < -0.95) { 
-				console.log('left')
-			}
-			if (e.detail.x > 0.95) { 
-				console.log('right')
-			}
-		});
-		//
-		//Right Controller - Button 2 (B)
-		document.body.addEventListener('bbuttondown', function (e) {
-			console.log('button 2 Down');
-		});
-		//
-		//Right Controller - Button 2 (B)
-		document.body.addEventListener('bbuttonup', function (e) {
-			console.log('button 2 Up');
-		});
 	}
 
 
@@ -8669,10 +8572,6 @@ uiSync: function () {
 	//No Offsets as UI Parent is at 0 0 0
 	//Set position for UI at 3js level for speed!
 	this.ui.object3D.position.copy(this.elPosVec3New);
-
-	//Dev Testing
-	this.displayInputText.value = this.joystickReader;
-	this.displayInput.setAttribute('text',this.displayInputText);
 },
 
 walk: function (action, speed) {
