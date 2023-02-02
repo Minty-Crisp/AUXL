@@ -206,7 +206,7 @@ function enableDesktopControls(){
 }
 //Mobile
 function disableMobileControls(){
-	sceneEl.setAttribute('device-orientation-permission-ui', {enabled: false});
+	//sceneEl.setAttribute('device-orientation-permission-ui', {enabled: false});
 	//playerRig.removeAttribute('movement-controls');
 	//Set mouseController to invisible
 	mouseController.setAttribute('visible',false);
@@ -221,13 +221,15 @@ function enableMobileControls(){
 //deviceorientationpermissiongranted
 //deviceorientationpermissionrejected
 //deviceorientationpermissionrequested
-	sceneEl.setAttribute('device-orientation-permission-ui', {enabled: true});
-	sceneEl.addEventListener('deviceorientationpermissiongranted', function(){
+	function mobilePermissionGrantedTrue(){
 		aThis.mobilePermissionGranted = true;
-	});
-	sceneEl.addEventListener('deviceorientationpermissionrejected', function(){
+	}
+	function mobilePermissionGrantedFalse(){
 		aThis.mobilePermissionGranted = false;
-	});
+	}
+	//sceneEl.setAttribute('device-orientation-permission-ui', {enabled: true});
+	//sceneEl.addEventListener('deviceorientationpermissiongranted', mobilePermissionGrantedTrue);
+	//sceneEl.addEventListener('deviceorientationpermissionrejected', mobilePermissionGrantedFalse);
 	//playerRig.setAttribute('movement-controls',{enabled: 'false', controls: 'touch', speed: 0.1, fly: false, constrainToNavMesh: false, camera: '#camera'});
 	//Set mouseController to invisible
 	mouseController.setAttribute('visible',true);
@@ -329,6 +331,13 @@ this.timeInDay = 360000;
 
 //
 //Support
+function toggleBool(bool){
+	if(bool){
+		bool = false;
+	}else{
+		bool = true;
+	}
+}
 
 //Color Theory Hex Generator
 function colorsHexGen(color, family){
@@ -976,18 +985,19 @@ const Core = (data) => {
 
 	function openClose(){
 		//console.log('Running openClose');
+		function closePrompt(){
+			core.detailClose.core.el.removeEventListener('click',closePrompt);
+			core.isOpen = detailPrompt_close();
+		}
 		if(core.isOpen){
 			//console.log('Is Open');
 			core.isOpen = detailPrompt_close();
-			core.detailClose.core.el.removeEventListener('click',{});
+			core.detailClose.core.el.removeEventListener('click',closePrompt);
 		} else {
 			//console.log('Is Closed');
 			core.detailAll.AddAllToScene();
 			core.isOpen = detailPrompt_open();
-			core.detailClose.core.el.addEventListener('click', function(){
-				core.isOpen = detailPrompt_close();
-				core.detailClose.core.el.removeEventListener('click',{});
-			});
+			core.detailClose.core.el.addEventListener('click', closePrompt);
 		}
 	}
 
@@ -2488,7 +2498,7 @@ const SpeechSystem = (core) => {
 	}
 
 	const Stop = () => {
-		core.GetEl().removeEventListener('mouseenter', function(){});
+		core.GetEl().removeEventListener('mouseenter', Skip);
 		core.RemoveFromScene(false,false,true);
 		core.on = false;
 		//removeFromSceneTracker(core);
@@ -2520,12 +2530,14 @@ const SpeechSystem = (core) => {
 		core.GetEl().setAttribute('text',{value: currText});
 		core.speaking = true;
 
-		core.GetEl().addEventListener('skip', function(){
+		function skipText(){
 			core.GetEl().setAttribute('text',{value: startText + speech});
 			core.speaking = false;
 			Kill();
-			core.GetEl().removeEventListener('skip',{});
-		});
+			core.GetEl().removeEventListener('skip',skipText);
+		}
+
+		core.GetEl().addEventListener('skip', skipText);
 
 		AddToTimeIntEvtTracker({name: 'textDisplayInterval', type: 'interval', id: core.core.id});
 		aThis.intervals[core.core.id] = setInterval(function() {
@@ -2537,7 +2549,7 @@ const SpeechSystem = (core) => {
 			if(currChar >= speech.length){
 				core.speaking = false;
 				Kill();
-				core.GetEl().removeEventListener('skip',function(){});
+				core.GetEl().removeEventListener('skip',skipText);
 			}
 			if(core.on){
 				core.GetEl().setAttribute('text',{value: currText});
@@ -2688,23 +2700,23 @@ let menuTimeout;
 		//ifTrue
 		//ifFalse
 		//for loop for above objects with key name as object and value key as method and that value the params
-		console.log(obj)//entire ifElse object
+		//console.log(obj)//entire ifElse object
 		let objRef = Object.keys(obj);
-		console.log(Object.keys(obj))//this.obj name
+		//console.log(Object.keys(obj))//this.obj name
 		let cond = obj[objRef].cond;
 		let ifTrue = obj[objRef].ifTrue;
 		let ifFalse = obj[objRef].ifFalse;
-		console.log(cond)//cond name
-		console.log(ifTrue)
-		console.log(ifFalse)
+		//console.log(cond)//cond name
+		//console.log(ifTrue)
+		//console.log(ifFalse)
 
-		console.log(aThis[objRef].GetFlag(cond))
+		//console.log(aThis[objRef].GetFlag(cond))
 		if(aThis[objRef].GetFlag(cond)) {
 			//run ifTrue
 			for(let a in ifTrue){
-				console.log(ifTrue);
-				console.log(a);
-				console.log(ifTrue[a]);
+				//console.log(ifTrue);
+				//console.log(a);
+				//console.log(ifTrue[a]);
 				for(let b in ifTrue[a]){
 					AThisObjMethod(a,b,ifTrue[a][b]);
 				}
@@ -2712,9 +2724,9 @@ let menuTimeout;
 		} else {
 			//run ifFalse
 			for(let a in ifFalse){
-				console.log(ifFalse);
-				console.log(a);//this.object name should match objRef
-				console.log(ifFalse[a]);//method w/ params
+				//console.log(ifFalse);
+				//console.log(a);//this.object name should match objRef
+				//console.log(ifFalse[a]);//method w/ params
 				for(let b in ifFalse[a]){
 					AThisObjMethod(a,b,ifFalse[a][b]);
 				}
@@ -2961,95 +2973,7 @@ return{ham, Start, Remove, SystemMenuClick, TravelSettingsMenuClick};
 }
 
 //
-//Carousel
-const Carousel = (id,mainData,buttonData,...materials) => {
-
-	let carouselCore;
-	let thumbnailCores = [];
-	let thumbnailPos = new THREE.Vector3(0,-0.3,0.05);
-	//let startPos = (mainData.geometry.width/2)/materials.length;
-	//let movePos = mainData.geometry.width/materials.length;
-
-	//Layer
-	let carouselLayerData = {}
-	for(let mat in materials){
-		if(mat === '0'){
-			mainData.material = materials[mat];
-			carouselCore = Core(mainData);
-			carouselLayerData['parent'] = {};
-			carouselLayerData['parent'].core = carouselCore;
-		} else {
-			buttonData.id = 'thumbnail' + mat;
-			buttonData.material = materials[mat];
-			if(materials.length === 3){
-				if(mat === '1'){
-					thumbnailPos.x = -0.25;
-				} else if(mat === '2'){
-					thumbnailPos.x = 0.25;
-				}
-			} else if(materials.length === 4){
-				if(mat === '1'){
-					thumbnailPos.x = -0.33;
-				} else if(mat === '2'){
-					thumbnailPos.x = 0;
-				} else if(mat === '3'){
-					thumbnailPos.x = 0.33;
-				}
-			} else if(materials.length === 5){
-				if(mat === '1'){
-					thumbnailPos.x = -0.375;
-				} else if(mat === '2'){
-					thumbnailPos.x = -0.125;
-				} else if(mat === '3'){
-					thumbnailPos.x = 0.125;
-				} else if(mat === '4'){
-					thumbnailPos.x = 0.375;
-				}
-			}
-			//thumbnailPos;
-			buttonData.position = thumbnailPos;
-			thumbnailCores[mat] = Core(buttonData);
-			carouselLayerData['child'+mat] = {};
-			carouselLayerData['child'+mat].core = thumbnailCores[mat];
-		}
-	}
-	let carousel = Layer('carousel',carouselLayerData);
-
-	const Click = (el) => {
-		//Swap Material Sources with Parent
-		let selectedMat = el.getAttribute('material').src;
-		let replacedMat = JSON.parse(JSON.stringify(el.parentNode.getAttribute('material').src));
-
-		el.parentNode.setAttribute('material',{src: selectedMat})
-		el.setAttribute('material',{src: replacedMat})
-	}
-
-	const Show = () => {
-		carousel.AddAllToScene(true);
-		AddToCarouselSceneTracker();
-	}
-
-	const Remove = () => {
-		carousel.RemoveAllFromScene(true);
-		RemoveFromCarouselSceneTracker();
-	}
-
-	const AddToCarouselSceneTracker = () => {
-    	aThis.carouselSpawned[id] = {type: 'carousel', obj: carousel};
-	}
-
-	const RemoveFromCarouselSceneTracker = () => {
-		delete aThis.carouselSpawned[id];
-	}
-
-	//Add autoplay and pause on hovering
-	//Controls either left/right or thumbnails for each
-	return {carousel, Click, Show, Remove};
-
-}
-
-//
-//Objs Gen Ring Spawn
+//Single Objs Gen Ring Spawn
 const ObjsGenRing = (data) => {
 	let gen = Object.assign({}, data);
 	let ogData = Object.assign({}, data.objData);
@@ -3180,9 +3104,11 @@ const ObjsGenRing = (data) => {
 				}
 				break;
 			}
+
 			//Add randomized Core to All
 			all.push(Core(objData));
 		}
+
 	}
 
 	const SpawnAll = () => {
@@ -3212,6 +3138,730 @@ const ObjsGenRing = (data) => {
 	}
 
 	return {all, genCores, SpawnAll, DespawnAll, AddToSceneTracker, RemoveFromSceneTracker};
+}
+
+//
+//Scene Multi Asset Generator
+const SceneAssetGen = (sceneData) =>{
+	//let ogData = Object.assign({}, data.objData);
+	//let objData = JSON.parse(JSON.stringify(data.objData));
+	//sceneData.data
+	//sceneData.id
+//Add the ability to read an array of different objects for same size
+//Need to better optimize each size's radius
+	//sceneData.tiny
+	//sceneData.small
+	//sceneData.med
+	//sceneData.large
+	//sceneData.huge
+	let scene = Object.assign({}, sceneData);
+	scene.assets = {}
+	scene.assets.tiny = [];
+	scene.assets.small = [];
+	scene.assets.med = [];
+	scene.assets.large = [];
+	scene.assets.huge = [];
+	let sizes = ['tiny','small','med','large','huge'];
+	scene.grid = [];
+	scene.ring0 = [];
+	scene.ring1 = [];
+	scene.ring2 = [];
+	scene.ring3 = [];
+	scene.ring4 = [];
+	scene.ring5 = [];
+	/*
+	scene.ring = {
+		i0:0.25,
+		o0:4,
+		i1:1,
+		o1:8,
+		i2:2,
+		o2:16,
+		i3:4,
+		o3:32,
+		i4:8,
+		o4:64,
+		i5:16,
+		o5:128,
+	};*/
+	scene.ring = {
+		i0:0.5,
+		o0:4,
+		i1:3,
+		o1:25,
+		i2:5,
+		o2:60,
+		i3:6,
+		o3:80,
+		i4:8,
+		o4:100,
+		i5:18,
+		o5:150,
+	};
+	//scene.size.data
+	//scene.size.id
+	//scene.size.type
+	//scene.size.radius
+	//scene.size.min
+	//scene.size.max
+	//scene.size.rings
+	//scene.size.objs
+	//scene.size.ranYPos
+	//scene.size.yPosFlex
+	//scene.size.ranScaleX
+	//scene.size.ranScaleY
+	//scene.size.ranScaleZ
+	//scene.size.scaleFlex
+	//scene.size.ranRotX
+	//scene.size.ranRotY
+	//scene.size.ranRotZ
+	//scene.size.ranColor
+	//scene.size.ranTexture
+	//scene.size.ranAnim
+//Ring 0 : 0-2 Radius - user spawn area - tiny/small
+//Ring 1 : 2-4 Radius - immeadiately surrounding the spawn area - tiny/small/med
+//Ring 2 : 4-8 Radius - a bit farther from spawn area - small/med/large
+//Ring 3 : 8-12 Radius - medium distance from spawn - med/large
+//Ring 4 : 12-20 Radius - far distance from spawn - large/huge
+//Ring 5 : 20-40 Radius - super far distance from spawn - huge
+//As grid creation creates a rectangle, could delete everything beyond 5
+
+//Object Size Radius (meters)
+//tiny - 0.1
+//small - 0.25
+//med - 1
+//large - 2
+//huge - 3
+
+//On every loop through the grid creator, it will always use the center to spawn one, allow that one a parent, but do not use it for a spawning location
+
+//Start with 1 mega mutating grid and add each size's recently added only on grid during generation
+//Huge object grid spawn
+//Import generated grid and spawn Large
+//Import mutated grid and spawn Med
+//Import mutated grid and spawn Small
+//Import mutated grid and spawn Tiny
+//console.log(scene.ring);
+//Generate Distribution Points at Ring Radius'
+let ring5 = [];
+let ring4 = [];
+let ring3 = [];
+let ring2 = [];
+let ring1 = [];
+let ring0 = [];
+let gridRing5 = discSampling('ring5',scene.ring.o5,scene.ring.i5);
+//console.log(gridRing5);
+
+let gridRing4 = discSampling('ring4',scene.ring.o4,scene.ring.i4,gridRing5);
+//console.log(gridRing4);
+
+let gridRing3 = discSampling('ring3',scene.ring.o3,scene.ring.i3,gridRing4);
+//console.log(gridRing3);
+
+let gridRing2 = discSampling('ring2',scene.ring.o2,scene.ring.i2,gridRing3);
+//console.log(gridRing2);
+
+let gridRing1 = discSampling('ring1',scene.ring.o1,scene.ring.i1,gridRing2);
+//console.log(gridRing1);
+
+let gridRing0 = discSampling('ring0',scene.ring.o0,scene.ring.i0,gridRing1);
+//console.log(gridRing0);
+//console.log(gridRing0.length);
+let ring5Current = 0;
+let ring4Current = 0;
+let ring3Current = 0;
+let ring2Current = 0;
+let ring1Current = 0;
+let ring0Current = 0;
+
+
+//And check each for how close to center they are, if too close, remove
+//Instead of offsetting here, which pushes all smaller ones super negative, offset them forward in the gridGeneration stage
+
+//Offset all to center and remove center
+for(let pos in ring5){
+	ring5[pos][0] -= scene.ring.o5/2;
+	ring5[pos][1] -= scene.ring.o5/2;
+	if(ring5[pos][0] === 0 && ring5[pos][1] === 0){
+		ring5[pos][0] = ring5[pos][1] = scene.ring.o5/2;
+	}
+}
+for(let pos in ring4){
+	ring4[pos][0] -= scene.ring.o4/2;
+	ring4[pos][1] -= scene.ring.o4/2;
+	if(ring4[pos][0] === 0 && ring4[pos][1] === 0){
+		ring4[pos][0] = ring4[pos][1] = scene.ring.o4/2;
+	}
+}
+for(let pos in ring3){
+	ring3[pos][0] -= scene.ring.o3/2;
+	ring3[pos][1] -= scene.ring.o3/2;
+	if(ring3[pos][0] === 0 && ring3[pos][1] === 0){
+		ring3[pos][0] = ring3[pos][1] = scene.ring.o3/2;
+	}
+}
+for(let pos in ring2){
+	ring2[pos][0] -= scene.ring.o2/2;
+	ring2[pos][1] -= scene.ring.o2/2;
+	if(ring2[pos][0] === 0 && ring2[pos][1] === 0){
+		ring2[pos][0] = ring2[pos][1] = scene.ring.o2/2;
+	}
+}
+for(let pos in ring1){
+	ring1[pos][0] -= scene.ring.o1/2;
+	ring1[pos][1] -= scene.ring.o1/2;
+	if(ring1[pos][0] === 0 && ring1[pos][1] === 0){
+		ring1[pos][0] = ring1[pos][1] = scene.ring.o1/2;
+	}
+}
+for(let pos in ring0){
+	ring0[pos][0] -= scene.ring.o0/2;
+	ring0[pos][1] -= scene.ring.o0/2;
+	if(ring0[pos][0] === 0 && ring0[pos][1] === 0){
+		ring0[pos][0] = ring0[pos][1] = scene.ring.o0/2;
+	}
+}
+
+//Shuffle Array
+function shuffle(array) {
+	array.sort(() => Math.random() - 0.5);
+}
+
+//Shuffle Each Array for better randomness
+shuffle(ring5);
+shuffle(ring4);
+shuffle(ring3);
+shuffle(ring2);
+shuffle(ring1);
+shuffle(ring0);
+//console.log(ring5);
+//console.log(ring4);
+//console.log(ring3);
+//console.log(ring2);
+//console.log(ring1);
+//console.log(ring0);
+
+//
+//Disc Sampling
+function discSampling(ring, area, space, currentGrid){
+//Generates grid starting from 0,0 in the + direction
+//Could adjust to use - as well or just spawn and shift the entire spawned set based on provided grid. i.e. 10x10 grid, move everything -5,-5
+//But need a center radius to be clear which would be within 5,5 here. Could create a sample automatically which is always blank which would be the very first sample always!
+
+//Need different radius for different objects and all checked
+
+//Generates grid starting from 0,0 in the + direction
+//Could adjust to use - as well or just spawn and shift the entire spawned set based on provided grid. i.e. 10x10 grid, move everything -5,-5
+//But need a center radius to be clear which would be within 5,5 here. Could create a sample automatically which is always blank which would be the very first sample always!
+//console.log(ring);
+//Need different radius for different objects and all checked
+let grid;
+let center;
+if(currentGrid){
+	center = currentGrid.center;
+} else {
+	center = false;
+}
+function* poissonDiscSampler(width, height, radius, center){
+	//const k = 4; // maximum number of samples before rejection
+	const k = 15// maximum number of samples before rejection
+	const radius2 = radius * radius;
+	//radius is of the generated area
+	//radius2 is the minimum distance allowed between spawns
+	const cellSize = radius * Math.SQRT1_2;
+	//Math.SQRT1_2 is a constant square root of 0.5 which is ~0.707
+	const gridWidth = Math.ceil(width / cellSize);
+	const gridHeight = Math.ceil(height / cellSize);
+	//const grid = new Array(gridWidth * gridHeight);
+	//const queue = [];
+	let queue = [];
+	grid = new Array(gridWidth * gridHeight);
+	if(currentGrid){
+		for(let each in currentGrid){
+			grid[each] = currentGrid[each];
+			queue[each] = currentGrid[each];
+		}
+		//console.log(currentGrid);
+		//console.log(grid);
+	}
+	//
+	if(center){
+		yield {add: sample(center, center, null)};
+	} else {
+		yield {add: sample(width / 2 , height / 2, null)};
+	}
+
+
+	//console.log(k);//4
+	//console.log(radius2);//4
+	//console.log(cellSize);//1.4
+	//console.log(gridWidth);//8
+	//console.log(gridHeight);//8
+	//console.log(grid);//64slots = 8x8 grid
+	//console.log(queue);
+	//
+	//Instead of letting it go to what it thinks is center, offset the starting position be center of the very first one
+	//
+	// Pick the first sample at center of width/height grid
+	//console.log('Picking 1st Sample');
+
+
+	// Pick a random existing sample from the queue.
+	pick: while (queue.length) {
+		//console.log('Picking...');
+		//const i = Math.random() * queue.length | 0;
+		const i = Math.trunc(Math.random() * queue.length);
+		const parent = queue[i];
+		const seed = Math.random();
+		const epsilon = 0.0000001;
+		//console.log(i);
+		//console.log(parent);
+		//console.log(seed);
+		//console.log(epsilon);
+
+		// Make a new candidate.
+		//console.log('Make New Candidate');
+		for (let j = 0; j < k; ++j) {
+			const a = 2 * Math.PI * (seed + 1.0*j/k);
+			//Depending on the amount of tries allowed
+			//start from 0degrees and move radius to check
+			//as the loop continues/fails, keep moving counter-clockwise in equal parts depending on the current attempt number out of max
+			//checking each new direction if that space is available
+			const r = radius + epsilon;
+			const x = parent[0] + r * Math.cos(a);
+			const y = parent[1] + r * Math.sin(a);
+			//console.log('Candidate Loop...');
+			//console.log(a);
+			//console.log(r);
+			//console.log(x);
+			//console.log(y);
+
+			// Accept candidates that are inside the allowed extent
+			// and farther than 2 * radius to all existing samples.
+			//area o0 4
+			//space i0 0.5
+			if (space <= x && x < area && space <= y && y < area && far(x, y)) {
+				//console.log('Candidate Accepted');
+				yield {add: sample(x, y), parent};
+				//console.log('Pick Again');
+				continue pick;
+			}
+			//console.log('Candidate Rejected');
+		}
+
+		// If none of k candidates were accepted, remove it from the queue.
+		//console.log('Max Attempts Hit. Clear Parent');
+		const r = queue.pop();
+		if (i < queue.length) queue[i] = r;
+			yield {remove: parent};
+	}
+
+	function far(x, y) {
+		//const i = x / cellSize | 0;
+		const i = Math.trunc(x / cellSize);
+		//const j = y / cellSize | 0;
+		const j = Math.trunc(y / cellSize);
+		// | is bitwise OR operator
+		//returns a 1 in each bit position for which the corresponding bits of either or both operands are 1s. 
+		//const a = 5;        // 00000000000000000000000000000101
+		//const b = 3;        // 00000000000000000000000000000011
+		//console.log(a | b); // 00000000000000000000000000000111
+		// Expected output: 7
+		//Bitwise ORing any number x with 0 returns x converted to a 32-bit integer. Do not use | 0 to truncate numbers to integers; use Math.trunc() instead.
+		const i0 = Math.max(i - 2, 0);
+		const j0 = Math.max(j - 2, 0);
+		const i1 = Math.min(i + 3, gridWidth);
+		const j1 = Math.min(j + 3, gridHeight);
+		//Only check surrounding squares of a 2x2 grid from candidate xy center
+
+		//console.log('Checking Distance');
+		//console.log(i);
+		//console.log(j);
+		//console.log(i0);
+		//console.log(j0);
+		//console.log(i1);
+		//console.log(j1);
+
+		//Loop through grid
+		for (let j = j0; j < j1; ++j) {
+			const o = j * gridWidth;
+			for (let i = i0; i < i1; ++i) {
+				const s = grid[o + i];
+				//only does a check if something on the grid in that position exists
+				if (s) {
+					//get the difference in grid stored xy with the imported
+					const dx = s[0] - x;
+					const dy = s[1] - y;
+					//pythagorean check for distance. Needs to be at least 2xRadius away from current check point
+					if (dx * dx + dy * dy < radius2) return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	//Sample
+	function sample(x, y, parent) {
+		//const s = grid[gridWidth * (y / cellSize | 0) + (x / cellSize | 0)] = [x, y];
+		const s = grid[gridWidth * (Math.trunc(y / cellSize)) + (Math.trunc(x / cellSize))] = [x, y];
+		queue.push(s);
+		//console.log('Sample Added!');
+		//console.log(s);
+		//console.log(queue);
+		if(ring === 'ring5'){
+			ring5.push(s);
+			//console.log(ring5)
+		} else if(ring === 'ring4'){
+			ring4.push(s);
+		} else if(ring === 'ring3'){
+			ring3.push(s);
+		} else if(ring === 'ring2'){
+			ring2.push(s);
+		} else if(ring === 'ring1'){
+			ring1.push(s);
+		} else if(ring === 'ring0'){
+			ring0.push(s);
+		}
+		return s;
+	}
+
+}
+
+	let gridSample = poissonDiscSampler(area,area,space,center);
+
+	function next(){
+		//next yielded spot and update done var
+		gridSample.done = gridSample.next().done;
+		if(gridSample.done){
+			//console.log('All Done!');
+			//console.log(grid)
+			//console.log(grid.length)
+		} else {
+			//console.log('Running...');
+			next();
+		}
+	}
+	next();
+	let goodGrid = [];
+	for(let each in grid){
+		if(grid[each]){
+			goodGrid.push(grid[each]);
+		}
+	}
+
+	//console.log(goodGrid);
+	return goodGrid;
+}
+
+	const genCores = () => {
+
+		//loop through each size
+		for(let type in sizes){
+			//sizes[type]//tiny,small,med,large,huge
+			//let size = scene[sizes[type]];//scene.tiny object, scene.small object
+			let size = Object.assign({}, scene[sizes[type]]);
+			//console.log(size);
+			//Inside of single data object of a Size
+			//Tiny
+
+			//using max amount dived by amount of objs provided, loop through that many for each of those obj
+
+			//using obj data provided, randomize max amount of potential data objects to be spawned
+
+
+			//loop through each different object provided
+			for(let each in size.objs){
+				let ogData = Object.assign({}, size.objs[each]);
+				//console.log(ogData);
+				let objData = JSON.parse(JSON.stringify(size.objs[each]));
+				let posX;
+				let posY;
+				let posZ;
+				let positionVec3;
+				let scaleX;
+				let scaleY;
+				let scaleZ;
+				let rotX;
+				let rotY;
+				let rotZ;
+				let color;
+
+//instanced-mesh="positioning: local"
+//instanced-mesh-member="mesh:#instanceTest1"
+
+				//Loop through an even amount for each obj based on max
+				for(let a = 0; a < size.max/size.objs.length; a++){
+					objData.id = ogData.id + a;
+					/* Instanced Mesh struggles with GLTF layers
+<script src="https://cdn.jsdelivr.net/gh/diarmidmackenzie/instanced-mesh@v0.5.0/src/instanced-mesh.min.js"></script>
+					if(a === 0){
+						objData.components['instanced-mesh'] = {positioning: 'world'};
+					} else {
+						//Remove gltf component and add instanced mesh
+						delete objData.components['gltf-model'];
+						objData.components['instanced-mesh-member'] = {mesh: '#'+ogData.id+0};
+					}*/
+					//Color
+					if(size.ranColor){
+						color = colorsHexGen().base;
+						objData.material.color = color;
+						if(objData.material.emissive){
+							objData.material.emissive = color;
+						}
+					}
+					//Texture
+					if(size.ranTexture){
+						objData.material.src = patterns[Math.floor(Math.random()*patterns.length)];
+					}
+					//Rotation
+					rotX = ogData.rotation.x;
+					rotY = ogData.rotation.y;
+					rotZ = ogData.rotation.z;
+					if(size.ranRotX){
+						rotX += Math.random() * 360;
+					}
+					if(size.ranRotY){
+						rotY += Math.random() * 360;
+					}
+					if(size.ranRotZ){
+						rotZ += Math.random() * 360;
+					}
+					objData.rotation = new THREE.Vector3(rotX, rotY, rotZ);
+
+					//Scale
+					scaleX = ogData.scale.x;
+					scaleY = ogData.scale.y;
+					scaleZ = ogData.scale.z;
+					if(size.ranScaleX){
+						scaleX += Math.random() * size.scaleFlex;
+					}
+					if(size.ranScaleY){
+						scaleY += Math.random() * size.scaleFlex;
+					}
+					if(size.ranScaleZ){
+						scaleZ += Math.random() * size.scaleFlex;
+					}
+					objData.scale = new THREE.Vector3(scaleX, scaleY, scaleZ);
+
+					//Position
+					posY = ogData.position.y;
+					if(size.ranYPos){
+						posY += Math.random() * size.yPosFlex;
+					}
+					if(size.rings === 0){
+						if(ring0Current < ring0.length){
+							posX = ring0[ring0Current][0];
+							posZ = ring0[ring0Current][1];
+							ring0Current++;
+						} else {
+							//Out of predefined positions, choose ran
+							//console.log('Out of Ring 0 Pos');
+							posX = (Math.random() * (scene.ring.o0*2) - scene.ring.o0) + scene.ring.i0;
+							posZ = (Math.random() * (scene.ring.o0*2) - scene.ring.o0) + scene.ring.i0;
+						}
+					} else if(size.rings === 1){
+						if(ring1Current < ring1.length){
+							posX = ring1[ring1Current][0];
+							posZ = ring1[ring1Current][1];
+							ring1Current++;
+						} else {
+							//Out of predefined positions, choose ran
+							//console.log('Out of Ring 1 Pos');
+							posX = (Math.random() * (scene.ring.o1*2) - scene.ring.o1) + scene.ring.i1;
+							posZ = (Math.random() * (scene.ring.o1*2) - scene.ring.o1) + scene.ring.i1;
+						}
+					} else if(size.rings === 2){
+						if(ring2Current < ring2.length){
+							posX = ring2[ring2Current][0];
+							posZ = ring2[ring2Current][1];
+							ring2Current++;
+						} else {
+							//Out of predefined positions, choose ran
+							//console.log('Out of Ring 2 Pos');
+							posX = (Math.random() * (scene.ring.o2*2) - scene.ring.o2) + scene.ring.i2;
+							posZ = (Math.random() * (scene.ring.o2*2) - scene.ring.o2) + scene.ring.i2;
+						}
+					} else if(size.rings === 3){
+						if(ring3Current < ring3.length){
+							posX = ring3[ring3Current][0];
+							posZ = ring3[ring3Current][1];
+							ring3Current++;
+						} else {
+							//Out of predefined positions, choose ran
+							//console.log('Out of Ring 3 Pos');
+							posX = (Math.random() * (scene.ring.o3*2) - scene.ring.o3) + scene.ring.i3;
+							posZ = (Math.random() * (scene.ring.o3*2) - scene.ring.o3) + scene.ring.i3;
+						}
+					} else if(size.rings === 4){
+						if(ring4Current < ring4.length){
+							posX = ring4[ring4Current][0];
+							posZ = ring4[ring4Current][1];
+							ring4Current++;
+						} else {
+							//Out of predefined positions, choose ran
+							//console.log('Out of Ring 4 Pos');
+							posX = (Math.random() * (scene.ring.o4*2) - scene.ring.o4) + scene.ring.i4;
+							posZ = (Math.random() * (scene.ring.o4*2) - scene.ring.o4) + scene.ring.i4;
+						}
+					} else if(size.rings === 5){
+						if(ring5Current < ring5.length){
+							posX = ring5[ring5Current][0];
+							posZ = ring5[ring5Current][1];
+							ring5Current++;
+						} else {
+							//Out of predefined positions, choose ran
+							//console.log('Out of Ring 5 Pos');
+							posX = (Math.random() * (scene.ring.o5*2) - scene.ring.o5) + scene.ring.i5;
+							posZ = (Math.random() * (scene.ring.o5*2) - scene.ring.o5) + scene.ring.i5;
+						}
+					} 
+
+
+
+					objData.position = new THREE.Vector3(posX, posY, posZ);
+					//console.log(objData.position);
+					//Add randomized Core to All
+					scene.assets[sizes[type]].push(Core(objData));
+				}
+
+			}
+		}
+	}
+
+	const SpawnAll = () => {
+		genCores();
+		//console.log(scene.assets)
+		//loop throusgh each size
+		for(let type in sizes){
+			//sizes[type]//tiny,small,med,large,huge
+			//let size = scene[sizes[type]];//scene.tiny object, scene.small object
+			let size = scene.assets[sizes[type]];
+			//console.log(size);
+			for(let each in size){
+				size[each].AddToScene(false, false, true);
+			}
+			//AddToSceneTracker();
+		}
+
+	}
+
+	const DespawnAll = () => {
+		for(let type in sizes){
+			//sizes[type]//tiny,small,med,large,huge
+			//let size = scene[sizes[type]];//scene.tiny object, scene.small object
+			let size = scene.assets[sizes[type]];
+			//console.log(size);
+			for(let each in size){
+				size[each].RemoveFromScene();
+			}
+			//AddToSceneTracker();
+		}
+		//RemoveFromSceneTracker();
+	}
+
+	const AddToSceneTracker = () => {
+		//Scene Tracking of Assets
+		if(aThis.zoneSpawned[gen.id]){} else {
+			aThis.genSpawned[gen.id] = {type: 'gen', obj: gen};
+		}
+	}
+
+	const RemoveFromSceneTracker = () => {
+		//Clear Tracking of Asset
+		delete aThis.genSpawned[gen.id];
+	}
+
+
+	return {scene, SpawnAll, DespawnAll,}
+
+}
+
+//
+//Carousel
+const Carousel = (id,mainData,buttonData,...materials) => {
+
+	let carouselCore;
+	let thumbnailCores = [];
+	let thumbnailPos = new THREE.Vector3(0,-0.3,0.05);
+	//let startPos = (mainData.geometry.width/2)/materials.length;
+	//let movePos = mainData.geometry.width/materials.length;
+
+	//Layer
+	let carouselLayerData = {}
+	for(let mat in materials){
+		if(mat === '0'){
+			mainData.material = materials[mat];
+			carouselCore = Core(mainData);
+			carouselLayerData['parent'] = {};
+			carouselLayerData['parent'].core = carouselCore;
+		} else {
+			buttonData.id = 'thumbnail' + mat;
+			buttonData.material = materials[mat];
+			if(materials.length === 3){
+				if(mat === '1'){
+					thumbnailPos.x = -0.25;
+				} else if(mat === '2'){
+					thumbnailPos.x = 0.25;
+				}
+			} else if(materials.length === 4){
+				if(mat === '1'){
+					thumbnailPos.x = -0.33;
+				} else if(mat === '2'){
+					thumbnailPos.x = 0;
+				} else if(mat === '3'){
+					thumbnailPos.x = 0.33;
+				}
+			} else if(materials.length === 5){
+				if(mat === '1'){
+					thumbnailPos.x = -0.375;
+				} else if(mat === '2'){
+					thumbnailPos.x = -0.125;
+				} else if(mat === '3'){
+					thumbnailPos.x = 0.125;
+				} else if(mat === '4'){
+					thumbnailPos.x = 0.375;
+				}
+			}
+			//thumbnailPos;
+			buttonData.position = thumbnailPos;
+			thumbnailCores[mat] = Core(buttonData);
+			carouselLayerData['child'+mat] = {};
+			carouselLayerData['child'+mat].core = thumbnailCores[mat];
+		}
+	}
+	let carousel = Layer('carousel',carouselLayerData);
+
+	const Click = (el) => {
+		//Swap Material Sources with Parent
+		let selectedMat = el.getAttribute('material').src;
+		let replacedMat = JSON.parse(JSON.stringify(el.parentNode.getAttribute('material').src));
+
+		el.parentNode.setAttribute('material',{src: selectedMat})
+		el.setAttribute('material',{src: replacedMat})
+	}
+
+	const Show = () => {
+		carousel.AddAllToScene(true);
+		AddToCarouselSceneTracker();
+	}
+
+	const Remove = () => {
+		carousel.RemoveAllFromScene(true);
+		RemoveFromCarouselSceneTracker();
+	}
+
+	const AddToCarouselSceneTracker = () => {
+    	aThis.carouselSpawned[id] = {type: 'carousel', obj: carousel};
+	}
+
+	const RemoveFromCarouselSceneTracker = () => {
+		delete aThis.carouselSpawned[id];
+	}
+
+	//Add autoplay and pause on hovering
+	//Controls either left/right or thumbnails for each
+	return {carousel, Click, Show, Remove};
+
 }
 
 //
@@ -3475,6 +4125,7 @@ const MemoryGame = (...data) => {
 	return{memory, SpawnGame, DespawnGame, GameMenuClick};
 }
 
+
 // Library Data
 /********************************************************************/
 //
@@ -3495,6 +4146,12 @@ const grassMaterial = {shader: "standard", color: "#55be71", opacity: 1, metalne
 
 //Water Material
 const waterMaterial = {shader: "standard", color: "#55a5be", opacity: 1, metalness: 0.1, roughness: 0.9, emissive: "#65c3e0", emissiveIntensity: 0.2};
+
+//Mountains
+const mountainMat1 = {shader: 'threeColorGradientShader', topColor: '#3b2f1d', middleColor: '#402e16', bottomColor: '#402e16', side: 'back'};
+const mountainMat2 = {shader: 'threeColorGradientShader', topColor: '#846943', middleColor: '#402e16', bottomColor: '#402e16', side: 'back'};
+const mountainMat3 = {shader: 'threeColorGradientShader', topColor: '#9b7d52', middleColor: '#58401f', bottomColor: '#4b3517', side: 'back'};
+const mountainMatSnow = {shader: 'threeColorGradientShader', topColor: '#e0d7ca', middleColor: '#b4a897', bottomColor: '#5f503b', side: 'back'};
 
 //Carousel Materials
 const mat0 = {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
@@ -3915,6 +4572,24 @@ blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0,
 mixins: false,
 classes: ['a-ent','player'],
 components: {visible: false},
+};
+
+this.playerPointLightData = {
+data:'playerPointLight',
+id:'playerPointLight',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+light: {type: 'point', intensity: 0.05, distance: 5, decay:0.25},
+},
 };
 
 //
@@ -4380,8 +5055,8 @@ this.npc2TextBubbleData = {
 data:'npc text bubble on top',
 id:'npc2TextBubble',
 sources:false,
-text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.45, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.15},
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.75, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.8, height: 0.15},
 material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
 position: new THREE.Vector3(0.25,0.25,-0.05),
 rotation: new THREE.Vector3(0,0,0),
@@ -4996,7 +5671,7 @@ sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {shader: "standard", src: pattern33, repeat: '1 1', color: "#25e074", emissive: '#25e074', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,1.5,-0.25),
+position: new THREE.Vector3(0,1.5,-0.75),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
@@ -5144,7 +5819,7 @@ sources: false,
 text: false,
 geometry: {primitive: 'circle', radius: 30, segments: 32},
 material: {shader: "standard", color: "#F0A500", opacity: 1, side: 'front', emissive: '#F0A500', emissiveIntensity: 1, roughness: 0.42},
-position: new THREE.Vector3(0,0,-350),
+position: new THREE.Vector3(0,0,-400),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -5176,7 +5851,7 @@ sources: false,
 text: false,
 geometry: {primitive: 'circle', radius: 24, segments: 32},
 material: {shader: "standard", color: "#5c2196", opacity: 1, side: 'front', emissive: '#5c2196', emissiveIntensity: 0.75, roughness: 0.42},
-position: new THREE.Vector3(0,0,-350),
+position: new THREE.Vector3(0,0,-400),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -5237,9 +5912,49 @@ data:'full floor',
 id:'nodeFloor',
 sources:false,
 text: false,
-geometry: {primitive: 'circle', radius: 150, segments: 32, thetaStart: 0, thetaLength: 360},
+geometry: {primitive: 'circle', radius: 340, segments: 32, thetaStart: 0, thetaLength: 360},
 material: {shader: "standard", color: "#27693d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#27693d", emissiveIntensity: 0.2, side: 'front'},
 position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(-90,0,0),
+scale: new THREE.Vector3(0.5,0.5,0.02),
+animations: {
+daycolor:{property: 'material.color', from: '#613381', to: '#298625', dur: 90000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunrise'},
+daycolor2:{property: 'material.color', from: '#298625', to: '#613381', dur: 180000, delay: 180000, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunrise'},
+nightcolor:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunset'},
+nightcolor2:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90000, delay: 90000, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunset'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Node Ceiling
+this.nodeCeilingData = {
+data:'nodeCeilingData',
+id:'nodeCeiling',
+sources:false,
+text: false,
+//geometry: {primitive: 'circle', radius: 360, segments: 32, thetaStart: 0, thetaLength: 360},
+geometry: {primitive: 'plane', width: 600, height: 600,},
+material: {shader: "standard", src: pattern80, repeat: '25 25',color: "#3c86b4", opacity: 0.69, metalness: 0.8, roughness: 0.2, emissive: "#3c86b4", emissiveIntensity: 0.2, side: 'back'},
+position: new THREE.Vector3(0,30,0),
+rotation: new THREE.Vector3(-90,0,0),
+scale: new THREE.Vector3(0.5,0.5,0.02),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Water Floor
+this.waterFloorData = {
+data:'waterFloorData',
+id:'waterFloor',
+sources:false,
+text: false,
+geometry: {primitive: 'circle', radius: 150, segments: 64, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", src: pattern80, repeat: '25 25',color: "#3c86b4", opacity: 1, metalness: 0.8, roughness: 0.2, emissive: "#3c86b4", emissiveIntensity: 0.2, side: 'front'},
+position: new THREE.Vector3(0,0.1,-100),
 rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(0.5,0.5,0.02),
 animations: {
@@ -5288,9 +6003,65 @@ classes: ['a-ent'],
 components: false,
 };
 
+//Horizon
+//
+
+//Mountains
+this.mountainsParentData = {
+data:'mountainsParentData',
+id:'mountainsParent',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,15,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+this.mountainData = {
+data:'mountainData',
+id:'mountain',
+sources:false,
+text: false,
+geometry: {primitive: 'cone', height: 5, radiusBottom: 5, radiusTop: 0, openEnded: true, segmentsHeight: 1, segmentsRadial: 9, thetaLength: 120, thetaStart: 0},
+material: {shader: 'threeColorGradientShader', topColor: '#3b2f1d', middleColor: '#402e16', bottomColor: '#402e16', side: 'back'},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(20,20,20),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
 //
 //Scene Assets
 
+//Forest
+//
+
+//crop_melon
+this.crop_melonData = {
+data:'crop_melonData',
+id:'crop_melon',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(2,2,2),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crop_melon.glb',
+},
+};
 //flower_purpleA
 this.flower_purpleAData = {
 data:'flower_purpleA',
@@ -5453,60 +6224,6 @@ components:{
 ['gltf-model']:'./assets/3d/kenny/plant_bushLarge.glb',
 },
 };
-//rockFormationLarge
-this.rockFormationLargeData = {
-data:'rockFormationLarge',
-id:'rockFormationLarge',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(5,5,5),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components:{
-['gltf-model']:'./assets/3d/kenny/rockFormationLarge.glb',
-},
-};
-//rockFormationMedium
-this.rockFormationMediumData = {
-data:'rockFormationMedium',
-id:'rockFormationMedium',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(5,5,5),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components:{
-['gltf-model']:'./assets/3d/kenny/rockFormationMedium.glb',
-},
-};
-//rockFormationSmall
-this.rockFormationSmallData = {
-data:'rockFormationSmall',
-id:'rockFormationSmall',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(5,5,5),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components:{
-['gltf-model']:'./assets/3d/kenny/rockFormationSmall.glb',
-},
-};
 //rockLarge
 this.rockLargeData = {
 data:'rockLarge',
@@ -5542,7 +6259,7 @@ classes: ['a-ent'],
 components:{
 ['gltf-model']:'./assets/3d/kenny/rockMedium.glb',
 },
-};
+};//MISSING
 //rockSmall
 this.rockSmallData = {
 data:'rockSmall',
@@ -5649,78 +6366,6 @@ mixins: false,
 classes: ['a-ent'],
 components:{
 ['gltf-model']:'./assets/3d/kenny/tree_oak.glb',
-},
-};
-//tree_palm
-this.tree_palmData = {
-data:'tree_palm',
-id:'tree_palm',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(5,5,5),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components:{
-['gltf-model']:'./assets/3d/kenny/tree_palm.glb',
-},
-};
-//tree_palmBend
-this.tree_palmBendData = {
-data:'tree_palmBend',
-id:'tree_palmBend',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(5,5,5),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components:{
-['gltf-model']:'./assets/3d/kenny/tree_palmBend.glb',
-},
-};
-//tree_palmDetailedShort
-this.tree_palmDetailedShortData = {
-data:'tree_palmDetailedShort',
-id:'tree_palmDetailedShort',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(5,5,5),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components:{
-['gltf-model']:'./assets/3d/kenny/tree_palmDetailedShort.glb',
-},
-};
-//tree_palmDetailedTall
-this.tree_palmDetailedTallData = {
-data:'tree_palmDetailedTall',
-id:'tree_palmDetailedTall',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(5,5,5),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components:{
-['gltf-model']:'./assets/3d/kenny/tree_palmDetailedTall.glb',
 },
 };
 //tree_pineDefaultA
@@ -5975,6 +6620,78 @@ components:{
 ['gltf-model']:'./assets/3d/kenny/tree_pineSmallD.glb',
 },
 };
+//tree_pineTallA_detailed
+this.tree_pineTallA_detailedData = {
+data:'tree_pineTallA_detailedData',
+id:'tree_pineTallA_detailed',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineTallA_detailed.glb',
+},
+};
+//tree_pineTallB_detailed
+this.tree_pineTallB_detailedData = {
+data:'tree_pineTallB_detailedData',
+id:'tree_pineTallB_detailed',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineTallB_detailed.glb',
+},
+};
+//tree_pineTallC_detailed
+this.tree_pineTallC_detailedData = {
+data:'tree_pineTallC_detailedData',
+id:'tree_pineTallC_detailed',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineTallC_detailed.glb',
+},
+};
+//tree_pineTallD_detailed
+this.tree_pineTallD_detailedData = {
+data:'tree_pineTallD_detailedData',
+id:'tree_pineTallD_detailed',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_pineTallD_detailed.glb',
+},
+};
 //trunk
 this.trunkData = {
 data:'trunk',
@@ -6011,10 +6728,2403 @@ components:{
 ['gltf-model']:'./assets/3d/kenny/trunkLong.glb',
 },
 };
+//tree_plateau
+this.tree_plateauData = {
+data:'tree_plateauData',
+id:'tree_plateau',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_plateau.glb',
+},
+};
+//tree_simple
+this.tree_simpleData = {
+data:'tree_simpleData',
+id:'tree_simple',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_simple.glb',
+},
+};
+//tree_small
+this.tree_smallData = {
+data:'tree_smallData',
+id:'tree_small',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_small.glb',
+},
+};
+//tree_tall
+this.tree_tallData = {
+data:'tree_tallData',
+id:'tree_tall',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_tall.glb',
+},
+};
+//tree_thin
+this.tree_thinData = {
+data:'tree_thinData',
+id:'tree_thin',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_thin.glb',
+},
+};
+//log
+this.logData = {
+data:'logData',
+id:'log',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/log.glb',
+},
+};
+//mushroom_redGroup
+this.mushroom_redGroupData = {
+data:'mushroom_redGroupData',
+id:'mushroom_redGroup',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/mushroom_redGroup.glb',
+},
+};
+//mushroom_redTall
+this.mushroom_redTallData = {
+data:'mushroom_redTallData',
+id:'mushroom_redTall',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/mushroom_redTall.glb',
+},
+};
+//rock_tallA
+this.rock_tallAData = {
+data:'rock_tallAData',
+id:'rock_tallA',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rock_tallA.glb',
+},
+};
+//rock_tallB
+this.rock_tallBData = {
+data:'rock_tallBData',
+id:'rock_tallB',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rock_tallB.glb',
+},
+};
+//rockFlatGrass
+this.rockFlatGrassData = {
+data:'rockFlatGrassData',
+id:'rockFlatGrass',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rockFlatGrass.glb',
+},
+};
+
+//Snow
+//
+
+//treePineSnow
+this.treePineSnowData = {
+data:'treePineSnowData',
+id:'treePineSnow',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/treePineSnow.glb',
+},
+};
+//treePineSnowed
+this.treePineSnowedData = {
+data:'treePineSnowedData',
+id:'treePineSnowed',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/treePineSnowed.glb',
+},
+};
+//treePineSnowRound
+this.treePineSnowRoundData = {
+data:'treePineSnowRoundData',
+id:'treePineSnowRound',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/treePineSnowRound.glb',
+},
+};
+//treeDecorated
+this.treeDecoratedData = {
+data:'treeDecoratedData',
+id:'treeDecorated',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/treeDecorated.glb',
+},
+};
+//snowFort
+this.snowFortData = {
+data:'snowFortData',
+id:'snowFort',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/snowFort.glb',
+},
+};
+//snowman
+this.snowmanData = {
+data:'snowmanData',
+id:'snowman',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/snowman.glb',
+},
+};
+//snowmanFancy
+this.snowmanFancyData = {
+data:'snowmanFancyData',
+id:'snowmanFancy',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/snowmanFancy.glb',
+},
+};
+//snowPatch
+this.snowPatchData = {
+data:'snowPatchData',
+id:'snowPatch',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/snowPatch.glb',
+},
+};
+//rocks
+this.rocksData = {
+data:'rocksData',
+id:'rocks',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rocks.glb',
+},
+};
+//rocksTall
+this.rocksTallData = {
+data:'rocksTallData',
+id:'rocksTall',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rocksTall.glb',
+},
+};
+
+
+//Graveyard
+//
+
+//cross
+this.crossData = {
+data:'crossData',
+id:'cross',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/cross.glb',
+},
+};
+//crossColumn
+this.crossColumnData = {
+data:'crossColumnData',
+id:'crossColumn',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crossColumn.glb',
+},
+};
+//crossWood
+this.crossWoodData = {
+data:'crossWoodData',
+id:'crossWood',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crossWood.glb',
+},
+};
+//debris
+this.debrisData = {
+data:'debrisData',
+id:'debris',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/debris.glb',
+},
+};
+//debrisWood
+this.debrisWoodData = {
+data:'debrisWoodData',
+id:'debrisWood',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/debrisWood.glb',
+},
+};
+//fenceDamaged
+this.fenceDamagedData = {
+data:'fenceDamagedData',
+id:'fenceDamaged',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/fenceDamaged.glb',
+},
+};
+//ghost
+this.ghostData = {
+data:'ghostData',
+id:'ghost',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/ghost.glb',
+},
+};
+//grave
+this.graveData = {
+data:'graveData',
+id:'grave',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/grave.glb',
+},
+};
+//gravestoneBevel
+this.gravestoneBevelData = {
+data:'gravestoneBevelData',
+id:'gravestoneBevel',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/gravestoneBevel.glb',
+},
+};
+//gravestoneBroken
+this.gravestoneBrokenData = {
+data:'gravestoneBrokenData',
+id:'gravestoneBroken',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/gravestoneBroken.glb',
+},
+};
+//gravestoneCross
+this.gravestoneCrossData = {
+data:'gravestoneCrossData',
+id:'gravestoneCross',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/gravestoneCross.glb',
+},
+};
+//gravestoneCrossLarge
+this.gravestoneCrossLargeData = {
+data:'gravestoneCrossLargeData',
+id:'gravestoneCrossLarge',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/gravestoneCrossLarge.glb',
+},
+};
+//gravestoneDebris
+this.gravestoneDebrisData = {
+data:'gravestoneDebrisData',
+id:'gravestoneDebris',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/gravestoneDebris.glb',
+},
+};
+//gravestoneDecorative
+this.gravestoneDecorativeData = {
+data:'gravestoneDecorativeData',
+id:'gravestoneDecorative',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/gravestoneDecorative.glb',
+},
+};
+//gravestoneFlat
+this.gravestoneFlatData = {
+data:'gravestoneFlatData',
+id:'gravestoneFlat',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/gravestoneFlat.glb',
+},
+};
+//gravestoneFlatOpen
+this.gravestoneFlatOpenData = {
+data:'gravestoneFlatOpenData',
+id:'gravestoneFlatOpen',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/gravestoneFlatOpen.glb',
+},
+};
+//gravestoneRoof
+this.gravestoneRoofData = {
+data:'gravestoneRoofData',
+id:'gravestoneRoof',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/gravestoneRoof.glb',
+},
+};
+//gravestoneRound
+this.gravestoneRoundData = {
+data:'gravestoneRoundData',
+id:'gravestoneRound',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/gravestoneRound.glb',
+},
+};
+//gravestoneWide
+this.gravestoneWideData = {
+data:'gravestoneWideData',
+id:'gravestoneWide',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/gravestoneWide.glb',
+},
+};
+//pumpkin
+this.pumpkinData = {
+data:'pumpkinData',
+id:'pumpkin',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/pumpkin.glb',
+},
+};
+//pumpkinCarved
+this.pumpkinCarvedData = {
+data:'pumpkinCarvedData',
+id:'pumpkinCarved',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/pumpkinCarved.glb',
+},
+};
+//pumpkinTall
+this.pumpkinTallData = {
+data:'pumpkinTallData',
+id:'pumpkinTall',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/pumpkinTall.glb',
+},
+};
+//pumpkinTallCarved
+this.pumpkinTallCarvedData = {
+data:'pumpkinTallCarvedData',
+id:'pumpkinTallCarved',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/pumpkinTallCarved.glb',
+},
+};
+//shovelDirt
+this.shovelDirtData = {
+data:'shovelDirtData',
+id:'shovelDirt',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/shovelDirt.glb',
+},
+};
+
+
+//Desert
+//
+
+//cactus_short
+this.cactus_shortData = {
+data:'cactus_shortData',
+id:'cactus_short',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/cactus_short.glb',
+},
+};
+//cactus_tall
+this.cactus_tallData = {
+data:'cactus_tallData',
+id:'cactus_tall',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/cactus_tall.glb',
+},
+};
+//crops_cornStageA
+this.crops_cornStageAData = {
+data:'crops_cornStageAData',
+id:'crops_cornStageA',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crops_cornStageA.glb',
+},
+};
+
+//Beach
+//
+
+//tree_palm
+this.tree_palmData = {
+data:'tree_palm',
+id:'tree_palm',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_palm.glb',
+},
+};
+//tree_palmBend
+this.tree_palmBendData = {
+data:'tree_palmBend',
+id:'tree_palmBend',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_palmBend.glb',
+},
+};
+//tree_palmDetailedShort
+this.tree_palmDetailedShortData = {
+data:'tree_palmDetailedShort',
+id:'tree_palmDetailedShort',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_palmDetailedShort.glb',
+},
+};
+//tree_palmDetailedTall
+this.tree_palmDetailedTallData = {
+data:'tree_palmDetailedTall',
+id:'tree_palmDetailedTall',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_palmDetailedTall.glb',
+},
+};
+//tree_palmShort
+this.tree_palmShortData = {
+data:'tree_palmShortData',
+id:'tree_palmShort',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_palmShort.glb',
+},
+};
+//tree_palmTall
+this.tree_palmTallData = {
+data:'tree_palmTallData',
+id:'tree_palmTall',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/tree_palmTall.glb',
+},
+};
+//canoe
+this.canoeData = {
+data:'canoeData',
+id:'canoe',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/canoe.glb',
+},
+};
+//canoe_paddle
+this.canoe_paddleData = {
+data:'canoe_paddleData',
+id:'canoe_paddle',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(0,-30,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/canoe_paddle.glb',
+},
+};
+//crops_bambooStageA
+this.crops_bambooStageAData = {
+data:'crops_bambooStageAData',
+id:'crops_bambooStageA',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crops_bambooStageA.glb',
+},
+};
+//crops_bambooStageB
+this.crops_bambooStageBData = {
+data:'crops_bambooStageBData',
+id:'crops_bambooStageB',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crops_bambooStageB.glb',
+},
+};
+
+//Underwater
+//
+
+//crops_wheatStageA
+this.crops_wheatStageAData = {
+data:'crops_wheatStageAData',
+id:'crops_wheatStageA',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crops_wheatStageA.glb',
+},
+};
+//crops_wheatStageB
+this.crops_wheatStageBData = {
+data:'crops_wheatStageBData',
+id:'crops_wheatStageB',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crops_wheatStageB.glb',
+},
+};
+//crops_cornStageB
+this.crops_cornStageBData = {
+data:'crops_cornStageBData',
+id:'crops_cornStageB',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crops_cornStageB.glb',
+},
+};
+//crops_cornStageC
+this.crops_cornStageCData = {
+data:'crops_cornStageCData',
+id:'crops_cornStageC',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crops_cornStageC.glb',
+},
+};
+//crops_leafsStageA
+this.crops_leafsStageAData = {
+data:'crops_leafsStageAData',
+id:'crops_leafsStageA',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crops_leafsStageA.glb',
+},
+};
+//crops_leafsStageB
+this.crops_leafsStageBData = {
+data:'crops_leafsStageBData',
+id:'crops_leafsStageB',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crops_leafsStageB.glb',
+},
+};
+//statue_head
+this.statue_headData = {
+data:'statue_headData',
+id:'statue_head',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(3,3,3),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/statue_head.glb',
+},
+};
+//rockFormationLarge
+this.rockFormationLargeData = {
+data:'rockFormationLarge',
+id:'rockFormationLarge',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rockFormationLarge.glb',
+},
+};
+//rockFormationMedium
+this.rockFormationMediumData = {
+data:'rockFormationMedium',
+id:'rockFormationMedium',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rockFormationMedium.glb',
+},
+};
+//rockFormationSmall
+this.rockFormationSmallData = {
+data:'rockFormationSmall',
+id:'rockFormationSmall',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(5,5,5),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/rockFormationSmall.glb',
+},
+};
+
+
 
 //
-//Scene Object Spawners
+//Scene Gen Data
 
+//Floating Island Forest
+//
+//Tiny
+this.tinyForest2Data = {
+data: 'tinyForest2Data',
+id: 'tinyForest2',
+type: 'tiny',
+radius: 0.1,
+min: 12,
+max: 30,
+//rings: [0,1],
+rings: 1,
+objs:[
+aThis.flower_redAData,
+aThis.mushroom_redGroupData,
+aThis.mushroom_redTallData,
+aThis.crop_melonData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 0.25,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Small
+this.smallForest2Data = {
+data: 'smallForest2Data',
+id: 'smallForest2',
+type: 'small',
+radius: 0.25,
+min: 30,
+max: 50,
+//rings: [0,1,2],
+rings: 2,
+objs:[
+aThis.grass_largeData,
+],
+ranYPos: false,
+yPosFlex: 6,
+ranScaleX: true,
+ranScaleY: false,
+ranScaleZ: true,
+scaleFlex: 6,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Med
+this.medForest2Data = {
+data: 'medForest2Data',
+id: 'medForest2',
+type: 'med',
+radius: 1,
+min: 25,
+max: 50,
+//rings: [1,2,3],
+rings: 3,
+objs:[
+aThis.plant_bushData,
+aThis.tree_simpleData,
+aThis.tree_smallData,
+aThis.tree_thinData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 2,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Large
+this.largeForest2Data = {
+data: 'largeForest2Data',
+id: 'largeForest2',
+type: 'large',
+radius: 2,
+min: 25,
+max: 50,
+//rings: [2,3,4],
+rings: 4,
+objs:[
+aThis.tree_plateauData,
+aThis.tree_tallData,
+aThis.tree_coneData,
+aThis.tree_defaultData,
+
+],
+ranYPos: false,
+yPosFlex: 2,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 3,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Huge
+this.hugeForest2Data = {
+data: 'hugeForest2Data',
+id: 'hugeForest2',
+type: 'huge',
+radius: 4,
+min: 25,
+max: 50,
+//rings: [3,4,5],
+rings: 5,
+objs:[
+aThis.tree_fatData,
+aThis.tree_oakData,
+aThis.rock_tallAData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Forest Scene 2 Data
+this.forestScene2Data = {
+data:'forestScene2Data',
+id:'forestScene2',
+tiny: aThis.tinyForest2Data,
+small: aThis.smallForest2Data,
+med: aThis.medForest2Data,
+large: aThis.largeForest2Data,
+huge: aThis.hugeForest2Data,
+};
+
+//Rainy Forest
+//
+//Tiny
+this.tinyForest1Data = {
+data: 'tinyForest1Data',
+id: 'tinyForest1',
+type: 'tiny',
+radius: 0.1,
+min: 12,
+max: 30,
+//rings: [0,1],
+rings: 1,
+objs:[
+aThis.flower_purpleAData,
+aThis.flower_yellowAData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 0.25,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Small
+this.smallForest1Data = {
+data: 'smallForest1Data',
+id: 'smallForest1',
+type: 'small',
+radius: 0.25,
+min: 30,
+max: 50,
+//rings: [0,1,2],
+rings: 2,
+objs:[
+aThis.grass_leafsLargeData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: false,
+ranScaleZ: true,
+scaleFlex: 6,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Med
+this.medForest1Data = {
+data: 'medForest1Data',
+id: 'medForest1',
+type: 'med',
+radius: 1,
+min: 25,
+max: 50,
+//rings: [1,2,3],
+rings: 3,
+objs:[
+aThis.plant_bushLargeData,
+aThis.tree_pineRoundCData,
+aThis.tree_pineRoundDData,
+aThis.tree_pineRoundEData,
+aThis.tree_pineRoundFData,
+aThis.tree_pineSmallAData,
+aThis.tree_pineSmallBData,
+aThis.tree_pineSmallCData,
+aThis.tree_pineSmallDData,
+aThis.trunkData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 2,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Large
+this.largeForest1Data = {
+data: 'largeForest1Data',
+id: 'largeForest1',
+type: 'large',
+radius: 2,
+min: 25,
+max: 50,
+//rings: [2,3,4],
+rings: 4,
+objs:[
+aThis.pineCrookedData,
+aThis.tree_pineRoundAData,
+aThis.tree_pineRoundBData,
+aThis.tree_pineTallA_detailedData,
+aThis.tree_pineTallB_detailedData,
+aThis.tree_pineTallC_detailedData,
+aThis.tree_pineTallD_detailedData,
+aThis.trunkLongData,
+aThis.logData,
+aThis.rock_tallBData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 3,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Huge
+this.hugeForest1Data = {
+data: 'hugeForest1Data',
+id: 'hugeForest1',
+type: 'huge',
+radius: 4,
+min: 25,
+max: 50,
+//rings: [3,4,5],
+rings: 5,
+objs:[
+aThis.rockSmallData,
+aThis.rockLargeData,
+aThis.pineData,
+aThis.tree_pineGroundAData,
+aThis.tree_pineGroundBData,
+aThis.tree_pineDefaultAData,
+aThis.tree_pineDefaultBData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Forest Scene 1 Data
+this.forestScene1Data = {
+data:'forestScene1Data',
+id:'forestScene1',
+tiny: aThis.tinyForest1Data,
+small: aThis.smallForest1Data,
+med: aThis.medForest1Data,
+large: aThis.largeForest1Data,
+huge: aThis.hugeForest1Data,
+};
+
+//Snowy Forest
+//
+//Tiny
+this.tinySnowForest1Data = {
+data: 'tinySnowForest1Data',
+id: 'tinySnowForest1',
+type: 'tiny',
+radius: 0.1,
+min: 12,
+max: 30,
+//rings: [0,1],
+rings: 1,
+objs:[
+aThis.snowPatchData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: false,
+ranScaleZ: true,
+scaleFlex: 0.25,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Small
+this.smallSnowForest1Data = {
+data: 'smallSnowForest1Data',
+id: 'smallSnowForest1',
+type: 'small',
+radius: 0.25,
+min: 30,
+max: 50,
+//rings: [0,1,2],
+rings: 2,
+objs:[
+aThis.snowmanData,
+aThis.snowmanFancyData,
+aThis.treeDecoratedData,
+aThis.snowPatchData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 1,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Med
+this.medSnowForest1Data = {
+data: 'medSnowForest1Data',
+id: 'medSnowForest1',
+type: 'med',
+radius: 1,
+min: 25,
+max: 50,
+//rings: [1,2,3],
+rings: 3,
+objs:[
+aThis.treePineSnowRoundData,
+aThis.treePineSnowedData,
+aThis.snowPatchData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 2,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Large
+this.largeSnowForest1Data = {
+data: 'largeSnowForest1Data',
+id: 'largeSnowForest1',
+type: 'large',
+radius: 2,
+min: 25,
+max: 50,
+//rings: [2,3,4],
+rings: 4,
+objs:[
+aThis.treePineSnowData,
+aThis.rocksData,
+aThis.snowFortData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 3,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Huge
+this.hugeSnowForest1Data = {
+data: 'hugeSnowForest1Data',
+id: 'hugeSnowForest1',
+type: 'huge',
+radius: 4,
+min: 25,
+max: 50,
+//rings: [3,4,5],
+rings: 5,
+objs:[
+aThis.treePineSnowedData,
+aThis.rocksTallData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Snow Forest Scene 1 Data
+this.snowForestScene1Data = {
+data:'snowForestScene1Data',
+id:'snowForestScene1',
+tiny: aThis.tinySnowForest1Data,
+small: aThis.smallSnowForest1Data,
+med: aThis.medSnowForest1Data,
+large: aThis.largeSnowForest1Data,
+huge: aThis.hugeSnowForest1Data,
+};
+
+//Graveyard
+//
+//Tiny
+this.tinyGraveyard1Data = {
+data: 'tinyGraveyard1Data',
+id: 'tinyGraveyard1',
+type: 'tiny',
+radius: 0.1,
+min: 12,
+max: 30,
+//rings: [0,1],
+rings: 1,
+objs:[
+aThis.pumpkinData,
+aThis.pumpkinCarvedData,
+aThis.pumpkinTallData,
+aThis.pumpkinTallCarvedData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: false,
+ranScaleZ: true,
+scaleFlex: 1,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Small
+this.smallGraveyard1Data = {
+data: 'smallGraveyard1Data',
+id: 'smallGraveyard1',
+type: 'small',
+radius: 0.25,
+min: 30,
+max: 50,
+//rings: [0,1,2],
+rings: 2,
+objs:[
+aThis.gravestoneBevelData,
+aThis.gravestoneBrokenData,
+aThis.gravestoneCrossData,
+aThis.gravestoneDebrisData,
+aThis.gravestoneFlatData,
+aThis.trunkData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 1,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Med
+this.medGraveyard1Data = {
+data: 'medGraveyard1Data',
+id: 'medGraveyard1',
+type: 'med',
+radius: 1,
+min: 25,
+max: 50,
+//rings: [1,2,3],
+rings: 3,
+objs:[
+aThis.ghostData,
+aThis.gravestoneCrossLargeData,
+aThis.gravestoneDecorativeData,
+aThis.gravestoneFlatOpenData,
+aThis.gravestoneRoofData,
+aThis.gravestoneRoundData,
+aThis.gravestoneWideData,
+aThis.tree_pineGroundAData,
+aThis.tree_pineGroundBData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 2,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Large
+this.largeGraveyard1Data = {
+data: 'largeGraveyard1Data',
+id: 'largeGraveyard1',
+type: 'large',
+radius: 2,
+min: 25,
+max: 50,
+//rings: [2,3,4],
+rings: 4,
+objs:[
+aThis.debrisData,
+aThis.debrisWoodData,
+aThis.fenceDamagedData,
+aThis.graveData,
+aThis.shovelDirtData,
+aThis.tree_pineTallA_detailedData,
+aThis.tree_pineTallB_detailedData,
+aThis.tree_pineTallC_detailedData,
+aThis.tree_pineTallD_detailedData,
+aThis.trunkData,
+aThis.trunkLongData,
+aThis.tree_pineGroundAData,
+aThis.tree_pineGroundBData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 3,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Huge
+this.hugeGraveyard1Data = {
+data: 'hugeGraveyard1Data',
+id: 'hugeGraveyard1',
+type: 'huge',
+radius: 4,
+min: 25,
+max: 50,
+//rings: [3,4,5],
+rings: 5,
+objs:[
+aThis.crossData,
+aThis.crossColumnData,
+aThis.crossWoodData,
+aThis.tree_pineTallA_detailedData,
+aThis.tree_pineTallB_detailedData,
+aThis.tree_pineTallC_detailedData,
+aThis.tree_pineTallD_detailedData,
+aThis.trunkData,
+aThis.trunkLongData,
+aThis.tree_pineGroundAData,
+aThis.tree_pineGroundBData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Graveyard Scene 1 Data
+this.graveyardScene1Data = {
+data:'graveyardScene1Data',
+id:'graveyardScene1',
+tiny: aThis.tinyGraveyard1Data,
+small: aThis.smallGraveyard1Data,
+med: aThis.medGraveyard1Data,
+large: aThis.largeGraveyard1Data,
+huge: aThis.hugeGraveyard1Data,
+};
+
+//Desert
+//
+//Tiny
+this.tinyDesert1Data = {
+data: 'tinyDesert1Data',
+id: 'tinyDesert1',
+type: 'tiny',
+radius: 0.1,
+min: 12,
+max: 30,
+//rings: [0,1],
+rings: 1,
+objs:[
+aThis.crops_cornStageAData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: false,
+ranScaleZ: true,
+scaleFlex: 0.25,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Small
+this.smallDesert1Data = {
+data: 'smallDesert1Data',
+id: 'smallDesert1',
+type: 'small',
+radius: 0.25,
+min: 30,
+max: 50,
+//rings: [0,1,2],
+rings: 2,
+objs:[
+aThis.cactus_shortData,
+aThis.crops_cornStageAData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 1,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Med
+this.medDesert1Data = {
+data: 'medDesert1Data',
+id: 'medDesert1',
+type: 'med',
+radius: 1,
+min: 25,
+max: 50,
+//rings: [1,2,3],
+rings: 3,
+objs:[
+aThis.cactus_tallData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 2,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Large
+this.largeDesert1Data = {
+data: 'largeDesert1Data',
+id: 'largeDesert1',
+type: 'large',
+radius: 2,
+min: 25,
+max: 50,
+//rings: [2,3,4],
+rings: 4,
+objs:[
+aThis.cactus_shortData,
+aThis.cactus_tallData,
+
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 6,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Huge
+this.hugeDesert1Data = {
+data: 'hugeDesert1Data',
+id: 'hugeDesert1',
+type: 'huge',
+radius: 4,
+min: 25,
+max: 50,
+//rings: [3,4,5],
+rings: 5,
+objs:[
+aThis.cactus_shortData,
+aThis.cactus_tallData,
+aThis.rockFormationSmallData,
+aThis.rockFormationMediumData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 6,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Desert Scene 1 Data
+this.desertScene1Data = {
+data:'desertScene1Data',
+id:'desertScene1',
+tiny: aThis.tinyDesert1Data,
+small: aThis.smallDesert1Data,
+med: aThis.medDesert1Data,
+large: aThis.largeDesert1Data,
+huge: aThis.hugeDesert1Data,
+};
+
+//Beach
+//
+//Tiny
+this.tinyBeach1Data = {
+data: 'tinyBeach1Data',
+id: 'tinyBeach1',
+type: 'tiny',
+radius: 0.1,
+min: 12,
+max: 30,
+//rings: [0,1],
+rings: 1,
+objs:[
+aThis.crops_bambooStageAData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: false,
+ranScaleZ: true,
+scaleFlex: 1,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Small
+this.smallBeach1Data = {
+data: 'smallBeach1Data',
+id: 'smallBeach1',
+type: 'small',
+radius: 0.25,
+min: 10,
+max: 25,
+//rings: [0,1,2],
+rings: 2,
+objs:[
+aThis.crops_bambooStageAData,
+aThis.crops_bambooStageBData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 1,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Med
+this.medBeach1Data = {
+data: 'medBeach1Data',
+id: 'medBeach1',
+type: 'med',
+radius: 1,
+min: 15,
+max: 30,
+//rings: [1,2,3],
+rings: 3,
+objs:[
+aThis.tree_palmData,
+aThis.tree_palmBendData,
+aThis.tree_palmShortData,
+aThis.tree_palmTallData,
+aThis.tree_palmDetailedShortData,
+aThis.tree_palmDetailedTallData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 2,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Large
+this.largeBeach1Data = {
+data: 'largeBeach1Data',
+id: 'largeBeach1',
+type: 'large',
+radius: 2,
+min: 25,
+max: 50,
+//rings: [2,3,4],
+rings: 4,
+objs:[
+aThis.tree_palmData,
+aThis.tree_palmBendData,
+aThis.tree_palmShortData,
+aThis.tree_palmTallData,
+aThis.tree_palmDetailedShortData,
+aThis.tree_palmDetailedTallData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 3,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Huge
+this.hugeBeach1Data = {
+data: 'hugeBeach1Data',
+id: 'hugeBeach1',
+type: 'huge',
+radius: 4,
+min: 25,
+max: 50,
+//rings: [3,4,5],
+rings: 5,
+objs:[
+aThis.tree_palmData,
+aThis.tree_palmBendData,
+aThis.tree_palmDetailedShortData,
+aThis.tree_palmDetailedTallData,
+aThis.tree_palmShortData,
+aThis.tree_palmTallData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Beach Scene 1 Data
+this.beachScene1Data = {
+data:'beachScene1Data',
+id:'beachScene1',
+tiny: aThis.tinyBeach1Data,
+small: aThis.smallBeach1Data,
+med: aThis.medBeach1Data,
+large: aThis.largeBeach1Data,
+huge: aThis.hugeBeach1Data,
+};
+
+//Underwater
+//
+//Tiny
+this.tinyUnderwater1Data = {
+data: 'tinyUnderwater1Data',
+id: 'tinyUnderwater1',
+type: 'tiny',
+radius: 0.1,
+min: 12,
+max: 30,
+//rings: [0,1],
+rings: 1,
+objs:[
+aThis.crops_wheatStageAData,
+aThis.crops_cornStageBData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: false,
+ranScaleZ: true,
+scaleFlex: 1,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Small
+this.smallUnderwater1Data = {
+data: 'smallUnderwater1Data',
+id: 'smallUnderwater1',
+type: 'small',
+radius: 0.25,
+min: 30,
+max: 50,
+//rings: [0,1,2],
+rings: 2,
+objs:[
+aThis.crops_wheatStageBData,
+aThis.crops_cornStageCData,
+aThis.crops_leafsStageAData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 1,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Med
+this.medUnderwater1Data = {
+data: 'medUnderwater1Data',
+id: 'medUnderwater1',
+type: 'med',
+radius: 1,
+min: 25,
+max: 50,
+//rings: [1,2,3],
+rings: 3,
+objs:[
+aThis.crops_wheatStageBData,
+aThis.crops_cornStageCData,
+aThis.crops_leafsStageAData,
+aThis.crops_wheatStageAData,
+aThis.crops_cornStageBData,
+aThis.crops_leafsStageBData,
+aThis.rockFormationSmallData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 2,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Large
+this.largeUnderwater1Data = {
+data: 'largeUnderwater1Data',
+id: 'largeUnderwater1',
+type: 'large',
+radius: 2,
+min: 25,
+max: 50,
+//rings: [2,3,4],
+rings: 4,
+objs:[
+aThis.rockFormationMediumData,
+aThis.statue_headData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: false,
+ranScaleY: true,
+ranScaleZ: false,
+scaleFlex: 3,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Huge
+this.hugeUnderwater1Data = {
+data: 'hugeUnderwater1Data',
+id: 'hugeUnderwater1',
+type: 'huge',
+radius: 4,
+min: 25,
+max: 50,
+//rings: [3,4,5],
+rings: 5,
+objs:[
+
+aThis.statue_headData,
+aThis.rockFormationLargeData,
+],
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 4,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+ranAnim: false,
+};
+//Underwater Scene 1 Data
+this.underwaterScene1Data = {
+data:'underwaterScene1Data',
+id:'underwaterScene1',
+tiny: aThis.tinyUnderwater1Data,
+small: aThis.smallUnderwater1Data,
+med: aThis.medUnderwater1Data,
+large: aThis.largeUnderwater1Data,
+huge: aThis.hugeUnderwater1Data,
+};
+
+
+
+//
+//Multi Obj Gen Data
+
+//Grass Rock
+this.multiRockFlatGrassData = {
+data: 'multiRockFlatGrassData',
+id: 'multiRockFlatGrass',
+objData: aThis.rockFlatGrassData,
+total: 20,
+outerRingRadius: 140,
+innerRingRadius: 80,
+sameTypeRadius: 15,
+otherTypeRadius: 1,
+ranYPos: false,
+yPosFlex: 1,
+ranScaleX: true,
+ranScaleY: true,
+ranScaleZ: true,
+scaleFlex: 10,
+ranRotX: false,
+ranRotY: true,
+ranRotZ: false,
+ranColor: false,
+ranTexture: false,
+};
 //Flowers
 this.multiFlowerPurpleAData = {
 id: 'multiFlowerPurpleA',
@@ -6541,7 +9651,7 @@ ranTexture: false,
 this.multitree_pineDefaultBData = {
 id: 'multitree_pineDefaultB',
 objData: aThis.tree_pineDefaultBData,
-total: 5,
+total: 4,
 outerRingRadius: 50,
 innerRingRadius: 15,
 sameTypeRadius: 3,
@@ -6638,7 +9748,7 @@ ranColor: true,
 ranTexture: true,
 };
 //
-//Grassy Hills
+//Graveyard
 //Basic
 this.grassyHillsBasicData = {
 data:'grassyHillsBasicData',
@@ -6903,34 +10013,37 @@ start:{
 HamGirl:{Start: null},
 npcMinty:{Spawn:null},
 soundTesting:{AddToScene: null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern49, repeat: '50 50',color: "#27693d", emissive: "#27693d",},}},
-multiFlowerPurpleA:{genCores: null, SpawnAll: null},
-multiFlowerRedA:{genCores: null, SpawnAll: null},
-multiFlowerYellowA:{genCores: null, SpawnAll: null},
-multiGrassLarge:{genCores: null, SpawnAll: null},
-multiGrassLeafsLarge:{genCores: null, SpawnAll: null},
-multitree_pineGroundA:{genCores: null, SpawnAll: null},
-multitree_pineGroundB:{genCores: null, SpawnAll: null},
-multitree_pineRoundA:{genCores: null, SpawnAll: null},
-multitree_pineRoundB:{genCores: null, SpawnAll: null},
-multitree_pineRoundC:{genCores: null, SpawnAll: null},
-multitree_pineRoundD:{genCores: null, SpawnAll: null},
-multitree_pineRoundE:{genCores: null, SpawnAll: null},
-multitree_pineRoundF:{genCores: null, SpawnAll: null},
-multitree_pineSmallA:{genCores: null, SpawnAll: null},
-multitree_pineSmallB:{genCores: null, SpawnAll: null},
-multitree_pineSmallC:{genCores: null, SpawnAll: null},
-multitree_pineSmallD:{genCores: null, SpawnAll: null},
-multitrunk:{genCores: null, SpawnAll: null},
-multitrunkLong:{genCores: null, SpawnAll: null},
-multipine:{genCores: null, SpawnAll: null},
-multipineCrooked:{genCores: null, SpawnAll: null},
-multitree_cone:{genCores: null, SpawnAll: null},
-multitree_default:{genCores: null, SpawnAll: null},
-multitree_fat:{genCores: null, SpawnAll: null},
-multitree_oak:{genCores: null, SpawnAll: null},
-multitree_pineDefaultA:{genCores: null, SpawnAll: null},
-multitree_pineDefaultB:{genCores: null, SpawnAll: null},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},}},
+forestScene2:{SpawnAll:null},
+multiRockFlatGrass:{genCores: null, SpawnAll: null},
+//mountains:{AddAllToScene: null},
+//multiFlowerPurpleA:{genCores: null, SpawnAll: null},
+//multiFlowerRedA:{genCores: null, SpawnAll: null},
+//multiFlowerYellowA:{genCores: null, SpawnAll: null},
+//multiGrassLarge:{genCores: null, SpawnAll: null},
+//multiGrassLeafsLarge:{genCores: null, SpawnAll: null},
+//multitree_pineGroundA:{genCores: null, SpawnAll: null},
+//multitree_pineGroundB:{genCores: null, SpawnAll: null},
+//multitree_pineRoundA:{genCores: null, SpawnAll: null},
+//multitree_pineRoundB:{genCores: null, SpawnAll: null},
+//multitree_pineRoundC:{genCores: null, SpawnAll: null},
+//multitree_pineRoundD:{genCores: null, SpawnAll: null},
+//multitree_pineRoundE:{genCores: null, SpawnAll: null},
+//multitree_pineRoundF:{genCores: null, SpawnAll: null},
+//multitree_pineSmallA:{genCores: null, SpawnAll: null},
+//multitree_pineSmallB:{genCores: null, SpawnAll: null},
+//multitree_pineSmallC:{genCores: null, SpawnAll: null},
+//multitree_pineSmallD:{genCores: null, SpawnAll: null},
+//multitrunk:{genCores: null, SpawnAll: null},
+//multitrunkLong:{genCores: null, SpawnAll: null},
+//multipine:{genCores: null, SpawnAll: null},
+//multipineCrooked:{genCores: null, SpawnAll: null},
+//multitree_cone:{genCores: null, SpawnAll: null},
+//multitree_default:{genCores: null, SpawnAll: null},
+//multitree_fat:{genCores: null, SpawnAll: null},
+//multitree_oak:{genCores: null, SpawnAll: null},
+//multitree_pineDefaultA:{genCores: null, SpawnAll: null},
+//multitree_pineDefaultB:{genCores: null, SpawnAll: null},
 },
 delay:{
 
@@ -6946,12 +10059,12 @@ interaction:{
 },
 exit:{
 HamGirl:{Remove: null},
+forestScene2:{DespawnAll:null},
 },
 map:{
 data: this.zone0Data.zone0Node0,
 },
 };
-
 
 //Snow Mountains w/Underground Cave
 //
@@ -6983,10 +10096,45 @@ sceneText: true,
 zone:{
 },
 start:{
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern69, color: "#d6a9ba", emissive: "#d6a9ba",},}},
-multiSnowMountainsBasic:{genCores: null, SpawnAll: null},
-eventTesting:{AddToScene: null, EnableDetail: 'This is a test detail to read.'},
-eventTesting2:{AddToScene: null, EnableDetail: 'This is another test detail to read.'},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern69, repeat: '150 150',color: "#d6a9ba", emissive: "#d6a9ba",},}},
+snowForestScene1:{SpawnAll:null},
+npc1:{Spawn: null},
+mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: mountainMatSnow}},
+//multiSnowMountainsBasic:{genCores: null, SpawnAll: null},
+},
+delay:{
+
+},
+interval:{
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+snowForestScene1:{DespawnAll:null},
+},
+map:{
+data: this.zone1Data.zone1Node0,
+},
+};
+//Node 1
+this.zone1Node1Data = {
+info:{
+id:'zone1Node1',
+name: 'Mountain Cave',
+description: 'Underground Shelter',
+sceneText: true,
+},
+zone:{
+},
+start:{
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern37, repeat: '150 150',color: "#bc8fa0", emissive: "#bc8fa0",},}},
+nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern81, repeat: '5 1.25', color: "#bc8fa0", emissive: "#bc8fa0",}}},
+eventTesting:{AddToScene: null, EnableDetail: 'This shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.'},
+eventTesting2:{AddToScene: null, EnableDetail: 'This also shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.'},
 eventTesting3:{AddToScene: null,},
 eventTesting4:{AddToScene: null,},
 },
@@ -7082,39 +10230,6 @@ exit:{
 
 },
 map:{
-data: this.zone1Data.zone1Node0,
-},
-};
-//Node 1
-this.zone1Node1Data = {
-info:{
-id:'zone1Node1',
-name: 'Mountain Cave',
-description: 'Underground Shelter',
-sceneText: true,
-},
-zone:{
-},
-start:{
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern37, color: "#bc8fa0", emissive: "#bc8fa0",},}},
-nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern81, repeat: '5 1.25', color: "#bc8fa0", emissive: "#bc8fa0",}}},
-npc1:{Spawn: null},
-},
-delay:{
-
-},
-interval:{
-},
-event:{
-
-},
-interaction:{
-
-},
-exit:{
-
-},
-map:{
 data: this.zone1Data.zone1Node1,
 },
 };
@@ -7146,9 +10261,10 @@ sceneText: true,
 zone:{
 },
 start:{
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern24, color: "#228343", emissive: "#228343",},}},
-multiRainyForestBasic:{genCores: null, SpawnAll: null},
-memory:{SpawnGame: null},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern24, repeat: '300 300', color: "#228343", emissive: "#228343",},}},
+
+forestScene1:{SpawnAll:null},
+mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: mountainMat1}},
 },
 delay:{
 },
@@ -7161,14 +10277,15 @@ interaction:{
 
 },
 exit:{
-memory:{DespawnGame: null},
+
+forestScene1:{DespawnAll:null},
 },
 map:{
 data: this.zone2Data.zone2Node0,
 },
 };
 
-//Grassy Hills w/Cabin House
+//Graveyard w/Cabin House
 //
 //Zone 3
 this.zone3Data = {
@@ -7192,16 +10309,18 @@ connect0: {inZone: true, node: 'zone3Node0',},
 this.zone3Node0Data = {
 info:{
 id:'zone3Node0',
-name: 'Grassy Hills',
-description: 'Vast Plains',
+name: 'Graveyard',
+description: 'Spooky Cemetary',
 sceneText: true,
 },
 zone:{
 },
 start:{
 npc0:{Spawn: null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern49, color: "#47a868", emissive: "#47a868",},}},
-multiGrassyHillsBasic:{genCores: null, SpawnAll: null},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern44, repeat: '150 150',color: "#618136", emissive: "#618136",},}},
+//multiGrassyHillsBasic:{genCores: null, SpawnAll: null},
+graveyardScene1:{SpawnAll:null},
+mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: mountainMat2}},
 },
 delay:{
 
@@ -7215,7 +10334,7 @@ interaction:{
 
 },
 exit:{
-
+graveyardScene1:{DespawnAll:null},
 },
 map:{
 data: this.zone3Data.zone3Node0,
@@ -7225,23 +10344,24 @@ data: this.zone3Data.zone3Node0,
 this.zone3Node1Data = {
 info:{
 id:'zone3Node1',
-name: 'Hill Cabin',
-description: 'Farm Shelter',
+name: 'Cemetary Cabin',
+description: 'Graveyard Shelter',
 sceneText: true,
 },
 zone:{
 
 },
 start:{
+/*
 ifElseCheckForTesting124:{IfElse: {player:{cond: 'testSpeechVar',
 ifTrue: {
 eventTesting5:{AddToScene: null},
 },ifFalse: {
 eventTesting4:{AddToScene: null},
 },}}
-},
-
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern50, repeat: '100 100',color: "#763a3a", emissive: "#763a3a",},}},
+},*/
+memory:{SpawnGame: null},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern50, repeat: '150 150',color: "#763a3a", emissive: "#763a3a",},}},
 nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
 },
 delay:{
@@ -7256,7 +10376,7 @@ interaction:{
 
 },
 exit:{
-
+memory:{DespawnGame: null},
 },
 map:{
 data: this.zone3Data.zone3Node1,
@@ -7290,9 +10410,11 @@ sceneText: true,
 zone:{
 },
 start:{
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern58, color: "#c1bd52", emissive: "#c1bd52",},}},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern58, repeat: '150 150',color: "#c1bd52", emissive: "#c1bd52",},}},
 npc2:{Spawn: null},
-multiDesertPlainsBasic:{genCores: null, SpawnAll: null},
+//multiDesertPlainsBasic:{genCores: null, SpawnAll: null},
+desertScene1:{SpawnAll:null},
+mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: mountainMat3}},
 },
 delay:{
 
@@ -7306,14 +10428,14 @@ interaction:{
 
 },
 exit:{
-
+desertScene1:{DespawnAll:null},
 },
 map:{
 data: this.zone4Data.zone4Node0,
 },
 };
 
-//Ocean Beach w/Underwater
+//Oasis Beach w/Underwater
 //
 //Zone 5
 this.zone5Data = {
@@ -7336,17 +10458,22 @@ connect0: {inZone: true, node: 'zone5Node0',},
 this.zone5Node0Data = {
 info:{
 id:'zone5Node0',
-name: 'Ocean Beach',
+name: 'Oasis Beach',
 description: 'Rolling Sands',
 sceneText: true,
 },
 zone:{
-eventTesting5:{AddToScene: null,},
+eventTesting5:{AddToScene: null},
 },
 start:{
-eventTesting5:{SetFlag:{flag: 'testExitVar', value: true},},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern55, color: "#b4933c", emissive: "#b4933c",},}},
-multiOceanBeachBasic:{genCores: null, SpawnAll: null},
+eventTesting5:{SetFlag:{flag: 'testExitVar', value: true}, EnableDetail: 'An example of using start/exit to set variables and change scene settings.'},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern55, repeat: '150 150',color: "#b4933c", emissive: "#b4933c",},}},
+//multiOceanBeachBasic:{genCores: null, SpawnAll: null},
+beachScene1:{SpawnAll:null},
+mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: mountainMat2}},
+canoe:{AddToScene:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(1.5,0,3),}},
+canoe_paddle:{AddToScene:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(-2,0.1,1),}},
+waterFloor:{AddToScene:null},
 },
 delay:{
 
@@ -7360,6 +10487,7 @@ interaction:{
 
 },
 exit:{
+beachScene1:{DespawnAll:null},
 eventTesting5:{IfElse: {eventTesting5:{cond: 'testExitVar',
 ifTrue: {
 eventTesting5:{ChangeSelf:{property: 'material', value: {src: pattern55,color: "#1f5298", emissive: "#1f5298",},}},
@@ -7384,8 +10512,10 @@ zone:{
 },
 start:{
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: false},},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern83, color: "#3c86b4", emissive: "#3c86b4",},}},
-nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern80, repeat: '5 1.25', color: "#3c86b4", emissive: "#3c86b4",}}},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern83, repeat: '150 150',color: "#3c86b4", emissive: "#3c86b4",},}},
+nodeWalls: {AddAllToScene: null,ChangeParent:{property: 'scale', value: new THREE.Vector3(15,15,15)},ChangeAll:{property: 'material', value: {src: pattern55, repeat: '5 1.25', color: "#275876", emissive: "#275876",}}},
+underwaterScene1:{SpawnAll:null},
+nodeCeiling:{AddToScene:null},
 },
 delay:{
 
@@ -7399,6 +10529,8 @@ interaction:{
 
 },
 exit:{
+underwaterScene1:{DespawnAll:null},
+nodeWalls: {ChangeParent:{property: 'scale', value: new THREE.Vector3(1,1,1)}},
 eventTesting5:{IfElse: {eventTesting5:{cond: 'testExitVar',
 ifTrue: {
 eventTesting5:{ChangeSelf:{property: 'material', value: {src: pattern55,color: "#1f5298", emissive: "#1f5298",},}},
@@ -7429,6 +10561,7 @@ this.fadeScreen = Core(this.fadeScreenData);
 this.sphereScreen = Core(this.sphereScreenData);
 this.blink1Screen = Core(this.blink1ScreenData);
 this.blink2Screen = Core(this.blink2ScreenData);
+this.playerPointLight = Core(this.playerPointLightData);
 this.playerAll = {
 parent: {core: this.playerRig},
 child0: {
@@ -7439,6 +10572,7 @@ child0: {
 	child3: {core: this.sphereScreen},
 	child4: {core: this.blink1Screen},
 	child5: {core: this.blink2Screen},
+	child6: {core: this.playerPointLight},
 },
 child1: {
 	parent: {core: this.vrController},
@@ -7643,6 +10777,10 @@ this.skyGrad = Core(this.skyGradData);
 
 //Node Floor
 this.nodeFloor = Core(this.nodeFloorData);
+//Node Ceiling
+this.nodeCeiling = Core(this.nodeCeilingData);
+//Water Floor
+this.waterFloor = Core(this.waterFloorData);
 
 //Node Walls
 this.nodeWallParent = Core(this.nodeWallParentData);
@@ -7667,6 +10805,135 @@ child2: {core: this.nodeWall3},
 child3: {core: this.nodeWall4},}
 this.nodeWalls = Layer('nodeWalls',this.nodeWallsData);
 
+//Horizon
+
+//Mountains
+this.mountainsParent = Core(this.mountainsParentData);
+this.mountainData.id = 'mountain1';
+this.mountainData.material = mountainMat1;
+this.mountainData.geometry.height = 5;
+this.mountainData.geometry.radiusBottom = 5;
+this.mountainData.geometry.thetaLength = 120;
+this.mountainData.geometry.thetaStart = 0;
+this.mountainData.position = new THREE.Vector3(175,0,175);
+this.mountain1 = Core(this.mountainData);
+this.mountainData.id = 'mountain2';
+this.mountainData.material = mountainMat2;
+this.mountainData.geometry.height = 3;
+this.mountainData.geometry.radiusBottom = 10;
+this.mountainData.geometry.thetaLength = 150;
+this.mountainData.geometry.thetaStart = -60;
+this.mountainData.position = new THREE.Vector3(75,0,250);
+this.mountain2 = Core(this.mountainData);
+this.mountainData.id = 'mountain3';
+this.mountainData.material = mountainMat1;
+this.mountainData.geometry.height = 5;
+this.mountainData.geometry.radiusBottom = 5;
+this.mountainData.geometry.thetaLength = 120;
+this.mountainData.geometry.thetaStart = 75;
+this.mountainData.position = new THREE.Vector3(332,0,-192);
+this.mountain3 = Core(this.mountainData);
+this.mountainData.id = 'mountain4';
+this.mountainData.material = mountainMat2;
+this.mountainData.geometry.height = 3;
+this.mountainData.geometry.radiusBottom = 10;
+this.mountainData.geometry.thetaLength = 160;
+this.mountainData.geometry.thetaStart = 0;
+this.mountainData.position = new THREE.Vector3(240,0,45);
+this.mountain4 = Core(this.mountainData);
+this.mountainData.id = 'mountain5';
+this.mountainData.material = mountainMat1;
+this.mountainData.geometry.height = 5;
+this.mountainData.geometry.radiusBottom = 5;
+this.mountainData.geometry.thetaLength = 120;
+this.mountainData.geometry.thetaStart = 145;
+this.mountainData.position = new THREE.Vector3(-84,0,-194);
+this.mountain5 = Core(this.mountainData);
+this.mountainData.id = 'mountain6';
+this.mountainData.material = mountainMat2;
+this.mountainData.geometry.height = 3;
+this.mountainData.geometry.radiusBottom = 10;
+this.mountainData.geometry.thetaLength = 160;
+this.mountainData.geometry.thetaStart = 90;
+this.mountainData.position = new THREE.Vector3(143,0,-220);
+this.mountain6 = Core(this.mountainData);
+this.mountainData.id = 'mountain7';
+this.mountainData.material = mountainMat1;
+this.mountainData.geometry.height = 5;
+this.mountainData.geometry.radiusBottom = 5;
+this.mountainData.geometry.thetaLength = 120;
+this.mountainData.geometry.thetaStart = 260;
+this.mountainData.position = new THREE.Vector3(-291,0,174);
+this.mountain7 = Core(this.mountainData);
+this.mountainData.id = 'mountain8';
+this.mountainData.material = mountainMat2;
+this.mountainData.geometry.height = 3;
+this.mountainData.geometry.radiusBottom = 10;
+this.mountainData.geometry.thetaLength = 160;
+this.mountainData.geometry.thetaStart = 180;
+this.mountainData.position = new THREE.Vector3(-254,0,-98);
+this.mountain8 = Core(this.mountainData);
+this.mountainData.id = 'mountain9';
+this.mountainData.material = mountainMat1;
+this.mountainData.geometry.height = 3;
+this.mountainData.geometry.radiusBottom = 10;
+this.mountainData.geometry.thetaLength = 130;
+this.mountainData.geometry.thetaStart = -85;
+this.mountainData.position = new THREE.Vector3(-174,0,243);
+this.mountain9 = Core(this.mountainData);
+this.mountainData.id = 'mountain10';
+this.mountainData.material = mountainMat2;
+this.mountainData.geometry.height = 3;
+this.mountainData.geometry.radiusBottom = 10;
+this.mountainData.geometry.thetaLength = 150;
+this.mountainData.geometry.thetaStart = -140;
+this.mountainData.position = new THREE.Vector3(-325,0,42);
+this.mountain10 = Core(this.mountainData);
+this.mountainData.id = 'mountain11';
+this.mountainData.material = mountainMat1;
+this.mountainData.geometry.height = 5;
+this.mountainData.geometry.radiusBottom = 5;
+this.mountainData.geometry.thetaLength = 120;
+this.mountainData.geometry.thetaStart = 115;
+this.mountainData.position = new THREE.Vector3(-55,0,-284);
+this.mountain11 = Core(this.mountainData);
+this.mountainData.id = 'mountain12';
+this.mountainData.material = mountainMat2;
+this.mountainData.geometry.height = 5;
+this.mountainData.geometry.radiusBottom = 5;
+this.mountainData.geometry.thetaLength = 120;
+this.mountainData.geometry.thetaStart = 175;
+this.mountainData.position = new THREE.Vector3(-180,0,-285);
+this.mountain12 = Core(this.mountainData);
+this.mountainsLayerData = {
+parent: {core: this.mountainsParent}, 
+child0: {core: this.mountain1}, 
+child1: {core: this.mountain2},
+child2: {core: this.mountain3},
+child3: {core: this.mountain4},
+child4: {core: this.mountain5},
+child5: {core: this.mountain6},
+child6: {core: this.mountain7},
+child7: {core: this.mountain8},
+child8: {core: this.mountain9},
+child9: {core: this.mountain10},
+child10: {core: this.mountain11},
+child11: {core: this.mountain12},
+}
+this.mountains = Layer('mountains',this.mountainsLayerData);
+
+//
+//Scene Gen
+
+//Forest Scene 1
+this.forestScene1 = SceneAssetGen(this.forestScene1Data);
+this.forestScene2 = SceneAssetGen(this.forestScene2Data);
+this.snowForestScene1 = SceneAssetGen(this.snowForestScene1Data);
+this.graveyardScene1 = SceneAssetGen(this.graveyardScene1Data);
+this.desertScene1 = SceneAssetGen(this.desertScene1Data);
+this.beachScene1 = SceneAssetGen(this.beachScene1Data);
+this.underwaterScene1 = SceneAssetGen(this.underwaterScene1Data);
+
 //Environment Basics
 this.multiSnowMountainsBasic = ObjsGenRing(this.multiSnowMountainsBasicData);
 this.multiRainyForestBasic = ObjsGenRing(this.multiRainyForestBasicData);
@@ -7675,6 +10942,7 @@ this.multiDesertPlainsBasic = ObjsGenRing(this.multiDesertPlainsBasicData);
 this.multiOceanBeachBasic = ObjsGenRing(this.multiOceanBeachBasicData);
 
 //Forest Multi
+this.multiRockFlatGrass = ObjsGenRing(this.multiRockFlatGrassData);
 this.multiFlowerPurpleA = ObjsGenRing(this.multiFlowerPurpleAData);
 this.multiFlowerRedA = ObjsGenRing(this.multiFlowerRedAData);
 this.multiFlowerYellowA = ObjsGenRing(this.multiFlowerYellowAData);
@@ -7702,6 +10970,11 @@ this.multitree_fat = ObjsGenRing(this.multitree_fatData);
 this.multitree_oak = ObjsGenRing(this.multitree_oakData);
 this.multitree_pineDefaultA = ObjsGenRing(this.multitree_pineDefaultAData);
 this.multitree_pineDefaultB = ObjsGenRing(this.multitree_pineDefaultBData);
+
+
+//Desert
+this.canoe = Core(this.canoeData);
+this.canoe_paddle = Core(this.canoe_paddleData);
 
 //Forest
 /*
@@ -8519,6 +11792,143 @@ init: function () {
 //End Init
 },
 
+remove: function () {
+	//Do something the component or its entity is detached.
+	//Called when the component is removed from the entity (e.g., via removeAttribute) or when the entity is detached from the scene. Used to undo all previous modifications to the entity.
+
+	//
+	//VR Event Listeners
+
+	//Belt Controller Event Listeners
+	if(this.movetype === 'vr'){
+		//directionForward
+		directionForward.removeEventListener('mouseenter', movingForward);
+		directionForward.removeEventListener('mouseleave', cancelForward);
+		//directionReverse
+		directionReverse.removeEventListener('mouseenter', movingReverse);
+		directionReverse.removeEventListener('mouseleave', cancelReverse);
+		//This format does not like functions inside, adjust to allow
+		//directionBrakes
+		document.querySelectorAll('.directionBrake').forEach(item => {
+			item.removeEventListener('mouseenter', event => {
+				//Brake is disabled for 1.5 seconds after engaging
+				if(brakeReady){
+					if(brakeToggle){
+						//Set reset switch toggle
+						brakeToggle = false;
+						//Set reset timer switch toggle
+						brakeReady = false;
+						//Brake On
+						moveBrake = true;
+						//set brake color to red
+						directionBrake1.setAttribute('material', {color: 'red'});
+						directionBrake2.setAttribute('material', {color: 'red'});
+						directionBrake3.setAttribute('material', {color: 'red'});
+						directionBrake4.setAttribute('material', {color: 'red'});
+						//anim positition for forward/reverse bar and brakes
+						directionForward.emit('brakeOn',{});
+						directionReverse.emit('brakeOn',{});
+						directionBrake1.emit('brakeOn',{});
+						directionBrake2.emit('brakeOn',{});
+						directionBrake3.emit('brakeOn',{});
+						directionBrake4.emit('brakeOn',{});
+					} else {
+						//Set reset switch toggle
+						brakeToggle = true;
+						//Set reset timer switch toggle
+						brakeReady = false;
+						//Brake Off
+						moveBrake = false;
+						//set brake color to default
+						directionBrake1.setAttribute('material', {color: 'black'});
+						directionBrake2.setAttribute('material', {color: 'black'});
+						directionBrake3.setAttribute('material', {color: 'black'});
+						directionBrake4.setAttribute('material', {color: 'black'});
+						//anim positition for forward/reverse bar back to default
+						directionForward.emit('brakeOff',{});
+						directionReverse.emit('brakeOff',{});
+						directionBrake1.emit('brakeOff',{});
+						directionBrake2.emit('brakeOff',{});
+						directionBrake3.emit('brakeOff',{});
+						directionBrake4.emit('brakeOff',{});
+					}
+				}
+			})
+		});
+		document.querySelectorAll('.directionBrake').forEach(item => {
+			item.removeEventListener('mouseleave', event => {
+				//This will start the reset timer to allow the brake to be re-engadged
+				//Brake Reset Timeout
+				brakeReset = setTimeout(function () {
+					//Set reset switch toggle
+					brakeReady = true;
+				}, 2250); //Delay
+			})
+		});
+
+		//
+		//Quest Controller
+	}
+
+
+	//Keyboard Controller Event Listeners
+	//
+	//Key Down - WASD | QE
+	document.body.removeEventListener('keydown', function (e) {
+		if (e.key === 'w' || e.key === 'W') {
+			movingForward();
+		} else if (e.key === 'a' || e.key === 'A') {
+			movingLeft();
+		} else if (e.key === 's' || e.key === 'S') {
+			movingReverse();
+		} else if (e.key === 'd' || e.key === 'D') {
+			movingRight();
+		} else if (e.key === 'q' || e.key === 'Q') {
+			//Special Button 1
+			//console.log('button 1');
+		} else if (e.key === 'e' || e.key === 'E') {
+			//Special Button 2
+			//console.log('button 2');
+			console.log('Toggle Speed');
+			toggleSpeed();
+		}
+	});
+	//Key Down - WASD | QE
+	document.body.removeEventListener('keyup', function (e) {
+		if (e.key === 'w' || e.key === 'W') {
+			cancelForward();
+		} else if (e.key === 'a' || e.key === 'A') {
+			cancelLeft();
+		} else if (e.key === 's' || e.key === 'S') {
+			cancelReverse();
+		} else if (e.key === 'd' || e.key === 'D') {
+			cancelRight();
+		} else if (e.key === 'q' || e.key === 'Q') {
+			//Special Button 1
+			//console.log('button 1');
+		} else if (e.key === 'e' || e.key === 'E') {
+			//Special Button 2
+			//console.log('button 2');
+			brakeReadyBuffer();
+		}
+	});
+
+	//HTML Controller Event Listeners
+	//
+	//Mouse Down
+	htmlUp.removeEventListener('mousedown', movingForward);
+	htmlLeft.removeEventListener('mousedown', movingLeft);
+	htmlRight.removeEventListener('mousedown', movingRight);
+	htmlDown.removeEventListener('mousedown', movingReverse);
+	htmlb.removeEventListener('mousedown', toggleSpeed);
+	//Mouse Up
+	htmlUp.removeEventListener('mouseup', cancelForward);
+	htmlLeft.removeEventListener('mouseup', cancelLeft);
+	htmlRight.removeEventListener('mouseup', cancelRight);
+	htmlDown.removeEventListener('mouseup', cancelReverse);
+	htmlb.removeEventListener('mouseup', brakeReadyBuffer);
+},
+
 everySome: function (time, timeDelta) {
 	//Do something on every scene tick or frame.
 	//console.log('everysome running');
@@ -8945,7 +12355,7 @@ init: function(){
 		element.parentNode.setAttribute('active', 'false');
 	}
 	//Reset Event
-	this.el.addEventListener('reset', function() {
+	function resetEvent(){
 		if (element.classList.contains('teleport')) {
 			active = false; //is the button active for teleport
 			//Reset parent wrapper's active status
@@ -8956,9 +12366,11 @@ init: function(){
 			//Reset parent wrapper's active status
 			element.parentNode.setAttribute('active', 'false');
 		}
-	});
+	}
+	this.el.addEventListener('reset', resetEvent);
+
 	//Reset Instant Event
-	this.el.addEventListener('resetInstant', function() {
+	function resetInstantEvent(){
 		if (element.classList.contains('teleport')) {
 			active = false; //is the button active for teleport
 			//Reset parent wrapper's active status
@@ -8969,10 +12381,11 @@ init: function(){
 			//Reset parent wrapper's active status
 			element.parentNode.setAttribute('active', 'false');
 		}
-	});
+	}
+	this.el.addEventListener('resetInstant', resetInstantEvent);
 
 	//Listen for Click to teleport
-	this.el.addEventListener('click', function(){
+	function clickToTeleport(){
 		if(element.parentNode.getAttribute('active') === 'false') {
 			//default state
 			//Allow cancel circle to be viewable and clickable
@@ -9057,7 +12470,14 @@ init: function(){
 			}
 
 		}
-	});
+	}
+	this.el.addEventListener('click', clickToTeleport);
+},
+remove: function () {
+	//Do something the component or its entity is detached.
+	this.el.removeEventListener('reset', resetEvent);
+	this.el.removeEventListener('resetInstant', resetInstantEvent);
+	this.el.removeEventListener('click', clickToTeleport);
 },
 });
 
