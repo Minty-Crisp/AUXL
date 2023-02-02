@@ -5,28 +5,43 @@ built specifically for use with [A-Frame](https://github.com/aframevr/)
 [View Example](https://minty-crisp.github.io/AUXL/)
 
 # v0.1 Summary :
-- Datas, Cores & Layers for in-scene object entities with Details Prompt & Scene Tracking
-- Menu Generator w/ Scene Tracking
-- Carousel Image Viewer w/ Scene Tracking
-- Multi Object Randomized Environment Spawner w/ Scene Tracking
+- Datas, Cores & Layers for in-scene object entities with Details Prompt
+- Menu Generator
+- Carousel Image Viewer
+- Memory Mini Game
 - Map Nodes & Zones for Dynamic Scene Swapping with Locks & Keys
 - Scene Swap with Start, Delay, Interval, Interaction, Event & Exit checks with Conditionals/Flag Support for Cores, Layers and Special Objects
+- Object Scene Tracking for Auto Removal on Scene/Zone Swap
+- Procedural Object Spawning of Single or Multiple Sets of Assets
+- DayNight Environmental Cycle & Lighting
 - NPC Avatar Book Progressive Text Tree Viewer with Conditionals/Flag Support & Scene Tracking
 - 3D Companion (Hamburger Menu) Control Settings
-- VR/2D Mode Player w/ Scene Transitions Animations
-- HTML System Menu to Start Experience, Adjust Controls for Desktop/VR/Mobile, Toggle Audio & View Scenario Instructions
-- Misc : Color Theory Swatch Generator
-- Components : detect-input(dev debug), attach and support interaction event components
+- VR/2D Mode Player w/ Scene Transitions Animations & Interaction Reactivity
+- Locomotion Movement with VR Belt UI, WASD and Mobile HTML Controller 
+- Teleportation Movement to Assigned Point Spawners
+- HTML System Menu to Start Experience, Adjust Controls|Audio & View Instructions
+- Color Theory Swatch Generator from Provided, Random or within a Color Family
+- Components : detect-input(dev debug), attach, support interaction event components, locomotion & teleportation.
 
 # AUXL v0.1 is still an in progress build!
-Further testing, minor fixes and visual polish are still needed for a solid base version including basic documentation and a few scenario examples as well.
+A few final adjustments are still needed before the initial v0.1 is complete. While ready to be tested and played with, various planned improvements for v0.2 will solidify the base version more complete in what I had in mind. Allowing updates after that point to focus more on adding unique features as well as being ready to for an accompanying Wiki, Tutorials & sets of Examples to showcase features.
 
-# v0.2+ Roadmap :
-- v0.1 System Improvements
+# v0.2 Roadmap :
 - Seperation of System & Data
 - Controls Abstraction Layer
+- Dedicated Scenario Initializer
+- Dedicated Zone Initializers
+- Asset Loading & Storage for Session Optimization
+- Improved Asset Distribution Accuracy in Procedural Spawners
+- Mobile Improvements
+- Various Minor Support Functions
+
+# v0.3+ Roadmap :
+- 1st Person to 3rd Person Mode Swapping
+- VRM Asset Support for Reaction Animations
+- Randomized Animations for Procedural Object Generators
 - 3D Object Inspection
-- More Object/Image Galleries
+- More Object/Image Gallery Layouts
 - AR Background & GPS Support
 - Horizon, Foley & Weather Spawns
 - Venue|Stage|Forum

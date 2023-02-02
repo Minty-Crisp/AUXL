@@ -2765,7 +2765,7 @@ ham.sceneSettingsOpen = false;
 //Scene Settings : Color Themes, Accessibility, Scene Info, etc...
 let systemMenuButtons = {
 travelSettings: 'Travel Settings',
-sceneSettings: 'Scene Settings',
+sceneSettings: '[DISABLED]',
 };
 
 let travelSettingsButtons = {
@@ -4924,8 +4924,8 @@ sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.1, width: 1, height: 1},
 material: false,
-position: new THREE.Vector3(0,1.5,-2),
-rotation: new THREE.Vector3(0,0,0),
+position: new THREE.Vector3(2,1.5,0),
+rotation: new THREE.Vector3(0,-90,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
@@ -5602,7 +5602,7 @@ sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {shader: "standard", src: pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(-0.75,1.25,-0.5),
+position: new THREE.Vector3(-0.75,1.25,-0.75),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
@@ -5619,7 +5619,7 @@ sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {shader: "standard", src: pattern15, repeat: '1 1', color: "#3999a5", emissive: '#3999a5', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0.75,1.25,-0.5),
+position: new THREE.Vector3(0.75,1.25,-0.75),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
@@ -5636,7 +5636,7 @@ sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {shader: "standard", src: pattern22, repeat: '1 1', color: "#ad482a", emissive: '#ad482a', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,1.25,-0.5),
+position: new THREE.Vector3(0,1.25,-0.75),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
@@ -5653,7 +5653,7 @@ sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {shader: "standard", src: pattern27, repeat: '1 1', color: "#d2e025", emissive: '#d2e025', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,2,-0.5),
+position: new THREE.Vector3(0,2,-0.75),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
@@ -5717,7 +5717,7 @@ position: new THREE.Vector3(-1,1,-1),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: {
-daylight:{property: 'light.intensity', from: 0.1, to: 1.25, dur: aThis.timeInDay/4, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+daylight:{property: 'light.intensity', from: 0.1, to: 1, dur: aThis.timeInDay/4, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
 daypos:{property: 'position', from: new THREE.Vector3(-1,1,-1), to: new THREE.Vector3(1,1,1), dur: aThis.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
 },
 mixins: false,
@@ -5740,7 +5740,7 @@ position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: {
-daylight:{property: 'light.intensity', from: 0.7, to: 0.4, dur: aThis.timeInDay/2, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+daylight:{property: 'light.intensity', from: 0.5, to: 0.25, dur: aThis.timeInDay/2, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
 daycolor:{property: 'light.color', from: '#99154E', to: '#fffb96', dur: aThis.timeInDay/4, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
 },
 mixins: false,
@@ -5762,7 +5762,7 @@ position: new THREE.Vector3(1,1,1),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: {
-nightlight:{property: 'light.intensity', from: 0.3, to: 0.1, dur: aThis.timeInDay/4, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
+nightlight:{property: 'light.intensity', from: 0.2, to: 0.1, dur: aThis.timeInDay/4, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
 daypos:{property: 'position', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(-1,1,-1), dur: aThis.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise'},
 
 },
@@ -10362,6 +10362,7 @@ eventTesting4:{AddToScene: null},
 memory:{SpawnGame: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern50, repeat: '150 150',color: "#763a3a", emissive: "#763a3a",},}},
 nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
+carousel1:{Show: null},
 },
 delay:{
 
@@ -11018,6 +11019,10 @@ this.tree_pineSmallD = Core(this.tree_pineSmallDData);
 this.trunk = Core(this.trunkData);
 this.trunkLong = Core(this.trunkLongData);
 */
+
+//
+//Carousel
+this.carousel1 = Carousel('carousel1',this.carouselViewData, this.carouselButtonData, mat0, mat1, mat2, mat3, mat4);
 
 //
 //Memory
