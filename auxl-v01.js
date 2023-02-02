@@ -3727,9 +3727,8 @@ function* poissonDiscSampler(width, height, radius, center){
 			}
 		}
 	}
-
+	genCores();
 	const SpawnAll = () => {
-		genCores();
 		//console.log(scene.assets)
 		//loop throusgh each size
 		for(let type in sizes){
@@ -7726,7 +7725,7 @@ sources: false,
 text: false,
 geometry: false,
 material: false,
-position: new THREE.Vector3(0,0,0),
+position: new THREE.Vector3(0,-30,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(5,5,5),
 animations:false,
@@ -7745,7 +7744,7 @@ text: false,
 geometry: false,
 material: false,
 position: new THREE.Vector3(0,0.1,0),
-rotation: new THREE.Vector3(0,-30,0),
+rotation: new THREE.Vector3(0,15,0),
 scale: new THREE.Vector3(3,3,3),
 animations:false,
 mixins: false,
