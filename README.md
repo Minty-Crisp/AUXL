@@ -23,8 +23,8 @@ built specifically for use with [A-Frame](https://github.com/aframevr/)
 - Color Theory Swatch Generator from Provided, Random or within a Color Family
 - Components : detect-input(dev debug), attach, support interaction event components, locomotion & teleportation.
 
-# AUXL v0.1 is still an in progress build!
-A few final adjustments are still needed before the initial v0.1 is complete. While ready to be tested and played with, various planned improvements for v0.2 will solidify the base version more complete in what I had in mind. Allowing updates after that point to focus more on adding unique features as well as being ready to for an accompanying Wiki, Tutorials & sets of Examples to showcase features.
+# AUXL is still an in progress build!
+While ready to be tested and played with, various planned improvements for v0.2 will solidify the base version more complete in what I had in mind. Allowing updates after that point to focus more on adding unique features as well as being ready to for an accompanying Wiki, Tutorials & sets of Examples to showcase features.
 
 # v0.2 Roadmap :
 - Seperation of System & Data
