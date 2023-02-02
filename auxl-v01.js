@@ -128,13 +128,18 @@ stickyMenu.addEventListener('click', toggleMenu);
 //Start Experience
 function startExp(){
 	if(aThis.expStarted){}else{
-		let timeoutSpawn = setTimeout(function () {
+		let timeoutSpawn1 = setTimeout(function () {
+			spawnEnvironmentGlobals();
+			clearTimeout(timeoutSpawn1);
+		}, 400);
+		let timeoutSpawn2 = setTimeout(function () {
 			startButton.innerHTML = 'Resume'
 			aThis.zone0.StartScene();
 			updateControls();
-			aThis.expStarted = true;
 			dayNight();
-			clearTimeout(timeoutSpawn);
+			spawnBasicTeleportationPoints();
+			aThis.expStarted = true;
+			clearTimeout(timeoutSpawn2);
 		}, 425);
 		playerSpawnAnim();
 	}
@@ -4924,7 +4929,7 @@ sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.1, width: 1, height: 1},
 material: false,
-position: new THREE.Vector3(2,1.5,0),
+position: new THREE.Vector3(2,1.5,0.25),
 rotation: new THREE.Vector3(0,-90,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
@@ -5927,24 +5932,6 @@ classes: ['a-ent'],
 components: false,
 };
 
-//Node Ceiling
-this.nodeCeilingData = {
-data:'nodeCeilingData',
-id:'nodeCeiling',
-sources:false,
-text: false,
-//geometry: {primitive: 'circle', radius: 360, segments: 32, thetaStart: 0, thetaLength: 360},
-geometry: {primitive: 'plane', width: 600, height: 600,},
-material: {shader: "standard", src: pattern80, repeat: '25 25',color: "#3c86b4", opacity: 0.69, metalness: 0.8, roughness: 0.2, emissive: "#3c86b4", emissiveIntensity: 0.2, side: 'back'},
-position: new THREE.Vector3(0,30,0),
-rotation: new THREE.Vector3(-90,0,0),
-scale: new THREE.Vector3(0.5,0.5,0.02),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
 //Water Floor
 this.waterFloorData = {
 data:'waterFloorData',
@@ -5962,6 +5949,43 @@ daycolor2:{property: 'material.color', from: '#298625', to: '#613381', dur: 1800
 nightcolor:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunset'},
 nightcolor2:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90000, delay: 90000, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunset'},
 },
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Ceilings
+//
+
+//Node Ceiling
+this.nodeCeilingData = {
+data:'nodeCeilingData',
+id:'nodeCeiling',
+sources:false,
+text: false,
+geometry: {primitive: 'plane', width: 300, height: 300,},
+material: {shader: "standard", src: pattern80, repeat: '25 25',color: "#3c86b4", opacity: 0.69, metalness: 0.8, roughness: 0.2, emissive: "#3c86b4", emissiveIntensity: 0.2, side: 'back'},
+position: new THREE.Vector3(0,30,0),
+rotation: new THREE.Vector3(-90,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Small Ceiling
+this.smallCeilingData = {
+data:'smallCeilingData',
+id:'smallCeiling',
+sources:false,
+text: false,
+geometry: {primitive: 'plane', width: 20, height: 20,},
+material: {shader: "standard", src: pattern80, repeat: '40 40',color: "#214a64", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#214a64", emissiveIntensity: 0.2, side: 'back'},
+position: new THREE.Vector3(0,4,0),
+rotation: new THREE.Vector3(-90,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
 mixins: false,
 classes: ['a-ent'],
 components: false,
@@ -6032,6 +6056,28 @@ position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(20,20,20),
 animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Clouds
+//
+
+//Clouds
+this.cloudData = {
+data:'cloudData',
+id:'cloud',
+sources:false,
+text: false,
+geometry: {primitive: 'sphere', radius: 100, segmentsWidth: 36, segmentsHeight: 18, phiLength: 360, phiStart: 0, thetaLength: 360, thetaStart: 0},
+material: {shader: 'threeColorGradientShader', topColor: '#bf83b8', middleColor: '#795474', bottomColor: '#cb9cc5', side: 'back',},
+position: new THREE.Vector3(-250,100,-350),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,0.25,0.75),
+animations:{
+rotate:{property: 'rotation', from: new THREE.Vector3(0,0,0), to: new THREE.Vector3(45,360,45), dur: aThis.timeInDay, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
+},
 mixins: false,
 classes: ['a-ent'],
 components: false,
@@ -10136,6 +10182,7 @@ eventTesting:{AddToScene: null, EnableDetail: 'This shows various ways to utiliz
 eventTesting2:{AddToScene: null, EnableDetail: 'This also shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.'},
 eventTesting3:{AddToScene: null,},
 eventTesting4:{AddToScene: null,},
+smallCeiling: {AddToScene: null,ChangeSelf:{property: 'material', value: {src: pattern76, repeat: '10 10', color: "#9b7a87", emissive: "#9b7a87",}}},
 },
 delay:{
 2000:{
@@ -10233,7 +10280,7 @@ data: this.zone1Data.zone1Node1,
 },
 };
 
-//Rainy Forest
+//Deep Forest
 //
 //Zone 2
 this.zone2Data = {
@@ -10253,8 +10300,8 @@ connect2: {inZone: 'zone3', node: 'zone3Node0',},
 this.zone2Node0Data = {
 info:{
 id:'zone2Node0',
-name: 'Rainy Forest',
-description: 'Deep Wetlands',
+name: 'Deep Forest',
+description: 'Thick Woodlands',
 sceneText: true,
 },
 zone:{
@@ -10362,6 +10409,7 @@ eventTesting4:{AddToScene: null},
 memory:{SpawnGame: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: pattern50, repeat: '150 150',color: "#763a3a", emissive: "#763a3a",},}},
 nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
+smallCeiling: {AddToScene: null,ChangeSelf:{property: 'material', value: {src: pattern22, repeat: '5 5', color: "#623018", emissive: "#623018",}}},
 carousel1:{Show: null},
 },
 delay:{
@@ -10779,6 +10827,7 @@ this.skyGrad = Core(this.skyGradData);
 this.nodeFloor = Core(this.nodeFloorData);
 //Node Ceiling
 this.nodeCeiling = Core(this.nodeCeilingData);
+this.smallCeiling = Core(this.smallCeilingData);
 //Water Floor
 this.waterFloor = Core(this.waterFloorData);
 
@@ -10922,6 +10971,40 @@ child11: {core: this.mountain12},
 }
 this.mountains = Layer('mountains',this.mountainsLayerData);
 
+//Clouds
+this.cloudData.id = 'cloud1';
+this.cloudData.position = new THREE.Vector3(-150,200,-300);
+this.cloudData.scale = new THREE.Vector3(1,0.25,0.75);
+this.cloud1 = Core(this.cloudData);
+this.cloudData.id = 'cloud2';
+this.cloudData.position = new THREE.Vector3(-150,200,200);
+this.cloudData.scale = new THREE.Vector3(1,0.25,0.75);
+this.cloud2 = Core(this.cloudData);
+this.cloudData.id = 'cloud3';
+this.cloudData.position = new THREE.Vector3(-50,200,-300);
+this.cloudData.scale = new THREE.Vector3(0.5,0.5,0.25);
+this.cloud3 = Core(this.cloudData);
+this.cloudData.id = 'cloud4';
+this.cloudData.position = new THREE.Vector3(-300,200,-50);
+this.cloudData.scale = new THREE.Vector3(0.25,0.75,0.75);
+this.cloud4 = Core(this.cloudData);
+this.cloudData.id = 'cloud5';
+this.cloudData.position = new THREE.Vector3(100,200,-100);
+this.cloudData.scale = new THREE.Vector3(0.25,1,0.5);
+this.cloud5 = Core(this.cloudData);
+this.cloudData.id = 'cloud6';
+this.cloudData.position = new THREE.Vector3(-25,200,25);
+this.cloudData.scale = new THREE.Vector3(1,0.5,0.25);
+this.cloud6 = Core(this.cloudData);
+this.cloudData.id = 'cloud7';
+this.cloudData.position = new THREE.Vector3(-200,200,50);
+this.cloudData.scale = new THREE.Vector3(1,0.25,0.75);
+this.cloud7 = Core(this.cloudData);
+this.cloudData.id = 'cloud8';
+this.cloudData.position = new THREE.Vector3(50,200,100);
+this.cloudData.scale = new THREE.Vector3(0.75,0.25,0.75);
+this.cloud8 = Core(this.cloudData);
+
 //
 //Scene Gen
 
@@ -11034,21 +11117,35 @@ this.memory = MemoryGame(this.memory0Data,this.memory1Data,this.memory2Data,this
 
 //
 //Environmental Globals
-this.directionalLight.AddToScene(false, false, true);
-this.directionalLight2.AddToScene(false, false, true);
-this.directionalLight3.AddToScene(false, false, true);
-this.ambientLight.AddToScene(false, false, true);
-this.skyGrad.AddToScene(false, false, true);
-this.sunLayer.AddAllToScene(true);
-this.moonLayer.AddAllToScene(true);
-this.nodeFloor.AddToScene(false, false, true);
+
 
 //Teleportation Points
-this.teleportOriginLayer.AddAllToScene(true);
-this.teleport1Layer.AddAllToScene(true);
-this.teleport2Layer.AddAllToScene(true);
-this.teleport3Layer.AddAllToScene(true);
-this.teleport4Layer.AddAllToScene(true);
+function spawnBasicTeleportationPoints(){
+	aThis.teleportOriginLayer.AddAllToScene(true);
+	aThis.teleport1Layer.AddAllToScene(true);
+	aThis.teleport2Layer.AddAllToScene(true);
+	aThis.teleport3Layer.AddAllToScene(true);
+	aThis.teleport4Layer.AddAllToScene(true);
+}
+
+function spawnEnvironmentGlobals(){
+	aThis.directionalLight.AddToScene(false, false, true);
+	aThis.directionalLight2.AddToScene(false, false, true);
+	aThis.directionalLight3.AddToScene(false, false, true);
+	aThis.ambientLight.AddToScene(false, false, true);
+	aThis.skyGrad.AddToScene(false, false, true);
+	aThis.sunLayer.AddAllToScene(true);
+	aThis.moonLayer.AddAllToScene(true);
+	aThis.nodeFloor.AddToScene(false, false, true);
+	aThis.cloud1.AddToScene(false, false, true);
+	aThis.cloud2.AddToScene(false, false, true);
+	aThis.cloud3.AddToScene(false, false, true);
+	aThis.cloud4.AddToScene(false, false, true);
+	aThis.cloud5.AddToScene(false, false, true);
+	aThis.cloud6.AddToScene(false, false, true);
+	aThis.cloud7.AddToScene(false, false, true);
+	aThis.cloud8.AddToScene(false, false, true);
+}
 
 //Floating Island - Connects to all zones
 //Zone 0
@@ -11490,6 +11587,85 @@ let brakeToggle = false;
 let brakeReset; //Delay
 let moveSpeedDefault = 0.075;
 let moveSpeedSlow = 0.03;
+//Move Forward
+function movingForward(){
+	if(moveTo){}else{
+		moveTo = true;
+	}
+}
+//Cancel Forward
+function cancelForward(){
+	if(moveTo){
+		moveTo = false;
+	}
+}
+//Move Reverse
+function movingReverse(){
+	if(moveBack){}else{
+		moveBack = true;
+	}
+}
+//Cancel Reverse
+function cancelReverse(){
+	if(moveBack){
+		moveBack = false;
+	}
+}
+//Move Left
+function movingLeft(){
+	if(moveLeft){}else{
+		moveLeft = true;
+	}
+}
+//Cancel Left
+function cancelLeft(){
+	if(moveLeft){
+		moveLeft = false;
+	}
+}
+//Move Right
+function movingRight(){
+	if(moveRight){}else{
+		moveRight = true;
+	}
+}
+//Cancel Right
+function cancelRight(){
+	if(moveRight){
+		moveRight = false;
+	}
+}
+//Toggle Speed Change
+function toggleSpeed(){
+	console.log('Toggling Speed');
+	//Brake is disabled for 1.5 seconds after engaging
+	if(brakeReady){
+		if(brakeToggle){
+			console.log('Break On');
+			//Set reset switch toggle
+			brakeToggle = false;
+			//Set reset timer switch toggle
+			brakeReady = false;
+			//Brake On
+			moveBrake = true;
+		} else {
+			console.log('Break Off');
+			//Set reset switch toggle
+			brakeToggle = true;
+			//Set reset timer switch toggle
+			brakeReady = false;
+			//Brake Off
+			moveBrake = false;
+		}
+	}
+}
+//Buffer for Toggling Speed Change
+function brakeReadyBuffer(){
+	brakeReset = setTimeout(function () {
+		//Set reset switch toggle
+		brakeReady = true;
+	}, 250); //Delay
+}
 
 //
 //Locomotion
@@ -11527,30 +11703,30 @@ init: function () {
 
 	//
 	//Band Controller Support
-	let directionForward;
-	let directionReverse;
-	let directionBrake1;
-	let directionBrake2;
-	let directionBrake3;
-	let directionBrake4;
+	this.directionForward;
+	this.directionReverse;
+	this.directionBrake1;
+	this.directionBrake2;
+	this.directionBrake3;
+	this.directionBrake4;
 	if(this.movetype === 'vr'){
-		directionForward = document.getElementById('locomotionForwardUI');
-		directionReverse = document.getElementById('locomotionReverseUI');
-		directionBrake1 = document.getElementById('locomotionBrake1UI');
-		directionBrake2 = document.getElementById('locomotionBrake2UI');
-		directionBrake3 = document.getElementById('locomotionBrake3UI');
-		directionBrake4 = document.getElementById('locomotionBrake4UI');
+		this.directionForward = document.getElementById('locomotionForwardUI');
+		this.directionReverse = document.getElementById('locomotionReverseUI');
+		this.directionBrake1 = document.getElementById('locomotionBrake1UI');
+		this.directionBrake2 = document.getElementById('locomotionBrake2UI');
+		this.directionBrake3 = document.getElementById('locomotionBrake3UI');
+		this.directionBrake4 = document.getElementById('locomotionBrake4UI');
 	}
 
 	//HTML Controller Support
-	const htmlUp = document.getElementById('up');
-	const htmlLeft = document.getElementById('left');
-	const htmlRight = document.getElementById('right');
-	const htmlDown = document.getElementById('down');
-	const htmlselect = document.getElementById('select');
-	const htmlstart = document.getElementById('start');
-	const htmla = document.getElementById('a');
-	const htmlb = document.getElementById('b');
+	this.htmlUp = document.getElementById('up');
+	this.htmlLeft = document.getElementById('left');
+	this.htmlRight = document.getElementById('right');
+	this.htmlDown = document.getElementById('down');
+	this.htmlselect = document.getElementById('select');
+	this.htmlstart = document.getElementById('start');
+	this.htmla = document.getElementById('a');
+	this.htmlb = document.getElementById('b');
 
 	//Walk Support
 	this.camera = document.getElementById('camera');
@@ -11579,99 +11755,17 @@ init: function () {
 	this.newX;
 	this.newZ;
 
-
-	//Move Forward
-	function movingForward(){
-		if(moveTo){}else{
-			moveTo = true;
-		}
-	}
-	//Cancel Forward
-	function cancelForward(){
-		if(moveTo){
-			moveTo = false;
-		}
-	}
-	//Move Reverse
-	function movingReverse(){
-		if(moveBack){}else{
-			moveBack = true;
-		}
-	}
-	//Cancel Reverse
-	function cancelReverse(){
-		if(moveBack){
-			moveBack = false;
-		}
-	}
-	//Move Left
-	function movingLeft(){
-		if(moveLeft){}else{
-			moveLeft = true;
-		}
-	}
-	//Cancel Left
-	function cancelLeft(){
-		if(moveLeft){
-			moveLeft = false;
-		}
-	}
-	//Move Right
-	function movingRight(){
-		if(moveRight){}else{
-			moveRight = true;
-		}
-	}
-	//Cancel Right
-	function cancelRight(){
-		if(moveRight){
-			moveRight = false;
-		}
-	}
-
-	//Toggle Speed Change
-	function toggleSpeed(){
-		console.log('Toggling Speed');
-		//Brake is disabled for 1.5 seconds after engaging
-		if(brakeReady){
-			if(brakeToggle){
-				console.log('Break On');
-				//Set reset switch toggle
-				brakeToggle = false;
-				//Set reset timer switch toggle
-				brakeReady = false;
-				//Brake On
-				moveBrake = true;
-			} else {
-				console.log('Break Off');
-				//Set reset switch toggle
-				brakeToggle = true;
-				//Set reset timer switch toggle
-				brakeReady = false;
-				//Brake Off
-				moveBrake = false;
-			}
-		}
-	}
-	//Buffer for Toggling Speed Change
-	function brakeReadyBuffer(){
-		brakeReset = setTimeout(function () {
-			//Set reset switch toggle
-			brakeReady = true;
-		}, 250); //Delay
-	}
-
 	//
 	//VR Event Listeners
 
 	//Belt Controller Event Listeners
 	if(this.movetype === 'vr'){
 		//directionForward
-		directionForward.addEventListener('mouseenter', movingForward);
-		directionForward.addEventListener('mouseleave', cancelForward);
+		this.directionForward.addEventListener('mouseenter', movingForward);
+		this.directionForward.addEventListener('mouseleave', cancelForward);
 		//directionReverse
-		directionReverse.addEventListener('mouseenter', movingReverse);
-		directionReverse.addEventListener('mouseleave', cancelReverse);
+		this.directionReverse.addEventListener('mouseenter', movingReverse);
+		this.directionReverse.addEventListener('mouseleave', cancelReverse);
 		//This format does not like functions inside, adjust to allow
 		//directionBrakes
 		document.querySelectorAll('.directionBrake').forEach(item => {
@@ -11686,17 +11780,17 @@ init: function () {
 						//Brake On
 						moveBrake = true;
 						//set brake color to red
-						directionBrake1.setAttribute('material', {color: 'red'});
-						directionBrake2.setAttribute('material', {color: 'red'});
-						directionBrake3.setAttribute('material', {color: 'red'});
-						directionBrake4.setAttribute('material', {color: 'red'});
+						this.directionBrake1.setAttribute('material', {color: 'red'});
+						this.directionBrake2.setAttribute('material', {color: 'red'});
+						this.directionBrake3.setAttribute('material', {color: 'red'});
+						this.directionBrake4.setAttribute('material', {color: 'red'});
 						//anim positition for forward/reverse bar and brakes
-						directionForward.emit('brakeOn',{});
-						directionReverse.emit('brakeOn',{});
-						directionBrake1.emit('brakeOn',{});
-						directionBrake2.emit('brakeOn',{});
-						directionBrake3.emit('brakeOn',{});
-						directionBrake4.emit('brakeOn',{});
+						this.directionForward.emit('brakeOn',{});
+						this.directionReverse.emit('brakeOn',{});
+						this.directionBrake1.emit('brakeOn',{});
+						this.directionBrake2.emit('brakeOn',{});
+						this.directionBrake3.emit('brakeOn',{});
+						this.directionBrake4.emit('brakeOn',{});
 					} else {
 						//Set reset switch toggle
 						brakeToggle = true;
@@ -11705,17 +11799,17 @@ init: function () {
 						//Brake Off
 						moveBrake = false;
 						//set brake color to default
-						directionBrake1.setAttribute('material', {color: 'black'});
-						directionBrake2.setAttribute('material', {color: 'black'});
-						directionBrake3.setAttribute('material', {color: 'black'});
-						directionBrake4.setAttribute('material', {color: 'black'});
+						this.directionBrake1.setAttribute('material', {color: 'black'});
+						this.directionBrake2.setAttribute('material', {color: 'black'});
+						this.directionBrake3.setAttribute('material', {color: 'black'});
+						this.directionBrake4.setAttribute('material', {color: 'black'});
 						//anim positition for forward/reverse bar back to default
-						directionForward.emit('brakeOff',{});
-						directionReverse.emit('brakeOff',{});
-						directionBrake1.emit('brakeOff',{});
-						directionBrake2.emit('brakeOff',{});
-						directionBrake3.emit('brakeOff',{});
-						directionBrake4.emit('brakeOff',{});
+						this.directionForward.emit('brakeOff',{});
+						this.directionReverse.emit('brakeOff',{});
+						this.directionBrake1.emit('brakeOff',{});
+						this.directionBrake2.emit('brakeOff',{});
+						this.directionBrake3.emit('brakeOff',{});
+						this.directionBrake4.emit('brakeOff',{});
 					}
 				}
 			})
@@ -11781,17 +11875,17 @@ init: function () {
 	//HTML Controller Event Listeners
 	//
 	//Mouse Down
-	htmlUp.addEventListener('mousedown', movingForward);
-	htmlLeft.addEventListener('mousedown', movingLeft);
-	htmlRight.addEventListener('mousedown', movingRight);
-	htmlDown.addEventListener('mousedown', movingReverse);
-	htmlb.addEventListener('mousedown', toggleSpeed);
+	this.htmlUp.addEventListener('mousedown', movingForward);
+	this.htmlLeft.addEventListener('mousedown', movingLeft);
+	this.htmlRight.addEventListener('mousedown', movingRight);
+	this.htmlDown.addEventListener('mousedown', movingReverse);
+	this.htmlb.addEventListener('mousedown', toggleSpeed);
 	//Mouse Up
-	htmlUp.addEventListener('mouseup', cancelForward);
-	htmlLeft.addEventListener('mouseup', cancelLeft);
-	htmlRight.addEventListener('mouseup', cancelRight);
-	htmlDown.addEventListener('mouseup', cancelReverse);
-	htmlb.addEventListener('mouseup', brakeReadyBuffer);
+	this.htmlUp.addEventListener('mouseup', cancelForward);
+	this.htmlLeft.addEventListener('mouseup', cancelLeft);
+	this.htmlRight.addEventListener('mouseup', cancelRight);
+	this.htmlDown.addEventListener('mouseup', cancelReverse);
+	this.htmlb.addEventListener('mouseup', brakeReadyBuffer);
 
 //End Init
 },
@@ -11806,11 +11900,11 @@ remove: function () {
 	//Belt Controller Event Listeners
 	if(this.movetype === 'vr'){
 		//directionForward
-		directionForward.removeEventListener('mouseenter', movingForward);
-		directionForward.removeEventListener('mouseleave', cancelForward);
+		this.directionForward.removeEventListener('mouseenter', movingForward);
+		this.directionForward.removeEventListener('mouseleave', cancelForward);
 		//directionReverse
-		directionReverse.removeEventListener('mouseenter', movingReverse);
-		directionReverse.removeEventListener('mouseleave', cancelReverse);
+		this.directionReverse.removeEventListener('mouseenter', movingReverse);
+		this.directionReverse.removeEventListener('mouseleave', cancelReverse);
 		//This format does not like functions inside, adjust to allow
 		//directionBrakes
 		document.querySelectorAll('.directionBrake').forEach(item => {
@@ -11825,17 +11919,17 @@ remove: function () {
 						//Brake On
 						moveBrake = true;
 						//set brake color to red
-						directionBrake1.setAttribute('material', {color: 'red'});
-						directionBrake2.setAttribute('material', {color: 'red'});
-						directionBrake3.setAttribute('material', {color: 'red'});
-						directionBrake4.setAttribute('material', {color: 'red'});
+						this.directionBrake1.setAttribute('material', {color: 'red'});
+						this.directionBrake2.setAttribute('material', {color: 'red'});
+						this.directionBrake3.setAttribute('material', {color: 'red'});
+						this.directionBrake4.setAttribute('material', {color: 'red'});
 						//anim positition for forward/reverse bar and brakes
-						directionForward.emit('brakeOn',{});
-						directionReverse.emit('brakeOn',{});
-						directionBrake1.emit('brakeOn',{});
-						directionBrake2.emit('brakeOn',{});
-						directionBrake3.emit('brakeOn',{});
-						directionBrake4.emit('brakeOn',{});
+						this.directionForward.emit('brakeOn',{});
+						this.directionReverse.emit('brakeOn',{});
+						this.directionBrake1.emit('brakeOn',{});
+						this.directionBrake2.emit('brakeOn',{});
+						this.directionBrake3.emit('brakeOn',{});
+						this.directionBrake4.emit('brakeOn',{});
 					} else {
 						//Set reset switch toggle
 						brakeToggle = true;
@@ -11844,17 +11938,17 @@ remove: function () {
 						//Brake Off
 						moveBrake = false;
 						//set brake color to default
-						directionBrake1.setAttribute('material', {color: 'black'});
-						directionBrake2.setAttribute('material', {color: 'black'});
-						directionBrake3.setAttribute('material', {color: 'black'});
-						directionBrake4.setAttribute('material', {color: 'black'});
+						this.directionBrake1.setAttribute('material', {color: 'black'});
+						this.directionBrake2.setAttribute('material', {color: 'black'});
+						this.directionBrake3.setAttribute('material', {color: 'black'});
+						this.directionBrake4.setAttribute('material', {color: 'black'});
 						//anim positition for forward/reverse bar back to default
-						directionForward.emit('brakeOff',{});
-						directionReverse.emit('brakeOff',{});
-						directionBrake1.emit('brakeOff',{});
-						directionBrake2.emit('brakeOff',{});
-						directionBrake3.emit('brakeOff',{});
-						directionBrake4.emit('brakeOff',{});
+						this.directionForward.emit('brakeOff',{});
+						this.directionReverse.emit('brakeOff',{});
+						this.directionBrake1.emit('brakeOff',{});
+						this.directionBrake2.emit('brakeOff',{});
+						this.directionBrake3.emit('brakeOff',{});
+						this.directionBrake4.emit('brakeOff',{});
 					}
 				}
 			})
@@ -11920,17 +12014,17 @@ remove: function () {
 	//HTML Controller Event Listeners
 	//
 	//Mouse Down
-	htmlUp.removeEventListener('mousedown', movingForward);
-	htmlLeft.removeEventListener('mousedown', movingLeft);
-	htmlRight.removeEventListener('mousedown', movingRight);
-	htmlDown.removeEventListener('mousedown', movingReverse);
-	htmlb.removeEventListener('mousedown', toggleSpeed);
+	this.htmlUp.removeEventListener('mousedown', movingForward);
+	this.htmlLeft.removeEventListener('mousedown', movingLeft);
+	this.htmlRight.removeEventListener('mousedown', movingRight);
+	this.htmlDown.removeEventListener('mousedown', movingReverse);
+	this.htmlb.removeEventListener('mousedown', toggleSpeed);
 	//Mouse Up
-	htmlUp.removeEventListener('mouseup', cancelForward);
-	htmlLeft.removeEventListener('mouseup', cancelLeft);
-	htmlRight.removeEventListener('mouseup', cancelRight);
-	htmlDown.removeEventListener('mouseup', cancelReverse);
-	htmlb.removeEventListener('mouseup', brakeReadyBuffer);
+	this.htmlUp.removeEventListener('mouseup', cancelForward);
+	this.htmlLeft.removeEventListener('mouseup', cancelLeft);
+	this.htmlRight.removeEventListener('mouseup', cancelRight);
+	this.htmlDown.removeEventListener('mouseup', cancelReverse);
+	this.htmlb.removeEventListener('mouseup', brakeReadyBuffer);
 },
 
 everySome: function (time, timeDelta) {

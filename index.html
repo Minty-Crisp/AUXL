@@ -49,7 +49,10 @@
 <!-- Experience Instructions -->
 <div id="expInfo">
 <li><button id="infoClose" class="flexCol">Close</button></li>
-An example scenario of traversing a variety of different areas and showcasing the initial features and functions of A-Frame UX Library engine v0.1.
+<li>An example scenario of traversing a variety of different areas and showcasing the initial features and functions of A-Frame UX Library engine v0.1.</li>
+<li>Desktop - Move : WASD | Speed Toggle : E</li>
+<li>Mobile - Move : Buttons | Speed Toggle : B</li>
+<li>VR - Move : Hover on Belt | Speed Toggle : Bottom Belt</li>
 </div>
 <main>
 <a-scene
@@ -67,7 +70,29 @@ renderer="antialias: true; colorManagement: true; sortObjects: true"
 
 <!-- - - - - - - - - - - Mixins - - - - - - - - - - -->
 </a-assets>
+<!--
+<a-entity id="instanceTest1"
+geometry="primitive: box; width: 1; height: 1; depth: 1;" 
+material="shader: flat; color: blue; side: double"
+instanced-mesh="positioning: local"
+></a-entity> 
 
+<a-entity id="test1" instanced-mesh-member="mesh:#instanceTest1"
+scale="1 1 1" rotation="0 270 90" position="-1 0.5 1"
+></a-entity>
+
+<a-entity id="test2" instanced-mesh-member="mesh:#instanceTest1"
+scale="1 1 1" rotation="180 90 0" position="-2 0.5 2"
+></a-entity>
+
+<a-entity id="test3" instanced-mesh-member="mesh:#instanceTest1"
+scale="1 1 1" rotation="0 90 0" position="-3 0.5 3"
+></a-entity>
+
+<a-entity id="test4" instanced-mesh-member="mesh:#instanceTest1"
+scale="1 1 1" rotation="30 0 90" position="-4 0.5 4"
+></a-entity>
+-->
 <!-- - - - - - - - - - - Player Controls - - - - - - - - - - -->
 <a-entity id="playerRig" position="0 0 0.5"
 ><a-camera id="camera"
