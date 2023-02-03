@@ -1,6 +1,5 @@
-# AUXL
-A-Frame UX Library Engine
-built specifically for use with [A-Frame](https://github.com/aframevr/)
+# AUXL : A-Frame UX Library
+Engine built specifically for use with [A-Frame](https://github.com/aframevr/)
 
 [View Example](https://minty-crisp.github.io/AUXL/)
 
