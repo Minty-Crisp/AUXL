@@ -5568,7 +5568,7 @@ timeline48:{
 npcMinty:{Speak:{role: 'Minty', speech:'The Companion allows the player access to a main menu. They can make setting changes, view info and otherwise assist in experiencing the XR world!'}},
 },
 timeline49:{
-npcMinty:{Speak:{role: 'Minty', speech:'And finally, we have a NPC like Book|Page speech and interaction scripting system.'}},
+npcMinty:{Speak:{role: 'Minty', speech:'And then we have a NPC like Book|Page speech and interaction scripting system.'}},
 },
 timeline50:{
 npcMinty:{Speak:{role: 'Minty', speech:'The NPC like system allows you to define various speech scenarios you can interact with.'}},
@@ -5577,12 +5577,24 @@ timeline51:{
 npcMinty:{Speak:{role: 'Minty', speech:'The speech system also supports conditionals, flags, menus and jumps to provide a tree like conversation flow.'}},
 },
 timeline52:{
-npcMinty:{Speak:{role: 'Minty', speech:'That is a basic overview of all the current features provided by AUXL v0.1.'}},
+npcMinty:{Speak:{role: 'Minty', speech:'We also have some environmental features to help fill out various scenes with a single object procedural spawner and a multiple object procedural spawner which you will see both in action here.'}},
 },
-timeline52:{
-npcMinty:{Speak:{role: 'Minty', speech:'Thank you for taking the time to visit and learn!'}},
+timeline53:{
+npcMinty:{Speak:{role: 'Minty', speech:'There is additionally a Day/Night system that utilizes scene wide lighting to help with environment realism as well.'}},
 },
 timeline54:{
+npcMinty:{Speak:{role: 'Minty', speech:'To help explore the scene we also have basic movement locomotion supported on Desktop, Mobile & VR in addition to Teleportation points to help quick move the player around.'}},
+},
+timeline55:{
+npcMinty:{Speak:{role: 'Minty', speech:'And finally, we have a simple Memory mini-game just for fun!'}},
+},
+timeline56:{
+npcMinty:{Speak:{role: 'Minty', speech:'That is a basic overview of all the current features provided by AUXL v0.1.'}},
+},
+timeline57:{
+npcMinty:{Speak:{role: 'Minty', speech:'Thank you for taking the time to visit and learn!'}},
+},
+timeline58:{
 npcMinty: {ResetBook: true},
 },
 };
