@@ -11189,7 +11189,7 @@ this.zone2Node0 = SceneNode(this.zone2Node0Data);
 //Map Zone 2
 this.zone2 = MapZone(this.zone2Data);
 
-//Grassy Hills w/Cabin House
+//Graveyard w/Cemetary House
 //Zone 3
 //
 //Node 0
@@ -11651,6 +11651,14 @@ function cancelRight(){
 		moveRight = false;
 	}
 }
+//Clear All Movement
+function clearMovement(){
+cancelForward();
+cancelReverse();
+cancelLeft();
+cancelRight();
+}
+
 //Toggle Speed Change
 function toggleSpeed(){
 	console.log('Toggling Speed');
@@ -11726,6 +11734,7 @@ init: function () {
 	this.directionBrake3;
 	this.directionBrake4;
 	if(this.movetype === 'vr'){
+		this.vrController = document.getElementById('vrController');
 		this.directionForward = document.getElementById('locomotionForwardUI');
 		this.directionReverse = document.getElementById('locomotionReverseUI');
 		this.directionBrake1 = document.getElementById('locomotionBrake1UI');
@@ -11776,6 +11785,27 @@ init: function () {
 
 	//Belt Controller Event Listeners
 	if(this.movetype === 'vr'){
+
+		//Joystick Controller
+		this.vrController.addEventListener('thumbstickmoved', function (e) {
+			if (e.detail.y > 0.95) {
+				clearMovement();
+				movingReverse();
+			}
+			if (e.detail.y < -0.95) { 
+				clearMovement();
+				movingForward();
+			}
+			if (e.detail.x < -0.95) { 
+				clearMovement();
+				movingLeft();
+			}
+			if (e.detail.x > 0.95) { 
+				clearMovement();
+				movingRight();
+			}
+		});
+
 		//directionForward
 		this.directionForward.addEventListener('mouseenter', movingForward);
 		this.directionForward.addEventListener('mouseleave', cancelForward);
@@ -11846,17 +11876,21 @@ init: function () {
 	}
 
 
+
+
+
+
 	//Keyboard Controller Event Listeners
 	//
-	//Key Down - WASD | QE
+	//Key Down - WASD/Arrows | QE
 	document.body.addEventListener('keydown', function (e) {
-		if (e.key === 'w' || e.key === 'W') {
+		if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
 			movingForward();
-		} else if (e.key === 'a' || e.key === 'A') {
+		} else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
 			movingLeft();
-		} else if (e.key === 's' || e.key === 'S') {
+		} else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
 			movingReverse();
-		} else if (e.key === 'd' || e.key === 'D') {
+		} else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
 			movingRight();
 		} else if (e.key === 'q' || e.key === 'Q') {
 			//Special Button 1
@@ -11868,15 +11902,15 @@ init: function () {
 			toggleSpeed();
 		}
 	});
-	//Key Down - WASD | QE
+	//Key Down - WASD/Arrows | QE
 	document.body.addEventListener('keyup', function (e) {
-		if (e.key === 'w' || e.key === 'W') {
+		if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
 			cancelForward();
-		} else if (e.key === 'a' || e.key === 'A') {
+		} else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
 			cancelLeft();
-		} else if (e.key === 's' || e.key === 'S') {
+		} else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
 			cancelReverse();
-		} else if (e.key === 'd' || e.key === 'D') {
+		} else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
 			cancelRight();
 		} else if (e.key === 'q' || e.key === 'Q') {
 			//Special Button 1
@@ -11915,6 +11949,8 @@ remove: function () {
 
 	//Belt Controller Event Listeners
 	if(this.movetype === 'vr'){
+		//Joystick Controller
+		this.vrController.removeEventListener('thumbstickmoved');
 		//directionForward
 		this.directionForward.removeEventListener('mouseenter', movingForward);
 		this.directionForward.removeEventListener('mouseleave', cancelForward);
