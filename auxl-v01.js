@@ -4468,7 +4468,7 @@ text: {value:'Controller UI', width: 0.5, color: "#FFFFFF", align: "center", fon
 geometry: {primitive: 'plane', width: 0.25, height: 0.1},
 material: {shader: "flat", color: "#ac2d2d", opacity: 0.75, side: 'double'},
 position: new THREE.Vector3(-0.15,-0.15,-0.25),
-rotation: new THREE.Vector3(-45,0,0),
+rotation: new THREE.Vector3(45,0,0),
 scale: new THREE.Vector3(0.5,0.5,0.5),
 animations: false,
 mixins: false,
@@ -11336,7 +11336,7 @@ init: function () {
 	//Joystick
 	//
 	//Controller
-	/* Conflicts with Locomotion
+	/* Conflicts with Locomotion event listener
 	this.el.addEventListener('thumbstickmoved', function (e) {
 		if (e.detail.y > 0.95) { 
 			updateInput('down');
@@ -11781,6 +11781,18 @@ init: function () {
 	//
 	//VR Event Listeners
 
+	//Joystick Troubleshooting
+	const displayInput = document.querySelector('#displayInput');
+
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+
+	function updateInput(input){
+
+	displayInputText.value = input;
+	displayInput.setAttribute('text',displayInputText);
+
+	}
+
 	//Belt Controller Event Listeners
 	if(this.movetype === 'vr'){
 		//directionForward
@@ -11854,25 +11866,27 @@ init: function () {
 			if (e.detail.y > 0.95) {
 				clearMovement();
 				movingReverse();
+				updateInput('back');
 			}
 			if (e.detail.y < -0.95) {
 				clearMovement();
 				movingForward();
+				updateInput('forward');
 			}
 			if (e.detail.x < -0.95) {
 				clearMovement();
 				movingLeft();
+				updateInput('left');
 			}
 			if (e.detail.x > 0.95) {
 				clearMovement();
 				movingRight();
+				updateInput('right');
 			}
 		});
 		this.vrController.addEventListener('thumbsticktouchend', function (e) {
 			clearMovement();
-		});
-		this.vrController.addEventListener('thumbstickdown', function (e) {
-			clearMovement();
+			updateInput('cleared');
 		});
 	}
 
