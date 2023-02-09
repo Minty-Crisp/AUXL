@@ -11865,13 +11865,14 @@ init: function () {
 			}
 			if (e.detail.x > 0.95) {
 				clearMovement();
-				//movingRight();
-				movingLeft();
+				movingRight();
 			}
 		});
 		this.vrController.addEventListener('thumbsticktouchend', function (e) {
 			clearMovement();
-			updateInput('cleared');
+		});
+		this.vrController.addEventListener('thumbstickdown', function (e) {
+			clearMovement();
 		});
 	}
 
