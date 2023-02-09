@@ -4468,7 +4468,7 @@ text: {value:'Controller UI', width: 0.5, color: "#FFFFFF", align: "center", fon
 geometry: {primitive: 'plane', width: 0.25, height: 0.1},
 material: {shader: "flat", color: "#ac2d2d", opacity: 0.75, side: 'double'},
 position: new THREE.Vector3(-0.15,-0.15,-0.25),
-rotation: new THREE.Vector3(45,0,0),
+rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(0.5,0.5,0.5),
 animations: false,
 mixins: false,
