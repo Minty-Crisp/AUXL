@@ -11783,32 +11783,6 @@ init: function () {
 
 	//Belt Controller Event Listeners
 	if(this.movetype === 'vr'){
-
-		//Joystick Controller
-		this.vrController.addEventListener('thumbstickmoved', function (e) {
-
-			if (e.detail.y > 0.95) {
-				movingReverse();
-			} else {
-				clearMovement();
-			}
-			if (e.detail.y < -0.95) { 
-				movingForward();
-			} else {
-				clearMovement();
-			}
-			if (e.detail.x < -0.95) { 
-				movingLeft();
-			} else {
-				clearMovement();
-			}
-			if (e.detail.x > 0.95) { 
-				movingRight();
-			} else {
-				clearMovement();
-			}
-		});
-
 		//directionForward
 		this.directionForward.addEventListener('mouseenter', movingForward);
 		this.directionForward.addEventListener('mouseleave', cancelForward);
@@ -11875,13 +11849,34 @@ init: function () {
 		});
 
 		//
-		//Quest Controller
+		//Quest Joystick Controller
+		this.vrController.addEventListener('thumbstickmoved', function (e) {
+			if (e.detail.y > 0.95) {
+				movingReverse();
+			}
+			if (e.detail.y < -0.95) { 
+				movingForward();
+			}
+			if (e.detail.x < -0.95) { 
+				movingLeft();
+			}
+			if (e.detail.x > 0.95) { 
+				movingRight();
+			}
+		});
+		this.vrController.addEventListener('thumbsticktouchend', function (e) {
+			cancelForward();
+			cancelReverse();
+			cancelLeft();
+			cancelRight();
+		});
+		this.vrController.addEventListener('thumbstickdown', function (e) {
+			cancelForward();
+			cancelReverse();
+			cancelLeft();
+			cancelRight();
+		});
 	}
-
-
-
-
-
 
 	//Keyboard Controller Event Listeners
 	//
