@@ -11781,18 +11781,6 @@ init: function () {
 	//
 	//VR Event Listeners
 
-	//Joystick Troubleshooting
-	const displayInput = document.querySelector('#displayInput');
-
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-
-	function updateInput(input){
-
-	displayInputText.value = input;
-	displayInput.setAttribute('text',displayInputText);
-
-	}
-
 	//Belt Controller Event Listeners
 	if(this.movetype === 'vr'){
 		//directionForward
@@ -11866,22 +11854,19 @@ init: function () {
 			if (e.detail.y > 0.95) {
 				clearMovement();
 				movingReverse();
-				updateInput('back');
 			}
 			if (e.detail.y < -0.95) {
 				clearMovement();
 				movingForward();
-				updateInput('forward');
 			}
 			if (e.detail.x < -0.95) {
 				clearMovement();
 				movingLeft();
-				updateInput('left');
 			}
 			if (e.detail.x > 0.95) {
 				clearMovement();
-				movingRight();
-				updateInput('right');
+				//movingRight();
+				movingLeft();
 			}
 		});
 		this.vrController.addEventListener('thumbsticktouchend', function (e) {
