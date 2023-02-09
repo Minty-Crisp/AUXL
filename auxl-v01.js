@@ -11336,7 +11336,7 @@ init: function () {
 	//Joystick
 	//
 	//Controller
-	/*
+	/* Conflicts with Locomotion
 	this.el.addEventListener('thumbstickmoved', function (e) {
 		if (e.detail.y > 0.95) { 
 			updateInput('down');
@@ -11803,6 +11803,11 @@ init: function () {
 				movingRight();
 			}
 		});
+		this.vrController.addEventListener('thumbsticktouchend', function (e) {
+			clearMovement();
+		});
+
+
 
 		//directionForward
 		this.directionForward.addEventListener('mouseenter', movingForward);
@@ -11949,6 +11954,7 @@ remove: function () {
 	if(this.movetype === 'vr'){
 		//Joystick Controller
 		this.vrController.removeEventListener('thumbstickmoved');
+		this.vrController.removeEventListener('thumbsticktouchend');
 		//directionForward
 		this.directionForward.removeEventListener('mouseenter', movingForward);
 		this.directionForward.removeEventListener('mouseleave', cancelForward);
