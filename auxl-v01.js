@@ -11852,29 +11852,27 @@ init: function () {
 		//Quest Joystick Controller
 		this.vrController.addEventListener('thumbstickmoved', function (e) {
 			if (e.detail.y > 0.95) {
+				clearMovement();
 				movingReverse();
 			}
-			if (e.detail.y < -0.95) { 
+			if (e.detail.y < -0.95) {
+				clearMovement();
 				movingForward();
 			}
-			if (e.detail.x < -0.95) { 
+			if (e.detail.x < -0.95) {
+				clearMovement();
 				movingLeft();
 			}
-			if (e.detail.x > 0.95) { 
+			if (e.detail.x > 0.95) {
+				clearMovement();
 				movingRight();
 			}
 		});
 		this.vrController.addEventListener('thumbsticktouchend', function (e) {
-			cancelForward();
-			cancelReverse();
-			cancelLeft();
-			cancelRight();
+			clearMovement();
 		});
 		this.vrController.addEventListener('thumbstickdown', function (e) {
-			cancelForward();
-			cancelReverse();
-			cancelLeft();
-			cancelRight();
+			clearMovement();
 		});
 	}
 
