@@ -11335,7 +11335,8 @@ init: function () {
 
 	//Joystick
 	//
-	//Left Controller
+	//Controller
+	/*
 	this.el.addEventListener('thumbstickmoved', function (e) {
 		if (e.detail.y > 0.95) { 
 			updateInput('down');
@@ -11349,7 +11350,33 @@ init: function () {
 		if (e.detail.x > 0.95) { 
 			updateInput('right');
 		}
+	});*/
+
+	//Testing
+	this.vrController = document.getElementById('vrController');
+	this.vrController.addEventListener('thumbstickmoved', function (e) {
+		if (e.detail.y > 0.95) {
+			updateInput('down');
+			clearMovement();
+			movingReverse();
+		}
+		if (e.detail.y < -0.95) { 
+			updateInput('up');
+			clearMovement();
+			movingForward();
+		}
+		if (e.detail.x < -0.95) { 
+			updateInput('left');
+			clearMovement();
+			movingLeft();
+		}
+		if (e.detail.x > 0.95) { 
+			updateInput('right');
+			clearMovement();
+			movingRight();
+		}
 	});
+
 
 
 
