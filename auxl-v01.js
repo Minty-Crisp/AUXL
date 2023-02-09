@@ -11786,28 +11786,28 @@ init: function () {
 
 		//Joystick Controller
 		this.vrController.addEventListener('thumbstickmoved', function (e) {
+
 			if (e.detail.y > 0.95) {
-				clearMovement();
 				movingReverse();
+			} else {
+				clearMovement();
 			}
 			if (e.detail.y < -0.95) { 
-				clearMovement();
 				movingForward();
+			} else {
+				clearMovement();
 			}
 			if (e.detail.x < -0.95) { 
-				clearMovement();
 				movingLeft();
+			} else {
+				clearMovement();
 			}
 			if (e.detail.x > 0.95) { 
-				clearMovement();
 				movingRight();
+			} else {
+				clearMovement();
 			}
 		});
-		this.vrController.addEventListener('thumbsticktouchend', function (e) {
-			clearMovement();
-		});
-
-
 
 		//directionForward
 		this.directionForward.addEventListener('mouseenter', movingForward);
