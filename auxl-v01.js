@@ -4468,7 +4468,7 @@ text: {value:'Controller UI', width: 0.5, color: "#FFFFFF", align: "center", fon
 geometry: {primitive: 'plane', width: 0.25, height: 0.1},
 material: {shader: "flat", color: "#ac2d2d", opacity: 0.75, side: 'double'},
 position: new THREE.Vector3(-0.15,-0.15,-0.25),
-rotation: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(-45,0,0),
 scale: new THREE.Vector3(0.5,0.5,0.5),
 animations: false,
 mixins: false,
@@ -11352,34 +11352,6 @@ init: function () {
 		}
 	});*/
 
-	//Testing
-	this.vrController = document.getElementById('vrController');
-	this.vrController.addEventListener('thumbstickmoved', function (e) {
-		if (e.detail.y > 0.95) {
-			updateInput('down');
-			clearMovement();
-			movingReverse();
-		}
-		if (e.detail.y < -0.95) { 
-			updateInput('up');
-			clearMovement();
-			movingForward();
-		}
-		if (e.detail.x < -0.95) { 
-			updateInput('left');
-			clearMovement();
-			movingLeft();
-		}
-		if (e.detail.x > 0.95) { 
-			updateInput('right');
-			clearMovement();
-			movingRight();
-		}
-	});
-
-
-
-
     }//End Init
 });
 
@@ -11680,12 +11652,11 @@ function cancelRight(){
 }
 //Clear All Movement
 function clearMovement(){
-cancelForward();
-cancelReverse();
-cancelLeft();
-cancelRight();
+	cancelForward();
+	cancelReverse();
+	cancelLeft();
+	cancelRight();
 }
-
 //Toggle Speed Change
 function toggleSpeed(){
 	console.log('Toggling Speed');
