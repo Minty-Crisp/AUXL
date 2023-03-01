@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>A-Frame UX Library | v0.2 Engine Example</title>
+<title>A-Frame UX Library | v0.1 Engine Example</title>
 <!-- Favicon -->
 <link rel="icon" type="image/png" sizes="16x16" crossorigin="anonymous" href="./assets/img/favicon/favicon.ico"/>
 <link rel="icon" type="image/png" sizes="16x16" href="./assets/img/favicon/favicon-16x16.png">
@@ -11,10 +11,10 @@
 <link rel="apple-touch-icon" sizes="76x76" href="./assets/img/favicon/apple-touch-icon.png">
 <link rel="mask-icon" href="./assets/img/favicon/safari-pinned-tab.svg" color="#5bbad5">
 <!-- Search Info -->
-<meta name="description" content="A-Frame UX Library | v0.2 Engine Example by Minty Crisp">
+<meta name="description" content="A-Frame UX Library | v0.1 Engine Example by Minty Crisp">
 <meta name="keywords" content="A-Frame,aframe,xr,webxr,vr,webvr,ar, webar,html,css,javascript,3d,blender,virtual,reality,virtualreality,auxl,ux,library,aframeux,aframeuxlibrary,engine,aframeuxlibraryengine,minty,crisp,mintycrisp,minty-crisp,minty_crisp,justin,ekema,justinekema">
 <!-- Social Media Share -->
-<meta property="og:title" content="A-Frame UX Library | v0.2 Engine Example by Minty Crisp">
+<meta property="og:title" content="A-Frame UX Library | v0.1 Engine Example by Minty Crisp">
 <meta property="og:type" content="XR">
 <meta property="og:url" content="auxlibrary.com">
 <!-- A-Frame official release 1.4.1 -->
@@ -24,8 +24,8 @@
 <!-- CSS -->
 <link rel="stylesheet" href="./assets/css/style.css">
 </head>
-<!-- A-Frame UX Library Engine v0.2 -->
-<script src="./auxl-v02.js"></script>
+<!-- A-Frame UX Library Engine v0.1 -->
+<script src="./auxl-v01.js"></script>
 
 <body>
 <!-- Sticky -->
@@ -56,7 +56,7 @@
 </div>
 <main>
 <a-scene
-auxl auxl-library auxl-scene-library auxl-scenes
+auxl
 vr-mode-ui="enabled: true;"
 device-orientation-permission-ui="enabled: true; deviceMotionMessage: Allow access to Motion and Orientation?"
 renderer="antialias: true; colorManagement: true; sortObjects: true"
@@ -70,6 +70,29 @@ renderer="antialias: true; colorManagement: true; sortObjects: true"
 
 <!-- - - - - - - - - - - Mixins - - - - - - - - - - -->
 </a-assets>
+<!--
+<a-entity id="instanceTest1"
+geometry="primitive: box; width: 1; height: 1; depth: 1;" 
+material="shader: flat; color: blue; side: double"
+instanced-mesh="positioning: local"
+></a-entity> 
+
+<a-entity id="test1" instanced-mesh-member="mesh:#instanceTest1"
+scale="1 1 1" rotation="0 270 90" position="-1 0.5 1"
+></a-entity>
+
+<a-entity id="test2" instanced-mesh-member="mesh:#instanceTest1"
+scale="1 1 1" rotation="180 90 0" position="-2 0.5 2"
+></a-entity>
+
+<a-entity id="test3" instanced-mesh-member="mesh:#instanceTest1"
+scale="1 1 1" rotation="0 90 0" position="-3 0.5 3"
+></a-entity>
+
+<a-entity id="test4" instanced-mesh-member="mesh:#instanceTest1"
+scale="1 1 1" rotation="30 0 90" position="-4 0.5 4"
+></a-entity>
+-->
 <!-- - - - - - - - - - - Player Controls - - - - - - - - - - -->
 <a-entity id="playerRig" position="0 0 0.5"
 ><a-camera id="camera"
@@ -148,21 +171,7 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 
 <!-- End Controller -->
 </div>
-<script>
 
-//Wait for scene to init before executing
-const scene = document.querySelector('a-scene');
-
-if (scene.hasLoaded) {
-  run();
-} else {
-  scene.addEventListener('loaded', run);
-}
-
-function run () {
-	console.log('Scene is init via Vanilla JS')
-}
-</script>
 <!-- - - - - - - - - - - End - - - - - - - - - - -->
 </body>
 </html>
