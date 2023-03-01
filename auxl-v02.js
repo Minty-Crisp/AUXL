@@ -16,7 +16,7 @@ AFRAME.registerSystem('auxl', {
 //},
 
 init: function () {
-console.log('AUXL INIT');
+//console.log('AUXL INIT');
 // System
 /********************************************************************/
 //
@@ -4189,7 +4189,7 @@ AFRAME.registerComponent('auxl-library', {
         //clickObj: {type: 'string', default: 'auxlObj'}
     //},
     init: function () {
-		console.log('AUXL Library INIT');
+		//console.log('AUXL Library INIT');
 		//AUXL System
 		const auxl = document.querySelector('a-scene').systems.auxl;
 
@@ -6102,7 +6102,7 @@ AFRAME.registerComponent('auxl-scene-library', {
         //clickObj: {type: 'string', default: 'auxlObj'}
     //},
     init: function () {
-		console.log('AUXL Data INIT');
+		//console.log('AUXL Data INIT');
 		//AUXL System
 		const auxl = document.querySelector('a-scene').systems.auxl;
 
@@ -10656,7 +10656,7 @@ AFRAME.registerComponent('auxl-scenes', {
         //clickObj: {type: 'string', default: 'auxlObj'}
     //},
     init: function () {
-		console.log('AUXL Scenes INIT');
+		//console.log('AUXL Scenes INIT');
 		//AUXL System
 		const auxl = document.querySelector('a-scene').systems.auxl;
 

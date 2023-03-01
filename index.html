@@ -32,7 +32,7 @@
 <div id="stickyBar" class="sticky flexRow">
 	<span class="flexRow flexStart">
 		<img id="stickyIcon" src="./assets/img/favicon/logo.png" alt="site-icon" / class="flexCol">
-		<span id="stickyTitle" class="flexCol"><h3> A-Frame UX Library | v0.1</h3></span>
+		<span id="stickyTitle" class="flexCol"><h3> A-Frame UX Library | v0.2</h3></span>
 	</span>
 	<span class="flexRow">
 		<button id="stickyMenu" class="flexCol">Menu</button>
@@ -49,7 +49,7 @@
 <!-- Experience Instructions -->
 <div id="expInfo">
 <li><button id="infoClose" class="flexCol">Close</button></li>
-<li>An example scenario of traversing a variety of different areas and showcasing the initial features and functions of A-Frame UX Library engine v0.1.</li>
+<li>An example scenario of traversing a variety of different areas and showcasing the initial features and functions of A-Frame UX Library engine v0.2.</li>
 <li>Desktop - Move : WASD or Arrows | Speed Toggle : E</li>
 <li>Mobile - Move : Buttons | Speed Toggle : B</li>
 <li>VR - Move : Hover on Belt or Joystick | Speed Toggle : Bottom Belt</li>
@@ -148,21 +148,6 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 
 <!-- End Controller -->
 </div>
-<script>
-
-//Wait for scene to init before executing
-const scene = document.querySelector('a-scene');
-
-if (scene.hasLoaded) {
-  run();
-} else {
-  scene.addEventListener('loaded', run);
-}
-
-function run () {
-	console.log('Scene is init via Vanilla JS')
-}
-</script>
 <!-- - - - - - - - - - - End - - - - - - - - - - -->
 </body>
 </html>
