@@ -76,6 +76,8 @@ function clearSpawned(spawned){
 				auxl[spawn].layer.RemoveAllFromScene();
 			} else if (spawned[spawn].type === 'gen'){
 				auxl[spawn].DespawnAll();
+			} else if (spawned[spawn].type === 'teleport'){
+				auxl[spawn].DespawnAll();
 			} else if (spawned[spawn].type === 'npc'){
 				auxl[spawn].Despawn();
 			}  else if (spawned[spawn].type === 'carousel'){
@@ -131,15 +133,19 @@ stickyMenu.addEventListener('click', toggleMenu);
 function startExp(){
 	if(auxl.expStarted){}else{
 		let timeoutSpawn1 = setTimeout(function () {
-			spawnEnvironmentGlobals();
+			auxl.skyBox.Spawn();
 			clearTimeout(timeoutSpawn1);
 		}, 400);
 		let timeoutSpawn2 = setTimeout(function () {
-			startButton.innerHTML = 'Resume'
+			startButton.innerHTML = 'Resume';
+
 			auxl.zone0.StartScene();
+
 			updateControls();
-			dayNight();
-			spawnBasicTeleportationPoints();
+			auxl.skyBox.DayNightCycle();
+
+			//auxl.teleport.SpawnAll(true);
+
 			auxl.expStarted = true;
 			clearTimeout(timeoutSpawn2);
 		}, 425);
@@ -2018,38 +2024,6 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 	return {core, IfElse, SetFlag, ClearScene, auxlObjMethod, Info, Start, Delay, Interval, Event, Interaction, Exit, Map, StartScene}
 }
 
-//DayNight
-function dayNight(){
-
-	auxl.directionalLight.EmitEvent('sunrise');
-	auxl.directionalLight2.EmitEvent('sunrise');
-	auxl.directionalLight3.EmitEvent('sunrise');
-	auxl.ambientLight.EmitEvent('sunrise');
-	auxl.sunLayer.EmitEventParent('sunrise');
-	auxl.moonLayer.EmitEventParent('sunrise');
-	auxl.skyGrad.EmitEvent('sunrise');
-
-	auxl.skyGrad.SetFlag({flag:'day', value: true});
-	//SkyGrad Color Anim
-	//Timeout
-	let timeoutDayNight = setTimeout(function () {
-		auxl.skyGrad.SetFlag({flag:'day', value: false});
-		auxl.skyGrad.EmitEvent('sunset');
-		let intervalDayNight = setInterval(function() {
-			if(auxl.skyGrad.GetFlag('day')){
-				auxl.skyGrad.SetFlag({flag:'day', value: false});
-				auxl.skyGrad.EmitEvent('sunset');
-			}else{
-				auxl.skyGrad.SetFlag({flag:'day', value: true});
-				auxl.skyGrad.EmitEvent('sunrise');
-			}
-		//clearInterval(intervalDayNight);
-		}, auxl.timeInDay/2); //Interval
-	}, auxl.timeInDay/2 - auxl.timeInDay/24); //Delay
-}
-
-//Need to account for objects other than core/layer on zoneEnter/Exit
-
 //
 //mapRegionDistrictTerritoryZoneSection
 //Map Zone Gen & reader
@@ -2730,6 +2704,86 @@ return {core, ReadMapData, StartScene, MoveMenuGen, MenuMoveClick, Move, ClearZo
 }
 
 //
+//SkyBox
+//Lights, Sky, Horizon, Floor, Atmosphere, Space
+this.SkyBox = (skyBoxData) => {
+
+	//work on importing chunks of each section
+	let skyBox = Object.assign({}, skyBoxData);
+
+	const SpawnLights = () => {
+		auxl.directionalLight.AddToScene(false, false, true);
+		auxl.directionalLight2.AddToScene(false, false, true);
+		auxl.directionalLight3.AddToScene(false, false, true);
+		auxl.ambientLight.AddToScene(false, false, true);
+	}
+	const SpawnSky = () => {
+		auxl.skyGrad.AddToScene(false, false, true);
+		//combine with atmosphere?
+	}
+	const SpawnFloor = () => {
+		auxl.nodeFloor.AddToScene(false, false, true);
+		//Should this be associated with each zone instead?
+	}
+	const SpawnHorizon = () => {
+		//Should this be associated with each zone instead?
+	}
+	const SpawnAtmosphere = () => {
+		auxl.cloud1.AddToScene(false, false, true);
+		auxl.cloud2.AddToScene(false, false, true);
+		auxl.cloud3.AddToScene(false, false, true);
+		auxl.cloud4.AddToScene(false, false, true);
+		auxl.cloud5.AddToScene(false, false, true);
+		auxl.cloud6.AddToScene(false, false, true);
+		auxl.cloud7.AddToScene(false, false, true);
+		auxl.cloud8.AddToScene(false, false, true);
+	}
+	const SpawnSpace = () => {
+		auxl.sunLayer.AddAllToScene(true);
+		auxl.moonLayer.AddAllToScene(true);
+	}
+
+	const Spawn = () => {
+		SpawnLights();
+		SpawnSky();
+		SpawnFloor();
+		SpawnHorizon();
+		SpawnAtmosphere();
+		SpawnSpace();
+	}
+
+	const DayNightCycle = () => {
+		auxl.directionalLight.EmitEvent('sunrise');
+		auxl.directionalLight2.EmitEvent('sunrise');
+		auxl.directionalLight3.EmitEvent('sunrise');
+		auxl.ambientLight.EmitEvent('sunrise');
+		auxl.skyGrad.EmitEvent('sunrise');
+		auxl.sunLayer.EmitEventParent('sunrise');
+		auxl.moonLayer.EmitEventParent('sunrise');
+
+		auxl.skyGrad.SetFlag({flag:'day', value: true});
+		//SkyGrad Color Anim
+		//Timeout
+		let timeoutDayNight = setTimeout(function () {
+			auxl.skyGrad.SetFlag({flag:'day', value: false});
+			auxl.skyGrad.EmitEvent('sunset');
+			let intervalDayNight = setInterval(function() {
+				if(auxl.skyGrad.GetFlag('day')){
+					auxl.skyGrad.SetFlag({flag:'day', value: false});
+					auxl.skyGrad.EmitEvent('sunset');
+				}else{
+					auxl.skyGrad.SetFlag({flag:'day', value: true});
+					auxl.skyGrad.EmitEvent('sunrise');
+				}
+			//clearInterval(intervalDayNight);
+			}, auxl.timeInDay/2); //Interval
+		}, auxl.timeInDay/2 - auxl.timeInDay/24); //Delay
+	}
+
+	return {skyBox, Spawn, DayNightCycle};
+}
+
+//
 //Story Book - Linear, Tree, Quests, Jump, Menu, Conditionals, Flags...
 this.Book = (core, npc) => {
 //facilitate interaction between user, objects and story.
@@ -2838,15 +2892,6 @@ this.Book = (core, npc) => {
 	for(let props in book.scene){
 		//console.log(props);
 		//console.log(book.scene[props]);
-		if(props === 'floor'){
-			if(book.scene[props] === 'default'){
-				//nodeFloorCore.AddToScene();
-			}
-		} else if(props === 'background'){
-			if(book.scene[props] === '3GradStarRot'){
-				//skyLayerAll.AddAllToScene();
-			}
-		}
 	};
 
 
@@ -4256,6 +4301,82 @@ function* poissonDiscSampler(width, height, radius, center){
 }
 
 //
+//Teleport
+this.Teleport = (id, locations) => {
+
+	let teleport = {};
+	teleport.id = id;
+	teleport.all = [];
+	let teleportLayer;
+	let teleportLayerData;
+	let teleportParent;
+	let teleportParentId = '';
+	let teleportChild0;//Confirm
+	let teleportChild0Id = '';
+	let teleportChild1;//Cancel
+	let teleportChild1Id = '';
+	let spotColor;
+
+	//ToDo
+	//Add an additional style, a light beam cylinder
+
+	for(let spot in locations){
+		spotColor = auxl.colorTheoryGen().base;
+		teleportParentId = 'teleport' + spot + 'Parent';
+		auxl.teleportParentData.id = teleportParentId;
+		auxl.teleportParentData.position = locations[spot];
+		teleportParent = auxl.Core(auxl.teleportParentData);
+		teleportChild0Id = 'teleport' + spot + 'Confirm';
+		auxl.teleportConfirmData.id = teleportChild0Id;
+		auxl.teleportConfirmData.material.color = spotColor;
+		auxl.teleportConfirmData.material.emissive = spotColor;
+		teleportChild0 = auxl.Core(auxl.teleportConfirmData);
+		teleportChild1Id = 'teleport' + spot + 'Cancel';
+		auxl.teleportCancelData.id = teleportChild1Id;
+		auxl.teleportCancelData.material.color = spotColor.compl;
+		auxl.teleportCancelData.material.emissive = spotColor.compl;
+		teleportChild1 = auxl.Core(auxl.teleportCancelData);
+		teleportLayerData = {
+			parent: {core: teleportParent},
+			child0: {core: teleportChild0},
+			child1: {core: teleportChild1},
+		}
+		teleport.all[spot] = auxl.Layer('teleport'+spot, teleportLayerData);
+	}
+
+	const SpawnAll = (sceneWide) => {
+		for(let each in teleport.all){
+			teleport.all[each].AddAllToScene(true);
+		}
+		if(sceneWide){} else {
+			AddToTeleportSceneTracker();
+		}
+	}
+
+	const DespawnAll = (sceneWide) => {
+		for(let each in teleport.all){
+			teleport.all[each].RemoveAllFromScene(true);
+		}
+		if(sceneWide){} else {
+			RemoveFromTeleportSceneTracker();
+		}
+	}
+
+	const AddToTeleportSceneTracker = () => {
+		if(auxl.zoneSpawned[teleport.id]){} else {
+			auxl.nodeSpawned[teleport.id] = {type: 'teleport', obj: teleport};
+		}
+	}
+
+	const RemoveFromTeleportSceneTracker = () => {
+		delete auxl.nodeSpawned[id];
+	}
+
+	return {teleport, SpawnAll, DespawnAll};
+
+}
+
+//
 //Carousel
 this.Carousel = (id,mainData,buttonData,...materials) => {
 
@@ -4608,39 +4729,6 @@ this.MemoryGame = (...data) => {
 
 	return{memory, SpawnGame, DespawnGame, GameMenuClick};
 }
-
-
-/*****************************************************************/
-
-//Teleportation Points
-function spawnBasicTeleportationPoints(){
-	auxl.teleportOriginLayer.AddAllToScene(true);
-	auxl.teleport1Layer.AddAllToScene(true);
-	auxl.teleport2Layer.AddAllToScene(true);
-	auxl.teleport3Layer.AddAllToScene(true);
-	auxl.teleport4Layer.AddAllToScene(true);
-}
-
-function spawnEnvironmentGlobals(){
-	auxl.directionalLight.AddToScene(false, false, true);
-	auxl.directionalLight2.AddToScene(false, false, true);
-	auxl.directionalLight3.AddToScene(false, false, true);
-	auxl.ambientLight.AddToScene(false, false, true);
-	auxl.skyGrad.AddToScene(false, false, true);
-	auxl.sunLayer.AddAllToScene(true);
-	auxl.moonLayer.AddAllToScene(true);
-	auxl.nodeFloor.AddToScene(false, false, true);
-	auxl.cloud1.AddToScene(false, false, true);
-	auxl.cloud2.AddToScene(false, false, true);
-	auxl.cloud3.AddToScene(false, false, true);
-	auxl.cloud4.AddToScene(false, false, true);
-	auxl.cloud5.AddToScene(false, false, true);
-	auxl.cloud6.AddToScene(false, false, true);
-	auxl.cloud7.AddToScene(false, false, true);
-	auxl.cloud8.AddToScene(false, false, true);
-}
-
-
 
 },//Init
 
@@ -5826,6 +5914,7 @@ components: false,
 //
 
 //3GradDualSky
+//threeColorGradientShader error : core:schema:warn Unknown property `color` for component/system `material`
 auxl.skyGradData = {
 data: 'sky gradient',
 id: 'skyGrad',
@@ -6211,103 +6300,30 @@ auxl.locomotionUIAllData = {
 auxl.locomotionUILayer = auxl.Layer('locomotionUILayer', auxl.locomotionUIAllData);
 
 //
-//Teleportation Points
+//Teleportation
+let teleportPos = [
+new THREE.Vector3(0,0.025,0),
+new THREE.Vector3(-5,0.025,-5),
+new THREE.Vector3(0,0.025,-10),
+new THREE.Vector3(-5,0.025,5),
+new THREE.Vector3(-10,0.025,0),
+new THREE.Vector3(5,0.025,-5),
+new THREE.Vector3(10,0.025,0),
+new THREE.Vector3(5,0.025,5),
+new THREE.Vector3(0,0.025,10),
+];
+auxl.teleport = auxl.Teleport('teleport', teleportPos);
 
-//Origin
-let tele0Color = auxl.colorTheoryGen().base;
-auxl.teleportParentData.id = 'teleportOriginParent';
-auxl.teleportParentData.position = new THREE.Vector3(0,0.025,0);
-auxl.teleportOriginParent = auxl.Core(auxl.teleportParentData);
-auxl.teleportConfirmData.id = 'teleportOriginConfirm';
-auxl.teleportConfirmData.material.color = tele0Color;
-auxl.teleportConfirmData.material.emissive = tele0Color;
-auxl.teleportOriginConfirm = auxl.Core(auxl.teleportConfirmData);
-auxl.teleportCancelData.id = 'teleportOriginCancel';
-auxl.teleportCancelData.material.color = tele0Color.compl;
-auxl.teleportCancelData.material.emissive = tele0Color.compl;
-auxl.teleportOriginCancel = auxl.Core(auxl.teleportCancelData);
-auxl.teleportOriginData = {
-	parent: {core: auxl.teleportOriginParent},
-	child0: {core: auxl.teleportOriginConfirm},
-	child1: {core: auxl.teleportOriginCancel},
-}
-auxl.teleportOriginLayer = auxl.Layer('teleportOriginLayer', auxl.teleportOriginData);
-//1
-let tele1Color = auxl.colorTheoryGen().base;
-auxl.teleportParentData.id = 'teleport1Parent';
-auxl.teleportParentData.position = new THREE.Vector3(-5,0.025,-5);
-auxl.teleport1Parent = auxl.Core(auxl.teleportParentData);
-auxl.teleportConfirmData.id = 'teleport1Confirm';
-auxl.teleportConfirmData.material.color = tele1Color;
-auxl.teleportConfirmData.material.emissive = tele1Color;
-auxl.teleport1Confirm = auxl.Core(auxl.teleportConfirmData);
-auxl.teleportCancelData.id = 'teleport1Cancel';
-auxl.teleportCancelData.material.color = tele1Color.compl;
-auxl.teleportCancelData.material.emissive = tele1Color.compl;
-auxl.teleport1Cancel = auxl.Core(auxl.teleportCancelData);
-auxl.teleport1Data = {
-	parent: {core: auxl.teleport1Parent},
-	child0: {core: auxl.teleport1Confirm},
-	child1: {core: auxl.teleport1Cancel},
-}
-auxl.teleport1Layer = auxl.Layer('teleport1Layer', auxl.teleport1Data);
-//2
-let tele2Color = auxl.colorTheoryGen().base;
-auxl.teleportParentData.id = 'teleport2Parent';
-auxl.teleportParentData.position = new THREE.Vector3(-5,0.025,5);
-auxl.teleport2Parent = auxl.Core(auxl.teleportParentData);
-auxl.teleportConfirmData.id = 'teleport2Confirm';
-auxl.teleportConfirmData.material.color = tele2Color;
-auxl.teleportConfirmData.material.emissive = tele2Color;
-auxl.teleport2Confirm = auxl.Core(auxl.teleportConfirmData);
-auxl.teleportCancelData.id = 'teleport2Cancel';
-auxl.teleportCancelData.material.color = tele2Color.compl;
-auxl.teleportCancelData.material.emissive = tele2Color.compl;
-auxl.teleport2Cancel = auxl.Core(auxl.teleportCancelData);
-auxl.teleport2Data = {
-	parent: {core: auxl.teleport2Parent},
-	child0: {core: auxl.teleport2Confirm},
-	child1: {core: auxl.teleport2Cancel},
-}
-auxl.teleport2Layer = auxl.Layer('teleport1Layer', auxl.teleport2Data);
-//3
-let tele3Color = auxl.colorTheoryGen().base;
-auxl.teleportParentData.id = 'teleport3Parent';
-auxl.teleportParentData.position = new THREE.Vector3(5,0.025,-5);
-auxl.teleport3Parent = auxl.Core(auxl.teleportParentData);
-auxl.teleportConfirmData.id = 'teleport3Confirm';
-auxl.teleportConfirmData.material.color = tele3Color;
-auxl.teleportConfirmData.material.emissive = tele3Color;
-auxl.teleport3Confirm = auxl.Core(auxl.teleportConfirmData);
-auxl.teleportCancelData.id = 'teleport3Cancel';
-auxl.teleportCancelData.material.color = tele3Color.compl;
-auxl.teleportCancelData.material.emissive = tele3Color.compl;
-auxl.teleport3Cancel = auxl.Core(auxl.teleportCancelData);
-auxl.teleport3Data = {
-	parent: {core: auxl.teleport3Parent},
-	child0: {core: auxl.teleport3Confirm},
-	child1: {core: auxl.teleport3Cancel},
-}
-auxl.teleport3Layer = auxl.Layer('teleport1Layer', auxl.teleport3Data);
-//4
-let tele4Color = auxl.colorTheoryGen().base;
-auxl.teleportParentData.id = 'teleport4Parent';
-auxl.teleportParentData.position = new THREE.Vector3(5,0.025,5);
-auxl.teleport4Parent = auxl.Core(auxl.teleportParentData);
-auxl.teleportConfirmData.id = 'teleport4Confirm';
-auxl.teleportConfirmData.material.color = tele4Color;
-auxl.teleportConfirmData.material.emissive = tele4Color;
-auxl.teleport4Confirm = auxl.Core(auxl.teleportConfirmData);
-auxl.teleportCancelData.id = 'teleport4Cancel';
-auxl.teleportCancelData.material.color = tele4Color.compl;
-auxl.teleportCancelData.material.emissive = tele4Color.compl;
-auxl.teleport4Cancel = auxl.Core(auxl.teleportCancelData);
-auxl.teleport4Data = {
-	parent: {core: auxl.teleport4Parent},
-	child0: {core: auxl.teleport4Confirm},
-	child1: {core: auxl.teleport4Cancel},
-}
-auxl.teleport4Layer = auxl.Layer('teleport4Layer', auxl.teleport4Data);
+let teleportPos0 = [
+new THREE.Vector3(0,0.025,0),
+new THREE.Vector3(-5,0.025,-5),
+new THREE.Vector3(-5,0.025,5),
+new THREE.Vector3(5,0.025,-5),
+new THREE.Vector3(5,0.025,5),
+];
+auxl.teleport0 = auxl.Teleport('teleport0', teleportPos0);
+
+
 
 //
 //Hamburger Menu Companion
@@ -6554,8 +6570,9 @@ auxl.carousel1 = auxl.Carousel('carousel1',auxl.carouselViewData, auxl.carouselB
 //Memory
 auxl.memory = auxl.MemoryGame(auxl.memory0Data,auxl.memory1Data,auxl.memory2Data,auxl.memory3Data,);
 
-
-
+//
+//SkyBox
+auxl.skyBox = auxl.SkyBox();
 
     },
 });
@@ -11129,6 +11146,36 @@ AFRAME.registerComponent('auxl-scenes', {
 
 
 //
+//Scenario
+auxl.scenario0 = {
+info:{
+id: 'scenario0',
+name: 'Scenario0',
+sceneNum: 0,
+start: 'zone0',
+},
+start:{
+
+},
+delay:{
+
+},
+interval:{
+
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
+
+};
+
+//
 //World Atlas Map & Node Data
 
 //Floating Island - Connects to all zones
@@ -11177,12 +11224,13 @@ description: 'Starting Zone',
 sceneText: true,
 },
 start:{
-HamGirl:{Start: null},
+teleport:{SpawnAll:null},
+HamGirl:{Start:null},
 npcMinty:{Spawn:null},
-soundTesting:{AddToScene: null},
+soundTesting:{AddToScene:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},}},
 forestScene2:{SpawnAll:null},
-multiRockFlatGrass:{genCores: null, SpawnAll: null},
+multiRockFlatGrass:{genCores:null, SpawnAll:null},
 },
 delay:{
 
@@ -11251,6 +11299,7 @@ description: 'Open Tundra',
 sceneText: true,
 },
 start:{
+teleport:{SpawnAll:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern69, repeat: '150 150',color: "#d6a9ba", emissive: "#d6a9ba",},}},
 snowForestScene1:{SpawnAll:null},
 npc1:{Spawn: null},
@@ -11284,6 +11333,7 @@ description: 'Underground Shelter',
 sceneText: true,
 },
 start:{
+teleport0:{SpawnAll:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern37, repeat: '150 150',color: "#bc8fa0", emissive: "#bc8fa0",},}},
 nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: auxl.pattern81, repeat: '5 1.25', color: "#bc8fa0", emissive: "#bc8fa0",}}},
 eventTesting:{AddToScene: null, EnableDetail: 'This shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.'},
@@ -11432,8 +11482,8 @@ description: 'Thick Woodlands',
 sceneText: true,
 },
 start:{
+teleport:{SpawnAll:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern24, repeat: '300 300', color: "#228343", emissive: "#228343",},}},
-
 forestScene1:{SpawnAll:null},
 mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: auxl.mountainMat1}},
 },
@@ -11503,6 +11553,7 @@ description: 'Spooky Cemetary',
 sceneText: true,
 },
 start:{
+teleport:{SpawnAll:null},
 npc0:{Spawn: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern44, repeat: '150 150',color: "#618136", emissive: "#618136",},}},
 //multiGrassyHillsBasic:{genCores: null, SpawnAll: null},
@@ -11536,6 +11587,7 @@ description: 'Graveyard Shelter',
 sceneText: true,
 },
 start:{
+teleport0:{SpawnAll:null},
 memory:{SpawnGame: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern50, repeat: '150 150',color: "#763a3a", emissive: "#763a3a",},}},
 nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: auxl.pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
@@ -11604,6 +11656,7 @@ description: 'Dry Plains',
 sceneText: true,
 },
 start:{
+teleport:{SpawnAll:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern58, repeat: '150 150',color: "#c1bd52", emissive: "#c1bd52",},}},
 npc2:{Spawn: null},
 //multiDesertPlainsBasic:{genCores: null, SpawnAll: null},
@@ -11711,6 +11764,7 @@ description: 'Rolling Sands',
 sceneText: true,
 },
 start:{
+teleport:{SpawnAll:null},
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: true}, EnableDetail: 'An example of using start/exit to set variables and change scene settings.'},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55, repeat: '150 150',color: "#b4933c", emissive: "#b4933c",},}},
 //multiOceanBeachBasic:{genCores: null, SpawnAll: null},
@@ -11753,6 +11807,7 @@ description: 'Submerged',
 sceneText: true,
 },
 start:{
+teleport0:{SpawnAll:null},
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: false},},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern83, repeat: '150 150',color: "#3c86b4", emissive: "#3c86b4",},}},
 nodeWalls: {AddAllToScene: null,ChangeParent:{property: 'scale', value: new THREE.Vector3(15,15,15)},ChangeAll:{property: 'material', value: {src: auxl.pattern55, repeat: '5 1.25', color: "#275876", emissive: "#275876",}}},
@@ -13029,37 +13084,58 @@ userDirection: function (){
 AFRAME.registerComponent('teleportation',{
 dependencies: ['auxl'],
 init: function(){
-	//AUXL
-	const auxl = document.querySelector('a-scene').systems.auxl;
-	//Scene
-	var sceneEl = document.querySelector('a-scene');
-	//This element
-	let element = this.el;
-	//Player Rig 
+	//Prepare
+	if (this.el.classList.contains('teleport')) {
+		//Set parent wrapper's active status
+		this.el.parentNode.setAttribute('active', 'false');
+	} else if (this.el.classList.contains('cancel')) {
+		this.el.classList.toggle('clickable', false);
+		//Set parent wrapper's active status
+		this.el.parentNode.setAttribute('active', 'false');
+	}
+},
+resetTeleCircles: function () {
+	this.allTeleportors = document.querySelectorAll('.teleporter');
+	for (let i= 0; i < this.allTeleportors.length; i++){
+		if (this.allTeleportors[i].parentNode.getAttribute('active') === 'true') {
+			this.allTeleportors[i].emit('resetInstant',{});
+			this.allTeleportors[i].nextSibling.emit('resetInstant',{});
+		}
+	}
+},
+resetInstantEvent: function () {
+	if (this.classList.contains('teleport')) {
+		//Reset parent wrapper's active status
+		this.parentNode.setAttribute('active', 'false');
+	} else if(this.classList.contains('cancel')) {
+		this.classList.toggle('clickable', false);
+		//Reset parent wrapper's active status
+		this.parentNode.setAttribute('active', 'false');
+	}
+},
+resetEvent: function () {
+	if (this.classList.contains('teleport')) {
+		//Reset parent wrapper's active status
+		this.parentNode.setAttribute('active', 'false');
+	} else if(this.classList.contains('cancel')) {
+		this.classList.toggle('clickable', false);
+		//Reset parent wrapper's active status
+		this.parentNode.setAttribute('active', 'false');
+	}
+},
+clickToTeleport: function () {
+	let element = this;
 	let user = document.getElementById('playerRig');
-	//User View
 	let userView = document.getElementById('camera');
-
-	//current Teleportation methods
-	//instant
-	//fade
-	//locomotion - NEEDS TO BE ADDED TO AUXL MENUS
-	//sphere
-	//blink
+	let auxl = document.querySelector('a-scene').systems.auxl;
+	let userPos = user.getAttribute('position');
 	let teleportType = auxl.player.layer.transition;
-
-	//Support
-	//let timeout;
+	let newPosition = new THREE.Vector3();
+	let teleportPos = this.parentNode.getAttribute('position');
+	let allTeleportors = document.querySelectorAll('.teleporter');
 	let posTimeout;
-	let timeout2;
-	let teleportPos;
-	let userPos;
-	let newPosition;
-	let allTeleportors;
-	let userPov;
-	let rotationParams;
+	let animTimeout;
 
-	//Spawn Function
 	function playerTeleportAnim(){
 		if(auxl.player.layer.teleporting){} else {
 			auxl.player.layer.teleporting = true;
@@ -13069,197 +13145,153 @@ init: function(){
 				auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
 				auxl.blink1Screen.EmitEvent('blink');
 				auxl.blink2Screen.EmitEvent('blink');
-				timeout2 = setTimeout(function () {
+				animTimeout = setTimeout(function () {
 					auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
 					auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
 					auxl.player.layer.teleporting = false;
-					clearTimeout(timeout2);
+					clearTimeout(animTimeout);
 				}, 1200);
 			} else if (auxl.player.layer.transition === 'fade'){
 				auxl.player.TempDisableClick();
 				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
 				auxl.fadeScreen.EmitEvent('fade');
-				timeout2 = setTimeout(function () {
+				animTimeout = setTimeout(function () {
 					auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
 					auxl.player.layer.teleporting = false;
-					clearTimeout(timeout2);
+					clearTimeout(animTimeout);
 				}, 1200);
 			} else if (auxl.player.layer.transition === 'sphere'){
 				auxl.player.TempDisableClick();
 				auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
 				auxl.sphereScreen.EmitEvent('sphere');
-				timeout2 = setTimeout(function () {
+				animTimeout = setTimeout(function () {
 					auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
 					auxl.player.layer.teleporting = false;
-					clearTimeout(timeout2);
+					clearTimeout(animTimeout);
 				}, 1200);
 			} else if (auxl.player.layer.transition === 'instant'){
-				timeout2 = setTimeout(function () {
+				animTimeout = setTimeout(function () {
 					auxl.player.layer.teleporting = false;
-					clearTimeout(timeout2);
+					clearTimeout(animTimeout);
 				}, 500);
 			}
 		}
 	}
 
-	//Reset Teleportation Circles
+	function prepMove(element, newPos, telePos){
+		//Do an reset on element to not interfer with anim
+		element.emit('reset',{});//select circle
+		element.nextSibling.emit('reset',{});//cancel circle
+		//Clone current entity's position User
+		newPos.copy(telePos);
+		//Reset User's Y back to 0 - Flat Mode
+		newPos.y = 0;
+	}
+
 	function resetTeleCircles(){
-		allTeleportors = document.querySelectorAll('.teleporter');
-		for (let i= 0; i < allTeleportors.length; i++){
-			if (allTeleportors[i].parentNode.getAttribute('active') === 'true') {
+		//this.allTeleportors = document.querySelectorAll('.teleporter');
+		for(let i= 0; i < allTeleportors.length; i++){
+			if(allTeleportors[i].parentNode.getAttribute('active') === 'true') {
 				allTeleportors[i].emit('resetInstant',{});
 				allTeleportors[i].nextSibling.emit('resetInstant',{});
 			}
 		}
 	}
 
-	//Prep Movement
-	function prepMove(){
-		//Do an reset on element to not interfer with anim
-		element.emit('reset',{});//select circle
-		element.nextSibling.emit('reset',{});//cancel circle
-		//Clone current entity's position User
-		newPosition.copy(teleportPos);
-		//Reset User's Y back to 0 - Flat Mode
-		newPosition.y = 0;
-	}
+	if(element.parentNode.getAttribute('active') === 'false') {
+		//default state
+		//Allow cancel circle to be viewable and clickable
+		element.nextSibling.classList.toggle('clickable', true);
+		element.nextSibling.emit('click1',{});
+		//Set rotation anim for select circle
+		element.userPov = userView.getAttribute('rotation');
+		element.rotationParams = {
+			property: 'object3D.rotation.y',
+			to: element.userPov.y,
+			dur: 500,
+			delay: 0,
+			loop: 'false',
+			dir: 'normal',
+			easing:'easeInOutSine',
+			elasticity: 400,
+			autoplay: 'true',
+			enabled: 'true',
+			};
+		element.parentNode.setAttribute('animation__rotateToUser', element.rotationParams);
+		//if clicked once and activated, setAttribute that be checked for reset
+		element.parentNode.setAttribute('active', 'true');
+	} else {
 
-	//Initialize 
-	if (element.classList.contains('teleport')) {
-		active = false; //is the button active for teleport
-		//Set parent wrapper's active status
-		element.parentNode.setAttribute('active', 'false');
-
-	} else if (element.classList.contains('cancel')) {
-		active = true; //is the button active for cancel
-		element.classList.toggle('clickable', false);
-		//Set parent wrapper's active status
-		element.parentNode.setAttribute('active', 'false');
-	}
-	//Reset Event
-	function resetEvent(){
-		if (element.classList.contains('teleport')) {
-			active = false; //is the button active for teleport
-			//Reset parent wrapper's active status
-			element.parentNode.setAttribute('active', 'false');
-		} else if (element.classList.contains('cancel')) {
-			active = true; //is the button active for cancel
-			element.classList.toggle('clickable', false);
-			//Reset parent wrapper's active status
-			element.parentNode.setAttribute('active', 'false');
-		}
-	}
-	this.el.addEventListener('reset', resetEvent);
-
-	//Reset Instant Event
-	function resetInstantEvent(){
-		if (element.classList.contains('teleport')) {
-			active = false; //is the button active for teleport
-			//Reset parent wrapper's active status
-			element.parentNode.setAttribute('active', 'false');
-		} else if (element.classList.contains('cancel')) {
-			active = true; //is the button active for cancel
-			element.classList.toggle('clickable', false);
-			//Reset parent wrapper's active status
-			element.parentNode.setAttribute('active', 'false');
-		}
-	}
-	this.el.addEventListener('resetInstant', resetInstantEvent);
-
-	//Listen for Click to teleport
-	function clickToTeleport(){
-		if(element.parentNode.getAttribute('active') === 'false') {
-			//default state
-			//Allow cancel circle to be viewable and clickable
-			element.nextSibling.classList.toggle('clickable', true);
-			element.nextSibling.emit('click1',{});
-			//Set rotation anim for select circle
-			userPov = userView.getAttribute('rotation');
-			rotationParams = {
-				property: 'object3D.rotation.y',
-				to: userPov.y,
-				dur: 500,
-				delay: 0,
-				loop: 'false',
-				dir: 'normal',
-				easing:'easeInOutSine',
-				elasticity: 400,
-				autoplay: 'true',
-				enabled: 'true',
-				};
-			element.parentNode.setAttribute('animation__rotateToUser', rotationParams);
-			//if clicked once and activated, setAttribute that be checked for reset
-			element.parentNode.setAttribute('active', 'true');
-		} else {
-			//circle1 and circle2 are ready to be clicked
-			//if circle1 was selected, teleport user and reset properties
-			//if circle2 was selcted, reset properties
-			if (element.classList.contains('teleport')) {
-				teleportPos = element.parentNode.getAttribute('position');
-				userPos = user.getAttribute('position');
-				newPosition = new THREE.Vector3();
-
-				//Teleportation Type
-				if (teleportType === 'instant') {
+		//circle1 and circle2 are ready to be clicked
+		//if circle1 was selected, teleport user and reset properties
+		//if circle2 was selcted, reset properties
+		if(element.classList.contains('teleport')) {
+			//Teleportation Type
+			if(teleportType === 'instant') {
+				resetTeleCircles();
+				prepMove(element, newPosition, teleportPos);
+				posTimeout = setTimeout(function () {
+					user.object3D.position.copy(newPosition);
+					clearTimeout(posTimeout);
+				}, 150);
+			} else if(teleportType === 'fade') {
+				playerTeleportAnim();
+				prepMove(element, newPosition, teleportPos);
+				posTimeout = setTimeout(function () {
 					resetTeleCircles();
-					prepMove();
-					posTimeout = setTimeout(function () {
-						user.object3D.position.copy(newPosition);
-					}, 150);
-				} else if (teleportType === 'fade') {
-					playerTeleportAnim();
-					prepMove();
-					posTimeout = setTimeout(function () {
-						resetTeleCircles();
-						user.object3D.position.copy(newPosition);
-					}, 1050);
-				} else if (teleportType === 'locomotion') {
-					//Create locomotion animation based on teleported Pos
-					let travelParams = {
-						property: 'position',
-						from: {x: userPos.x, y: 0, z: userPos.z},
-						to: {x: teleportPos.x, y: 0, z: teleportPos.z},
-						dur: 1000,
-						delay: 0,
-						loop: 'false',
-						dir: 'normal',
-						easing:'easeInOutSine',
-						elasticity: 400,
-						autoplay: 'true',
-						enabled: 'true',
-						};
-					user.setAttribute('animation__locomotion', travelParams);
-					element.nextSibling.emit('reset',{});//cancel circle
+					user.object3D.position.copy(newPosition);
+					clearTimeout(posTimeout);
+				}, 1050);
+			} else if(teleportType === 'locomotion') {
+				//Create locomotion animation based on teleported Pos
+				let travelParams = {
+					property: 'position',
+					from: {x: userPos.x, y: 0, z: userPos.z},
+					to: {x: teleportPos.x, y: 0, z: teleportPos.z},
+					dur: 1000,
+					delay: 0,
+					loop: 'false',
+					dir: 'normal',
+					easing:'easeInOutSine',
+					elasticity: 400,
+					autoplay: 'true',
+					enabled: 'true',
+					};
+				user.setAttribute('animation__locomotion', travelParams);
+				element.nextSibling.emit('reset',{});//cancel circle
+				resetTeleCircles();
+			} else if(teleportType === 'sphere') {
+				playerTeleportAnim();
+				prepMove(element, newPosition, teleportPos);
+				posTimeout = setTimeout(function () {
 					resetTeleCircles();
-				} else if (teleportType === 'sphere') {
-					playerTeleportAnim();
-					prepMove();
-					posTimeout = setTimeout(function () {
-						resetTeleCircles();
-						user.object3D.position.copy(newPosition);
-					}, 1000); //Delay
-				} else if (teleportType === 'blink') {
-					playerTeleportAnim();
-					prepMove();
-					posTimeout = setTimeout(function () {
-						resetTeleCircles();
-						user.object3D.position.copy(newPosition);
-					}, 800); //Delay
-				}
-
-			} else if (element.classList.contains('cancel')) {
-				element.emit('reset',{});
+					user.object3D.position.copy(newPosition);
+					clearTimeout(posTimeout);
+				}, 1000);
+			} else if(teleportType === 'blink') {
+				playerTeleportAnim();
+				prepMove(element, newPosition, teleportPos);
+				posTimeout = setTimeout(function () {
+					resetTeleCircles();
+					user.object3D.position.copy(newPosition);
+					clearTimeout(posTimeout);
+				}, 800);
 			}
-
+		} else if (element.classList.contains('cancel')) {
+			element.emit('reset',{});
 		}
 	}
-	this.el.addEventListener('click', clickToTeleport);
+},
+update: function () {
+	this.el.addEventListener('reset', this.resetEvent);
+	this.el.addEventListener('resetInstant', this.resetInstantEvent);
+	this.el.addEventListener('click', this.clickToTeleport);
 },
 remove: function () {
 	//Do something the component or its entity is detached.
-	this.el.removeEventListener('reset', resetEvent);
-	this.el.removeEventListener('resetInstant', resetInstantEvent);
-	this.el.removeEventListener('click', clickToTeleport);
+	this.el.removeEventListener('reset', this.resetEvent);
+	this.el.removeEventListener('resetInstant', this.resetInstantEvent);
+	this.el.removeEventListener('click', this.clickToTeleport);
 },
 });
 
