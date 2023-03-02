@@ -24,11 +24,8 @@ init: function () {
 //Establish a-frame objects
 const sceneEl = document.querySelector('a-scene');
 const head = document.querySelector('head');
-
-//If I convert all auxl to auxl then it will align with all other components
 let auxl = this;
-
-
+//Experience
 this.expStarted = false;
 //Menu
 const stickyMenu = document.getElementById('stickyMenu');
@@ -63,10 +60,10 @@ this.controller2Reader = '';
 this.spawned = {};
 this.zoneSpawned = {};
 this.nodeSpawned = {};
-this.menuSpawned = {};
-this.genSpawned = {};
-this.npcSpawned = {};
-this.carouselSpawned = {};
+//this.menuSpawned = {};
+//this.genSpawned = {};
+//this.npcSpawned = {};
+//this.carouselSpawned = {};
 function clearSpawned(spawned){
 	for(let spawn in spawned){
 		//console.log(spawn);//name of ID
@@ -105,6 +102,7 @@ function clearSpawned(spawned){
 	}
 }
 this.running = {};
+this.zoneRunning = {};
 this.timeouts = {};
 this.intervals = {};
 this.interactions = {};
@@ -1257,7 +1255,8 @@ this.Player = (layer) => {
 	//sphere
 	//blink
 
-	//Controlled by swap-controls component
+	layer.teleporting = false;
+
 	//layer.controls = 'desktop';
 
 	//Initialize Player
@@ -1286,29 +1285,34 @@ this.Player = (layer) => {
 	}
 
 	const TempDisableClick = () => {
+	//Not working well, upgrade
+
 	//Need to check which controls are currently enabled
 	//mouseController
 	//vrController
 		let disableTimeout;
-		if(layer.controls === 'desktop'){
+		if(auxl.controls === 'Desktop'){
 			auxl.mouseController.ChangeSelf({property: 'raycaster',value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
 			//Timeout
 			disableTimeout = setTimeout(function () {
 				auxl.mouseController.ChangeSelf({property: 'raycaster',value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
 				clearTimeout(disableTimeout);
 			}, 1000);
-		} else if(layer.controls === 'vr'){
+		} else if(auxl.controls === 'VR'){
 			auxl.vrController.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
 			//Timeout
 			disableTimeout = setTimeout(function () {
 				auxl.vrController.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
 				clearTimeout(disableTimeout);
 			}, 1000);
+		} else if(auxl.controls === 'Mobile'){
+			auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
+			//Timeout
+			disableTimeout = setTimeout(function () {
+				auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
+				clearTimeout(disableTimeout);
+			}, 1000);
 		}
-
-
-	//vrController raycaster property
-
 	}
 
 	const EnableVRLocomotion = () => {
@@ -1344,34 +1348,46 @@ this.Player = (layer) => {
 }
 //Spawn Function
 function playerSpawnAnim(){
-	if(auxl.player.layer.transition === 'blink'){
-		auxl.player.TempDisableClick();
-		auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
-		auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
-		auxl.blink1Screen.EmitEvent('blink');
-		auxl.blink2Screen.EmitEvent('blink');
-		timeout2 = setTimeout(function () {
-			auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
-			auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
-			clearTimeout(timeout2);
-		}, 1200);
-	} else if (auxl.player.layer.transition === 'fade'){
-		auxl.player.TempDisableClick();
-		auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
-		auxl.fadeScreen.EmitEvent('fade');
-		timeout2 = setTimeout(function () {
-			auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
-			clearTimeout(timeout2);
-		}, 1200);
-	} else if (auxl.player.layer.transition === 'sphere'){
-		auxl.player.TempDisableClick();
-		auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
-		auxl.sphereScreen.EmitEvent('sphere');
-		timeout2 = setTimeout(function () {
-			auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
-			clearTimeout(timeout2);
-		}, 1200);
-	} else if (auxl.player.layer.transition === 'instant'){}
+	if(auxl.player.layer.teleporting){} else {
+		auxl.player.layer.teleporting = true;
+		if(auxl.player.layer.transition === 'blink'){
+			auxl.player.TempDisableClick();
+			auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
+			auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
+			auxl.blink1Screen.EmitEvent('blink');
+			auxl.blink2Screen.EmitEvent('blink');
+			timeout2 = setTimeout(function () {
+				auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
+				auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
+				auxl.player.layer.teleporting = false;
+				clearTimeout(timeout2);
+			}, 1200);
+		} else if (auxl.player.layer.transition === 'fade'){
+			auxl.player.TempDisableClick();
+			auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
+			auxl.fadeScreen.EmitEvent('fade');
+			timeout2 = setTimeout(function () {
+				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
+				auxl.player.layer.teleporting = false;
+				clearTimeout(timeout2);
+			}, 1200);
+		} else if (auxl.player.layer.transition === 'sphere'){
+			auxl.player.TempDisableClick();
+			auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
+			auxl.sphereScreen.EmitEvent('sphere');
+			timeout2 = setTimeout(function () {
+				auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
+				auxl.player.layer.teleporting = false;
+				clearTimeout(timeout2);
+			}, 1200);
+		} else if (auxl.player.layer.transition === 'instant'){
+			timeout2 = setTimeout(function () {
+				auxl.player.layer.teleporting = false;
+				clearTimeout(timeout2);
+			}, 500);
+		}
+	}
+
 }
 
 //
@@ -1474,11 +1490,15 @@ let menuNum = 0;
 	}
 
 	const AddToMenuSceneTracker = (obj) => {
-    	auxl.menuSpawned[menu.id] = {type: 'menu', obj};
+		if(auxl.zoneSpawned[menu.id]){} else {
+    		//auxl.menuSpawned[menu.id] = {type: 'menu', obj};
+    		auxl.nodeSpawned[menu.id] = {type: 'menu', obj};
+		}
 	}
 
 	const RemoveFromMenuSceneTracker = () => {
-		delete auxl.menuSpawned[menu.id];
+		//delete auxl.menuSpawned[menu.id];
+		delete auxl.nodeSpawned[menu.id];
 	}
 
 	return {menu, MenuGen, MenuRemove, ToggleOptionClicking, AddToMenuSceneTracker, RemoveFromMenuSceneTracker};
@@ -1622,10 +1642,10 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		clearSpawned(auxl.nodeSpawned);
 
 		//What if these were added in Zone?
-		clearSpawned(auxl.genSpawned);
-		clearSpawned(auxl.menuSpawned);
-		clearSpawned(auxl.npcSpawned);
-		clearSpawned(auxl.carouselSpawned);
+		//clearSpawned(auxl.genSpawned);
+		//clearSpawned(auxl.menuSpawned);
+		//clearSpawned(auxl.npcSpawned);
+		//clearSpawned(auxl.carouselSpawned);
 		/*
 		for(let spawn in auxl.nodeSpawned){
 			//console.log(spawn);//name of ID
@@ -1669,63 +1689,88 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 	//time : name of section within a core's pageData
 	//line : a single line set of instructions within time
 	//
-	for(let line in core[time]){
-		if(time === 'delay'){
-			//console.log('Delay Running...');
-			for(let a in core[time][line]){
-				//console.log(time);//delay
-				//console.log(line);//time of delay
-				//console.log(core[time][line]);//this.object w/ method and params
-				//console.log(a);//this.object name
-				//console.log(core[time][line][a]);//func w/ params
-				for(let b in core[time][line][a]){
-					//console.log(b);//func name
-					//console.log(core[time][line][a][b]);//params
-					if(b === 'IfElse'){
-						//console.log('IfElse Timeout');
-						for(let c in core[time][line][a][b]){
-							//console.log(core[time][line][a][b][c]);//params
+		//NodeScene Reading
+		for(let line in core[time]){
+			if(time === 'delay'){
+				//console.log('Delay Running...');
+				for(let a in core[time][line]){
+					//console.log(time);//delay
+					//console.log(line);//time of delay
+					//console.log(core[time][line]);//this.object w/ method and params
+					//console.log(a);//this.object name
+					//console.log(core[time][line][a]);//func w/ params
+					for(let b in core[time][line][a]){
+						//console.log(b);//func name
+						//console.log(core[time][line][a][b]);//params
+						if(b === 'IfElse'){
+							//console.log('IfElse Timeout');
+							for(let c in core[time][line][a][b]){
+								//console.log(core[time][line][a][b][c]);//params
+								AddToTimeIntEvtTracker({name: line, type: 'timeout', id: a});
+								auxl.timeouts[line+a] = setTimeout(function () {
+									//console.log('IfElse Timeout Hit');
+									IfElse(a,c,core[time][line][a][b][c]);
+									clearTimeout(auxl.timeouts[line+a]);
+								}, line); //Delay
+							}
+						} else {
+							//console.log('Normal Timeout');
 							AddToTimeIntEvtTracker({name: line, type: 'timeout', id: a});
 							auxl.timeouts[line+a] = setTimeout(function () {
-								//console.log('IfElse Timeout Hit');
-								IfElse(a,c,core[time][line][a][b][c]);
+								//console.log('Timeout Hit')
+								auxlObjMethod(a,b,core[time][line][a][b]);
 								clearTimeout(auxl.timeouts[line+a]);
 							}, line); //Delay
 						}
-					} else {
-						//console.log('Normal Timeout');
-						AddToTimeIntEvtTracker({name: line, type: 'timeout', id: a});
-						auxl.timeouts[line+a] = setTimeout(function () {
-							//console.log('Timeout Hit')
-							auxlObjMethod(a,b,core[time][line][a][b]);
-							clearTimeout(auxl.timeouts[line+a]);
-						}, line); //Delay
 					}
 				}
-			}
-		} else if(time === 'interval'){
-			//console.log('Interval Running...');
-			for(let a in core[time][line]){
-				//console.log(time);//interval
-				//console.log(line);//time of interval
-				//console.log(core[time][line]);//this.object w/ method and params
-				//console.log(a);//run,loop,end
-				//console.log(core[time][line][a]);//this.object name, func w/ params or params
-				let ranTotal = 0;
-				let loopTotal = core[time][line]['loop'];
-				let endCond;
-				if(core[time][line]['end']){
-					endCond = core[time][line]['end'];
-				}
-				if(a === 'run'){
-					for(let b in core[time][line][a]){
-						for(let c in core[time][line][a][b]){
-							//console.log(b);//this.obj name
-							//console.log(core[time][line][a][b]);//method w/ params
-							//console.log(c);//method
-							//console.log(core[time][line][a][b][c]);//parms
-							if(c === 'IfElse'){
-								for(let d in core[time][line][a][b][c]){
+			} else if(time === 'interval'){
+				//console.log('Interval Running...');
+				for(let a in core[time][line]){
+					//console.log(time);//interval
+					//console.log(line);//time of interval
+					//console.log(core[time][line]);//this.object w/ method and params
+					//console.log(a);//run,loop,end
+					//console.log(core[time][line][a]);//this.object name, func w/ params or params
+					let ranTotal = 0;
+					let loopTotal = core[time][line]['loop'];
+					let endCond;
+					if(core[time][line]['end']){
+						endCond = core[time][line]['end'];
+					}
+					if(a === 'run'){
+						for(let b in core[time][line][a]){
+							for(let c in core[time][line][a][b]){
+								//console.log(b);//this.obj name
+								//console.log(core[time][line][a][b]);//method w/ params
+								//console.log(c);//method
+								//console.log(core[time][line][a][b][c]);//parms
+								if(c === 'IfElse'){
+									for(let d in core[time][line][a][b][c]){
+										AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
+										auxl.intervals[line+b] = setInterval(function() {
+											//Interval Functions
+											//Check for End Condition
+											if(auxl[b].GetFlag(endCond) === 'true'){
+												clearInterval(auxl.intervals[line+b]);
+												RemoveFromTimeIntEvtTracker(line+b);
+											}
+											//console.log('IfElse Interval Hit')
+											IfElse(b,d,core[time][line][a][b][c][d]);
+											//Check and update Loop Total
+											if(loopTotal === 'infinite'){} else {
+												ranTotal++;
+												if(ranTotal >= loopTotal){
+													clearInterval(auxl.intervals[line+b]);
+													RemoveFromTimeIntEvtTracker(line+b);
+												}
+											}
+										}, line); //Interval
+									}
+								} else {
+									//console.log('Normal Interval');
+									let method = c;
+									let params = core[time][line][a][b][c];
 									AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
 									auxl.intervals[line+b] = setInterval(function() {
 										//Interval Functions
@@ -1734,8 +1779,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 											clearInterval(auxl.intervals[line+b]);
 											RemoveFromTimeIntEvtTracker(line+b);
 										}
-										//console.log('IfElse Interval Hit')
-										IfElse(b,d,core[time][line][a][b][c][d]);
+										auxlObjMethod(b,method,params);
 										//Check and update Loop Total
 										if(loopTotal === 'infinite'){} else {
 											ranTotal++;
@@ -1744,240 +1788,180 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 												RemoveFromTimeIntEvtTracker(line+b);
 											}
 										}
+										//clearInterval(interval);
 									}, line); //Interval
 								}
-							} else {
-								//console.log('Normal Interval');
-								let method = c;
-								let params = core[time][line][a][b][c];
-								AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
-								auxl.intervals[line+b] = setInterval(function() {
-									//Interval Functions
-									//Check for End Condition
-									if(auxl[b].GetFlag(endCond) === 'true'){
-										clearInterval(auxl.intervals[line+b]);
-										RemoveFromTimeIntEvtTracker(line+b);
-									}
-									auxlObjMethod(b,method,params);
-									//Check and update Loop Total
-									if(loopTotal === 'infinite'){} else {
-										ranTotal++;
-										if(ranTotal >= loopTotal){
-											clearInterval(auxl.intervals[line+b]);
-											RemoveFromTimeIntEvtTracker(line+b);
-										}
-									}
-									//clearInterval(interval);
-								}, line); //Interval
 							}
 						}
 					}
 				}
-			}
-		} else if(time === 'interaction'){
-			//console.log('Interaction Added...');
-			for(let a in core[time][line]){
-				//console.log(time);//interaction
-				//console.log(line);//type of interaction | click
-				//console.log(core[time][line]);//this.object w/ method and params
-				//console.log(a);//this.object name
-				//console.log(core[time][line][a]);//func w/ params
-				for(let b in core[time][line][a]){
-					//console.log(b);//func name
-					//console.log(core[time][line][a][b]);//params
-					let object;
-					let method;
-					let params;
-					if(b === 'IfElse'){
-						//console.log('IfElse Interaction');
-						for(let c in core[time][line][a][b]){
-							//console.log(core[time][line][a][b]);//condObject w/params and iftrue/iffalse
-							//console.log(core[time][line][a][b][c]);//cond, iftrue, ifflase
-							//console.log(a)//this.object name
-							//console.log(b)//ifelse
-							//console.log(c)//condObj
-							object = a;
-							params = core[time][line][a][b][c];
+			} else if(time === 'interaction'){
+				//console.log('Interaction Added...');
+				for(let a in core[time][line]){
+					//console.log(time);//interaction
+					//console.log(line);//type of interaction | click
+					//console.log(core[time][line]);//this.object w/ method and params
+					//console.log(a);//this.object name
+					//console.log(core[time][line][a]);//func w/ params
+					for(let b in core[time][line][a]){
+						//console.log(b);//func name
+						//console.log(core[time][line][a][b]);//params
+						let object;
+						let method;
+						let params;
+						if(b === 'IfElse'){
+							//console.log('IfElse Interaction');
+							for(let c in core[time][line][a][b]){
+								//console.log(core[time][line][a][b]);//condObject w/params and iftrue/iffalse
+								//console.log(core[time][line][a][b][c]);//cond, iftrue, ifflase
+								//console.log(a)//this.object name
+								//console.log(b)//ifelse
+								//console.log(c)//condObj
+								object = a;
+								params = core[time][line][a][b][c];
 
+								AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
+								auxl[object].GetEl().addEventListener(line, function(){
+									IfElse(object,c,params);
+									//auxlObjMethod(object,method,params);
+								});
+							}
+						} else {
+							//console.log('Normal Interaction');
+							object = a;
+							method = b;
+							params = core[time][line][a][b];
+							//auxl.interactions[object];
+							//auxl.running[ran].name;
 							AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
 							auxl[object].GetEl().addEventListener(line, function(){
-								IfElse(object,c,params);
-								//auxlObjMethod(object,method,params);
+								auxlObjMethod(object,method,params);
 							});
 						}
-					} else {
-						//console.log('Normal Interaction');
-						object = a;
-						method = b;
-						params = core[time][line][a][b];
-						//auxl.interactions[object];
-						//auxl.running[ran].name;
-						AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
-						auxl[object].GetEl().addEventListener(line, function(){
-							auxlObjMethod(object,method,params);
-						});
 					}
+					//auxl[line][a](core[time][line][a]);
 				}
-				//auxl[line][a](core[time][line][a]);
-			}
-		} else if(time === 'event'){
-			//console.log('Listening for Event...');
-			for(let a in core[time][line]){
-				//console.log(time);//event
-				//console.log(line);//event name
-				//console.log(core[time][line]);//this.object w/ method and params
-				//console.log(a);//this.object name
-				//console.log(core[time][line][a]);//func w/ params
-				for(let b in core[time][line][a]){
-					//console.log(b);//func name
-					//console.log(core[time][line][a][b]);//params
-					let object;
-					let method;
-					let params;
-					if(b === 'IfElse'){
-						//console.log('IfElse Event');
-						for(let c in core[time][line][a][b]){
-							//console.log(core[time][line][a][b]);//condObject w/params and iftrue/iffalse
-							//console.log(core[time][line][a][b][c]);//cond, iftrue, ifflase
-							//console.log(a)//this.object name
-							//console.log(b)//ifelse
-							//console.log(c)//condObj
-							object = a;
-							params = core[time][line][a][b][c];
+			} else if(time === 'event'){
+				//console.log('Listening for Event...');
+				for(let a in core[time][line]){
+					//console.log(time);//event
+					//console.log(line);//event name
+					//console.log(core[time][line]);//this.object w/ method and params
+					//console.log(a);//this.object name
+					//console.log(core[time][line][a]);//func w/ params
+					for(let b in core[time][line][a]){
+						//console.log(b);//func name
+						//console.log(core[time][line][a][b]);//params
+						let object;
+						let method;
+						let params;
+						if(b === 'IfElse'){
+							//console.log('IfElse Event');
+							for(let c in core[time][line][a][b]){
+								//console.log(core[time][line][a][b]);//condObject w/params and iftrue/iffalse
+								//console.log(core[time][line][a][b][c]);//cond, iftrue, ifflase
+								//console.log(a)//this.object name
+								//console.log(b)//ifelse
+								//console.log(c)//condObj
+								object = a;
+								params = core[time][line][a][b][c];
 
+								AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+								auxl[object].GetEl().addEventListener(line, function(){
+									IfElse(object,c,params);
+									//auxlObjMethod(object,method,params);
+								});
+							}
+						} else {
+							//console.log('Normal Event');
+							object = a;
+							method = b;
+							params = core[time][line][a][b];
+							//auxl.interactions[object];
+							//auxl.running[ran].name;
 							AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
 							auxl[object].GetEl().addEventListener(line, function(){
-								IfElse(object,c,params);
-								//auxlObjMethod(object,method,params);
+								auxlObjMethod(object,method,params);
 							});
 						}
-					} else {
-						//console.log('Normal Event');
-						object = a;
-						method = b;
-						params = core[time][line][a][b];
+
+
+						/*
+						let object = a;
+						let method = b;
+						let params = core[time][line][a][b];
+						//console.log(line)
+						//console.log(object)
+						//console.log(method)
+						//console.log(params)
 						//auxl.interactions[object];
 						//auxl.running[ran].name;
-						AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+						AddToTimeIntEvtTracker({name: object, type: 'event', id: line, method, params, event: line});
 						auxl[object].GetEl().addEventListener(line, function(){
 							auxlObjMethod(object,method,params);
 						});
+						*/
 					}
-
-
-					/*
-					let object = a;
-					let method = b;
-					let params = core[time][line][a][b];
-					//console.log(line)
-					//console.log(object)
-					//console.log(method)
-					//console.log(params)
-					//auxl.interactions[object];
-					//auxl.running[ran].name;
-					AddToTimeIntEvtTracker({name: object, type: 'event', id: line, method, params, event: line});
-					auxl[object].GetEl().addEventListener(line, function(){
-						auxlObjMethod(object,method,params);
-					});
-					*/
-				}
-				//auxl[line][a](core[time][line][a]);
-			}
-		} else {
-			//Reading non-special timeline, read normally
-			for(let a in core[time][line]){
-				if(time === 'start'){
-					//console.log('Initializing an Object');
-					//console.log(time);//start
-					//console.log(line);//this.object name
-					//console.log(core[time][line]);//func w/ params
-					//console.log(a);//method name. can be universal like IfElse
-					//console.log(core[time][line][a]);//params
-					if(a === 'IfElse'){
-						for(let b in core[time][line][a]){
-							//console.log(b);
-							//console.log(core[time][line][a][b]);
-							IfElse(line,b,core[time][line][a][b]);
-						}
-					} else {
-						auxlObjMethod(line,a,core[time][line][a]);
-					}
-				} else if(time === 'exit'){
-					//console.log('Exiting Scene');
-					//console.log(time);//exit
-					//console.log(line);//this.object name
-					//console.log(core[time][line]);//func w/ params
-					//console.log(a);//method name. can be universal like IfElse
-					//console.log(core[time][line][a]);//params
-					if(a === 'IfElse'){
-						for(let b in core[time][line][a]){
-							//console.log(b);
-							//console.log(core[time][line][a][b]);
-							IfElse(line,b,core[time][line][a][b]);
-						}
-					} else {
-						auxlObjMethod(line,a,core[time][line][a]);
-					}
-				} else if(time === 'zone'){
-					if(a === 'IfElse'){
-						console.log('IfElse shouldnt be used in Zone. Move to Other.');
-						//IfElse(line,core[time][line][a]);
-					} else {
-						//Check if Zone element already exists
-						//console.log('Adding Zone Element');
-						//Add to Zone Tracker
-						if(a === 'AddToScene'){
-							if(auxl.zoneSpawned[auxl[line].core.id]){} else {
-								AddToZoneTracker('core', auxl[line]);
-								auxlObjMethod(line,a,core[time][line][a]);
-							}
-						} else if(a === 'AddAllToScene'){
-							if(auxl.zoneSpawned[auxl[line].layer.id]){} else {
-								AddToZoneTracker('layer', auxl[line]);
-								auxlObjMethod(line,a,core[time][line][a]);
-							}
-						}
-					}
-				} else if(time === 'info') {
-					//Data only
-				} else {
-					console.log('Hit Other Timeline, Please Investigate');
-					//console.log('Executing Timeline...');
-					//console.log(time);//timeline
-					//console.log(line);//this.obj name
-					//console.log(core[time][line]);//method and params
-					//console.log(a);//method
-					//console.log(core[time][line][a]);//parms
-					//console.log(auxl);//this.object
-					//console.log(auxl[line]);//this.object
 					//auxl[line][a](core[time][line][a]);
-					//auxlObjMethod(line,a,core[time][line][a]);
+				}
+			} else {
+				//Reading non-special timeline, read normally
+				for(let a in core[time][line]){
+					if(time === 'start'){
+						//console.log('Initializing an Object');
+						//console.log(time);//start
+						//console.log(line);//this.object name
+						//console.log(core[time][line]);//func w/ params
+						//console.log(a);//method name. can be universal like IfElse
+						//console.log(core[time][line][a]);//params
+						if(a === 'IfElse'){
+							for(let b in core[time][line][a]){
+								//console.log(b);
+								//console.log(core[time][line][a][b]);
+								IfElse(line,b,core[time][line][a][b]);
+							}
+						} else {
+							auxlObjMethod(line,a,core[time][line][a]);
+						}
+					} else if(time === 'exit'){
+						//console.log('Exiting Scene');
+						//console.log(time);//exit
+						//console.log(line);//this.object name
+						//console.log(core[time][line]);//func w/ params
+						//console.log(a);//method name. can be universal like IfElse
+						//console.log(core[time][line][a]);//params
+						if(a === 'IfElse'){
+							for(let b in core[time][line][a]){
+								//console.log(b);
+								//console.log(core[time][line][a][b]);
+								IfElse(line,b,core[time][line][a][b]);
+							}
+						} else {
+							auxlObjMethod(line,a,core[time][line][a]);
+						}
+					} else if(time === 'info') {
+						//Data only
+					} else {
+						console.log('Hit Other Timeline, Please Investigate');
+						//console.log('Executing Timeline...');
+						//console.log(time);//timeline
+						//console.log(line);//this.obj name
+						//console.log(core[time][line]);//method and params
+						//console.log(a);//method
+						//console.log(core[time][line][a]);//parms
+						//console.log(auxl);//this.object
+						//console.log(auxl[line]);//this.object
+						//auxl[line][a](core[time][line][a]);
+						//auxlObjMethod(line,a,core[time][line][a]);
+					}
 				}
 			}
 		}
-	}
 	return;
 	}
 
 	const Info = () => {
 		readTimeline('info');
-	}
-
-	const Zone = () => {
-		readTimeline('zone');
-	}
-
-	const AddToZoneTracker = (type, obj) => {
-		if(type === 'core'){
-    		auxl.zoneSpawned[obj.core.id] = {type, obj};
-		} else if(type === 'layer'){
-    		auxl.zoneSpawned[obj.layer.id] = {type, obj};
-		}
-		//console.log(auxl.zoneSpawned)
-	}
-
-	const RemoveFromZoneTracker = (type) => {
-		delete auxl.zoneSpawned[type.id];
 	}
 
 	const Start = () => {
@@ -2015,8 +1999,8 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		Start();
 		Delay();
 		Interval();
-		Interaction();
 		Event();
+		Interaction();
 		sceneTextDisplay();
 	}
 
@@ -2031,7 +2015,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		}
 	}
 
-	return {core, IfElse, SetFlag, ClearScene, auxlObjMethod, Info, Zone, Start, Delay, Interval, Event, Interaction, Exit, Map, StartScene}
+	return {core, IfElse, SetFlag, ClearScene, auxlObjMethod, Info, Start, Delay, Interval, Event, Interaction, Exit, Map, StartScene}
 }
 
 //DayNight
@@ -2064,13 +2048,16 @@ function dayNight(){
 	}, auxl.timeInDay/2 - auxl.timeInDay/24); //Delay
 }
 
+//Need to account for objects other than core/layer on zoneEnter/Exit
+
 //
 //mapRegionDistrictTerritoryZoneSection
 //Map Zone Gen & reader
 this.MapZone = (mapZoneData) => {
 //Display Local Map and facilitate travel between Nodes
-let core = {};
-core.map = Object.assign({}, mapZoneData)
+//let core = {};
+//core.map = Object.assign({}, mapZoneData);
+let core = Object.assign({}, mapZoneData);
 core.mapMenuData = false;
 core.mapMenu;
 core.nodes = {};
@@ -2087,19 +2074,21 @@ let timeout2;
 let newNode;
 
 	const ReadMapData = () => {
-		for(let key in core.map){
+		for(let key in core){
 			if(key === 'info'){
-				core.info = core.map[key]
+				core.info = core[key]
+			} else if(key === 'start' || key === 'delay' || key === 'interval' || key === 'event' || key === 'interaction' || key === 'exit'){
+				//Ignore
 			} else {
 				//console.log(key)//key - info, zone0Node0In1
 				core.nodes[key] = auxl[key];
 				//console.log(auxl[key])//this.nodeObj
-				//console.log(core.map[key])//value - node connections
-				for(let connect in core.map[key]){
-					//console.log(core.map[key][connect]);//connect0, connect1
-					for(let travel in core.map[key][connect]){
+				//console.log(core[key])//value - node connections
+				for(let connect in core[key]){
+					//console.log(core[key][connect]);//connect0, connect1
+					for(let travel in core[key][connect]){
 						//console.log(travel);//connect keys
-						//console.log(core.map[key][connect][travel]);//connect values
+						//console.log(core[key][connect][travel]);//connect values
 						//inZone: true,
 						//node: 'zone0Node0Out',
 						//locked: true,
@@ -2113,18 +2102,480 @@ let newNode;
 	//Prep for use on init
 	ReadMapData();
 
+	const IfElse = (objRef, condObj,{cond, ifTrue, ifFalse}) => {
+
+		//Uses text for true, text and undefined for false
+		//Test using bools only
+
+		//ifTrue
+		//ifFalse
+		//for loop for above objects with key name as object and value key as method and that value the params
+		//console.log(objRef)//this.obj name
+		//console.log(condObj)//this.obj name used to check Condition from
+		//console.log(cond)//cond name
+		//console.log(ifTrue)
+		//console.log(ifFalse)
+		//console.log(auxl[condObj].GetFlag(cond))
+		if(auxl[condObj].GetFlag(cond)) {
+			//run ifTrue
+			for(let a in ifTrue){
+				//console.log(ifTrue);
+				//console.log(a);
+				//console.log(ifTrue[a]);
+				for(let b in ifTrue[a]){
+					auxlObjMethod(a,b,ifTrue[a][b]);
+				}
+			}
+		} else {
+			//run ifFalse
+			for(let a in ifFalse){
+				//console.log(ifFalse);
+				//console.log(a);//this.object name should match objRef
+				//console.log(ifFalse[a]);//method w/ params
+				for(let b in ifFalse[a]){
+					auxlObjMethod(a,b,ifFalse[a][b]);
+				}
+			}
+		}
+
+	}
+
+	const SetFlag = (objRef, flagInfo) => {
+		//console.log('Setting Flag')
+		//console.log(objRef)
+		//console.log(flagInfo)
+		//access variables
+		let flag = '';
+		let value = '';
+		let params = {};
+		for(let a in flagInfo){
+			//console.log(b);//flag, value
+			if(a === 'flag'){
+				flag = flagInfo[a];
+			} else if (a === 'value'){
+				value = flagInfo[a];
+			}
+		}
+		params = {flag, value};
+		//set this.obj.flag = value;
+		//console.log(flag);
+		//console.log(value);
+		//console.log(params);
+		//auxl[line][flag] = value;
+		auxlObjMethod(objRef,'SetFlag',params);
+	}
+
+	const auxlObjMethod = (object, func, params) => {
+		//console.log(object);
+		//console.log(func);
+		//console.log(params);
+		//console.log(auxl[object]);
+		if(func === 'AddToScene'){
+			if(auxl.zoneSpawned[auxl[object].core.id]){} else {
+				AddToZoneTracker('core', auxl[object]);
+			}
+		} else if(func === 'AddAllToScene'){
+			if(auxl.zoneSpawned[auxl[object].layer.id]){} else {
+				AddToZoneTracker('layer', auxl[object]);
+			}
+		}
+		auxl[object][func](params);
+	}
+
+	const AddToZoneTimeIntEvtTracker = ({name,type,id,method,params,event}) => {
+		//console.log({name,type,id,method,params,event})
+		let nameId = name+id;
+		if(type === 'timeout'){
+			auxl.zoneRunning[nameId] = {type, name, id, nameId};
+		} else if (type === 'interval'){
+			auxl.zoneRunning[nameId] = {type, name, id, nameId};
+		} else if (type === 'interaction' || type === 'event'){
+			//console.log({name,type,id,method,params,event})
+			//console.log(nameId);
+			auxl.zoneRunning[nameId] = {type, name, id, nameId, method, params, event};
+		}
+		//console.log(auxl.running);
+	}
+
+	const RemoveFromZoneTimeIntEvtTracker = (name) => {
+		delete auxl.zoneRunning[name];
+	}
+
+	const ClearZoneTimeIntEvt = () => {
+		//console.log('Clearing ZoneTimeIntEvt');
+		//console.log(auxl.zoneRunning);
+		for(let ran in auxl.zoneRunning){
+			//console.log(ran);//name of ID
+			//console.log(auxl.running[ran]);//object
+			if(auxl.zoneRunning[ran].type === 'timeout'){
+				//console.log('clearing timeout');
+				//console.log(auxl.zoneRunning[ran].nameId);
+				//console.log(auxl.timeouts[auxl.zoneRunning[ran].nameId]);
+				//clearTimeout(auxl.zoneRunning[ran].nameId);
+				clearTimeout(auxl.timeouts[auxl.zoneRunning[ran].nameId]);
+				delete auxl.timeouts[auxl.zoneRunning[ran].nameId];
+			} else if (auxl.zoneRunning[ran].type === 'interval'){
+				//console.log('clearing interval');
+				//console.log(auxl.zoneRunning[ran].nameId);
+				//console.log(auxl.intervals);
+				clearInterval(auxl.intervals[auxl.zoneRunning[ran].nameId]);
+				delete auxl.intervals[auxl.zoneRunning[ran].nameId];
+			} else if (auxl.zoneRunning[ran].type === 'interaction' || auxl.zoneRunning[ran].type === 'event'){
+				//Event
+				//console.log('clearing interaction|event');
+				//console.log(auxl.zoneRunning[ran].name);
+				//console.log(auxl.zoneRunning[ran].event);
+auxl[auxl.zoneRunning[ran].name].GetEl().removeEventListener(auxl.zoneRunning[ran].event, function(){
+auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zoneRunning[ran].params);
+});
+
+			}
+			RemoveFromZoneTimeIntEvtTracker(ran);
+		}
+		//console.log(auxl.zoneRunning);
+		//console.log(auxl.timeouts);
+		//console.log(auxl.intervals);
+	}
+
+	const AddToZoneTracker = (type, obj) => {
+		if(type === 'core'){
+    		auxl.zoneSpawned[obj.core.id] = {type, obj};
+		} else if(type === 'layer'){
+    		auxl.zoneSpawned[obj.layer.id] = {type, obj};
+		}
+		//console.log(auxl.zoneSpawned)
+	}
+
+	const RemoveFromZoneTracker = (type) => {
+		delete auxl.zoneSpawned[type.id];
+	}
+
+	//Ensure all objects are added to zoneTracker
+	function readTimeline(time){
+	//find a specific timeline/key name and load up that
+	//core : page/data/object
+	//time : name of section within a core's pageData
+	//line : a single line set of instructions within time
+	//
+
+		//MapZone Reading
+		for(let line in core[time]){
+			if(time === 'delay'){
+				//console.log('Delay Running...');
+				for(let a in core[time][line]){
+					//console.log(time);//delay
+					//console.log(line);//time of delay
+					//console.log(core[time][line]);//this.object w/ method and params
+					//console.log(a);//this.object name
+					//console.log(core[time][line][a]);//func w/ params
+					for(let b in core[time][line][a]){
+						//console.log(b);//func name
+						//console.log(core[time][line][a][b]);//params
+						if(b === 'IfElse'){
+							//console.log('IfElse Timeout');
+							for(let c in core[time][line][a][b]){
+								//console.log(core[time][line][a][b][c]);//params
+								AddToZoneTimeIntEvtTracker({name: line, type: 'timeout', id: a});
+								auxl.timeouts[line+a] = setTimeout(function () {
+									//console.log('IfElse Timeout Hit');
+									IfElse(a,c,core[time][line][a][b][c]);
+									clearTimeout(auxl.timeouts[line+a]);
+								}, line); //Delay
+							}
+						} else {
+							//console.log('Normal Timeout');
+							AddToZoneTimeIntEvtTracker({name: line, type: 'timeout', id: a});
+							auxl.timeouts[line+a] = setTimeout(function () {
+								//console.log('Timeout Hit')
+								auxlObjMethod(a,b,core[time][line][a][b]);
+								clearTimeout(auxl.timeouts[line+a]);
+							}, line); //Delay
+						}
+					}
+				}
+			} else if(time === 'interval'){
+				//console.log('Interval Running...');
+				for(let a in core[time][line]){
+					//console.log(time);//interval
+					//console.log(line);//time of interval
+					//console.log(core[time][line]);//this.object w/ method and params
+					//console.log(a);//run,loop,end
+					//console.log(core[time][line][a]);//this.object name, func w/ params or params
+					let ranTotal = 0;
+					let loopTotal = core[time][line]['loop'];
+					let endCond;
+					if(core[time][line]['end']){
+						endCond = core[time][line]['end'];
+					}
+					if(a === 'run'){
+						for(let b in core[time][line][a]){
+							for(let c in core[time][line][a][b]){
+								//console.log(b);//this.obj name
+								//console.log(core[time][line][a][b]);//method w/ params
+								//console.log(c);//method
+								//console.log(core[time][line][a][b][c]);//parms
+								if(c === 'IfElse'){
+									for(let d in core[time][line][a][b][c]){
+										AddToZoneTimeIntEvtTracker({name: line, type: 'interval', id: b});
+										auxl.intervals[line+b] = setInterval(function() {
+											//Interval Functions
+											//Check for End Condition
+											if(auxl[b].GetFlag(endCond) === 'true'){
+												clearInterval(auxl.intervals[line+b]);
+												RemoveFromZoneTimeIntEvtTracker(line+b);
+											}
+											//console.log('IfElse Interval Hit')
+											IfElse(b,d,core[time][line][a][b][c][d]);
+											//Check and update Loop Total
+											if(loopTotal === 'infinite'){} else {
+												ranTotal++;
+												if(ranTotal >= loopTotal){
+													clearInterval(auxl.intervals[line+b]);
+													RemoveFromZoneTimeIntEvtTracker(line+b);
+												}
+											}
+										}, line); //Interval
+									}
+								} else {
+									//console.log('Normal Interval');
+									let method = c;
+									let params = core[time][line][a][b][c];
+									AddToZoneTimeIntEvtTracker({name: line, type: 'interval', id: b});
+									auxl.intervals[line+b] = setInterval(function() {
+										//Interval Functions
+										//Check for End Condition
+										if(auxl[b].GetFlag(endCond) === 'true'){
+											clearInterval(auxl.intervals[line+b]);
+											RemoveFromZoneTimeIntEvtTracker(line+b);
+										}
+										auxlObjMethod(b,method,params);
+										//Check and update Loop Total
+										if(loopTotal === 'infinite'){} else {
+											ranTotal++;
+											if(ranTotal >= loopTotal){
+												clearInterval(auxl.intervals[line+b]);
+												RemoveFromZoneTimeIntEvtTracker(line+b);
+											}
+										}
+										//clearInterval(interval);
+									}, line); //Interval
+								}
+							}
+						}
+					}
+				}
+			} else if(time === 'interaction'){
+				//console.log('Interaction Added...');
+				for(let a in core[time][line]){
+					//console.log(time);//interaction
+					//console.log(line);//type of interaction | click
+					//console.log(core[time][line]);//this.object w/ method and params
+					//console.log(a);//this.object name
+					//console.log(core[time][line][a]);//func w/ params
+					for(let b in core[time][line][a]){
+						//console.log(b);//func name
+						//console.log(core[time][line][a][b]);//params
+						let object;
+						let method;
+						let params;
+						if(b === 'IfElse'){
+							//console.log('IfElse Interaction');
+							for(let c in core[time][line][a][b]){
+								//console.log(core[time][line][a][b]);//condObject w/params and iftrue/iffalse
+								//console.log(core[time][line][a][b][c]);//cond, iftrue, ifflase
+								//console.log(a)//this.object name
+								//console.log(b)//ifelse
+								//console.log(c)//condObj
+								object = a;
+								params = core[time][line][a][b][c];
+
+								AddToZoneTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
+								auxl[object].GetEl().addEventListener(line, function(){
+									IfElse(object,c,params);
+									//auxlObjMethod(object,method,params);
+								});
+							}
+						} else {
+							//console.log('Normal Interaction');
+							object = a;
+							method = b;
+							params = core[time][line][a][b];
+							//auxl.interactions[object];
+							//auxl.running[ran].name;
+							AddToZoneTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
+							auxl[object].GetEl().addEventListener(line, function(){
+								auxlObjMethod(object,method,params);
+							});
+						}
+					}
+					//auxl[line][a](core[time][line][a]);
+				}
+			} else if(time === 'event'){
+				//console.log('Listening for Event...');
+				for(let a in core[time][line]){
+					//console.log(time);//event
+					//console.log(line);//event name
+					//console.log(core[time][line]);//this.object w/ method and params
+					//console.log(a);//this.object name
+					//console.log(core[time][line][a]);//func w/ params
+					for(let b in core[time][line][a]){
+						//console.log(b);//func name
+						//console.log(core[time][line][a][b]);//params
+						let object;
+						let method;
+						let params;
+						if(b === 'IfElse'){
+							//console.log('IfElse Event');
+							for(let c in core[time][line][a][b]){
+								//console.log(core[time][line][a][b]);//condObject w/params and iftrue/iffalse
+								//console.log(core[time][line][a][b][c]);//cond, iftrue, ifflase
+								//console.log(a)//this.object name
+								//console.log(b)//ifelse
+								//console.log(c)//condObj
+								object = a;
+								params = core[time][line][a][b][c];
+
+								AddToZoneTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+								auxl[object].GetEl().addEventListener(line, function(){
+									IfElse(object,c,params);
+									//auxlObjMethod(object,method,params);
+								});
+							}
+						} else {
+							//console.log('Normal Event');
+							object = a;
+							method = b;
+							params = core[time][line][a][b];
+							//auxl.interactions[object];
+							//auxl.running[ran].name;
+							AddToZoneTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+							auxl[object].GetEl().addEventListener(line, function(){
+								auxlObjMethod(object,method,params);
+							});
+						}
+
+
+						/*
+						let object = a;
+						let method = b;
+						let params = core[time][line][a][b];
+						//console.log(line)
+						//console.log(object)
+						//console.log(method)
+						//console.log(params)
+						//auxl.interactions[object];
+						//auxl.running[ran].name;
+						AddToZoneTimeIntEvtTracker({name: object, type: 'event', id: line, method, params, event: line});
+						auxl[object].GetEl().addEventListener(line, function(){
+							auxlObjMethod(object,method,params);
+						});
+						*/
+					}
+					//auxl[line][a](core[time][line][a]);
+				}
+			} else {
+				//Reading non-special timeline, read normally
+				for(let a in core[time][line]){
+					if(time === 'start'){
+						//console.log('Initializing an Object');
+						//console.log(time);//start
+						//console.log(line);//this.object name
+						//console.log(core[time][line]);//func w/ params
+						//console.log(a);//method name. can be universal like IfElse
+						//console.log(core[time][line][a]);//params
+						if(a === 'IfElse'){
+							for(let b in core[time][line][a]){
+								//console.log(b);
+								//console.log(core[time][line][a][b]);
+								IfElse(line,b,core[time][line][a][b]);
+							}
+						} else {
+							auxlObjMethod(line,a,core[time][line][a]);
+						}
+					} else if(time === 'exit'){
+						//console.log('Exiting Scene');
+						//console.log(time);//exit
+						//console.log(line);//this.object name
+						//console.log(core[time][line]);//func w/ params
+						//console.log(a);//method name. can be universal like IfElse
+						//console.log(core[time][line][a]);//params
+						if(a === 'IfElse'){
+							for(let b in core[time][line][a]){
+								//console.log(b);
+								//console.log(core[time][line][a][b]);
+								IfElse(line,b,core[time][line][a][b]);
+							}
+						} else {
+							auxlObjMethod(line,a,core[time][line][a]);
+						}
+					} else if(time === 'info') {
+						//Data only
+					} else {
+						console.log('Hit Other Timeline, Please Investigate');
+						//console.log('Executing Timeline...');
+						//console.log(time);//timeline
+						//console.log(line);//this.obj name
+						//console.log(core[time][line]);//method and params
+						//console.log(a);//method
+						//console.log(core[time][line][a]);//parms
+						//console.log(auxl);//this.object
+						//console.log(auxl[line]);//this.object
+						//auxl[line][a](core[time][line][a]);
+						//auxlObjMethod(line,a,core[time][line][a]);
+					}
+				}
+			}
+		}
+	return;
+	}
+
+	const Info = () => {
+		readTimeline('info');
+	}
+
+	const Start = () => {
+		readTimeline('start');
+	}
+
+	const Delay = () => {
+		readTimeline('delay');
+	}
+
+	const Interval = () => {
+		readTimeline('interval');
+	}
+
+	const Event = () => {
+		readTimeline('event');
+	}
+
+	const Interaction = () => {
+		readTimeline('interaction');
+	}
+
+	const Exit = () => {
+		readTimeline('exit');
+	}
+
+	const StartZone = () => {
+		Start();
+		Delay();
+		Interval();
+		Event();
+		Interaction();
+	}
+
 	const StartScene = (nodeName) => {
 		//core.currentNode = nodeName || Object.keys(core.nodes)[0];
-		core.currentNode = nodeName || core.map.info.start;
+		core.currentNode = nodeName || core.info.start;
 		core.currentZone = core.info.id;
 		if(core.zoneLoaded){} else {
-			auxl[core.map.info.start].Zone();
+			StartZone();
 			core.zoneLoaded = true;
 		}
 		auxl[core.currentNode].StartScene();
 		MoveMenuGen();
-		//console.log('Scene Start');
-		//console.log(core.currentNode);
+
 	}
 
 	const ClearScene = () => {
@@ -2143,29 +2594,29 @@ let newNode;
 			method: 'MenuMoveClick',
 			pos: new THREE.Vector3(-1.5,1.5,-1),
 		}
-		//console.log(core.map);
-		//console.log(core.map[core.currentNode]);
+		//console.log(core);
+		//console.log(core[core.currentNode]);
 		let currNum = 0;
 		let moveToNode;
-		for(let connect in core.map[core.currentNode]){
+		for(let connect in core[core.currentNode]){
 			//console.log(connect);
-			//core.map[core.currentNode][connect].inZone
-			//core.map[core.currentNode][connect].node
-			//core.map[core.currentNode][connect].travel
-			//core.map[core.currentNode][connect].locked
-			//core.map[core.currentNode][connect].key
-			//core.map[core.currentNode][connect].keepKey
+			//core[core.currentNode][connect].inZone
+			//core[core.currentNode][connect].node
+			//core[core.currentNode][connect].travel
+			//core[core.currentNode][connect].locked
+			//core[core.currentNode][connect].key
+			//core[core.currentNode][connect].keepKey
 
 			//In Zone Node or Out of Zone Node
-			if(core.nodes[core.map[core.currentNode][connect].node]){
-				moveToNode = core.nodes[core.map[core.currentNode][connect].node];
+			if(core.nodes[core[core.currentNode][connect].node]){
+				moveToNode = core.nodes[core[core.currentNode][connect].node];
 			} else {
-				moveToNode = auxl[core.map[core.currentNode][connect].node];
+				moveToNode = auxl[core[core.currentNode][connect].node];
 			}
 
-			if(core.map[core.currentNode][connect].locked && !auxl.player.GetFlag(core.map[core.currentNode][connect].key)){
+			if(core[core.currentNode][connect].locked && !auxl.player.GetFlag(core[core.currentNode][connect].key)){
 				core.mapMenuData.options['option'+currNum] = moveToNode.core.info.name + ' [Locked]';
-			} else if(core.map[core.currentNode][connect].locked && auxl.player.GetFlag(core.map[core.currentNode][connect].key)){
+			} else if(core[core.currentNode][connect].locked && auxl.player.GetFlag(core[core.currentNode][connect].key)){
 				core.mapMenuData.options['option'+currNum] = moveToNode.core.info.name + ' [Unlocked]';
 			} else {
 				core.mapMenuData.options['option'+currNum] = moveToNode.core.info.name;
@@ -2176,7 +2627,7 @@ let newNode;
 			currNum++;
 
 		}
-		//core.map[core.currentNode][connect].inZone;
+		//core[core.currentNode][connect].inZone;
 		//inZone
 		//node
 		//travel
@@ -2195,7 +2646,7 @@ let newNode;
 
 	const Move = (connect) => {
 
-		newNode = core.map[core.currentNode][connect];
+		newNode = core[core.currentNode][connect];
 
 		if(newNode.locked && !auxl.player.GetFlag(newNode.key)){
 			//console.log('Needs key');
@@ -2241,8 +2692,11 @@ let newNode;
 
 	const ClearZone = () => {
 	//Clear Core | Layer Scene Tracked Items
-		//console.log('Clearing Scene...')
+		//console.log('Clearing Zone...');
+		//console.log(core.currentZone);
 		//console.log(auxl.zoneSpawned);
+		Exit();
+		ClearZoneTimeIntEvt();
 		clearSpawned(auxl.zoneSpawned);
 		/*
 		for(let spawn in auxl.zoneSpawned){
@@ -2623,11 +3077,15 @@ let menuTimeout;
 	}
 
 	const AddToNPCSceneTracker = () => {
-    	auxl.npcSpawned[npc.core.id] = {type: 'npc', obj: npc};
+		if(auxl.zoneSpawned[npc.core.id]){} else {
+    		//auxl.npcSpawned[npc.core.id] = {type: 'npc', obj: npc};
+    		auxl.nodeSpawned[npc.core.id] = {type: 'npc', obj: npc};
+		}
 	}
 
 	const RemoveFromNPCSceneTracker = () => {
-		delete auxl.npcSpawned[npc.core.id];
+		//delete auxl.npcSpawned[npc.core.id];
+		delete auxl.nodeSpawned[npc.core.id];
 	}
 
 	const EnableSpeech = () => {
@@ -3146,13 +3604,15 @@ this.ObjsGenRing = (data) => {
 	const AddToSceneTracker = () => {
 		//Scene Tracking of Assets
 		if(auxl.zoneSpawned[gen.id]){} else {
-			auxl.genSpawned[gen.id] = {type: 'gen', obj: gen};
+			//auxl.genSpawned[gen.id] = {type: 'gen', obj: gen};
+			auxl.nodeSpawned[gen.id] = {type: 'gen', obj: gen};
 		}
 	}
 
 	const RemoveFromSceneTracker = () => {
 		//Clear Tracking of Asset
-		delete auxl.genSpawned[gen.id];
+		//delete auxl.genSpawned[gen.id];
+		delete auxl.nodeSpawned[gen.id];
 	}
 
 	return {all, genCores, SpawnAll, DespawnAll, AddToSceneTracker, RemoveFromSceneTracker};
@@ -3779,13 +4239,15 @@ function* poissonDiscSampler(width, height, radius, center){
 	const AddToSceneTracker = () => {
 		//Scene Tracking of Assets
 		if(auxl.zoneSpawned[gen.id]){} else {
-			auxl.genSpawned[gen.id] = {type: 'gen', obj: gen};
+			//auxl.genSpawned[gen.id] = {type: 'gen', obj: gen};
+			auxl.nodeSpawned[gen.id] = {type: 'gen', obj: gen};
 		}
 	}
 
 	const RemoveFromSceneTracker = () => {
 		//Clear Tracking of Asset
-		delete auxl.genSpawned[gen.id];
+		//delete auxl.genSpawned[gen.id];
+		delete auxl.nodeSpawned[gen.id];
 	}
 
 
@@ -3868,11 +4330,16 @@ this.Carousel = (id,mainData,buttonData,...materials) => {
 	}
 
 	const AddToCarouselSceneTracker = () => {
-    	auxl.carouselSpawned[id] = {type: 'carousel', obj: carousel};
+		if(auxl.zoneSpawned[id]){} else {
+    		//auxl.carouselSpawned[id] = {type: 'carousel', obj: carousel};
+    		auxl.nodeSpawned[id] = {type: 'carousel', obj: carousel};
+		}
+
 	}
 
 	const RemoveFromCarouselSceneTracker = () => {
-		delete auxl.carouselSpawned[id];
+		//delete auxl.carouselSpawned[id];
+		delete auxl.nodeSpawned[id];
 	}
 
 	//Add autoplay and pause on hovering
@@ -4412,7 +4879,6 @@ auxl.animStuffData = {
 
 //
 //Player
-//Works with Swap-Controls component which needs to be integrated
 auxl.playerRigData = {
 data:'Player Base',
 id:'playerRig',
@@ -10682,6 +11148,25 @@ connect2: {inZone: 'zone3', node: 'zone3Node0',},
 connect3: {inZone: 'zone4', node: 'zone4Node0',},
 connect4: {inZone: 'zone5', node: 'zone5Node0',},
 },
+start:{
+
+},
+delay:{
+
+},
+interval:{
+
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
+
 };
 //Node 0
 auxl.zone0Node0Data = {
@@ -10691,8 +11176,6 @@ name: 'Floating Island',
 description: 'Starting Zone',
 sceneText: true,
 },
-zone:{
-},
 start:{
 HamGirl:{Start: null},
 npcMinty:{Spawn:null},
@@ -10700,34 +11183,6 @@ soundTesting:{AddToScene: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},}},
 forestScene2:{SpawnAll:null},
 multiRockFlatGrass:{genCores: null, SpawnAll: null},
-//mountains:{AddAllToScene: null},
-//multiFlowerPurpleA:{genCores: null, SpawnAll: null},
-//multiFlowerRedA:{genCores: null, SpawnAll: null},
-//multiFlowerYellowA:{genCores: null, SpawnAll: null},
-//multiGrassLarge:{genCores: null, SpawnAll: null},
-//multiGrassLeafsLarge:{genCores: null, SpawnAll: null},
-//multitree_pineGroundA:{genCores: null, SpawnAll: null},
-//multitree_pineGroundB:{genCores: null, SpawnAll: null},
-//multitree_pineRoundA:{genCores: null, SpawnAll: null},
-//multitree_pineRoundB:{genCores: null, SpawnAll: null},
-//multitree_pineRoundC:{genCores: null, SpawnAll: null},
-//multitree_pineRoundD:{genCores: null, SpawnAll: null},
-//multitree_pineRoundE:{genCores: null, SpawnAll: null},
-//multitree_pineRoundF:{genCores: null, SpawnAll: null},
-//multitree_pineSmallA:{genCores: null, SpawnAll: null},
-//multitree_pineSmallB:{genCores: null, SpawnAll: null},
-//multitree_pineSmallC:{genCores: null, SpawnAll: null},
-//multitree_pineSmallD:{genCores: null, SpawnAll: null},
-//multitrunk:{genCores: null, SpawnAll: null},
-//multitrunkLong:{genCores: null, SpawnAll: null},
-//multipine:{genCores: null, SpawnAll: null},
-//multipineCrooked:{genCores: null, SpawnAll: null},
-//multitree_cone:{genCores: null, SpawnAll: null},
-//multitree_default:{genCores: null, SpawnAll: null},
-//multitree_fat:{genCores: null, SpawnAll: null},
-//multitree_oak:{genCores: null, SpawnAll: null},
-//multitree_pineDefaultA:{genCores: null, SpawnAll: null},
-//multitree_pineDefaultB:{genCores: null, SpawnAll: null},
 },
 delay:{
 
@@ -10768,6 +11223,24 @@ connect2: {inZone: 'zone2', node: 'zone2Node0',},
 zone1Node1:{
 connect0: {inZone: true, node: 'zone1Node0',},
 },
+start:{
+
+},
+delay:{
+
+},
+interval:{
+
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
 };
 //Node 0
 auxl.zone1Node0Data = {
@@ -10776,8 +11249,6 @@ id:'zone1Node0',
 name: 'Snowy Mountains',
 description: 'Open Tundra',
 sceneText: true,
-},
-zone:{
 },
 start:{
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern69, repeat: '150 150',color: "#d6a9ba", emissive: "#d6a9ba",},}},
@@ -10811,8 +11282,6 @@ id:'zone1Node1',
 name: 'Mountain Cave',
 description: 'Underground Shelter',
 sceneText: true,
-},
-zone:{
 },
 start:{
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern37, repeat: '150 150',color: "#bc8fa0", emissive: "#bc8fa0",},}},
@@ -10857,6 +11326,7 @@ ifFalse: {
 eventTesting2:{EmitEvent: 'customevent6',SetFlag:{flag: 'testIntervalVar', value: true},},
 },
 },}},}, loop: 'infinite'},
+
 6000: {run: {
 eventTesting4:{EmitEvent: 'testintervalevent'},
 }, loop: 'infinite'},
@@ -10934,6 +11404,24 @@ connect0: {inZone: 'zone0', node: 'zone0Node0',},
 connect1: {inZone: 'zone1', node: 'zone1Node0',},
 connect2: {inZone: 'zone3', node: 'zone3Node0',},
 },
+start:{
+
+},
+delay:{
+
+},
+interval:{
+
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
 };
 //Node 2
 auxl.zone2Node0Data = {
@@ -10942,8 +11430,6 @@ id:'zone2Node0',
 name: 'Deep Forest',
 description: 'Thick Woodlands',
 sceneText: true,
-},
-zone:{
 },
 start:{
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern24, repeat: '300 300', color: "#228343", emissive: "#228343",},}},
@@ -10989,6 +11475,24 @@ connect3: {inZone: 'zone4', node: 'zone4Node0',},
 zone3Node1:{
 connect0: {inZone: true, node: 'zone3Node0',},
 },
+start:{
+
+},
+delay:{
+
+},
+interval:{
+
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
 };
 //Node 0
 auxl.zone3Node0Data = {
@@ -10997,8 +11501,6 @@ id:'zone3Node0',
 name: 'Graveyard',
 description: 'Spooky Cemetary',
 sceneText: true,
-},
-zone:{
 },
 start:{
 npc0:{Spawn: null},
@@ -11033,18 +11535,7 @@ name: 'Cemetary Cabin',
 description: 'Graveyard Shelter',
 sceneText: true,
 },
-zone:{
-
-},
 start:{
-/*
-ifElseCheckForTesting124:{IfElse: {player:{cond: 'testSpeechVar',
-ifTrue: {
-eventTesting5:{AddToScene: null},
-},ifFalse: {
-eventTesting4:{AddToScene: null},
-},}}
-},*/
 memory:{SpawnGame: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern50, repeat: '150 150',color: "#763a3a", emissive: "#763a3a",},}},
 nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: auxl.pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
@@ -11085,6 +11576,24 @@ connect0: {inZone: 'zone0', node: 'zone0Node0',},
 connect1: {inZone: 'zone3', node: 'zone3Node0',},
 connect2: {inZone: 'zone5', node: 'zone5Node0',},
 },
+start:{
+
+},
+delay:{
+
+},
+interval:{
+
+},
+event:{
+
+},
+interaction:{
+
+},
+exit:{
+
+},
 };
 //Node 0
 auxl.zone4Node0Data = {
@@ -11093,8 +11602,6 @@ id:'zone4Node0',
 name: 'Open Desert',
 description: 'Dry Plains',
 sceneText: true,
-},
-zone:{
 },
 start:{
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern58, repeat: '150 150',color: "#c1bd52", emissive: "#c1bd52",},}},
@@ -11140,6 +11647,60 @@ connect2: {inZone: true, node: 'zone5Node1',},
 zone5Node1:{
 connect0: {inZone: true, node: 'zone5Node0',},
 },
+start:{
+eventTesting2:{AddToScene: null},
+eventTesting5:{AddToScene: null},
+},
+delay:{
+
+2000:{
+eventTesting2:{EmitEvent: 'customevent1'},
+},
+
+},
+interval:{
+
+5000: {run: {eventTesting2:{IfElse: {eventTesting2: {cond: 'testIntervalVar',
+ifTrue: {
+eventTesting2:{EmitEvent: 'customevent5',SetFlag:{flag: 'testIntervalVar', value: false},},
+},
+ifFalse: {
+eventTesting2:{EmitEvent: 'customevent6',SetFlag:{flag: 'testIntervalVar', value: true},},
+},
+},}},}, loop: 'infinite'},
+
+},
+event:{
+
+customevent5: {
+eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},
+},
+customevent6: {
+eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#d1e62f', emissive: '#d1e62f'}}},
+},
+customevent7: {
+eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#1da356', emissive: '#1da356'}}},
+},
+customevent8: {
+eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#a72fe6', emissive: '#a72fe6'}}},
+},
+
+},
+interaction:{
+
+click: {
+eventTesting2:{IfElse: {eventTesting2:{cond: 'testInteractionVar',
+ifTrue: {
+eventTesting2:{EmitEvent: 'customevent7',SetFlag:{flag: 'testInteractionVar', value: false},},
+},ifFalse: {
+eventTesting2:{EmitEvent: 'customevent8',SetFlag:{flag: 'testInteractionVar', value: true},},
+},}}},
+},
+
+},
+exit:{
+
+},
 };
 //Node 0
 auxl.zone5Node0Data = {
@@ -11148,9 +11709,6 @@ id:'zone5Node0',
 name: 'Oasis Beach',
 description: 'Rolling Sands',
 sceneText: true,
-},
-zone:{
-eventTesting5:{AddToScene: null},
 },
 start:{
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: true}, EnableDetail: 'An example of using start/exit to set variables and change scene settings.'},
@@ -11193,9 +11751,6 @@ id:'zone5Node1',
 name: 'Underwater',
 description: 'Submerged',
 sceneText: true,
-},
-zone:{
-
 },
 start:{
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: false},},
@@ -11772,7 +12327,7 @@ AFRAME.registerComponent('locomotion', {
 
 init: function () {
 	//Do something when component first attached.
-	this.auxl = document.querySelector('a-scene').systems.auxl;
+	const auxl = document.querySelector('a-scene').systems.auxl;
 	// Set up the tick throttling.
 	this.throttledFunction = AFRAME.utils.throttle(this.everySome, 30, this);
 
@@ -12475,7 +13030,7 @@ AFRAME.registerComponent('teleportation',{
 dependencies: ['auxl'],
 init: function(){
 	//AUXL
-	const aThis = document.querySelector('a-scene').systems.auxl;
+	const auxl = document.querySelector('a-scene').systems.auxl;
 	//Scene
 	var sceneEl = document.querySelector('a-scene');
 	//This element
@@ -12491,7 +13046,7 @@ init: function(){
 	//locomotion - NEEDS TO BE ADDED TO AUXL MENUS
 	//sphere
 	//blink
-	let teleportType = aThis.player.layer.transition;
+	let teleportType = auxl.player.layer.transition;
 
 	//Support
 	//let timeout;
@@ -12506,34 +13061,45 @@ init: function(){
 
 	//Spawn Function
 	function playerTeleportAnim(){
-		if(aThis.player.layer.transition === 'blink'){
-			aThis.player.TempDisableClick();
-			aThis.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
-			aThis.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
-			aThis.blink1Screen.EmitEvent('blink');
-			aThis.blink2Screen.EmitEvent('blink');
-			timeout2 = setTimeout(function () {
-				aThis.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
-				aThis.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
-				clearTimeout(timeout2);
-			}, 1200);
-		} else if (aThis.player.layer.transition === 'fade'){
-			aThis.player.TempDisableClick();
-			aThis.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
-			aThis.fadeScreen.EmitEvent('fade');
-			timeout2 = setTimeout(function () {
-				aThis.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
-				clearTimeout(timeout2);
-			}, 1200);
-		} else if (aThis.player.layer.transition === 'sphere'){
-			aThis.player.TempDisableClick();
-			aThis.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
-			aThis.sphereScreen.EmitEvent('sphere');
-			timeout2 = setTimeout(function () {
-				aThis.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
-				clearTimeout(timeout2);
-			}, 1200);
-		} else if (aThis.player.layer.transition === 'instant'){}
+		if(auxl.player.layer.teleporting){} else {
+			auxl.player.layer.teleporting = true;
+			if(auxl.player.layer.transition === 'blink'){
+				auxl.player.TempDisableClick();
+				auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.blink1Screen.EmitEvent('blink');
+				auxl.blink2Screen.EmitEvent('blink');
+				timeout2 = setTimeout(function () {
+					auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
+					auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
+					auxl.player.layer.teleporting = false;
+					clearTimeout(timeout2);
+				}, 1200);
+			} else if (auxl.player.layer.transition === 'fade'){
+				auxl.player.TempDisableClick();
+				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.fadeScreen.EmitEvent('fade');
+				timeout2 = setTimeout(function () {
+					auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
+					auxl.player.layer.teleporting = false;
+					clearTimeout(timeout2);
+				}, 1200);
+			} else if (auxl.player.layer.transition === 'sphere'){
+				auxl.player.TempDisableClick();
+				auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.sphereScreen.EmitEvent('sphere');
+				timeout2 = setTimeout(function () {
+					auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
+					auxl.player.layer.teleporting = false;
+					clearTimeout(timeout2);
+				}, 1200);
+			} else if (auxl.player.layer.transition === 'instant'){
+				timeout2 = setTimeout(function () {
+					auxl.player.layer.teleporting = false;
+					clearTimeout(timeout2);
+				}, 500);
+			}
+		}
 	}
 
 	//Reset Teleportation Circles
