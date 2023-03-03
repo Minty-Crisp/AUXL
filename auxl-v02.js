@@ -824,6 +824,17 @@ this.Core = (data) => {
 		delete auxl.nodeSpawned[core.id];
 	}
 
+	const SetComponent = ({property,value}) => {
+		//console.log(property);
+		//console.log(value);
+		GetEl().setAttribute(property, value);
+	}
+
+	const RemoveComponent = (property) => {
+		//console.log(property);
+		GetEl().removeAttribute(property);
+	}
+
 	const ChangeSelf = ({property,value}) => {
 		//console.log(property);
 		//console.log(value);
@@ -1030,7 +1041,7 @@ this.Core = (data) => {
 		GetEl().removeEventListener('click', openClose);
 	}
 
-	return {core, Generate, AddToScene, RemoveFromScene, ChangeSelf, ChangeSelfArray, Animate, GetEl, EmitEvent, SetFlag, GetFlag, ClickRun, FuseClickRun, CursorDownRun, CursorEnterRun, CursorLeaveRun, CursorUpRun, EnableDetail, DisableDetail};
+	return {core, Generate, AddToScene, RemoveFromScene, SetComponent, RemoveComponent, ChangeSelf, ChangeSelfArray, Animate, GetEl, EmitEvent, SetFlag, GetFlag, ClickRun, FuseClickRun, CursorDownRun, CursorEnterRun, CursorLeaveRun, CursorUpRun, EnableDetail, DisableDetail};
 }
 
 //
@@ -6633,7 +6644,7 @@ nightcolor:{property: 'material.color', from: '#613381', to: '#99154E', dur: 900
 nightcolor2:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90000, delay: 90000, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: false, startEvents: 'sunset'},
 },
 mixins: false,
-classes: ['a-ent'],
+classes: ['a-ent', 'clickable'],
 components: false,
 };
 auxl.nodeFloor = auxl.Core(auxl.nodeFloorData);
@@ -11478,10 +11489,9 @@ exit:{
 };
 auxl.scenarioDemo = auxl.Scenario(auxl.scenarioDemoData);
 
-
 //
 //World Atlas MapZones & NodeScenes
-
+//['raycast-teleportation']:null,
 //Floating Island - Connects to all zones
 //
 //Zone 0
@@ -11528,16 +11538,14 @@ description: 'Starting Zone',
 sceneText: true,
 },
 start:{
-teleport:{SpawnAll:null},
+nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},},SetComponent:{property: 'raycast-teleportation', value: null,}},
+forestScene2:{SpawnAll:null},
+multiRockFlatGrass:{genCores:null, SpawnAll:null},
 HamGirl:{Start:null},
 npcMinty:{Spawn:null},
 soundTesting:{AddToScene:null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},}},
-forestScene2:{SpawnAll:null},
-multiRockFlatGrass:{genCores:null, SpawnAll:null},
 },
 delay:{
-
 },
 interval:{
 
@@ -11551,6 +11559,7 @@ interaction:{
 exit:{
 HamGirl:{Remove: null},
 forestScene2:{DespawnAll:null},
+nodeFloor:{RemoveComponent:'raycast-teleportation'},
 },
 map:{
 data: auxl.zone0Data.zone0Node0,
@@ -13569,6 +13578,128 @@ remove: function () {
 	this.el.removeEventListener('resetInstant', this.resetInstantEvent);
 	this.el.removeEventListener('click', this.clickToTeleport);
 },
+});
+
+//
+//Raycast Teleportation
+AFRAME.registerComponent('raycast-teleportation', {
+    init: function () {},
+	clickToTeleport: function (event) {
+		let user = document.getElementById('playerRig');
+		let userView = document.getElementById('camera');
+		let auxl = document.querySelector('a-scene').systems.auxl;
+		let userPos = user.getAttribute('position');
+		let teleportType = auxl.player.layer.transition;
+		let newPosition = new THREE.Vector3();
+		let teleportPos = event.detail.intersection.point;
+		let allTeleportors = document.querySelectorAll('.teleporter');
+		let posTimeout;
+		let animTimeout;
+
+		function playerTeleportAnim(){
+			if(auxl.player.layer.teleporting){} else {
+				auxl.player.layer.teleporting = true;
+				if(auxl.player.layer.transition === 'blink'){
+					auxl.player.TempDisableClick();
+					auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
+					auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
+					auxl.blink1Screen.EmitEvent('blink');
+					auxl.blink2Screen.EmitEvent('blink');
+					animTimeout = setTimeout(function () {
+						auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
+						auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
+						auxl.player.layer.teleporting = false;
+						clearTimeout(animTimeout);
+					}, 1200);
+				} else if (auxl.player.layer.transition === 'fade'){
+					auxl.player.TempDisableClick();
+					auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
+					auxl.fadeScreen.EmitEvent('fade');
+					animTimeout = setTimeout(function () {
+						auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
+						auxl.player.layer.teleporting = false;
+						clearTimeout(animTimeout);
+					}, 1200);
+				} else if (auxl.player.layer.transition === 'sphere'){
+					auxl.player.TempDisableClick();
+					auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
+					auxl.sphereScreen.EmitEvent('sphere');
+					animTimeout = setTimeout(function () {
+						auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
+						auxl.player.layer.teleporting = false;
+						clearTimeout(animTimeout);
+					}, 1200);
+				} else if (auxl.player.layer.transition === 'instant'){
+					animTimeout = setTimeout(function () {
+						auxl.player.layer.teleporting = false;
+						clearTimeout(animTimeout);
+					}, 500);
+				}
+			}
+		}
+
+		function prepMove(newPos, telePos){
+			//Clone current entity's position User
+			newPos.copy(telePos);
+			//Reset User's Y back to 0 - Flat Mode
+			newPos.y = 0;
+		}
+
+		//Teleportation Type
+		if(teleportType === 'instant') {
+			prepMove(newPosition, teleportPos);
+			posTimeout = setTimeout(function () {
+				user.object3D.position.copy(newPosition);
+				clearTimeout(posTimeout);
+			}, 150);
+		} else if(teleportType === 'fade') {
+			playerTeleportAnim();
+			prepMove(newPosition, teleportPos);
+			posTimeout = setTimeout(function () {
+				user.object3D.position.copy(newPosition);
+				clearTimeout(posTimeout);
+			}, 1050);
+		} else if(teleportType === 'locomotion') {
+			//Create locomotion animation based on teleported Pos
+			let travelParams = {
+				property: 'position',
+				from: {x: userPos.x, y: 0, z: userPos.z},
+				to: {x: teleportPos.x, y: 0, z: teleportPos.z},
+				dur: 1000,
+				delay: 0,
+				loop: 'false',
+				dir: 'normal',
+				easing:'easeInOutSine',
+				elasticity: 400,
+				autoplay: 'true',
+				enabled: 'true',
+				};
+			user.setAttribute('animation__locomotion', travelParams);
+		} else if(teleportType === 'sphere') {
+			playerTeleportAnim();
+			prepMove(newPosition, teleportPos);
+			posTimeout = setTimeout(function () {
+				user.object3D.position.copy(newPosition);
+				clearTimeout(posTimeout);
+			}, 1000);
+		} else if(teleportType === 'blink') {
+			playerTeleportAnim();
+			prepMove(newPosition, teleportPos);
+			posTimeout = setTimeout(function () {
+				user.object3D.position.copy(newPosition);
+				clearTimeout(posTimeout);
+			}, 800);
+		}
+	},
+	update: function () {
+		this.raycastTeleport = (event) => {
+			this.clickToTeleport(event);
+		}
+		this.el.addEventListener('click', this.raycastTeleport);
+	},
+	remove: function () {
+		this.el.removeEventListener('click', this.raycastTeleport);
+	},
 });
 
 //
