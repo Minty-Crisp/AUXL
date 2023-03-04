@@ -81,7 +81,7 @@ function clearSpawned(spawned){
 				auxl[spawn].DespawnAll();
 			} else if (spawned[spawn].type === 'npc'){
 				auxl[spawn].Despawn();
-			}  else if (spawned[spawn].type === 'carousel'){
+			}  else if (spawned[spawn].type === 'imageSwapper'){
 				auxl[spawn].Remove();
 			} else {
 				if(auxl[spawn].RemoveFromScene){
@@ -824,35 +824,28 @@ this.Core = (data) => {
 		delete auxl.nodeSpawned[core.id];
 	}
 
-	const SetComponent = ({property,value}) => {
-		//console.log(property);
-		//console.log(value);
-		GetEl().setAttribute(property, value);
-	}
-
-	const RemoveComponent = (property) => {
-		//console.log(property);
-		GetEl().removeAttribute(property);
-	}
-
-	const ChangeSelf = ({property,value}) => {
-		//console.log(property);
-		//console.log(value);
-		GetEl().setAttribute(property, value);
-	}
-
-	const ChangeSelfArray = (...setAlt) => {
-		//console.log(setAlt);
-
-		for(let a = 0; a < setAlt.length; a++){
-			//console.log(setAlt[a].property);
-			//console.log(setAlt[a].value);
-			GetEl().setAttribute(setAlt[a].property, setAlt[a].value);
+	const ChangeSelf = (propertyValue) => {
+		if(Array.isArray(propertyValue)){
+			for(let each in propertyValue){
+				GetEl().setAttribute(propertyValue[each].property, propertyValue[each].value);
+			}
+		} else {
+			GetEl().setAttribute(propertyValue.property, propertyValue.value);
 		}
 	}
 
-	const Animate = (animProps) => {
-		//let el = document.getElementById(core.el.id);
+	const RemoveComponent = (property) => {
+		if(Array.isArray(property)){
+			for(let each in property){
+				GetEl().removeAttribute(property[each]);
+			}
+		} else {
+			GetEl().removeAttribute(property);
+		}
+	}
+
+	function prepAnimation(properties){
+
 		let name = 'animation__' + animProps.name || 'animation__customAnim';
 		let property = animProps.property;
 		let from = animProps.from || false;
@@ -897,11 +890,20 @@ this.Core = (data) => {
 		if(pauseEvents){anim.pauseEvents = pauseEvents};
 		if(resumeEvents){anim.resumeEvents = resumeEvents};
 
+		return {name, anim}
+	}
 
-		//console.log(name);
-		//console.log(anim);
-		//console.log(GetEl());
-		GetEl().setAttribute(name, anim);
+	const Animate = (animProps) => {
+		if(Array.isArray(animProps)){
+			for(let each in animProps){
+				let animation = prepAnimation(animProps[each]);
+				GetEl().setAttribute(animation.name, animation.anim);
+			}
+		} else {
+			let animation = prepAnimation(animProps);
+			GetEl().setAttribute(animation.name, animation.anim);
+			GetEl().setAttribute(name, anim);
+		}
 	}
 
 	const GetEl = () => {
@@ -915,15 +917,23 @@ this.Core = (data) => {
 	}
 
 	const EmitEvent = (eventName) => {
-		GetEl().emit(eventName,{})
-		//console.log(GetEl());
-		//console.log(eventName);
+		if(Array.isArray(eventName)){
+			for(let each in eventName){
+				GetEl().emit(eventName[each],{});
+			}
+		} else {
+			GetEl().emit(eventName,{});
+		}
 	}
 
-	const SetFlag = ({flag, value}) => {
-		core[flag] = value;
-		//console.log(flag);
-		//console.log(core[flag]);
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			core[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			core[flagValue.flag] = flagValue.value;
+		}
 	}
 
 	const GetFlag = (varName) => {
@@ -1041,7 +1051,7 @@ this.Core = (data) => {
 		GetEl().removeEventListener('click', openClose);
 	}
 
-	return {core, Generate, AddToScene, RemoveFromScene, SetComponent, RemoveComponent, ChangeSelf, ChangeSelfArray, Animate, GetEl, EmitEvent, SetFlag, GetFlag, ClickRun, FuseClickRun, CursorDownRun, CursorEnterRun, CursorLeaveRun, CursorUpRun, EnableDetail, DisableDetail};
+	return {core, Generate, AddToScene, RemoveFromScene, RemoveComponent, ChangeSelf, Animate, GetEl, EmitEvent, SetFlag, GetFlag, ClickRun, FuseClickRun, CursorDownRun, CursorEnterRun, CursorLeaveRun, CursorUpRun, EnableDetail, DisableDetail};
 }
 
 //
@@ -1166,29 +1176,67 @@ this.Layer = (id, all) => {
 	}
 
 	const EmitEventParent = (eventName) => {
-		all.parent.core.EmitEvent(eventName);
+		if(Array.isArray(eventName)){
+			for(let each in eventName){
+				all.parent.core.EmitEvent(eventName[each]);
+			}
+		} else {
+			all.parent.core.EmitEvent(eventName);
+		}
 	}
 
-	const ChangeParent = (property, value) => {
-		all.parent.core.ChangeSelf(property, value);
+	const ChangeParent = (propertyValue) => {
+		if(Array.isArray(propertyValue)){
+			for(let each in propertyValue){
+				all.parent.core.ChangeSelf(propertyValue[each]);
+			}
+		} else {
+			all.parent.core.ChangeSelf(propertyValue);
+		}
 	}
 
-	const ChangeAll = (property, value) => {
-		for(let section of accessOrder){
-			for(let each of section){
-				each.ChangeSelf(property, value);
+	const ChangeAll = (propertyValue) => {
+		if(Array.isArray(propertyValue)){
+			for(let each in propertyValue){
+				for(let section of accessOrder){
+					for(let indv of section){
+						indv.ChangeSelf(propertyValue[each]);
+					}
+				}
+			}
+		} else {
+			for(let section of accessOrder){
+				for(let indv of section){
+					indv.ChangeSelf(propertyValue);
+				}
 			}
 		}
 	}
 
 	const AnimateParent = (animProps) => {
-		all.parent.core.Animate(animProps);
+		if(Array.isArray(animProps)){
+			for(let each in animProps){
+				all.parent.core.Animate(animProps[each]);
+			}
+		} else {
+			all.parent.core.Animate(animProps);
+		}
 	}
 
 	const AnimateAll = (animProps) => {
-		for(let section of accessOrder){
-			for(let each of section){
-				each.Animate(animProps);
+		if(Array.isArray(animProps)){
+			for(let each in animProps){
+				for(let section of accessOrder){
+					for(let indv of section){
+						indv.Animate(animProps[each]);
+					}
+				}
+			}
+		} else {
+			for(let section of accessOrder){
+				for(let indv of section){
+					indv.Animate(animProps);
+				}
 			}
 		}
 	}
@@ -1274,10 +1322,14 @@ this.Player = (layer) => {
 	vrController = document.getElementById('vrController');
 	vrControllerUI = document.getElementById('vrControllerUI');
 
-	const SetFlag = ({flag, value}) => {
-		layer[flag] = value;
-		//console.log(flag);
-		//console.log(core[flag]);
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			layer[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			layer[flagValue.flag] = flagValue.value;
+		}
 	}
 
 	const GetFlag = (varName) => {
@@ -1554,31 +1606,6 @@ let sceneText = auxl.SpeechSystem(textBubble);
 
 	}
 
-	const SetFlag = (objRef, flagInfo) => {
-		//console.log('Setting Flag')
-		//console.log(objRef)
-		//console.log(flagInfo)
-		//access variables
-		let flag = '';
-		let value = '';
-		let params = {};
-		for(let a in flagInfo){
-			//console.log(b);//flag, value
-			if(a === 'flag'){
-				flag = flagInfo[a];
-			} else if (a === 'value'){
-				value = flagInfo[a];
-			}
-		}
-		params = {flag, value};
-		//set this.obj.flag = value;
-		//console.log(flag);
-		//console.log(value);
-		//console.log(params);
-		//auxl[line][flag] = value;
-		auxlObjMethod(objRef,'SetFlag',params);
-	}
-
 	const AddToTimeIntEvtTracker = ({name,type,id,method,params,event}) => {
 		//console.log({name,type,id,method,params,event})
 		let nameId = name+id;
@@ -1636,45 +1663,10 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		//Clear Core | Layer Scene Tracked Items
 		//Run Exit section of current Node
 		Exit();
-
-		//console.log('Clearing Scene...')
-		//console.log(auxl.nodeSpawned);
 		//Clear Timeout, Intervals and Event Listeners first
 		ClearSceneTimeIntEvt();
+		//Clear all objects spawned in the NodeScene
 		clearSpawned(auxl.nodeSpawned);
-
-		//What if these were added in Zone?
-		//clearSpawned(auxl.genSpawned);
-		//clearSpawned(auxl.menuSpawned);
-		//clearSpawned(auxl.npcSpawned);
-		//clearSpawned(auxl.carouselSpawned);
-		/*
-		for(let spawn in auxl.nodeSpawned){
-			//console.log(spawn);//name of ID
-			//console.log(auxl[spawn]);
-
-			if(auxl[spawn]){
-				if(auxl[spawn].type === 'core'){
-						auxl[spawn].core.RemoveFromScene();
-				} else if (auxl[spawn].type === 'layer'){
-						auxl[spawn].layer.RemoveAllFromScene();
-				} else {
-					if(auxl[spawn].RemoveFromScene){
-						auxl[spawn].RemoveFromScene();
-					} else if(auxl[spawn].RemoveAllFromScene){
-						auxl[spawn].RemoveAllFromScene();
-					}
-				}
-			} else if(document.getElementById(spawn)){
-				//console.log(spawn);
-				//console.log(document.getElementById(spawn));
-			}
-
-			//console.log(auxl.nodeSpawned[spawn]);//Book & Page spawned from
-			delete auxl.nodeSpawned[spawn];
-		}*/
-		//Clear Timeout, Intervals and Event Listeners as well
-		//ClearSceneTimeIntEvt();
 	}
 
 	const auxlObjMethod = (object, func, params) => {
@@ -2017,7 +2009,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		}
 	}
 
-	return {core, IfElse, SetFlag, ClearScene, auxlObjMethod, Info, Start, Delay, Interval, Event, Interaction, Exit, Map, StartScene}
+	return {core, IfElse, ClearScene, auxlObjMethod, Info, Start, Delay, Interval, Event, Interaction, Exit, Map, StartScene}
 }
 
 //
@@ -2108,31 +2100,6 @@ let newNode;
 			}
 		}
 
-	}
-
-	const SetFlag = (objRef, flagInfo) => {
-		//console.log('Setting Flag')
-		//console.log(objRef)
-		//console.log(flagInfo)
-		//access variables
-		let flag = '';
-		let value = '';
-		let params = {};
-		for(let a in flagInfo){
-			//console.log(b);//flag, value
-			if(a === 'flag'){
-				flag = flagInfo[a];
-			} else if (a === 'value'){
-				value = flagInfo[a];
-			}
-		}
-		params = {flag, value};
-		//set this.obj.flag = value;
-		//console.log(flag);
-		//console.log(value);
-		//console.log(params);
-		//auxl[line][flag] = value;
-		auxlObjMethod(objRef,'SetFlag',params);
 	}
 
 	const auxlObjMethod = (object, func, params) => {
@@ -2721,7 +2688,6 @@ let scenarioTimeout = setTimeout(function () {
 	clearTimeout(scenarioTimeout);
 }, 50);
 
-
 	const IfElse = (objRef, condObj,{cond, ifTrue, ifFalse}) => {
 		if(auxl[condObj].GetFlag(cond)) {
 			for(let a in ifTrue){
@@ -2736,21 +2702,6 @@ let scenarioTimeout = setTimeout(function () {
 				}
 			}
 		}
-	}
-
-	const SetFlag = (objRef, flagInfo) => {
-		let flag = '';
-		let value = '';
-		let params = {};
-		for(let a in flagInfo){
-			if(a === 'flag'){
-				flag = flagInfo[a];
-			} else if (a === 'value'){
-				value = flagInfo[a];
-			}
-		}
-		params = {flag, value};
-		auxlObjMethod(objRef,'SetFlag',params);
 	}
 
 	const auxlObjMethod = (object, func, params) => {
@@ -3465,11 +3416,13 @@ this.SpeechSystem = (core) => {
 	}
 
 	const ChangeCore = (setAlt) => {
-		core.ChangeSelf(setAlt)
-	}
-
-	const ChangeCoreArray = (...setAlt) => {
-		core.ChangeSelfArray(...setAlt)
+		if(Array.isArray(setAlt)){
+			for(let each in setAlt){
+				core.ChangeSelf(setAlt[each])
+			}
+		} else {
+			core.ChangeSelf(setAlt)
+		}
 	}
 
 	const DisplaySpeech = ({role,speech}) => {
@@ -3521,7 +3474,7 @@ this.SpeechSystem = (core) => {
 		delete auxl.running[name];
 	}
 
-	return {core, Start, Skip, KillStop, ChangeCore, ChangeCoreArray, DisplaySpeech};
+	return {core, Start, Skip, KillStop, ChangeCore, DisplaySpeech};
 }
 
 //
@@ -3688,10 +3641,14 @@ let menuTimeout;
 
 	}
 
-	const SetFlag = ({flag, value}) => {
-		npc[flag] = value;
-		//console.log(flag);
-		//console.log(core[flag]);
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			npc[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			npc[flagValue.flag] = flagValue.value;
+		}
 	}
 
 	const GetFlag = (varName) => {
@@ -4809,99 +4766,6 @@ this.Teleport = (id, locations) => {
 }
 
 //
-//Carousel
-this.Carousel = (id,mainData,buttonData,...materials) => {
-
-	let carouselCore;
-	let thumbnailCores = [];
-	let thumbnailPos = new THREE.Vector3(0,-0.3,0.05);
-	//let startPos = (mainData.geometry.width/2)/materials.length;
-	//let movePos = mainData.geometry.width/materials.length;
-
-	//Layer
-	let carouselLayerData = {}
-	for(let mat in materials){
-		if(mat === '0'){
-			mainData.material = materials[mat];
-			carouselCore = auxl.Core(mainData);
-			carouselLayerData['parent'] = {};
-			carouselLayerData['parent'].core = carouselCore;
-		} else {
-			buttonData.id = 'thumbnail' + mat;
-			buttonData.material = materials[mat];
-			if(materials.length === 3){
-				if(mat === '1'){
-					thumbnailPos.x = -0.25;
-				} else if(mat === '2'){
-					thumbnailPos.x = 0.25;
-				}
-			} else if(materials.length === 4){
-				if(mat === '1'){
-					thumbnailPos.x = -0.33;
-				} else if(mat === '2'){
-					thumbnailPos.x = 0;
-				} else if(mat === '3'){
-					thumbnailPos.x = 0.33;
-				}
-			} else if(materials.length === 5){
-				if(mat === '1'){
-					thumbnailPos.x = -0.375;
-				} else if(mat === '2'){
-					thumbnailPos.x = -0.125;
-				} else if(mat === '3'){
-					thumbnailPos.x = 0.125;
-				} else if(mat === '4'){
-					thumbnailPos.x = 0.375;
-				}
-			}
-			//thumbnailPos;
-			buttonData.position = thumbnailPos;
-			thumbnailCores[mat] = auxl.Core(buttonData);
-			carouselLayerData['child'+mat] = {};
-			carouselLayerData['child'+mat].core = thumbnailCores[mat];
-		}
-	}
-	let carousel = auxl.Layer('carousel',carouselLayerData);
-
-	const Click = (el) => {
-		//Swap Material Sources with Parent
-		let selectedMat = el.getAttribute('material').src;
-		let replacedMat = JSON.parse(JSON.stringify(el.parentNode.getAttribute('material').src));
-
-		el.parentNode.setAttribute('material',{src: selectedMat})
-		el.setAttribute('material',{src: replacedMat})
-	}
-
-	const Show = () => {
-		carousel.AddAllToScene(true);
-		AddToCarouselSceneTracker();
-	}
-
-	const Remove = () => {
-		carousel.RemoveAllFromScene(true);
-		RemoveFromCarouselSceneTracker();
-	}
-
-	const AddToCarouselSceneTracker = () => {
-		if(auxl.zoneSpawned[id]){} else {
-    		//auxl.carouselSpawned[id] = {type: 'carousel', obj: carousel};
-    		auxl.nodeSpawned[id] = {type: 'carousel', obj: carousel};
-		}
-
-	}
-
-	const RemoveFromCarouselSceneTracker = () => {
-		//delete auxl.carouselSpawned[id];
-		delete auxl.nodeSpawned[id];
-	}
-
-	//Add autoplay and pause on hovering
-	//Controls either left/right or thumbnails for each
-	return {carousel, Click, Show, Remove};
-
-}
-
-//
 //Memory Mini Game
 this.MemoryGame = (...data) => {
 
@@ -5162,6 +5026,1057 @@ this.MemoryGame = (...data) => {
 	return{memory, SpawnGame, DespawnGame, GameMenuClick};
 }
 
+//
+//Image Swapper
+this.ImageSwapper = (id,mainData,buttonData,...materials) => {
+
+	let imageSwapperCore;
+	let thumbnailCores = [];
+	let thumbnailPos = new THREE.Vector3(0,-0.3,0.05);
+	//let startPos = (mainData.geometry.width/2)/materials.length;
+	//let movePos = mainData.geometry.width/materials.length;
+
+	//Layer
+	let imageSwapperLayerData = {}
+	for(let mat in materials){
+		if(mat === '0'){
+			mainData.material = materials[mat];
+			imageSwapperCore = auxl.Core(mainData);
+			imageSwapperLayerData['parent'] = {};
+			imageSwapperLayerData['parent'].core = imageSwapperCore;
+		} else {
+			buttonData.id = 'thumbnail' + mat;
+			buttonData.material = materials[mat];
+			if(materials.length === 3){
+				if(mat === '1'){
+					thumbnailPos.x = -0.25;
+				} else if(mat === '2'){
+					thumbnailPos.x = 0.25;
+				}
+			} else if(materials.length === 4){
+				if(mat === '1'){
+					thumbnailPos.x = -0.33;
+				} else if(mat === '2'){
+					thumbnailPos.x = 0;
+				} else if(mat === '3'){
+					thumbnailPos.x = 0.33;
+				}
+			} else if(materials.length === 5){
+				if(mat === '1'){
+					thumbnailPos.x = -0.375;
+				} else if(mat === '2'){
+					thumbnailPos.x = -0.125;
+				} else if(mat === '3'){
+					thumbnailPos.x = 0.125;
+				} else if(mat === '4'){
+					thumbnailPos.x = 0.375;
+				}
+			}
+			//thumbnailPos;
+			buttonData.position = thumbnailPos;
+			thumbnailCores[mat] = auxl.Core(buttonData);
+			imageSwapperLayerData['child'+mat] = {};
+			imageSwapperLayerData['child'+mat].core = thumbnailCores[mat];
+		}
+	}
+	let imageSwapper = auxl.Layer('imageSwapper',imageSwapperLayerData);
+
+	const Click = (el) => {
+		//Swap Material Sources with Parent
+		let selectedMat = el.getAttribute('material').src;
+		let replacedMat = JSON.parse(JSON.stringify(el.parentNode.getAttribute('material').src));
+
+		el.parentNode.setAttribute('material',{src: selectedMat})
+		el.setAttribute('material',{src: replacedMat})
+	}
+
+	const Show = () => {
+		imageSwapper.AddAllToScene(true);
+		AddToImageSwapperSceneTracker();
+	}
+
+	const Remove = () => {
+		imageSwapper.RemoveAllFromScene(true);
+		RemoveFromImageSwapperSceneTracker();
+	}
+
+	const AddToImageSwapperSceneTracker = () => {
+		if(auxl.zoneSpawned[id]){} else {
+    		auxl.nodeSpawned[id] = {type: 'imageSwapper', obj: imageSwapper};
+		}
+
+	}
+
+	const RemoveFromImageSwapperSceneTracker = () => {
+		delete auxl.nodeSpawned[id];
+	}
+
+	//Add autoplay and pause on hovering
+	//Controls either left/right or thumbnails for each
+	return {imageSwapper, Click, Show, Remove};
+
+}
+
+//Move the button generation and function assigning to within the Gallery as well as the art frame layer
+
+//
+//Gallery
+this.Gallery = (core) => {
+
+	let playInterval;
+	let settingTimeout;
+
+	const GetEl = () => {
+		return core.GetEl();
+	}
+
+	const Forward = () => {
+		if(auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('notMoving')){
+			auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: false})
+			let current = this.artFrameAllLayer.layer.all.parent.core.GetFlag('rotate');
+			if(current === 3){
+				current = 0;
+			} else {
+				current++;
+			}
+			if(current === 0 || current === 2){
+			currentPage++;
+			}
+			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'rotate', value: current})
+			updateBackTwo();
+			//Get current artFrameAllLayer rotation
+			let rotY = auxl.artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
+			auxl.anim90Data.from = rotY;
+			auxl.anim90Data.to = rotY - 90;
+			auxl.artFrameAllLayer.AnimateParent(auxl.anim90Data);
+			let timeout = setTimeout(function () {
+				auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: true})
+			clearTimeout(timeout);
+			}, auxl.anim90Data.dur+10); //Delay
+		}
+	}
+
+	const Backward = () => {
+		if(auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('notMoving')){
+			auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: false})
+			let current = this.artFrameAllLayer.layer.all.parent.core.GetFlag('rotate');
+			if(current === 0){
+				current = 3;
+			} else {
+				current--;
+			}
+			if(current === 0 || current === 2){
+			currentPage--;
+			}
+			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'rotate', value: current})
+			updateBackTwo();
+			//Get current artFrameAllLayer rotation
+			let rotY = auxl.artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
+			auxl.anim90Data.from = rotY;
+			auxl.anim90Data.to = rotY + 90;
+			auxl.artFrameAllLayer.AnimateParent(auxl.anim90Data);
+			let timeout = setTimeout(function () {
+				auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: true})
+				clearTimeout(timeout);
+			}, auxl.anim90Data.dur+10); //Delay
+		}
+	}
+
+	const PlayPause = () => {
+		if(auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('notPlaying')){
+			auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notPlaying', value: false})
+			auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: false})
+			let current = auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('autoRotate');
+				currentPage++;
+				playInterval = setInterval(function() {
+					current = auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('autoRotate');
+					if(current === 7){
+						current = 0;
+						currentPage++;
+					} else {
+						current++;
+					}
+					auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'autoRotate', value: current})
+					updateBack();
+				}, auxl.anim360Data.dur/8); //Interval
+			//Get current artFrameAllLayer rotation
+			let rotY = auxl.artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
+			auxl.anim360Data.from = rotY;
+			auxl.anim360Data.to = rotY - 360;
+			auxl.artFrameAllLayer.AnimateParent(auxl.anim360Data);
+			auxl.artFrameAllLayer.layer.all.parent.core.EmitEvent('play');
+
+			auxl.buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/pause.obj'} });
+			auxl.buttonPlayText.ChangeSelf({property: 'text', value: {value:'Pause', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'} })
+		} else {
+			auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notPlaying', value: true})
+			auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: true})
+			clearInterval(playInterval);
+			//Stop current animation
+			auxl.artFrameAllLayer.layer.all.parent.core.EmitEvent('pause');
+			auxl.buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/play.obj'} })
+			auxl.buttonPlayText.ChangeSelf({property: 'text', value: {value:'Play', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'} })
+		}
+	}
+
+	const Stop = () => {
+		if(auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('notPlaying')){} else {
+			//Stop current animation
+			//auxl.artFrameAllLayer.layer.all.parent.core.EmitEvent('pause');
+			let rotY = auxl.artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
+			auxl.anim45MiscData.from = rotY;
+			auxl.anim45MiscData.to = 1;
+			auxl.artFrameAllLayer.AnimateParent(auxl.anim45MiscData);
+
+			auxl.buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/play.obj'} });
+			auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notPlaying', value: true})
+			auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: true})
+		}
+	}
+
+	const NextPage = () => {
+		if(auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('loadingPage')){} else {
+			auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'loadingPage', value: true})
+			if(currentPage === auxl.maxPage){
+				currentPage = 0;
+			} else {
+				currentPage++;
+			}
+			updateAll();
+		}
+	}
+
+	const PrevPage = () => {
+		if(auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('loadingPage')){} else {
+			auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'loadingPage', value: true})
+			if(currentPage === 0){
+				currentPage = auxl.maxPage;
+			} else {
+				currentPage--;
+			}
+			updateAll();
+		}
+	}
+
+	const RandomPage = () => {
+		if(auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('loadingPage')){} else {
+			auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'loadingPage', value: true})
+			currentPage = Math.floor(Math.random()*auxl.maxPage);
+			updateAll();
+		}
+	}
+
+	const Settings = () => {
+		if(auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('animating')){} else {
+			auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'animating', value: true})
+			settingTimeout = setTimeout(function () {
+				auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'animating', value: false})
+				clearTimeout(settingTimeout);
+			}, 2050); //Delay
+			if(auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('setting') === 0){
+				auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'setting', value: 1})
+				auxl.artFrame0.EmitEvent('to0');
+				auxl.artFrame1.EmitEvent('to0');
+				auxl.artFrame2.EmitEvent('to0');
+				auxl.artFrame3.EmitEvent('to0');
+				auxl.artFrame4.EmitEvent('to0');
+				auxl.artFrame5.EmitEvent('to0');
+				auxl.artFrame6.EmitEvent('to0');
+				auxl.artFrame7.EmitEvent('to0');
+			} else {
+				auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'setting', value: 0})
+				auxl.artFrame0.EmitEvent('to1');
+				auxl.artFrame1.EmitEvent('to1');
+				auxl.artFrame2.EmitEvent('to1');
+				auxl.artFrame3.EmitEvent('to1');
+				auxl.artFrame4.EmitEvent('to1');
+				auxl.artFrame5.EmitEvent('to1');
+				auxl.artFrame6.EmitEvent('to1');
+				auxl.artFrame7.EmitEvent('to1');
+			}
+		}
+	}
+
+	const Info = () => {
+		if(auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('info')){
+		auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'info', value: false});
+		} else {
+		auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'info', value: true});
+		}
+
+	}
+
+	const Init = () => {
+		//Gallery Prep
+		//Prep Movement Flags
+		auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: true})
+		auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notPlaying', value: true})
+		auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'rotate', value: 0})
+		auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'autoRotate', value: 0})
+		auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'loadingPage', value: false})
+		auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'animating', value: false})
+		auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'setting', value: 0})
+		auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'info', value: false})
+		auxl.buttonStopGallery.core.EnableDetail('Browse through the entire Art Institute of Chicago catalog of images in a casual viewing experiences. 8 frames surrounding the center displaying various images provided by AIC\'s public API. Control the image frames with a handful of buttons to jump to a random page, go back a page, go back a few images, view info, play the slideshow, go forward a few images, go to the next page and switch between 2 frame sizings. A random page number is loaded at the start from the 13209 available, so lots and lots of images to enjoy.');
+		//Art Institute of Chicago API
+		updateAll();
+	}
+
+	return {core,GetEl,Forward,Backward,PlayPause,Stop,NextPage,PrevPage,RandomPage,Settings, Info, Init}
+}
+
+//
+//Gallery Testing
+
+let mainColor = auxl.colorTheoryGen('#6ab0db');
+
+//Frame Material
+let paintingMaterial = {shader: "flat", color: "#55a5be", opacity: 1, alphaTest: 0.1};
+
+//Button Parent
+this.buttonParentData = {
+data: 'Button Parent',
+id:'buttonParent',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,80,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{
+scaleclick:{property: 'scale', from: '1 1 1', to: '1.05 1.05 1.05', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Button Obj
+this.buttonObjData = {
+data: 'Button Obj',
+id:'buttonObj',
+sources: false,
+text: false,
+geometry: false,
+material: {shader: "flat", color: mainColor.base, opacity: 1},
+position: new THREE.Vector3(0,0.4,-2.5),
+rotation: new THREE.Vector3(-30,0,0),
+scale: new THREE.Vector3(0.1,0.1,0.1),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Button Border
+this.buttonBorderData = {
+data: 'Button Border',
+id:'buttonBorder',
+sources: false,
+text: false,
+geometry: false,
+material: {shader: "flat", color: mainColor.splitCompl[0], opacity: 1},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+['obj-model']:{obj: './assets/3d/buttons/border.obj'},
+},
+};
+
+//Button Click Background
+this.buttonClickData = {
+data: 'Button Click Background',
+id:'buttonClick',
+sources: false,
+text: false,
+geometry: {primitive: 'circle', radius: 2, segments: 12},
+material: {shader: "flat", color: mainColor.splitCompl[1], opacity: 0.5, side: 'double'},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+
+//Button Click Background
+this.buttonTextData = {
+data: 'Button Text',
+id:'buttonText',
+sources: false,
+text: {value:'Button', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'},
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,-2.75,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+
+//Art Frame Parent
+this.artFrameParentData = {
+data: 'Art Frame Parent',
+id:'artFrameParent',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Art Frame
+this.artFrameData = {
+data: 'Art Frame',
+id:'artFrame',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.01, width: 4.4, height: 2.55},
+material: paintingMaterial,
+position: new THREE.Vector3(0,1.75,-6),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+scale0:{property: 'scale', from: '1 1 1', to: '2 2 2', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to0'},
+position0:{property: 'position', from: '0 1.75 -6', to: '0 3.5 -12', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to0'},
+scale1:{property: 'scale', from: '2 2 2', to: '1 1 1', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to1'},
+position1:{property: 'position', from: '0 3.5 -12', to: '0 1.75 -6', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to1'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Art Frame
+this.artFrameTextData = {
+data: 'Art Frame Text',
+id:'artFrameText',
+sources: false,
+text: {value:'Art Frame Text', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0, side: 'double'},
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,-1.5,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//Rotate 45
+this.anim45Data = {
+	name: 'anim45',
+	property: 'object3D.rotation.y',
+	from: '0',
+	to: '45', 
+	dur: 1000, 
+	delay: 0, 
+	loop: 'false', 
+	dir: 'normal', 
+	easing: 'easeInOutSine', 
+	elasticity: 400, 
+	autoplay: true, 
+	enabled: true,
+};
+//Rotate 45 from Misc
+this.anim45MiscData = {
+	name: 'anim45misc',
+	property: 'object3D.rotation.y',
+	from: '0',
+	to: '1', 
+	dur: 500, 
+	delay: 0, 
+	loop: 'false', 
+	dir: 'normal', 
+	easing: 'easeInOutSine', 
+	elasticity: 400, 
+	autoplay: true, 
+	enabled: true,
+};
+//Rotate 90
+this.anim90Data = {
+	name: 'anim90',
+	property: 'object3D.rotation.y',
+	from: '0',
+	to: '90', 
+	dur: 2500,
+	delay: 0, 
+	loop: 'false', 
+	dir: 'normal', 
+	easing: 'easeInOutSine', 
+	elasticity: 400, 
+	autoplay: true, 
+	enabled: true,
+};
+//Rotate 360
+this.anim360Data = {
+	name: 'anim360',
+	property: 'object3D.rotation.y',
+	from: '0',
+	to: '360', 
+	dur: 120000, 
+	delay: 0, 
+	loop: 'true', 
+	dir: 'normal', 
+	easing: 'linear', 
+	elasticity: 400, 
+	autoplay: false, 
+	enabled: true,
+	startEvents: 'play',
+	pauseEvents: 'pause',
+};
+
+/*************************************************************/
+//Convert from API update to list of gallery images
+
+//use auxl.patterns as a list of images to display in the gallery
+//how many images can be displayed, that amount is a page
+//grab that amount from the beginning of the supplied image array
+//and update all with those
+
+
+//--header 'AIC-User-Agent: aic-xr-gallery (minty-crisp@protonmail.com)'
+this.maxPage = 13209;
+let art = {};
+let currentPage = Math.floor(Math.random()*this.maxPage);
+
+const img_url = "https://api.artic.edu/api/v1/artworks/";
+let mainUrl = '';
+let domain = '';
+let id = '';
+let end = '/full/843,/0/default.jpg';
+
+async function getImgSrc(idNum){
+	const response = await fetch(img_url + idNum);
+	var data = await response.json();
+	//console.log(data);
+
+	//Get this once, then keep
+	//console.log(data.config['iiif_url']);
+	//	https://www.artic.edu/iiif/2
+
+	//Append imageID
+	//console.log(data.data['image_id']);
+	//	1adf2696-8489-499b-cad2-821d7fde4b33
+
+	//add this
+	//	/full/843,/0/default.jpg
+
+	domain = data.config['iiif_url'] + '/';
+	id = data.data['image_id'];
+
+	if(id){
+		mainUrl = domain + id + end;
+		//console.log(mainUrl)
+		//Working Image
+		//https://www.artic.edu/iiif/2/1adf2696-8489-499b-cad2-821d7fde4b33/full/843,/0/default.jpg
+	} else {
+		console.log('API missing image_id');
+		mainUrl = './assets/img/api-error.jpg'
+		//mainUrl = 'https://cdn.glitch.global/aee11787-4b00-4871-848e-af58f9f6147b/api-error.jpg?v=1673133033802'
+	}
+		return mainUrl;
+}
+
+async function updateFrame(frame, frameText, textValue, imgUrlWait){
+	const imgSrc = await imgUrlWait;
+	//console.log(frame)
+	//console.log(imgSrc)
+	auxl[frame].ChangeSelf({property: 'material', value:{src: imgSrc,shader: "flat", color: "#FFFFFF", opacity: 1}})
+	auxl[frameText].ChangeSelf({property: 'text', value:{value: textValue, width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0, side: 'double'}})
+
+}
+
+const pageUrlPrefix = "https://api.artic.edu/api/v1/artworks?page=";
+const pageUrlPostfix = '&limit=8';
+
+async function getPage(num){
+
+	if(art[num]){
+		//console.log('Page exists, do not redownload');
+	} else {
+		let url = pageUrlPrefix + num + pageUrlPostfix;
+		const response = await fetch(url);
+		var data = await response.json();
+
+		//Page Info
+		//data.pagination.total
+		//data.pagination.limit
+		//data.pagination.offset
+		//data.pagination.total_pages
+		//data.pagination.current_page
+		//data.pagination.prev_url
+		//data.pagination.next_url
+		art[data.pagination.current_page] = {};
+		//0-8 image info
+		//data.data.0.id
+		//data.data.0.api_link
+		//data.data.0.title
+		//data.data.0.artist_title
+		let imagesInfo = data.data;
+		for(let each in imagesInfo){
+			//console.log(imagesInfo[each].id);
+			//console.log(imagesInfo[each].title);
+			//console.log(imagesInfo[each].artist_title);
+			art[data.pagination.current_page][each] = {};
+			art[data.pagination.current_page][each].id = imagesInfo[each].id;
+			art[data.pagination.current_page][each].title = imagesInfo[each].title;
+			art[data.pagination.current_page][each].artist = imagesInfo[each].artist_title;
+		}
+	}
+	//console.log(art);
+	return true;
+}
+
+async function updateAll(){
+	if(await getPage(currentPage)){
+		for(let each in art[currentPage]){
+			//console.log(art[currentPage][each]);
+			//let srcUrl = await getImgSrc(art[currentPage][each].id);
+			updateFrame('artFrame'+each, 'artFrameText'+each, art[currentPage][each].title, await getImgSrc(art[currentPage][each].id));
+		}
+auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'loadingPage', value: false})
+	}
+}
+
+async function updateBackTwo(){
+	if(await getPage(currentPage)){
+		let current = auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('rotate');
+		let update2 = [];
+		let num;
+		if(current === 0){
+			update2 = [4,5];
+		} else if(current === 1){
+			update2 = [2,3];
+		} else if(current === 2){
+			update2 = [0,1];
+		} else if(current === 3){
+			update2 = [6,7];
+		}
+		for(let each in update2){
+			num = update2[each];
+			updateFrame('artFrame'+num, 'artFrameText'+num, art[currentPage][num].title, await getImgSrc(art[currentPage][num].id));
+		}
+	}
+}
+
+async function updateBack(){
+	if(await getPage(currentPage)){
+		let current = auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('autoRotate');
+		let num;
+		if(current === 0){
+			num = 3;
+		} else if(current === 1){
+			num = 2;
+		} else if(current === 2){
+			num = 1;
+		} else if(current === 3){
+			num = 0;
+		} else if(current === 4){
+			num = 7;
+		} else if(current === 5){
+			num = 6;
+		} else if(current === 6){
+			num = 5;
+		} else if(current === 7){
+			num = 4;
+		}
+		updateFrame('artFrame'+num, 'artFrameText'+num, art[currentPage][num].title, await getImgSrc(art[currentPage][num].id));
+	}
+}
+/*************************************************************/
+
+//Buttons
+
+//Backward
+this.buttonParentData.id = 'buttonBackwardParent';
+this.buttonParentData.rotation = new THREE.Vector3(0,22.5,0);
+this.buttonBackwardParent = auxl.Core(this.buttonParentData);
+this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/backward.obj'}};
+this.buttonObjData.id = 'buttonBackward';
+this.buttonBorderData.id = 'buttonBackwardBorder';
+this.buttonClickData.id = 'buttonBackwardClick';
+this.buttonTextData.id = 'buttonBackwardText';
+this.buttonTextData.text.value = 'Back';
+this.buttonBackward = auxl.Core(this.buttonObjData);
+this.buttonBackwardBorder = auxl.Core(this.buttonBorderData);
+this.buttonBackwardClick = auxl.Core(this.buttonClickData);
+this.buttonBackwardGallery = auxl.Gallery(this.buttonBackwardClick);
+this.buttonBackwardText = auxl.Core(this.buttonTextData);
+//Forward
+this.buttonParentData.id = 'buttonForwardParent';
+this.buttonParentData.rotation = new THREE.Vector3(0,-22.5,0);
+this.buttonForwardParent = auxl.Core(this.buttonParentData);
+this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/forward.obj'}};
+this.buttonObjData.id = 'buttonForward';
+this.buttonBorderData.id = 'buttonForwardBorder';
+this.buttonClickData.id = 'buttonForwardClick';
+this.buttonTextData.id = 'buttonForwardText';
+this.buttonTextData.text.value = 'Forward';
+this.buttonForward = auxl.Core(this.buttonObjData);
+this.buttonForwardBorder = auxl.Core(this.buttonBorderData);
+this.buttonForwardClick = auxl.Core(this.buttonClickData);
+this.buttonForwardGallery = auxl.Gallery(this.buttonForwardClick);
+this.buttonForwardText = auxl.Core(this.buttonTextData);
+//Left Skip
+this.buttonParentData.id = 'buttonLeftSkipParent';
+this.buttonParentData.rotation = new THREE.Vector3(0,37.5,0);
+this.buttonLeftSkipParent = auxl.Core(this.buttonParentData);
+this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/left_skip.obj'}};
+this.buttonObjData.id = 'buttonLeftSkip';
+this.buttonBorderData.id = 'buttonLeftSkipBorder';
+this.buttonClickData.id = 'buttonLeftSkipClick';
+this.buttonTextData.id = 'buttonLeftSkipText';
+this.buttonTextData.text.value = 'Back Page';
+this.buttonLeftSkip = auxl.Core(this.buttonObjData);
+this.buttonLeftSkipBorder = auxl.Core(this.buttonBorderData);
+this.buttonLeftSkipClick = auxl.Core(this.buttonClickData);
+this.buttonLeftSkipGallery = auxl.Gallery(this.buttonLeftSkipClick);
+this.buttonLeftSkipText = auxl.Core(this.buttonTextData);
+//Pause
+//this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/pause.obj'}};
+//this.buttonObjData.id = 'buttonObjPause';
+//this.buttonBorderData.id = 'buttonBorderPause';
+//this.buttonClickData.id = 'buttonClickPause';
+//this.buttonPause = auxl.Core(this.buttonObjData);
+//this.buttonPauseBorder = auxl.Core(this.buttonBorderData);
+//this.buttonPauseClick = auxl.Core(this.buttonClickData);
+//Play
+this.buttonParentData.id = 'buttonPlayParent';
+this.buttonParentData.rotation = new THREE.Vector3(0,-7.5,0);
+this.buttonPlayParent = auxl.Core(this.buttonParentData);
+this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/play.obj'}};
+this.buttonObjData.id = 'buttonPlay';
+this.buttonBorderData.id = 'buttonPlayBorder';
+this.buttonClickData.id = 'buttonPlayClick';
+this.buttonTextData.id = 'buttonPlayText';
+this.buttonTextData.text.value = 'Play';
+this.buttonPlay = auxl.Core(this.buttonObjData);
+this.buttonPlayBorder = auxl.Core(this.buttonBorderData);
+this.buttonPlayClick = auxl.Core(this.buttonClickData);
+this.buttonPlayGallery = auxl.Gallery(this.buttonPlayClick);
+this.buttonPlayText = auxl.Core(this.buttonTextData);
+//Right Skip
+this.buttonParentData.id = 'buttonRightSkipParent';
+this.buttonParentData.rotation = new THREE.Vector3(0,-37.5,0);
+this.buttonRightSkipParent = auxl.Core(this.buttonParentData);
+this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/right_skip.obj'}};
+this.buttonObjData.id = 'buttonRightSkip';
+this.buttonBorderData.id = 'buttonRightSkipBorder';
+this.buttonClickData.id = 'buttonRightSkipClick';
+this.buttonTextData.id = 'buttonRightSkipText';
+this.buttonTextData.text.value = 'Next Page';
+this.buttonRightSkip = auxl.Core(this.buttonObjData);
+this.buttonRightSkipBorder = auxl.Core(this.buttonBorderData);
+this.buttonRightSkipClick = auxl.Core(this.buttonClickData);
+this.buttonRightSkipGallery = auxl.Gallery(this.buttonRightSkipClick);
+this.buttonRightSkipText = auxl.Core(this.buttonTextData);
+//Settings
+this.buttonParentData.id = 'buttonSettingsParent';
+this.buttonParentData.rotation = new THREE.Vector3(0,-52.5,0);
+this.buttonSettingsParent = auxl.Core(this.buttonParentData);
+this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/settings.obj'}};
+this.buttonObjData.id = 'buttonSettings';
+this.buttonBorderData.id = 'buttonSettingsBorder';
+this.buttonClickData.id = 'buttonSettingsClick';
+this.buttonTextData.id = 'buttonSettingsText';
+this.buttonTextData.text.value = 'Scale';
+this.buttonSettings = auxl.Core(this.buttonObjData);
+this.buttonSettingsBorder = auxl.Core(this.buttonBorderData);
+this.buttonSettingsClick = auxl.Core(this.buttonClickData);
+this.buttonSettingsGallery = auxl.Gallery(this.buttonSettingsClick);
+this.buttonSettingsText = auxl.Core(this.buttonTextData);
+//Stop
+this.buttonParentData.id = 'buttonStopParent';
+this.buttonParentData.rotation = new THREE.Vector3(0,7.5,0);
+this.buttonStopParent = auxl.Core(this.buttonParentData);
+this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/stop.obj'}};
+this.buttonObjData.id = 'buttonStop';
+this.buttonBorderData.id = 'buttonStopBorder';
+this.buttonClickData.id = 'buttonStopClick';
+this.buttonTextData.id = 'buttonStopText';
+this.buttonTextData.text.value = 'Info';
+this.buttonStop = auxl.Core(this.buttonObjData);
+this.buttonStopBorder = auxl.Core(this.buttonBorderData);
+this.buttonStopClick = auxl.Core(this.buttonClickData);
+this.buttonStopGallery = auxl.Gallery(this.buttonStopClick);
+this.buttonStopText = auxl.Core(this.buttonTextData);
+//Hashtag
+this.buttonParentData.id = 'buttonHashtagParent';
+this.buttonParentData.rotation = new THREE.Vector3(0,52.5,0);
+this.buttonHashtagParent = auxl.Core(this.buttonParentData);
+this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/hashtag.obj'}};
+this.buttonObjData.id = 'buttonHashtag';
+this.buttonBorderData.id = 'buttonHashtagBorder';
+this.buttonClickData.id = 'buttonHashtagClick';
+this.buttonTextData.id = 'buttonHashtagText';
+this.buttonTextData.text.value = 'Random Page';
+this.buttonHashtag = auxl.Core(this.buttonObjData);
+this.buttonHashtagBorder = auxl.Core(this.buttonBorderData);
+this.buttonHashtagClick = auxl.Core(this.buttonClickData);
+this.buttonHashtagGallery = auxl.Gallery(this.buttonHashtagClick);
+this.buttonHashtagText = auxl.Core(this.buttonTextData);
+
+//Button Backward Layer
+this.buttonBackwardLayerData = {
+parent: {core: this.buttonBackwardParent}, 
+child0: {
+	parent: {core: this.buttonBackward}, 
+	child0: {core: this.buttonBackwardBorder},
+	child1: {core: this.buttonBackwardClick},
+	child2: {core: this.buttonBackwardText},
+},
+};
+this.buttonBackwardLayer = auxl.Layer('buttonBackwardLayer',this.buttonBackwardLayerData);
+
+//Button Hashtag Layer
+this.buttonHashtagLayerData = {
+parent: {core: this.buttonHashtagParent}, 
+child0: {
+	parent: {core: this.buttonHashtag}, 
+	child0: {core: this.buttonHashtagBorder},
+	child1: {core: this.buttonHashtagClick},
+	child2: {core: this.buttonHashtagText},
+},
+};
+this.buttonHashtagLayer = auxl.Layer('buttonHashtagLayer',this.buttonHashtagLayerData);
+
+//Button Forward Layer
+this.buttonForwardLayerData = {
+parent: {core: this.buttonForwardParent}, 
+child0: {
+	parent: {core: this.buttonForward}, 
+	child0: {core: this.buttonForwardBorder},
+	child1: {core: this.buttonForwardClick},
+	child2: {core: this.buttonForwardText},
+},
+};
+this.buttonForwardLayer = auxl.Layer('buttonForwardLayer',this.buttonForwardLayerData);
+
+//Button Left Skip Layer
+this.buttonLeftSkipLayerData = {
+parent: {core: this.buttonLeftSkipParent}, 
+child0: {
+	parent: {core: this.buttonLeftSkip}, 
+	child0: {core: this.buttonLeftSkipBorder},
+	child1: {core: this.buttonLeftSkipClick},
+	child2: {core: this.buttonLeftSkipText},
+},
+};
+this.buttonLeftSkipLayer = auxl.Layer('buttonLeftSkipLayer',this.buttonLeftSkipLayerData);
+
+//Button Play Layer
+this.buttonPlayLayerData = {
+parent: {core: this.buttonPlayParent}, 
+child0: {
+	parent: {core: this.buttonPlay}, 
+	child0: {core: this.buttonPlayBorder},
+	child1: {core: this.buttonPlayClick},
+	child2: {core: this.buttonPlayText},
+},
+};
+this.buttonPlayLayer = auxl.Layer('buttonPlayLayer',this.buttonPlayLayerData);
+
+//Button Right Skip Layer
+this.buttonRightSkipLayerData = {
+parent: {core: this.buttonRightSkipParent}, 
+child0: {
+	parent: {core: this.buttonRightSkip}, 
+	child0: {core: this.buttonRightSkipBorder},
+	child1: {core: this.buttonRightSkipClick},
+	child2: {core: this.buttonRightSkipText},
+},
+};
+this.buttonRightSkipLayer = auxl.Layer('buttonRightSkipLayer',this.buttonRightSkipLayerData);
+
+//Button Settings Layer
+this.buttonSettingsLayerData = {
+parent: {core: this.buttonSettingsParent}, 
+child0: {
+	parent: {core: this.buttonSettings}, 
+	child0: {core: this.buttonSettingsBorder},
+	child1: {core: this.buttonSettingsClick},
+	child2: {core: this.buttonSettingsText},
+},
+};
+this.buttonSettingsLayer = auxl.Layer('buttonSettingsLayer',this.buttonSettingsLayerData);
+
+//Button Stop Layer
+this.buttonStopLayerData = {
+parent: {core: this.buttonStopParent}, 
+child0: {
+	parent: {core: this.buttonStop}, 
+	child0: {core: this.buttonStopBorder},
+	child1: {core: this.buttonStopClick},
+	child2: {core: this.buttonStopText},
+},
+};
+this.buttonStopLayer = auxl.Layer('buttonStopLayer',this.buttonStopLayerData);
+
+//Art Frame 0
+this.artFrameParentData.id = 'artFrameParent0';
+this.artFrameParentData.rotation = new THREE.Vector3(0,-315,0);
+this.artFrameParent0 = auxl.Core(this.artFrameParentData);
+this.artFrameData.id = 'artFrame0',
+this.artFrame0 = auxl.Core(this.artFrameData);
+this.artFrameTextData.id = 'artFrameText0';
+this.artFrameText0 = auxl.Core(this.artFrameTextData);
+
+//Art Frame 1
+this.artFrameParentData.id = 'artFrameParent1';
+this.artFrameParentData.rotation = new THREE.Vector3(0,0,0);
+this.artFrameParent1 = auxl.Core(this.artFrameParentData);
+this.artFrameData.id = 'artFrame1',
+this.artFrame1 = auxl.Core(this.artFrameData);
+this.artFrameTextData.id = 'artFrameText1';
+this.artFrameText1 = auxl.Core(this.artFrameTextData);
+
+//Art Frame 2
+this.artFrameParentData.id = 'artFrameParent2';
+this.artFrameParentData.rotation = new THREE.Vector3(0,-45,0);
+this.artFrameParent2 = auxl.Core(this.artFrameParentData);
+this.artFrameData.id = 'artFrame2',
+this.artFrame2 = auxl.Core(this.artFrameData);
+this.artFrameTextData.id = 'artFrameText2';
+this.artFrameText2 = auxl.Core(this.artFrameTextData);
+
+//Art Frame 3
+this.artFrameParentData.id = 'artFrameParent3';
+this.artFrameParentData.rotation = new THREE.Vector3(0,-90,0);
+this.artFrameParent3 = auxl.Core(this.artFrameParentData);
+this.artFrameData.id = 'artFrame3',
+//this.artFrameData.material.opacity = 0.5,
+this.artFrame3 = auxl.Core(this.artFrameData);
+this.artFrameTextData.id = 'artFrameText3';
+//this.artFrameTextData.text.opacity = 0.5;
+this.artFrameText3 = auxl.Core(this.artFrameTextData);
+
+//Art Frame 4
+this.artFrameParentData.id = 'artFrameParent4';
+this.artFrameParentData.rotation = new THREE.Vector3(0,-135,0);
+this.artFrameParent4 = auxl.Core(this.artFrameParentData);
+this.artFrameData.id = 'artFrame4',
+//this.artFrameData.material.opacity = 0,
+this.artFrame4 = auxl.Core(this.artFrameData);
+this.artFrameTextData.id = 'artFrameText4';
+//this.artFrameTextData.text.opacity = 0;
+this.artFrameText4 = auxl.Core(this.artFrameTextData);
+
+//Art Frame 5
+this.artFrameParentData.id = 'artFrameParent5';
+this.artFrameParentData.rotation = new THREE.Vector3(0,-180,0);
+this.artFrameParent5 = auxl.Core(this.artFrameParentData);
+this.artFrameData.id = 'artFrame5',
+//this.artFrameData.material.opacity = 0,
+this.artFrame5 = auxl.Core(this.artFrameData);
+this.artFrameTextData.id = 'artFrameText5';
+//this.artFrameTextData.text.opacity = 0;
+this.artFrameText5 = auxl.Core(this.artFrameTextData);
+
+//Art Frame 6
+this.artFrameParentData.id = 'artFrameParent6';
+this.artFrameParentData.rotation = new THREE.Vector3(0,-225,0);
+this.artFrameParent6 = auxl.Core(this.artFrameParentData);
+this.artFrameData.id = 'artFrame6',
+//this.artFrameData.material.opacity = 0,
+this.artFrame6 = auxl.Core(this.artFrameData);
+this.artFrameTextData.id = 'artFrameText6';
+//this.artFrameTextData.text.opacity = 0;
+this.artFrameText6 = auxl.Core(this.artFrameTextData);
+
+//Art Frame 7
+this.artFrameParentData.id = 'artFrameParent7';
+this.artFrameParentData.rotation = new THREE.Vector3(0,-270,0);
+this.artFrameParent7 = auxl.Core(this.artFrameParentData);
+this.artFrameData.id = 'artFrame7',
+//this.artFrameData.material.opacity = 0.5,
+this.artFrame7 = auxl.Core(this.artFrameData);
+this.artFrameTextData.id = 'artFrameText7';
+//this.artFrameTextData.text.opacity = 0.5;
+this.artFrameText7 = auxl.Core(this.artFrameTextData);
+
+//All Frame Parent
+this.artFrameParentData.id = 'artFrameParentAll';
+this.artFrameParentData.rotation = new THREE.Vector3(0,1,0);
+this.artFrameParentAll = auxl.Core(this.artFrameParentData);
+//All Frames
+this.artFrameAllLayerData = {
+parent: {core: this.artFrameParentAll},
+child0: {
+	parent: {core: this.artFrameParent0}, 
+	child0: {
+		parent: {core: this.artFrame0}, 
+		child0: {core: this.artFrameText0}, 
+	},
+},
+child1: {
+	parent: {core: this.artFrameParent1}, 
+	child0: {
+		parent: {core: this.artFrame1}, 
+		child0: {core: this.artFrameText1}, 
+	},
+},
+child2: {
+	parent: {core: this.artFrameParent2}, 
+	child0: {
+		parent: {core: this.artFrame2}, 
+		child0: {core: this.artFrameText2}, 
+	},
+},
+child3: {
+	parent: {core: this.artFrameParent3}, 
+	child0: {
+		parent: {core: this.artFrame3}, 
+		child0: {core: this.artFrameText3}, 
+	},
+},
+child4: {
+	parent: {core: this.artFrameParent4}, 
+	child0: {
+		parent: {core: this.artFrame4}, 
+		child0: {core: this.artFrameText4}, 
+	},
+},
+child5: {
+	parent: {core: this.artFrameParent5}, 
+	child0: {
+		parent: {core: this.artFrame5}, 
+		child0: {core: this.artFrameText5}, 
+	},
+},
+child6: {
+	parent: {core: this.artFrameParent6}, 
+	child0: {
+		parent: {core: this.artFrame6}, 
+		child0: {core: this.artFrameText6}, 
+	},
+},
+child7: {
+	parent: {core: this.artFrameParent7}, 
+	child0: {
+		parent: {core: this.artFrame7}, 
+		child0: {core: this.artFrameText7}, 
+	},
+},
+
+};
+this.artFrameAllLayer = auxl.Layer('artFrameAllLayer',this.artFrameAllLayerData);
+
 },//Init
 
 
@@ -5210,12 +6125,14 @@ auxl.mountainMat2 = {shader: 'threeColorGradientShader', topColor: '#846943', mi
 auxl.mountainMat3 = {shader: 'threeColorGradientShader', topColor: '#9b7d52', middleColor: '#58401f', bottomColor: '#4b3517', side: 'back'};
 auxl.mountainMatSnow = {shader: 'threeColorGradientShader', topColor: '#e0d7ca', middleColor: '#b4a897', bottomColor: '#5f503b', side: 'back'};
 
-//Carousel Materials
+//ImageSwapper Materials
 auxl.mat0 = {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
 auxl.mat1 = {src: './assets/img/vwave/1.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
 auxl.mat2 = {src: './assets/img/vwave/2.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
 auxl.mat3 = {src: './assets/img/vwave/3.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
 auxl.mat4 = {src: './assets/img/vwave/4.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
+
+
 
 //Tiles
 
@@ -6461,12 +7378,12 @@ components: false,
 auxl.soundTesting = auxl.Core(auxl.soundTestingData);
 
 //
-//Carousel
+//ImageSwapper
 
-//Carousel Main View
-auxl.carouselViewData = {
-data: 'Carousel View',
-id:'carouselView',
+//ImageSwapper Main View
+auxl.imageSwapperViewData = {
+data: 'imageSwapperViewData',
+id:'imageSwapperView',
 sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.1, width: 1, height: 1},
@@ -6479,10 +7396,10 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-//Carousel Thumbnail Button Previews
-auxl.carouselButtonData = {
-data: 'Carousel Thumbnail',
-id:'thumbnail',
+//ImageSwapper Thumbnail Button Previews
+auxl.imageSwapperButtonData = {
+data: 'imageSwapperButtonData',
+id:'imageSwapperButton',
 sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.1, width: 0.2, height: 0.2},
@@ -6493,10 +7410,10 @@ scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
 classes: ['clickable','a-ent'],
-components: {clickfunc: {clickObj: 'carousel1'}},
+components: {clickfunc: {clickObj: 'imageSwapper1'}},
 };
-//Carousel Example
-auxl.carousel1 = auxl.Carousel('carousel1',auxl.carouselViewData, auxl.carouselButtonData, auxl.mat0, auxl.mat1, auxl.mat2, auxl.mat3, auxl.mat4);
+//ImageSwapper Example
+auxl.imageSwapper1 = auxl.ImageSwapper('imageSwapper1',auxl.imageSwapperViewData, auxl.imageSwapperButtonData, auxl.mat0, auxl.mat1, auxl.mat2, auxl.mat3, auxl.mat4);
 
 //
 //Memory Game
@@ -11052,7 +11969,7 @@ timeline41:{
 npcMinty:{Speak:{role: 'Minty', speech:'The Player Layer rig has animations set up to assist in Scene Swapping without discomfort using various transitions too.'}},
 },
 timeline42:{
-npcMinty:{Speak:{role: 'Minty', speech:'Some basic UX features that add additional interaction ability and scene functions we have the ability to generate menus, an open/close detailed prompt and carousel image viewer.'}},
+npcMinty:{Speak:{role: 'Minty', speech:'Some basic UX features that add additional interaction ability and scene functions we have the ability to generate menus, an open/close detailed prompt and image swapper viewer.'}},
 },
 timeline43:{
 npcMinty:{Speak:{role: 'Minty', speech:'You can generate a Menu with a Prompt and Options for the player to choose from and have it execute what on selection.'}},
@@ -11064,7 +11981,7 @@ timeline45:{
 npcMinty:{Speak:{role: 'Minty', speech:'You can also add an open/closed detailed prompt to an object to access more info on it.'}},
 },
 timeline46:{
-npcMinty:{Speak:{role: 'Minty', speech:'As well as view images within a Carousel like view controller.'}},
+npcMinty:{Speak:{role: 'Minty', speech:'As well as view images within a swapping like view controller.'}},
 },
 timeline47:{
 npcMinty:{Speak:{role: 'Minty', speech:'Additionaly, in keeping with the idea of classic 2D sites that utilize a Hamburger Menu to control your website URL switching, you can also add a Hamburger Companion.'}},
@@ -11538,7 +12455,10 @@ description: 'Starting Zone',
 sceneText: true,
 },
 start:{
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},},SetComponent:{property: 'raycast-teleportation', value: null,}},
+nodeFloor:{
+ChangeSelf:[{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},},
+{property: 'position', value: new THREE.Vector3(0,0,0),},{property: 'raycast-teleportation', value: null,}],
+},
 forestScene2:{SpawnAll:null},
 multiRockFlatGrass:{genCores:null, SpawnAll:null},
 HamGirl:{Start:null},
@@ -11809,6 +12729,18 @@ teleport:{SpawnAll:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern24, repeat: '300 300', color: "#228343", emissive: "#228343",},}},
 forestScene1:{SpawnAll:null},
 mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: auxl.mountainMat1}},
+
+artFrameAllLayer:{AddAllToScene:null},
+buttonBackwardLayer:{AddAllToScene:null},
+buttonHashtagLayer:{AddAllToScene:null},
+buttonForwardLayer:{AddAllToScene:null},
+buttonLeftSkipLayer:{AddAllToScene:null},
+buttonPlayLayer:{AddAllToScene:null},
+buttonRightSkipLayer:{AddAllToScene:null},
+buttonSettingsLayer:{AddAllToScene:null},
+buttonStopLayer:{AddAllToScene:null},
+buttonSettingsGallery:{Init:null},
+
 },
 delay:{
 },
@@ -11818,7 +12750,16 @@ event:{
 
 },
 interaction:{
-
+click: {
+buttonForwardGallery:{Forward: null},
+buttonBackwardGallery:{Backward: null},
+buttonRightSkipGallery:{NextPage: null},
+buttonLeftSkipGallery:{PrevPage: null},
+buttonPlayGallery:{PlayPause: null},
+buttonStopGallery:{Info: null},
+buttonHashtagGallery:{RandomPage: null},
+buttonSettingsGallery:{Settings: null},
+},
 },
 exit:{
 
@@ -11919,7 +12860,7 @@ memory:{SpawnGame: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern50, repeat: '150 150',color: "#763a3a", emissive: "#763a3a",},}},
 nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: auxl.pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
 smallCeiling: {AddToScene: null,ChangeSelf:{property: 'material', value: {src: auxl.pattern22, repeat: '5 5', color: "#623018", emissive: "#623018",}}},
-carousel1:{Show: null},
+imageSwapper1:{Show: null},
 },
 delay:{
 
@@ -12147,7 +13088,7 @@ start:{
 teleport0:{SpawnAll:null},
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: false},},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern83, repeat: '150 150',color: "#3c86b4", emissive: "#3c86b4",},}},
-nodeWalls: {AddAllToScene: null,ChangeParent:{property: 'scale', value: new THREE.Vector3(15,15,15)},ChangeAll:{property: 'material', value: {src: auxl.pattern55, repeat: '5 1.25', color: "#275876", emissive: "#275876",}}},
+nodeWalls:{AddAllToScene: null,ChangeParent:{property: 'scale', value: new THREE.Vector3(15,15,15)},ChangeAll:{property: 'material', value: {src: auxl.pattern55, repeat: '5 1.25', color: "#275876", emissive: "#275876",}}},
 underwaterScene1:{SpawnAll:null},
 nodeCeiling:{AddToScene:null},
 },
