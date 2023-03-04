@@ -1,7 +1,23 @@
 # AUXL : A-Frame UX Library
-Engine built specifically for use with [A-Frame](https://github.com/aframevr/)
+Engine built specifically for use with [A-Frame](https://github.com/aframevr/). Essentially, AUXL provides a variety of critical object, scene and scenario building tools at the javascript level that allows for a more streamlined creation process. It's basically a scripting system and JSON structured data library with various UX add-ons built for the A-Frame XR renderer in addition to unifying the 3D/VR/AR controls to all devices. It is being released under the MIT license for all to use and hopefully will help with the adoption of the Web XR ecosystem.
 
-[View Example](https://minty-crisp.github.io/AUXL/)
+[View Demo Example Scenario](https://minty-crisp.github.io/AUXL/)
+
+# AUXL is still an in progress build!
+While ready to be tested and played with, various in-progress improvements for v0.2 will solidify the base version more complete in what I had in mind. Allowing for updates after that point to focus more on adding unique features as well as being ready to for an accompanying Wiki, Tutorials & sets of Examples to showcase features.
+
+# v0.2 In-Progress Summary :
+- Dedicated MapZone data to control objects with start, delay, interval, event, interaction, exit & map with it's own tracker. 
+- Dedicated Scenario data to control objects with start, delay, interval, event, interaction, exit, site wide dispaly name & instructions with it's own tracker.
+- System & Data seperated into multiple components
+- - auxl : Main systems, support functions & Object Generators
+- - auxl-library : AUXL supplied list of materials, geometries, sounds, animations, data, cores, layers & objects.
+- - auxl-scene-library : User supplied list of materials, geometries, sounds, animations, data, cores, layers & objects.
+- - auxl-scenes : Scenario, MapZone & NodeScene's data/cores each with their own start, delay, interval, event, interaction, exit & object specific sections for controlling objects.
+- SkyBox Object Generator to control/display Lights, Sky & Space objects. A time adjustable DayNight cycle included with prebuilt objects.
+- Teleport Object Generator accepting an array of positions to display teleportation points.
+- New raycast-teleportation component that allows the same teleportation with animation to any spot clicked to attached clickable object.
+- Additional Core methods added : SetComponent & RemoveComponent
 
 # v0.1 Summary :
 - Datas, Cores & Layers for in-scene object entities with Details Prompt
@@ -21,19 +37,6 @@ Engine built specifically for use with [A-Frame](https://github.com/aframevr/)
 - HTML System Menu to Start Experience, Adjust Controls|Audio & View Instructions
 - Color Theory Swatch Generator from Provided, Random or within a Color Family
 - Components : detect-input(dev debug), attach, support interaction event components, locomotion & teleportation.
-
-# AUXL is still an in progress build!
-While ready to be tested and played with, various planned improvements for v0.2 will solidify the base version more complete in what I had in mind. Allowing updates after that point to focus more on adding unique features as well as being ready to for an accompanying Wiki, Tutorials & sets of Examples to showcase features.
-
-# v0.2 Roadmap :
-- Seperation of System & Data
-- Controls Abstraction Layer
-- Dedicated Scenario Initializer
-- Dedicated Zone Initializers
-- Asset Loading & Storage for Session Optimization
-- Improved Asset Distribution Accuracy in Procedural Spawners
-- Mobile Improvements
-- Various Minor Support Functions
 
 # v0.3+ Roadmap :
 - 1st Person to 3rd Person Mode Swapping
