@@ -971,22 +971,48 @@ this.Core = (data) => {
 		//console.log(el);
 	}
 
-	const prepDetails = (text) => {
+	const prepDetails = (text, position, textColor, windowColor, windowWidth, windowHeight) => {
 		core.isOpen = false;
 		//Main Screen
 		core.detailMain = auxl.Core(auxl.detailMainData);
+		//Close Button
+		core.detailClose = auxl.Core(auxl.detailCloseData);
 		//Update Position
-		core.detailMain.core.position.x = core.position.x + 0.1;
-		core.detailMain.core.position.y = core.position.y + 0.75;
-		core.detailMain.core.position.z = core.position.z + 0.25;
-		//Import Display Text from Core or a detailObject
+		if(position){
+			core.detailMain.core.position.x = position.x;
+			core.detailMain.core.position.y = position.y;
+			core.detailMain.core.position.z = position.z;
+		} else {
+			core.detailMain.core.position.x = core.position.x + 0.1;
+			core.detailMain.core.position.y = core.position.y + 0.75;
+			core.detailMain.core.position.z = core.position.z + 0.25;
+		}
+		if(windowColor){
+			core.detailMain.core.material.color = windowColor;
+		}
+
 		if(text){
 			core.detailMain.core.text.value = text;
 		} else {
-			core.detailMain.core.text.value = core.data;
+			if(core.detail){
+				core.detailMain.core.text.value = core.detail;
+			}
 		}
-		//Close Button
-		core.detailClose = auxl.Core(auxl.detailCloseData);
+		if(textColor){
+			core.detailMain.core.text.color = textColor;
+		}
+
+		if(windowWidth){
+			core.detailMain.core.geometry.width = windowWidth;
+			//update close position based on geometry change
+			core.detailClose.core.position.x = windowHeight/2;
+		}
+		if(windowHeight){
+			core.detailMain.core.geometry.height = windowHeight;
+			//update close position based on geometry change
+			core.detailClose.core.position.y = windowHeight/2;
+		}
+
 		//Detail Layer
 		core.detailLayer = {
 			parent: {core: core.detailMain}, 
@@ -1033,15 +1059,13 @@ this.Core = (data) => {
 		}
 	}
 
-	const EnableDetail = (text) => {
-		//When core is added to scene...
-		if(text){
-			prepDetails(text);
-		} else if(details){} else {
-			prepDetails();
+	const EnableDetail = (detailInfo) => {
+
+		if(details){} else {
+			prepDetails(detailInfo.text, detailInfo.position, detailInfo.textColor, detailInfo.windowColor, detailInfo.windowWidth, detailInfo.windowHeight);
 		}
-		//Add Event Listener
-		GetEl().addEventListener('click', openClose);
+			//Add Event Listener
+			GetEl().addEventListener('click', openClose);
 	}
 
 	const DisableDetail = () => {
@@ -1423,18 +1447,18 @@ this.Layer = (id, all) => {
 		}
 	}
 
-	const EnableDetailParent = (text) => {
-		all.parent.core.EnableDetail(text);
+	const EnableDetailParent = (detailInfo) => {
+		all.parent.core.EnableDetail(detailInfo);
 	}
 
-	const EnableDetailChild = (child, text) => {
-		GetChild(child).EnableDetail(text);
+	const EnableDetailChild = (child, detailInfo) => {
+		GetChild(child).EnableDetail(detailInfo);
 	}
 
-	const EnableDetailAll = (text) => {
+	const EnableDetailAll = (detailInfo) => {
 		for(let section of accessOrder){
 			for(let indv of section){
-				indv.EnableDetail(text);
+				indv.EnableDetail(detailInfo);
 			}
 		}
 	}
@@ -12711,8 +12735,8 @@ start:{
 teleport0:{SpawnAll:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern37, repeat: '150 150',color: "#bc8fa0", emissive: "#bc8fa0",},}},
 nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: auxl.pattern81, repeat: '5 1.25', color: "#bc8fa0", emissive: "#bc8fa0",}}},
-eventTesting:{AddToScene: null, EnableDetail: 'This shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.'},
-eventTesting2:{AddToScene: null, EnableDetail: 'This also shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.'},
+eventTesting:{AddToScene: null, EnableDetail: {text: 'This shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.', textColor: 'black', windowColor: 'white', windowWidth: 2, windowHeight: 2}},
+eventTesting2:{AddToScene: null, EnableDetail: {text: 'This also shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.'}},
 eventTesting3:{AddToScene: null,},
 eventTesting4:{AddToScene: null,},
 smallCeiling: {AddToScene: null,ChangeSelf:{property: 'material', value: {src: auxl.pattern76, repeat: '10 10', color: "#9b7a87", emissive: "#9b7a87",}}},
@@ -13161,7 +13185,7 @@ sceneText: true,
 },
 start:{
 teleport:{SpawnAll:null},
-eventTesting5:{SetFlag:{flag: 'testExitVar', value: true}, EnableDetail: 'An example of using start/exit to set variables and change scene settings.'},
+eventTesting5:{SetFlag:{flag: 'testExitVar', value: true}, EnableDetail: {text: 'An example of using start/exit to set variables and change scene settings.'}},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55, repeat: '150 150',color: "#b4933c", emissive: "#b4933c",},}},
 //multiOceanBeachBasic:{genCores: null, SpawnAll: null},
 beachScene1:{SpawnAll:null},
