@@ -27,6 +27,13 @@ const head = document.querySelector('head');
 let auxl = this;
 //Experience
 this.expStarted = false;
+//JS Scripts Loaded
+this.jsLoaded = {};
+//JS Scripts Predefined, Ready to be loaded
+this.jsAll = {
+['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',
+//threeGradShader: 'https://unpkg.com/@tlaukkan/aframe-three-color-gradient-shader@0.0.1/index.js',//Shaders needs it's own checker
+};
 //Menu
 const stickyMenu = document.getElementById('stickyMenu');
 const beginDiv = document.getElementById('beginDiv');
@@ -64,6 +71,7 @@ this.spawned = {};
 this.scenarioSpawned = {};
 this.zoneSpawned = {};
 this.nodeSpawned = {};
+this.spawnedWaitingForJS = {};
 //Clear Node or Zone
 function clearSpawned(spawned){
 	for(let spawn in spawned){
@@ -672,27 +680,57 @@ this.Core = (data) => {
 	core.parent = false;
 	let details = false;
 
+	//Import external JS script
+	async function getJsSrc(url){
+		const response = await fetch(url)
+		await import(response.url);
+		return true;
+	}
+
 	const Generate = () => {
 
-		//Need additional gates if sources are needed to prevent spawning until script is fully downloaded.
-		//
 		//Check for external sources and append
 		if(core.sources){
-			//{['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',}
-			//{threeGradShader: 'https://unpkg.com/@tlaukkan/aframe-three-color-gradient-shader@0.0.1/index.js',}
+			//Instead of adding a source to each object that uses a component, add it to auxl.jsAll to automatically check instead
 			//External JS Import
-			//Multi-Property Values
 			let propertyKeys = Object.keys(core.sources);
 			let propertyValues = Object.values(core.sources);
 			for (let propKey in propertyKeys) {
-				//create new script element
-				let newScript = document.createElement('script');
-				//add src addtribute of componentValues[key]
-				newScript.setAttribute('src', propertyValues[propKey]);
-				console.log(propertyValues[propKey]);
-				//append to Head
-				head.appendChild(newScript);
-			}//Component properties
+				//if js key exists and is false, it is not ready yet, delay
+				if(auxl.jsLoaded.hasOwnProperty(propertyKeys[propKey])){
+					if(auxl.jsLoaded[propertyKeys[propKey]] === false){
+						console.log(core.id);
+						console.log('JS is not yet loaded');
+						//add to this.spawnedWaitingForJS for reapplication of component info when finished loading
+						auxl.spawnedWaitingForJS[propertyKeys[propKey]].push({id:core.id, properties: core.components[propertyKeys[propKey]]});
+					}
+				} else {
+					auxl.spawnedWaitingForJS[propertyKeys[propKey]] = [];
+					console.log(propertyKeys[propKey]);
+					console.log(propertyValues[propKey]);
+					auxl.jsLoaded[propertyKeys[propKey]] = false;
+					function doneImporting(){
+						console.log(propertyKeys[propKey]);
+						console.log('Done');
+						auxl.jsLoaded[propertyKeys[propKey]] = true;
+						//re-apply component
+						ChangeSelf({property:propertyKeys[propKey], value:core.components[propertyKeys[propKey]]});
+						//auxl.spawnedWaitingForJS
+						console.log(auxl.spawnedWaitingForJS);
+						for(let each in auxl.spawnedWaitingForJS[propertyKeys[propKey]]){
+					let name = auxl.spawnedWaitingForJS[propertyKeys[propKey]][each].id;
+					let properties = auxl.spawnedWaitingForJS[propertyKeys[propKey]][each].properties;
+					console.log(name);
+					console.log(properties);
+					document.getElementById(name).setAttribute(propertyKeys[propKey],properties);
+						}
+					//clear pending array after reapplications
+					delete auxl.spawnedWaitingForJS[propertyKeys[propKey]];
+					console.log(auxl.spawnedWaitingForJS);
+					}
+					getJsSrc(propertyValues[propKey]).then(doneImporting);
+				}
+			}
 		}
 
 		core.el = {};
@@ -754,17 +792,46 @@ this.Core = (data) => {
 
 		//Check for Component Settings
 		if(core.components){
-		let componentKeys = Object.keys(core.components);
-		let componentValues = Object.values(core.components);
-		for (let key in componentKeys) {
-			if(key === 0){} else {
-				core.el.setAttribute(componentKeys[key],componentValues[key])
+			let componentKeys = Object.keys(core.components);
+			let componentValues = Object.values(core.components);
+			for (let key in componentKeys) {
+				if(key === 0){} else {
+					if(auxl.jsAll.hasOwnProperty(componentKeys[key])){
+						if(auxl.jsLoaded.hasOwnProperty(componentKeys[key])){
+							//JS has started loading or is loaded
+							if(auxl.jsLoaded[componentKeys[key]] === false){
+								//JS is Pending
+								auxl.spawnedWaitingForJS[componentKeys[key]].push({id:core.id, properties: core.components[componentKeys[key]]});
+							} else {
+								//JS is Ready
+								core.el.setAttribute(componentKeys[key],componentValues[key]);
+							}
+						} else {
+							//Start to load JS
+							auxl.spawnedWaitingForJS[componentKeys[key]] = [];
+							auxl.jsLoaded[componentKeys[key]] = false;
+							function doneImporting(){
+								auxl.jsLoaded[componentKeys[key]] = true;
+								//re-apply component
+								ChangeSelf({property:componentKeys[key], value:core.components[componentKeys[key]]});
+								for(let each in auxl.spawnedWaitingForJS[componentKeys[key]]){
+							let name = auxl.spawnedWaitingForJS[componentKeys[key]][each].id;
+							let properties = auxl.spawnedWaitingForJS[componentKeys[key]][each].properties;
+							document.getElementById(name).setAttribute(componentKeys[key],properties);
+								}
+							//clear pending array after reapplications
+							delete auxl.spawnedWaitingForJS[componentKeys[key]];
+							}
+							getJsSrc(auxl.jsAll[componentKeys[key]]).then(doneImporting);
+								}
+					} else {
+						//Does not exist in jsAll, so it's an internal component or property
+						core.el.setAttribute(componentKeys[key],componentValues[key]);
+					}
+				}
 			}
 		}
-		}//Core Componenets
-
-		//console.log(core.el);
-		//console.log('Entity Generated');
+		//Object element generation done
 		return core.el;
 	}
 
@@ -1724,6 +1791,7 @@ let menuNum = 0;
 		}
 		//components: {clickfunc: {clickObj: 'auxlObj'}},
 		//components: {clickrun: {cursorObj: 'auxlObj', method: 'Method', params: null}},
+		menu.data.sources = {};
 		menu.data.components = {};
 		menu.data.components.clickrun = {};
 		menu.data.components.clickrun.cursorObj = menu.clickrun.cursorObj ;
@@ -3993,7 +4061,7 @@ author: 'Made by Minty Crisp!',
 		ham.GetEl().classList.toggle('clickable');
 		ham.systemMenuData = {
 			id: 'systemMenu',
-			prompt: 'System Menu',
+			prompt: 'X - System Menu',
 			options: {option0: '0'},
 			actions: {action0: '0'},
 			data: auxl.menuBaseData,
@@ -4050,7 +4118,7 @@ author: 'Made by Minty Crisp!',
 		ham.travelSettingsOpen = true;
 		ham.travelSettingsMenuData = {
 			id: 'travelSettings',
-			prompt: 'Travel Settings',
+			prompt: '< - Travel Settings',
 			options: {option0: '0'},
 			actions: {action0: '0'},
 			data: auxl.menuBaseData,
@@ -5339,49 +5407,37 @@ this.ImageSwapper = (id,mainData,buttonData,...materials) => {
 
 }
 
-
+//
+//Gallery
+this.Gallery = (galleryData) => {
 //calculate the amount of framesPerPage to do display
 //Add 180 view non-movement functions
 //get images to play through gallery.images pages
 
-//
-//Gallery
-this.Gallery = (galleryData) => {
-/*
-auxl.galleryTestingData = {
-id: 'galleryTesting',
-mode: 360, //180
-framesPerPage: 8,
-description: 'Browse through an example gallery. Control the image frames with a handful of buttons to jump to a random page, go back a page, go back a few images, view info, play the slideshow, go forward a few images, go to the next page and switch between 2 frame sizings.',
-images: [
-	{image: auxl.pattern01, text: 'Example1'},
-	{image: auxl.pattern02, text: 'Example2'},
-	{image: auxl.pattern03, text: 'Example3'},
-	{image: auxl.pattern04, text: 'Example4'},
-	{image: auxl.pattern05, text: 'Example5'},
-	{image: auxl.pattern06, text: 'Example6'},
-	{image: auxl.pattern07, text: 'Example7'},
-	{image: auxl.pattern08, text: 'Example8'},
-],
-};
-*/
-//360 mode - animated move and replace
-//or 180 mode - animated frame replace
-//images
-//amount of images to display at once
+//Changing between Forward & Reverse either way messes up which frames should be updated
 
 
 //Data
-
 let gallery = Object.assign({}, galleryData);
-
+gallery.frames = 8;//temp, will be imported
 let playInterval;
-let settingTimeout;
+let updateTimeout;
+let scaleTimeout;
+gallery.framesPerPage = 8;
+this.currentImageForward = -1;
+this.currentImageBackward = gallery.images.length - gallery.framesPerPage;
+let frameRotationEach = 360/gallery.framesPerPage;
+let frameRotation = 0;
+this.currentRotation = -1;
 
-let art = {};
-let currentPage = 0;
-let frameRotation = 360/gallery.framesPerPage;
-let currentRotation = 0;
+//Prep Movement Flags
+this.notMoving = true;
+this.notPlaying = true;
+this.autoRotate = 0;
+this.loadingPage = false;
+this.animating = false;
+this.scale = 0;
+this.info = false;
 
 //Frame Templates
 
@@ -5457,31 +5513,31 @@ let imageFrameCores = [];
 let textId = 'artFrameText';
 let textFrameCores = [];
 
-for(let a=0; a < gallery.framesPerPage; a++){
+for(let a=0; a < gallery.frames; a++){
 
 	//Temp
 	if(a === 0){
-		currentRotation = -315;
+		frameRotation = -45;
 	} else if(a === 1){
-		currentRotation = 0;
+		frameRotation = 0;
 	} else if(a === 2){
-		currentRotation = -45;
+		frameRotation = -315;
 	} else if(a === 3){
-		currentRotation = -90;
+		frameRotation = -270;
 	} else if(a === 4){
-		currentRotation = -135;
+		frameRotation = -225;
 	} else if(a === 5){
-		currentRotation = -180;
+		frameRotation = -180;
 	} else if(a === 6){
-		currentRotation = -225;
+		frameRotation = -135;
 	} else if(a === 7){
-		currentRotation = -270;
+		frameRotation = -90;
 	}
 
 	//Parent
 	parentId = 'artFrameParent' + a;
 	let parentRotation = new THREE.Vector3(0,0,0);
-	parentRotation.y = currentRotation;
+	parentRotation.y = frameRotation;
 	this.artFrameParentData.id = parentId;
 	this.artFrameParentData.rotation = parentRotation;
 	parentFrameCores[a] = auxl.Core(this.artFrameParentData);
@@ -5873,107 +5929,103 @@ this.anim360Data = {
 	pauseEvents: 'pause',
 };
 
-async function updateFrame(frame, frameText, textValue, imgSrc){
-	//console.log(frame)
-	//console.log(imgSrc)
-	auxl[frame].ChangeSelf({property: 'material', value:{src: imgSrc,shader: "flat", color: "#FFFFFF", opacity: 1}})
-	auxl[frameText].ChangeSelf({property: 'text', value:{value: textValue, width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0, side: 'double'}})
-
-}
-//convert to image array provided
-async function getPage(num){
-
-	if(art[num]){
-		//console.log('Page exists, do not redownload');
-	} else {
-		let url = pageUrlPrefix + num + pageUrlPostfix;
-		const response = await fetch(url);
-		var data = await response.json();
-
-		//Page Info
-		//data.pagination.total
-		//data.pagination.limit
-		//data.pagination.offset
-		//data.pagination.total_pages
-		//data.pagination.current_page
-		//data.pagination.prev_url
-		//data.pagination.next_url
-		art[data.pagination.current_page] = {};
-		//0-8 image info
-		//data.data.0.id
-		//data.data.0.api_link
-		//data.data.0.title
-		//data.data.0.artist_title
-		let imagesInfo = data.data;
-		for(let each in imagesInfo){
-			//console.log(imagesInfo[each].id);
-			//console.log(imagesInfo[each].title);
-			//console.log(imagesInfo[each].artist_title);
-			art[data.pagination.current_page][each] = {};
-			art[data.pagination.current_page][each].id = imagesInfo[each].id;
-			art[data.pagination.current_page][each].title = imagesInfo[each].title;
-			art[data.pagination.current_page][each].artist = imagesInfo[each].artist_title;
-		}
-	}
-	//console.log(art);
-	return true;
+const UpdateFrame = (frame, textValue, imgSrc) => {
+	this.artFrameAllLayerData[frame].child0.parent.core.ChangeSelf({property: 'material', value:{src: imgSrc,shader: "flat", color: "#FFFFFF", opacity: 1}});
+	this.artFrameAllLayerData[frame].child0.child0.core.ChangeSelf({property: 'text', value:{value: textValue, width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0, side: 'double'}})
 }
 
-async function updateAll(){
-	if(await getPage(currentPage)){
-		for(let each in art[currentPage]){
-			//console.log(art[currentPage][each]);
-			//let srcUrl = await getImgSrc(art[currentPage][each].id);
-			updateFrame('artFrame'+each, 'artFrameText'+each, art[currentPage][each].title, await getImgSrc(art[currentPage][each].id));
+const Update = (frame, direction) => {
+	if(direction === 'forward'){
+		this.currentImageForward++;
+		this.currentImageBackward++;
+		if(this.currentImageForward >= gallery.images.length){
+			this.currentImageForward = 0
 		}
-auxl.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'loadingPage', value: false})
+		if(this.currentImageBackward >= gallery.images.length){
+			this.currentImageBackward = 0
+		}
+		console.log(direction);
+		console.log(this.currentImageForward);
+		console.log(this.currentImageBackward);
+		UpdateFrame('child'+frame, gallery.images[this.currentImageForward].text, gallery.images[this.currentImageForward].image);
+	} else if(direction === 'backward'){
+		this.currentImageBackward--;
+		this.currentImageForward--;
+		if(this.currentImageBackward < 0){
+			this.currentImageBackward = gallery.images.length-1;
+		}
+		if(this.currentImageForward < 0){
+			this.currentImageForward = gallery.images.length-1;
+		}
+		console.log(direction);
+		console.log(this.currentImageForward);
+		console.log(this.currentImageBackward);
+		UpdateFrame('child'+frame, gallery.images[this.currentImageBackward].text, gallery.images[this.currentImageBackward].image);
 	}
 }
 
-async function updateBackTwo(){
-	if(await getPage(currentPage)){
-		let current = auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('rotate');
-		let update2 = [];
-		let num;
-		if(current === 0){
-			update2 = [4,5];
-		} else if(current === 1){
-			update2 = [2,3];
-		} else if(current === 2){
+const UpdateAll = (direction) => {
+	for(let a = 0; a < gallery.frames; a++){
+		Update(a,direction);
+	}
+	this.loadingPage = false;
+}
+
+const UpdateBackTwo = (direction) => {
+	console.log('Current Rotation')
+	console.log(this.currentRotation);
+	let update2 = [];
+	let num;
+	if(direction === 'forward'){
+		if(this.currentRotation === 0){
 			update2 = [0,1];
-		} else if(current === 3){
+		} else if(this.currentRotation === 1){
+			update2 = [2,3];
+		} else if(this.currentRotation === 2){
+			update2 = [4,5];
+		} else if(this.currentRotation === 3){
 			update2 = [6,7];
 		}
-		for(let each in update2){
-			num = update2[each];
-			updateFrame('artFrame'+num, 'artFrameText'+num, art[currentPage][num].title, await getImgSrc(art[currentPage][num].id));
+	} else if(direction === 'backward'){
+		if(this.currentRotation === 0){
+			update2 = [6,7];
+		} else if(this.currentRotation === 1){
+			update2 = [0,1];
+		} else if(this.currentRotation === 2){
+			update2 = [2,3];
+		} else if(this.currentRotation === 3){
+			update2 = [4,5];
 		}
+		update2.reverse();
+	}
+	console.log(update2);
+	for(let each in update2){
+		num = update2[each];
+		Update(num,direction);
 	}
 }
 
-async function updateBack(){
-	if(await getPage(currentPage)){
-		let current = auxl.artFrameAllLayer.layer.all.parent.core.GetFlag('autoRotate');
-		let num;
-		if(current === 0){
-			num = 3;
-		} else if(current === 1){
-			num = 2;
-		} else if(current === 2){
-			num = 1;
-		} else if(current === 3){
-			num = 0;
-		} else if(current === 4){
-			num = 7;
-		} else if(current === 5){
-			num = 6;
-		} else if(current === 6){
-			num = 5;
-		} else if(current === 7){
-			num = 4;
-		}
-		updateFrame('artFrame'+num, 'artFrameText'+num, art[currentPage][num].title, await getImgSrc(art[currentPage][num].id));
+const UpdateBack = (direction) => {
+	let current = this.autoRotate;
+	let num;
+	if(current === 0){
+		num = 3;
+	} else if(current === 1){
+		num = 2;
+	} else if(current === 2){
+		num = 1;
+	} else if(current === 3){
+		num = 0;
+	} else if(current === 4){
+		num = 7;
+	} else if(current === 5){
+		num = 6;
+	} else if(current === 6){
+		num = 5;
+	} else if(current === 7){
+		num = 4;
 	}
+	Update(num,direction);
 }
 
 	const Spawn = () => {
@@ -5992,7 +6044,7 @@ async function updateBack(){
 		this.buttonLeftSkipClick.GetEl().addEventListener('click', PrevPage);
 		this.buttonPlayClick.GetEl().addEventListener('click', PlayPause);
 		this.buttonRightSkipClick.GetEl().addEventListener('click', NextPage);
-		this.buttonSettingsClick.GetEl().addEventListener('click', Settings);
+		this.buttonSettingsClick.GetEl().addEventListener('click', Scale);
 		this.buttonStopClick.GetEl().addEventListener('click', Stop);
 		this.buttonHashtagClick.GetEl().addEventListener('click', RandomPage);
 
@@ -6005,7 +6057,7 @@ async function updateBack(){
 		this.buttonLeftSkipClick.GetEl().removeEventListener('click', PrevPage);
 		this.buttonPlayClick.GetEl().removeEventListener('click', PlayPause);
 		this.buttonRightSkipClick.GetEl().removeEventListener('click', NextPage);
-		this.buttonSettingsClick.GetEl().removeEventListener('click', Settings);
+		this.buttonSettingsClick.GetEl().removeEventListener('click', Scale);
 		this.buttonStopClick.GetEl().removeEventListener('click', Stop);
 		this.buttonHashtagClick.GetEl().removeEventListener('click', RandomPage);
 
@@ -6021,73 +6073,60 @@ async function updateBack(){
 	}
 
 	const Forward = () => {
-		if(this.artFrameAllLayer.layer.all.parent.core.GetFlag('notMoving')){
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: false})
-			let current = this.artFrameAllLayer.layer.all.parent.core.GetFlag('rotate');
-			if(current === 3){
-				current = 0;
-			} else {
-				current++;
-			}
-			if(current === 0 || current === 2){
-			currentPage++;
-			}
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'rotate', value: current})
-			//updateBackTwo();
+		if(this.notMoving){
+			this.notMoving = false;
 			//Get current artFrameAllLayer rotation
 			let rotY = this.artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
 			this.anim90Data.from = rotY;
 			this.anim90Data.to = rotY - 90;
 			this.artFrameAllLayer.AnimateParent(this.anim90Data);
-			let timeout = setTimeout(() => {
-				this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: true})
-			clearTimeout(timeout);
+			updateTimeout = setTimeout(() => {
+				this.currentRotation++;
+				if(this.currentRotation > 3){
+					this.currentRotation = 0;
+				}
+				UpdateBackTwo('forward');
+				this.notMoving = true;
+				clearTimeout(updateTimeout);
 			}, this.anim90Data.dur+10); //Delay
 		}
 	}
 
 	const Backward = () => {
-		if(this.artFrameAllLayer.layer.all.parent.core.GetFlag('notMoving')){
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: false})
-			let current = this.artFrameAllLayer.layer.all.parent.core.GetFlag('rotate');
-			if(current === 0){
-				current = 3;
-			} else {
-				current--;
-			}
-			if(current === 0 || current === 2){
-			currentPage--;
-			}
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'rotate', value: current})
-			//updateBackTwo();
+		if(this.notMoving){
+			this.notMoving = false;
 			//Get current artFrameAllLayer rotation
 			let rotY = this.artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
 			this.anim90Data.from = rotY;
 			this.anim90Data.to = rotY + 90;
 			this.artFrameAllLayer.AnimateParent(this.anim90Data);
-			let timeout = setTimeout(() => {
-				this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: true})
-				clearTimeout(timeout);
+			updateTimeout = setTimeout(() => {
+				this.currentRotation--;
+				if(this.currentRotation < 0){
+					this.currentRotation = 3;
+				}
+				console.log(this.currentRotation);
+				UpdateBackTwo('backward');
+				this.notMoving = true;
+				clearTimeout(updateTimeout);
 			}, this.anim90Data.dur+10); //Delay
 		}
 	}
 
 	const PlayPause = () => {
-		if(this.artFrameAllLayer.layer.all.parent.core.GetFlag('notPlaying')){
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notPlaying', value: false})
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: false})
-			let current = this.artFrameAllLayer.layer.all.parent.core.GetFlag('autoRotate');
-				currentPage++;
+		if(this.notPlaying){
+			this.notPlaying = false;
+			this.notMoving = false;
+				//this.currentPage++;
 				playInterval = setInterval(() => {
-					current = this.artFrameAllLayer.layer.all.parent.core.GetFlag('autoRotate');
-					if(current === 7){
-						current = 0;
-						currentPage++;
+					UpdateBack();
+					this.currentRotation = this.autoRotate;
+					if(this.currentRotation === 7){
+						this.currentRotation = 0;
+						//this.currentPage++;
 					} else {
-						current++;
+						this.currentRotation++;
 					}
-					this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'autoRotate', value: current})
-					//updateBack();
 				}, this.anim360Data.dur/8); //Interval
 			//Get current artFrameAllLayer rotation
 			let rotY = this.artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
@@ -6099,8 +6138,8 @@ async function updateBack(){
 			this.buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/pause.obj'} });
 			this.buttonPlayText.ChangeSelf({property: 'text', value: {value:'Pause', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'} })
 		} else {
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notPlaying', value: true})
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: true})
+			this.notPlaying = true;
+			this.notMoving = true;
 			clearInterval(playInterval);
 			//Stop current animation
 			this.artFrameAllLayer.layer.all.parent.core.EmitEvent('pause');
@@ -6110,7 +6149,7 @@ async function updateBack(){
 	}
 
 	const Stop = () => {
-		if(this.artFrameAllLayer.layer.all.parent.core.GetFlag('notPlaying')){} else {
+		if(this.notPlaying){} else {
 			//Stop current animation
 			//this.artFrameAllLayer.layer.all.parent.core.EmitEvent('pause');
 			let rotY = this.artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
@@ -6119,52 +6158,43 @@ async function updateBack(){
 			this.artFrameAllLayer.AnimateParent(this.anim45MiscData);
 
 			this.buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/play.obj'} });
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notPlaying', value: true})
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: true})
+			this.notPlaying = true;
+			this.notMoving = true;
 		}
 	}
 
 	const NextPage = () => {
-		if(this.artFrameAllLayer.layer.all.parent.core.GetFlag('loadingPage')){} else {
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'loadingPage', value: true})
-			if(currentPage === this.maxPage){
-				currentPage = 0;
-			} else {
-				currentPage++;
-			}
-			//updateAll();
+		if(this.loadingPage){} else {
+			this.loadingPage = true;
+			UpdateAll('forward');
 		}
 	}
 
 	const PrevPage = () => {
-		if(this.artFrameAllLayer.layer.all.parent.core.GetFlag('loadingPage')){} else {
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'loadingPage', value: true})
-			if(currentPage === 0){
-				currentPage = this.maxPage;
-			} else {
-				currentPage--;
-			}
-			//updateAll();
+		if(this.loadingPage){} else {
+			this.loadingPage = true;
+			UpdateAll('backward');
 		}
 	}
 
 	const RandomPage = () => {
-		if(this.artFrameAllLayer.layer.all.parent.core.GetFlag('loadingPage')){} else {
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'loadingPage', value: true})
-			currentPage = Math.floor(Math.random()*this.maxPage);
-			//updateAll();
+		if(this.loadingPage){} else {
+			this.loadingPage = true;
+			this.currentImageForward = Math.floor(Math.random()*gallery.images.length);
+			UpdateAll('forward');
 		}
 	}
 
-	const Settings = () => {
-		if(this.artFrameAllLayer.layer.all.parent.core.GetFlag('animating')){} else {
-			this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'animating', value: true})
-			settingTimeout = setTimeout(() => {
-				this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'animating', value: false})
-				clearTimeout(settingTimeout);
+	const Scale = () => {
+		//limit effects to the amount of spawned frames
+		if(this.animating){} else {
+			this.animating = true;
+			scaleTimeout = setTimeout(() => {
+				this.animating = false;
+				clearTimeout(scaleTimeout);
 			}, 2050); //Delay
-			if(this.artFrameAllLayer.layer.all.parent.core.GetFlag('setting') === 0){
-				this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'setting', value: 1})
+			if(this.scale === 0){
+				this.scale = 1;
 				this.artFrameAllLayerData.child0.child0.parent.core.EmitEvent('to0');
 				this.artFrameAllLayerData.child1.child0.parent.core.EmitEvent('to0');
 				this.artFrameAllLayerData.child2.child0.parent.core.EmitEvent('to0');
@@ -6174,7 +6204,7 @@ async function updateBack(){
 				this.artFrameAllLayerData.child6.child0.parent.core.EmitEvent('to0');
 				this.artFrameAllLayerData.child7.child0.parent.core.EmitEvent('to0');
 			} else {
-				this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'setting', value: 0})
+				this.scale = 0;
 				this.artFrameAllLayerData.child0.child0.parent.core.EmitEvent('to1');
 				this.artFrameAllLayerData.child1.child0.parent.core.EmitEvent('to1');
 				this.artFrameAllLayerData.child2.child0.parent.core.EmitEvent('to1');
@@ -6188,56 +6218,20 @@ async function updateBack(){
 	}
 
 	const Info = () => {
-		if(this.artFrameAllLayer.layer.all.parent.core.GetFlag('info')){
-		this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'info', value: false});
+		if(this.info){
+			this.info = false;
 		} else {
-		this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'info', value: true});
+			this.info = true;
 		}
-
 	}
 
 	const Init = () => {
-		//Gallery Prep
-		//Prep Movement Flags
-		this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notMoving', value: true})
-		this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'notPlaying', value: true})
-		this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'rotate', value: 0})
-		this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'autoRotate', value: 0})
-		this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'loadingPage', value: false})
-		this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'animating', value: false})
-		this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'setting', value: 0})
-
-		this.artFrameAllLayer.layer.all.parent.core.SetFlag({flag:'info', value: false})
-
-		//Currently reading as position 0,0,0 so not good
-		//this.buttonStopClick.EnableDetail(gallery.description);
-
-		//updateAll();
+		this.buttonStopClick.EnableDetail({text: gallery.description, position: new THREE.Vector3(0,1.5,-2)});
+		UpdateAll('forward');
 	}
 
 	return {gallery, Spawn, Despawn};
 }
-
-//
-//Gallery Testing
-auxl.galleryTestingData = {
-id: 'galleryTesting',
-mode: 360, //180
-framesPerPage: 8,
-description: 'Browse through an example gallery. Control the image frames with a handful of buttons to jump to a random page, go back a page, go back a few images, view info, play the slideshow, go forward a few images, go to the next page and switch between 2 frame sizings.',
-images: [
-	{image: auxl.pattern01, text: 'Example1'},
-	{image: auxl.pattern02, text: 'Example2'},
-	{image: auxl.pattern03, text: 'Example3'},
-	{image: auxl.pattern04, text: 'Example4'},
-	{image: auxl.pattern05, text: 'Example5'},
-	{image: auxl.pattern06, text: 'Example6'},
-	{image: auxl.pattern07, text: 'Example7'},
-	{image: auxl.pattern08, text: 'Example8'},
-],
-};
-auxl.galleryTesting = auxl.Gallery(auxl.galleryTestingData);
-
 
 },//Init
 
@@ -6937,6 +6931,7 @@ auxl.menuBaseData = {
 data:'menu part',
 id:'menuBaseTemp',
 sources:false,
+//sources: {['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',},
 text: {value:'Hmmm...', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
 geometry: {primitive: 'box', depth: 0.04, width: 0.4, height: 0.15},
 material: {shader: "standard", color: "#c1664b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#c1664b", emissiveIntensity: 0.6},
@@ -6959,7 +6954,8 @@ components: {
 auxl.hamCompData = {
 data:'HAM',
 id:'hamComp',
-sources: false,
+sources:false,
+//sources: {['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',},
 text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
@@ -7576,6 +7572,44 @@ components: {clickfunc: {clickObj: 'imageSwapper1'}},
 };
 //ImageSwapper Example
 auxl.imageSwapper1 = auxl.ImageSwapper('imageSwapper1',auxl.imageSwapperViewData, auxl.imageSwapperButtonData, auxl.mat0, auxl.mat1, auxl.mat2, auxl.mat3, auxl.mat4);
+
+//
+//Gallery
+
+//Testing
+auxl.galleryTestingData = {
+id: 'galleryTesting',
+//mode: 360,
+//frames: 8,
+description: 'Browse through an example gallery. Control the image frames with a handful of buttons to jump to a random page, go back a page, go back a few images, view info, play the slideshow, go forward a few images, go to the next page and switch between 2 frame sizings.',
+images: [
+	{image: auxl.pattern01, text: 'Example1'},
+	{image: auxl.pattern02, text: 'Example2'},
+	{image: auxl.pattern03, text: 'Example3'},
+	{image: auxl.pattern04, text: 'Example4'},
+	{image: auxl.pattern05, text: 'Example5'},
+	{image: auxl.pattern06, text: 'Example6'},
+	{image: auxl.pattern07, text: 'Example7'},
+	{image: auxl.pattern08, text: 'Example8'},
+	{image: auxl.pattern09, text: 'Example9'},
+	{image: auxl.pattern10, text: 'Example10'},
+	{image: auxl.pattern11, text: 'Example11'},
+	{image: auxl.pattern12, text: 'Example12'},
+	{image: auxl.pattern13, text: 'Example13'},
+	{image: auxl.pattern14, text: 'Example14'},
+	{image: auxl.pattern15, text: 'Example15'},
+	{image: auxl.pattern16, text: 'Example16'},
+	{image: auxl.pattern17, text: 'Example17'},
+	{image: auxl.pattern18, text: 'Example18'},
+	{image: auxl.pattern19, text: 'Example19'},
+	{image: auxl.pattern20, text: 'Example20'},
+	{image: auxl.pattern21, text: 'Example21'},
+	{image: auxl.pattern22, text: 'Example22'},
+	{image: auxl.pattern23, text: 'Example23'},
+	{image: auxl.pattern24, text: 'Example24'},
+],
+};
+auxl.galleryTesting = auxl.Gallery(auxl.galleryTestingData);
 
 //
 //Memory Game
@@ -14791,10 +14825,12 @@ AFRAME.registerComponent('raycast-teleportation', {
 
 //
 //Look-At  - https://github.com/supermedium/superframe/tree/master/components/look-at/ 
+/*
 !function(e){function t(n){if(o[n])return o[n].exports;var i=o[n]={exports:{},id:n,loaded:!1};return e[n].call(i.exports,i,i.exports,t),i.loaded=!0,i.exports}var o={};return t.m=e,t.c=o,t.p="",t(0)}([function(e,t){var o=AFRAME.utils.debug,n=AFRAME.utils.coordinates,i=o("components:look-at:warn"),r=n.isCoordinates||n.isCoordinate;delete AFRAME.components["look-at"],AFRAME.registerComponent("look-at",{schema:{default:"0 0 0",parse:function(e){return r(e)||"object"==typeof e?n.parse(e):e},stringify:function(e){return"object"==typeof e?n.stringify(e):e}},init:function(){this.target3D=null,this.vector=new THREE.Vector3,this.cameraListener=AFRAME.utils.bind(this.cameraListener,this),this.el.addEventListener("componentinitialized",this.cameraListener),this.el.addEventListener("componentremoved",this.cameraListener)},update:function(){var e,t=this,o=t.data;return!o||"object"==typeof o&&!Object.keys(o).length?t.remove():"object"==typeof o?this.lookAt(new THREE.Vector3(o.x,o.y,o.z)):(e=t.el.sceneEl.querySelector(o),e?e.hasLoaded?t.beginTracking(e):e.addEventListener("loaded",function(){t.beginTracking(e)}):void i('"'+o+'" does not point to a valid entity to look-at'))},tick:function(){var e=new THREE.Vector3;return function(t){var o=this.target3D;o&&(o.getWorldPosition(e),this.lookAt(e))}}(),remove:function(){this.el.removeEventListener("componentinitialized",this.cameraListener),this.el.removeEventListener("componentremoved",this.cameraListener)},beginTracking:function(e){this.target3D=e.object3D},cameraListener:function(e){e.detail&&"camera"===e.detail.name&&this.update()},lookAt:function(e){var t=this.vector,o=this.el.object3D;this.el.getObject3D("camera")?t.subVectors(o.position,e).add(o.position):t.copy(e),o.lookAt(t)}})}]);
-
+*/
 //
 //threeColorGradientShader shader - https://github.com/tlaukkan/aframe-three-color-gradient-shader
+/**/
 AFRAME.registerShader('threeColorGradientShader', {
     schema: {
         topColor: {type: 'color', default: '1 0 0', is: 'uniform'},
