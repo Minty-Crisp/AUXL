@@ -17,7 +17,12 @@ While ready to be tested and played with, various in-progress improvements for v
 - SkyBox Object Generator to control/display Lights, Sky & Space objects. A time adjustable DayNight cycle included with prebuilt objects.
 - Teleport Object Generator accepting an array of positions to display teleportation points.
 - New raycast-teleportation component that allows the same teleportation with animation to any spot clicked to attached clickable object.
-- Additional Core methods added : SetComponent & RemoveComponent
+- Additional Core methods added : RemoveComponent
+- Updated all Object methods that can be used multiple times to accept an array of inputs if needed.
+- Additional Layer methods added : EmitEventChild, ChangeChild, AnimateChild, EmitEventAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, EnableDetailParent, EnableDetailChild & EnableDetailAll.
+- Updated EnableDetail methods to accept text, position, textColor, windowColor, windowWidth & windowHeight arguments.
+- Added ability to dynamically import js scripts declared either within individual object data or to a system wide script reference object utilized when an object's component requires it on generation.
+- Image Carousel Object Generator: In Progress
 
 # v0.1 Summary :
 - Datas, Cores & Layers for in-scene object entities with Details Prompt
