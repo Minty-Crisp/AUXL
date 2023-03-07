@@ -301,7 +301,7 @@ function changeVRHand(){
 		vrHandButton.innerHTML = 'Hand : Right';
 	}
 	if(auxl.expStarted){
-		updateControls();
+		vrController.setAttribute('laser-controls',{hand: auxl.vrHand});
 	}
 }
 vrHandButton.addEventListener('click', changeVRHand);
@@ -1677,6 +1677,7 @@ this.Player = (layer) => {
 		if(document.getElementById('beltUIParent')){
 			auxl.locomotionUILayer.RemoveAllFromScene();
 		}
+
 		playerRig.setAttribute('locomotion',{uiid: false, controller1id: false, courserid: 'mouseController', movetype: 'mobile'});
 	}
 
@@ -4312,6 +4313,7 @@ this.ObjsGenRing = (data) => {
 	}
 
 	const SpawnAll = () => {
+		genCores();
 		for(let a = 0; a < gen.total; a++){
 			all[a].AddToScene(false, false, true);
 		}
@@ -5944,9 +5946,9 @@ const Update = (frame, direction) => {
 		if(this.currentImageBackward >= gallery.images.length){
 			this.currentImageBackward = 0
 		}
-		console.log(direction);
-		console.log(this.currentImageForward);
-		console.log(this.currentImageBackward);
+		//console.log(direction);
+		//console.log(this.currentImageForward);
+		//console.log(this.currentImageBackward);
 		UpdateFrame('child'+frame, gallery.images[this.currentImageForward].text, gallery.images[this.currentImageForward].image);
 	} else if(direction === 'backward'){
 		this.currentImageBackward--;
@@ -5957,9 +5959,9 @@ const Update = (frame, direction) => {
 		if(this.currentImageForward < 0){
 			this.currentImageForward = gallery.images.length-1;
 		}
-		console.log(direction);
-		console.log(this.currentImageForward);
-		console.log(this.currentImageBackward);
+		//console.log(direction);
+		//console.log(this.currentImageForward);
+		//console.log(this.currentImageBackward);
 		UpdateFrame('child'+frame, gallery.images[this.currentImageBackward].text, gallery.images[this.currentImageBackward].image);
 	}
 }
@@ -6234,7 +6236,6 @@ const UpdateBack = (direction) => {
 }
 
 },//Init
-
 
 
 });
@@ -12737,7 +12738,7 @@ nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern69, repeat
 snowForestScene1:{SpawnAll:null},
 npc1:{Spawn: null},
 mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: auxl.mountainMatSnow}},
-//multiSnowMountainsBasic:{genCores: null, SpawnAll: null},
+multiSnowMountainsBasic:{SpawnAll: null},
 },
 delay:{
 
@@ -13000,7 +13001,7 @@ start:{
 teleport:{SpawnAll:null},
 npc0:{Spawn: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern44, repeat: '150 150',color: "#618136", emissive: "#618136",},}},
-//multiGrassyHillsBasic:{genCores: null, SpawnAll: null},
+multiGrassyHillsBasic:{SpawnAll: null},
 graveyardScene1:{SpawnAll:null},
 mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: auxl.mountainMat2}},
 },
@@ -13109,7 +13110,7 @@ start:{
 teleport:{SpawnAll:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern58, repeat: '150 150',color: "#c1bd52", emissive: "#c1bd52",},}},
 npc2:{Spawn: null},
-//multiDesertPlainsBasic:{genCores: null, SpawnAll: null},
+multiDesertPlainsBasic:{SpawnAll: null},
 desertScene1:{SpawnAll:null},
 mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: auxl.mountainMat3}},
 },
@@ -13221,7 +13222,7 @@ start:{
 teleport:{SpawnAll:null},
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: true}, EnableDetail: {text: 'An example of using start/exit to set variables and change scene settings.'}},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55, repeat: '150 150',color: "#b4933c", emissive: "#b4933c",},}},
-//multiOceanBeachBasic:{genCores: null, SpawnAll: null},
+multiOceanBeachBasic:{SpawnAll: null},
 beachScene1:{SpawnAll:null},
 mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: auxl.mountainMat2}},
 canoe:{AddToScene:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(1.5,0,3),}},
@@ -13671,7 +13672,7 @@ AFRAME.registerComponent('mouseuprun', {
 });
 
 //
-//Locomotion Globals
+//Locomotion Support
 //Brake Engaged by Default
 let moveTo = false;
 let moveBack = false;
@@ -13769,7 +13770,15 @@ function brakeReadyBuffer(){
 		brakeReady = true;
 	}, 250); //Delay
 }
-
+//Buffer for Toggling Speed Change Long
+function brakeReadBufferLong(){
+	//This will start the reset timer to allow the brake to be re-engadged
+	//Brake Reset Timeout
+	brakeReset = setTimeout(function () {
+		//Set reset switch toggle
+		brakeReady = true;
+	}, 2250); //Delay
+}
 //
 //Locomotion
 AFRAME.registerComponent('locomotion', {
@@ -13786,7 +13795,7 @@ init: function () {
 	//Do something when component first attached.
 	const auxl = document.querySelector('a-scene').systems.auxl;
 	// Set up the tick throttling.
-	this.throttledFunction = AFRAME.utils.throttle(this.everySome, 30, this);
+	this.everySomeThrottled = AFRAME.utils.throttle(this.everySome, 30, this);
 
 	//Schema Imoprt
 	//
@@ -13812,15 +13821,6 @@ init: function () {
 	this.directionBrake2;
 	this.directionBrake3;
 	this.directionBrake4;
-	if(this.movetype === 'vr'){
-		this.vrController = document.getElementById('vrController');
-		this.directionForward = document.getElementById('locomotionForwardUI');
-		this.directionReverse = document.getElementById('locomotionReverseUI');
-		this.directionBrake1 = document.getElementById('locomotionBrake1UI');
-		this.directionBrake2 = document.getElementById('locomotionBrake2UI');
-		this.directionBrake3 = document.getElementById('locomotionBrake3UI');
-		this.directionBrake4 = document.getElementById('locomotionBrake4UI');
-	}
 
 	//HTML Controller Support
 	this.htmlUp = document.getElementById('up');
@@ -13859,302 +13859,223 @@ init: function () {
 	this.newX;
 	this.newZ;
 
-	//
-	//VR Event Listeners
+//End Init
+},
 
-	//Belt Controller Event Listeners
-	if(this.movetype === 'vr'){
+keyDownControls: function (e) {
+	//Key Down - WASD | QE
+	if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
+		movingForward();
+	} else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+		movingLeft();
+	} else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
+		movingReverse();
+	} else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+		movingRight();
+	} else if (e.key === 'q' || e.key === 'Q') {
+		//Special Button 1
+		//console.log('button 1');
+	} else if (e.key === 'e' || e.key === 'E') {
+		//Special Button 2
+		//console.log('button 2');
+		console.log('Toggle Speed');
+		toggleSpeed();
+	}
+},
+
+keyUpControls: function (e) {
+	//Key Up - WASD | QE
+	if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
+		cancelForward();
+	} else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+		cancelLeft();
+	} else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
+		cancelReverse();
+	} else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+		cancelRight();
+	} else if (e.key === 'q' || e.key === 'Q') {
+		//Special Button 1
+		//console.log('button 1');
+	} else if (e.key === 'e' || e.key === 'E') {
+		//Special Button 2
+		//console.log('button 2');
+		brakeReadyBuffer();
+	}
+},
+
+raycasterLocomotion: function (e) {
+	//Brake is disabled for 1.5 seconds after engaging
+	if(brakeReady){
+		if(brakeToggle){
+			//Set reset switch toggle
+			brakeToggle = false;
+			//Set reset timer switch toggle
+			brakeReady = false;
+			//Brake On
+			moveBrake = true;
+			//set brake color to red
+			this.directionBrake1.setAttribute('material', {color: 'red'});
+			this.directionBrake2.setAttribute('material', {color: 'red'});
+			this.directionBrake3.setAttribute('material', {color: 'red'});
+			this.directionBrake4.setAttribute('material', {color: 'red'});
+			//anim positition for forward/reverse bar and brakes
+			this.directionForward.emit('brakeOn',{});
+			this.directionReverse.emit('brakeOn',{});
+			this.directionBrake1.emit('brakeOn',{});
+			this.directionBrake2.emit('brakeOn',{});
+			this.directionBrake3.emit('brakeOn',{});
+			this.directionBrake4.emit('brakeOn',{});
+		} else {
+			//Set reset switch toggle
+			brakeToggle = true;
+			//Set reset timer switch toggle
+			brakeReady = false;
+			//Brake Off
+			moveBrake = false;
+			//set brake color to default
+			this.directionBrake1.setAttribute('material', {color: 'black'});
+			this.directionBrake2.setAttribute('material', {color: 'black'});
+			this.directionBrake3.setAttribute('material', {color: 'black'});
+			this.directionBrake4.setAttribute('material', {color: 'black'});
+			//anim positition for forward/reverse bar back to default
+			this.directionForward.emit('brakeOff',{});
+			this.directionReverse.emit('brakeOff',{});
+			this.directionBrake1.emit('brakeOff',{});
+			this.directionBrake2.emit('brakeOff',{});
+			this.directionBrake3.emit('brakeOff',{});
+			this.directionBrake4.emit('brakeOff',{});
+		}
+	}
+},
+
+questJoystickLocomotion: function (e){
+	if (e.detail.y > 0.95) {
+		clearMovement();
+		movingReverse();
+	}
+	if (e.detail.y < -0.95) {
+		clearMovement();
+		movingForward();
+	}
+	if (e.detail.x < -0.95) {
+		clearMovement();
+		movingLeft();
+	}
+	if (e.detail.x > 0.95) {
+		clearMovement();
+		movingRight();
+	}
+},
+
+update: function () {
+	//Keyboard Controller Event Listeners
+	if(this.movetype === 'desktop'){
+		//Key Down
+		this.keyDownControlsEvent = (event) => {
+			this.keyDownControls(event);
+		}
+		document.body.addEventListener('keydown', this.keyDownControlsEvent);
+		//Key Up
+		this.keyUpControlsEvent = (event) => {
+			this.keyUpControls(event);
+		}
+		document.body.addEventListener('keyup', this.keyUpControlsEvent);
+	} else if(this.movetype === 'mobile'){
+		//HTML Controller Event Listeners
+		//Mouse Down
+		this.htmlUp.addEventListener('mousedown', movingForward);
+		this.htmlLeft.addEventListener('mousedown', movingLeft);
+		this.htmlRight.addEventListener('mousedown', movingRight);
+		this.htmlDown.addEventListener('mousedown', movingReverse);
+		this.htmlb.addEventListener('mousedown', toggleSpeed);
+		//Mouse Up
+		this.htmlUp.addEventListener('mouseup', cancelForward);
+		this.htmlLeft.addEventListener('mouseup', cancelLeft);
+		this.htmlRight.addEventListener('mouseup', cancelRight);
+		this.htmlDown.addEventListener('mouseup', cancelReverse);
+		this.htmlb.addEventListener('mouseup', brakeReadyBuffer);
+	} else if(this.movetype === 'vr'){
+		this.vrController = document.getElementById('vrController');
+		this.directionForward = document.getElementById('locomotionForwardUI');
+		this.directionReverse = document.getElementById('locomotionReverseUI');
+		this.directionBrake1 = document.getElementById('locomotionBrake1UI');
+		this.directionBrake2 = document.getElementById('locomotionBrake2UI');
+		this.directionBrake3 = document.getElementById('locomotionBrake3UI');
+		this.directionBrake4 = document.getElementById('locomotionBrake4UI');
 		//directionForward
 		this.directionForward.addEventListener('mouseenter', movingForward);
 		this.directionForward.addEventListener('mouseleave', cancelForward);
 		//directionReverse
 		this.directionReverse.addEventListener('mouseenter', movingReverse);
 		this.directionReverse.addEventListener('mouseleave', cancelReverse);
-		//This format does not like functions inside, adjust to allow
-		//directionBrakes
+
+		this.raycasterLocomotionEvent = (event) => {
+			this.raycasterLocomotion(event);
+		}
 		document.querySelectorAll('.directionBrake').forEach(item => {
-			item.addEventListener('mouseenter', event => {
-				//Brake is disabled for 1.5 seconds after engaging
-				if(brakeReady){
-					if(brakeToggle){
-						//Set reset switch toggle
-						brakeToggle = false;
-						//Set reset timer switch toggle
-						brakeReady = false;
-						//Brake On
-						moveBrake = true;
-						//set brake color to red
-						this.directionBrake1.setAttribute('material', {color: 'red'});
-						this.directionBrake2.setAttribute('material', {color: 'red'});
-						this.directionBrake3.setAttribute('material', {color: 'red'});
-						this.directionBrake4.setAttribute('material', {color: 'red'});
-						//anim positition for forward/reverse bar and brakes
-						this.directionForward.emit('brakeOn',{});
-						this.directionReverse.emit('brakeOn',{});
-						this.directionBrake1.emit('brakeOn',{});
-						this.directionBrake2.emit('brakeOn',{});
-						this.directionBrake3.emit('brakeOn',{});
-						this.directionBrake4.emit('brakeOn',{});
-					} else {
-						//Set reset switch toggle
-						brakeToggle = true;
-						//Set reset timer switch toggle
-						brakeReady = false;
-						//Brake Off
-						moveBrake = false;
-						//set brake color to default
-						this.directionBrake1.setAttribute('material', {color: 'black'});
-						this.directionBrake2.setAttribute('material', {color: 'black'});
-						this.directionBrake3.setAttribute('material', {color: 'black'});
-						this.directionBrake4.setAttribute('material', {color: 'black'});
-						//anim positition for forward/reverse bar back to default
-						this.directionForward.emit('brakeOff',{});
-						this.directionReverse.emit('brakeOff',{});
-						this.directionBrake1.emit('brakeOff',{});
-						this.directionBrake2.emit('brakeOff',{});
-						this.directionBrake3.emit('brakeOff',{});
-						this.directionBrake4.emit('brakeOff',{});
-					}
-				}
-			})
-		});
-		document.querySelectorAll('.directionBrake').forEach(item => {
-			item.addEventListener('mouseleave', event => {
-				//This will start the reset timer to allow the brake to be re-engadged
-				//Brake Reset Timeout
-				brakeReset = setTimeout(function () {
-					//Set reset switch toggle
-					brakeReady = true;
-				}, 2250); //Delay
-			})
+			item.addEventListener('mouseenter', event => this.raycasterLocomotionEvent)
 		});
 
-		//
-		//Quest Joystick Controller
-		this.vrController.addEventListener('thumbstickmoved', function (e) {
-			if (e.detail.y > 0.95) {
-				clearMovement();
-				movingReverse();
-			}
-			if (e.detail.y < -0.95) {
-				clearMovement();
-				movingForward();
-			}
-			if (e.detail.x < -0.95) {
-				clearMovement();
-				movingLeft();
-			}
-			if (e.detail.x > 0.95) {
-				clearMovement();
-				movingRight();
-			}
+		document.querySelectorAll('.directionBrake').forEach(item => {
+			item.addEventListener('mouseleave', event => brakeReadBufferLong)
 		});
-		this.vrController.addEventListener('thumbsticktouchend', function (e) {
-			clearMovement();
-		});
-		this.vrController.addEventListener('thumbstickdown', function (e) {
-			clearMovement();
-		});
+
+		this.questJoystickLocomotionEvent = (event) => {
+			this.questJoystickLocomotion(event);
+		}
+		this.vrController.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+
+		this.vrController.addEventListener('thumbsticktouchend', clearMovement);
+		this.vrController.addEventListener('thumbstickdown', clearMovement);
+
 	}
 
-	//Keyboard Controller Event Listeners
-	//
-	//Key Down - WASD/Arrows | QE
-	document.body.addEventListener('keydown', function (e) {
-		if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
-			movingForward();
-		} else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
-			movingLeft();
-		} else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
-			movingReverse();
-		} else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
-			movingRight();
-		} else if (e.key === 'q' || e.key === 'Q') {
-			//Special Button 1
-			//console.log('button 1');
-		} else if (e.key === 'e' || e.key === 'E') {
-			//Special Button 2
-			//console.log('button 2');
-			console.log('Toggle Speed');
-			toggleSpeed();
-		}
-	});
-	//Key Down - WASD/Arrows | QE
-	document.body.addEventListener('keyup', function (e) {
-		if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
-			cancelForward();
-		} else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
-			cancelLeft();
-		} else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
-			cancelReverse();
-		} else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
-			cancelRight();
-		} else if (e.key === 'q' || e.key === 'Q') {
-			//Special Button 1
-			//console.log('button 1');
-		} else if (e.key === 'e' || e.key === 'E') {
-			//Special Button 2
-			//console.log('button 2');
-			brakeReadyBuffer();
-		}
-	});
-
-	//HTML Controller Event Listeners
-	//
-	//Mouse Down
-	this.htmlUp.addEventListener('mousedown', movingForward);
-	this.htmlLeft.addEventListener('mousedown', movingLeft);
-	this.htmlRight.addEventListener('mousedown', movingRight);
-	this.htmlDown.addEventListener('mousedown', movingReverse);
-	this.htmlb.addEventListener('mousedown', toggleSpeed);
-	//Mouse Up
-	this.htmlUp.addEventListener('mouseup', cancelForward);
-	this.htmlLeft.addEventListener('mouseup', cancelLeft);
-	this.htmlRight.addEventListener('mouseup', cancelRight);
-	this.htmlDown.addEventListener('mouseup', cancelReverse);
-	this.htmlb.addEventListener('mouseup', brakeReadyBuffer);
-
-//End Init
 },
 
 remove: function () {
-	//Do something the component or its entity is detached.
-	//Called when the component is removed from the entity (e.g., via removeAttribute) or when the entity is detached from the scene. Used to undo all previous modifications to the entity.
-
-	//
-	//VR Event Listeners
-
-	//Belt Controller Event Listeners
-	if(this.movetype === 'vr'){
-		//Joystick Controller
-		//this.vrController.removeEventListener('thumbstickmoved');
-		//this.vrController.removeEventListener('thumbsticktouchend');
+	//Keyboard Controller Event Listeners
+	if(this.movetype === 'desktop'){
+		//Key Down
+		document.body.removeEventListener('keydown', this.keyDownControlsEvent);
+		//Key Up
+		document.body.removeEventListener('keyup', this.keyUpControlsEvent);
+	} else if(this.movetype === 'mobile'){
+		//HTML Controller Event Listeners
+		//Mouse Down
+		this.htmlUp.removeEventListener('mousedown', movingForward);
+		this.htmlLeft.removeEventListener('mousedown', movingLeft);
+		this.htmlRight.removeEventListener('mousedown', movingRight);
+		this.htmlDown.removeEventListener('mousedown', movingReverse);
+		this.htmlb.removeEventListener('mousedown', toggleSpeed);
+		//Mouse Up
+		this.htmlUp.removeEventListener('mouseup', cancelForward);
+		this.htmlLeft.removeEventListener('mouseup', cancelLeft);
+		this.htmlRight.removeEventListener('mouseup', cancelRight);
+		this.htmlDown.removeEventListener('mouseup', cancelReverse);
+		this.htmlb.removeEventListener('mouseup', brakeReadyBuffer);
+	} else if(this.movetype === 'vr'){
 		//directionForward
 		this.directionForward.removeEventListener('mouseenter', movingForward);
 		this.directionForward.removeEventListener('mouseleave', cancelForward);
 		//directionReverse
 		this.directionReverse.removeEventListener('mouseenter', movingReverse);
 		this.directionReverse.removeEventListener('mouseleave', cancelReverse);
-		//This format does not like functions inside, adjust to allow
-		//directionBrakes
+
 		document.querySelectorAll('.directionBrake').forEach(item => {
-			item.removeEventListener('mouseenter', event => {
-				//Brake is disabled for 1.5 seconds after engaging
-				if(brakeReady){
-					if(brakeToggle){
-						//Set reset switch toggle
-						brakeToggle = false;
-						//Set reset timer switch toggle
-						brakeReady = false;
-						//Brake On
-						moveBrake = true;
-						//set brake color to red
-						this.directionBrake1.setAttribute('material', {color: 'red'});
-						this.directionBrake2.setAttribute('material', {color: 'red'});
-						this.directionBrake3.setAttribute('material', {color: 'red'});
-						this.directionBrake4.setAttribute('material', {color: 'red'});
-						//anim positition for forward/reverse bar and brakes
-						this.directionForward.emit('brakeOn',{});
-						this.directionReverse.emit('brakeOn',{});
-						this.directionBrake1.emit('brakeOn',{});
-						this.directionBrake2.emit('brakeOn',{});
-						this.directionBrake3.emit('brakeOn',{});
-						this.directionBrake4.emit('brakeOn',{});
-					} else {
-						//Set reset switch toggle
-						brakeToggle = true;
-						//Set reset timer switch toggle
-						brakeReady = false;
-						//Brake Off
-						moveBrake = false;
-						//set brake color to default
-						this.directionBrake1.setAttribute('material', {color: 'black'});
-						this.directionBrake2.setAttribute('material', {color: 'black'});
-						this.directionBrake3.setAttribute('material', {color: 'black'});
-						this.directionBrake4.setAttribute('material', {color: 'black'});
-						//anim positition for forward/reverse bar back to default
-						this.directionForward.emit('brakeOff',{});
-						this.directionReverse.emit('brakeOff',{});
-						this.directionBrake1.emit('brakeOff',{});
-						this.directionBrake2.emit('brakeOff',{});
-						this.directionBrake3.emit('brakeOff',{});
-						this.directionBrake4.emit('brakeOff',{});
-					}
-				}
-			})
-		});
-		document.querySelectorAll('.directionBrake').forEach(item => {
-			item.removeEventListener('mouseleave', event => {
-				//This will start the reset timer to allow the brake to be re-engadged
-				//Brake Reset Timeout
-				brakeReset = setTimeout(function () {
-					//Set reset switch toggle
-					brakeReady = true;
-				}, 2250); //Delay
-			})
+			item.removeEventListener('mouseenter', event => this.raycasterLocomotionEvent)
 		});
 
-		//
-		//Quest Controller
+		document.querySelectorAll('.directionBrake').forEach(item => {
+			item.removeEventListener('mouseleave', event => brakeReadBufferLong)
+		});
+
+		this.vrController.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+
+		this.vrController.removeEventListener('thumbsticktouchend', clearMovement);
+		this.vrController.removeEventListener('thumbstickdown', clearMovement);
+
 	}
 
-
-	//Keyboard Controller Event Listeners
-	//
-	//Key Down - WASD | QE
-	document.body.removeEventListener('keydown', function (e) {
-		if (e.key === 'w' || e.key === 'W') {
-			movingForward();
-		} else if (e.key === 'a' || e.key === 'A') {
-			movingLeft();
-		} else if (e.key === 's' || e.key === 'S') {
-			movingReverse();
-		} else if (e.key === 'd' || e.key === 'D') {
-			movingRight();
-		} else if (e.key === 'q' || e.key === 'Q') {
-			//Special Button 1
-			//console.log('button 1');
-		} else if (e.key === 'e' || e.key === 'E') {
-			//Special Button 2
-			//console.log('button 2');
-			console.log('Toggle Speed');
-			toggleSpeed();
-		}
-	});
-	//Key Down - WASD | QE
-	document.body.removeEventListener('keyup', function (e) {
-		if (e.key === 'w' || e.key === 'W') {
-			cancelForward();
-		} else if (e.key === 'a' || e.key === 'A') {
-			cancelLeft();
-		} else if (e.key === 's' || e.key === 'S') {
-			cancelReverse();
-		} else if (e.key === 'd' || e.key === 'D') {
-			cancelRight();
-		} else if (e.key === 'q' || e.key === 'Q') {
-			//Special Button 1
-			//console.log('button 1');
-		} else if (e.key === 'e' || e.key === 'E') {
-			//Special Button 2
-			//console.log('button 2');
-			brakeReadyBuffer();
-		}
-	});
-
-	//HTML Controller Event Listeners
-	//
-	//Mouse Down
-	this.htmlUp.removeEventListener('mousedown', movingForward);
-	this.htmlLeft.removeEventListener('mousedown', movingLeft);
-	this.htmlRight.removeEventListener('mousedown', movingRight);
-	this.htmlDown.removeEventListener('mousedown', movingReverse);
-	this.htmlb.removeEventListener('mousedown', toggleSpeed);
-	//Mouse Up
-	this.htmlUp.removeEventListener('mouseup', cancelForward);
-	this.htmlLeft.removeEventListener('mouseup', cancelLeft);
-	this.htmlRight.removeEventListener('mouseup', cancelRight);
-	this.htmlDown.removeEventListener('mouseup', cancelReverse);
-	this.htmlb.removeEventListener('mouseup', brakeReadyBuffer);
 },
 
 everySome: function (time, timeDelta) {
@@ -14162,7 +14083,15 @@ everySome: function (time, timeDelta) {
 	//console.log('everysome running');
 	//console.log(move);
 	if(moveBrake){
-		if(moveTo) {
+		if(moveTo && moveRight) {
+			this.walk('forwardRight', moveSpeedSlow);
+		} else if(moveTo && moveLeft) {
+			this.walk('forwardLeft', moveSpeedSlow);
+		} else if(moveBack && moveRight) {
+			this.walk('reverseRight', moveSpeedSlow);
+		} else if(moveBack && moveLeft) {
+			this.walk('reverseLeft', moveSpeedSlow);
+		} else if(moveTo) {
 			this.walk('forward', moveSpeedSlow);
 		} else if(moveBack) {
 			this.walk('reverse', moveSpeedSlow);
@@ -14172,7 +14101,15 @@ everySome: function (time, timeDelta) {
 			this.walk('left', moveSpeedSlow);
 		}
 	} else {
-		if(moveTo) {
+		if(moveTo && moveRight) {
+			this.walk('forwardRight', moveSpeedDefault);
+		} else if(moveTo && moveLeft) {
+			this.walk('forwardLeft', moveSpeedDefault);
+		} else if(moveBack && moveRight) {
+			this.walk('reverseRight', moveSpeedDefault);
+		} else if(moveBack && moveLeft) {
+			this.walk('reverseLeft', moveSpeedDefault);
+		} else if(moveTo) {
 			this.walk('forward', moveSpeedDefault);
 		} else if(moveBack) {
 			this.walk('reverse', moveSpeedDefault);
@@ -14186,9 +14123,8 @@ everySome: function (time, timeDelta) {
 
 tick: function (time, timeDelta) {
 	//Do something on every scene tick or frame.
-
 	//Throttle
-	this.throttledFunction();
+	this.everySomeThrottled();
 
 	//Run uiSync Function
 	if(this.movetype === 'vr'){
@@ -14215,35 +14151,139 @@ uiSync: function () {
 walk: function (action, speed) {
 //console.log('walking');
 
-this.vector = new THREE.Vector3();
+this.cameraVector = new THREE.Vector3();
 this.positionNew = new THREE.Vector3();
-
 
 this.velocity = speed;
 //Get Camera Vec3
-this.camera.object3D.getWorldDirection(this.vector);
+this.camera.object3D.getWorldDirection(this.cameraVector);
 this.positionPlayer.copy(this.player.object3D.position);
 //Math out the Angle
-//Degrees
-//this.angle = Math.atan2(this.vector.x,this.vector.z) * 180 / Math.PI;
+//Degrees from -180 to 0 to 180
+//this.angleDeg = Math.atan2(this.cameraVector.x,this.cameraVector.z) * 180 / Math.PI;
+//console.log(this.angleDeg)
 //Radians
-this.angle = Math.atan2(this.vector.x,this.vector.z);
+this.angle = Math.atan2(this.cameraVector.x,this.cameraVector.z);
 // 0 < θ < π/2
-
-if(action === 'forward'){
+//Quadrants
+//1 - Front Left
+//2 - Front Right
+//3 - Back Left
+//4 - Back Right
+if(action === 'forwardRight'){
+	//check which quadrant the vector is in
+	if(this.angle > 0 && this.angle < Math.PI/2) {
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		//console.log('1');
+	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+		this.angle += Math.PI;
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		//console.log('2');
+	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		//console.log('3');
+	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+		this.angle += (Math.PI * 2);
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		//console.log('4');
+	} else {
+		this.positionNew.x = this.positionPlayer.x + this.velocity;
+		this.positionNew.z = this.positionPlayer.z - this.velocity;
+		//console.log('0 Angle');
+	}
+} else if(action === 'forwardLeft'){
+	//check which quadrant the vector is in
+	if(this.angle > 0 && this.angle < Math.PI/2) {
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		//console.log('1');
+	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+		this.angle += Math.PI;
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		//console.log('2');
+	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		//console.log('3');
+	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+		this.angle += (Math.PI * 2);
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		//console.log('4');
+	} else {
+		this.positionNew.x = this.positionPlayer.x - this.velocity;
+		this.positionNew.z = this.positionPlayer.z - this.velocity;
+		//console.log('0 Angle');
+	}
+} else if(action === 'reverseRight'){
+	//check which quadrant the vector is in
+	if(this.angle > 0 && this.angle < Math.PI/2) {
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		//console.log('1');
+	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+		this.angle += Math.PI;
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		//console.log('2');
+	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		//console.log('3');
+	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+		this.angle += (Math.PI * 2);
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		//console.log('4');
+	} else {
+		this.positionNew.x = this.positionPlayer.x + this.velocity;
+		this.positionNew.z = this.positionPlayer.z + this.velocity;
+		//console.log('0 Angle');
+	}
+} else if(action === 'reverseLeft'){
+	//check which quadrant the vector is in
+	if(this.angle > 0 && this.angle < Math.PI/2) {
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		//console.log('1');
+	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+		this.angle += Math.PI;
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		//console.log('2');
+	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		//console.log('3');
+	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+		this.angle += (Math.PI * 2);
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		//console.log('4');
+	} else {
+		this.positionNew.x = this.positionPlayer.x - this.velocity;
+		this.positionNew.z = this.positionPlayer.z + this.velocity;
+		//console.log('0 Angle');
+	}
+} else if(action === 'forward'){
 	//check which quadrant the vector is in
 	if(this.angle > 0 && this.angle < Math.PI/2) {
 		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
 		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
 		//console.log('1');
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		//console.log('2');
 	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
 		this.angle += Math.PI;
 		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
 		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
+		//console.log('2');
+	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
 		//console.log('3');
 	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
 		this.angle += (Math.PI * 2);
@@ -14252,8 +14292,8 @@ if(action === 'forward'){
 		//console.log('4');
 	} else {
 		this.positionNew.x = this.positionPlayer.x;
-		this.positionNew.z = this.positionPlayer.z;
-		//console.log('0');
+		this.positionNew.z = this.positionPlayer.z - this.velocity;
+		//console.log('0 Angle');
 	}
 } else if(action === 'reverse'){
 	//check which quadrant the vector is in
@@ -14261,14 +14301,14 @@ if(action === 'forward'){
 		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
 		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
 		//console.log('1');
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		//console.log('2');
 	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
 		this.angle += Math.PI;
 		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
 		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
+		//console.log('2');
+	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
 		//console.log('3');
 	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
 		this.angle += (Math.PI * 2);
@@ -14277,8 +14317,8 @@ if(action === 'forward'){
 		//console.log('4');
 	} else {
 		this.positionNew.x = this.positionPlayer.x;
-		this.positionNew.z = this.positionPlayer.z;
-		//console.log('0');
+		this.positionNew.z = this.positionPlayer.z + this.velocity;
+		//console.log('0 Angle');
 	}
 } else if(action === 'right'){
 	//check which quadrant the vector is in
@@ -14286,14 +14326,14 @@ if(action === 'forward'){
 		this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
 		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
 		//console.log('1');
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		//console.log('2');
 	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
 		this.angle += Math.PI;
 		this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
 		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
+		//console.log('2');
+	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+		this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
 		//console.log('3');
 	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
 		this.angle += (Math.PI * 2);
@@ -14301,9 +14341,9 @@ if(action === 'forward'){
 		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
 		//console.log('4');
 	} else {
-		this.positionNew.x = this.positionPlayer.x;
+		this.positionNew.x = this.positionPlayer.x + this.velocity;
 		this.positionNew.z = this.positionPlayer.z;
-		//console.log('0');
+		//console.log('0 Angle');
 	}
 
 } else if(action === 'left'){
@@ -14312,14 +14352,14 @@ if(action === 'forward'){
 		this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
 		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
 		//console.log('1');
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		//console.log('2');
 	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
 		this.angle += Math.PI;
 		this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
 		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
+		//console.log('2');
+	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+		this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
+		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
 		//console.log('3');
 	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
 		this.angle += (Math.PI * 2);
@@ -14327,11 +14367,10 @@ if(action === 'forward'){
 		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
 		//console.log('4');
 	} else {
-		this.positionNew.x = this.positionPlayer.x;
+		this.positionNew.x = this.positionPlayer.x - this.velocity;
 		this.positionNew.z = this.positionPlayer.z;
-		//console.log('0');
+		//console.log('0 Angle');
 	}
-
 }
 
 this.positionNew.y = this.positionPlayer.y;
@@ -14823,11 +14862,6 @@ AFRAME.registerComponent('raycast-teleportation', {
 //External Components
 //
 
-//
-//Look-At  - https://github.com/supermedium/superframe/tree/master/components/look-at/ 
-/*
-!function(e){function t(n){if(o[n])return o[n].exports;var i=o[n]={exports:{},id:n,loaded:!1};return e[n].call(i.exports,i,i.exports,t),i.loaded=!0,i.exports}var o={};return t.m=e,t.c=o,t.p="",t(0)}([function(e,t){var o=AFRAME.utils.debug,n=AFRAME.utils.coordinates,i=o("components:look-at:warn"),r=n.isCoordinates||n.isCoordinate;delete AFRAME.components["look-at"],AFRAME.registerComponent("look-at",{schema:{default:"0 0 0",parse:function(e){return r(e)||"object"==typeof e?n.parse(e):e},stringify:function(e){return"object"==typeof e?n.stringify(e):e}},init:function(){this.target3D=null,this.vector=new THREE.Vector3,this.cameraListener=AFRAME.utils.bind(this.cameraListener,this),this.el.addEventListener("componentinitialized",this.cameraListener),this.el.addEventListener("componentremoved",this.cameraListener)},update:function(){var e,t=this,o=t.data;return!o||"object"==typeof o&&!Object.keys(o).length?t.remove():"object"==typeof o?this.lookAt(new THREE.Vector3(o.x,o.y,o.z)):(e=t.el.sceneEl.querySelector(o),e?e.hasLoaded?t.beginTracking(e):e.addEventListener("loaded",function(){t.beginTracking(e)}):void i('"'+o+'" does not point to a valid entity to look-at'))},tick:function(){var e=new THREE.Vector3;return function(t){var o=this.target3D;o&&(o.getWorldPosition(e),this.lookAt(e))}}(),remove:function(){this.el.removeEventListener("componentinitialized",this.cameraListener),this.el.removeEventListener("componentremoved",this.cameraListener)},beginTracking:function(e){this.target3D=e.object3D},cameraListener:function(e){e.detail&&"camera"===e.detail.name&&this.update()},lookAt:function(e){var t=this.vector,o=this.el.object3D;this.el.getObject3D("camera")?t.subVectors(o.position,e).add(o.position):t.copy(e),o.lookAt(t)}})}]);
-*/
 //
 //threeColorGradientShader shader - https://github.com/tlaukkan/aframe-three-color-gradient-shader
 /**/
