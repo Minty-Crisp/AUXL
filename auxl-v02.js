@@ -89,6 +89,8 @@ function clearSpawned(spawned){
 				auxl[spawn].DespawnAll();
 			} else if (spawned[spawn].type === 'npc'){
 				auxl[spawn].Despawn();
+			} else if (spawned[spawn].type === 'horizon'){
+				auxl[spawn].Despawn();
 			}  else if (spawned[spawn].type === 'imageSwapper'){
 				auxl[spawn].Remove();
 			} else {
@@ -3458,6 +3460,269 @@ this.SkyBox = (skyBoxData) => {
 }
 
 //
+//Horizon
+//Mountains, Hills, Buildings, Cylinder/Square Wall
+this.Horizon = (horizonData) => {
+
+	//work on importing chunks of each section
+	let horizon = Object.assign({}, horizonData);
+/*
+auxl.horizonMountainData = {
+id: 'horizonMountain',
+type: 'mountains',//hills,buildings,cylinder|square walls
+texture: false,//omit to use ThreeGradientShader
+baseColor: false,
+baseColorFamily: 'lime',
+radius: 200,
+density: 'normal',//low,normal,high
+height: 'normal',//low,normal,high
+width: 'normal',//low,normal,high
+};
+
+Allow to specify top,mid,bottom threeGrad colors?
+*/
+
+//Material
+let top;
+let mid;
+let bottom;
+let colorPick;
+
+//Density
+let spawnAmount;
+if(horizon.density === 'low'){
+	spawnAmount = 5;
+} else if(horizon.density === 'normal'){
+	spawnAmount = 10;
+} else if(horizon.density === 'high'){
+	spawnAmount = 20;
+}
+
+//Height
+let spawnHeight;
+if(horizon.height === 'low'){
+	spawnHeight = 0.5;
+} else if(horizon.height === 'normal'){
+	spawnHeight = 1;
+} else if(horizon.height === 'high'){
+	spawnHeight = 1.5;
+}
+
+//Width
+let spawnWidth;
+if(horizon.width === 'low'){
+	spawnWidth = 0.5;
+} else if(horizon.width === 'normal'){
+	spawnWidth = 1;
+} else if(horizon.width === 'high'){
+	spawnWidth = 1.5;
+}
+
+//Type
+let geometry;
+let position = new THREE.Vector3(0,0,horizon.radius*-1);
+let scale = new THREE.Vector3(1,1,1);
+let height;
+if(horizon.type === 'mountains'){
+	height = 100*spawnHeight;
+	geometry = {primitive: 'cone', height: height, radiusBottom: 50, radiusTop: 0, openEnded: true, segmentsHeight: 1, segmentsRadial: 9, thetaLength: 180, thetaStart: 90},
+	scale.x = 1.5*spawnWidth;
+} else if(horizon.type === 'hills'){
+	height = 50*spawnHeight;
+	geometry = {primitive: 'circle', radius: height, thetaStart: 0, thetaLength: 180};
+	scale.x = 1.5*spawnWidth;
+} else if(horizon.type === 'buildings'){
+	height = 100*spawnHeight;
+	geometry = {primitive: 'plane', width: 40*spawnWidth, height: height};
+} else if(horizon.type === 'cylinderWall'){
+	height = 50*spawnHeight;
+	geometry = {primitive: 'cylinder', openEnded: true, radius: horizon.radius, height: height, segmentsHeight: 9, segmentsRadial: 32, thetaStart: 0, thetaLength: 360 };
+	position.z = 0;
+	spawnAmount = 1;
+} else if(horizon.type === 'squareWall'){
+	height = 100*spawnHeight;
+	//Use multiple planes layered instead
+	geometry = {primitive: 'cylinder', openEnded: true, radius: horizon.radius, height: height, segmentsHeight: 9, segmentsRadial: 4, thetaStart: 0, thetaLength: 360 };
+	position.z = 0;
+	spawnAmount = 1;
+}
+
+let horizonAllData = {
+data:'horizonAllData',
+id:'horizonParent',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+let horizonAll = auxl.Core(horizonAllData);
+let horizonLayerData = {
+	parent: {core: horizonAll},
+};
+
+let horizonParentData = {
+data:'horizonParentData',
+id:'horizonParent',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+let horizonChildData = {
+data:'horizonChildData',
+id:'horizonChild',
+sources:false,
+text: false,
+geometry: geometry,
+material: false,
+position: position,
+rotation: new THREE.Vector3(0,0,0),
+scale: scale,
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+let horizonParentId = 'horizonParent';
+let horizonParentCores = [];
+let horizonChildId = 'horizonChild';
+let horizonChildCores = [];
+
+for(let a=0; a < spawnAmount; a++){
+
+	//Parent
+	horizonParentId = 'horizonParent' + a;
+	let parentRotation = new THREE.Vector3(0,0,0);
+	parentRotation.y = 360/spawnAmount*a;
+	horizonParentData.id = horizonParentId;
+	horizonParentData.rotation = parentRotation;
+	if(horizon.type === 'squareWall'){
+		horizonParentData.rotation.y = 37.5;
+	}
+	horizonParentCores[a] = auxl.Core(horizonParentData);
+	//Child
+	horizonChildId = 'horizonChild' + a;
+	horizonChildData.id = horizonChildId;
+	horizonChildData.scale.x = (1.5*spawnWidth) +(Math.random()*0.1-0.2);
+	horizonChildData.scale.y = 1 + (Math.random()*0.2-0.4);
+	if(horizon.type === 'mountains' || horizon.type === 'buildings' || horizon.type === 'cylinderWall' || horizon.type === 'squareWall'){
+		horizonChildData.position.y = ((horizonChildData.scale.y*height)/2)-1;
+	} else if(horizon.type === 'hills'){
+		horizonChildData.position.y = -1;
+	}
+	//Material
+	let material;
+	let textureSrc;
+	if(horizon.texture){
+		if(horizon.baseColor){
+			colorPick = auxl.colorTheoryGen(horizon.baseColor);
+		} else if(horizon.baseColorFamily){
+			colorPick = auxl.colorTheoryGen(false, horizon.baseColorFamily);
+		} else {
+			colorPick = auxl.colorTheoryGen();
+		}
+		colorPickBase = colorPick.base;
+		material = {shader: "standard", side: 'double', color: colorPickBase};
+
+		if(horizon.texture.src){
+			if(Array.isArray(horizon.texture.src)){
+				textureSrc = horizon.texture.src[Math.floor(Math.random()*horizon.texture.src.length)];
+			} else {
+				textureSrc = horizon.texture.src;
+			}
+			material.src = textureSrc;
+		}
+		if(horizon.texture.repeat){
+			material.repeat = horizon.texture.repeat;
+		}
+		if(horizon.texture.opacity){
+			material.opacity = horizon.texture.opacity;
+		}
+		if(horizon.texture.metalness){
+			material.metalness = horizon.texture.metalness;
+		}
+		if(horizon.texture.roughness){
+			material.roughness = horizon.texture.roughness;
+		}
+		if(horizon.texture.emissive){
+			material.emissive = colorPickBase;
+		}
+		if(horizon.texture.emissiveIntensity){
+			material.emissiveIntensity = horizon.texture.emissiveIntensity;
+		}
+
+	} else if(horizon.baseColor){
+		colorPick = auxl.colorTheoryGen(horizon.baseColor);
+		mid = colorPick.base;
+		top = colorPick.tetradic[0];
+		bottom = colorPick.tetradic[1];
+		material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
+	} else if(horizon.baseColorFamily){
+		colorPick = auxl.colorTheoryGen(false, horizon.baseColorFamily);
+		mid = colorPick.base;
+		top = colorPick.tetradic[0];
+		bottom = colorPick.tetradic[1];
+		material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
+	} else {
+		colorPick = auxl.colorTheoryGen();
+		mid = colorPick.base;
+		top = colorPick.tetradic[0];
+		bottom = colorPick.tetradic[1];
+		material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
+	}
+	horizonChildData.material = material;
+	//Core
+	horizonChildCores[a] = auxl.Core(horizonChildData);
+	//Layer
+	horizonLayerData['child'+a] = {
+		parent: {core: horizonParentCores[a]}, 
+		child0: {core: horizonChildCores[a]},
+	};
+}
+let horizonLayer = auxl.Layer('horizonLayer',horizonLayerData);
+
+	const Spawn = () => {
+		horizonLayer.AddAllToScene(true);
+		AddToSceneTracker();
+	}
+
+	const Despawn = () => {
+		horizonLayer.RemoveAllFromScene(true);
+		RemoveFromSceneTracker();
+	}
+
+	const AddToSceneTracker = () => {
+		//Scene Tracking of Assets
+		if(auxl.zoneSpawned[horizon.id]){} else {
+			auxl.nodeSpawned[horizon.id] = {type: 'horizon', obj: horizon};
+		}
+	}
+
+	const RemoveFromSceneTracker = () => {
+		//Clear Tracking of Asset
+		delete auxl.nodeSpawned[horizon.id];
+	}
+
+	return {horizon, Spawn, Despawn};
+}
+
+//
 //Story Book - Linear, Tree, Quests, Jump, Menu, Conditionals, Flags...
 this.Book = (core, npc) => {
 //facilitate interaction between user, objects and story.
@@ -5410,41 +5675,41 @@ this.ImageSwapper = (id,mainData,buttonData,...materials) => {
 }
 
 //
-//Gallery
-this.Gallery = (galleryData) => {
+//ImageCarousel
+this.ImageCarousel = (carouselData) => {
 //calculate the amount of framesPerPage to do display
 //Add 180 view non-movement functions
-//get images to play through gallery.images pages
+//get images to play through carousel.images pages
 
 //Changing between Forward & Reverse either way messes up which frames should be updated
 
 
 //Data
-let gallery = Object.assign({}, galleryData);
-gallery.frames = 8;//temp, will be imported
+let carousel = Object.assign({}, carouselData);
+carousel.frames = 8;//temp, will be imported
 let playInterval;
 let updateTimeout;
 let scaleTimeout;
-gallery.framesPerPage = 8;
-this.currentImageForward = -1;
-this.currentImageBackward = gallery.images.length - gallery.framesPerPage;
-let frameRotationEach = 360/gallery.framesPerPage;
+carousel.framesPerPage = 8;
+currentImageForward = -1;
+currentImageBackward = carousel.images.length - carousel.framesPerPage;
+let frameRotationEach = 360/carousel.framesPerPage;
 let frameRotation = 0;
-this.currentRotation = -1;
+currentRotation = -1;
 
 //Prep Movement Flags
-this.notMoving = true;
-this.notPlaying = true;
-this.autoRotate = 0;
-this.loadingPage = false;
-this.animating = false;
-this.scale = 0;
-this.info = false;
+let notMoving = true;
+let notPlaying = true;
+let autoRotate = 0;
+let loadingPage = false;
+let animating = false;
+let scale = 0;
+let info = false;
 
 //Frame Templates
 
 //Art Frame Parent
-this.artFrameParentData = {
+let artFrameParentData = {
 data: 'artFrameParentData',
 id:'artFrameParent',
 sources: false,
@@ -5460,7 +5725,7 @@ classes: ['a-ent'],
 components: false,
 };
 //Art Frame
-this.artFrameData = {
+let artFrameData = {
 data: 'artFrameData',
 id:'artFrame',
 sources: false,
@@ -5481,7 +5746,7 @@ classes: ['a-ent'],
 components: false,
 };
 //Art Frame
-this.artFrameTextData = {
+let artFrameTextData = {
 data: 'artFrameTextData',
 id:'artFrameText',
 sources: false,
@@ -5497,15 +5762,15 @@ classes: ['a-ent'],
 components: false,
 };
 
-//Gallery Layer
+//carousel Layer
 
 //All Frame Parent
-this.artFrameParentData.id = 'artFrameParentAll';
-this.artFrameParentData.rotation = new THREE.Vector3(0,1,0);
-this.artFrameParentAll = auxl.Core(this.artFrameParentData);
+artFrameParentData.id = 'artFrameParentAll';
+artFrameParentData.rotation = new THREE.Vector3(0,1,0);
+let artFrameParentAll = auxl.Core(artFrameParentData);
 
-this.artFrameAllLayerData = {
-	parent: {core: this.artFrameParentAll},
+let artFrameAllLayerData = {
+	parent: {core: artFrameParentAll},
 };
 
 let parentId = 'artFrameParent';
@@ -5515,7 +5780,7 @@ let imageFrameCores = [];
 let textId = 'artFrameText';
 let textFrameCores = [];
 
-for(let a=0; a < gallery.frames; a++){
+for(let a=0; a < carousel.frames; a++){
 
 	//Temp
 	if(a === 0){
@@ -5540,19 +5805,19 @@ for(let a=0; a < gallery.frames; a++){
 	parentId = 'artFrameParent' + a;
 	let parentRotation = new THREE.Vector3(0,0,0);
 	parentRotation.y = frameRotation;
-	this.artFrameParentData.id = parentId;
-	this.artFrameParentData.rotation = parentRotation;
-	parentFrameCores[a] = auxl.Core(this.artFrameParentData);
+	artFrameParentData.id = parentId;
+	artFrameParentData.rotation = parentRotation;
+	parentFrameCores[a] = auxl.Core(artFrameParentData);
 	//Frame
 	frameId = 'artFrame' + a;
-	this.artFrameData.id = frameId;
-	imageFrameCores[a] = auxl.Core(this.artFrameData);
+	artFrameData.id = frameId;
+	imageFrameCores[a] = auxl.Core(artFrameData);
 	//Text
 	textId = 'artFrameText' + a;
-	this.artFrameTextData.id = textId;
-	textFrameCores[a] = auxl.Core(this.artFrameTextData);
+	artFrameTextData.id = textId;
+	textFrameCores[a] = auxl.Core(artFrameTextData);
 	//Layer
-	this.artFrameAllLayerData['child'+a] = {
+	artFrameAllLayerData['child'+a] = {
 		parent: {core: parentFrameCores[a]}, 
 		child0: {
 			parent: {core: imageFrameCores[a]}, 
@@ -5560,14 +5825,14 @@ for(let a=0; a < gallery.frames; a++){
 		},
 	};
 }
-this.artFrameAllLayer = auxl.Layer('artFrameAllLayer',this.artFrameAllLayerData);
+let artFrameAllLayer = auxl.Layer('artFrameAllLayer',artFrameAllLayerData);
 
 //Button Templates
 
 let mainColor = auxl.colorTheoryGen('#6ab0db');
 
 //Button Parent
-this.buttonParentData = {
+let buttonParentData = {
 data: 'Button Parent',
 id:'buttonParent',
 sources: false,
@@ -5586,7 +5851,7 @@ components: false,
 };
 
 //Button Obj
-this.buttonObjData = {
+let buttonObjData = {
 data: 'Button Obj',
 id:'buttonObj',
 sources: false,
@@ -5603,7 +5868,7 @@ components: false,
 };
 
 //Button Border
-this.buttonBorderData = {
+let buttonBorderData = {
 data: 'Button Border',
 id:'buttonBorder',
 sources: false,
@@ -5622,7 +5887,7 @@ components: {
 };
 
 //Button Click Background
-this.buttonClickData = {
+let buttonClickData = {
 data: 'Button Click Background',
 id:'buttonClick',
 sources: false,
@@ -5639,7 +5904,7 @@ components: false,
 };
 
 //Button Click Background
-this.buttonTextData = {
+let buttonTextData = {
 data: 'Button Text',
 id:'buttonText',
 sources: false,
@@ -5658,218 +5923,218 @@ components: false,
 //Button Layers
 
 //Backward
-this.buttonParentData.id = 'buttonBackwardParent';
-this.buttonParentData.rotation = new THREE.Vector3(0,22.5,0);
-this.buttonBackwardParent = auxl.Core(this.buttonParentData);
-this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/backward.obj'}};
-this.buttonObjData.id = 'buttonBackward';
-this.buttonBorderData.id = 'buttonBackwardBorder';
-this.buttonClickData.id = 'buttonBackwardClick';
-this.buttonTextData.id = 'buttonBackwardText';
-this.buttonTextData.text.value = 'Back';
-this.buttonBackward = auxl.Core(this.buttonObjData);
-this.buttonBackwardBorder = auxl.Core(this.buttonBorderData);
-this.buttonBackwardClick = auxl.Core(this.buttonClickData);
-this.buttonBackwardText = auxl.Core(this.buttonTextData);
+buttonParentData.id = 'buttonBackwardParent';
+buttonParentData.rotation = new THREE.Vector3(0,22.5,0);
+let buttonBackwardParent = auxl.Core(buttonParentData);
+buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/backward.obj'}};
+buttonObjData.id = 'buttonBackward';
+buttonBorderData.id = 'buttonBackwardBorder';
+buttonClickData.id = 'buttonBackwardClick';
+buttonTextData.id = 'buttonBackwardText';
+buttonTextData.text.value = 'Back';
+let buttonBackward = auxl.Core(buttonObjData);
+let buttonBackwardBorder = auxl.Core(buttonBorderData);
+let buttonBackwardClick = auxl.Core(buttonClickData);
+let buttonBackwardText = auxl.Core(buttonTextData);
 //Forward
-this.buttonParentData.id = 'buttonForwardParent';
-this.buttonParentData.rotation = new THREE.Vector3(0,-22.5,0);
-this.buttonForwardParent = auxl.Core(this.buttonParentData);
-this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/forward.obj'}};
-this.buttonObjData.id = 'buttonForward';
-this.buttonBorderData.id = 'buttonForwardBorder';
-this.buttonClickData.id = 'buttonForwardClick';
-this.buttonTextData.id = 'buttonForwardText';
-this.buttonTextData.text.value = 'Forward';
-this.buttonForward = auxl.Core(this.buttonObjData);
-this.buttonForwardBorder = auxl.Core(this.buttonBorderData);
-this.buttonForwardClick = auxl.Core(this.buttonClickData);
-this.buttonForwardText = auxl.Core(this.buttonTextData);
+buttonParentData.id = 'buttonForwardParent';
+buttonParentData.rotation = new THREE.Vector3(0,-22.5,0);
+let buttonForwardParent = auxl.Core(buttonParentData);
+buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/forward.obj'}};
+buttonObjData.id = 'buttonForward';
+buttonBorderData.id = 'buttonForwardBorder';
+buttonClickData.id = 'buttonForwardClick';
+buttonTextData.id = 'buttonForwardText';
+buttonTextData.text.value = 'Forward';
+let buttonForward = auxl.Core(buttonObjData);
+let buttonForwardBorder = auxl.Core(buttonBorderData);
+let buttonForwardClick = auxl.Core(buttonClickData);
+let buttonForwardText = auxl.Core(buttonTextData);
 //Left Skip
-this.buttonParentData.id = 'buttonLeftSkipParent';
-this.buttonParentData.rotation = new THREE.Vector3(0,37.5,0);
-this.buttonLeftSkipParent = auxl.Core(this.buttonParentData);
-this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/left_skip.obj'}};
-this.buttonObjData.id = 'buttonLeftSkip';
-this.buttonBorderData.id = 'buttonLeftSkipBorder';
-this.buttonClickData.id = 'buttonLeftSkipClick';
-this.buttonTextData.id = 'buttonLeftSkipText';
-this.buttonTextData.text.value = 'Back Page';
-this.buttonLeftSkip = auxl.Core(this.buttonObjData);
-this.buttonLeftSkipBorder = auxl.Core(this.buttonBorderData);
-this.buttonLeftSkipClick = auxl.Core(this.buttonClickData);
-this.buttonLeftSkipText = auxl.Core(this.buttonTextData);
+buttonParentData.id = 'buttonLeftSkipParent';
+buttonParentData.rotation = new THREE.Vector3(0,37.5,0);
+let buttonLeftSkipParent = auxl.Core(buttonParentData);
+buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/left_skip.obj'}};
+buttonObjData.id = 'buttonLeftSkip';
+buttonBorderData.id = 'buttonLeftSkipBorder';
+buttonClickData.id = 'buttonLeftSkipClick';
+buttonTextData.id = 'buttonLeftSkipText';
+buttonTextData.text.value = 'Back Page';
+let buttonLeftSkip = auxl.Core(buttonObjData);
+let buttonLeftSkipBorder = auxl.Core(buttonBorderData);
+let buttonLeftSkipClick = auxl.Core(buttonClickData);
+let buttonLeftSkipText = auxl.Core(buttonTextData);
 //Play
-this.buttonParentData.id = 'buttonPlayParent';
-this.buttonParentData.rotation = new THREE.Vector3(0,-7.5,0);
-this.buttonPlayParent = auxl.Core(this.buttonParentData);
-this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/play.obj'}};
-this.buttonObjData.id = 'buttonPlay';
-this.buttonBorderData.id = 'buttonPlayBorder';
-this.buttonClickData.id = 'buttonPlayClick';
-this.buttonTextData.id = 'buttonPlayText';
-this.buttonTextData.text.value = 'Play';
-this.buttonPlay = auxl.Core(this.buttonObjData);
-this.buttonPlayBorder = auxl.Core(this.buttonBorderData);
-this.buttonPlayClick = auxl.Core(this.buttonClickData);
-this.buttonPlayText = auxl.Core(this.buttonTextData);
+buttonParentData.id = 'buttonPlayParent';
+buttonParentData.rotation = new THREE.Vector3(0,-7.5,0);
+let buttonPlayParent = auxl.Core(buttonParentData);
+buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/play.obj'}};
+buttonObjData.id = 'buttonPlay';
+buttonBorderData.id = 'buttonPlayBorder';
+buttonClickData.id = 'buttonPlayClick';
+buttonTextData.id = 'buttonPlayText';
+buttonTextData.text.value = 'Play';
+let buttonPlay = auxl.Core(buttonObjData);
+let buttonPlayBorder = auxl.Core(buttonBorderData);
+let buttonPlayClick = auxl.Core(buttonClickData);
+let buttonPlayText = auxl.Core(buttonTextData);
 //Right Skip
-this.buttonParentData.id = 'buttonRightSkipParent';
-this.buttonParentData.rotation = new THREE.Vector3(0,-37.5,0);
-this.buttonRightSkipParent = auxl.Core(this.buttonParentData);
-this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/right_skip.obj'}};
-this.buttonObjData.id = 'buttonRightSkip';
-this.buttonBorderData.id = 'buttonRightSkipBorder';
-this.buttonClickData.id = 'buttonRightSkipClick';
-this.buttonTextData.id = 'buttonRightSkipText';
-this.buttonTextData.text.value = 'Next Page';
-this.buttonRightSkip = auxl.Core(this.buttonObjData);
-this.buttonRightSkipBorder = auxl.Core(this.buttonBorderData);
-this.buttonRightSkipClick = auxl.Core(this.buttonClickData);
-this.buttonRightSkipText = auxl.Core(this.buttonTextData);
+buttonParentData.id = 'buttonRightSkipParent';
+buttonParentData.rotation = new THREE.Vector3(0,-37.5,0);
+let buttonRightSkipParent = auxl.Core(buttonParentData);
+buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/right_skip.obj'}};
+buttonObjData.id = 'buttonRightSkip';
+buttonBorderData.id = 'buttonRightSkipBorder';
+buttonClickData.id = 'buttonRightSkipClick';
+buttonTextData.id = 'buttonRightSkipText';
+buttonTextData.text.value = 'Next Page';
+let buttonRightSkip = auxl.Core(buttonObjData);
+let buttonRightSkipBorder = auxl.Core(buttonBorderData);
+let buttonRightSkipClick = auxl.Core(buttonClickData);
+let buttonRightSkipText = auxl.Core(buttonTextData);
 //Settings
-this.buttonParentData.id = 'buttonSettingsParent';
-this.buttonParentData.rotation = new THREE.Vector3(0,-52.5,0);
-this.buttonSettingsParent = auxl.Core(this.buttonParentData);
-this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/settings.obj'}};
-this.buttonObjData.id = 'buttonSettings';
-this.buttonBorderData.id = 'buttonSettingsBorder';
-this.buttonClickData.id = 'buttonSettingsClick';
-this.buttonTextData.id = 'buttonSettingsText';
-this.buttonTextData.text.value = 'Scale';
-this.buttonSettings = auxl.Core(this.buttonObjData);
-this.buttonSettingsBorder = auxl.Core(this.buttonBorderData);
-this.buttonSettingsClick = auxl.Core(this.buttonClickData);
-this.buttonSettingsText = auxl.Core(this.buttonTextData);
+buttonParentData.id = 'buttonSettingsParent';
+buttonParentData.rotation = new THREE.Vector3(0,-52.5,0);
+let buttonSettingsParent = auxl.Core(buttonParentData);
+buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/settings.obj'}};
+buttonObjData.id = 'buttonSettings';
+buttonBorderData.id = 'buttonSettingsBorder';
+buttonClickData.id = 'buttonSettingsClick';
+buttonTextData.id = 'buttonSettingsText';
+buttonTextData.text.value = 'Scale';
+let buttonSettings = auxl.Core(buttonObjData);
+let buttonSettingsBorder = auxl.Core(buttonBorderData);
+let buttonSettingsClick = auxl.Core(buttonClickData);
+let buttonSettingsText = auxl.Core(buttonTextData);
 //Stop
-this.buttonParentData.id = 'buttonStopParent';
-this.buttonParentData.rotation = new THREE.Vector3(0,7.5,0);
-this.buttonStopParent = auxl.Core(this.buttonParentData);
-this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/stop.obj'}};
-this.buttonObjData.id = 'buttonStop';
-this.buttonBorderData.id = 'buttonStopBorder';
-this.buttonClickData.id = 'buttonStopClick';
-this.buttonTextData.id = 'buttonStopText';
-this.buttonTextData.text.value = 'Info';
-this.buttonStop = auxl.Core(this.buttonObjData);
-this.buttonStopBorder = auxl.Core(this.buttonBorderData);
-this.buttonStopClick = auxl.Core(this.buttonClickData);
-this.buttonStopText = auxl.Core(this.buttonTextData);
+buttonParentData.id = 'buttonStopParent';
+buttonParentData.rotation = new THREE.Vector3(0,7.5,0);
+buttonStopParent = auxl.Core(buttonParentData);
+buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/stop.obj'}};
+buttonObjData.id = 'buttonStop';
+buttonBorderData.id = 'buttonStopBorder';
+buttonClickData.id = 'buttonStopClick';
+buttonTextData.id = 'buttonStopText';
+buttonTextData.text.value = 'Info';
+let buttonStop = auxl.Core(buttonObjData);
+let buttonStopBorder = auxl.Core(buttonBorderData);
+let buttonStopClick = auxl.Core(buttonClickData);
+let buttonStopText = auxl.Core(buttonTextData);
 //Hashtag
-this.buttonParentData.id = 'buttonHashtagParent';
-this.buttonParentData.rotation = new THREE.Vector3(0,52.5,0);
-this.buttonHashtagParent = auxl.Core(this.buttonParentData);
-this.buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/hashtag.obj'}};
-this.buttonObjData.id = 'buttonHashtag';
-this.buttonBorderData.id = 'buttonHashtagBorder';
-this.buttonClickData.id = 'buttonHashtagClick';
-this.buttonTextData.id = 'buttonHashtagText';
-this.buttonTextData.text.value = 'Random Page';
-this.buttonHashtag = auxl.Core(this.buttonObjData);
-this.buttonHashtagBorder = auxl.Core(this.buttonBorderData);
-this.buttonHashtagClick = auxl.Core(this.buttonClickData);
-this.buttonHashtagText = auxl.Core(this.buttonTextData);
+buttonParentData.id = 'buttonHashtagParent';
+buttonParentData.rotation = new THREE.Vector3(0,52.5,0);
+let buttonHashtagParent = auxl.Core(buttonParentData);
+buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/hashtag.obj'}};
+buttonObjData.id = 'buttonHashtag';
+buttonBorderData.id = 'buttonHashtagBorder';
+buttonClickData.id = 'buttonHashtagClick';
+buttonTextData.id = 'buttonHashtagText';
+buttonTextData.text.value = 'Random Page';
+let buttonHashtag = auxl.Core(buttonObjData);
+let buttonHashtagBorder = auxl.Core(buttonBorderData);
+let buttonHashtagClick = auxl.Core(buttonClickData);
+let buttonHashtagText = auxl.Core(buttonTextData);
 
 //Button Backward Layer
-this.buttonBackwardLayerData = {
-parent: {core: this.buttonBackwardParent}, 
+let buttonBackwardLayerData = {
+parent: {core: buttonBackwardParent}, 
 child0: {
-	parent: {core: this.buttonBackward}, 
-	child0: {core: this.buttonBackwardBorder},
-	child1: {core: this.buttonBackwardClick},
-	child2: {core: this.buttonBackwardText},
+	parent: {core: buttonBackward}, 
+	child0: {core: buttonBackwardBorder},
+	child1: {core: buttonBackwardClick},
+	child2: {core: buttonBackwardText},
 },
 };
-this.buttonBackwardLayer = auxl.Layer('buttonBackwardLayer',this.buttonBackwardLayerData);
+let buttonBackwardLayer = auxl.Layer('buttonBackwardLayer',buttonBackwardLayerData);
 
 //Button Hashtag Layer
-this.buttonHashtagLayerData = {
-parent: {core: this.buttonHashtagParent}, 
+let buttonHashtagLayerData = {
+parent: {core: buttonHashtagParent}, 
 child0: {
-	parent: {core: this.buttonHashtag}, 
-	child0: {core: this.buttonHashtagBorder},
-	child1: {core: this.buttonHashtagClick},
-	child2: {core: this.buttonHashtagText},
+	parent: {core: buttonHashtag}, 
+	child0: {core: buttonHashtagBorder},
+	child1: {core: buttonHashtagClick},
+	child2: {core: buttonHashtagText},
 },
 };
-this.buttonHashtagLayer = auxl.Layer('buttonHashtagLayer',this.buttonHashtagLayerData);
+let buttonHashtagLayer = auxl.Layer('buttonHashtagLayer',buttonHashtagLayerData);
 
 //Button Forward Layer
-this.buttonForwardLayerData = {
-parent: {core: this.buttonForwardParent}, 
+let buttonForwardLayerData = {
+parent: {core: buttonForwardParent}, 
 child0: {
-	parent: {core: this.buttonForward}, 
-	child0: {core: this.buttonForwardBorder},
-	child1: {core: this.buttonForwardClick},
-	child2: {core: this.buttonForwardText},
+	parent: {core: buttonForward}, 
+	child0: {core: buttonForwardBorder},
+	child1: {core: buttonForwardClick},
+	child2: {core: buttonForwardText},
 },
 };
-this.buttonForwardLayer = auxl.Layer('buttonForwardLayer',this.buttonForwardLayerData);
+let buttonForwardLayer = auxl.Layer('buttonForwardLayer',buttonForwardLayerData);
 
 //Button Left Skip Layer
-this.buttonLeftSkipLayerData = {
-parent: {core: this.buttonLeftSkipParent}, 
+let buttonLeftSkipLayerData = {
+parent: {core: buttonLeftSkipParent}, 
 child0: {
-	parent: {core: this.buttonLeftSkip}, 
-	child0: {core: this.buttonLeftSkipBorder},
-	child1: {core: this.buttonLeftSkipClick},
-	child2: {core: this.buttonLeftSkipText},
+	parent: {core: buttonLeftSkip}, 
+	child0: {core: buttonLeftSkipBorder},
+	child1: {core: buttonLeftSkipClick},
+	child2: {core: buttonLeftSkipText},
 },
 };
-this.buttonLeftSkipLayer = auxl.Layer('buttonLeftSkipLayer',this.buttonLeftSkipLayerData);
+let buttonLeftSkipLayer = auxl.Layer('buttonLeftSkipLayer',buttonLeftSkipLayerData);
 
 //Button Play Layer
-this.buttonPlayLayerData = {
-parent: {core: this.buttonPlayParent}, 
+let buttonPlayLayerData = {
+parent: {core: buttonPlayParent}, 
 child0: {
-	parent: {core: this.buttonPlay}, 
-	child0: {core: this.buttonPlayBorder},
-	child1: {core: this.buttonPlayClick},
-	child2: {core: this.buttonPlayText},
+	parent: {core: buttonPlay}, 
+	child0: {core: buttonPlayBorder},
+	child1: {core: buttonPlayClick},
+	child2: {core: buttonPlayText},
 },
 };
-this.buttonPlayLayer = auxl.Layer('buttonPlayLayer',this.buttonPlayLayerData);
+let buttonPlayLayer = auxl.Layer('buttonPlayLayer',buttonPlayLayerData);
 
 //Button Right Skip Layer
-this.buttonRightSkipLayerData = {
-parent: {core: this.buttonRightSkipParent}, 
+let buttonRightSkipLayerData = {
+parent: {core: buttonRightSkipParent}, 
 child0: {
-	parent: {core: this.buttonRightSkip}, 
-	child0: {core: this.buttonRightSkipBorder},
-	child1: {core: this.buttonRightSkipClick},
-	child2: {core: this.buttonRightSkipText},
+	parent: {core: buttonRightSkip}, 
+	child0: {core: buttonRightSkipBorder},
+	child1: {core: buttonRightSkipClick},
+	child2: {core: buttonRightSkipText},
 },
 };
-this.buttonRightSkipLayer = auxl.Layer('buttonRightSkipLayer',this.buttonRightSkipLayerData);
+let buttonRightSkipLayer = auxl.Layer('buttonRightSkipLayer',buttonRightSkipLayerData);
 
 //Button Settings Layer
-this.buttonSettingsLayerData = {
-parent: {core: this.buttonSettingsParent}, 
+let buttonSettingsLayerData = {
+parent: {core: buttonSettingsParent}, 
 child0: {
-	parent: {core: this.buttonSettings}, 
-	child0: {core: this.buttonSettingsBorder},
-	child1: {core: this.buttonSettingsClick},
-	child2: {core: this.buttonSettingsText},
+	parent: {core: buttonSettings}, 
+	child0: {core: buttonSettingsBorder},
+	child1: {core: buttonSettingsClick},
+	child2: {core: buttonSettingsText},
 },
 };
-this.buttonSettingsLayer = auxl.Layer('buttonSettingsLayer',this.buttonSettingsLayerData);
+let buttonSettingsLayer = auxl.Layer('buttonSettingsLayer',buttonSettingsLayerData);
 
 //Button Stop Layer
-this.buttonStopLayerData = {
-parent: {core: this.buttonStopParent}, 
+let buttonStopLayerData = {
+parent: {core: buttonStopParent}, 
 child0: {
-	parent: {core: this.buttonStop}, 
-	child0: {core: this.buttonStopBorder},
-	child1: {core: this.buttonStopClick},
-	child2: {core: this.buttonStopText},
+	parent: {core: buttonStop}, 
+	child0: {core: buttonStopBorder},
+	child1: {core: buttonStopClick},
+	child2: {core: buttonStopText},
 },
 };
-this.buttonStopLayer = auxl.Layer('buttonStopLayer',this.buttonStopLayerData);
+let buttonStopLayer = auxl.Layer('buttonStopLayer',buttonStopLayerData);
 
 //Animations
 
 //Rotate 45
-this.anim45Data = {
+let anim45Data = {
 	name: 'anim45',
 	property: 'object3D.rotation.y',
 	from: '0',
@@ -5884,7 +6149,7 @@ this.anim45Data = {
 	enabled: true,
 };
 //Rotate 45 from Misc
-this.anim45MiscData = {
+let anim45MiscData = {
 	name: 'anim45misc',
 	property: 'object3D.rotation.y',
 	from: '0',
@@ -5899,7 +6164,7 @@ this.anim45MiscData = {
 	enabled: true,
 };
 //Rotate 90
-this.anim90Data = {
+let anim90Data = {
 	name: 'anim90',
 	property: 'object3D.rotation.y',
 	from: '0',
@@ -5914,7 +6179,7 @@ this.anim90Data = {
 	enabled: true,
 };
 //Rotate 360
-this.anim360Data = {
+let anim360Data = {
 	name: 'anim360',
 	property: 'object3D.rotation.y',
 	from: '0',
@@ -5931,308 +6196,308 @@ this.anim360Data = {
 	pauseEvents: 'pause',
 };
 
-const UpdateFrame = (frame, textValue, imgSrc) => {
-	this.artFrameAllLayerData[frame].child0.parent.core.ChangeSelf({property: 'material', value:{src: imgSrc,shader: "flat", color: "#FFFFFF", opacity: 1}});
-	this.artFrameAllLayerData[frame].child0.child0.core.ChangeSelf({property: 'text', value:{value: textValue, width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0, side: 'double'}})
-}
-
-const Update = (frame, direction) => {
-	if(direction === 'forward'){
-		this.currentImageForward++;
-		this.currentImageBackward++;
-		if(this.currentImageForward >= gallery.images.length){
-			this.currentImageForward = 0
-		}
-		if(this.currentImageBackward >= gallery.images.length){
-			this.currentImageBackward = 0
-		}
-		//console.log(direction);
-		//console.log(this.currentImageForward);
-		//console.log(this.currentImageBackward);
-		UpdateFrame('child'+frame, gallery.images[this.currentImageForward].text, gallery.images[this.currentImageForward].image);
-	} else if(direction === 'backward'){
-		this.currentImageBackward--;
-		this.currentImageForward--;
-		if(this.currentImageBackward < 0){
-			this.currentImageBackward = gallery.images.length-1;
-		}
-		if(this.currentImageForward < 0){
-			this.currentImageForward = gallery.images.length-1;
-		}
-		//console.log(direction);
-		//console.log(this.currentImageForward);
-		//console.log(this.currentImageBackward);
-		UpdateFrame('child'+frame, gallery.images[this.currentImageBackward].text, gallery.images[this.currentImageBackward].image);
+	const UpdateFrame = (frame, textValue, imgSrc) => {
+		artFrameAllLayerData[frame].child0.parent.core.ChangeSelf({property: 'material', value:{src: imgSrc,shader: "flat", color: "#FFFFFF", opacity: 1}});
+		artFrameAllLayerData[frame].child0.child0.core.ChangeSelf({property: 'text', value:{value: textValue, width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0, side: 'double'}})
 	}
-}
 
-const UpdateAll = (direction) => {
-	for(let a = 0; a < gallery.frames; a++){
-		Update(a,direction);
+	const Update = (frame, direction) => {
+		if(direction === 'forward'){
+			currentImageForward++;
+			currentImageBackward++;
+			if(currentImageForward >= carousel.images.length){
+				currentImageForward = 0
+			}
+			if(currentImageBackward >= carousel.images.length){
+				currentImageBackward = 0
+			}
+			//console.log(direction);
+			//console.log(currentImageForward);
+			//console.log(currentImageBackward);
+			UpdateFrame('child'+frame, carousel.images[currentImageForward].text, carousel.images[currentImageForward].image);
+		} else if(direction === 'backward'){
+			currentImageBackward--;
+			currentImageForward--;
+			if(currentImageBackward < 0){
+				currentImageBackward = carousel.images.length-1;
+			}
+			if(currentImageForward < 0){
+				currentImageForward = carousel.images.length-1;
+			}
+			//console.log(direction);
+			//console.log(currentImageForward);
+			//console.log(currentImageBackward);
+			UpdateFrame('child'+frame, carousel.images[currentImageBackward].text, carousel.images[currentImageBackward].image);
+		}
 	}
-	this.loadingPage = false;
-}
 
-const UpdateBackTwo = (direction) => {
-	console.log('Current Rotation')
-	console.log(this.currentRotation);
-	let update2 = [];
-	let num;
-	if(direction === 'forward'){
-		if(this.currentRotation === 0){
-			update2 = [0,1];
-		} else if(this.currentRotation === 1){
-			update2 = [2,3];
-		} else if(this.currentRotation === 2){
-			update2 = [4,5];
-		} else if(this.currentRotation === 3){
-			update2 = [6,7];
+	const UpdateAll = (direction) => {
+		for(let a = 0; a < carousel.frames; a++){
+			Update(a,direction);
 		}
-	} else if(direction === 'backward'){
-		if(this.currentRotation === 0){
-			update2 = [6,7];
-		} else if(this.currentRotation === 1){
-			update2 = [0,1];
-		} else if(this.currentRotation === 2){
-			update2 = [2,3];
-		} else if(this.currentRotation === 3){
-			update2 = [4,5];
-		}
-		update2.reverse();
+		loadingPage = false;
 	}
-	console.log(update2);
-	for(let each in update2){
-		num = update2[each];
+
+	const UpdateBackTwo = (direction) => {
+		//console.log('Current Rotation')
+		//console.log(currentRotation);
+		let update2 = [];
+		let num;
+		if(direction === 'forward'){
+			if(currentRotation === 0){
+				update2 = [0,1];
+			} else if(currentRotation === 1){
+				update2 = [2,3];
+			} else if(currentRotation === 2){
+				update2 = [4,5];
+			} else if(currentRotation === 3){
+				update2 = [6,7];
+			}
+		} else if(direction === 'backward'){
+			if(currentRotation === 0){
+				update2 = [6,7];
+			} else if(currentRotation === 1){
+				update2 = [0,1];
+			} else if(currentRotation === 2){
+				update2 = [2,3];
+			} else if(currentRotation === 3){
+				update2 = [4,5];
+			}
+			update2.reverse();
+		}
+		//console.log(update2);
+		for(let each in update2){
+			num = update2[each];
+			Update(num,direction);
+		}
+	}
+
+	const UpdateBack = (direction) => {
+		let current = autoRotate;
+		let num;
+		if(current === 0){
+			num = 3;
+		} else if(current === 1){
+			num = 2;
+		} else if(current === 2){
+			num = 1;
+		} else if(current === 3){
+			num = 0;
+		} else if(current === 4){
+			num = 7;
+		} else if(current === 5){
+			num = 6;
+		} else if(current === 6){
+			num = 5;
+		} else if(current === 7){
+			num = 4;
+		}
 		Update(num,direction);
 	}
-}
-
-const UpdateBack = (direction) => {
-	let current = this.autoRotate;
-	let num;
-	if(current === 0){
-		num = 3;
-	} else if(current === 1){
-		num = 2;
-	} else if(current === 2){
-		num = 1;
-	} else if(current === 3){
-		num = 0;
-	} else if(current === 4){
-		num = 7;
-	} else if(current === 5){
-		num = 6;
-	} else if(current === 6){
-		num = 5;
-	} else if(current === 7){
-		num = 4;
-	}
-	Update(num,direction);
-}
 
 	const Spawn = () => {
-		this.artFrameAllLayer.AddAllToScene();
-		this.buttonBackwardLayer.AddAllToScene();
-		this.buttonHashtagLayer.AddAllToScene();
-		this.buttonForwardLayer.AddAllToScene();
-		this.buttonLeftSkipLayer.AddAllToScene();
-		this.buttonPlayLayer.AddAllToScene();
-		this.buttonRightSkipLayer.AddAllToScene();
-		this.buttonSettingsLayer.AddAllToScene();
-		this.buttonStopLayer.AddAllToScene();
+		artFrameAllLayer.AddAllToScene();
+		buttonBackwardLayer.AddAllToScene();
+		buttonHashtagLayer.AddAllToScene();
+		buttonForwardLayer.AddAllToScene();
+		buttonLeftSkipLayer.AddAllToScene();
+		buttonPlayLayer.AddAllToScene();
+		buttonRightSkipLayer.AddAllToScene();
+		buttonSettingsLayer.AddAllToScene();
+		buttonStopLayer.AddAllToScene();
 
-		this.buttonBackwardClick.GetEl().addEventListener('click', Backward);
-		this.buttonForwardClick.GetEl().addEventListener('click', Forward);
-		this.buttonLeftSkipClick.GetEl().addEventListener('click', PrevPage);
-		this.buttonPlayClick.GetEl().addEventListener('click', PlayPause);
-		this.buttonRightSkipClick.GetEl().addEventListener('click', NextPage);
-		this.buttonSettingsClick.GetEl().addEventListener('click', Scale);
-		this.buttonStopClick.GetEl().addEventListener('click', Stop);
-		this.buttonHashtagClick.GetEl().addEventListener('click', RandomPage);
+		buttonBackwardClick.GetEl().addEventListener('click', Backward);
+		buttonForwardClick.GetEl().addEventListener('click', Forward);
+		buttonLeftSkipClick.GetEl().addEventListener('click', PrevPage);
+		buttonPlayClick.GetEl().addEventListener('click', PlayPause);
+		buttonRightSkipClick.GetEl().addEventListener('click', NextPage);
+		buttonSettingsClick.GetEl().addEventListener('click', Scale);
+		buttonStopClick.GetEl().addEventListener('click', Stop);
+		buttonHashtagClick.GetEl().addEventListener('click', RandomPage);
 
 		Init();
 	}
 
 	const Despawn = () => {
-		this.buttonBackwardClick.GetEl().removeEventListener('click', Backward);
-		this.buttonForwardClick.GetEl().removeEventListener('click', Forward);
-		this.buttonLeftSkipClick.GetEl().removeEventListener('click', PrevPage);
-		this.buttonPlayClick.GetEl().removeEventListener('click', PlayPause);
-		this.buttonRightSkipClick.GetEl().removeEventListener('click', NextPage);
-		this.buttonSettingsClick.GetEl().removeEventListener('click', Scale);
-		this.buttonStopClick.GetEl().removeEventListener('click', Stop);
-		this.buttonHashtagClick.GetEl().removeEventListener('click', RandomPage);
+		buttonBackwardClick.GetEl().removeEventListener('click', Backward);
+		buttonForwardClick.GetEl().removeEventListener('click', Forward);
+		buttonLeftSkipClick.GetEl().removeEventListener('click', PrevPage);
+		buttonPlayClick.GetEl().removeEventListener('click', PlayPause);
+		buttonRightSkipClick.GetEl().removeEventListener('click', NextPage);
+		buttonSettingsClick.GetEl().removeEventListener('click', Scale);
+		buttonStopClick.GetEl().removeEventListener('click', Stop);
+		buttonHashtagClick.GetEl().removeEventListener('click', RandomPage);
 
-		this.artFrameAllLayer.RemoveAllFromScene();
-		this.buttonBackwardLayer.RemoveAllFromScene();
-		this.buttonHashtagLayer.RemoveAllFromScene();
-		this.buttonForwardLayer.RemoveAllFromScene();
-		this.buttonLeftSkipLayer.RemoveAllFromScene();
-		this.buttonPlayLayer.RemoveAllFromScene();
-		this.buttonRightSkipLayer.RemoveAllFromScene();
-		this.buttonSettingsLayer.RemoveAllFromScene();
-		this.buttonStopLayer.RemoveAllFromScene();
+		artFrameAllLayer.RemoveAllFromScene();
+		buttonBackwardLayer.RemoveAllFromScene();
+		buttonHashtagLayer.RemoveAllFromScene();
+		buttonForwardLayer.RemoveAllFromScene();
+		buttonLeftSkipLayer.RemoveAllFromScene();
+		buttonPlayLayer.RemoveAllFromScene();
+		buttonRightSkipLayer.RemoveAllFromScene();
+		buttonSettingsLayer.RemoveAllFromScene();
+		buttonStopLayer.RemoveAllFromScene();
 	}
 
 	const Forward = () => {
-		if(this.notMoving){
-			this.notMoving = false;
+		if(notMoving){
+			notMoving = false;
 			//Get current artFrameAllLayer rotation
-			let rotY = this.artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
-			this.anim90Data.from = rotY;
-			this.anim90Data.to = rotY - 90;
-			this.artFrameAllLayer.AnimateParent(this.anim90Data);
+			let rotY = artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
+			anim90Data.from = rotY;
+			anim90Data.to = rotY - 90;
+			artFrameAllLayer.AnimateParent(anim90Data);
 			updateTimeout = setTimeout(() => {
-				this.currentRotation++;
-				if(this.currentRotation > 3){
-					this.currentRotation = 0;
+				currentRotation++;
+				if(currentRotation > 3){
+					currentRotation = 0;
 				}
 				UpdateBackTwo('forward');
-				this.notMoving = true;
+				notMoving = true;
 				clearTimeout(updateTimeout);
-			}, this.anim90Data.dur+10); //Delay
+			}, anim90Data.dur+10); //Delay
 		}
 	}
 
 	const Backward = () => {
-		if(this.notMoving){
-			this.notMoving = false;
+		if(notMoving){
+			notMoving = false;
 			//Get current artFrameAllLayer rotation
-			let rotY = this.artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
-			this.anim90Data.from = rotY;
-			this.anim90Data.to = rotY + 90;
-			this.artFrameAllLayer.AnimateParent(this.anim90Data);
+			let rotY = artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
+			anim90Data.from = rotY;
+			anim90Data.to = rotY + 90;
+			artFrameAllLayer.AnimateParent(anim90Data);
 			updateTimeout = setTimeout(() => {
-				this.currentRotation--;
-				if(this.currentRotation < 0){
-					this.currentRotation = 3;
+				currentRotation--;
+				if(currentRotation < 0){
+					currentRotation = 3;
 				}
-				console.log(this.currentRotation);
+				console.log(currentRotation);
 				UpdateBackTwo('backward');
-				this.notMoving = true;
+				notMoving = true;
 				clearTimeout(updateTimeout);
-			}, this.anim90Data.dur+10); //Delay
+			}, anim90Data.dur+10); //Delay
 		}
 	}
 
 	const PlayPause = () => {
-		if(this.notPlaying){
-			this.notPlaying = false;
-			this.notMoving = false;
-				//this.currentPage++;
+		if(notPlaying){
+			notPlaying = false;
+			notMoving = false;
+				//currentPage++;
 				playInterval = setInterval(() => {
 					UpdateBack();
-					this.currentRotation = this.autoRotate;
-					if(this.currentRotation === 7){
-						this.currentRotation = 0;
-						//this.currentPage++;
+					currentRotation = autoRotate;
+					if(currentRotation === 7){
+						currentRotation = 0;
+						//currentPage++;
 					} else {
-						this.currentRotation++;
+						currentRotation++;
 					}
-				}, this.anim360Data.dur/8); //Interval
+				}, anim360Data.dur/8); //Interval
 			//Get current artFrameAllLayer rotation
-			let rotY = this.artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
-			this.anim360Data.from = rotY;
-			this.anim360Data.to = rotY - 360;
-			this.artFrameAllLayer.AnimateParent(this.anim360Data);
-			this.artFrameAllLayer.layer.all.parent.core.EmitEvent('play');
+			let rotY = artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
+			anim360Data.from = rotY;
+			anim360Data.to = rotY - 360;
+			artFrameAllLayer.AnimateParent(anim360Data);
+			artFrameAllLayer.layer.all.parent.core.EmitEvent('play');
 
-			this.buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/pause.obj'} });
-			this.buttonPlayText.ChangeSelf({property: 'text', value: {value:'Pause', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'} })
+			buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/pause.obj'} });
+			buttonPlayText.ChangeSelf({property: 'text', value: {value:'Pause', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'} })
 		} else {
-			this.notPlaying = true;
-			this.notMoving = true;
+			notPlaying = true;
+			notMoving = true;
 			clearInterval(playInterval);
 			//Stop current animation
-			this.artFrameAllLayer.layer.all.parent.core.EmitEvent('pause');
-			this.buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/play.obj'} })
-			this.buttonPlayText.ChangeSelf({property: 'text', value: {value:'Play', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'} })
+			artFrameAllLayer.layer.all.parent.core.EmitEvent('pause');
+			buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/play.obj'} })
+			buttonPlayText.ChangeSelf({property: 'text', value: {value:'Play', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'} })
 		}
 	}
 
 	const Stop = () => {
-		if(this.notPlaying){} else {
+		if(notPlaying){} else {
 			//Stop current animation
-			//this.artFrameAllLayer.layer.all.parent.core.EmitEvent('pause');
-			let rotY = this.artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
-			this.anim45MiscData.from = rotY;
-			this.anim45MiscData.to = 1;
-			this.artFrameAllLayer.AnimateParent(this.anim45MiscData);
+			//artFrameAllLayer.layer.all.parent.core.EmitEvent('pause');
+			let rotY = artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
+			anim45MiscData.from = rotY;
+			anim45MiscData.to = 1;
+			artFrameAllLayer.AnimateParent(anim45MiscData);
 
-			this.buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/play.obj'} });
-			this.notPlaying = true;
-			this.notMoving = true;
+			buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/play.obj'} });
+			notPlaying = true;
+			notMoving = true;
 		}
 	}
 
 	const NextPage = () => {
-		if(this.loadingPage){} else {
-			this.loadingPage = true;
+		if(loadingPage){} else {
+			loadingPage = true;
 			UpdateAll('forward');
 		}
 	}
 
 	const PrevPage = () => {
-		if(this.loadingPage){} else {
-			this.loadingPage = true;
+		if(loadingPage){} else {
+			loadingPage = true;
 			UpdateAll('backward');
 		}
 	}
 
 	const RandomPage = () => {
-		if(this.loadingPage){} else {
-			this.loadingPage = true;
-			this.currentImageForward = Math.floor(Math.random()*gallery.images.length);
+		if(loadingPage){} else {
+			loadingPage = true;
+			currentImageForward = Math.floor(Math.random()*carousel.images.length);
 			UpdateAll('forward');
 		}
 	}
 
 	const Scale = () => {
 		//limit effects to the amount of spawned frames
-		if(this.animating){} else {
-			this.animating = true;
+		if(animating){} else {
+			animating = true;
 			scaleTimeout = setTimeout(() => {
-				this.animating = false;
+				animating = false;
 				clearTimeout(scaleTimeout);
 			}, 2050); //Delay
-			if(this.scale === 0){
-				this.scale = 1;
-				this.artFrameAllLayerData.child0.child0.parent.core.EmitEvent('to0');
-				this.artFrameAllLayerData.child1.child0.parent.core.EmitEvent('to0');
-				this.artFrameAllLayerData.child2.child0.parent.core.EmitEvent('to0');
-				this.artFrameAllLayerData.child3.child0.parent.core.EmitEvent('to0');
-				this.artFrameAllLayerData.child4.child0.parent.core.EmitEvent('to0');
-				this.artFrameAllLayerData.child5.child0.parent.core.EmitEvent('to0');
-				this.artFrameAllLayerData.child6.child0.parent.core.EmitEvent('to0');
-				this.artFrameAllLayerData.child7.child0.parent.core.EmitEvent('to0');
+			if(scale === 0){
+				scale = 1;
+				artFrameAllLayerData.child0.child0.parent.core.EmitEvent('to0');
+				artFrameAllLayerData.child1.child0.parent.core.EmitEvent('to0');
+				artFrameAllLayerData.child2.child0.parent.core.EmitEvent('to0');
+				artFrameAllLayerData.child3.child0.parent.core.EmitEvent('to0');
+				artFrameAllLayerData.child4.child0.parent.core.EmitEvent('to0');
+				artFrameAllLayerData.child5.child0.parent.core.EmitEvent('to0');
+				artFrameAllLayerData.child6.child0.parent.core.EmitEvent('to0');
+				artFrameAllLayerData.child7.child0.parent.core.EmitEvent('to0');
 			} else {
-				this.scale = 0;
-				this.artFrameAllLayerData.child0.child0.parent.core.EmitEvent('to1');
-				this.artFrameAllLayerData.child1.child0.parent.core.EmitEvent('to1');
-				this.artFrameAllLayerData.child2.child0.parent.core.EmitEvent('to1');
-				this.artFrameAllLayerData.child3.child0.parent.core.EmitEvent('to1');
-				this.artFrameAllLayerData.child4.child0.parent.core.EmitEvent('to1');
-				this.artFrameAllLayerData.child5.child0.parent.core.EmitEvent('to1');
-				this.artFrameAllLayerData.child6.child0.parent.core.EmitEvent('to1');
-				this.artFrameAllLayerData.child7.child0.parent.core.EmitEvent('to1');
+				scale = 0;
+				artFrameAllLayerData.child0.child0.parent.core.EmitEvent('to1');
+				artFrameAllLayerData.child1.child0.parent.core.EmitEvent('to1');
+				artFrameAllLayerData.child2.child0.parent.core.EmitEvent('to1');
+				artFrameAllLayerData.child3.child0.parent.core.EmitEvent('to1');
+				artFrameAllLayerData.child4.child0.parent.core.EmitEvent('to1');
+				artFrameAllLayerData.child5.child0.parent.core.EmitEvent('to1');
+				artFrameAllLayerData.child6.child0.parent.core.EmitEvent('to1');
+				artFrameAllLayerData.child7.child0.parent.core.EmitEvent('to1');
 			}
 		}
 	}
 
 	const Info = () => {
-		if(this.info){
-			this.info = false;
+		if(info){
+			info = false;
 		} else {
-			this.info = true;
+			info = true;
 		}
 	}
 
 	const Init = () => {
-		this.buttonStopClick.EnableDetail({text: gallery.description, position: new THREE.Vector3(0,1.5,-2)});
+		buttonStopClick.EnableDetail({text: carousel.description, position: new THREE.Vector3(0,1.5,-2)});
 		UpdateAll('forward');
 	}
 
-	return {gallery, Spawn, Despawn};
+	return {carousel, Spawn, Despawn};
 }
 
 },//Init
@@ -6269,27 +6534,6 @@ auxl.vaporYellow = '#fffb96';
 
 //Materials Library
 //
-
-//Grass Material
-auxl.grassMaterial = {shader: "standard", color: "#55be71", opacity: 1, metalness: 0.1, roughness: 0.9, emissive: "#397e4b", emissiveIntensity: 0.2};
-
-//Water Material
-auxl.waterMaterial = {shader: "standard", color: "#55a5be", opacity: 1, metalness: 0.1, roughness: 0.9, emissive: "#65c3e0", emissiveIntensity: 0.2};
-
-//Mountains
-auxl.mountainMat1 = {shader: 'threeColorGradientShader', topColor: '#3b2f1d', middleColor: '#402e16', bottomColor: '#402e16', side: 'back'};
-auxl.mountainMat2 = {shader: 'threeColorGradientShader', topColor: '#846943', middleColor: '#402e16', bottomColor: '#402e16', side: 'back'};
-auxl.mountainMat3 = {shader: 'threeColorGradientShader', topColor: '#9b7d52', middleColor: '#58401f', bottomColor: '#4b3517', side: 'back'};
-auxl.mountainMatSnow = {shader: 'threeColorGradientShader', topColor: '#e0d7ca', middleColor: '#b4a897', bottomColor: '#5f503b', side: 'back'};
-
-//ImageSwapper Materials
-auxl.mat0 = {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
-auxl.mat1 = {src: './assets/img/vwave/1.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
-auxl.mat2 = {src: './assets/img/vwave/2.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
-auxl.mat3 = {src: './assets/img/vwave/3.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
-auxl.mat4 = {src: './assets/img/vwave/4.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
-
-
 
 //Tiles
 
@@ -6380,6 +6624,19 @@ auxl.pattern83 = './assets/img/tiles/kenny/pattern_83.png';
 auxl.pattern84 = './assets/img/tiles/kenny/pattern_84.png';
 
 auxl.patterns = [auxl.pattern01,auxl.pattern02,auxl.pattern03,auxl.pattern04,auxl.pattern05,auxl.pattern06,auxl.pattern07,auxl.pattern08,auxl.pattern09,auxl.pattern10,auxl.pattern11,auxl.pattern12,auxl.pattern13,auxl.pattern14,auxl.pattern15,auxl.pattern16,auxl.pattern17,auxl.pattern18,auxl.pattern19,auxl.pattern20,auxl.pattern21,auxl.pattern22,auxl.pattern23,auxl.pattern24,auxl.pattern25,auxl.pattern26,auxl.pattern27,auxl.pattern28,auxl.pattern29,auxl.pattern30,auxl.pattern31,auxl.pattern32,auxl.pattern33,auxl.pattern34,auxl.pattern35,auxl.pattern36,auxl.pattern37,auxl.pattern38,auxl.pattern39,auxl.pattern40,auxl.pattern41,auxl.pattern42,auxl.pattern43,auxl.pattern44,auxl.pattern45,auxl.pattern46,auxl.pattern47,auxl.pattern48,auxl.pattern49,auxl.pattern50,auxl.pattern51,auxl.pattern52,auxl.pattern53,auxl.pattern54,auxl.pattern55,auxl.pattern56,auxl.pattern57,auxl.pattern58,auxl.pattern59,auxl.pattern60,auxl.pattern61,auxl.pattern62,auxl.pattern63,auxl.pattern64,auxl.pattern65,auxl.pattern66,auxl.pattern67,auxl.pattern68,auxl.pattern69,auxl.pattern70,auxl.pattern71,auxl.pattern72,auxl.pattern73,auxl.pattern74,auxl.pattern75,auxl.pattern76,auxl.pattern77,auxl.pattern78,auxl.pattern79,auxl.pattern80,auxl.pattern81,auxl.pattern82,auxl.pattern83,auxl.pattern84];
+
+//Grass Material
+auxl.grassMaterial = {shader: "standard", color: "#55be71", opacity: 1, metalness: 0.1, roughness: 0.9, emissive: "#397e4b", emissiveIntensity: 0.2};
+
+//Water Material
+auxl.waterMaterial = {shader: "standard", color: "#55a5be", opacity: 1, metalness: 0.1, roughness: 0.9, emissive: "#65c3e0", emissiveIntensity: 0.2};
+
+//ImageSwapper Materials
+auxl.mat0 = {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
+auxl.mat1 = {src: './assets/img/vwave/1.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
+auxl.mat2 = {src: './assets/img/vwave/2.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
+auxl.mat3 = {src: './assets/img/vwave/3.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
+auxl.mat4 = {src: './assets/img/vwave/4.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
 
 //
 //Animations Library
@@ -7575,14 +7832,14 @@ components: {clickfunc: {clickObj: 'imageSwapper1'}},
 auxl.imageSwapper1 = auxl.ImageSwapper('imageSwapper1',auxl.imageSwapperViewData, auxl.imageSwapperButtonData, auxl.mat0, auxl.mat1, auxl.mat2, auxl.mat3, auxl.mat4);
 
 //
-//Gallery
+//ImageCarousel
 
 //Testing
-auxl.galleryTestingData = {
-id: 'galleryTesting',
+auxl.carouselTestingData = {
+id: 'carouselTesting',
 //mode: 360,
 //frames: 8,
-description: 'Browse through an example gallery. Control the image frames with a handful of buttons to jump to a random page, go back a page, go back a few images, view info, play the slideshow, go forward a few images, go to the next page and switch between 2 frame sizings.',
+description: 'Browse through an example carousel. Control the image frames with a handful of buttons to jump to a random page, go back a page, go back a few images, view info, play the slideshow, go forward a few images, go to the next page and switch between 2 frame sizings.',
 images: [
 	{image: auxl.pattern01, text: 'Example1'},
 	{image: auxl.pattern02, text: 'Example2'},
@@ -7610,7 +7867,7 @@ images: [
 	{image: auxl.pattern24, text: 'Example24'},
 ],
 };
-auxl.galleryTesting = auxl.Gallery(auxl.galleryTestingData);
+auxl.carouselTesting = auxl.ImageCarousel(auxl.carouselTestingData);
 
 //
 //Memory Game
@@ -7722,6 +7979,134 @@ components: false,
 //Memory Example
 auxl.memory = auxl.MemoryGame(auxl.memory0Data,auxl.memory1Data,auxl.memory2Data,auxl.memory3Data,);
 
+
+//
+//Horizon
+//mountains,hills,buildings,cylinderWall,squareWall
+//omit texture to use ThreeGradientShader
+//low,normal,high
+
+//Mountains 1
+//Forest Mountains
+auxl.horizonMountains1Data = {
+id: 'horizonMountains1',
+type: 'mountains',
+texture: false,
+baseColor: false,
+baseColorFamily: 'maroon',
+radius: 200,
+density: 'normal',
+height: 'normal',
+width: 'normal',
+};
+auxl.horizonMountains1 = auxl.Horizon(auxl.horizonMountains1Data);
+
+//Mountains 2
+//Snow Mountains
+auxl.horizonMountains2Data = {
+id: 'horizonMountains2',
+type: 'mountains',
+texture: false,
+baseColor: '#e0d7ca',
+baseColorFamily: false,
+radius: 200,
+density: 'normal',
+height: 'high',
+width: 'normal',
+};
+auxl.horizonMountains2 = auxl.Horizon(auxl.horizonMountains2Data);
+
+//Hills
+//Graveyard Hills
+auxl.horizonHills1Data = {
+id: 'horizonHills1',
+type: 'hills',
+texture: false,
+baseColor: false,
+baseColorFamily: 'olive',
+radius: 200,
+density: 'normal',
+height: 'normal',
+width: 'normal',
+};
+auxl.horizonHills1 = auxl.Horizon(auxl.horizonHills1Data);
+
+//Wall 1
+//Desert Wall
+auxl.horizonWalls1Data = {
+id: 'horizonWalls1',
+type: 'cylinderWall',
+texture: false,
+baseColor: false,
+baseColorFamily: 'orange',
+radius: 200,
+density: 'normal',
+height: 'low',
+width: 'normal',
+};
+auxl.horizonWalls1 = auxl.Horizon(auxl.horizonWalls1Data);
+
+//Wall2
+//Underwater - INCOMPLETE
+auxl.horizonWalls2Data = {
+id: 'horizonWalls2',
+type: 'squareWall',
+texture: {src: auxl.pattern55, repeat: '100 5', emissive: true,},
+baseColor: '#275876',
+baseColorFamily: false,
+radius: 200,
+density: 'normal',
+height: 'low',
+width: 'normal',
+};
+auxl.horizonWalls2 = auxl.Horizon(auxl.horizonWalls2Data);
+
+//Wall3
+//Indoor Room - INCOMPLETE
+auxl.horizonWalls3Data = {
+id: 'horizonWalls3',
+type: 'squareWall',
+texture: {src: auxl.pattern18, repeat: '40 10', emissive: true,},
+baseColor: '#80401f',
+baseColorFamily: false,
+radius: 10,
+density: 'normal',
+height: 'low',
+width: 'normal',
+};
+auxl.horizonWalls3 = auxl.Horizon(auxl.horizonWalls3Data);
+
+
+//Buildings
+//Beach Pillars
+auxl.horizonBuildings1Data = {
+id: 'horizonBuildings1',
+type: 'buildings',
+texture: {src: auxl.pattern74, repeat: '1 1'},
+baseColor: false,
+baseColorFamily: 'yellow',
+radius: 200,
+density: 'normal',
+height: 'normal',
+width: 'normal',
+};
+auxl.horizonBuildings1 = auxl.Horizon(auxl.horizonBuildings1Data);
+
+//Random Buildings
+//Starting Island Misc
+auxl.horizonBuildings2Data = {
+id: 'horizonBuildings2',
+type: 'buildings',
+texture: {src: auxl.patterns, repeat: '2 2', opacity: 1, metalness: 0.4, roughness: 0.6, emissive: true, emissiveIntensity: 0.3,},
+baseColor: false,
+baseColorFamily: false,
+radius: 200,
+density: 'high',
+height: 'high',
+width: 'normal',
+};
+auxl.horizonBuildings2 = auxl.Horizon(auxl.horizonBuildings2Data);
+
     },
 });
 
@@ -7792,8 +8177,8 @@ data:'nodeCeilingData',
 id:'nodeCeiling',
 sources:false,
 text: false,
-geometry: {primitive: 'plane', width: 300, height: 300,},
-material: {shader: "standard", src: auxl.pattern80, repeat: '25 25',color: "#3c86b4", opacity: 0.69, metalness: 0.8, roughness: 0.2, emissive: "#3c86b4", emissiveIntensity: 0.2, side: 'back'},
+geometry: {primitive: 'plane', width: 500, height: 500,},
+material: {shader: "standard", src: auxl.pattern80, repeat: '50 50',color: "#3c86b4", opacity: 0.69, metalness: 0.8, roughness: 0.2, emissive: "#3c86b4", emissiveIntensity: 0.2, side: 'back'},
 position: new THREE.Vector3(0,30,0),
 rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -7879,154 +8264,6 @@ child1: {core: auxl.nodeWall2},
 child2: {core: auxl.nodeWall3},
 child3: {core: auxl.nodeWall4},}
 auxl.nodeWalls = auxl.Layer('nodeWalls',auxl.nodeWallsData);
-
-//Horizon
-//
-
-//Mountains
-auxl.mountainsParentData = {
-data:'mountainsParentData',
-id:'mountainsParent',
-sources:false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,15,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-auxl.mountainData = {
-data:'mountainData',
-id:'mountain',
-sources:false,
-text: false,
-geometry: {primitive: 'cone', height: 5, radiusBottom: 5, radiusTop: 0, openEnded: true, segmentsHeight: 1, segmentsRadial: 9, thetaLength: 120, thetaStart: 0},
-material: {shader: 'threeColorGradientShader', topColor: '#3b2f1d', middleColor: '#402e16', bottomColor: '#402e16', side: 'back'},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(20,20,20),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-auxl.mountainsParent = auxl.Core(auxl.mountainsParentData);
-auxl.mountainData.id = 'mountain1';
-auxl.mountainData.material = auxl.mountainMat1;
-auxl.mountainData.geometry.height = 5;
-auxl.mountainData.geometry.radiusBottom = 5;
-auxl.mountainData.geometry.thetaLength = 120;
-auxl.mountainData.geometry.thetaStart = 0;
-auxl.mountainData.position = new THREE.Vector3(175,0,175);
-auxl.mountain1 = auxl.Core(auxl.mountainData);
-auxl.mountainData.id = 'mountain2';
-auxl.mountainData.material = auxl.mountainMat2;
-auxl.mountainData.geometry.height = 3;
-auxl.mountainData.geometry.radiusBottom = 10;
-auxl.mountainData.geometry.thetaLength = 150;
-auxl.mountainData.geometry.thetaStart = -60;
-auxl.mountainData.position = new THREE.Vector3(75,0,250);
-auxl.mountain2 = auxl.Core(auxl.mountainData);
-auxl.mountainData.id = 'mountain3';
-auxl.mountainData.material = auxl.mountainMat1;
-auxl.mountainData.geometry.height = 5;
-auxl.mountainData.geometry.radiusBottom = 5;
-auxl.mountainData.geometry.thetaLength = 120;
-auxl.mountainData.geometry.thetaStart = 75;
-auxl.mountainData.position = new THREE.Vector3(332,0,-192);
-auxl.mountain3 = auxl.Core(auxl.mountainData);
-auxl.mountainData.id = 'mountain4';
-auxl.mountainData.material = auxl.mountainMat2;
-auxl.mountainData.geometry.height = 3;
-auxl.mountainData.geometry.radiusBottom = 10;
-auxl.mountainData.geometry.thetaLength = 160;
-auxl.mountainData.geometry.thetaStart = 0;
-auxl.mountainData.position = new THREE.Vector3(240,0,45);
-auxl.mountain4 = auxl.Core(auxl.mountainData);
-auxl.mountainData.id = 'mountain5';
-auxl.mountainData.material = auxl.mountainMat1;
-auxl.mountainData.geometry.height = 5;
-auxl.mountainData.geometry.radiusBottom = 5;
-auxl.mountainData.geometry.thetaLength = 120;
-auxl.mountainData.geometry.thetaStart = 145;
-auxl.mountainData.position = new THREE.Vector3(-84,0,-194);
-auxl.mountain5 = auxl.Core(auxl.mountainData);
-auxl.mountainData.id = 'mountain6';
-auxl.mountainData.material = auxl.mountainMat2;
-auxl.mountainData.geometry.height = 3;
-auxl.mountainData.geometry.radiusBottom = 10;
-auxl.mountainData.geometry.thetaLength = 160;
-auxl.mountainData.geometry.thetaStart = 90;
-auxl.mountainData.position = new THREE.Vector3(143,0,-220);
-auxl.mountain6 = auxl.Core(auxl.mountainData);
-auxl.mountainData.id = 'mountain7';
-auxl.mountainData.material = auxl.mountainMat1;
-auxl.mountainData.geometry.height = 5;
-auxl.mountainData.geometry.radiusBottom = 5;
-auxl.mountainData.geometry.thetaLength = 120;
-auxl.mountainData.geometry.thetaStart = 260;
-auxl.mountainData.position = new THREE.Vector3(-291,0,174);
-auxl.mountain7 = auxl.Core(auxl.mountainData);
-auxl.mountainData.id = 'mountain8';
-auxl.mountainData.material = auxl.mountainMat2;
-auxl.mountainData.geometry.height = 3;
-auxl.mountainData.geometry.radiusBottom = 10;
-auxl.mountainData.geometry.thetaLength = 160;
-auxl.mountainData.geometry.thetaStart = 180;
-auxl.mountainData.position = new THREE.Vector3(-254,0,-98);
-auxl.mountain8 = auxl.Core(auxl.mountainData);
-auxl.mountainData.id = 'mountain9';
-auxl.mountainData.material = auxl.mountainMat1;
-auxl.mountainData.geometry.height = 3;
-auxl.mountainData.geometry.radiusBottom = 10;
-auxl.mountainData.geometry.thetaLength = 130;
-auxl.mountainData.geometry.thetaStart = -85;
-auxl.mountainData.position = new THREE.Vector3(-174,0,243);
-auxl.mountain9 = auxl.Core(auxl.mountainData);
-auxl.mountainData.id = 'mountain10';
-auxl.mountainData.material = auxl.mountainMat2;
-auxl.mountainData.geometry.height = 3;
-auxl.mountainData.geometry.radiusBottom = 10;
-auxl.mountainData.geometry.thetaLength = 150;
-auxl.mountainData.geometry.thetaStart = -140;
-auxl.mountainData.position = new THREE.Vector3(-325,0,42);
-auxl.mountain10 = auxl.Core(auxl.mountainData);
-auxl.mountainData.id = 'mountain11';
-auxl.mountainData.material = auxl.mountainMat1;
-auxl.mountainData.geometry.height = 5;
-auxl.mountainData.geometry.radiusBottom = 5;
-auxl.mountainData.geometry.thetaLength = 120;
-auxl.mountainData.geometry.thetaStart = 115;
-auxl.mountainData.position = new THREE.Vector3(-55,0,-284);
-auxl.mountain11 = auxl.Core(auxl.mountainData);
-auxl.mountainData.id = 'mountain12';
-auxl.mountainData.material = auxl.mountainMat2;
-auxl.mountainData.geometry.height = 5;
-auxl.mountainData.geometry.radiusBottom = 5;
-auxl.mountainData.geometry.thetaLength = 120;
-auxl.mountainData.geometry.thetaStart = 175;
-auxl.mountainData.position = new THREE.Vector3(-180,0,-285);
-auxl.mountain12 = auxl.Core(auxl.mountainData);
-auxl.mountainsLayerData = {
-parent: {core: auxl.mountainsParent}, 
-child0: {core: auxl.mountain1}, 
-child1: {core: auxl.mountain2},
-child2: {core: auxl.mountain3},
-child3: {core: auxl.mountain4},
-child4: {core: auxl.mountain5},
-child5: {core: auxl.mountain6},
-child6: {core: auxl.mountain7},
-child7: {core: auxl.mountain8},
-child8: {core: auxl.mountain9},
-child9: {core: auxl.mountain10},
-child10: {core: auxl.mountain11},
-child11: {core: auxl.mountain12},
-}
-auxl.mountains = auxl.Layer('mountains',auxl.mountainsLayerData);
 
 //Atmosphere
 //
@@ -12660,6 +12897,7 @@ forestScene2:{SpawnAll:null},
 multiRockFlatGrass:{genCores:null, SpawnAll:null},
 HamGirl:{Start:null},
 npcMinty:{Spawn:null},
+horizonBuildings2:{Spawn:null},
 soundTesting:{AddToScene:null},
 },
 delay:{
@@ -12737,7 +12975,7 @@ teleport:{SpawnAll:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern69, repeat: '150 150',color: "#d6a9ba", emissive: "#d6a9ba",},}},
 snowForestScene1:{SpawnAll:null},
 npc1:{Spawn: null},
-mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: auxl.mountainMatSnow}},
+horizonMountains2:{Spawn: null},
 multiSnowMountainsBasic:{SpawnAll: null},
 },
 delay:{
@@ -12925,8 +13163,8 @@ start:{
 teleport:{SpawnAll:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern24, repeat: '300 300', color: "#228343", emissive: "#228343",},}},
 forestScene1:{SpawnAll:null},
-mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: auxl.mountainMat1}},
-galleryTesting:{Spawn:null},
+horizonMountains1:{Spawn: null},
+carouselTesting:{Spawn:null},
 },
 delay:{
 },
@@ -13003,7 +13241,7 @@ npc0:{Spawn: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern44, repeat: '150 150',color: "#618136", emissive: "#618136",},}},
 multiGrassyHillsBasic:{SpawnAll: null},
 graveyardScene1:{SpawnAll:null},
-mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: auxl.mountainMat2}},
+horizonHills1:{Spawn: null},
 },
 delay:{
 
@@ -13036,6 +13274,7 @@ teleport0:{SpawnAll:null},
 memory:{SpawnGame: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern50, repeat: '150 150',color: "#763a3a", emissive: "#763a3a",},}},
 nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: auxl.pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
+//horizonWalls3:{Spawn:null},
 smallCeiling: {AddToScene: null,ChangeSelf:{property: 'material', value: {src: auxl.pattern22, repeat: '5 5', color: "#623018", emissive: "#623018",}}},
 imageSwapper1:{Show: null},
 },
@@ -13112,7 +13351,7 @@ nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern58, repeat
 npc2:{Spawn: null},
 multiDesertPlainsBasic:{SpawnAll: null},
 desertScene1:{SpawnAll:null},
-mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: auxl.mountainMat3}},
+horizonWalls1:{Spawn:null},
 },
 delay:{
 
@@ -13224,7 +13463,7 @@ eventTesting5:{SetFlag:{flag: 'testExitVar', value: true}, EnableDetail: {text: 
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55, repeat: '150 150',color: "#b4933c", emissive: "#b4933c",},}},
 multiOceanBeachBasic:{SpawnAll: null},
 beachScene1:{SpawnAll:null},
-mountains:{AddAllToScene: null, ChangeAll:{property: 'material', value: auxl.mountainMat2}},
+horizonBuildings1:{Spawn: null},
 canoe:{AddToScene:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(1.5,0,3),}},
 canoe_paddle:{AddToScene:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(-2,0.1,1),}},
 waterFloor:{AddToScene:null},
@@ -13265,7 +13504,8 @@ start:{
 teleport0:{SpawnAll:null},
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: false},},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern83, repeat: '150 150',color: "#3c86b4", emissive: "#3c86b4",},}},
-nodeWalls:{AddAllToScene: null,ChangeParent:{property: 'scale', value: new THREE.Vector3(15,15,15)},ChangeAll:{property: 'material', value: {src: auxl.pattern55, repeat: '5 1.25', color: "#275876", emissive: "#275876",}}},
+//nodeWalls:{AddAllToScene: null,ChangeParent:{property: 'scale', value: new THREE.Vector3(15,15,15)},ChangeAll:{property: 'material', value: {src: auxl.pattern55, repeat: '5 1.25', color: "#275876", emissive: "#275876",}}},
+horizonWalls2:{Spawn:null},
 underwaterScene1:{SpawnAll:null},
 nodeCeiling:{AddToScene:null},
 },
@@ -13282,7 +13522,7 @@ interaction:{
 },
 exit:{
 underwaterScene1:{DespawnAll:null},
-nodeWalls: {ChangeParent:{property: 'scale', value: new THREE.Vector3(1,1,1)}},
+//nodeWalls: {ChangeParent:{property: 'scale', value: new THREE.Vector3(1,1,1)}},
 eventTesting5:{IfElse: {eventTesting5:{cond: 'testExitVar',
 ifTrue: {
 eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55,color: "#1f5298", emissive: "#1f5298",},}},
