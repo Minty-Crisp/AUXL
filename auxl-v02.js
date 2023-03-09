@@ -8,7 +8,7 @@
 //AUXL v0.2 - In Progress
 
 //auxl
-//AUXL System : ObjGens, Functions, Vital Data,Core,Layer & Objects
+//AUXL System : System, ObjGens & Support Functions
 AFRAME.registerSystem('auxl', {
 //schema: {
 	//bar: {type: 'number'},
@@ -18,7 +18,7 @@ AFRAME.registerSystem('auxl', {
 init: function () {
 //console.log('AUXL INIT');
 // System
-/********************************************************************/
+/*************************************************************/
 //
 
 //Establish a-frame objects
@@ -66,43 +66,151 @@ let vrControllerUI;
 this.joystickReader = '';
 this.controller1Reader = '';
 this.controller2Reader = '';
-//Core, Layer & Aux currently spawned in scene.
+//Object Tracking
 this.spawned = {};
 this.scenarioSpawned = {};
 this.zoneSpawned = {};
 this.nodeSpawned = {};
+this.bookSpawned = {};
+//Objects that have sources or components requiring js import storage
 this.spawnedWaitingForJS = {};
-//Clear Node or Zone
+//Scenario, Zone, Node & Books use this to confirm before using spawnTracker
+//All Named Object Spawn Functions
+this.spawnFunc = [
+'SpawnCore',
+'SpawnLayer',
+'SpawnMenu',
+'SpawnObjRing',
+'SpawnMultiAsset',
+'SpawnHam',
+'SpawnTeleport',
+'SpawnNPC',
+'SpawnSpeech',
+'SpawnBook',
+'SpawnHorizon',
+'SpawnSkyBox',
+'SpawnImgSwap',
+'SpawnImgCarousel',
+'SpawnMemGame'
+];
+//Spawn Tracker
+function spawnTracker(obj, spawnLocation, bookName){
+
+	//Configure Tracker
+	let tracker;
+	if(spawnLocation === 'scenario'){
+		tracker = 'scenarioSpawned';
+	} else if(spawnLocation === 'zone'){
+		tracker = 'zoneSpawned';
+	} else if(spawnLocation === 'node'){
+		tracker = 'nodeSpawned';
+	} else if(spawnLocation === 'book'){
+		tracker = 'bookSpawned';
+	} else {
+		tracker = 'nodeSpawned';
+	}
+
+	//Check for Object Type & ID
+	let type;
+	let id;
+	if(auxl[obj]){
+		if(auxl[obj].DespawnCore){
+			type = 'core';
+			id = auxl[obj].core.id;
+		} else if(auxl[obj].DespawnLayer){
+			type = 'layer';
+			id = auxl[obj].layer.id;
+		} else if(auxl[obj].DespawnMenu){
+			type = 'menu';
+			id = auxl[obj].menu.id;
+		} else if(auxl[obj].DespawnObjRing){
+			type = 'singleGen';
+			id = auxl[obj].singleGen.id;
+		} else if(auxl[obj].DespawnMultiAsset){
+			type = 'multiGen';
+			id = auxl[obj].multiGen.id;
+		} else if(auxl[obj].DespawnHam){
+			type = 'ham';
+			id = auxl[obj].ham.id;
+		} else if(auxl[obj].DespawnTeleport){
+			type = 'teleport';
+			id = auxl[obj].teleport.id;
+		} else if(auxl[obj].DespawnNPC){
+			type = 'npc';
+			id = auxl[obj].npc.id;
+		} else if(auxl[obj].DespawnSpeech){
+			type = 'speechSystem';
+			id = auxl[obj].speechSystem.id;
+		} else if(auxl[obj].DespawnBook){
+			type = 'book';
+			id = auxl[obj].book.id;
+		} else if(auxl[obj].DespawnHorizon){
+			type = 'horizon';
+			id = auxl[obj].horizon.id;
+		} else if(auxl[obj].DespawnSkyBox){
+			type = 'skyBox';
+			id = auxl[obj].skyBox.id;
+		} else if(auxl[obj].DespawnImgSwap){
+			type = 'imageSwapper';
+			id = auxl[obj].imageSwapper.id;
+		} else if(auxl[obj].DespawnImgCarousel){
+			type = 'imageCarousel';
+			id = auxl[obj].imageCarousel.id;
+		} else if(auxl[obj].DespawnMemGame){
+			type = 'memory';
+			id = auxl[obj].memory.id;
+		} else {
+			console.log('Tracker type error');
+		}
+	}
+	//Add to Tracker
+	if(spawnLocation === 'book'){
+		if(auxl[tracker][bookName]){}else{
+			auxl[tracker][bookName] = {};
+		}
+		auxl[tracker][bookName][id] = {type, obj};
+	} else {
+		auxl[tracker][id] = {type, obj};
+	}
+
+}
+//Clear Spawned from Scenario, Zone or Node
 function clearSpawned(spawned){
 	for(let spawn in spawned){
 		//console.log(spawn);//name of ID
 		//console.log(spawned[spawn]);//obj
 		//console.log(auxl[spawn]);
 		if(auxl[spawn]){
-			if(auxl[spawn].type === 'core'){
-				auxl[spawn].core.RemoveFromScene();
-			} else if (auxl[spawn].type === 'layer'){
-				auxl[spawn].layer.RemoveAllFromScene();
-			} else if (spawned[spawn].type === 'gen'){
-				auxl[spawn].DespawnAll();
+			if(spawned[spawn].type === 'core'){
+				auxl[spawn].DespawnCore();
+			} else if (spawned[spawn].type === 'layer'){
+				auxl[spawn].DespawnLayer();
+			} else if (spawned[spawn].type === 'singleGen'){
+				auxl[spawn].DespawnObjRing();
+			} else if (spawned[spawn].type === 'multiGen'){
+				auxl[spawn].DespawnMultiAsset();
+			} else if (spawned[spawn].type === 'ham'){
+				auxl[spawn].DespawnHam();
 			} else if (spawned[spawn].type === 'teleport'){
-				auxl[spawn].DespawnAll();
+				auxl[spawn].DespawnTeleport();
 			} else if (spawned[spawn].type === 'npc'){
-				auxl[spawn].Despawn();
+				auxl[spawn].DespawnNPC();
 			} else if (spawned[spawn].type === 'horizon'){
-				auxl[spawn].Despawn();
-			}  else if (spawned[spawn].type === 'imageSwapper'){
-				auxl[spawn].Remove();
+				auxl[spawn].DespawnHorizon();
+			} else if (spawned[spawn].type === 'skyBox'){
+				auxl[spawn].DespawnSkyBox();
+			} else if (spawned[spawn].type === 'imageSwapper'){
+				auxl[spawn].DespawnImgSwap();
+			} else if (spawned[spawn].type === 'imageCarousel'){
+				auxl[spawn].DespawnImgCarousel();
+			} else if (spawned[spawn].type === 'memory'){
+				auxl[spawn].DespawnMemGame();
 			} else {
-				if(auxl[spawn].RemoveFromScene){
-					auxl[spawn].RemoveFromScene();
-				} else if(auxl[spawn].RemoveAllFromScene){
-					auxl[spawn].RemoveAllFromScene();
-				}
+				console.log('Despawn type error');
 			}
 		} else {
 			if (spawned[spawn].type === 'menu'){
-				spawned[spawn].obj.MenuRemove();
+				spawned[spawn].obj.DespawnMenu();
 			} else {
 				console.log('Despawn not compatible');
 				console.log(spawn);
@@ -112,8 +220,26 @@ function clearSpawned(spawned){
 		}
 		//console.log(spawned[spawn]);//Book & Page spawned from
 		delete spawned[spawn];
+		/*
+		if(Object.keys(auxl.bookSpawned[bookName]).length === 0){
+			delete auxl.bookSpawned[bookName];
+		}
+		*/
 	}
 }
+//Remove From Tracker
+function RemoveFromTracker(id, bookname){
+	if(auxl.scenarioSpawned[id]){
+		delete auxl.scenarioSpawned[id];
+	} else if(auxl.zoneSpawned[id]){
+		delete auxl.zoneSpawned[id];
+	} else if(auxl.nodeSpawned[id]){
+		delete auxl.nodeSpawned[id];
+	} else if(auxl.bookSpawned[id]){
+		delete auxl.bookSpawned[bookName][id];
+	}
+}
+//Timeout, Interval, Interaction & Events currently running
 this.running = {};
 this.zoneRunning = {};
 this.scenarioRunning = {};
@@ -837,7 +963,7 @@ this.Core = (data) => {
 		return core.el;
 	}
 
-	const AddToScene = (parent, layer, other) => {
+	const SpawnCore = (parent, layer, other) => {
 		let needParent = parent || false;
 		let fromLayer = layer || false;
 		Generate();
@@ -849,16 +975,10 @@ this.Core = (data) => {
 			}else{
 				sceneEl.appendChild(core.el);
 			}
-			if(fromLayer || other){} else {
-				//console.log('Add to scene tracker')
-				//console.log(core)
-				AddToSceneTracker();
-			}
 		}
-		//console.log(core)
 	}
 
-	const RemoveFromScene = (parent, layer, other) => {
+	const DespawnCore = (parent, layer, other) => {
 		//loop through and remove all core.components which removes all event listeners before clearing from scene
 		let componentKeys = Object.keys(core.components);
 		for (let key in componentKeys) {
@@ -876,21 +996,9 @@ this.Core = (data) => {
 			//console.log(core.el)
 			sceneEl.removeChild(core.el);
 		}
-		if(core.entity === 'preAdded'){} else {
-			if(fromLayer || other){} else {
-				RemoveFromSceneTracker();
-			}
+		if(fromLayer || other){} else {
+			RemoveFromTracker(core.id);
 		}
-	}
-
-	const AddToSceneTracker = () => {
-		if(auxl.scenarioSpawned[core.id]){} else if(auxl.zoneSpawned[core.id]){} else {
-			auxl.nodeSpawned[core.id] = {type: 'core', obj: core};
-		}
-	}
-
-	const RemoveFromSceneTracker = () => {
-		delete auxl.nodeSpawned[core.id];
 	}
 
 	const ChangeSelf = (propertyValue) => {
@@ -1104,7 +1212,7 @@ this.Core = (data) => {
 		core.detailMain.core.el.emit('close',{});
 		core.detailClose.core.el.emit('close',{});
 		let elDelDelay = setTimeout(function () {
-			core.detailAll.RemoveAllFromScene();
+			core.detailAll.DespawnLayer(true);
 			core.isOpen = false;
 			clearTimeout(elDelDelay);
 		}, 550); //Delay
@@ -1122,7 +1230,7 @@ this.Core = (data) => {
 			core.detailClose.core.el.removeEventListener('click',closePrompt);
 		} else {
 			//console.log('Is Closed');
-			core.detailAll.AddAllToScene();
+			core.detailAll.SpawnLayer();
 			core.isOpen = detailPrompt_open();
 			core.detailClose.core.el.addEventListener('click', closePrompt);
 		}
@@ -1143,7 +1251,7 @@ this.Core = (data) => {
 		GetEl().removeEventListener('click', openClose);
 	}
 
-	return {core, Generate, AddToScene, RemoveFromScene, RemoveComponent, ChangeSelf, Animate, GetEl, EmitEvent, SetFlag, GetFlag, ClickRun, FuseClickRun, CursorDownRun, CursorEnterRun, CursorLeaveRun, CursorUpRun, EnableDetail, DisableDetail};
+	return {core, Generate, SpawnCore, DespawnCore, RemoveComponent, ChangeSelf, Animate, GetEl, EmitEvent, SetFlag, GetFlag, ClickRun, FuseClickRun, CursorDownRun, CursorEnterRun, CursorLeaveRun, CursorUpRun, EnableDetail, DisableDetail};
 }
 
 //
@@ -1155,34 +1263,34 @@ this.Layer = (id, all) => {
 	layer.secondParents = [];
 	layer.thirdParents = [];
 
-	const AddAllToScene = (other) => {
+	const SpawnLayer = (other) => {
 		for(let each in all){
 			if(each === 'parent'){
-				all[each].core.AddToScene(false, true);
+				all[each].core.SpawnCore(false, true);
 			} else {
 				for(let a in all[each]){
 					if(a === 'core'){
 						layer.children[all[each].core.core.id] = {obj: all[each][a], parent: all.parent.core.core.el};
 						//console.log(layer.children)
-						all[each][a].AddToScene(all.parent.core.core.el, true);
+						all[each][a].SpawnCore(all.parent.core.core.el, true);
 					} else {
 						if(a === 'parent'){
 							layer.children[all[each][a].core.core.id] = {obj: all[each][a].core, parent: all.parent.core.core.el};
 							layer.secondParents.push(all[each][a].core);
 							//console.log(layer.children)
-							all[each][a].core.AddToScene(all.parent.core.core.el, true);
+							all[each][a].core.SpawnCore(all.parent.core.core.el, true);
 						} else {
 							for(let b in all[each][a]){
 								if(b === 'core'){
 									layer.children[all[each][a].core.core.id] = {obj: all[each][a][b], parent: all[each].parent.core.core.el};
 									//console.log(layer.children)
-									all[each][a][b].AddToScene(all[each].parent.core.core.el, true);
+									all[each][a][b].SpawnCore(all[each].parent.core.core.el, true);
 								} else {
 									if(b === 'parent'){
 										layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b].core, parent: all[each].parent.core.core.el};
 										layer.thirdParents.push(all[each][a][b].core);
 										//console.log(layer.children)
-										all[each][a][b].core.AddToScene(all[each].parent.core.core.el, true);
+										all[each][a][b].core.SpawnCore(all[each].parent.core.core.el, true);
 									} else {
 										for(let c in all[each][a][b]){
 											if(c === 'parent'){
@@ -1190,7 +1298,7 @@ this.Layer = (id, all) => {
 											} else {
 												layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b][c], parent: all[each][a].parent.core.core.el};
 												//console.log(layer.children)
-												all[each][a][b][c].AddToScene(all[each][a].parent.core.core.el, true);
+												all[each][a][b][c].SpawnCore(all[each][a].parent.core.core.el, true);
 											}
 										}
 									}
@@ -1200,9 +1308,6 @@ this.Layer = (id, all) => {
 					}
 				}
 			}
-		}
-		if(other){} else {
-			AddToSceneTracker();
 		}
 	}
 
@@ -1236,31 +1341,20 @@ this.Layer = (id, all) => {
 	}
 	let accessOrder = layerOrder(layer.all);
 
-	const RemoveAllFromScene = (other) => {
+	const DespawnLayer = (other) => {
 		let removeOrder = layerOrder(layer.all).reverse();
-
 		for(let layer of removeOrder){
-			//console.log(layer);
 			for(let each of layer){
-				//console.log(each);
 				if(each.core.parent){
-					each.RemoveFromScene(each.core.parent);
+					each.DespawnCore(each.core.parent, true);
 				} else {
-					each.RemoveFromScene();
+					each.DespawnCore(false, true);
 				}
 			}
 		}
-		RemoveFromSceneTracker();
-	}
-
-	const AddToSceneTracker = () => {
-		if(auxl.scenarioSpawned[layer.id]){} else if(auxl.zoneSpawned[layer.id]){} else {
-    		auxl.nodeSpawned[layer.id] = {type: 'layer', obj: layer};
+		if(other){} else {
+			RemoveFromTracker(layer.id);
 		}
-	}
-
-	const RemoveFromSceneTracker = () => {
-		delete auxl.nodeSpawned[layer.id];
 	}
 
 	const GetParentEl = () => {
@@ -1583,7 +1677,7 @@ this.Layer = (id, all) => {
 		}
 	}
 
-	return {layer, AddAllToScene, RemoveAllFromScene, GetParentEl, EmitEventParent, EmitEventChild, EmitAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, GetChild};
+	return {layer, SpawnLayer, DespawnLayer, GetParentEl, EmitEventParent, EmitEventChild, EmitAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, GetChild};
 }
 
 //
@@ -1601,8 +1695,10 @@ this.Player = (layer) => {
 	//layer.controls = 'desktop';
 
 	//Initialize Player
-	layer.AddAllToScene(true);
+	layer.SpawnLayer(true);
 	//document.getElementById('camera').setAttribute('camera', 'active', true);
+
+	//Currently not tracking Player object as it should not be removed
 
 	//Update Control Variables
 	playerRig = document.getElementById('playerRig');
@@ -1662,14 +1758,14 @@ this.Player = (layer) => {
 
 	const EnableVRLocomotion = () => {
 		playerRig.removeAttribute('locomotion');
-		auxl.locomotionUILayer.AddAllToScene(true);
+		auxl.locomotionUILayer.SpawnLayer(true);
 		playerRig.setAttribute('locomotion',{uiid: 'beltUIParent', controller1id: 'vrController', courserid: 'mouseController', movetype: 'vr'});
 	}
 
 	const EnableDesktopLocomotion = () => {
 		playerRig.removeAttribute('locomotion');
 		if(document.getElementById('beltUIParent')){
-			auxl.locomotionUILayer.RemoveAllFromScene();
+			auxl.locomotionUILayer.DespawnLayer(true);
 		}
 		playerRig.setAttribute('locomotion',{uiid: false, controller1id: false, courserid: 'mouseController', movetype: 'desktop'});
 	}
@@ -1677,7 +1773,7 @@ this.Player = (layer) => {
 	const EnableMobileLocomotion = () => {
 		playerRig.removeAttribute('locomotion');
 		if(document.getElementById('beltUIParent')){
-			auxl.locomotionUILayer.RemoveAllFromScene();
+			auxl.locomotionUILayer.DespawnLayer(true);
 		}
 
 		playerRig.setAttribute('locomotion',{uiid: false, controller1id: false, courserid: 'mouseController', movetype: 'mobile'});
@@ -1686,7 +1782,7 @@ this.Player = (layer) => {
 	const DisableLocomotion = () => {
 		playerRig.removeAttribute('locomotion');
 		if(document.getElementById('beltUIParent')){
-			auxl.locomotionUILayer.RemoveAllFromScene();
+			auxl.locomotionUILayer.DespawnLayer(true);
 		}
 	}
 
@@ -1774,7 +1870,7 @@ let menuNum = 0;
 //console.log(menuData.id);
 //console.log(menuData.clickObj);
 //console.log(menu.clickObj);
-	const MenuGen = () => {
+	const SpawnMenu = () => {
 		menuNum=0;
 		menuOptions = [];
 		menuOption = {};
@@ -1811,22 +1907,21 @@ let menuNum = 0;
 			menu.data.id = menu.id + 'option' + menuNum;
 			menu.data.components.result = menu.actions['action'+menuNum];
 			menuOption = auxl.Core(menu.data);
-			//menuOption.AddToScene();
+			//menuOption.SpawnCore();
 			menuOptions.push(menuOption);
 			menu.layers['child'+menuNum] = {core: menuOptions[menuNum]}
 			menuNum++;
 		}
-		//AddToSceneTracker();
 
 		//Build layered Menu
 		menu.layer = auxl.Layer(menu.id, menu.layers);
-		menu.layer.AddAllToScene(true);
+		menu.layer.SpawnLayer(true);
 		//menu.layer.ChangeParent({property: 'look-at', value: '#camera'})
-	}//MenuGen
+	}
 
-	const MenuRemove = () => {
-		menu.layer.RemoveAllFromScene(true);
-		RemoveFromMenuSceneTracker();
+	const DespawnMenu = () => {
+		menu.layer.DespawnLayer(true);
+		//RemoveFromTracker(menu.id);
 	}
 
 	const ToggleOptionClicking = () => {
@@ -1836,19 +1931,32 @@ let menuNum = 0;
 		}
 	}
 
-	const AddToMenuSceneTracker = (obj) => {
-		if(auxl.zoneSpawned[menu.id]){} else {
-    		//auxl.menuSpawned[menu.id] = {type: 'menu', obj};
-    		auxl.nodeSpawned[menu.id] = {type: 'menu', obj};
+	const AddToParentSpawnTracker = (obj, parent) => {
+		//match wherever the parent object created this menu is being tracked in
+		if(auxl.scenarioSpawned[parent.id]){
+			auxl.scenarioSpawned[menu.id] = {type: 'menu', obj};
+		} else if(auxl.zoneSpawned[parent.id]){
+			auxl.zoneSpawned[menu.id] = {type: 'menu', obj};
+		} else if(auxl.nodeSpawned[parent.id]){
+			auxl.nodeSpawned[menu.id] = {type: 'menu', obj};
+		} else if(auxl.bookSpawned[parent.id]){
+			auxl.bookSpawned[menu.id] = {type: 'menu', obj};
 		}
 	}
 
-	const RemoveFromMenuSceneTracker = () => {
-		//delete auxl.menuSpawned[menu.id];
-		delete auxl.nodeSpawned[menu.id];
+	const RemoveMenuFromSceneTracker = () => {
+		if(auxl.scenarioSpawned[menu.id]){
+			delete auxl.scenarioSpawned[menu.id];
+		} else if(auxl.zoneSpawned[menu.id]){
+			delete auxl.zoneSpawned[menu.id];
+		} else if(auxl.nodeSpawned[menu.id]){
+			delete auxl.nodeSpawned[menu.id];
+		} else if(auxl.bookSpawned[menu.id]){
+			delete auxl.bookSpawned[menu.id];
+		}
 	}
 
-	return {menu, MenuGen, MenuRemove, ToggleOptionClicking, AddToMenuSceneTracker, RemoveFromMenuSceneTracker};
+	return {menu, SpawnMenu, DespawnMenu, ToggleOptionClicking, AddToParentSpawnTracker, RemoveMenuFromSceneTracker};
 }
 
 //
@@ -1862,35 +1970,14 @@ let textBubble = auxl.Core(this.sceneTextData);
 let sceneText = auxl.SpeechSystem(textBubble);
 
 	const IfElse = (objRef, condObj,{cond, ifTrue, ifFalse}) => {
-
-		//Uses text for true, text and undefined for false
-		//Test using bools only
-
-		//ifTrue
-		//ifFalse
-		//for loop for above objects with key name as object and value key as method and that value the params
-		//console.log(objRef)//this.obj name
-		//console.log(condObj)//this.obj name used to check Condition from
-		//console.log(cond)//cond name
-		//console.log(ifTrue)
-		//console.log(ifFalse)
-		//console.log(auxl[condObj].GetFlag(cond))
 		if(auxl[condObj].GetFlag(cond)) {
-			//run ifTrue
 			for(let a in ifTrue){
-				//console.log(ifTrue);
-				//console.log(a);
-				//console.log(ifTrue[a]);
 				for(let b in ifTrue[a]){
 					auxlObjMethod(a,b,ifTrue[a][b]);
 				}
 			}
 		} else {
-			//run ifFalse
 			for(let a in ifFalse){
-				//console.log(ifFalse);
-				//console.log(a);//this.object name should match objRef
-				//console.log(ifFalse[a]);//method w/ params
 				for(let b in ifFalse[a]){
 					auxlObjMethod(a,b,ifFalse[a][b]);
 				}
@@ -1900,18 +1987,14 @@ let sceneText = auxl.SpeechSystem(textBubble);
 	}
 
 	const AddToTimeIntEvtTracker = ({name,type,id,method,params,event}) => {
-		//console.log({name,type,id,method,params,event})
 		let nameId = name+id;
 		if(type === 'timeout'){
 			auxl.running[nameId] = {type, name, id, nameId};
 		} else if (type === 'interval'){
 			auxl.running[nameId] = {type, name, id, nameId};
 		} else if (type === 'interaction' || type === 'event'){
-			//console.log({name,type,id,method,params,event})
-			//console.log(nameId);
 			auxl.running[nameId] = {type, name, id, nameId, method, params, event};
 		}
-		//console.log(auxl.running);
 	}
 
 	const RemoveFromTimeIntEvtTracker = (name) => {
@@ -1919,37 +2002,20 @@ let sceneText = auxl.SpeechSystem(textBubble);
 	}
 
 	const ClearSceneTimeIntEvt = () => {
-		//console.log(auxl.running);
 		for(let ran in auxl.running){
-			//console.log(ran);//name of ID
-			//console.log(auxl.running[ran]);//object
 			if(auxl.running[ran].type === 'timeout'){
-				//console.log('clearing timeout');
-				//console.log(auxl.running[ran].nameId);
-				//console.log(auxl.timeouts[auxl.running[ran].nameId]);
-				//clearTimeout(auxl.running[ran].nameId);
 				clearTimeout(auxl.timeouts[auxl.running[ran].nameId]);
 				delete auxl.timeouts[auxl.running[ran].nameId];
 			} else if (auxl.running[ran].type === 'interval'){
-				//console.log('clearing interval');
-				//console.log(auxl.running[ran].nameId);
-				//console.log(auxl.intervals);
 				clearInterval(auxl.intervals[auxl.running[ran].nameId]);
 				delete auxl.intervals[auxl.running[ran].nameId];
 			} else if (auxl.running[ran].type === 'interaction' || auxl.running[ran].type === 'event'){
-				//Event
-				//console.log('clearing interaction|event');
-				//console.log(auxl.running[ran].name);
-				//console.log(auxl.running[ran].event);
 auxl[auxl.running[ran].name].GetEl().removeEventListener(auxl.running[ran].event, function(){
 auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran].params);
 });
 			}
 			RemoveFromTimeIntEvtTracker(ran);
 		}
-		//console.log(auxl.running);
-		//console.log(auxl.timeouts);
-		//console.log(auxl.intervals);
 	}
 
 	const ClearScene = () => {
@@ -1963,10 +2029,12 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 	}
 
 	const auxlObjMethod = (object, func, params) => {
-		//console.log(object);
-		//console.log(func);
-		//console.log(params);
-		//console.log(auxl[object]);
+		//Check if spawning to add to Tracker
+		for (let spawn of auxl.spawnFunc) {
+			if(func === spawn){
+				spawnTracker(object, 'node');
+			}
+		}
 		auxl[object][func](params);
 	}
 
@@ -2396,17 +2464,10 @@ let newNode;
 	}
 
 	const auxlObjMethod = (object, func, params) => {
-		//console.log(object);
-		//console.log(func);
-		//console.log(params);
-		//console.log(auxl[object]);
-		if(func === 'AddToScene'){
-			if(auxl.zoneSpawned[auxl[object].core.id]){} else {
-				AddToZoneTracker('core', auxl[object]);
-			}
-		} else if(func === 'AddAllToScene'){
-			if(auxl.zoneSpawned[auxl[object].layer.id]){} else {
-				AddToZoneTracker('layer', auxl[object]);
+		//Check if spawning to add to Tracker
+		for (let spawn of auxl.spawnFunc) {
+			if(func === spawn){
+				spawnTracker(object, 'zone');
 			}
 		}
 		auxl[object][func](params);
@@ -2803,7 +2864,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			core.zoneLoaded = true;
 		}
 		auxl[core.currentNode].StartScene();
-		MoveMenuGen();
+		MoveSpawnMenu();
 
 	}
 
@@ -2811,7 +2872,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		auxl[core.currentNode].ClearScene();
 	}
 
-	const MoveMenuGen = () => {
+	const MoveSpawnMenu = () => {
 
 		core.mapMenuData = {
 			id: 'moveMenu',
@@ -2864,7 +2925,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		//key
 		//keepKey
 		core.mapMenu = auxl.Menu(core.mapMenuData);
-		core.mapMenu.MenuGen();
+		core.mapMenu.SpawnMenu();
 	}
 
 	const MenuMoveClick = (el) => {
@@ -2898,7 +2959,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			}
 			//Timeout
 			timeout = setTimeout(function () {
-					core.mapMenu.MenuRemove();
+					core.mapMenu.DespawnMenu();
 					ClearScene();
 					//check if results name as a key exists in this zone
 					if(core.nodes[newNode.node]){
@@ -2920,42 +2981,13 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	}
 
 	const ClearZone = () => {
-	//Clear Core | Layer Scene Tracked Items
-		//console.log('Clearing Zone...');
-		//console.log(core.currentZone);
-		//console.log(auxl.zoneSpawned);
 		Exit();
 		ClearZoneTimeIntEvt();
 		clearSpawned(auxl.zoneSpawned);
-		/*
-		for(let spawn in auxl.zoneSpawned){
-			//console.log(spawn);//name of ID
-			//console.log(auxl[spawn]);
 
-			if(auxl[spawn]){
-				if(auxl[spawn].type === 'core'){
-						auxl[spawn].core.RemoveFromScene();
-				} else if (auxl[spawn].type === 'layer'){
-						auxl[spawn].layer.RemoveAllFromScene();
-				} else {
-					if(auxl[spawn].RemoveFromScene){
-						auxl[spawn].RemoveFromScene();
-					} else if(auxl[spawn].RemoveAllFromScene){
-						auxl[spawn].RemoveAllFromScene();
-					}
-				}
-			} else if(document.getElementById(spawn)){
-				//console.log(spawn);
-				//console.log(document.getElementById(spawn));
-			}
-
-			//console.log(auxl.zoneSpawned[spawn]);//Book & Page spawned from
-			delete auxl.zoneSpawned[spawn];
-		}*/
-		//console.log(auxl.zoneSpawned);
 	}
 
-	return {core, ReadMapData, StartScene, MoveMenuGen, MenuMoveClick, Move, ClearZone};
+	return {core, ReadMapData, StartScene, MoveSpawnMenu, MenuMoveClick, Move, ClearZone};
 }
 
 //
@@ -2998,13 +3030,10 @@ let scenarioTimeout = setTimeout(function () {
 	}
 
 	const auxlObjMethod = (object, func, params) => {
-		if(func === 'AddToScene'){
-			if(auxl.scenarioSpawned[auxl[object].core.id]){} else {
-				AddToScenarioTracker('core', auxl[object]);
-			}
-		} else if(func === 'AddAllToScene'){
-			if(auxl.scenarioSpawned[auxl[object].layer.id]){} else {
-				AddToScenarioTracker('layer', auxl[object]);
+		//Check if spawning to add to Tracker
+		for (let spawn of auxl.spawnFunc) {
+			if(func === spawn){
+				spawnTracker(object, 'scenario');
 			}
 		}
 		auxl[object][func](params);
@@ -3296,10 +3325,10 @@ this.SkyBox = (skyBoxData) => {
 
 	const SpawnLights = () => {
 		for(let each in skyBox.lights){
-			if(skyBox.lights[each].AddToScene){
-				skyBox.lights[each].AddToScene(false, false, true);
-			} else if(skyBox.lights[each].AddAllToScene){
-				skyBox.lights[each].AddAllToScene(true);
+			if(skyBox.lights[each].SpawnCore){
+				skyBox.lights[each].SpawnCore(false, false, true);
+			} else if(skyBox.lights[each].SpawnLayer){
+				skyBox.lights[each].SpawnLayer(true);
 			} else {
 				console.log('Failed to spawn object');
 				console.log(skyBox.lights[each]);
@@ -3309,10 +3338,10 @@ this.SkyBox = (skyBoxData) => {
 
 	const DespawnLights = () => {
 		for(let each in skyBox.lights){
-			if(skyBox.lights[each].RemoveFromScene){
-				skyBox.lights[each].RemoveFromScene(false, false, true);
-			} else if(skyBox.lights[each].RemoveAllFromScene){
-				skyBox.lights[each].RemoveAllFromScene(true);
+			if(skyBox.lights[each].DespawnCore){
+				skyBox.lights[each].DespawnCore(false, false, true);
+			} else if(skyBox.lights[each].DespawnLayer){
+				skyBox.lights[each].DespawnLayer(true);
 			} else {
 				console.log('Failed to spawn object');
 				console.log(skyBox.lights[each]);
@@ -3323,10 +3352,10 @@ this.SkyBox = (skyBoxData) => {
 	const SpawnSky = () => {
 		//combine with atmosphere?
 		for(let each in skyBox.sky){
-			if(skyBox.sky[each].AddToScene){
-				skyBox.sky[each].AddToScene(false, false, true);
-			} else if(skyBox.sky[each].AddAllToScene){
-				skyBox.sky[each].AddAllToScene(true);
+			if(skyBox.sky[each].SpawnCore){
+				skyBox.sky[each].SpawnCore(false, false, true);
+			} else if(skyBox.sky[each].SpawnLayer){
+				skyBox.sky[each].SpawnLayer(true);
 			} else {
 				console.log('Failed to spawn object');
 				console.log(skyBox.sky[each]);
@@ -3337,10 +3366,10 @@ this.SkyBox = (skyBoxData) => {
 	const DespawnSky = () => {
 		//combine with atmosphere?
 		for(let each in skyBox.sky){
-			if(skyBox.sky[each].RemoveFromScene){
-				skyBox.sky[each].RemoveFromScene(false, false, true);
-			} else if(skyBox.sky[each].RemoveAllFromScene){
-				skyBox.sky[each].RemoveAllFromScene(true);
+			if(skyBox.sky[each].DespawnCore){
+				skyBox.sky[each].DespawnCore(false, false, true);
+			} else if(skyBox.sky[each].DespawnLayer){
+				skyBox.sky[each].DespawnLayer(true);
 			} else {
 				console.log('Failed to spawn object');
 				console.log(skyBox.sky[each]);
@@ -3350,10 +3379,10 @@ this.SkyBox = (skyBoxData) => {
 
 	const SpawnSpace = () => {
 		for(let each in skyBox.space){
-			if(skyBox.space[each].AddToScene){
-				skyBox.space[each].AddToScene(false, false, true);
-			} else if(skyBox.space[each].AddAllToScene){
-				skyBox.space[each].AddAllToScene(true);
+			if(skyBox.space[each].SpawnCore){
+				skyBox.space[each].SpawnCore(false, false, true);
+			} else if(skyBox.space[each].SpawnLayer){
+				skyBox.space[each].SpawnLayer(true);
 			} else {
 				console.log('Failed to spawn object');
 				console.log(skyBox.space[each]);
@@ -3363,10 +3392,10 @@ this.SkyBox = (skyBoxData) => {
 
 	const DespawnSpace = () => {
 		for(let each in skyBox.space){
-			if(skyBox.space[each].RemoveFromScene){
-				skyBox.space[each].RemoveFromScene(false, false, true);
-			} else if(skyBox.space[each].RemoveAllFromScene){
-				skyBox.space[each].RemoveAllFromScene(true);
+			if(skyBox.space[each].DespawnCore){
+				skyBox.space[each].DespawnCore(false, false, true);
+			} else if(skyBox.space[each].DespawnLayer){
+				skyBox.space[each].DespawnLayer(true);
 			} else {
 				console.log('Failed to spawn object');
 				console.log(skyBox.space[each]);
@@ -3374,18 +3403,19 @@ this.SkyBox = (skyBoxData) => {
 		}
 	}
 
-	const Spawn = () => {
+	const SpawnSkyBox = () => {
 		SpawnLights();
 		SpawnSky();
 		SpawnSpace();
 	}
 
-	const Despawn = () => {
+	const DespawnSkyBox = () => {
 		clearTimeout(dayNightTimeout);
 		clearInterval(dayNightInterval);
 		DespawnLights();
 		DespawnSky();
 		DespawnSpace();
+		RemoveFromTracker(skyBox.id);
 	}
 
 	const Sunrise = () => {
@@ -3456,7 +3486,7 @@ this.SkyBox = (skyBoxData) => {
 		DayNightCycle(dayLength);
 	}
 
-	return {skyBox, Spawn, Despawn, DayNightCycle, PauseDayNight, ResumeDayNight, RestartDayNight};
+	return {skyBox, SpawnSkyBox, DespawnSkyBox, DayNightCycle, PauseDayNight, ResumeDayNight, RestartDayNight};
 }
 
 //
@@ -3697,35 +3727,34 @@ for(let a=0; a < spawnAmount; a++){
 }
 let horizonLayer = auxl.Layer('horizonLayer',horizonLayerData);
 
-	const Spawn = () => {
-		horizonLayer.AddAllToScene(true);
-		AddToSceneTracker();
+	const SpawnHorizon = () => {
+		horizonLayer.SpawnLayer(true);
 	}
 
-	const Despawn = () => {
-		horizonLayer.RemoveAllFromScene(true);
-		RemoveFromSceneTracker();
+	const DespawnHorizon = () => {
+		horizonLayer.DespawnLayer(true);
+		RemoveFromTracker(horizon.id);
 	}
 
-	const AddToSceneTracker = () => {
-		//Scene Tracking of Assets
-		if(auxl.zoneSpawned[horizon.id]){} else {
-			auxl.nodeSpawned[horizon.id] = {type: 'horizon', obj: horizon};
-		}
-	}
-
-	const RemoveFromSceneTracker = () => {
-		//Clear Tracking of Asset
-		delete auxl.nodeSpawned[horizon.id];
-	}
-
-	return {horizon, Spawn, Despawn};
+	return {horizon, SpawnHorizon, DespawnHorizon};
 }
 
 //
 //Story Book - Linear, Tree, Quests, Jump, Menu, Conditionals, Flags...
 this.Book = (core, npc) => {
 //facilitate interaction between user, objects and story.
+
+	const auxlObjMethod = (object, func, params) => {
+		//Check if spawning to add to Tracker
+		for (let spawn of auxl.spawnFunc) {
+			if(func === spawn){
+				console.log(object);
+				console.log(npc.id);
+				spawnTracker(object, 'book', npc.id);
+			}
+		}
+		auxl[object][func](params);
+	}
 
 	function* lineReader(book,time){
 		for(let line in time){
@@ -3752,14 +3781,15 @@ this.Book = (core, npc) => {
 				//console.log(line);
 				//console.log(time[line]);
 				for(let a in time[line]){
-					//console.log(a);//AddToScene / ChangeSelf
-					//console.log(time[line]);//{AddToScene: null} / {ChangeSelf: {mat...}}
-					//console.log(time[line][a]);//null / {material: {opacity: 0.5}}
+					//console.log(a);//SpawnCore / ChangeSelf
+					//console.log(time[line]);//{SpawnCore: null} / {ChangeSelf: {mat...}}
+					//console.log(time[line][a]);//params
 					//console.log('Executing...');
-					//console.log(line);
-					//console.log(a);
+					//console.log(line);//objectName
+					//console.log(a);//func
 					//console.log(auxl[line][a]);
-					auxl[line][a](time[line][a]);
+					//auxl[line][a](time[line][a]);
+					auxlObjMethod(line,a,time[line][a]);
 				}
 
 			}//else
@@ -3909,14 +3939,14 @@ this.Book = (core, npc) => {
 		let selectedTime;
 		let selectedPage = false;
 		let selectJumpData = {
-		id: 'selectJump',
-		prompt: 'When to?',
-		options: {},
-		actions: {},
-		data: auxl.menuBaseData,
-		cursorObj: npc.core.id,
-		pos: new THREE.Vector3(1,1.5,-0.5),
-		method: 'Click',
+			id: 'selectJump',
+			prompt: 'When to?',
+			options: {},
+			actions: {},
+			data: auxl.menuBaseData,
+			cursorObj: npc.core.id,
+			pos: new THREE.Vector3(1,1.5,-0.5),
+			method: 'Click',
 		}
 
 		for(let a = 0; a < jumpOptions.length; a++){
@@ -3925,8 +3955,9 @@ this.Book = (core, npc) => {
 		}
 
 		book.selectJumpMenu = auxl.Menu(selectJumpData);
-		book.selectJumpMenu.MenuGen();
-		book.selectJumpMenu.AddToMenuSceneTracker(book.selectJumpMenu);
+		book.selectJumpMenu.SpawnMenu();
+		book.selectJumpMenu.AddToParentSpawnTracker(book.selectJumpMenu, npc);
+		//book.selectJumpMenu.RemoveMenuFromSceneTracker();
 		//disable main el clickable class
 		//Need to update after creating book control component
 		npc.GetEl().classList.toggle('clickable', false);
@@ -3944,7 +3975,7 @@ this.SpeechSystem = (core) => {
 	core.textDisplayInterval;
 
 	const Start = () => {
-		core.AddToScene(false,false,true);
+		core.SpawnCore(false,false,true);
 		core.GetEl().addEventListener('mouseenter', Skip);
 		core.on = true;
 	}
@@ -3955,9 +3986,8 @@ this.SpeechSystem = (core) => {
 
 	const Stop = () => {
 		core.GetEl().removeEventListener('mouseenter', Skip);
-		core.RemoveFromScene(false,false,true);
+		core.DespawnCore(false,false,true);
 		core.on = false;
-		//removeFromSceneTracker(core);
 	}
 
 	const Kill = (interval) => {
@@ -4038,6 +4068,7 @@ this.SpeechSystem = (core) => {
 this.NPC = (core, bookData, textDisplay) => {
 
 let npc = Object.assign({}, core);
+npc.id = npc.core.id;
 let bubble = Object.assign({}, textDisplay);
 let book;
 //bubble.core.position.x = core.core.position.x;
@@ -4046,32 +4077,26 @@ let book;
 let text = auxl.SpeechSystem(bubble);
 let menuTimeout;
 
-	const Spawn = () => {
+	const SpawnNPC = () => {
 		//Reset book on each spawn
 		book = auxl.Book(bookData, npc);
-		npc.AddToScene(false,false,true);
+		npc.SpawnCore(false,false,true);
 		EnableSpeech();
-		AddToNPCSceneTracker();
+		//AddToNPCSceneTracker();
 		//Need an NPC tracker, so it can run DisableSpeech on scene change
 		//console.log('Spawn');
 	}
 
-	const Despawn = () => {
+	const DespawnNPC = () => {
+		ClearBookSpawn();
 		DisableSpeech();
-		npc.RemoveFromScene(false,false,true);
-		RemoveFromNPCSceneTracker();
+		npc.DespawnCore(false,false,true);
+		RemoveFromTracker(npc.id);
 	}
 
-	const AddToNPCSceneTracker = () => {
-		if(auxl.zoneSpawned[npc.core.id]){} else {
-    		//auxl.npcSpawned[npc.core.id] = {type: 'npc', obj: npc};
-    		auxl.nodeSpawned[npc.core.id] = {type: 'npc', obj: npc};
-		}
-	}
-
-	const RemoveFromNPCSceneTracker = () => {
-		//delete auxl.npcSpawned[npc.core.id];
-		delete auxl.nodeSpawned[npc.core.id];
+	const ClearBookSpawn = () => {
+		clearSpawned(auxl.bookSpawned[npc.id]);
+		delete auxl.bookSpawned[npc.id];
 	}
 
 	const EnableSpeech = () => {
@@ -4117,6 +4142,7 @@ let menuTimeout;
 		if(book.book.done || force){
 			//console.log('Reseting Book...');
 			//Reset Book
+			ClearBookSpawn();
 			book = auxl.Book(bookData, npc);
 			NextPage();
 			NextPage();
@@ -4137,7 +4163,8 @@ let menuTimeout;
 		npc.GetEl().classList.toggle('clickable', true);
 		//Timeout
 		menuTimeout = setTimeout(function () {
-			book.book.selectJumpMenu.MenuRemove();
+			book.book.selectJumpMenu.DespawnMenu();
+			book.book.selectJumpMenu.RemoveMenuFromSceneTracker();
 			clearTimeout(menuTimeout);
 		}, 250); //Delay
 	}
@@ -4151,14 +4178,17 @@ let menuTimeout;
 	}
 
 	const auxlObjMethod = (object, func, params) => {
+		//console.log('NPC running method');
 		//console.log(object);
 		//console.log(func);
-		//console.log(params);
-		//console.log(auxl[object]);
+		//Used to run NPC methods
 		auxl[object][func](params);
 	}
 
 	const IfElse = (obj) => {
+		//Used to run NPC methods
+		//console.log('NPC running ifElse');
+		//console.log(obj);
 		//ifTrue
 		//ifFalse
 		//for loop for above objects with key name as object and value key as method and that value the params
@@ -4213,14 +4243,15 @@ let menuTimeout;
 		return npc[varName];
 	}
 
-return {npc, Spawn, Despawn, EnableSpeech, DisableSpeech, Speak, NextPage, ResetBook, Click, Jump, SelectJump, auxlObjMethod, IfElse, SetFlag, GetFlag}
+return {npc, SpawnNPC, DespawnNPC, EnableSpeech, DisableSpeech, Speak, NextPage, ResetBook, Click, Jump, SelectJump, auxlObjMethod, IfElse, SetFlag, GetFlag}
 }
 
 //
 //Hamburger Menu Companion
-this.HamMenu = (name, core) => {
+this.HamMenu = (id, core) => {
 
 let ham = Object.assign({}, core);
+ham.id = id;
 ham.systemOpen = false;
 ham.travelSettingsOpen = false;
 ham.sceneSettingsOpen = false;
@@ -4297,17 +4328,18 @@ author: 'Made by Minty Crisp!',
 
 	}
 
-	const Start = () => {
-		ham.AddToScene(false, false, true);
+	const SpawnHam = () => {
+		ham.SpawnCore(false, false, true);
 		autoScriptEmoticon();
 		ham.GetEl().addEventListener('click', openCloseMenu)
 	}
 
-	const Remove = () => {
+	const DespawnHam = () => {
 		//disable autoScriptEmoticon();
 		ham.GetEl().removeEventListener('click', openCloseMenu);
-		ham.RemoveFromScene(false, false, true);
+		ham.DespawnCore(false, false, true);
 		ham.systemOpen = false;
+		RemoveFromTracker(ham.id);
 	}
 
 	const openCloseMenu = () => {
@@ -4315,14 +4347,14 @@ author: 'Made by Minty Crisp!',
 			closeSystemMenu();
 		} else if(ham.travelSettingsOpen){
 			closeTravelSettingsMenu()
-			systemMenuGen();
+			systemSpawnMenu();
 		} else if(ham.sceneSettingsOpen){
 		} else {
-			systemMenuGen();
+			systemSpawnMenu();
 		}
 	}
 
-	const systemMenuGen = () => {
+	const systemSpawnMenu = () => {
 		ham.systemOpen = true;
 		ham.GetEl().classList.toggle('clickable');
 		ham.systemMenuData = {
@@ -4331,7 +4363,7 @@ author: 'Made by Minty Crisp!',
 			options: {option0: '0'},
 			actions: {action0: '0'},
 			data: auxl.menuBaseData,
-			cursorObj: name,
+			cursorObj: ham.id,
 			method: 'SystemMenuClick',
 			pos: new THREE.Vector3(0.5,1.5,-0.6),
 		}
@@ -4344,16 +4376,16 @@ author: 'Made by Minty Crisp!',
 			currNum++;
 		}
 		ham.systemMenu = auxl.Menu(ham.systemMenuData);
-		ham.systemMenu.MenuGen();
-		ham.systemMenu.AddToMenuSceneTracker(ham.systemMenu);
+		ham.systemMenu.SpawnMenu();
+		ham.systemMenu.AddToParentSpawnTracker(ham.systemMenu, ham);
 		ham.GetEl().classList.toggle('clickable');
 		//ham.systemMenu.menu.layer.AnimateParent(auxl.animClickData);
 	}
 
 	const closeSystemMenu = () => {
 		ham.systemOpen = false;
-		ham.systemMenu.MenuRemove();
-		ham.systemMenu.RemoveFromMenuSceneTracker();
+		ham.systemMenu.DespawnMenu();
+		ham.systemMenu.RemoveMenuFromSceneTracker();
 	}
 
 	const SystemMenuClick = (el) => {
@@ -4377,10 +4409,10 @@ author: 'Made by Minty Crisp!',
 
 	const travelSettings = () => {
 		//console.log('Travel Settings');
-		travelSettingsMenuGen();
+		travelSettingsSpawnMenu();
 	}
 
-	const travelSettingsMenuGen = () => {
+	const travelSettingsSpawnMenu = () => {
 		ham.travelSettingsOpen = true;
 		ham.travelSettingsMenuData = {
 			id: 'travelSettings',
@@ -4388,7 +4420,7 @@ author: 'Made by Minty Crisp!',
 			options: {option0: '0'},
 			actions: {action0: '0'},
 			data: auxl.menuBaseData,
-			cursorObj: name,
+			cursorObj: ham.id,
 			method: 'TravelSettingsMenuClick',
 			pos: new THREE.Vector3(0.5,1.5,-0.6),
 			//layout: 'vertical',
@@ -4402,15 +4434,15 @@ author: 'Made by Minty Crisp!',
 			currNum++;
 		}
 		ham.travelSettingsMenu = auxl.Menu(ham.travelSettingsMenuData);
-		ham.travelSettingsMenu.MenuGen();
-		ham.systemMenu.AddToMenuSceneTracker(ham.travelSettingsMenu);
+		ham.travelSettingsMenu.SpawnMenu();
+		ham.systemMenu.AddToParentSpawnTracker(ham.travelSettingsMenu, ham);
 
 	}
 
 	const closeTravelSettingsMenu = () => {
 		ham.travelSettingsOpen = false;
-		ham.travelSettingsMenu.MenuRemove();
-		ham.travelSettingsMenu.RemoveFromMenuSceneTracker();
+		ham.travelSettingsMenu.DespawnMenu();
+		ham.travelSettingsMenu.RemoveMenuFromSceneTracker();
 	}
 
 	const TravelSettingsMenuClick = (el) => {
@@ -4435,15 +4467,20 @@ author: 'Made by Minty Crisp!',
 		//console.log('Scene Settings');
 	}
 
-return{ham, Start, Remove, SystemMenuClick, TravelSettingsMenuClick};
+return{ham, SpawnHam, DespawnHam, SystemMenuClick, TravelSettingsMenuClick};
 }
 
 //
 //Single Objs Gen Ring Spawn
 this.ObjsGenRing = (data) => {
-	let gen = Object.assign({}, data);
+	let singleGen = Object.assign({}, data);
 	let ogData = Object.assign({}, data.objData);
 	let objData = JSON.parse(JSON.stringify(data.objData));
+
+//scenario
+//zone
+//node
+//let spawnSection;
 
 	//gen.id
 	//gen.objData
@@ -4464,7 +4501,7 @@ this.ObjsGenRing = (data) => {
 	//gen.ranColor
 	//gen.ranTexture
 
-	let all = [];
+	singleGen.all = [];
 	let posX;
 	let posY;
 	let posZ;
@@ -4490,11 +4527,11 @@ this.ObjsGenRing = (data) => {
 
 	const genCores = () => {
 
-		for(let a = 0; a < gen.total; a++){
+		for(let a = 0; a < singleGen.total; a++){
 			objData.id = ogData.id + a;
 
 			//Color
-			if(gen.ranColor){
+			if(singleGen.ranColor){
 				color = auxl.colorTheoryGen().base;
 				objData.material.color = color;
 				if(objData.material.emissive){
@@ -4502,66 +4539,66 @@ this.ObjsGenRing = (data) => {
 				}
 			}
 			//Texture
-			if(gen.ranTexture){
+			if(singleGen.ranTexture){
 				objData.material.src = auxl.patterns[Math.floor(Math.random()*auxl.patterns.length)];
 			}
 			//Rotation
 			rotX = objData.rotation.x;
 			rotY = objData.rotation.y;
 			rotZ = objData.rotation.z;
-			if(gen.ranRotX){
+			if(singleGen.ranRotX){
 				rotX += Math.random() * 360;
 			}
-			if(gen.ranRotY){
+			if(singleGen.ranRotY){
 				rotY += Math.random() * 360;
 			}
-			if(gen.ranRotZ){
+			if(singleGen.ranRotZ){
 				rotZ += Math.random() * 360;
 			}
 			objData.rotation = new THREE.Vector3(rotX, rotY, rotZ);
 
 			//Scale
-			scaleX = gen.objData.scale.x;
-			scaleY = gen.objData.scale.y;
-			scaleZ = gen.objData.scale.z;
-			if(gen.ranScaleX){
-				scaleX += Math.random() * gen.scaleFlex;
+			scaleX = singleGen.objData.scale.x;
+			scaleY = singleGen.objData.scale.y;
+			scaleZ = singleGen.objData.scale.z;
+			if(singleGen.ranScaleX){
+				scaleX += Math.random() * singleGen.scaleFlex;
 			}
-			if(gen.ranScaleY){
-				scaleY += Math.random() * gen.scaleFlex;
+			if(singleGen.ranScaleY){
+				scaleY += Math.random() * singleGen.scaleFlex;
 			}
-			if(gen.ranScaleZ){
-				scaleZ += Math.random() * gen.scaleFlex;
+			if(singleGen.ranScaleZ){
+				scaleZ += Math.random() * singleGen.scaleFlex;
 			}
 			objData.scale = new THREE.Vector3(scaleX, scaleY, scaleZ);
 
 			//Scale adjustment needs affect gen.sameTypeRadius
 			//Need to spawn equal amount in each quadrant?
-			posY = gen.objData.position.y;
-			if(gen.ranYPos){
-				posY += Math.random() * gen.yPosFlex;
+			posY = singleGen.objData.position.y;
+			if(singleGen.ranYPos){
+				posY += Math.random() * singleGen.yPosFlex;
 			}
 
 			//Position
-			positionVec3 = randomPosition(gen.outerRingRadius, posY);
+			positionVec3 = randomPosition(singleGen.outerRingRadius, posY);
 			objData.position = positionVec3;
 
 			//Max attempts to check for avoiding collision
 			let checking = 42;
 			checkAllData: while (checking > 0) {
 				if(a === 0){
-					if(distance(positionVec3.x,positionVec3.z,0,0) < gen.innerRingRadius) {
-						positionVec3 = randomPosition(gen.outerRingRadius, posY);
+					if(distance(positionVec3.x,positionVec3.z,0,0) < singleGen.innerRingRadius) {
+						positionVec3 = randomPosition(singleGen.outerRingRadius, posY);
 						checking--;
 						continue checkAllData;
 					} else {
 						objData.position = positionVec3;
 					}
 				}
-				for(let z=0; z < all.length; z++) {
+				for(let z=0; z < singleGen.all.length; z++) {
 					//Check the distance, if too close, change and repeat
-					if(distance(positionVec3.x, positionVec3.z, all[z].core.position.x, all[z].core.position.z) < gen.sameTypeRadius || distance(positionVec3.x,positionVec3.z,0,0) < gen.innerRingRadius) {
-						positionVec3 = randomPosition(gen.outerRingRadius, posY);
+					if(distance(positionVec3.x, positionVec3.z, singleGen.all[z].core.position.x, singleGen.all[z].core.position.z) < singleGen.sameTypeRadius || distance(positionVec3.x,positionVec3.z,0,0) < singleGen.innerRingRadius) {
+						positionVec3 = randomPosition(singleGen.outerRingRadius, posY);
 						checking--;
 						continue checkAllData;
 					} else {
@@ -4572,74 +4609,59 @@ this.ObjsGenRing = (data) => {
 			}
 
 			//Add randomized Core to All
-			all.push(auxl.Core(objData));
+			singleGen.all.push(auxl.Core(objData));
 		}
 
 	}
 
-	const SpawnAll = () => {
+	const SpawnObjRing = () => {
 		genCores();
-		for(let a = 0; a < gen.total; a++){
-			all[a].AddToScene(false, false, true);
-		}
-		AddToSceneTracker();
-	}
-
-	const DespawnAll = () => {
-		for(let a = 0; a < gen.total; a++){
-			all[a].RemoveFromScene();
-		}
-		RemoveFromSceneTracker();
-	}
-
-	const AddToSceneTracker = () => {
-		//Scene Tracking of Assets
-		if(auxl.zoneSpawned[gen.id]){} else {
-			//auxl.genSpawned[gen.id] = {type: 'gen', obj: gen};
-			auxl.nodeSpawned[gen.id] = {type: 'gen', obj: gen};
+		for(let a = 0; a < singleGen.total; a++){
+			singleGen.all[a].SpawnCore(false, false, true);
 		}
 	}
 
-	const RemoveFromSceneTracker = () => {
-		//Clear Tracking of Asset
-		//delete auxl.genSpawned[gen.id];
-		delete auxl.nodeSpawned[gen.id];
+	const DespawnObjRing = () => {
+		for(let a = 0; a < singleGen.total; a++){
+			singleGen.all[a].DespawnCore(false, false, true);
+		}
+		RemoveFromTracker(singleGen.id);
 	}
 
-	return {all, genCores, SpawnAll, DespawnAll, AddToSceneTracker, RemoveFromSceneTracker};
+	return {singleGen, SpawnObjRing, DespawnObjRing};
 }
 
 //
-//Scene Multi Asset Generator
-this.SceneAssetGen = (sceneData) =>{
+//Multi Asset Generator
+this.MultiAssetGen = (multiGenData) =>{
 	//let ogData = Object.assign({}, data.objData);
 	//let objData = JSON.parse(JSON.stringify(data.objData));
-	//sceneData.data
-	//sceneData.id
+	//multiGenData.data
+	//multiGenData.id
 //Add the ability to read an array of different objects for same size
 //Need to better optimize each size's radius
-	//sceneData.tiny
-	//sceneData.small
-	//sceneData.med
-	//sceneData.large
-	//sceneData.huge
-	let scene = Object.assign({}, sceneData);
-	scene.assets = {}
-	scene.assets.tiny = [];
-	scene.assets.small = [];
-	scene.assets.med = [];
-	scene.assets.large = [];
-	scene.assets.huge = [];
+	//multiGenData.tiny
+	//multiGenData.small
+	//multiGenData.med
+	//multiGenData.large
+	//multiGenData.huge
+	let multiGen = Object.assign({}, multiGenData);
+	multiGen.assets = {}
+	multiGen.assets.tiny = [];
+	multiGen.assets.small = [];
+	multiGen.assets.med = [];
+	multiGen.assets.large = [];
+	multiGen.assets.huge = [];
 	let sizes = ['tiny','small','med','large','huge'];
-	scene.grid = [];
-	scene.ring0 = [];
-	scene.ring1 = [];
-	scene.ring2 = [];
-	scene.ring3 = [];
-	scene.ring4 = [];
-	scene.ring5 = [];
+	multiGen.grid = [];
+	multiGen.ring0 = [];
+	multiGen.ring1 = [];
+	multiGen.ring2 = [];
+	multiGen.ring3 = [];
+	multiGen.ring4 = [];
+	multiGen.ring5 = [];
 	/*
-	scene.ring = {
+	multiGen.ring = {
 		i0:0.25,
 		o0:4,
 		i1:1,
@@ -4653,7 +4675,7 @@ this.SceneAssetGen = (sceneData) =>{
 		i5:16,
 		o5:128,
 	};*/
-	scene.ring = {
+	multiGen.ring = {
 		i0:0.5,
 		o0:4,
 		i1:3,
@@ -4667,26 +4689,26 @@ this.SceneAssetGen = (sceneData) =>{
 		i5:18,
 		o5:150,
 	};
-	//scene.size.data
-	//scene.size.id
-	//scene.size.type
-	//scene.size.radius
-	//scene.size.min
-	//scene.size.max
-	//scene.size.rings
-	//scene.size.objs
-	//scene.size.ranYPos
-	//scene.size.yPosFlex
-	//scene.size.ranScaleX
-	//scene.size.ranScaleY
-	//scene.size.ranScaleZ
-	//scene.size.scaleFlex
-	//scene.size.ranRotX
-	//scene.size.ranRotY
-	//scene.size.ranRotZ
-	//scene.size.ranColor
-	//scene.size.ranTexture
-	//scene.size.ranAnim
+	//multiGen.size.data
+	//multiGen.size.id
+	//multiGen.size.type
+	//multiGen.size.radius
+	//multiGen.size.min
+	//multiGen.size.max
+	//multiGen.size.rings
+	//multiGen.size.objs
+	//multiGen.size.ranYPos
+	//multiGen.size.yPosFlex
+	//multiGen.size.ranScaleX
+	//multiGen.size.ranScaleY
+	//multiGen.size.ranScaleZ
+	//multiGen.size.scaleFlex
+	//multiGen.size.ranRotX
+	//multiGen.size.ranRotY
+	//multiGen.size.ranRotZ
+	//multiGen.size.ranColor
+	//multiGen.size.ranTexture
+	//multiGen.size.ranAnim
 //Ring 0 : 0-2 Radius - user spawn area - tiny/small
 //Ring 1 : 2-4 Radius - immeadiately surrounding the spawn area - tiny/small/med
 //Ring 2 : 4-8 Radius - a bit farther from spawn area - small/med/large
@@ -4710,7 +4732,7 @@ this.SceneAssetGen = (sceneData) =>{
 //Import mutated grid and spawn Med
 //Import mutated grid and spawn Small
 //Import mutated grid and spawn Tiny
-//console.log(scene.ring);
+//console.log(multiGen.ring);
 //Generate Distribution Points at Ring Radius'
 let ring5 = [];
 let ring4 = [];
@@ -4718,22 +4740,22 @@ let ring3 = [];
 let ring2 = [];
 let ring1 = [];
 let ring0 = [];
-let gridRing5 = discSampling('ring5',scene.ring.o5,scene.ring.i5);
+let gridRing5 = discSampling('ring5',multiGen.ring.o5,multiGen.ring.i5);
 //console.log(gridRing5);
 
-let gridRing4 = discSampling('ring4',scene.ring.o4,scene.ring.i4,gridRing5);
+let gridRing4 = discSampling('ring4',multiGen.ring.o4,multiGen.ring.i4,gridRing5);
 //console.log(gridRing4);
 
-let gridRing3 = discSampling('ring3',scene.ring.o3,scene.ring.i3,gridRing4);
+let gridRing3 = discSampling('ring3',multiGen.ring.o3,multiGen.ring.i3,gridRing4);
 //console.log(gridRing3);
 
-let gridRing2 = discSampling('ring2',scene.ring.o2,scene.ring.i2,gridRing3);
+let gridRing2 = discSampling('ring2',multiGen.ring.o2,multiGen.ring.i2,gridRing3);
 //console.log(gridRing2);
 
-let gridRing1 = discSampling('ring1',scene.ring.o1,scene.ring.i1,gridRing2);
+let gridRing1 = discSampling('ring1',multiGen.ring.o1,multiGen.ring.i1,gridRing2);
 //console.log(gridRing1);
 
-let gridRing0 = discSampling('ring0',scene.ring.o0,scene.ring.i0,gridRing1);
+let gridRing0 = discSampling('ring0',multiGen.ring.o0,multiGen.ring.i0,gridRing1);
 //console.log(gridRing0);
 //console.log(gridRing0.length);
 let ring5Current = 0;
@@ -4749,45 +4771,45 @@ let ring0Current = 0;
 
 //Offset all to center and remove center
 for(let pos in ring5){
-	ring5[pos][0] -= scene.ring.o5/2;
-	ring5[pos][1] -= scene.ring.o5/2;
+	ring5[pos][0] -= multiGen.ring.o5/2;
+	ring5[pos][1] -= multiGen.ring.o5/2;
 	if(ring5[pos][0] === 0 && ring5[pos][1] === 0){
-		ring5[pos][0] = ring5[pos][1] = scene.ring.o5/2;
+		ring5[pos][0] = ring5[pos][1] = multiGen.ring.o5/2;
 	}
 }
 for(let pos in ring4){
-	ring4[pos][0] -= scene.ring.o4/2;
-	ring4[pos][1] -= scene.ring.o4/2;
+	ring4[pos][0] -= multiGen.ring.o4/2;
+	ring4[pos][1] -= multiGen.ring.o4/2;
 	if(ring4[pos][0] === 0 && ring4[pos][1] === 0){
-		ring4[pos][0] = ring4[pos][1] = scene.ring.o4/2;
+		ring4[pos][0] = ring4[pos][1] = multiGen.ring.o4/2;
 	}
 }
 for(let pos in ring3){
-	ring3[pos][0] -= scene.ring.o3/2;
-	ring3[pos][1] -= scene.ring.o3/2;
+	ring3[pos][0] -= multiGen.ring.o3/2;
+	ring3[pos][1] -= multiGen.ring.o3/2;
 	if(ring3[pos][0] === 0 && ring3[pos][1] === 0){
-		ring3[pos][0] = ring3[pos][1] = scene.ring.o3/2;
+		ring3[pos][0] = ring3[pos][1] = multiGen.ring.o3/2;
 	}
 }
 for(let pos in ring2){
-	ring2[pos][0] -= scene.ring.o2/2;
-	ring2[pos][1] -= scene.ring.o2/2;
+	ring2[pos][0] -= multiGen.ring.o2/2;
+	ring2[pos][1] -= multiGen.ring.o2/2;
 	if(ring2[pos][0] === 0 && ring2[pos][1] === 0){
-		ring2[pos][0] = ring2[pos][1] = scene.ring.o2/2;
+		ring2[pos][0] = ring2[pos][1] = multiGen.ring.o2/2;
 	}
 }
 for(let pos in ring1){
-	ring1[pos][0] -= scene.ring.o1/2;
-	ring1[pos][1] -= scene.ring.o1/2;
+	ring1[pos][0] -= multiGen.ring.o1/2;
+	ring1[pos][1] -= multiGen.ring.o1/2;
 	if(ring1[pos][0] === 0 && ring1[pos][1] === 0){
-		ring1[pos][0] = ring1[pos][1] = scene.ring.o1/2;
+		ring1[pos][0] = ring1[pos][1] = multiGen.ring.o1/2;
 	}
 }
 for(let pos in ring0){
-	ring0[pos][0] -= scene.ring.o0/2;
-	ring0[pos][1] -= scene.ring.o0/2;
+	ring0[pos][0] -= multiGen.ring.o0/2;
+	ring0[pos][1] -= multiGen.ring.o0/2;
 	if(ring0[pos][0] === 0 && ring0[pos][1] === 0){
-		ring0[pos][0] = ring0[pos][1] = scene.ring.o0/2;
+		ring0[pos][0] = ring0[pos][1] = multiGen.ring.o0/2;
 	}
 }
 
@@ -5027,8 +5049,8 @@ function* poissonDiscSampler(width, height, radius, center){
 		//loop through each size
 		for(let type in sizes){
 			//sizes[type]//tiny,small,med,large,huge
-			//let size = scene[sizes[type]];//scene.tiny object, scene.small object
-			let size = Object.assign({}, scene[sizes[type]]);
+			//let size = multiGen[sizes[type]];//multiGen.tiny object, multiGen.small object
+			let size = Object.assign({}, multiGen[sizes[type]]);
 			//console.log(size);
 			//Inside of single data object of a Size
 			//Tiny
@@ -5125,8 +5147,8 @@ function* poissonDiscSampler(width, height, radius, center){
 						} else {
 							//Out of predefined positions, choose ran
 							//console.log('Out of Ring 0 Pos');
-							posX = (Math.random() * (scene.ring.o0*2) - scene.ring.o0) + scene.ring.i0;
-							posZ = (Math.random() * (scene.ring.o0*2) - scene.ring.o0) + scene.ring.i0;
+							posX = (Math.random() * (multiGen.ring.o0*2) - multiGen.ring.o0) + multiGen.ring.i0;
+							posZ = (Math.random() * (multiGen.ring.o0*2) - multiGen.ring.o0) + multiGen.ring.i0;
 						}
 					} else if(size.rings === 1){
 						if(ring1Current < ring1.length){
@@ -5136,8 +5158,8 @@ function* poissonDiscSampler(width, height, radius, center){
 						} else {
 							//Out of predefined positions, choose ran
 							//console.log('Out of Ring 1 Pos');
-							posX = (Math.random() * (scene.ring.o1*2) - scene.ring.o1) + scene.ring.i1;
-							posZ = (Math.random() * (scene.ring.o1*2) - scene.ring.o1) + scene.ring.i1;
+							posX = (Math.random() * (multiGen.ring.o1*2) - multiGen.ring.o1) + multiGen.ring.i1;
+							posZ = (Math.random() * (multiGen.ring.o1*2) - multiGen.ring.o1) + multiGen.ring.i1;
 						}
 					} else if(size.rings === 2){
 						if(ring2Current < ring2.length){
@@ -5147,8 +5169,8 @@ function* poissonDiscSampler(width, height, radius, center){
 						} else {
 							//Out of predefined positions, choose ran
 							//console.log('Out of Ring 2 Pos');
-							posX = (Math.random() * (scene.ring.o2*2) - scene.ring.o2) + scene.ring.i2;
-							posZ = (Math.random() * (scene.ring.o2*2) - scene.ring.o2) + scene.ring.i2;
+							posX = (Math.random() * (multiGen.ring.o2*2) - multiGen.ring.o2) + multiGen.ring.i2;
+							posZ = (Math.random() * (multiGen.ring.o2*2) - multiGen.ring.o2) + multiGen.ring.i2;
 						}
 					} else if(size.rings === 3){
 						if(ring3Current < ring3.length){
@@ -5158,8 +5180,8 @@ function* poissonDiscSampler(width, height, radius, center){
 						} else {
 							//Out of predefined positions, choose ran
 							//console.log('Out of Ring 3 Pos');
-							posX = (Math.random() * (scene.ring.o3*2) - scene.ring.o3) + scene.ring.i3;
-							posZ = (Math.random() * (scene.ring.o3*2) - scene.ring.o3) + scene.ring.i3;
+							posX = (Math.random() * (multiGen.ring.o3*2) - multiGen.ring.o3) + multiGen.ring.i3;
+							posZ = (Math.random() * (multiGen.ring.o3*2) - multiGen.ring.o3) + multiGen.ring.i3;
 						}
 					} else if(size.rings === 4){
 						if(ring4Current < ring4.length){
@@ -5169,8 +5191,8 @@ function* poissonDiscSampler(width, height, radius, center){
 						} else {
 							//Out of predefined positions, choose ran
 							//console.log('Out of Ring 4 Pos');
-							posX = (Math.random() * (scene.ring.o4*2) - scene.ring.o4) + scene.ring.i4;
-							posZ = (Math.random() * (scene.ring.o4*2) - scene.ring.o4) + scene.ring.i4;
+							posX = (Math.random() * (multiGen.ring.o4*2) - multiGen.ring.o4) + multiGen.ring.i4;
+							posZ = (Math.random() * (multiGen.ring.o4*2) - multiGen.ring.o4) + multiGen.ring.i4;
 						}
 					} else if(size.rings === 5){
 						if(ring5Current < ring5.length){
@@ -5180,8 +5202,8 @@ function* poissonDiscSampler(width, height, radius, center){
 						} else {
 							//Out of predefined positions, choose ran
 							//console.log('Out of Ring 5 Pos');
-							posX = (Math.random() * (scene.ring.o5*2) - scene.ring.o5) + scene.ring.i5;
-							posZ = (Math.random() * (scene.ring.o5*2) - scene.ring.o5) + scene.ring.i5;
+							posX = (Math.random() * (multiGen.ring.o5*2) - multiGen.ring.o5) + multiGen.ring.i5;
+							posZ = (Math.random() * (multiGen.ring.o5*2) - multiGen.ring.o5) + multiGen.ring.i5;
 						}
 					} 
 
@@ -5190,59 +5212,41 @@ function* poissonDiscSampler(width, height, radius, center){
 					objData.position = new THREE.Vector3(posX, posY, posZ);
 					//console.log(objData.position);
 					//Add randomized Core to All
-					scene.assets[sizes[type]].push(auxl.Core(objData));
+					multiGen.assets[sizes[type]].push(auxl.Core(objData));
 				}
 
 			}
 		}
 	}
 	genCores();
-	const SpawnAll = () => {
-		//console.log(scene.assets)
+	const SpawnMultiAsset = () => {
+		//console.log(multiGen.assets)
 		//loop throusgh each size
 		for(let type in sizes){
 			//sizes[type]//tiny,small,med,large,huge
-			//let size = scene[sizes[type]];//scene.tiny object, scene.small object
-			let size = scene.assets[sizes[type]];
+			//let size = multiGen[sizes[type]];//multiGen.tiny object, multiGen.small object
+			let size = multiGen.assets[sizes[type]];
 			//console.log(size);
 			for(let each in size){
-				size[each].AddToScene(false, false, true);
+				size[each].SpawnCore(false, false, true);
 			}
-			//AddToSceneTracker();
 		}
-
 	}
 
-	const DespawnAll = () => {
+	const DespawnMultiAsset = () => {
 		for(let type in sizes){
 			//sizes[type]//tiny,small,med,large,huge
-			//let size = scene[sizes[type]];//scene.tiny object, scene.small object
-			let size = scene.assets[sizes[type]];
+			//let size = multiGen[sizes[type]];//multiGen.tiny object, multiGen.small object
+			let size = multiGen.assets[sizes[type]];
 			//console.log(size);
 			for(let each in size){
-				size[each].RemoveFromScene();
+				size[each].DespawnCore(false, false, true);
 			}
-			//AddToSceneTracker();
 		}
-		//RemoveFromSceneTracker();
+		RemoveFromTracker(multiGen.id);
 	}
 
-	const AddToSceneTracker = () => {
-		//Scene Tracking of Assets
-		if(auxl.zoneSpawned[gen.id]){} else {
-			//auxl.genSpawned[gen.id] = {type: 'gen', obj: gen};
-			auxl.nodeSpawned[gen.id] = {type: 'gen', obj: gen};
-		}
-	}
-
-	const RemoveFromSceneTracker = () => {
-		//Clear Tracking of Asset
-		//delete auxl.genSpawned[gen.id];
-		delete auxl.nodeSpawned[gen.id];
-	}
-
-
-	return {scene, SpawnAll, DespawnAll,}
+	return {multiGen, SpawnMultiAsset, DespawnMultiAsset,}
 
 }
 
@@ -5290,51 +5294,37 @@ this.Teleport = (id, locations) => {
 		teleport.all[spot] = auxl.Layer('teleport'+spot, teleportLayerData);
 	}
 
-	const SpawnAll = (sceneWide) => {
+	const SpawnTeleport = () => {
 		for(let each in teleport.all){
-			teleport.all[each].AddAllToScene(true);
-		}
-		if(sceneWide){} else {
-			AddToTeleportSceneTracker();
+			teleport.all[each].SpawnLayer(true);
 		}
 	}
 
-	const DespawnAll = (sceneWide) => {
+	const DespawnTeleport = () => {
 		for(let each in teleport.all){
-			teleport.all[each].RemoveAllFromScene(true);
+			teleport.all[each].DespawnLayer(true);
 		}
-		if(sceneWide){} else {
-			RemoveFromTeleportSceneTracker();
-		}
+		RemoveFromTracker(teleport.id);
 	}
 
-	const AddToTeleportSceneTracker = () => {
-		if(auxl.zoneSpawned[teleport.id]){} else {
-			auxl.nodeSpawned[teleport.id] = {type: 'teleport', obj: teleport};
-		}
-	}
-
-	const RemoveFromTeleportSceneTracker = () => {
-		delete auxl.nodeSpawned[id];
-	}
-
-	return {teleport, SpawnAll, DespawnAll};
-
+	return {teleport, SpawnTeleport, DespawnTeleport};
 }
 
 //
 //Memory Mini Game
-this.MemoryGame = (...data) => {
+this.MemoryGame = (id, data) => {
 
 	//Game Objects
+	let memory = {};
+	memory.id = id;
 	//Layered Object Generation
-	let memoryLayerData = {}
+	let layerData = {}
 	let memoryNullParentData = JSON.parse(JSON.stringify(auxl.nullParentData));
 	memoryNullParentData.id = 'memoryParent';
 	memoryNullParentData.position = new THREE.Vector3(0,1,-2);
 	let memoryNullParent = auxl.Core(memoryNullParentData);
-	memoryLayerData['parent'] = {};
-	memoryLayerData['parent'].core = memoryNullParent;
+	layerData['parent'] = {};
+	layerData['parent'].core = memoryNullParent;
 	let memoryObjData = {};
 	let memoryCores = {};
 	for(let each in data){
@@ -5342,10 +5332,10 @@ this.MemoryGame = (...data) => {
 		memoryObjData.id = 'memory' + each;
 		//memoryObjData.material = materials[each];
 		memoryCores[each] = auxl.Core(memoryObjData);
-		memoryLayerData['child'+each] = {};
-		memoryLayerData['child'+each].core = memoryCores[each];
+		layerData['child'+each] = {};
+		layerData['child'+each].core = memoryCores[each];
 	}
-	let memory = auxl.Layer('memory',memoryLayerData);
+	memory.layer = auxl.Layer('memory',layerData);
 
 	//UI
 	//Game Status
@@ -5390,20 +5380,21 @@ this.MemoryGame = (...data) => {
 		}
 	}
 
-	const SpawnGame = () => {
-		memory.AddAllToScene(true);
-		memoryUI1.AddToScene(false, false, true);
-		memoryUI2.AddToScene(false, false, true);
+	const SpawnMemGame = () => {
+		memory.layer.SpawnLayer(true);
+		memoryUI1.SpawnCore(false, false, true);
+		memoryUI2.SpawnCore(false, false, true);
 		AddSequenceListeners();
-		GameMenuGen();
+		GameSpawnMenu();
 	}
 
-	const DespawnGame = () => {
+	const DespawnMemGame = () => {
 		RemoveSequenceListeners();
-		memory.gameMenu.MenuRemove()
-		memory.RemoveAllFromScene();
-		memoryUI1.RemoveFromScene();
-		memoryUI2.RemoveFromScene();
+		memory.gameMenu.DespawnMenu()
+		memory.layer.DespawnLayer(true);
+		memoryUI1.DespawnCore(false, false, true);
+		memoryUI2.DespawnCore(false, false, true);
+		RemoveFromTracker(memory.id);
 	}
 
 	const StartGame = () => {
@@ -5545,7 +5536,7 @@ this.MemoryGame = (...data) => {
 		}
 	}
 
-	const GameMenuGen = () => {
+	const GameSpawnMenu = () => {
 
 		memory.GameMenuData = {
 			id: 'memoryGameMenu',
@@ -5563,7 +5554,7 @@ this.MemoryGame = (...data) => {
 		memory.GameMenuData.actions['action'+1] = 'resetGame';
 
 		memory.gameMenu = auxl.Menu(memory.GameMenuData);
-		memory.gameMenu.MenuGen();
+		memory.gameMenu.SpawnMenu();
 	}
 
 	const GameMenuClick = (el) => {
@@ -5580,27 +5571,29 @@ this.MemoryGame = (...data) => {
 		}
 	}
 
-	return{memory, SpawnGame, DespawnGame, GameMenuClick};
+	return{memory, SpawnMemGame, DespawnMemGame, GameMenuClick};
 }
 
 //
 //Image Swapper
 this.ImageSwapper = (id,mainData,buttonData,...materials) => {
 
+	let imageSwapper = {};
+	imageSwapper.id = id;
 	let imageSwapperCore;
-	let thumbnailCores = [];
+	imageSwapper.thumbnailCores = [];
 	let thumbnailPos = new THREE.Vector3(0,-0.3,0.05);
 	//let startPos = (mainData.geometry.width/2)/materials.length;
 	//let movePos = mainData.geometry.width/materials.length;
 
 	//Layer
-	let imageSwapperLayerData = {}
+	imageSwapper.layerData = {}
 	for(let mat in materials){
 		if(mat === '0'){
 			mainData.material = materials[mat];
 			imageSwapperCore = auxl.Core(mainData);
-			imageSwapperLayerData['parent'] = {};
-			imageSwapperLayerData['parent'].core = imageSwapperCore;
+			imageSwapper.layerData['parent'] = {};
+			imageSwapper.layerData['parent'].core = imageSwapperCore;
 		} else {
 			buttonData.id = 'thumbnail' + mat;
 			buttonData.material = materials[mat];
@@ -5631,12 +5624,12 @@ this.ImageSwapper = (id,mainData,buttonData,...materials) => {
 			}
 			//thumbnailPos;
 			buttonData.position = thumbnailPos;
-			thumbnailCores[mat] = auxl.Core(buttonData);
-			imageSwapperLayerData['child'+mat] = {};
-			imageSwapperLayerData['child'+mat].core = thumbnailCores[mat];
+			imageSwapper.thumbnailCores[mat] = auxl.Core(buttonData);
+			imageSwapper.layerData['child'+mat] = {};
+			imageSwapper.layerData['child'+mat].core = imageSwapper.thumbnailCores[mat];
 		}
 	}
-	let imageSwapper = auxl.Layer('imageSwapper',imageSwapperLayerData);
+	imageSwapper.layer = auxl.Layer('imageSwapper',imageSwapper.layerData);
 
 	const Click = (el) => {
 		//Swap Material Sources with Parent
@@ -5647,31 +5640,19 @@ this.ImageSwapper = (id,mainData,buttonData,...materials) => {
 		el.setAttribute('material',{src: replacedMat})
 	}
 
-	const Show = () => {
-		imageSwapper.AddAllToScene(true);
-		AddToImageSwapperSceneTracker();
+	const SpawnImgSwap = () => {
+		imageSwapper.layer.SpawnLayer(true);
+		//AddToImageSwapperSceneTracker();
 	}
 
-	const Remove = () => {
-		imageSwapper.RemoveAllFromScene(true);
-		RemoveFromImageSwapperSceneTracker();
-	}
-
-	const AddToImageSwapperSceneTracker = () => {
-		if(auxl.zoneSpawned[id]){} else {
-    		auxl.nodeSpawned[id] = {type: 'imageSwapper', obj: imageSwapper};
-		}
-
-	}
-
-	const RemoveFromImageSwapperSceneTracker = () => {
-		delete auxl.nodeSpawned[id];
+	const DespawnImgSwap = () => {
+		imageSwapper.layer.DespawnLayer(true);
+		RemoveFromTracker(imageSwapper.id);
 	}
 
 	//Add autoplay and pause on hovering
 	//Controls either left/right or thumbnails for each
-	return {imageSwapper, Click, Show, Remove};
-
+	return {imageSwapper, Click, SpawnImgSwap, DespawnImgSwap};
 }
 
 //
@@ -5683,17 +5664,16 @@ this.ImageCarousel = (carouselData) => {
 
 //Changing between Forward & Reverse either way messes up which frames should be updated
 
-
 //Data
-let carousel = Object.assign({}, carouselData);
-carousel.frames = 8;//temp, will be imported
+let imageCarousel = Object.assign({}, carouselData);
+imageCarousel.frames = 8;//temp, will be imported
 let playInterval;
 let updateTimeout;
 let scaleTimeout;
-carousel.framesPerPage = 8;
+imageCarousel.framesPerPage = 8;
 currentImageForward = -1;
-currentImageBackward = carousel.images.length - carousel.framesPerPage;
-let frameRotationEach = 360/carousel.framesPerPage;
+currentImageBackward = imageCarousel.images.length - imageCarousel.framesPerPage;
+let frameRotationEach = 360/imageCarousel.framesPerPage;
 let frameRotation = 0;
 currentRotation = -1;
 
@@ -5780,7 +5760,7 @@ let imageFrameCores = [];
 let textId = 'artFrameText';
 let textFrameCores = [];
 
-for(let a=0; a < carousel.frames; a++){
+for(let a=0; a < imageCarousel.frames; a++){
 
 	//Temp
 	if(a === 0){
@@ -6205,34 +6185,34 @@ let anim360Data = {
 		if(direction === 'forward'){
 			currentImageForward++;
 			currentImageBackward++;
-			if(currentImageForward >= carousel.images.length){
+			if(currentImageForward >= imageCarousel.images.length){
 				currentImageForward = 0
 			}
-			if(currentImageBackward >= carousel.images.length){
+			if(currentImageBackward >= imageCarousel.images.length){
 				currentImageBackward = 0
 			}
 			//console.log(direction);
 			//console.log(currentImageForward);
 			//console.log(currentImageBackward);
-			UpdateFrame('child'+frame, carousel.images[currentImageForward].text, carousel.images[currentImageForward].image);
+			UpdateFrame('child'+frame, imageCarousel.images[currentImageForward].text, imageCarousel.images[currentImageForward].image);
 		} else if(direction === 'backward'){
 			currentImageBackward--;
 			currentImageForward--;
 			if(currentImageBackward < 0){
-				currentImageBackward = carousel.images.length-1;
+				currentImageBackward = imageCarousel.images.length-1;
 			}
 			if(currentImageForward < 0){
-				currentImageForward = carousel.images.length-1;
+				currentImageForward = imageCarousel.images.length-1;
 			}
 			//console.log(direction);
 			//console.log(currentImageForward);
 			//console.log(currentImageBackward);
-			UpdateFrame('child'+frame, carousel.images[currentImageBackward].text, carousel.images[currentImageBackward].image);
+			UpdateFrame('child'+frame, imageCarousel.images[currentImageBackward].text, imageCarousel.images[currentImageBackward].image);
 		}
 	}
 
 	const UpdateAll = (direction) => {
-		for(let a = 0; a < carousel.frames; a++){
+		for(let a = 0; a < imageCarousel.frames; a++){
 			Update(a,direction);
 		}
 		loadingPage = false;
@@ -6295,16 +6275,16 @@ let anim360Data = {
 		Update(num,direction);
 	}
 
-	const Spawn = () => {
-		artFrameAllLayer.AddAllToScene();
-		buttonBackwardLayer.AddAllToScene();
-		buttonHashtagLayer.AddAllToScene();
-		buttonForwardLayer.AddAllToScene();
-		buttonLeftSkipLayer.AddAllToScene();
-		buttonPlayLayer.AddAllToScene();
-		buttonRightSkipLayer.AddAllToScene();
-		buttonSettingsLayer.AddAllToScene();
-		buttonStopLayer.AddAllToScene();
+	const SpawnImgCarousel = () => {
+		artFrameAllLayer.SpawnLayer(true);
+		buttonBackwardLayer.SpawnLayer(true);
+		buttonHashtagLayer.SpawnLayer(true);
+		buttonForwardLayer.SpawnLayer(true);
+		buttonLeftSkipLayer.SpawnLayer(true);
+		buttonPlayLayer.SpawnLayer(true);
+		buttonRightSkipLayer.SpawnLayer(true);
+		buttonSettingsLayer.SpawnLayer(true);
+		buttonStopLayer.SpawnLayer(true);
 
 		buttonBackwardClick.GetEl().addEventListener('click', Backward);
 		buttonForwardClick.GetEl().addEventListener('click', Forward);
@@ -6316,9 +6296,10 @@ let anim360Data = {
 		buttonHashtagClick.GetEl().addEventListener('click', RandomPage);
 
 		Init();
+		//AddToImageCarouselSceneTracker();
 	}
 
-	const Despawn = () => {
+	const DespawnImgCarousel = () => {
 		buttonBackwardClick.GetEl().removeEventListener('click', Backward);
 		buttonForwardClick.GetEl().removeEventListener('click', Forward);
 		buttonLeftSkipClick.GetEl().removeEventListener('click', PrevPage);
@@ -6328,15 +6309,17 @@ let anim360Data = {
 		buttonStopClick.GetEl().removeEventListener('click', Stop);
 		buttonHashtagClick.GetEl().removeEventListener('click', RandomPage);
 
-		artFrameAllLayer.RemoveAllFromScene();
-		buttonBackwardLayer.RemoveAllFromScene();
-		buttonHashtagLayer.RemoveAllFromScene();
-		buttonForwardLayer.RemoveAllFromScene();
-		buttonLeftSkipLayer.RemoveAllFromScene();
-		buttonPlayLayer.RemoveAllFromScene();
-		buttonRightSkipLayer.RemoveAllFromScene();
-		buttonSettingsLayer.RemoveAllFromScene();
-		buttonStopLayer.RemoveAllFromScene();
+		artFrameAllLayer.DespawnLayer(true);
+		buttonBackwardLayer.DespawnLayer(true);
+		buttonHashtagLayer.DespawnLayer(true);
+		buttonForwardLayer.DespawnLayer(true);
+		buttonLeftSkipLayer.DespawnLayer(true);
+		buttonPlayLayer.DespawnLayer(true);
+		buttonRightSkipLayer.DespawnLayer(true);
+		buttonSettingsLayer.DespawnLayer(true);
+		buttonStopLayer.DespawnLayer(true);
+
+		RemoveFromTracker(imageCarousel.id);
 	}
 
 	const Forward = () => {
@@ -6447,7 +6430,7 @@ let anim360Data = {
 	const RandomPage = () => {
 		if(loadingPage){} else {
 			loadingPage = true;
-			currentImageForward = Math.floor(Math.random()*carousel.images.length);
+			currentImageForward = Math.floor(Math.random()*imageCarousel.images.length);
 			UpdateAll('forward');
 		}
 	}
@@ -6493,12 +6476,13 @@ let anim360Data = {
 	}
 
 	const Init = () => {
-		buttonStopClick.EnableDetail({text: carousel.description, position: new THREE.Vector3(0,1.5,-2)});
+		buttonStopClick.EnableDetail({text: imageCarousel.description, position: new THREE.Vector3(0,1.5,-2)});
 		UpdateAll('forward');
 	}
 
-	return {carousel, Spawn, Despawn};
+	return {imageCarousel, SpawnImgCarousel, DespawnImgCarousel};
 }
+
 
 },//Init
 
@@ -7774,6 +7758,25 @@ components: {
 };
 auxl.eventTesting5 = auxl.Core(auxl.eventTesting5Data);
 
+auxl.spawnTestingData = {
+data:'spawnTestingData',
+id:'spawnTesting',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern69, repeat: '1 1', color: "#25e074", emissive: '#25e074', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.5,-0.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1.5,1.5,1.5),
+animations:false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
+};
+auxl.spawnTesting = auxl.Core(auxl.spawnTestingData);
+
 //Sound Testing
 auxl.soundTestingData = {
 data:'Sound Testing',
@@ -7977,7 +7980,7 @@ classes: ['memory','a-ent'],
 components: false,
 };
 //Memory Example
-auxl.memory = auxl.MemoryGame(auxl.memory0Data,auxl.memory1Data,auxl.memory2Data,auxl.memory3Data,);
+auxl.memory = auxl.MemoryGame('memory',[auxl.memory0Data,auxl.memory1Data,auxl.memory2Data,auxl.memory3Data]);
 
 
 //
@@ -8000,7 +8003,6 @@ height: 'normal',
 width: 'normal',
 };
 auxl.horizonMountains1 = auxl.Horizon(auxl.horizonMountains1Data);
-
 //Mountains 2
 //Snow Mountains
 auxl.horizonMountains2Data = {
@@ -8015,7 +8017,6 @@ height: 'high',
 width: 'normal',
 };
 auxl.horizonMountains2 = auxl.Horizon(auxl.horizonMountains2Data);
-
 //Hills
 //Graveyard Hills
 auxl.horizonHills1Data = {
@@ -8030,7 +8031,6 @@ height: 'normal',
 width: 'normal',
 };
 auxl.horizonHills1 = auxl.Horizon(auxl.horizonHills1Data);
-
 //Wall 1
 //Desert Wall
 auxl.horizonWalls1Data = {
@@ -8045,7 +8045,6 @@ height: 'low',
 width: 'normal',
 };
 auxl.horizonWalls1 = auxl.Horizon(auxl.horizonWalls1Data);
-
 //Wall2
 //Underwater - INCOMPLETE
 auxl.horizonWalls2Data = {
@@ -8060,7 +8059,6 @@ height: 'low',
 width: 'normal',
 };
 auxl.horizonWalls2 = auxl.Horizon(auxl.horizonWalls2Data);
-
 //Wall3
 //Indoor Room - INCOMPLETE
 auxl.horizonWalls3Data = {
@@ -8075,8 +8073,6 @@ height: 'low',
 width: 'normal',
 };
 auxl.horizonWalls3 = auxl.Horizon(auxl.horizonWalls3Data);
-
-
 //Buildings
 //Beach Pillars
 auxl.horizonBuildings1Data = {
@@ -8091,7 +8087,6 @@ height: 'normal',
 width: 'normal',
 };
 auxl.horizonBuildings1 = auxl.Horizon(auxl.horizonBuildings1Data);
-
 //Random Buildings
 //Starting Island Misc
 auxl.horizonBuildings2Data = {
@@ -10625,7 +10620,7 @@ med: auxl.medForest2Data,
 large: auxl.largeForest2Data,
 huge: auxl.hugeForest2Data,
 };
-auxl.forestScene2 = auxl.SceneAssetGen(auxl.forestScene2Data);
+auxl.forestScene2 = auxl.MultiAssetGen(auxl.forestScene2Data);
 //Rainy Forest
 //
 //Tiny
@@ -10793,7 +10788,7 @@ med: auxl.medForest1Data,
 large: auxl.largeForest1Data,
 huge: auxl.hugeForest1Data,
 };
-auxl.forestScene1 = auxl.SceneAssetGen(auxl.forestScene1Data);
+auxl.forestScene1 = auxl.MultiAssetGen(auxl.forestScene1Data);
 //Snowy Forest
 //
 //Tiny
@@ -10946,7 +10941,7 @@ med: auxl.medSnowForest1Data,
 large: auxl.largeSnowForest1Data,
 huge: auxl.hugeSnowForest1Data,
 };
-auxl.snowForestScene1 = auxl.SceneAssetGen(auxl.snowForestScene1Data);
+auxl.snowForestScene1 = auxl.MultiAssetGen(auxl.snowForestScene1Data);
 //Graveyard
 //
 //Tiny
@@ -11127,7 +11122,7 @@ med: auxl.medGraveyard1Data,
 large: auxl.largeGraveyard1Data,
 huge: auxl.hugeGraveyard1Data,
 };
-auxl.graveyardScene1 = auxl.SceneAssetGen(auxl.graveyardScene1Data);
+auxl.graveyardScene1 = auxl.MultiAssetGen(auxl.graveyardScene1Data);
 //Desert
 //
 //Tiny
@@ -11276,7 +11271,7 @@ med: auxl.medDesert1Data,
 large: auxl.largeDesert1Data,
 huge: auxl.hugeDesert1Data,
 };
-auxl.desertScene1 = auxl.SceneAssetGen(auxl.desertScene1Data);
+auxl.desertScene1 = auxl.MultiAssetGen(auxl.desertScene1Data);
 //Beach
 //
 //Tiny
@@ -11435,7 +11430,7 @@ med: auxl.medBeach1Data,
 large: auxl.largeBeach1Data,
 huge: auxl.hugeBeach1Data,
 };
-auxl.beachScene1 = auxl.SceneAssetGen(auxl.beachScene1Data);
+auxl.beachScene1 = auxl.MultiAssetGen(auxl.beachScene1Data);
 //Underwater
 //
 //Tiny
@@ -11590,7 +11585,7 @@ med: auxl.medUnderwater1Data,
 large: auxl.largeUnderwater1Data,
 huge: auxl.hugeUnderwater1Data,
 };
-auxl.underwaterScene1 = auxl.SceneAssetGen(auxl.underwaterScene1Data);
+auxl.underwaterScene1 = auxl.MultiAssetGen(auxl.underwaterScene1Data);
 
 //
 //Multi Obj Gen Data
@@ -12325,7 +12320,7 @@ timeline15:{
 npcMinty:{Speak:{role: 'Minty', speech:'The Library Core Object provides the vital functions like a spawn controller, the access to and editing of the object, object specific flag checks and settings as well as event support.'}},
 },
 timeline16:{
-npcMinty:{Speak:{role: 'Minty', speech:'That provides you with major core functions like core.AddToScene(), core.RemoveFromScene(), core.ChangeSelf(), core.Animate(), core.EmitEvent(), core.SetFlag(), core.GetFlag(), core.ClickRun(), etc...'}},
+npcMinty:{Speak:{role: 'Minty', speech:'That provides you with major core functions like core.SpawnCore(), core.DespawnCore(), core.ChangeSelf(), core.Animate(), core.EmitEvent(), core.SetFlag(), core.GetFlag(), core.ClickRun(), etc...'}},
 },
 timeline17:{
 npcMinty:{Speak:{role: 'Minty', speech:'As well as minor support functions like core.GetEl() to connect with the object in-scene.'}},
@@ -12340,7 +12335,7 @@ timeline20:{
 npcMinty:{Speak:{role: 'Minty', speech:'The layered object provides wrapped function access to control the Layer like a single object as well as accessing any individual parts.'}},
 },
 timeline21:{
-npcMinty:{Speak:{role: 'Minty', speech:'Functions like layer.AddAllToScene(), layer.RemoveAllFromScene(), layer.ChangeParent(), layer.ChangeAll(), layer.AnimateParent(), layer.AnimateAll(), layer.GetChild(), etc...'}},
+npcMinty:{Speak:{role: 'Minty', speech:'Functions like layer.SpawnLayer(), layer.DespawnLayer(), layer.ChangeParent(), layer.ChangeAll(), layer.AnimateParent(), layer.AnimateAll(), layer.GetChild(), etc...'}},
 },
 timeline22:{
 npcMinty:{Speak:{role: 'Minty', speech:'With access to just these Cores and Layers, we can already start to build out an XR scene and provide some interactions.'}},
@@ -12519,6 +12514,7 @@ npc0:{Speak:{role: 'Dev', speech:'Lorem ipsum dolor sit amet, consectetur adipis
 player:{SetFlag:{flag: 'testSpeechVar', value: true},},
 },
 timeline1:{
+spawnTesting:{SpawnCore:null},
 npc0:{IfElse: {player:{cond: 'testSpeechVar',
 ifTrue: {
 npc0:{Speak:{role: 'Dev', speech:'Is True'}},},
@@ -12820,9 +12816,10 @@ startZone: 'zone0',
 instructions: 'A demo scenario of traversing a variety of different areas and showcasing the core features and functionality of the A-Frame UX Library engine v0.2.',
 },
 start:{
-skyBox0:{Spawn: null},
-nodeFloor:{AddToScene: null},
-clouds:{AddAllToScene: null},
+skyBox0:{SpawnSkyBox: null},
+nodeFloor:{SpawnCore: null},
+clouds:{SpawnLayer: null},
+HamGirl:{SpawnHam:null},
 },
 delay:{
 100:{
@@ -12842,7 +12839,7 @@ auxl.scenarioDemo = auxl.Scenario(auxl.scenarioDemoData);
 
 //
 //World Atlas MapZones & NodeScenes
-//['raycast-teleportation']:null,
+
 //Floating Island - Connects to all zones
 //
 //Zone 0
@@ -12885,7 +12882,7 @@ auxl.zone0Node0Data = {
 info:{
 id:'zone0Node0',
 name: 'Floating Island',
-description: 'Starting Zone',
+description: 'Click floor anywhere to teleport on this island!',
 sceneText: true,
 },
 start:{
@@ -12893,12 +12890,11 @@ nodeFloor:{
 ChangeSelf:[{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},},
 {property: 'position', value: new THREE.Vector3(0,0,0),},{property: 'raycast-teleportation', value: null,}],
 },
-forestScene2:{SpawnAll:null},
-multiRockFlatGrass:{genCores:null, SpawnAll:null},
-HamGirl:{Start:null},
-npcMinty:{Spawn:null},
-horizonBuildings2:{Spawn:null},
-soundTesting:{AddToScene:null},
+forestScene2:{SpawnMultiAsset:null},
+multiRockFlatGrass:{SpawnObjRing :null},
+npcMinty:{SpawnNPC:null},
+horizonBuildings2:{SpawnHorizon:null},
+soundTesting:{SpawnCore:null},
 },
 delay:{
 },
@@ -12912,8 +12908,6 @@ interaction:{
 
 },
 exit:{
-HamGirl:{Remove: null},
-forestScene2:{DespawnAll:null},
 nodeFloor:{RemoveComponent:'raycast-teleportation'},
 },
 map:{
@@ -12971,12 +12965,12 @@ description: 'Open Tundra',
 sceneText: true,
 },
 start:{
-teleport:{SpawnAll:null},
+teleport:{SpawnTeleport:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern69, repeat: '150 150',color: "#d6a9ba", emissive: "#d6a9ba",},}},
-snowForestScene1:{SpawnAll:null},
-npc1:{Spawn: null},
-horizonMountains2:{Spawn: null},
-multiSnowMountainsBasic:{SpawnAll: null},
+snowForestScene1:{SpawnMultiAsset:null},
+npc1:{SpawnNPC: null},
+horizonMountains2:{SpawnHorizon: null},
+multiSnowMountainsBasic:{SpawnObjRing: null},
 },
 delay:{
 
@@ -12990,7 +12984,7 @@ interaction:{
 
 },
 exit:{
-snowForestScene1:{DespawnAll:null},
+
 },
 map:{
 data: auxl.zone1Data.zone1Node0,
@@ -13005,16 +12999,17 @@ description: 'Underground Shelter',
 sceneText: true,
 },
 start:{
-teleport0:{SpawnAll:null},
+teleport0:{SpawnTeleport:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern37, repeat: '150 150',color: "#bc8fa0", emissive: "#bc8fa0",},}},
-nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: auxl.pattern81, repeat: '5 1.25', color: "#bc8fa0", emissive: "#bc8fa0",}}},
-eventTesting:{AddToScene: null, EnableDetail: {text: 'This shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.', textColor: 'black', windowColor: 'white', windowWidth: 2, windowHeight: 2}},
-eventTesting2:{AddToScene: null, EnableDetail: {text: 'This also shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.'}},
-eventTesting3:{AddToScene: null,},
-eventTesting4:{AddToScene: null,},
-smallCeiling: {AddToScene: null,ChangeSelf:{property: 'material', value: {src: auxl.pattern76, repeat: '10 10', color: "#9b7a87", emissive: "#9b7a87",}}},
+nodeWalls: {SpawnLayer: null,ChangeAll:{property: 'material', value: {src: auxl.pattern81, repeat: '5 1.25', color: "#bc8fa0", emissive: "#bc8fa0",}}},
+eventTesting:{SpawnCore: null, EnableDetail: {text: 'This shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.', textColor: 'black', windowColor: 'white', windowWidth: 2, windowHeight: 2}},
+eventTesting2:{SpawnCore: null, EnableDetail: {text: 'This also shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.'}},
+eventTesting3:{SpawnCore: null,},
+eventTesting4:{SpawnCore: null,},
+smallCeiling: {SpawnCore: null,ChangeSelf:{property: 'material', value: {src: auxl.pattern76, repeat: '10 10', color: "#9b7a87", emissive: "#9b7a87",}}},
 },
 delay:{
+
 2000:{
 eventTesting:{EmitEvent: 'customevent1'},
 },
@@ -13037,6 +13032,7 @@ eventTesting:{EmitEvent: 'customevent3'},
 eventTesting:{EmitEvent: 'customevent2'},
 },}}},
 },
+
 },
 interval:{
 
@@ -13052,8 +13048,10 @@ eventTesting2:{EmitEvent: 'customevent6',SetFlag:{flag: 'testIntervalVar', value
 6000: {run: {
 eventTesting4:{EmitEvent: 'testintervalevent'},
 }, loop: 'infinite'},
+
 },
 event:{
+
 customevent1: {
 eventTesting: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},
 },
@@ -13092,8 +13090,10 @@ eventTesting4:{EmitEvent: 'customevent9',SetFlag:{flag: 'testInteractionVar', va
 eventTesting4:{EmitEvent: 'customevent10',SetFlag:{flag: 'testInteractionVar', value: true},},
 },}}},
 },
+
 },
 interaction:{
+
 click: {
 eventTesting3:{IfElse: {eventTesting3:{cond: 'testInteractionVar',
 ifTrue: {
@@ -13102,6 +13102,7 @@ eventTesting3:{EmitEvent: 'customevent7',SetFlag:{flag: 'testInteractionVar', va
 eventTesting3:{EmitEvent: 'customevent8',SetFlag:{flag: 'testInteractionVar', value: true},},
 },}}},
 },
+
 },
 exit:{
 
@@ -13160,11 +13161,11 @@ description: 'Thick Woodlands',
 sceneText: true,
 },
 start:{
-teleport:{SpawnAll:null},
+teleport:{SpawnTeleport:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern24, repeat: '300 300', color: "#228343", emissive: "#228343",},}},
-forestScene1:{SpawnAll:null},
-horizonMountains1:{Spawn: null},
-carouselTesting:{Spawn:null},
+forestScene1:{SpawnMultiAsset:null},
+horizonMountains1:{SpawnHorizon: null},
+carouselTesting:{SpawnImgCarousel:null},
 },
 delay:{
 },
@@ -13178,7 +13179,6 @@ interaction:{
 },
 exit:{
 
-forestScene1:{DespawnAll:null},
 },
 map:{
 data: auxl.zone2Data.zone2Node0,
@@ -13209,7 +13209,7 @@ zone3Node1:{
 connect0: {inZone: true, node: 'zone3Node0',},
 },
 start:{
-
+npc0:{SpawnNPC: null},
 },
 delay:{
 
@@ -13236,12 +13236,12 @@ description: 'Spooky Cemetary',
 sceneText: true,
 },
 start:{
-teleport:{SpawnAll:null},
-npc0:{Spawn: null},
+teleport:{SpawnTeleport:null},
+
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern44, repeat: '150 150',color: "#618136", emissive: "#618136",},}},
-multiGrassyHillsBasic:{SpawnAll: null},
-graveyardScene1:{SpawnAll:null},
-horizonHills1:{Spawn: null},
+multiGrassyHillsBasic:{SpawnObjRing: null},
+graveyardScene1:{SpawnMultiAsset:null},
+horizonHills1:{SpawnHorizon: null},
 },
 delay:{
 
@@ -13255,7 +13255,7 @@ interaction:{
 
 },
 exit:{
-graveyardScene1:{DespawnAll:null},
+
 },
 map:{
 data: auxl.zone3Data.zone3Node0,
@@ -13270,13 +13270,12 @@ description: 'Graveyard Shelter',
 sceneText: true,
 },
 start:{
-teleport0:{SpawnAll:null},
-memory:{SpawnGame: null},
+teleport0:{SpawnTeleport:null},
+memory:{SpawnMemGame: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern50, repeat: '150 150',color: "#763a3a", emissive: "#763a3a",},}},
-nodeWalls: {AddAllToScene: null,ChangeAll:{property: 'material', value: {src: auxl.pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
-//horizonWalls3:{Spawn:null},
-smallCeiling: {AddToScene: null,ChangeSelf:{property: 'material', value: {src: auxl.pattern22, repeat: '5 5', color: "#623018", emissive: "#623018",}}},
-imageSwapper1:{Show: null},
+nodeWalls: {SpawnLayer: null,ChangeAll:{property: 'material', value: {src: auxl.pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
+smallCeiling: {SpawnCore: null,ChangeSelf:{property: 'material', value: {src: auxl.pattern22, repeat: '5 5', color: "#623018", emissive: "#623018",}}},
+imageSwapper1:{SpawnImgSwap: null},
 },
 delay:{
 
@@ -13290,7 +13289,7 @@ interaction:{
 
 },
 exit:{
-memory:{DespawnGame: null},
+
 },
 map:{
 data: auxl.zone3Data.zone3Node1,
@@ -13346,12 +13345,12 @@ description: 'Dry Plains',
 sceneText: true,
 },
 start:{
-teleport:{SpawnAll:null},
+teleport:{SpawnTeleport:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern58, repeat: '150 150',color: "#c1bd52", emissive: "#c1bd52",},}},
-npc2:{Spawn: null},
-multiDesertPlainsBasic:{SpawnAll: null},
-desertScene1:{SpawnAll:null},
-horizonWalls1:{Spawn:null},
+npc2:{SpawnNPC: null},
+multiDesertPlainsBasic:{SpawnObjRing: null},
+desertScene1:{SpawnMultiAsset:null},
+horizonWalls1:{SpawnHorizon:null},
 },
 delay:{
 
@@ -13365,7 +13364,7 @@ interaction:{
 
 },
 exit:{
-desertScene1:{DespawnAll:null},
+
 },
 map:{
 data: auxl.zone4Data.zone4Node0,
@@ -13395,8 +13394,8 @@ zone5Node1:{
 connect0: {inZone: true, node: 'zone5Node0',},
 },
 start:{
-eventTesting2:{AddToScene: null},
-eventTesting5:{AddToScene: null},
+eventTesting2:{SpawnCore: null},
+eventTesting5:{SpawnCore: null},
 },
 delay:{
 
@@ -13458,15 +13457,15 @@ description: 'Rolling Sands',
 sceneText: true,
 },
 start:{
-teleport:{SpawnAll:null},
+teleport:{SpawnTeleport:null},
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: true}, EnableDetail: {text: 'An example of using start/exit to set variables and change scene settings.'}},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55, repeat: '150 150',color: "#b4933c", emissive: "#b4933c",},}},
-multiOceanBeachBasic:{SpawnAll: null},
-beachScene1:{SpawnAll:null},
-horizonBuildings1:{Spawn: null},
-canoe:{AddToScene:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(1.5,0,3),}},
-canoe_paddle:{AddToScene:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(-2,0.1,1),}},
-waterFloor:{AddToScene:null},
+multiOceanBeachBasic:{SpawnObjRing: null},
+beachScene1:{SpawnMultiAsset:null},
+horizonBuildings1:{SpawnHorizon: null},
+canoe:{SpawnCore:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(1.5,0,3),}},
+canoe_paddle:{SpawnCore:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(-2,0.1,1),}},
+waterFloor:{SpawnCore:null},
 },
 delay:{
 
@@ -13480,13 +13479,14 @@ interaction:{
 
 },
 exit:{
-beachScene1:{DespawnAll:null},
+
 eventTesting5:{IfElse: {eventTesting5:{cond: 'testExitVar',
 ifTrue: {
 eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55,color: "#1f5298", emissive: "#1f5298",},}},
 },ifFalse: {
 eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern54,color: "#9b206c", emissive: "#9b206c",},}},
 },}}},
+
 },
 map:{
 data: auxl.zone5Data.zone5Node0,
@@ -13501,13 +13501,12 @@ description: 'Submerged',
 sceneText: true,
 },
 start:{
-teleport0:{SpawnAll:null},
+teleport0:{SpawnTeleport:null},
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: false},},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern83, repeat: '150 150',color: "#3c86b4", emissive: "#3c86b4",},}},
-//nodeWalls:{AddAllToScene: null,ChangeParent:{property: 'scale', value: new THREE.Vector3(15,15,15)},ChangeAll:{property: 'material', value: {src: auxl.pattern55, repeat: '5 1.25', color: "#275876", emissive: "#275876",}}},
-horizonWalls2:{Spawn:null},
-underwaterScene1:{SpawnAll:null},
-nodeCeiling:{AddToScene:null},
+nodeWalls:{SpawnLayer: null,ChangeParent:{property: 'scale', value: new THREE.Vector3(15,15,15)},ChangeAll:{property: 'material', value: {src: auxl.pattern55, repeat: '5 1.25', color: "#275876", emissive: "#275876",}}},
+underwaterScene1:{SpawnMultiAsset:null},
+nodeCeiling:{SpawnCore:null},
 },
 delay:{
 
@@ -13521,14 +13520,15 @@ interaction:{
 
 },
 exit:{
-underwaterScene1:{DespawnAll:null},
-//nodeWalls: {ChangeParent:{property: 'scale', value: new THREE.Vector3(1,1,1)}},
+nodeWalls: {ChangeParent:{property: 'scale', value: new THREE.Vector3(1,1,1)}},
+
 eventTesting5:{IfElse: {eventTesting5:{cond: 'testExitVar',
 ifTrue: {
 eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55,color: "#1f5298", emissive: "#1f5298",},}},
 },ifFalse: {
 eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern54,color: "#9b206c", emissive: "#9b206c",},}},
 },}}},
+
 },
 map:{
 data: auxl.zone5Data.zone5Node1,
