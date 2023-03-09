@@ -14273,9 +14273,39 @@ update: function () {
 		});
 
 		this.questJoystickLocomotionEvent = (event) => {
-			this.questJoystickLocomotion(event);
+			//this.questJoystickLocomotion(event);
 		}
-		this.vrController.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		//this.vrController.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+
+	this.vrController.addEventListener('thumbstickmoved', function (e) {
+		updateInput('questJoystick running');
+		function updateInput(input){
+
+			this.displayInputText.value = input;
+			this.displayInput.setAttribute('text',this.displayInputText);
+		}
+		let xNum = e.detail.x;
+		let yNum = e.detail.y;
+		updateInput('X: '+ xNum + ' | Y: '+ yNum);
+
+		if (e.detail.y > 0.95) {
+			clearMovement();
+			movingReverse();
+		}
+		if (e.detail.y < -0.95) {
+			clearMovement();
+			movingForward();
+		}
+		if (e.detail.x < -0.95) {
+			clearMovement();
+			movingLeft();
+		}
+		if (e.detail.x > 0.95) {
+			clearMovement();
+			movingRight();
+		}
+	});
+
 
 		this.vrController.addEventListener('thumbsticktouchend', clearMovement);
 		this.vrController.addEventListener('thumbstickdown', clearMovement);
