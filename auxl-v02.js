@@ -13672,26 +13672,28 @@ init: function () {
 		}
 	});*/
 	// Conflicts with Locomotion event listener
+	let deadzone = 0.05;
 	this.el.addEventListener('thumbstickmoved', function (e) {
 		let xNum = e.detail.x;
 		let yNum = e.detail.y;
 		updateInput('X: '+ xNum + ' | Y: '+ yNum);
 
-		if (e.detail.y > 0.95) {
-			clearMovement();
+		if (e.detail.y > deadzone) {
 			movingReverse();
 		}
-		if (e.detail.y < -0.95) {
-			clearMovement();
+		if (e.detail.y < deadzone*-1) {
 			movingForward();
 		}
-		if (e.detail.x < -0.95) {
-			clearMovement();
+		if (e.detail.x < deadzone*-1) {
 			movingLeft();
 		}
-		if (e.detail.x > 0.95) {
-			clearMovement();
+		if (e.detail.x > deadzone) {
 			movingRight();
+		}
+
+		if (e.detail.y < deadzone && e.detail.y > deadzone*-1 && e.detail.x < deadzone*-1 && e.detail.x > deadzone) {
+			clearMovement();
+			updateInput('Clear');
 		}
 
 	});
