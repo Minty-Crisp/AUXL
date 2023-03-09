@@ -6825,7 +6825,7 @@ hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-//['detect-inputs']:null,
+['detect-inputs']:null,
 visible: 'false',
 },
 };
@@ -13671,6 +13671,32 @@ init: function () {
 			updateInput('right');
 		}
 	});*/
+	// Conflicts with Locomotion event listener
+	this.el.addEventListener('thumbstickmoved', function (e) {
+		let xNum = e.detail.x;
+		let yNum = e.detail.y;
+		updateInput('X: '+ xNum + ' | Y: '+ yNum);
+
+		if (e.detail.y > 0.95) {
+			clearMovement();
+			movingReverse();
+		}
+		if (e.detail.y < -0.95) {
+			clearMovement();
+			movingForward();
+		}
+		if (e.detail.x < -0.95) {
+			clearMovement();
+			movingLeft();
+		}
+		if (e.detail.x > 0.95) {
+			clearMovement();
+			movingRight();
+		}
+
+	});
+
+
 
     }//End Init
 });
@@ -14276,37 +14302,6 @@ update: function () {
 			//this.questJoystickLocomotion(event);
 		}
 		//this.vrController.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-
-	this.vrController.addEventListener('thumbstickmoved', function (e) {
-		updateInput('questJoystick running');
-		function updateInput(input){
-
-			this.displayInputText.value = input;
-			this.displayInput.setAttribute('text',this.displayInputText);
-		}
-		let xNum = e.detail.x;
-		let yNum = e.detail.y;
-		updateInput('X: '+ xNum + ' | Y: '+ yNum);
-
-		if (e.detail.y > 0.95) {
-			clearMovement();
-			movingReverse();
-		}
-		if (e.detail.y < -0.95) {
-			clearMovement();
-			movingForward();
-		}
-		if (e.detail.x < -0.95) {
-			clearMovement();
-			movingLeft();
-		}
-		if (e.detail.x > 0.95) {
-			clearMovement();
-			movingRight();
-		}
-	});
-
-
 		this.vrController.addEventListener('thumbsticktouchend', clearMovement);
 		this.vrController.addEventListener('thumbstickdown', clearMovement);
 
