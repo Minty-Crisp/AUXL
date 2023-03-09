@@ -13566,10 +13566,8 @@ init: function () {
 	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
 
 	function updateInput(input){
-
-	displayInputText.value = input;
-	displayInput.setAttribute('text',displayInputText);
-
+		displayInputText.value = input;
+		displayInput.setAttribute('text',displayInputText);
 	}
 
 
@@ -14099,6 +14097,10 @@ init: function () {
 	this.newX;
 	this.newZ;
 
+	//Testing
+	this.displayInput = document.querySelector('#displayInput');
+	this.displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+
 //End Init
 },
 
@@ -14189,6 +14191,15 @@ raycasterLocomotion: function (e) {
 },
 
 questJoystickLocomotion: function (e){
+
+function updateInput(input){
+	this.displayInputText.value = input;
+	this.displayInput.setAttribute('text',this.displayInputText);
+}
+let xNum = e.detail.x;
+let yNum = e.detail.y;
+updateInput('X: '+ xNum + ' | Y: '+ yNum);
+
 	if (e.detail.y > 0.95) {
 		clearMovement();
 		movingReverse();
