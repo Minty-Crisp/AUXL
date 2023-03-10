@@ -14831,13 +14831,13 @@ questJoystickLeft: function (e){
 },
 update: function () {
 	//Main Trigger
-	this.el.body.addEventListener('triggerdown', this.questMainClickEvent);
+	this.el.addEventListener('triggerdown', this.questMainClickEvent);
 	//Secondary Trigger
-	this.el.body.addEventListener('gripdown', this.questAltClickEvent);
+	this.el.addEventListener('gripdown', this.questAltClickEvent);
 	//Button 1 (X)
-	this.el.body.addEventListener('xbuttondown', this.questButton1Event);
+	this.el.addEventListener('xbuttondown', this.questButton1Event);
 	//Button 2 (Y)
-	this.el.body.addEventListener('ybuttondown', this.questButton2Event);
+	this.el.addEventListener('ybuttondown', this.questButton2Event);
 	//Joystick
 	if(this.data.joystickEnabled){
 		this.el.addEventListener('thumbstickmoved', this.questJoystickLeftEvent);
@@ -14845,13 +14845,13 @@ update: function () {
 },
 remove: function () {
 	//Main Trigger
-	this.el.body.removeEventListener('triggerdown', this.questMainClickEvent);
+	this.el.removeEventListener('triggerdown', this.questMainClickEvent);
 	//Secondary Trigger
-	this.el.body.removeEventListener('gripdown', this.questAltClickEvent);
+	this.el.removeEventListener('gripdown', this.questAltClickEvent);
 	//Button 1 (X)
-	this.el.body.removeEventListener('xbuttondown', this.questButton1Event);
+	this.el.removeEventListener('xbuttondown', this.questButton1Event);
 	//Button 2 (Y)
-	this.el.body.removeEventListener('ybuttondown', this.questButton2Event);
+	this.el.removeEventListener('ybuttondown', this.questButton2Event);
 	//Joystick
 	if(this.data.joystickEnabled){
 		this.el.removeEventListener('thumbstickmoved', this.questJoystickLeftEvent);
@@ -14967,13 +14967,13 @@ questJoystickLeft: function (e){
 },
 update: function () {
 	//Main Trigger
-	this.el.body.addEventListener('triggerdown', this.questMainClickEvent);
+	this.el.addEventListener('triggerdown', this.questMainClickEvent);
 	//Secondary Trigger
-	this.el.body.addEventListener('gripdown', this.questAltClickEvent);
+	this.el.addEventListener('gripdown', this.questAltClickEvent);
 	//Button 1 (A)
-	this.el.body.addEventListener('abuttondown', this.questButton1Event);
+	this.el.addEventListener('abuttondown', this.questButton1Event);
 	//Button 2 (B)
-	this.el.body.addEventListener('bbuttondown', this.questButton2Event);
+	this.el.addEventListener('bbuttondown', this.questButton2Event);
 	//Joystick
 	if(this.data.joystickEnabled){
 		this.el.addEventListener('thumbstickmoved', this.questJoystickLeftEvent);
@@ -14981,13 +14981,13 @@ update: function () {
 },
 remove: function () {
 	//Main Trigger
-	this.el.body.removeEventListener('triggerdown', this.questMainClickEvent);
+	this.el.removeEventListener('triggerdown', this.questMainClickEvent);
 	//Secondary Trigger
-	this.el.body.removeEventListener('gripdown', this.questAltClickEvent);
+	this.el.removeEventListener('gripdown', this.questAltClickEvent);
 	//Button 1 (A)
-	this.el.body.removeEventListener('abuttondown', this.questButton1Event);
+	this.el.removeEventListener('abuttondown', this.questButton1Event);
 	//Button 2 (B)
-	this.el.body.removeEventListener('bbuttondown', this.questButton2Event);
+	this.el.removeEventListener('bbuttondown', this.questButton2Event);
 	//Joystick
 	if(this.data.joystickEnabled){
 		this.el.removeEventListener('thumbstickmoved', this.questJoystickLeftEvent);
