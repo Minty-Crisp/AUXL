@@ -13701,12 +13701,7 @@ init: function () {
 		//BackwardRight
 		//292.5 -> 337.5
 
-//Degrees from -180 to 0 to 180
-//this.angleDeg = Math.atan2(this.cameraVector.x,this.cameraVector.z) * 180 / Math.PI;
-//console.log(this.angleDeg)
-//Radians
-angle = Math.atan2(yNum,xNum);
-//angleDeg = Math.atan2(yNum,xNum) * 180 / Math.PI;
+angle = Math.atan2(xNum,yNum);
 function radToDeg(rad) {
   return rad / (Math.PI / 180);
 }
