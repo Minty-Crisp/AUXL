@@ -13672,16 +13672,16 @@ init: function () {
 		}
 	});*/
 	// Conflicts with Locomotion event listener
-	let deadzone = 0.075;
+	let deadzone = 0.1;
 	let xNum = 0;
 	let yNum = 0;
 	let angle = 0;
 	let angleDeg = 0;
 	this.el.addEventListener('thumbstickmoved', function (e) {
-		xNum = e.detail.x;
-		yNum = e.detail.y;
-		//updateInput('X: '+ xNum + ' | Y: '+ yNum);
 
+
+xNum = e.detail.x;
+yNum = e.detail.y;
 angle = Math.atan2(xNum,yNum);
 function radToDeg(rad) {
   return rad / (Math.PI / 180);
@@ -13699,7 +13699,10 @@ updateInput('Raidans: '+angle + ' | Degress : ' +angleDeg);
 //ForwardLeft: -112.5 -> -157.5
 //Left : -67.5 -> -112.5
 //BackwardLeft: -22.5 -> -67.5 
-if (e.detail.y > deadzone || e.detail.y < deadzone*-1 || e.detail.x > deadzone*-1 || e.detail.x < deadzone) {
+if(yNum < deadzone && yNum > deadzone*-1 && xNum > deadzone*-1 && xNum < deadzone){
+	clearMovement();
+	updateInput('Clear');
+} else if(yNum > deadzone || yNum < deadzone*-1 || xNum < deadzone*-1 || xNum > deadzone) {
 	if(angleDeg > -22.5 && angleDeg < 22.5){
 	//Backward : -22.5 -> 22.5
 		clearMovement();
