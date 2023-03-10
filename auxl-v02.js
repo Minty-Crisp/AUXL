@@ -14704,6 +14704,14 @@ userDirection: function (){
 
 });
 
+//Display Inputs - DEV Testing
+const displayInput = document.querySelector('#displayInput');
+let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+function updateInput(input){
+	displayInputText.value = input;
+	displayInput.setAttribute('text',displayInputText);
+}
+
 //
 //VR Controller 1|Left Inputs
 //Left - Joystick(Locomotion) | X | Y
@@ -14713,151 +14721,141 @@ schema: {
 },
 
 init: function () {
-	const auxl = document.querySelector('a-scene').systems.auxl;
 	this.joystickEnabled = this.data.joystickEnabled;
+	const auxl = document.querySelector('a-scene').systems.auxl;
 
-	//Display Inputs - DEV
-	const displayInput = document.querySelector('#displayInput');
+	//Controller Functions
 
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-
-	function updateInput(input){
-		displayInputText.value = input;
-		displayInput.setAttribute('text',displayInputText);
-	}
-
-
-	//
-	//Event Listeners
-
-	//Quest
-	//
-
-	//Triggers
-	//
 	//Main Trigger
-	document.body.addEventListener('triggerdown', function (e) {
-		updateInput('Left Main Trigger');
-	});
-
-	//
-	//Secondary Trigger
-	document.body.addEventListener('gripdown', function (e) {
-		updateInput('Left Secondary Trigger');
-	});
-
-	//Buttons
-	//
-	//
-	//Left Controller - Button 1 (X)
-	document.body.addEventListener('xbuttondown', function (e) {
-		updateInput('X Button');
-	});
-	//
-	//Left Controller - Button 2 (Y)
-	document.body.addEventListener('ybuttondown', function (e) {
-		updateInput('Y Button');
-	});
-
-
-
-/*
-		this.questJoystickLocomotionEvent = (event) => {
-			this.questJoystickLocomotion(event);
-		}
-		//this.vrController.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-		this.vrController.addEventListener('thumbsticktouchend', clearMovement);
-		this.vrController.addEventListener('thumbstickdown', clearMovement);
-*/
-/*
-		this.vrController.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-
-		this.vrController.removeEventListener('thumbsticktouchend', clearMovement);
-		this.vrController.removeEventListener('thumbstickdown', clearMovement);
-*/
-	//Joystick
-	//
-	//Locomotion
-	let deadzone = 0.1;
-	let xNum = 0;
-	let yNum = 0;
-	let angle = 0;
-	let angleDeg = 0;
-	if(this.joystickEnabled){
-		this.el.addEventListener('thumbstickmoved', function (e) {
-			xNum = e.detail.x;
-			yNum = e.detail.y;
-			angle = Math.atan2(xNum,yNum);
-			function radToDeg(rad) {
-			  return rad / (Math.PI / 180);
-			}
-			angleDeg = radToDeg(angle);
-
-			if(yNum < deadzone && yNum > deadzone*-1 && xNum > deadzone*-1 && xNum < deadzone){
-				clearMovement();
-				updateInput('Locomotion Clear');
-			} else if(yNum > deadzone || yNum < deadzone*-1 || xNum < deadzone*-1 || xNum > deadzone) {
-				if(angleDeg > -22.5 && angleDeg < 22.5){
-				//Backward : -22.5 -> 22.5
-					clearMovement();
-					movingReverse();
-					updateInput('Backward');
-				} else if(angleDeg > 22.5 && angleDeg < 67.5){
-				//BackwardRight : 22.5 -> 67.5
-					clearMovement();
-					movingReverse();
-					movingRight();
-					updateInput('Backward Right');
-				} else if(angleDeg > 67.5 && angleDeg < 112.5){
-				//Right : 67.5 -> 112.5
-					clearMovement();
-					movingRight();
-					updateInput('Right');
-				} else if(angleDeg > 112.5 && angleDeg < 157.5){
-				//ForwardRight : 112.5 -> 157.5
-					clearMovement();
-					movingForward();
-					movingRight();
-					updateInput('Forward Right');
-				} else if(angleDeg > 157.5 || angleDeg < -157.5){//
-				//Forward : 157.5 -> 180 or -157.5 -> -180
-					clearMovement();
-					movingForward();
-					updateInput('Forward');
-				} else if(angleDeg < -112.5 && angleDeg > -157.5){
-				//ForwardLeft: -112.5 -> -157.5
-					clearMovement();
-					movingForward();
-					movingLeft();
-					updateInput('Forward Left');
-				} else if(angleDeg < -67.5 && angleDeg > -112.5){
-				//Left : -67.5 -> -112.5
-					clearMovement();
-					movingLeft();
-					updateInput('Left');
-				} else if(angleDeg < -22.5 && angleDeg > -67.5){
-				//BackwardLeft: -22.5 -> -67.5 
-					clearMovement();
-					movingReverse();
-					movingLeft();
-					updateInput('Backward Left');
-				}
-			} else {
-				clearMovement();
-				updateInput('Locomotion Clear');
-			}
-		});
+	this.questMainClickEvent = (event) => {
+		this.questMainClick(event);
 	}
-
-
-
-
-    },
-questJoystickLeft: function (e){
-
+	//Secondary Trigger
+	this.questAltClickEvent = (event) => {
+		this.questAltClick(event);
+	}
+	//Button 1 (X)
+	this.questButton1Event = (event) => {
+		this.questButton1(event);
+	}
+	//Button 2 (Y)
+	this.questButton2Event = (event) => {
+		this.questButton2(event);
+	}
+	//Joystick
+	this.questJoystickLeftEvent = (event) => {
+		this.questJoystickLeft(event);
+	}
+	//Locomotion
+	this.deadzone = 0.1;
+	this.xNum = 0;
+	this.yNum = 0;
+	this.angle = 0;
+	this.angleDeg = 0;
 },
-update: function () {},
-remove: function () {},
+questMainClick: function (e){
+	updateInput('Left Main Trigger');
+},
+questAltClick: function (e){
+	updateInput('Left Secondary Trigger');
+},
+questButton1: function (e){
+	updateInput('X Button');
+},
+questButton2: function (e){
+	updateInput('Y Button');
+},
+questJoystickLeft: function (e){
+	this.xNum = e.detail.x;
+	this.yNum = e.detail.y;
+	this.angle = Math.atan2(this.xNum,this.yNum);
+	function radToDeg(rad) {
+	  return rad / (Math.PI / 180);
+	}
+	this.angleDeg = radToDeg(this.angle);
+
+	if(this.yNum < this.deadzone && this.yNum > this.deadzone*-1 && this.xNum > this.deadzone*-1 && this.xNum < this.deadzone){
+		clearMovement();
+		updateInput('Locomotion Clear');
+	} else if(this.yNum > this.deadzone || this.yNum < this.deadzone*-1 || this.xNum < this.deadzone*-1 || this.xNum > this.deadzone) {
+		if(this.angleDeg > -22.5 && this.angleDeg < 22.5){
+		//Backward : -22.5 -> 22.5
+			clearMovement();
+			movingReverse();
+			updateInput('Backward');
+		} else if(this.angleDeg > 22.5 && this.angleDeg < 67.5){
+		//BackwardRight : 22.5 -> 67.5
+			clearMovement();
+			movingReverse();
+			movingRight();
+			updateInput('Backward Right');
+		} else if(this.angleDeg > 67.5 && this.angleDeg < 112.5){
+		//Right : 67.5 -> 112.5
+			clearMovement();
+			movingRight();
+			updateInput('Right');
+		} else if(this.angleDeg > 112.5 && this.angleDeg < 157.5){
+		//ForwardRight : 112.5 -> 157.5
+			clearMovement();
+			movingForward();
+			movingRight();
+			updateInput('Forward Right');
+		} else if(this.angleDeg > 157.5 || this.angleDeg < -157.5){//
+		//Forward : 157.5 -> 180 or -157.5 -> -180
+			clearMovement();
+			movingForward();
+			updateInput('Forward');
+		} else if(this.angleDeg < -112.5 && this.angleDeg > -157.5){
+		//ForwardLeft: -112.5 -> -157.5
+			clearMovement();
+			movingForward();
+			movingLeft();
+			updateInput('Forward Left');
+		} else if(this.angleDeg < -67.5 && this.angleDeg > -112.5){
+		//Left : -67.5 -> -112.5
+			clearMovement();
+			movingLeft();
+			updateInput('Left');
+		} else if(this.angleDeg < -22.5 && this.angleDeg > -67.5){
+		//BackwardLeft: -22.5 -> -67.5 
+			clearMovement();
+			movingReverse();
+			movingLeft();
+			updateInput('Backward Left');
+		}
+	} else {
+		clearMovement();
+		updateInput('Locomotion Clear');
+	}
+},
+update: function () {
+	//Main Trigger
+	document.body.addEventListener('triggerdown', this.questMainClickEvent);
+	//Secondary Trigger
+	document.body.addEventListener('gripdown', this.questAltClickEvent);
+	//Button 1 (X)
+	document.body.addEventListener('xbuttondown', this.questButton1Event);
+	//Button 2 (Y)
+	document.body.addEventListener('ybuttondown', this.questButton2Event);
+	//Joystick
+	if(this.data.joystickEnabled){
+		this.el.addEventListener('thumbstickmoved', this.questJoystickLeftEvent);
+	}
+},
+remove: function () {
+	//Main Trigger
+	document.body.removeEventListener('triggerdown', this.questMainClickEvent);
+	//Secondary Trigger
+	document.body.removeEventListener('gripdown', this.questAltClickEvent);
+	//Button 1 (X)
+	document.body.removeEventListener('xbuttondown', this.questButton1Event);
+	//Button 2 (Y)
+	document.body.removeEventListener('ybuttondown', this.questButton2Event);
+	//Joystick
+	if(this.data.joystickEnabled){
+		this.el.removeEventListener('thumbstickmoved', this.questJoystickLeftEvent);
+	}
+},
 });
 
 //
