@@ -14704,13 +14704,7 @@ userDirection: function (){
 
 });
 
-//Display Inputs - DEV Testing
-const displayInput = document.querySelector('#displayInput');
-let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-function updateInput(input){
-	displayInputText.value = input;
-	displayInput.setAttribute('text',displayInputText);
-}
+
 
 //
 //VR Controller 1|Left Inputs
@@ -14723,6 +14717,11 @@ schema: {
 init: function () {
 	this.joystickEnabled = this.data.joystickEnabled;
 	const auxl = document.querySelector('a-scene').systems.auxl;
+
+	//Testing
+	this.updateInputEvent = (event) => {
+		this.updateInput(event);
+	}
 
 	//Controller Functions
 
@@ -14753,17 +14752,24 @@ init: function () {
 	this.angle = 0;
 	this.angleDeg = 0;
 },
+updateInput: function (input){
+	//Display Inputs - DEV Testing
+	const displayInput = document.querySelector('#displayInput');
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+	displayInputText.value = input;
+	displayInput.setAttribute('text',displayInputText);
+},
 questMainClick: function (e){
-	updateInput('Left Main Trigger');
+	this.updateInputEvent('Left Main Trigger');
 },
 questAltClick: function (e){
-	updateInput('Left Secondary Trigger');
+	this.updateInputEvent('Left Secondary Trigger');
 },
 questButton1: function (e){
-	updateInput('X Button');
+	this.updateInputEvent('X Button');
 },
 questButton2: function (e){
-	updateInput('Y Button');
+	this.updateInputEvent('Y Button');
 },
 questJoystickLeft: function (e){
 	this.xNum = e.detail.x;
@@ -14776,56 +14782,56 @@ questJoystickLeft: function (e){
 
 	if(this.yNum < this.deadzone && this.yNum > this.deadzone*-1 && this.xNum > this.deadzone*-1 && this.xNum < this.deadzone){
 		clearMovement();
-		updateInput('Locomotion Clear');
+		this.updateInputEvent('Locomotion Clear');
 	} else if(this.yNum > this.deadzone || this.yNum < this.deadzone*-1 || this.xNum < this.deadzone*-1 || this.xNum > this.deadzone) {
 		if(this.angleDeg > -22.5 && this.angleDeg < 22.5){
 		//Backward : -22.5 -> 22.5
 			clearMovement();
 			movingReverse();
-			updateInput('Backward');
+			this.updateInputEvent('Backward');
 		} else if(this.angleDeg > 22.5 && this.angleDeg < 67.5){
 		//BackwardRight : 22.5 -> 67.5
 			clearMovement();
 			movingReverse();
 			movingRight();
-			updateInput('Backward Right');
+			this.updateInputEvent('Backward Right');
 		} else if(this.angleDeg > 67.5 && this.angleDeg < 112.5){
 		//Right : 67.5 -> 112.5
 			clearMovement();
 			movingRight();
-			updateInput('Right');
+			this.updateInputEvent('Right');
 		} else if(this.angleDeg > 112.5 && this.angleDeg < 157.5){
 		//ForwardRight : 112.5 -> 157.5
 			clearMovement();
 			movingForward();
 			movingRight();
-			updateInput('Forward Right');
+			this.updateInputEvent('Forward Right');
 		} else if(this.angleDeg > 157.5 || this.angleDeg < -157.5){//
 		//Forward : 157.5 -> 180 or -157.5 -> -180
 			clearMovement();
 			movingForward();
-			updateInput('Forward');
+			this.updateInputEvent('Forward');
 		} else if(this.angleDeg < -112.5 && this.angleDeg > -157.5){
 		//ForwardLeft: -112.5 -> -157.5
 			clearMovement();
 			movingForward();
 			movingLeft();
-			updateInput('Forward Left');
+			this.updateInputEvent('Forward Left');
 		} else if(this.angleDeg < -67.5 && this.angleDeg > -112.5){
 		//Left : -67.5 -> -112.5
 			clearMovement();
 			movingLeft();
-			updateInput('Left');
+			this.updateInputEvent('Left');
 		} else if(this.angleDeg < -22.5 && this.angleDeg > -67.5){
 		//BackwardLeft: -22.5 -> -67.5 
 			clearMovement();
 			movingReverse();
 			movingLeft();
-			updateInput('Backward Left');
+			this.updateInputEvent('Backward Left');
 		}
 	} else {
 		clearMovement();
-		updateInput('Locomotion Clear');
+		this.updateInputEvent('Locomotion Clear');
 	}
 },
 update: function () {
