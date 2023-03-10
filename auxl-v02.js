@@ -13682,25 +13682,6 @@ init: function () {
 		yNum = e.detail.y;
 		//updateInput('X: '+ xNum + ' | Y: '+ yNum);
 
-		//8 Cardinal Direction Angles
-		//
-		//Right
-		//337.5 -> 22.5
-		//ForwardRight
-		//22.5 -> 67.5
-		//Forward
-		//67.5 -> 112.5
-		//ForwardLeft
-		//112.5 -> 157.5
-		//Left
-		//157.5 -> 202.5
-		//BackwardLeft
-		//202.5 -> 247.5
-		//Backward
-		//247.5 -> 292.5
-		//BackwardRight
-		//292.5 -> 337.5
-
 angle = Math.atan2(xNum,yNum);
 function radToDeg(rad) {
   return rad / (Math.PI / 180);
@@ -13709,27 +13690,57 @@ angleDeg = radToDeg(angle);
 
 updateInput('Raidans: '+angle + ' | Degress : ' +angleDeg);
 
-		if (e.detail.y > deadzone) {
-			clearMovement();
-			movingReverse();
-		}
-		if (e.detail.y < deadzone*-1) {
-			clearMovement();
-			movingForward();
-		}
-		if (e.detail.x < deadzone*-1) {
-			clearMovement();
-			movingLeft();
-		}
-		if (e.detail.x > deadzone) {
-			clearMovement();
-			movingRight();
-		}
-
-		if (e.detail.y < deadzone && e.detail.y > deadzone*-1 && e.detail.x < deadzone*-1 && e.detail.x > deadzone) {
-			clearMovement();
-			updateInput('Clear');
-		}
+//8 Cardinal Direction Angles
+//Backward : -22.5 -> 22.5
+//BackwardRight : 22.5 -> 67.5
+//Right : 67.5 -> 112.5
+//ForwardRight : 112.5 -> 157.5
+//Forward : 157.5 -> 180 or -157.5 -> -180
+//ForwardLeft: -112.5 -> -157.5
+//Left : -67.5 -> -112.5
+//BackwardLeft: -22.5 -> -67.5 
+if (e.detail.y > deadzone || e.detail.y < deadzone*-1 || e.detail.x > deadzone*-1 || e.detail.x < deadzone) {
+	if(angleDeg > -22.5 && angleDeg < 22.5){
+	//Backward : -22.5 -> 22.5
+		clearMovement();
+		movingReverse();
+	} else if(angleDeg > 22.5 && angleDeg < 67.5){
+	//BackwardRight : 22.5 -> 67.5
+		clearMovement();
+		movingReverse();
+		movingRight();
+	} else if(angleDeg > 67.5 && angleDeg < 112.5){
+	//Right : 67.5 -> 112.5
+		clearMovement();
+		movingRight();
+	} else if(angleDeg > 112.5 && angleDeg < 157.5){
+	//ForwardRight : 112.5 -> 157.5
+		clearMovement();
+		movingForward();
+		movingRight();
+	} else if(angleDeg > 157.5 || angleDeg < -157.5){//
+	//Forward : 157.5 -> 180 or -157.5 -> -180
+		clearMovement();
+		movingForward();
+	} else if(angleDeg < -112.5 && angleDeg > -157.5){
+	//ForwardLeft: -112.5 -> -157.5
+		clearMovement();
+		movingForward();
+		movingRight();
+	} else if(angleDeg < -67.5 && angleDeg > -112.5){
+	//Left : -67.5 -> -112.5
+		clearMovement();
+		movingLeft();
+	} else if(angleDeg < -22.5 && angleDeg > -67.5){
+	//BackwardLeft: -22.5 -> -67.5 
+		clearMovement();
+		movingForward();
+		movingLeft();
+	}
+} else {
+	clearMovement();
+	updateInput('Clear');
+}
 
 	});
 
