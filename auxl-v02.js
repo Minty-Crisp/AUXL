@@ -12995,7 +12995,7 @@ auxl.zone0Node0Data = {
 info:{
 id:'zone0Node0',
 name: 'Floating Island',
-description: 'Click floor anywhere to teleport on this island!',
+description: 'Click anywhere on the floor to teleport on this island!',
 sceneText: true,
 },
 start:{
@@ -14034,16 +14034,6 @@ init: function () {
 	this.directionBrake3;
 	this.directionBrake4;
 
-	//HTML Controller Support
-	this.htmlUp = document.getElementById('up');
-	this.htmlLeft = document.getElementById('left');
-	this.htmlRight = document.getElementById('right');
-	this.htmlDown = document.getElementById('down');
-	this.htmlselect = document.getElementById('select');
-	this.htmlstart = document.getElementById('start');
-	this.htmla = document.getElementById('a');
-	this.htmlb = document.getElementById('b');
-
 	//Walk Support
 	this.camera = document.getElementById('camera');
 	this.player = document.getElementById('playerRig');
@@ -14071,47 +14061,6 @@ init: function () {
 	this.newX;
 	this.newZ;
 
-},
-
-keyDownControls: function (e) {
-	//Key Down - WASD | QE
-	if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
-		movingForward();
-	} else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
-		movingLeft();
-	} else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
-		movingReverse();
-	} else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
-		movingRight();
-	} else if (e.key === 'q' || e.key === 'Q') {
-		//Special Button 1
-		//console.log('button 1');
-	} else if (e.key === 'e' || e.key === 'E') {
-		//Special Button 2
-		//console.log('button 2');
-		console.log('Toggle Speed');
-		toggleSpeed();
-	}
-},
-
-keyUpControls: function (e) {
-	//Key Up - WASD | QE
-	if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
-		cancelForward();
-	} else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
-		cancelLeft();
-	} else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
-		cancelReverse();
-	} else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
-		cancelRight();
-	} else if (e.key === 'q' || e.key === 'Q') {
-		//Special Button 1
-		//console.log('button 1');
-	} else if (e.key === 'e' || e.key === 'E') {
-		//Special Button 2
-		//console.log('button 2');
-		brakeReadyBuffer();
-	}
 },
 
 raycasterLocomotion: function (e) {
@@ -14162,32 +14111,8 @@ raycasterLocomotion: function (e) {
 update: function () {
 	//Keyboard Controller Event Listeners
 	if(this.movetype === 'desktop'){
-		//Key Down
-		this.keyDownControlsEvent = (event) => {
-			this.keyDownControls(event);
-		}
-		document.body.addEventListener('keydown', this.keyDownControlsEvent);
-		//Key Up
-		this.keyUpControlsEvent = (event) => {
-			this.keyUpControls(event);
-		}
-		document.body.addEventListener('keyup', this.keyUpControlsEvent);
 	} else if(this.movetype === 'mobile'){
-		//HTML Controller Event Listeners
-		//Mouse Down
-		this.htmlUp.addEventListener('mousedown', movingForward);
-		this.htmlLeft.addEventListener('mousedown', movingLeft);
-		this.htmlRight.addEventListener('mousedown', movingRight);
-		this.htmlDown.addEventListener('mousedown', movingReverse);
-		this.htmlb.addEventListener('mousedown', toggleSpeed);
-		//Mouse Up
-		this.htmlUp.addEventListener('mouseup', cancelForward);
-		this.htmlLeft.addEventListener('mouseup', cancelLeft);
-		this.htmlRight.addEventListener('mouseup', cancelRight);
-		this.htmlDown.addEventListener('mouseup', cancelReverse);
-		this.htmlb.addEventListener('mouseup', brakeReadyBuffer);
 	} else if(this.movetype === 'vr'){
-
 	} else if(this.movetype === 'vrHover'){
 		//this.vrController1 = document.getElementById('vrController1');
 		this.directionForward = document.getElementById('locomotionForwardUI');
@@ -14219,26 +14144,8 @@ update: function () {
 remove: function () {
 	//Keyboard Controller Event Listeners
 	if(this.movetype === 'desktop'){
-		//Key Down
-		document.body.removeEventListener('keydown', this.keyDownControlsEvent);
-		//Key Up
-		document.body.removeEventListener('keyup', this.keyUpControlsEvent);
 	} else if(this.movetype === 'mobile'){
-		//HTML Controller Event Listeners
-		//Mouse Down
-		this.htmlUp.removeEventListener('mousedown', movingForward);
-		this.htmlLeft.removeEventListener('mousedown', movingLeft);
-		this.htmlRight.removeEventListener('mousedown', movingRight);
-		this.htmlDown.removeEventListener('mousedown', movingReverse);
-		this.htmlb.removeEventListener('mousedown', toggleSpeed);
-		//Mouse Up
-		this.htmlUp.removeEventListener('mouseup', cancelForward);
-		this.htmlLeft.removeEventListener('mouseup', cancelLeft);
-		this.htmlRight.removeEventListener('mouseup', cancelRight);
-		this.htmlDown.removeEventListener('mouseup', cancelReverse);
-		this.htmlb.removeEventListener('mouseup', brakeReadyBuffer);
 	} else if(this.movetype === 'vr'){
-
 	} else if(this.movetype === 'vrHover'){
 		//directionForward
 		this.directionForward.removeEventListener('mouseenter', movingForward);
@@ -14705,11 +14612,20 @@ userDirection: function (){
 //VR Controller 1 Inputs
 //Left - Joystick(Locomotion) | X | Y
 AFRAME.registerComponent('vr-left-inputs', {
+dependencies: ['auxl'],
 schema: {
 	joystickEnabled: {type: 'boolean', default: true},
 },
 
 init: function () {
+	//VR Left Controls
+	//Controller Rotation
+	//Controller Position
+	//Main Trigger Click - Left Trigger Click
+	//Secondary Trigger Click - Left Grip Click
+	//Locomotion Directional - Joystick
+	//Button 1 - X
+	//Button 2 - Y
 	this.joystickEnabled = this.data.joystickEnabled;
 	const auxl = document.querySelector('a-scene').systems.auxl;
 
@@ -14863,11 +14779,20 @@ remove: function () {
 //VR Controller 2 Inputs
 //Right - Joystick(Rotation) | A | B
 AFRAME.registerComponent('vr-right-inputs', {
+dependencies: ['auxl'],
 schema: {
 	joystickEnabled: {type: 'boolean', default: true},
 },
 
 init: function () {
+	//VR Right Controls
+	//Controller Rotation
+	//Controller Position
+	//Main Trigger Click - Right Trigger Click
+	//Secondary Trigger Click - Right Grip Click
+	//Rotation/Duck|Stand - Joystick
+	//Button 1 - A
+	//Button 2 - B
 	this.joystickEnabled = this.data.joystickEnabled;
 	const auxl = document.querySelector('a-scene').systems.auxl;
 
@@ -14997,75 +14922,46 @@ remove: function () {
 
 //
 //Desktop Inputs
+//Mouse | Keyboard
 AFRAME.registerComponent('desktop-inputs', {
+dependencies: ['auxl'],
 //schema: {
 	//bar: {type: 'number'},
 	//baz: {type: 'string'}
 //},
-
 init: function () {
-	//Display Input Selections
+	//Desktop Controls
 	//HMD View - Mouse Movement
 	//Main Trigger Click - Mouse Left Click
 	//Secondary Trigger Click - Mouse Right Click
-	//Joystick Directional - WASD
+	//Locomotion Directional - WASD/Arrows
 	//Button 1 - Q
 	//Button 2 - E
+	//Button 3 - C
+	//Button 4 - V
 	const auxl = document.querySelector('a-scene').systems.auxl;
-	const displayInput = document.querySelector('#displayInput');
-
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-
-	function updateInput(input){
-		displayInputText.value = input;
-		displayInput.setAttribute('text',displayInputText);
-	}
-
-
-	//
-	//Event Listeners
-
-	//Desktop
-	//
 
 	//Mouse
 	//
 	//Left Click
-	document.body.addEventListener('click', function (e) {
-		updateInput('main click');
-	});
-	//
+	this.mouseClickEvent = (event) => {
+		this.mouseClick(event);
+	}
 	//Right Click
-	document.body.addEventListener('contextmenu', function (e) {
-		updateInput('secondary click');
-	});
-
+	this.mouseAltClickEvent = (event) => {
+		this.mouseAltClick(event);
+	}
 	//Keyboard
 	//
-	//Key Down - WASD | QE
-	document.body.addEventListener('keydown', function (e) {
-		if (e.key === 'w' || e.key === 'W') {
-			//Start moving player
-			updateInput('up');
-		} else if (e.key === 'a' || e.key === 'A') {
-			//Start moving player
-			updateInput('left');
-		} else if (e.key === 's' || e.key === 'S') {
-			//Start moving player
-			updateInput('down');
-		} else if (e.key === 'd' || e.key === 'D') {
-			//Start moving player
-			updateInput('right');
-		} else if (e.key === 'q' || e.key === 'Q') {
-			//Start moving player
-			updateInput('button 1');
-		} else if (e.key === 'e' || e.key === 'E') {
-			//Start moving player
-			updateInput('button 2');
-		}
-	});//End keydown
-
-    },
+	//Key Down - WASD | QECV
+	this.keyboardDownEvent = (event) => {
+		this.keyboardDown(event);
+	}
+	//Key Up - WASD | QECV
+	this.keyboardUpEvent = (event) => {
+		this.keyboardUp(event);
+	}
+},
 updateInput: function (input){
 	//Display Inputs - DEV Testing
 	const displayInput = document.querySelector('#displayInput');
@@ -15073,50 +14969,143 @@ updateInput: function (input){
 	displayInputText.value = input;
 	displayInput.setAttribute('text',displayInputText);
 },
-update: function () {},
-remove: function () {},
+mouseClick: function (e){
+	this.updateInput('Mouse Click');
+},
+mouseAltClick: function (e){
+	this.updateInput('Mouse Alt Click');
+},
+keyboardDown: function (e){
+	if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
+		//Up
+		this.updateInput('up');
+		movingForward();
+	} else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+		//Left
+		this.updateInput('left');
+		movingLeft();
+	} else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
+		//Down
+		this.updateInput('down');
+		movingReverse();
+	} else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+		//Right
+		this.updateInput('right');
+		movingRight();
+	} else if (e.key === 'q' || e.key === 'Q') {
+		//Button 1
+		this.updateInput('button 1');
+	} else if (e.key === 'e' || e.key === 'E') {
+		//Button 2
+		this.updateInput('button 2');
+		toggleSpeed();
+	} else if (e.key === 'c' || e.key === 'C') {
+		//Button 3
+		this.updateInput('button 3');
+	} else if (e.key === 'v' || e.key === 'V') {
+		//Button 4
+		this.updateInput('button 4');
+	}
+
+},
+keyboardUp: function (e){
+	if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
+		//Up
+		this.updateInput('up');
+		cancelForward();
+	} else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+		//Left
+		this.updateInput('left');
+		cancelLeft();
+	} else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
+		//Down
+		this.updateInput('down');
+		cancelReverse();
+	} else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+		//Right
+		this.updateInput('right');
+		cancelRight();
+	} else if (e.key === 'q' || e.key === 'Q') {
+		//Button 1
+		this.updateInput('button 1');
+	} else if (e.key === 'e' || e.key === 'E') {
+		//Button 2
+		this.updateInput('button 2');
+		brakeReadyBuffer();
+	} else if (e.key === 'c' || e.key === 'C') {
+		//Button 3
+		this.updateInput('button 3');
+	} else if (e.key === 'v' || e.key === 'V') {
+		//Button 4
+		this.updateInput('button 4');
+	}
+},
+update: function () {
+	//Left Click
+	document.body.addEventListener('click', this.mouseClickEvent);
+	//Right Click
+	document.body.addEventListener('contextmenu', this.mouseAltClickEvent);
+	//Keyboard
+	document.body.addEventListener('keydown', this.keyboardDownEvent);
+	document.body.addEventListener('keyup', this.keyboardUpEvent);
+},
+remove: function () {
+	//Left Click
+	document.body.removeEventListener('click', this.mouseClickEvent);
+	//Right Click
+	document.body.removeEventListener('contextmenu', this.mouseAltClickEvent);
+	//Keyboard
+	document.body.removeEventListener('keydown', this.keyboardDownEvent);
+	document.body.removeEventListener('keyup', this.keyboardUpEvent);
+},
 });
 
 //
 //Mobile Inputs
+//Touchscreen | HTML Buttons
 AFRAME.registerComponent('mobile-inputs', {
+dependencies: ['auxl'],
 //schema: {
 	//bar: {type: 'number'},
 	//baz: {type: 'string'}
 //},
-
 init: function () {
-	//Display Input Selections
-	//HMD View - Mouse Movement
-	//Main Trigger Click - Mouse Left Click
-	//Secondary Trigger Click - Mouse Right Click
-	//Joystick Directional - WASD
-	//Button 1 - Q
-	//Button 2 - E
+	//Mobile Controls
+	//HMD View - Mobile Gyro
+	//Main Trigger Click - Touchscreen Tap
+	//Secondary Trigger Click - Alt Touchscreen Tap
+	//Locomotion Directional - HTML Button Up/Down/Left/Right
+	//Button 1 - HTML Button X
+	//Button 2 - HTML Button Y
+	//Button 3 - HTML Button A
+	//Button 4 - HTML Button B
 	const auxl = document.querySelector('a-scene').systems.auxl;
-	const displayInput = document.querySelector('#displayInput');
 
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-
-	function updateInput(input){
-		displayInputText.value = input;
-		displayInput.setAttribute('text',displayInputText);
-	}
-
-
-	//
-	//Event Listeners
+	//HTML Controller Support
+	this.htmlUp = document.getElementById('up');
+	this.htmlLeft = document.getElementById('left');
+	this.htmlRight = document.getElementById('right');
+	this.htmlDown = document.getElementById('down');
+	this.htmlselect = document.getElementById('select');
+	this.htmlstart = document.getElementById('start');
+	this.htmla = document.getElementById('a');
+	this.htmlb = document.getElementById('b');
 
 	//Mobile
-	//
+	//Click
+	this.mainClickEvent = (event) => {
+		this.mainClick(event);
+	}
+	//Alt Click
+	this.altClickEvent = (event) => {
+		this.altClick(event);
+	}
 
-	//Mouse
-	//
-/*
-	document.body.addEventListener('click', function (e) {
-		updateInput('main click');
-	});
-*/
+//touchstart
+//touchend
+//touchcancel
+//touchmove
+
     },
 updateInput: function (input){
 	//Display Inputs - DEV Testing
@@ -15125,8 +15114,40 @@ updateInput: function (input){
 	displayInputText.value = input;
 	displayInput.setAttribute('text',displayInputText);
 },
-update: function () {},
-remove: function () {},
+mainClick: function (e){
+	this.updateInput('Touchscreen Click');
+},
+altClick: function (e){
+	this.updateInput('Touchscreen Alt Click');
+},
+update: function () {
+	//Mouse Down
+	this.htmlUp.addEventListener('mousedown', movingForward);
+	this.htmlLeft.addEventListener('mousedown', movingLeft);
+	this.htmlRight.addEventListener('mousedown', movingRight);
+	this.htmlDown.addEventListener('mousedown', movingReverse);
+	this.htmlb.addEventListener('mousedown', toggleSpeed);
+	//Mouse Up
+	this.htmlUp.addEventListener('mouseup', cancelForward);
+	this.htmlLeft.addEventListener('mouseup', cancelLeft);
+	this.htmlRight.addEventListener('mouseup', cancelRight);
+	this.htmlDown.addEventListener('mouseup', cancelReverse);
+	this.htmlb.addEventListener('mouseup', brakeReadyBuffer);
+},
+remove: function () {
+	//Mouse Down
+	this.htmlUp.removeEventListener('mousedown', movingForward);
+	this.htmlLeft.removeEventListener('mousedown', movingLeft);
+	this.htmlRight.removeEventListener('mousedown', movingRight);
+	this.htmlDown.removeEventListener('mousedown', movingReverse);
+	this.htmlb.removeEventListener('mousedown', toggleSpeed);
+	//Mouse Up
+	this.htmlUp.removeEventListener('mouseup', cancelForward);
+	this.htmlLeft.removeEventListener('mouseup', cancelLeft);
+	this.htmlRight.removeEventListener('mouseup', cancelRight);
+	this.htmlDown.removeEventListener('mouseup', cancelReverse);
+	this.htmlb.removeEventListener('mouseup', brakeReadyBuffer);
+},
 });
 
 //

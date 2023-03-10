@@ -61,10 +61,11 @@ While ready to be tested and played with, various in-progress improvements for v
 - Components : detect-input(dev debug), attach, support interaction event components, locomotion & teleportation.
 
 # v0.3+ Roadmap :
-- Support for building with [Banter](bantervr.com)
+- v0.2 Function, Component & ObjGen Updates
+- Scenario, Zone, Scene & Object built via DOM components
 - 1st Person to 3rd Person Mode Swapping
 - VRM Asset Support for Reaction Animations
-- Randomized Animations for Procedural Object Generators
+- Physics Support
 - 3D Object Inspection
 - More Object/Image Gallery Layouts
 - AR Background & GPS Support
@@ -76,6 +77,7 @@ While ready to be tested and played with, various in-progress improvements for v
 - Magic System
 - Spell Casting
 - Mob Generator
+- Support for building with [Banter](bantervr.com)
 
 # Minty Crisp ^-^ :watermelon: 
 
