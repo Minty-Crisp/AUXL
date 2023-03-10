@@ -341,7 +341,7 @@ function enableVRControls(){
 		//vrController cursor property
 		vrController2.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController', mouseCursorStylesEnabled: 'true'});
 		//vrController laser-controls property
-		vrController2.setAttribute('laser-controls',{hand: 'left'});
+		vrController2.setAttribute('laser-controls',{hand: 'right'});
 		//vrController Controls
 		vrController2.setAttribute('vr-right-inputs',{joystickEnabled: false});
 		//Enable VR Hover Locomotion
@@ -356,7 +356,7 @@ function enableVRControls(){
 		//vrController cursor property
 		vrController1.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController', mouseCursorStylesEnabled: 'true'});
 		//vrController laser-controls property
-		vrController1.setAttribute('laser-controls',{hand: 'right'});
+		vrController1.setAttribute('laser-controls',{hand: 'left'});
 		//vrController Controls
 		vrController1.setAttribute('vr-left-inputs',{joystickEnabled: false});
 		//Enable VR Hover Locomotion
@@ -445,6 +445,7 @@ function updateControls(){
 		disableDesktopControls();
 		enableMobileControls();
 	} else if(auxl.controls === 'VR'){
+		disableVRControls();
 		disableDesktopControls();
 		disableMobileControls();
 		enableVRControls();
