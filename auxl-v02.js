@@ -13673,21 +13673,57 @@ init: function () {
 	});*/
 	// Conflicts with Locomotion event listener
 	let deadzone = 0.05;
+	let xNum = 0;
+	let yNum = 0;
+	let angle = 0;
+	let angleDeg = 0;
 	this.el.addEventListener('thumbstickmoved', function (e) {
-		let xNum = e.detail.x;
-		let yNum = e.detail.y;
-		updateInput('X: '+ xNum + ' | Y: '+ yNum);
+		xNum = e.detail.x;
+		yNum = e.detail.y;
+		//updateInput('X: '+ xNum + ' | Y: '+ yNum);
+
+		//8 Cardinal Direction Angles
+		//
+		//Right
+		//337.5 -> 22.5
+		//ForwardRight
+		//22.5 -> 67.5
+		//Forward
+		//67.5 -> 112.5
+		//ForwardLeft
+		//112.5 -> 157.5
+		//Left
+		//157.5 -> 202.5
+		//BackwardLeft
+		//202.5 -> 247.5
+		//Backward
+		//247.5 -> 292.5
+		//BackwardRight
+		//292.5 -> 337.5
+
+//Degrees from -180 to 0 to 180
+//this.angleDeg = Math.atan2(this.cameraVector.x,this.cameraVector.z) * 180 / Math.PI;
+//console.log(this.angleDeg)
+//Radians
+angle = Math.atan2(xNum,yNum);
+angleDeg = Math.atan2(xNum,yNum) * 180 / Math.PI;
+
+updateInput('Raidans: '+angle + ' | Degress : ' +angleDeg);
 
 		if (e.detail.y > deadzone) {
+			clearMovement();
 			movingReverse();
 		}
 		if (e.detail.y < deadzone*-1) {
+			clearMovement();
 			movingForward();
 		}
 		if (e.detail.x < deadzone*-1) {
+			clearMovement();
 			movingLeft();
 		}
 		if (e.detail.x > deadzone) {
+			clearMovement();
 			movingRight();
 		}
 
