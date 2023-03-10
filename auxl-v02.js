@@ -13672,7 +13672,7 @@ init: function () {
 		}
 	});*/
 	// Conflicts with Locomotion event listener
-	let deadzone = 0.05;
+	let deadzone = 0.075;
 	let xNum = 0;
 	let yNum = 0;
 	let angle = 0;
@@ -13726,7 +13726,7 @@ if (e.detail.y > deadzone || e.detail.y < deadzone*-1 || e.detail.x > deadzone*-
 	//ForwardLeft: -112.5 -> -157.5
 		clearMovement();
 		movingForward();
-		movingRight();
+		movingLeft();
 	} else if(angleDeg < -67.5 && angleDeg > -112.5){
 	//Left : -67.5 -> -112.5
 		clearMovement();
@@ -13734,7 +13734,7 @@ if (e.detail.y > deadzone || e.detail.y < deadzone*-1 || e.detail.x > deadzone*-
 	} else if(angleDeg < -22.5 && angleDeg > -67.5){
 	//BackwardLeft: -22.5 -> -67.5 
 		clearMovement();
-		movingForward();
+		movingReverse();
 		movingLeft();
 	}
 } else {
