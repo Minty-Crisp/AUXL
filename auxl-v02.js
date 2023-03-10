@@ -6805,9 +6805,6 @@ classes: ['a-ent','player'],
 components: {
 ['desktop-inputs']:null,
 ['mobile-inputs']:null,
-//locomotion:{uiid: 'beltUIParent', controller1id: 'vrController', courserid: 'mouseController',},
-//['wasd-controls']:{enabled: true, acceleration: 25},
-//['movement-controls']:{enabled: true, controls: 'gamepad, keyboard, touch', speed: 0.3, fly: false, constrainToNavMesh: false, camera: '#camera',},
 },};
 auxl.playerRig = auxl.Core(auxl.playerRigData);
 //Camera
@@ -14704,10 +14701,8 @@ userDirection: function (){
 
 });
 
-
-
 //
-//VR Controller 1|Left Inputs
+//VR Controller 1 Inputs
 //Left - Joystick(Locomotion) | X | Y
 AFRAME.registerComponent('vr-left-inputs', {
 schema: {
@@ -14836,13 +14831,13 @@ questJoystickLeft: function (e){
 },
 update: function () {
 	//Main Trigger
-	document.body.addEventListener('triggerdown', this.questMainClickEvent);
+	this.el.body.addEventListener('triggerdown', this.questMainClickEvent);
 	//Secondary Trigger
-	document.body.addEventListener('gripdown', this.questAltClickEvent);
+	this.el.body.addEventListener('gripdown', this.questAltClickEvent);
 	//Button 1 (X)
-	document.body.addEventListener('xbuttondown', this.questButton1Event);
+	this.el.body.addEventListener('xbuttondown', this.questButton1Event);
 	//Button 2 (Y)
-	document.body.addEventListener('ybuttondown', this.questButton2Event);
+	this.el.body.addEventListener('ybuttondown', this.questButton2Event);
 	//Joystick
 	if(this.data.joystickEnabled){
 		this.el.addEventListener('thumbstickmoved', this.questJoystickLeftEvent);
@@ -14850,13 +14845,13 @@ update: function () {
 },
 remove: function () {
 	//Main Trigger
-	document.body.removeEventListener('triggerdown', this.questMainClickEvent);
+	this.el.body.removeEventListener('triggerdown', this.questMainClickEvent);
 	//Secondary Trigger
-	document.body.removeEventListener('gripdown', this.questAltClickEvent);
+	this.el.body.removeEventListener('gripdown', this.questAltClickEvent);
 	//Button 1 (X)
-	document.body.removeEventListener('xbuttondown', this.questButton1Event);
+	this.el.body.removeEventListener('xbuttondown', this.questButton1Event);
 	//Button 2 (Y)
-	document.body.removeEventListener('ybuttondown', this.questButton2Event);
+	this.el.body.removeEventListener('ybuttondown', this.questButton2Event);
 	//Joystick
 	if(this.data.joystickEnabled){
 		this.el.removeEventListener('thumbstickmoved', this.questJoystickLeftEvent);
@@ -14865,123 +14860,140 @@ remove: function () {
 });
 
 //
-//VR Controller 2|Right Inputs
-//Left - Joystick(Rotation) | A | B
+//VR Controller 2 Inputs
+//Right - Joystick(Rotation) | A | B
 AFRAME.registerComponent('vr-right-inputs', {
 schema: {
 	joystickEnabled: {type: 'boolean', default: true},
 },
 
 init: function () {
-	const auxl = document.querySelector('a-scene').systems.auxl;
 	this.joystickEnabled = this.data.joystickEnabled;
+	const auxl = document.querySelector('a-scene').systems.auxl;
 
-	//Display Inputs - DEV
-	const displayInput = document.querySelector('#displayInput');
-
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-
-	function updateInput(input){
-		displayInputText.value = input;
-		displayInput.setAttribute('text',displayInputText);
+	//Testing
+	this.updateInputEvent = (event) => {
+		this.updateInput(event);
 	}
 
+	//Controller Functions
 
-	//
-	//Event Listeners
-
-	//Quest
-	//
-
-	//Triggers
-	//
 	//Main Trigger
-	document.body.addEventListener('triggerdown', function (e) {
-		updateInput('Right Main Trigger');
-	});
-
-	//
-	//Secondary Trigger
-	document.body.addEventListener('gripdown', function (e) {
-		updateInput('Right Secondary Trigger');
-	});
-
-	//Buttons
-	//
-	//Right Controller - Button 1 (A)
-	document.body.addEventListener('abuttondown', function (e) {
-		updateInput('A Button');
-	});
-	//
-	//Right Controller - Button 2 (B)
-	document.body.addEventListener('bbuttondown', function (e) {
-		updateInput('B Button');
-	});
-
-	//Joystick
-	//
-	//Rotation
-	//Duck - Unduck
-	let deadzone = 0.1;
-	let xNum = 0;
-	let yNum = 0;
-	let angle = 0;
-	let angleDeg = 0;
-	if(this.joystickEnabled){
-		this.el.addEventListener('thumbstickmoved', function (e) {
-			xNum = e.detail.x;
-			yNum = e.detail.y;
-			angle = Math.atan2(xNum,yNum);
-			function radToDeg(rad) {
-			  return rad / (Math.PI / 180);
-			}
-			angleDeg = radToDeg(angle);
-
-			if(yNum < deadzone && yNum > deadzone*-1 && xNum > deadzone*-1 && xNum < deadzone){
-				updateInput('Rotation|Duck Clear');
-			} else if(yNum > deadzone || yNum < deadzone*-1 || xNum < deadzone*-1 || xNum > deadzone) {
-				if(angleDeg > -22.5 && angleDeg < 22.5){
-				//Backward : -22.5 -> 22.5
-					updateInput('Duck');
-				} else if(angleDeg > 22.5 && angleDeg < 67.5){
-				//BackwardRight : 22.5 -> 67.5
-					updateInput('Rotate Right');
-				} else if(angleDeg > 67.5 && angleDeg < 112.5){
-				//Right : 67.5 -> 112.5
-					updateInput('Rotate Right');
-				} else if(angleDeg > 112.5 && angleDeg < 157.5){
-				//ForwardRight : 112.5 -> 157.5
-					updateInput('Rotate Right');
-				} else if(angleDeg > 157.5 || angleDeg < -157.5){//
-				//Forward : 157.5 -> 180 or -157.5 -> -180
-					updateInput('Stand');
-				} else if(angleDeg < -112.5 && angleDeg > -157.5){
-				//ForwardLeft: -112.5 -> -157.5
-					updateInput('Rotate Left');
-				} else if(angleDeg < -67.5 && angleDeg > -112.5){
-				//Left : -67.5 -> -112.5
-					updateInput('Rotate Left');
-				} else if(angleDeg < -22.5 && angleDeg > -67.5){
-				//BackwardLeft: -22.5 -> -67.5 
-					updateInput('Rotate Left');
-				}
-			} else {
-				updateInput('Rotation|Duck Clear');
-			}
-		});
+	this.questMainClickEvent = (event) => {
+		this.questMainClick(event);
 	}
-
-
-
-
-    },
-questJoystickRight: function (e){
-
+	//Secondary Trigger
+	this.questAltClickEvent = (event) => {
+		this.questAltClick(event);
+	}
+	//Button 1 (A)
+	this.questButton1Event = (event) => {
+		this.questButton1(event);
+	}
+	//Button 2 (B)
+	this.questButton2Event = (event) => {
+		this.questButton2(event);
+	}
+	//Joystick
+	this.questJoystickLeftEvent = (event) => {
+		this.questJoystickLeft(event);
+	}
+	//Locomotion
+	this.deadzone = 0.1;
+	this.xNum = 0;
+	this.yNum = 0;
+	this.angle = 0;
+	this.angleDeg = 0;
 },
-update: function () {},
-remove: function () {},
-});
+updateInput: function (input){
+	//Display Inputs - DEV Testing
+	const displayInput = document.querySelector('#displayInput');
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+	displayInputText.value = input;
+	displayInput.setAttribute('text',displayInputText);
+},
+questMainClick: function (e){
+	this.updateInputEvent('Right Main Trigger');
+},
+questAltClick: function (e){
+	this.updateInputEvent('Right Secondary Trigger');
+},
+questButton1: function (e){
+	this.updateInputEvent('A Button');
+},
+questButton2: function (e){
+	this.updateInputEvent('B Button');
+},
+questJoystickLeft: function (e){
+	this.xNum = e.detail.x;
+	this.yNum = e.detail.y;
+	this.angle = Math.atan2(this.xNum,this.yNum);
+	function radToDeg(rad) {
+	  return rad / (Math.PI / 180);
+	}
+	this.angleDeg = radToDeg(this.angle);
 
+	if(this.yNum < this.deadzone && this.yNum > this.deadzone*-1 && this.xNum > this.deadzone*-1 && this.xNum < this.deadzone){
+		this.updateInputEvent('Rotation|Duck Clear');
+	} else if(this.yNum > this.deadzone || this.yNum < this.deadzone*-1 || this.xNum < this.deadzone*-1 || this.xNum > this.deadzone) {
+		if(this.angleDeg > -22.5 && this.angleDeg < 22.5){
+		//Backward : -22.5 -> 22.5
+			this.updateInputEvent('Duck');
+		} else if(this.angleDeg > 22.5 && this.angleDeg < 67.5){
+		//BackwardRight : 22.5 -> 67.5
+			this.updateInputEvent('Rotate Right');
+		} else if(this.angleDeg > 67.5 && this.angleDeg < 112.5){
+		//Right : 67.5 -> 112.5
+			this.updateInputEvent('Rotate Right');
+		} else if(this.angleDeg > 112.5 && this.angleDeg < 157.5){
+		//ForwardRight : 112.5 -> 157.5
+			this.updateInputEvent('Rotate Right');
+		} else if(this.angleDeg > 157.5 || this.angleDeg < -157.5){//
+		//Forward : 157.5 -> 180 or -157.5 -> -180
+			this.updateInputEvent('Stand');
+		} else if(this.angleDeg < -112.5 && this.angleDeg > -157.5){
+		//ForwardLeft: -112.5 -> -157.5
+			this.updateInputEvent('Rotate Left');
+		} else if(this.angleDeg < -67.5 && this.angleDeg > -112.5){
+		//Left : -67.5 -> -112.5
+			this.updateInputEvent('Rotate Left');
+		} else if(this.angleDeg < -22.5 && this.angleDeg > -67.5){
+		//BackwardLeft: -22.5 -> -67.5 
+			this.updateInputEvent('Rotate Left');
+		}
+	} else {
+		this.updateInputEvent('Rotation|Duck Clear');
+	}
+},
+update: function () {
+	//Main Trigger
+	this.el.body.addEventListener('triggerdown', this.questMainClickEvent);
+	//Secondary Trigger
+	this.el.body.addEventListener('gripdown', this.questAltClickEvent);
+	//Button 1 (A)
+	this.el.body.addEventListener('abuttondown', this.questButton1Event);
+	//Button 2 (B)
+	this.el.body.addEventListener('bbuttondown', this.questButton2Event);
+	//Joystick
+	if(this.data.joystickEnabled){
+		this.el.addEventListener('thumbstickmoved', this.questJoystickLeftEvent);
+	}
+},
+remove: function () {
+	//Main Trigger
+	this.el.body.removeEventListener('triggerdown', this.questMainClickEvent);
+	//Secondary Trigger
+	this.el.body.removeEventListener('gripdown', this.questAltClickEvent);
+	//Button 1 (A)
+	this.el.body.removeEventListener('abuttondown', this.questButton1Event);
+	//Button 2 (B)
+	this.el.body.removeEventListener('bbuttondown', this.questButton2Event);
+	//Joystick
+	if(this.data.joystickEnabled){
+		this.el.removeEventListener('thumbstickmoved', this.questJoystickLeftEvent);
+	}
+},
+});
 
 //
 //Desktop Inputs
@@ -15054,6 +15066,13 @@ init: function () {
 	});//End keydown
 
     },
+updateInput: function (input){
+	//Display Inputs - DEV Testing
+	const displayInput = document.querySelector('#displayInput');
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+	displayInputText.value = input;
+	displayInput.setAttribute('text',displayInputText);
+},
 update: function () {},
 remove: function () {},
 });
@@ -15099,6 +15118,13 @@ init: function () {
 	});
 */
     },
+updateInput: function (input){
+	//Display Inputs - DEV Testing
+	const displayInput = document.querySelector('#displayInput');
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+	displayInputText.value = input;
+	displayInput.setAttribute('text',displayInputText);
+},
 update: function () {},
 remove: function () {},
 });
