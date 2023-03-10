@@ -54,15 +54,17 @@ this.audioEnabled = false;
 const controllerBlock = document.getElementById('controllerBlock');
 //Controls
 this.controls = 'Desktop';
-this.vrHand = 'right';
+this.vrHand = 'both';
 this.mobilePermissionGranted = false;
 let playerRig;
 let camera;
 let cameraUI;
 let playerFloor;
 let mouseController;
-let vrController;
-let vrControllerUI;
+let vrController1;
+let vrController1UI;
+let vrController2;
+let vrController2UI;
 this.joystickReader = '';
 this.controller1Reader = '';
 this.controller2Reader = '';
@@ -288,30 +290,78 @@ startButton.addEventListener('click', startExp);
 function disableVRControls(){
 	//Disable VR Controls
 	//vrController visible to true
-	vrController.setAttribute('visible',false);
+	vrController1.setAttribute('visible',false);
+	vrController2.setAttribute('visible',false);
 	//vrControllerUI visible to true
-	vrControllerUI.setAttribute('visible',false);
+	vrController1UI.setAttribute('visible',false);
+	vrController2UI.setAttribute('visible',false);
 	//vrController cursor property
-	vrController.removeAttribute('cursor');
+	vrController1.removeAttribute('cursor');
+	vrController2.removeAttribute('cursor');
 	//vrController raycaster property
-	vrController.removeAttribute('raycaster');
+	vrController1.removeAttribute('raycaster');
+	vrController2.removeAttribute('raycaster');
 	//vrController laser-controls property
-	vrController.removeAttribute('laser-controls');
+	vrController1.removeAttribute('laser-controls');
+	vrController2.removeAttribute('laser-controls');
+	//vrController controls property
+	vrController1.removeAttribute('vr-left-inputs');
+	vrController2.removeAttribute('vr-right-inputs');
 }
 function enableVRControls(){
 	//Enable VR Controls
-	//vrController visible to true
-	vrController.setAttribute('visible',true);
-	//vrControllerUI visible to true
-	vrControllerUI.setAttribute('visible',true);
-	//vrController raycaster property
-	vrController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
-	//vrController cursor property
-	vrController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController', mouseCursorStylesEnabled: 'true'});
-	//vrController laser-controls property
-	vrController.setAttribute('laser-controls',{hand: auxl.vrHand});
-	//Enable VR Locomotion
-	auxl.player.EnableVRLocomotion();
+	if(auxl.vrHand === 'both'){
+		//vrController visible to true
+		vrController1.setAttribute('visible',true);
+		vrController2.setAttribute('visible',true);
+		//vrControllerUI visible to true
+		vrController1UI.setAttribute('visible',true);
+		vrController2UI.setAttribute('visible',true);
+		//vrController raycaster property
+		vrController1.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
+		vrController2.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
+		//vrController cursor property
+		vrController1.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController', mouseCursorStylesEnabled: 'true'});
+		vrController2.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController', mouseCursorStylesEnabled: 'true'});
+		//vrController laser-controls property
+		vrController1.setAttribute('laser-controls',{hand: 'left'});
+		vrController2.setAttribute('laser-controls',{hand: 'right'});
+		//vrController Controls
+		vrController1.setAttribute('vr-left-inputs',{joystickEnabled: true});
+		vrController2.setAttribute('vr-right-inputs',{joystickEnabled: true});
+		//Enable VR Locomotion
+		auxl.player.EnableVRLocomotion();
+	} else if(auxl.vrHand === 'right'){
+		//vrController visible to true
+		vrController2.setAttribute('visible',true);
+		//vrControllerUI visible to true
+		vrController2UI.setAttribute('visible',true);
+		//vrController raycaster property
+		vrController2.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
+		//vrController cursor property
+		vrController2.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController', mouseCursorStylesEnabled: 'true'});
+		//vrController laser-controls property
+		vrController2.setAttribute('laser-controls',{hand: 'left'});
+		//vrController Controls
+		vrController2.setAttribute('vr-right-inputs',{joystickEnabled: false});
+		//Enable VR Hover Locomotion
+		auxl.player.EnableVRHoverLocomotion('vrController2');
+	} else if(auxl.vrHand === 'left'){
+		//vrController visible to true
+		vrController1.setAttribute('visible',true);
+		//vrControllerUI visible to true
+		vrController1UI.setAttribute('visible',true);
+		//vrController raycaster property
+		vrController1.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
+		//vrController cursor property
+		vrController1.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController', mouseCursorStylesEnabled: 'true'});
+		//vrController laser-controls property
+		vrController1.setAttribute('laser-controls',{hand: 'right'});
+		//vrController Controls
+		vrController1.setAttribute('vr-left-inputs',{joystickEnabled: false});
+		//Enable VR Hover Locomotion
+		auxl.player.EnableVRHoverLocomotion('vrController1');
+	}
 	//Update Controls
 	auxl.controls = 'VR';
 }
@@ -387,8 +437,8 @@ function enableMobileControls(){
 //Update Controls
 function updateControls(){
 	if(auxl.controls === 'Desktop'){
-		disableMobileControls();
 		disableVRControls();
+		disableMobileControls();
 		enableDesktopControls();
 	} else if(auxl.controls === 'Mobile'){
 		disableVRControls();
@@ -421,16 +471,17 @@ function changeControls(){
 menuModeButton.addEventListener('click', changeControls);
 
 function changeVRHand(){
-	if(auxl.vrHand === 'right'){
-		auxl.vrHand = 'left';
-		vrHandButton.innerHTML = 'Hand : Left';
-	} else {
+	if(auxl.vrHand === 'both'){
 		auxl.vrHand = 'right';
-		vrHandButton.innerHTML = 'Hand : Right';
+		vrHandButton.innerHTML = 'Hands : Right';
+	} else if(auxl.vrHand === 'right'){
+		auxl.vrHand = 'left';
+		vrHandButton.innerHTML = 'Hands : Left';
+	} else {
+		auxl.vrHand = 'both';
+		vrHandButton.innerHTML = 'Hands : Both';
 	}
-	if(auxl.expStarted){
-		vrController.setAttribute('laser-controls',{hand: auxl.vrHand});
-	}
+	updateControls();
 }
 vrHandButton.addEventListener('click', changeVRHand);
 
@@ -1706,8 +1757,10 @@ this.Player = (layer) => {
 	cameraUI = document.getElementById('cameraUI');
 	playerFloor = document.getElementById('playerFloor');
 	mouseController = document.getElementById('mouseController');
-	vrController = document.getElementById('vrController');
-	vrControllerUI = document.getElementById('vrControllerUI');
+	vrController1 = document.getElementById('vrController1');
+	vrController1UI = document.getElementById('vrController1UI');
+	vrController2 = document.getElementById('vrController2');
+	vrController2UI = document.getElementById('vrController2UI');
 
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
@@ -1740,12 +1793,30 @@ this.Player = (layer) => {
 				clearTimeout(disableTimeout);
 			}, 1000);
 		} else if(auxl.controls === 'VR'){
-			auxl.vrController.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
-			//Timeout
-			disableTimeout = setTimeout(function () {
-				auxl.vrController.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
-				clearTimeout(disableTimeout);
-			}, 1000);
+			if(auxl.vrHand === 'both'){
+				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+				//Timeout
+				disableTimeout = setTimeout(function () {
+					auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+					auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+					clearTimeout(disableTimeout);
+				}, 1000);
+			} else if(auxl.vrHand === 'right'){
+				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+				//Timeout
+				disableTimeout = setTimeout(function () {
+					auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+					clearTimeout(disableTimeout);
+				}, 1000);
+			} else if(auxl.vrHand === 'left'){
+				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+				//Timeout
+				disableTimeout = setTimeout(function () {
+					auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+					clearTimeout(disableTimeout);
+				}, 1000);
+			}
 		} else if(auxl.controls === 'Mobile'){
 			auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
 			//Timeout
@@ -1757,26 +1828,24 @@ this.Player = (layer) => {
 	}
 
 	const EnableVRLocomotion = () => {
-		playerRig.removeAttribute('locomotion');
+		DisableLocomotion();
+		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'vr'});
+	}
+
+	const EnableVRHoverLocomotion = (vrHand) => {
+		DisableLocomotion();
 		auxl.locomotionUILayer.SpawnLayer(true);
-		playerRig.setAttribute('locomotion',{uiid: 'beltUIParent', controller1id: 'vrController', courserid: 'mouseController', movetype: 'vr'});
+		playerRig.setAttribute('locomotion',{uiid: 'beltUIParent', courserid: 'mouseController', movetype: 'vrHover'});
 	}
 
 	const EnableDesktopLocomotion = () => {
-		playerRig.removeAttribute('locomotion');
-		if(document.getElementById('beltUIParent')){
-			auxl.locomotionUILayer.DespawnLayer(true);
-		}
-		playerRig.setAttribute('locomotion',{uiid: false, controller1id: false, courserid: 'mouseController', movetype: 'desktop'});
+		DisableLocomotion();
+		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'desktop'});
 	}
 
 	const EnableMobileLocomotion = () => {
-		playerRig.removeAttribute('locomotion');
-		if(document.getElementById('beltUIParent')){
-			auxl.locomotionUILayer.DespawnLayer(true);
-		}
-
-		playerRig.setAttribute('locomotion',{uiid: false, controller1id: false, courserid: 'mouseController', movetype: 'mobile'});
+		DisableLocomotion();
+		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'mobile'});
 	}
 
 	const DisableLocomotion = () => {
@@ -1786,7 +1855,7 @@ this.Player = (layer) => {
 		}
 	}
 
-	return {layer, SetFlag, GetFlag, TempDisableClick, EnableVRLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion}
+	return {layer, SetFlag, GetFlag, TempDisableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion}
 }
 //Spawn Function
 function playerSpawnAnim(){
@@ -6733,6 +6802,8 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
+['desktop-inputs']:null,
+['mobile-inputs']:null,
 //locomotion:{uiid: 'beltUIParent', controller1id: 'vrController', courserid: 'mouseController',},
 //['wasd-controls']:{enabled: true, acceleration: 25},
 //['movement-controls']:{enabled: true, controls: 'gamepad, keyboard, touch', speed: 0.3, fly: false, constrainToNavMesh: false, camera: '#camera',},
@@ -6807,10 +6878,10 @@ raycaster:{enabled: 'true', autoRefresh: 'true', objects: '.clickable', origin: 
 cursor: {fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'},
 },};
 auxl.mouseController = auxl.Core(auxl.mouseControllerData);
-//VR Controller
-auxl.vrControllerData = {
-data:'VR Controller',
-id:'vrController',
+//VR Controller 1
+auxl.vrController1Data = {
+data:'vrController1Data',
+id:'vrController1',
 sources: false,
 text: false,
 geometry: {primitive: 'ring', radiusInner: 0.02, radiusOuter: 0.03},
@@ -6825,15 +6896,15 @@ hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-['detect-inputs']:null,
+['vr-left-inputs']:{joystickEnabled: true},
 visible: 'false',
 },
 };
-auxl.vrController = auxl.Core(auxl.vrControllerData);
-//VR Controller UI
-auxl.vrControllerUIData = {
-data:'VR Controller UI',
-id:'vrControllerUI',
+auxl.vrController1 = auxl.Core(auxl.vrController1Data);
+//VR Controller 1 UI
+auxl.vrController1UIData = {
+data:'vrController1UIData',
+id:'vrController1UI',
 sources: false,
 text: {value:'Controller UI', width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold"},
 geometry: {primitive: 'plane', width: 0.25, height: 0.1},
@@ -6846,7 +6917,47 @@ mixins: false,
 classes: ['a-ent','player'],
 components: {visible: 'false',},
 };
-auxl.vrControllerUI = auxl.Core(auxl.vrControllerUIData);
+auxl.vrController1UI = auxl.Core(auxl.vrController1UIData);
+//VR Controller 2
+auxl.vrController2Data = {
+data:'vrController2Data',
+id:'vrController2',
+sources: false,
+text: false,
+geometry: {primitive: 'ring', radiusInner: 0.02, radiusOuter: 0.03},
+material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
+position: new THREE.Vector3(0,0,-1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0.15,0.15,0.15),
+animations: {
+hoverenter:{property: 'raycaster.lineColor', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
+hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
+},
+mixins: false,
+classes: ['a-ent','player'],
+components: {
+['vr-right-inputs']:{joystickEnabled: true},
+visible: 'false',
+},
+};
+auxl.vrController2 = auxl.Core(auxl.vrController2Data);
+//VR Controller 2 UI
+auxl.vrController2UIData = {
+data:'vrController2UIData',
+id:'vrController2UI',
+sources: false,
+text: {value:'Controller UI', width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold"},
+geometry: {primitive: 'plane', width: 0.25, height: 0.1},
+material: {shader: "flat", color: "#ac2d2d", opacity: 0.75, side: 'double'},
+position: new THREE.Vector3(-0.15,-0.15,-0.25),
+rotation: new THREE.Vector3(-90,0,0),
+scale: new THREE.Vector3(0.5,0.5,0.5),
+animations: false,
+mixins: false,
+classes: ['a-ent','player'],
+components: {visible: 'false',},
+};
+auxl.vrController2UI = auxl.Core(auxl.vrController2UIData);
 //Player Bottom
 auxl.playerFloorData = {
 data:'Player Floor',
@@ -6987,10 +7098,14 @@ child0: {
 	child6: {core: auxl.playerPointLight},
 },
 child1: {
-	parent: {core: auxl.vrController},
-	child0: {core: auxl.vrControllerUI},
+	parent: {core: auxl.vrController1},
+	child0: {core: auxl.vrController1UI},
 },
-child2: {core: auxl.playerFloor},
+child2: {
+	parent: {core: auxl.vrController2},
+	child0: {core: auxl.vrController2UI},
+},
+child3: {core: auxl.playerFloor},
 }
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
 auxl.playerLayer = auxl.Layer('playerLayer', auxl.playerAll);
@@ -13545,214 +13660,6 @@ auxl.zone5 = auxl.MapZone(auxl.zone5Data);
 });
 
 //
-//Dev - Detect Inputs
-AFRAME.registerComponent('detect-inputs', {
-//schema: {
-	//bar: {type: 'number'},
-	//baz: {type: 'string'}
-//},
-
-init: function () {
-	//Display Input Selections
-	//HMD View - Mouse Movement
-	//Main Trigger Click - Mouse Left Click
-	//Secondary Trigger Click - Mouse Right Click
-	//Joystick Directional - WASD
-	//Button 1 - Q
-	//Button 2 - E
-
-	const displayInput = document.querySelector('#displayInput');
-
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-
-	function updateInput(input){
-		displayInputText.value = input;
-		displayInput.setAttribute('text',displayInputText);
-	}
-
-
-	//
-	//Event Listeners
-
-	//Desktop
-	//
-
-	//Mouse
-	//
-	//Left Click
-	document.body.addEventListener('click', function (e) {
-		updateInput('main click');
-	});
-	//
-	//Right Click
-	document.body.addEventListener('contextmenu', function (e) {
-		updateInput('secondary click');
-	});
-
-	//Keyboard
-	//
-	//Key Down - WASD | QE
-	document.body.addEventListener('keydown', function (e) {
-		if (e.key === 'w' || e.key === 'W') {
-			//Start moving player
-			updateInput('up');
-		} else if (e.key === 'a' || e.key === 'A') {
-			//Start moving player
-			updateInput('left');
-		} else if (e.key === 's' || e.key === 'S') {
-			//Start moving player
-			updateInput('down');
-		} else if (e.key === 'd' || e.key === 'D') {
-			//Start moving player
-			updateInput('right');
-		} else if (e.key === 'q' || e.key === 'Q') {
-			//Start moving player
-			updateInput('button 1');
-		} else if (e.key === 'e' || e.key === 'E') {
-			//Start moving player
-			updateInput('button 2');
-		}
-	});//End keydown
-
-
-	//Quest
-	//
-
-	//Triggers
-	//
-	//Main Trigger
-	document.body.addEventListener('triggerdown', function (e) {
-		updateInput('main trigger');
-	});
-
-	//
-	//Secondary Trigger
-	document.body.addEventListener('gripdown', function (e) {
-		updateInput('secondary trigger');
-	});
-
-	//Buttons
-	//
-	//Right Controller - Button 1 (A)
-	document.body.addEventListener('abuttondown', function (e) {
-		updateInput('button 1');
-	});
-	//
-	//Right Controller - Button 2 (B)
-	document.body.addEventListener('bbuttondown', function (e) {
-		updateInput('button 2');
-	});
-	//
-	//Left Controller - Button 1 (X)
-	document.body.addEventListener('xbuttondown', function (e) {
-		updateInput('button 1');
-	});
-	//
-	//Left Controller - Button 2 (Y)
-	document.body.addEventListener('ybuttondown', function (e) {
-		updateInput('button 2');
-	});
-
-	//Joystick
-	//
-	//Controller
-	/* Conflicts with Locomotion event listener
-	this.el.addEventListener('thumbstickmoved', function (e) {
-		if (e.detail.y > 0.95) { 
-			updateInput('down');
-		}
-		if (e.detail.y < -0.95) { 
-			updateInput('up');
-		}
-		if (e.detail.x < -0.95) { 
-			updateInput('left');
-		}
-		if (e.detail.x > 0.95) { 
-			updateInput('right');
-		}
-	});*/
-	// Conflicts with Locomotion event listener
-	let deadzone = 0.1;
-	let xNum = 0;
-	let yNum = 0;
-	let angle = 0;
-	let angleDeg = 0;
-	this.el.addEventListener('thumbstickmoved', function (e) {
-
-
-xNum = e.detail.x;
-yNum = e.detail.y;
-angle = Math.atan2(xNum,yNum);
-function radToDeg(rad) {
-  return rad / (Math.PI / 180);
-}
-angleDeg = radToDeg(angle);
-
-updateInput('Raidans: '+angle + ' | Degress : ' +angleDeg);
-
-//8 Cardinal Direction Angles
-//Backward : -22.5 -> 22.5
-//BackwardRight : 22.5 -> 67.5
-//Right : 67.5 -> 112.5
-//ForwardRight : 112.5 -> 157.5
-//Forward : 157.5 -> 180 or -157.5 -> -180
-//ForwardLeft: -112.5 -> -157.5
-//Left : -67.5 -> -112.5
-//BackwardLeft: -22.5 -> -67.5 
-if(yNum < deadzone && yNum > deadzone*-1 && xNum > deadzone*-1 && xNum < deadzone){
-	clearMovement();
-	updateInput('Clear');
-} else if(yNum > deadzone || yNum < deadzone*-1 || xNum < deadzone*-1 || xNum > deadzone) {
-	if(angleDeg > -22.5 && angleDeg < 22.5){
-	//Backward : -22.5 -> 22.5
-		clearMovement();
-		movingReverse();
-	} else if(angleDeg > 22.5 && angleDeg < 67.5){
-	//BackwardRight : 22.5 -> 67.5
-		clearMovement();
-		movingReverse();
-		movingRight();
-	} else if(angleDeg > 67.5 && angleDeg < 112.5){
-	//Right : 67.5 -> 112.5
-		clearMovement();
-		movingRight();
-	} else if(angleDeg > 112.5 && angleDeg < 157.5){
-	//ForwardRight : 112.5 -> 157.5
-		clearMovement();
-		movingForward();
-		movingRight();
-	} else if(angleDeg > 157.5 || angleDeg < -157.5){//
-	//Forward : 157.5 -> 180 or -157.5 -> -180
-		clearMovement();
-		movingForward();
-	} else if(angleDeg < -112.5 && angleDeg > -157.5){
-	//ForwardLeft: -112.5 -> -157.5
-		clearMovement();
-		movingForward();
-		movingLeft();
-	} else if(angleDeg < -67.5 && angleDeg > -112.5){
-	//Left : -67.5 -> -112.5
-		clearMovement();
-		movingLeft();
-	} else if(angleDeg < -22.5 && angleDeg > -67.5){
-	//BackwardLeft: -22.5 -> -67.5 
-		clearMovement();
-		movingReverse();
-		movingLeft();
-	}
-} else {
-	clearMovement();
-	updateInput('Clear');
-}
-
-	});
-
-
-
-    }//End Init
-});
-
-//
 //Attach
 AFRAME.registerComponent('attach', {
 	dependencies: ['auxl'],
@@ -14100,25 +14007,17 @@ AFRAME.registerComponent('locomotion', {
 	dependencies: ['auxl'],
     schema: {
         uiid: {type: 'string', default: 'ui'},
-        controller1id: {type: 'string', default: 'controller1'},
-        controller2id: {type: 'string', default: 'controller2'},
 		courserid: {type: 'string', default: 'mouseCursor'},
 		movetype: {type: 'string', default: 'vr'},
     },
 
 init: function () {
-	//Do something when component first attached.
 	const auxl = document.querySelector('a-scene').systems.auxl;
 	// Set up the tick throttling.
 	this.everySomeThrottled = AFRAME.utils.throttle(this.everySome, 30, this);
 
 	//Schema Imoprt
 	//
-	//Controller Elements
-	if(this.data.controller1id){
-		this.controller1 = document.getElementById(this.data.controller1id);
-	}
-	//this.controller2 = document.getElementById(this.data.controller2id);
 	//Cursor Element
 	this.mouseCursor = document.getElementById(this.data.courserid);
 	//UI to attach
@@ -14174,11 +14073,6 @@ init: function () {
 	this.newX;
 	this.newZ;
 
-	//Testing
-	this.displayInput = document.querySelector('#displayInput');
-	this.displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-
-//End Init
 },
 
 keyDownControls: function (e) {
@@ -14267,35 +14161,6 @@ raycasterLocomotion: function (e) {
 	}
 },
 
-questJoystickLocomotion: function (e){
-updateInput('questJoystick running');
-function updateInput(input){
-
-	this.displayInputText.value = input;
-	this.displayInput.setAttribute('text',this.displayInputText);
-}
-let xNum = e.detail.x;
-let yNum = e.detail.y;
-updateInput('X: '+ xNum + ' | Y: '+ yNum);
-
-	if (e.detail.y > 0.95) {
-		clearMovement();
-		movingReverse();
-	}
-	if (e.detail.y < -0.95) {
-		clearMovement();
-		movingForward();
-	}
-	if (e.detail.x < -0.95) {
-		clearMovement();
-		movingLeft();
-	}
-	if (e.detail.x > 0.95) {
-		clearMovement();
-		movingRight();
-	}
-},
-
 update: function () {
 	//Keyboard Controller Event Listeners
 	if(this.movetype === 'desktop'){
@@ -14324,7 +14189,9 @@ update: function () {
 		this.htmlDown.addEventListener('mouseup', cancelReverse);
 		this.htmlb.addEventListener('mouseup', brakeReadyBuffer);
 	} else if(this.movetype === 'vr'){
-		this.vrController = document.getElementById('vrController');
+
+	} else if(this.movetype === 'vrHover'){
+		//this.vrController1 = document.getElementById('vrController1');
 		this.directionForward = document.getElementById('locomotionForwardUI');
 		this.directionReverse = document.getElementById('locomotionReverseUI');
 		this.directionBrake1 = document.getElementById('locomotionBrake1UI');
@@ -14348,16 +14215,7 @@ update: function () {
 		document.querySelectorAll('.directionBrake').forEach(item => {
 			item.addEventListener('mouseleave', event => brakeReadBufferLong)
 		});
-
-		this.questJoystickLocomotionEvent = (event) => {
-			//this.questJoystickLocomotion(event);
-		}
-		//this.vrController.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-		this.vrController.addEventListener('thumbsticktouchend', clearMovement);
-		this.vrController.addEventListener('thumbstickdown', clearMovement);
-
 	}
-
 },
 
 remove: function () {
@@ -14382,6 +14240,8 @@ remove: function () {
 		this.htmlDown.removeEventListener('mouseup', cancelReverse);
 		this.htmlb.removeEventListener('mouseup', brakeReadyBuffer);
 	} else if(this.movetype === 'vr'){
+
+	} else if(this.movetype === 'vrHover'){
 		//directionForward
 		this.directionForward.removeEventListener('mouseenter', movingForward);
 		this.directionForward.removeEventListener('mouseleave', cancelForward);
@@ -14396,11 +14256,6 @@ remove: function () {
 		document.querySelectorAll('.directionBrake').forEach(item => {
 			item.removeEventListener('mouseleave', event => brakeReadBufferLong)
 		});
-
-		this.vrController.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-
-		this.vrController.removeEventListener('thumbsticktouchend', clearMovement);
-		this.vrController.removeEventListener('thumbstickdown', clearMovement);
 
 	}
 
@@ -14455,7 +14310,7 @@ tick: function (time, timeDelta) {
 	this.everySomeThrottled();
 
 	//Run uiSync Function
-	if(this.movetype === 'vr'){
+	if(this.movetype === 'vrHover'){
 		this.uiSync();
 	}
 
@@ -14846,6 +14701,401 @@ userDirection: function (){
 	this.positionNew = new THREE.Vector3(this.positionTemp.x, 0, this.positionTemp.z);
 },//spawnwithuser
 
+});
+
+//
+//VR Controller 1|Left Inputs
+//Left - Joystick(Locomotion) | X | Y
+AFRAME.registerComponent('vr-left-inputs', {
+schema: {
+	joystickEnabled: {type: 'boolean', default: true},
+},
+
+init: function () {
+	const auxl = document.querySelector('a-scene').systems.auxl;
+	this.joystickEnabled = this.data.joystickEnabled;
+
+	//Display Inputs - DEV
+	const displayInput = document.querySelector('#displayInput');
+
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+
+	function updateInput(input){
+		displayInputText.value = input;
+		displayInput.setAttribute('text',displayInputText);
+	}
+
+
+	//
+	//Event Listeners
+
+	//Quest
+	//
+
+	//Triggers
+	//
+	//Main Trigger
+	document.body.addEventListener('triggerdown', function (e) {
+		updateInput('Left Main Trigger');
+	});
+
+	//
+	//Secondary Trigger
+	document.body.addEventListener('gripdown', function (e) {
+		updateInput('Left Secondary Trigger');
+	});
+
+	//Buttons
+	//
+	//
+	//Left Controller - Button 1 (X)
+	document.body.addEventListener('xbuttondown', function (e) {
+		updateInput('X Button');
+	});
+	//
+	//Left Controller - Button 2 (Y)
+	document.body.addEventListener('ybuttondown', function (e) {
+		updateInput('Y Button');
+	});
+
+
+
+/*
+		this.questJoystickLocomotionEvent = (event) => {
+			this.questJoystickLocomotion(event);
+		}
+		//this.vrController.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		this.vrController.addEventListener('thumbsticktouchend', clearMovement);
+		this.vrController.addEventListener('thumbstickdown', clearMovement);
+*/
+/*
+		this.vrController.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+
+		this.vrController.removeEventListener('thumbsticktouchend', clearMovement);
+		this.vrController.removeEventListener('thumbstickdown', clearMovement);
+*/
+	//Joystick
+	//
+	//Locomotion
+	let deadzone = 0.1;
+	let xNum = 0;
+	let yNum = 0;
+	let angle = 0;
+	let angleDeg = 0;
+	if(this.joystickEnabled){
+		this.el.addEventListener('thumbstickmoved', function (e) {
+			xNum = e.detail.x;
+			yNum = e.detail.y;
+			angle = Math.atan2(xNum,yNum);
+			function radToDeg(rad) {
+			  return rad / (Math.PI / 180);
+			}
+			angleDeg = radToDeg(angle);
+
+			if(yNum < deadzone && yNum > deadzone*-1 && xNum > deadzone*-1 && xNum < deadzone){
+				clearMovement();
+				updateInput('Locomotion Clear');
+			} else if(yNum > deadzone || yNum < deadzone*-1 || xNum < deadzone*-1 || xNum > deadzone) {
+				if(angleDeg > -22.5 && angleDeg < 22.5){
+				//Backward : -22.5 -> 22.5
+					clearMovement();
+					movingReverse();
+					updateInput('Backward');
+				} else if(angleDeg > 22.5 && angleDeg < 67.5){
+				//BackwardRight : 22.5 -> 67.5
+					clearMovement();
+					movingReverse();
+					movingRight();
+					updateInput('Backward Right');
+				} else if(angleDeg > 67.5 && angleDeg < 112.5){
+				//Right : 67.5 -> 112.5
+					clearMovement();
+					movingRight();
+					updateInput('Right');
+				} else if(angleDeg > 112.5 && angleDeg < 157.5){
+				//ForwardRight : 112.5 -> 157.5
+					clearMovement();
+					movingForward();
+					movingRight();
+					updateInput('Forward Right');
+				} else if(angleDeg > 157.5 || angleDeg < -157.5){//
+				//Forward : 157.5 -> 180 or -157.5 -> -180
+					clearMovement();
+					movingForward();
+					updateInput('Forward');
+				} else if(angleDeg < -112.5 && angleDeg > -157.5){
+				//ForwardLeft: -112.5 -> -157.5
+					clearMovement();
+					movingForward();
+					movingLeft();
+					updateInput('Forward Left');
+				} else if(angleDeg < -67.5 && angleDeg > -112.5){
+				//Left : -67.5 -> -112.5
+					clearMovement();
+					movingLeft();
+					updateInput('Left');
+				} else if(angleDeg < -22.5 && angleDeg > -67.5){
+				//BackwardLeft: -22.5 -> -67.5 
+					clearMovement();
+					movingReverse();
+					movingLeft();
+					updateInput('Backward Left');
+				}
+			} else {
+				clearMovement();
+				updateInput('Locomotion Clear');
+			}
+		});
+	}
+
+
+
+
+    },
+questJoystickLeft: function (e){
+
+},
+update: function () {},
+remove: function () {},
+});
+
+//
+//VR Controller 2|Right Inputs
+//Left - Joystick(Rotation) | A | B
+AFRAME.registerComponent('vr-right-inputs', {
+schema: {
+	joystickEnabled: {type: 'boolean', default: true},
+},
+
+init: function () {
+	const auxl = document.querySelector('a-scene').systems.auxl;
+	this.joystickEnabled = this.data.joystickEnabled;
+
+	//Display Inputs - DEV
+	const displayInput = document.querySelector('#displayInput');
+
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+
+	function updateInput(input){
+		displayInputText.value = input;
+		displayInput.setAttribute('text',displayInputText);
+	}
+
+
+	//
+	//Event Listeners
+
+	//Quest
+	//
+
+	//Triggers
+	//
+	//Main Trigger
+	document.body.addEventListener('triggerdown', function (e) {
+		updateInput('Right Main Trigger');
+	});
+
+	//
+	//Secondary Trigger
+	document.body.addEventListener('gripdown', function (e) {
+		updateInput('Right Secondary Trigger');
+	});
+
+	//Buttons
+	//
+	//Right Controller - Button 1 (A)
+	document.body.addEventListener('abuttondown', function (e) {
+		updateInput('A Button');
+	});
+	//
+	//Right Controller - Button 2 (B)
+	document.body.addEventListener('bbuttondown', function (e) {
+		updateInput('B Button');
+	});
+
+	//Joystick
+	//
+	//Rotation
+	//Duck - Unduck
+	let deadzone = 0.1;
+	let xNum = 0;
+	let yNum = 0;
+	let angle = 0;
+	let angleDeg = 0;
+	if(this.joystickEnabled){
+		this.el.addEventListener('thumbstickmoved', function (e) {
+			xNum = e.detail.x;
+			yNum = e.detail.y;
+			angle = Math.atan2(xNum,yNum);
+			function radToDeg(rad) {
+			  return rad / (Math.PI / 180);
+			}
+			angleDeg = radToDeg(angle);
+
+			if(yNum < deadzone && yNum > deadzone*-1 && xNum > deadzone*-1 && xNum < deadzone){
+				updateInput('Rotation|Duck Clear');
+			} else if(yNum > deadzone || yNum < deadzone*-1 || xNum < deadzone*-1 || xNum > deadzone) {
+				if(angleDeg > -22.5 && angleDeg < 22.5){
+				//Backward : -22.5 -> 22.5
+					updateInput('Duck');
+				} else if(angleDeg > 22.5 && angleDeg < 67.5){
+				//BackwardRight : 22.5 -> 67.5
+					updateInput('Rotate Right');
+				} else if(angleDeg > 67.5 && angleDeg < 112.5){
+				//Right : 67.5 -> 112.5
+					updateInput('Rotate Right');
+				} else if(angleDeg > 112.5 && angleDeg < 157.5){
+				//ForwardRight : 112.5 -> 157.5
+					updateInput('Rotate Right');
+				} else if(angleDeg > 157.5 || angleDeg < -157.5){//
+				//Forward : 157.5 -> 180 or -157.5 -> -180
+					updateInput('Stand');
+				} else if(angleDeg < -112.5 && angleDeg > -157.5){
+				//ForwardLeft: -112.5 -> -157.5
+					updateInput('Rotate Left');
+				} else if(angleDeg < -67.5 && angleDeg > -112.5){
+				//Left : -67.5 -> -112.5
+					updateInput('Rotate Left');
+				} else if(angleDeg < -22.5 && angleDeg > -67.5){
+				//BackwardLeft: -22.5 -> -67.5 
+					updateInput('Rotate Left');
+				}
+			} else {
+				updateInput('Rotation|Duck Clear');
+			}
+		});
+	}
+
+
+
+
+    },
+questJoystickRight: function (e){
+
+},
+update: function () {},
+remove: function () {},
+});
+
+
+//
+//Desktop Inputs
+AFRAME.registerComponent('desktop-inputs', {
+//schema: {
+	//bar: {type: 'number'},
+	//baz: {type: 'string'}
+//},
+
+init: function () {
+	//Display Input Selections
+	//HMD View - Mouse Movement
+	//Main Trigger Click - Mouse Left Click
+	//Secondary Trigger Click - Mouse Right Click
+	//Joystick Directional - WASD
+	//Button 1 - Q
+	//Button 2 - E
+	const auxl = document.querySelector('a-scene').systems.auxl;
+	const displayInput = document.querySelector('#displayInput');
+
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+
+	function updateInput(input){
+		displayInputText.value = input;
+		displayInput.setAttribute('text',displayInputText);
+	}
+
+
+	//
+	//Event Listeners
+
+	//Desktop
+	//
+
+	//Mouse
+	//
+	//Left Click
+	document.body.addEventListener('click', function (e) {
+		updateInput('main click');
+	});
+	//
+	//Right Click
+	document.body.addEventListener('contextmenu', function (e) {
+		updateInput('secondary click');
+	});
+
+	//Keyboard
+	//
+	//Key Down - WASD | QE
+	document.body.addEventListener('keydown', function (e) {
+		if (e.key === 'w' || e.key === 'W') {
+			//Start moving player
+			updateInput('up');
+		} else if (e.key === 'a' || e.key === 'A') {
+			//Start moving player
+			updateInput('left');
+		} else if (e.key === 's' || e.key === 'S') {
+			//Start moving player
+			updateInput('down');
+		} else if (e.key === 'd' || e.key === 'D') {
+			//Start moving player
+			updateInput('right');
+		} else if (e.key === 'q' || e.key === 'Q') {
+			//Start moving player
+			updateInput('button 1');
+		} else if (e.key === 'e' || e.key === 'E') {
+			//Start moving player
+			updateInput('button 2');
+		}
+	});//End keydown
+
+    },
+update: function () {},
+remove: function () {},
+});
+
+//
+//Mobile Inputs
+AFRAME.registerComponent('mobile-inputs', {
+//schema: {
+	//bar: {type: 'number'},
+	//baz: {type: 'string'}
+//},
+
+init: function () {
+	//Display Input Selections
+	//HMD View - Mouse Movement
+	//Main Trigger Click - Mouse Left Click
+	//Secondary Trigger Click - Mouse Right Click
+	//Joystick Directional - WASD
+	//Button 1 - Q
+	//Button 2 - E
+	const auxl = document.querySelector('a-scene').systems.auxl;
+	const displayInput = document.querySelector('#displayInput');
+
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+
+	function updateInput(input){
+		displayInputText.value = input;
+		displayInput.setAttribute('text',displayInputText);
+	}
+
+
+	//
+	//Event Listeners
+
+	//Mobile
+	//
+
+	//Mouse
+	//
+/*
+	document.body.addEventListener('click', function (e) {
+		updateInput('main click');
+	});
+*/
+    },
+update: function () {},
+remove: function () {},
 });
 
 //
