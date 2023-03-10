@@ -13705,8 +13705,8 @@ init: function () {
 //this.angleDeg = Math.atan2(this.cameraVector.x,this.cameraVector.z) * 180 / Math.PI;
 //console.log(this.angleDeg)
 //Radians
-angle = Math.atan2(xNum,yNum);
-angleDeg = Math.atan2(xNum,yNum) * 180 / Math.PI;
+angle = Math.atan2(yNum,xNum);
+angleDeg = Math.atan2(yNum,xNum) * 180 / Math.PI;
 
 updateInput('Raidans: '+angle + ' | Degress : ' +angleDeg);
 
