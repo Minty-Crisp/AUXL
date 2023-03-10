@@ -13706,7 +13706,11 @@ init: function () {
 //console.log(this.angleDeg)
 //Radians
 angle = Math.atan2(yNum,xNum);
-angleDeg = Math.atan2(yNum,xNum) * 180 / Math.PI;
+//angleDeg = Math.atan2(yNum,xNum) * 180 / Math.PI;
+function radToDeg(rad) {
+  return rad / (Math.PI / 180);
+}
+angleDeg = radToDeg(angle);
 
 updateInput('Raidans: '+angle + ' | Degress : ' +angleDeg);
 
