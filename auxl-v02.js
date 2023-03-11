@@ -20,6 +20,8 @@ init: function () {
 // System
 /*************************************************************/
 //
+// Set up the tick throttling.
+this.checkSceneLoadThrottled = AFRAME.utils.throttle(this.checkSceneLoad, 30, this);
 
 //Establish a-frame objects
 const sceneEl = document.querySelector('a-scene');
@@ -27,6 +29,9 @@ const head = document.querySelector('head');
 let auxl = this;
 //Experience
 this.expStarted = false;
+//Scene
+this.loadingScene = false;
+this.loadingObjects = {};
 //JS Scripts Loaded
 this.jsLoaded = {};
 //JS Scripts Predefined, Ready to be loaded
@@ -867,6 +872,11 @@ this.Core = (data) => {
 		return true;
 	}
 
+	function loadTesting(){
+		console.log(core.id);
+		console.log('Asset loaded');
+	}
+
 	const Generate = () => {
 
 		//Check for external sources and append
@@ -933,29 +943,43 @@ this.Core = (data) => {
 
 		//Text
 		if(core.text){core.el.setAttribute('text', core.text)};
-		//console.log(JSON.stringify(data.id.id));
 
-		//core.el.setAttribute('id', core.id.id);
+		//ID
 		core.el.setAttribute('id', core.id);
-		//core.el.classList.add(classes);
-		//core.el.setAttribute(mixins);
+
+		//Geometry
 		if(core.geometry){
 			core.el.setAttribute('geometry', core.geometry);
 		}
+		//Material
 		if(core.material){
+			if(core.material.src){
+				core.components['src-loaded'] = null;
+			}
 			core.el.setAttribute('material', core.material);
 		}
+		//Position
 		if(core.position){
 			core.el.setAttribute('position', core.position);
 		}
+		//Rotation
 		if(core.rotation){
 			core.el.setAttribute('rotation', core.rotation);
 		}
+		//Scale
 		if(core.scale){
 			core.el.setAttribute('scale', core.scale);
 		}
+		//Mixins
+		if(core.mixins){
+			core.el.setAttribute('mixins', core.mixins);
+		}
 
-		//core.el.setAttribute('animation__default', data.animations.default);
+		//Wait until Models and Src Materials are loaded before letting player anim finish
+		//Add model-loaded component
+		if(core.components['gltf-model'] || core.components['obj-model']){
+			core.components['model-loaded'] = null;
+		}
 
 		//Add all classes
 		for (let key in core.classes) {
@@ -1732,6 +1756,11 @@ this.Layer = (id, all) => {
 	return {layer, SpawnLayer, DespawnLayer, GetParentEl, EmitEventParent, EmitEventChild, EmitAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, GetChild};
 }
 
+//fadeOut
+//sphereOut
+//blinkOut
+//blinkOut
+
 //
 //Player
 this.Player = (layer) => {
@@ -1858,48 +1887,36 @@ this.Player = (layer) => {
 
 	return {layer, SetFlag, GetFlag, TempDisableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion}
 }
-//Spawn Function
-function playerSpawnAnim(){
+//Scene Load Anim
+function playerSceneAnim(){
+
+//Minimum Anim Delay if assets don't need loading
+let animTimeout0 = setTimeout(function () {
+	if(auxl.loadingScene){} else {
+		auxl.loadingScene = true;
+	}
+	clearTimeout(animTimeout0);
+}, 800);
+
 	if(auxl.player.layer.teleporting){} else {
 		auxl.player.layer.teleporting = true;
 		if(auxl.player.layer.transition === 'blink'){
 			auxl.player.TempDisableClick();
 			auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
 			auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
-			auxl.blink1Screen.EmitEvent('blink');
-			auxl.blink2Screen.EmitEvent('blink');
-			timeout2 = setTimeout(function () {
-				auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
-				auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
-				auxl.player.layer.teleporting = false;
-				clearTimeout(timeout2);
-			}, 1200);
-		} else if (auxl.player.layer.transition === 'fade'){
+			auxl.blink1Screen.EmitEvent('blinkScene1');
+			auxl.blink2Screen.EmitEvent('blinkScene1');
+		} else if(auxl.player.layer.transition === 'fade'){
 			auxl.player.TempDisableClick();
 			auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
-			auxl.fadeScreen.EmitEvent('fade');
-			timeout2 = setTimeout(function () {
-				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
-				auxl.player.layer.teleporting = false;
-				clearTimeout(timeout2);
-			}, 1200);
-		} else if (auxl.player.layer.transition === 'sphere'){
+			auxl.fadeScreen.EmitEvent('fadeScene1');
+		} else if(auxl.player.layer.transition === 'sphere'){
 			auxl.player.TempDisableClick();
 			auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
-			auxl.sphereScreen.EmitEvent('sphere');
-			timeout2 = setTimeout(function () {
-				auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
-				auxl.player.layer.teleporting = false;
-				clearTimeout(timeout2);
-			}, 1200);
-		} else if (auxl.player.layer.transition === 'instant'){
-			timeout2 = setTimeout(function () {
-				auxl.player.layer.teleporting = false;
-				clearTimeout(timeout2);
-			}, 500);
+			auxl.sphereScreen.EmitEvent('sphereScene1');
+		} else if(auxl.player.layer.transition === 'instant'){
 		}
 	}
-
 }
 
 //
@@ -3046,7 +3063,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			//console.log(auxl.player)
 			//console.log(auxl.player.layer)
 			//console.log(auxl.player.layer.transition)
-			playerSpawnAnim();
+			playerSceneAnim();
 		}
 	}
 
@@ -3357,7 +3374,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 
 	const StartScenario = () => {
 		if(core.scenarioLoaded){} else {
-			playerSpawnAnim();
+			playerSceneAnim();
 			//Start scene mid Player anim
 			startTimeout = setTimeout(function () {
 				//Load All Scenario Items
@@ -5933,6 +5950,7 @@ mixins: false,
 classes: ['a-ent'],
 components: {
 ['obj-model']:{obj: './assets/3d/buttons/border.obj'},
+//['model-loaded']:null,
 },
 };
 
@@ -6554,8 +6572,57 @@ let anim360Data = {
 }
 
 
-},//Init
+},
+checkSceneLoad: function (time, timeDelta) {
+	//Do something on every scene tick or frame.
+	//console.log('loading...');
+	//console.log(this.loadingObjects);
+	//This needs to affect auxl.player.TempDisableClick(); as well
+	if(Object.keys(this.loadingObjects).length <= 0){
+		let sceneTimeout;
+		if(this.player.layer.transition === 'blink'){
+			this.blink1Screen.EmitEvent('blinkScene2');
+			this.blink2Screen.EmitEvent('blinkScene2');
+			this.loadingScene = false;
+			sceneTimeout = setTimeout(() => {
+				this.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
+				this.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
+				this.player.layer.teleporting = false;
+				clearTimeout(sceneTimeout);
+			}, 800);
+		} else if (this.player.layer.transition === 'fade'){
+			this.fadeScreen.EmitEvent('fadeScene2');
+			this.loadingScene = false;
+			sceneTimeout = setTimeout(() => {
+				this.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
+				this.player.layer.teleporting = false;
+				clearTimeout(sceneTimeout);
+			}, 800);
+		} else if (this.player.layer.transition === 'sphere'){
+			this.sphereScreen.EmitEvent('sphereScene2');
+			this.loadingScene = false;
+			sceneTimeout = setTimeout(() => {
+				this.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
+				this.player.layer.teleporting = false;
+				clearTimeout(sceneTimeout);
+			}, 800);
+		} else if (this.player.layer.transition === 'instant'){
+			this.loadingScene = false;
+			this.player.layer.teleporting = false;	
+		}
+		//console.log('loading done');
+		//console.log(this.loadingObjects);
+	}
 
+},
+tick: function (time, timeDelta) {
+	//Do something on every scene tick or frame.
+	//Throttle
+	if(this.loadingScene){
+		this.checkSceneLoadThrottled();
+	}
+
+},
 
 });
 
@@ -6987,7 +7054,13 @@ scale: new THREE.Vector3(1,1,1),
 animations: {
 fadein:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fade'},
 
-fadeout:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fade'}, 
+fadeout:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fade'},
+
+
+fadeinscene:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadeScene1'},
+
+fadeoutscene:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadeScene2'}, 
+
 },
 mixins: false,
 classes: ['a-ent','player','clickable'],
@@ -7011,6 +7084,13 @@ spherein2: {property: 'geometry.thetaStart', from: 90, to: 0, dur: 400, delay: 0
 
 sphereout1:{property: 'geometry.thetaLength', from: 180, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
 sphereout2: {property: 'geometry.thetaStart', from: 0, to: 90, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
+
+
+spherein1scene:{property: 'geometry.thetaLength', from: 0, to: 180, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene1'},
+spherein2scene: {property: 'geometry.thetaStart', from: 90, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene1'},
+
+sphereout1scene:{property: 'geometry.thetaLength', from: 180, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene2'},
+sphereout2scene: {property: 'geometry.thetaStart', from: 0, to: 90, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene2'},
 },
 mixins: false,
 classes: ['a-ent','player'],
@@ -7034,6 +7114,13 @@ blinkopacin: {property: 'components.material.material.opacity', from: 0, to: 1, 
 
 blinkout:{property: 'object3D.position.y', from: 1, to: 2.5, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
 blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+
+
+blinkinscene:{property: 'object3D.position.y', from: 2.5, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
+blinkopacinscene: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
+
+blinkoutscene:{property: 'object3D.position.y', from: 1, to: 2.5, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene2'},
+blinkopacoutscene: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene2'},
 },
 mixins: false,
 classes: ['a-ent','player'],
@@ -7057,6 +7144,13 @@ blinkopacin: {property: 'components.material.material.opacity', from: 0, to: 1, 
 
 blinkout:{property: 'object3D.position.y', from: -1, to: -2.5, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
 blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+
+
+blinkinscene:{property: 'object3D.position.y', from: -2.5, to: -1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
+blinkopacinscene: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
+
+blinkoutscene:{property: 'object3D.position.y', from: -1, to: -2.5, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene2'},
+blinkopacoutscene: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene2'},
 },
 mixins: false,
 classes: ['a-ent','player'],
@@ -8252,7 +8346,9 @@ nightcolor2:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90
 },
 mixins: false,
 classes: ['a-ent', 'clickable'],
-components: false,
+components: {
+//['src-loaded']:null,
+},
 };
 auxl.nodeFloor = auxl.Core(auxl.nodeFloorData);
 
@@ -8663,6 +8759,7 @@ mixins: false,
 classes: ['a-ent'],
 components:{
 ['gltf-model']:'./assets/3d/kenny/crop_melon.glb',
+//['model-loaded']:null,
 },
 };
 //flower_purpleA
@@ -13657,6 +13754,134 @@ auxl.zone5 = auxl.MapZone(auxl.zone5Data);
     },
 });
 
+
+
+//
+//AUXL Scene Loading
+
+//Combine model and src loaded into 1 common component that all items get attached to, an auxl support component
+
+//Needs to affect TempDisableClick()
+
+//Needs to account for timeline changes as well
+
+//Ensure any changes don't affect sceneCheckLoad if sceneMove is not active, i.e. the scene loaded and a delay prompts to change material
+
+//Auxl Object Support
+AFRAME.registerComponent('auxl-object', {
+dependencies: ['auxl'],
+schema: {
+	//bar: {type: 'number'},
+	//style: {type: 'string', default: 'random'},
+},
+	init: function () {
+		this.auxl = document.querySelector('a-scene').systems.auxl;
+		this.objectId = this.el.id;
+
+		//Model Done Loading Event Function
+		this.modelLoadedEvent = () => {
+			this.modelLoaded();
+		}
+		//Material Source Done Loading Event Function
+		this.srcLoadedEvent = () => {
+			this.srcLoaded();
+		}
+	},
+	modelLoaded: function () {
+		console.log(this.objectId)
+		delete this.auxl.loadingObjects[this.objectId];
+	},
+	srcLoaded: function () {
+		console.log(this.objectId)
+		delete this.auxl.loadingObjects[this.objectId];
+	},
+	update: function () {
+		this.auxl.loadingObjects[this.objectId] = true;
+		if(this.auxl.loadingScene){} else {
+			this.auxl.loadingScene = true;
+		}
+		this.el.addEventListener('model-loaded', this.modelLoadedEvent);
+		this.el.addEventListener('loaded', this.srcLoadedEvent);
+	},
+	remove: function () {
+		this.el.removeEventListener('model-loaded', this.modelLoadedEvent);
+		this.el.removeEventListener('loaded', this.srcLoadedEvent);
+	},
+});
+
+
+
+//Model Loaded
+AFRAME.registerComponent('model-loaded', {
+dependencies: ['auxl'],
+	init: function () {
+		this.auxl = document.querySelector('a-scene').systems.auxl;
+		this.objectId = this.el.id;
+		//Model Done Loading Event Function
+		this.modelLoadedEvent = () => {
+			this.modelLoaded();
+		}
+	},
+	modelLoaded: function () {
+		//console.log(this.objectId)
+		delete this.auxl.loadingObjects[this.objectId];
+	},
+	update: function () {
+		this.auxl.loadingObjects[this.objectId] = true;
+		if(this.auxl.loadingScene){} else {
+			this.auxl.loadingScene = true;
+		}
+		this.el.addEventListener('model-loaded', this.modelLoadedEvent);
+	},
+	remove: function () {
+		this.el.removeEventListener('model-loaded', this.modelLoadedEvent);
+	},
+});
+//Source Loaded
+AFRAME.registerComponent('src-loaded', {
+dependencies: ['auxl'],
+	init: function () {
+		this.auxl = document.querySelector('a-scene').systems.auxl;
+		this.objectId = this.el.id;
+		//Material Source Done Loading Event Function
+		this.srcLoadedEvent = () => {
+			this.srcLoaded();
+		}
+	},
+	srcLoaded: function () {
+		//console.log(this.objectId)
+		delete this.auxl.loadingObjects[this.objectId];
+	},
+	update: function () {
+		this.auxl.loadingObjects[this.objectId] = true;
+		if(this.auxl.loadingScene){} else {
+			this.auxl.loadingScene = true;
+		}
+		this.el.addEventListener('loaded', this.srcLoadedEvent);
+	},
+	remove: function () {
+		this.el.removeEventListener('loaded', this.srcLoadedEvent);
+	},
+});
+
+//Testing
+//Altering GLTF Materials
+AFRAME.registerComponent('modify-materials', {
+	init: function () {
+		// Wait for model to load. GLTF/OBJ Event
+		this.el.addEventListener('model-loaded', () => {
+			// Grab the mesh / scene.
+			const obj = this.el.getObject3D('mesh');
+			// Go over the submeshes and modify materials we want.
+			obj.traverse(node => {
+				if (node.name.indexOf('ship') !== -1) {
+					node.material.color.set('red');
+				}
+			});
+		});
+	}
+});
+
 //
 //Attach
 AFRAME.registerComponent('attach', {
@@ -15214,8 +15439,8 @@ clickToTeleport: function () {
 				auxl.player.TempDisableClick();
 				auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
 				auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.blink1Screen.EmitEvent('blink');
-				auxl.blink2Screen.EmitEvent('blink');
+				auxl.blink1Screen.EmitEvent('blinkPort');
+				auxl.blink2Screen.EmitEvent('blinkPort');
 				animTimeout = setTimeout(function () {
 					auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
 					auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
@@ -15225,7 +15450,7 @@ clickToTeleport: function () {
 			} else if (auxl.player.layer.transition === 'fade'){
 				auxl.player.TempDisableClick();
 				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.fadeScreen.EmitEvent('fade');
+				auxl.fadeScreen.EmitEvent('fadePort');
 				animTimeout = setTimeout(function () {
 					auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
 					auxl.player.layer.teleporting = false;
@@ -15234,7 +15459,7 @@ clickToTeleport: function () {
 			} else if (auxl.player.layer.transition === 'sphere'){
 				auxl.player.TempDisableClick();
 				auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.sphereScreen.EmitEvent('sphere');
+				auxl.sphereScreen.EmitEvent('spherePort');
 				animTimeout = setTimeout(function () {
 					auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
 					auxl.player.layer.teleporting = false;
