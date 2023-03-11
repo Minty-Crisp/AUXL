@@ -20,7 +20,7 @@ init: function () {
 // System
 /*************************************************************/
 //
-// Set up the tick throttling.
+//Scene Load Checking
 this.checkSceneLoadThrottled = AFRAME.utils.throttle(this.checkSceneLoad, 30, this);
 
 //Establish a-frame objects
@@ -1755,11 +1755,6 @@ this.Layer = (id, all) => {
 
 	return {layer, SpawnLayer, DespawnLayer, GetParentEl, EmitEventParent, EmitEventChild, EmitAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, GetChild};
 }
-
-//fadeOut
-//sphereOut
-//blinkOut
-//blinkOut
 
 //
 //Player
@@ -3657,11 +3652,9 @@ if(horizon.type === 'mountains'){
 	position.z = 0;
 	spawnAmount = 1;
 } else if(horizon.type === 'squareWall'){
-	height = 100*spawnHeight;
-	//Use multiple planes layered instead
-	geometry = {primitive: 'cylinder', openEnded: true, radius: horizon.radius, height: height, segmentsHeight: 9, segmentsRadial: 4, thetaStart: 0, thetaLength: 360 };
-	position.z = 0;
-	spawnAmount = 1;
+	height = 40*spawnHeight;
+	geometry = {primitive: 'plane', width: horizon.radius*2, height: height};
+	spawnAmount = 4;
 }
 
 let horizonAllData = {
@@ -3729,15 +3722,14 @@ for(let a=0; a < spawnAmount; a++){
 	parentRotation.y = 360/spawnAmount*a;
 	horizonParentData.id = horizonParentId;
 	horizonParentData.rotation = parentRotation;
-	if(horizon.type === 'squareWall'){
-		horizonParentData.rotation.y = 37.5;
-	}
 	horizonParentCores[a] = auxl.Core(horizonParentData);
 	//Child
 	horizonChildId = 'horizonChild' + a;
 	horizonChildData.id = horizonChildId;
-	horizonChildData.scale.x = (1.5*spawnWidth) +(Math.random()*0.1-0.2);
-	horizonChildData.scale.y = 1 + (Math.random()*0.2-0.4);
+	if(horizon.type === 'squareWall'){}else{
+		horizonChildData.scale.x = (1.5*spawnWidth) +(Math.random()*0.1-0.2);
+		horizonChildData.scale.y = 1 + (Math.random()*0.2-0.4);
+	}
 	if(horizon.type === 'mountains' || horizon.type === 'buildings' || horizon.type === 'cylinderWall' || horizon.type === 'squareWall'){
 		horizonChildData.position.y = ((horizonChildData.scale.y*height)/2)-1;
 	} else if(horizon.type === 'hills'){
@@ -8238,7 +8230,7 @@ height: 'normal',
 width: 'normal',
 };
 auxl.horizonHills1 = auxl.Horizon(auxl.horizonHills1Data);
-//Wall 1
+//Wall 1 - Cylinder
 //Desert Wall
 auxl.horizonWalls1Data = {
 id: 'horizonWalls1',
@@ -8252,34 +8244,48 @@ height: 'low',
 width: 'normal',
 };
 auxl.horizonWalls1 = auxl.Horizon(auxl.horizonWalls1Data);
-//Wall2
-//Underwater - INCOMPLETE
+//Wall2 - Square
+//Underwater
 auxl.horizonWalls2Data = {
 id: 'horizonWalls2',
 type: 'squareWall',
-texture: {src: auxl.pattern55, repeat: '100 5', emissive: true,},
+texture: {src: auxl.pattern55, repeat: '6 4', emissive: true,},
 baseColor: '#275876',
 baseColorFamily: false,
-radius: 200,
+radius: 100,
 density: 'normal',
-height: 'low',
+height: 'normal',
 width: 'normal',
 };
 auxl.horizonWalls2 = auxl.Horizon(auxl.horizonWalls2Data);
-//Wall3
-//Indoor Room - INCOMPLETE
+//Wall3 - Square
+//Indoor Room
 auxl.horizonWalls3Data = {
 id: 'horizonWalls3',
 type: 'squareWall',
-texture: {src: auxl.pattern18, repeat: '40 10', emissive: true,},
+texture: {src: auxl.pattern18, repeat: '4 4', emissive: true,},
 baseColor: '#80401f',
 baseColorFamily: false,
 radius: 10,
-density: 'normal',
+density: 'low',
 height: 'low',
-width: 'normal',
+width: 'low',
 };
 auxl.horizonWalls3 = auxl.Horizon(auxl.horizonWalls3Data);
+//Wall4 - Square
+//Cave
+auxl.horizonWalls4Data = {
+id: 'horizonWalls4',
+type: 'squareWall',
+texture: {src: auxl.pattern81, repeat: '4 4', emissive: true,},
+baseColor: '#bc8fa0',
+baseColorFamily: false,
+radius: 10,
+density: 'low',
+height: 'low',
+width: 'low',
+};
+auxl.horizonWalls4 = auxl.Horizon(auxl.horizonWalls4Data);
 //Buildings
 //Beach Pillars
 auxl.horizonBuildings1Data = {
@@ -8381,9 +8387,9 @@ data:'nodeCeilingData',
 id:'nodeCeiling',
 sources:false,
 text: false,
-geometry: {primitive: 'plane', width: 500, height: 500,},
-material: {shader: "standard", src: auxl.pattern80, repeat: '50 50',color: "#3c86b4", opacity: 0.69, metalness: 0.8, roughness: 0.2, emissive: "#3c86b4", emissiveIntensity: 0.2, side: 'back'},
-position: new THREE.Vector3(0,30,0),
+geometry: {primitive: 'plane', width: 250, height: 250,},
+material: {shader: "standard", src: auxl.pattern80, repeat: '25 25',color: "#3c86b4", opacity: 0.69, metalness: 0.8, roughness: 0.2, emissive: "#3c86b4", emissiveIntensity: 0.2, side: 'back'},
+position: new THREE.Vector3(0,40,0),
 rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{
@@ -8403,7 +8409,7 @@ sources:false,
 text: false,
 geometry: {primitive: 'plane', width: 20, height: 20,},
 material: {shader: "standard", src: auxl.pattern80, repeat: '40 40',color: "#214a64", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#214a64", emissiveIntensity: 0.2, side: 'back'},
-position: new THREE.Vector3(0,4,0),
+position: new THREE.Vector3(0,8,0),
 rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -13211,7 +13217,8 @@ sceneText: true,
 start:{
 teleport0:{SpawnTeleport:null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern37, repeat: '150 150',color: "#bc8fa0", emissive: "#bc8fa0",},}},
-nodeWalls: {SpawnLayer: null,ChangeAll:{property: 'material', value: {src: auxl.pattern81, repeat: '5 1.25', color: "#bc8fa0", emissive: "#bc8fa0",}}},
+//nodeWalls: {SpawnLayer: null,ChangeAll:{property: 'material', value: {src: auxl.pattern81, repeat: '5 1.25', color: "#bc8fa0", emissive: "#bc8fa0",}}},
+horizonWalls4:{SpawnHorizon: null},
 eventTesting:{SpawnCore: null, EnableDetail: {text: 'This shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.', textColor: 'black', windowColor: 'white', windowWidth: 2, windowHeight: 2}},
 eventTesting2:{SpawnCore: null, EnableDetail: {text: 'This also shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.'}},
 eventTesting3:{SpawnCore: null,},
@@ -13483,7 +13490,8 @@ start:{
 teleport0:{SpawnTeleport:null},
 memory:{SpawnMemGame: null},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern50, repeat: '150 150',color: "#763a3a", emissive: "#763a3a",},}},
-nodeWalls: {SpawnLayer: null,ChangeAll:{property: 'material', value: {src: auxl.pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
+//nodeWalls: {SpawnLayer: null,ChangeAll:{property: 'material', value: {src: auxl.pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
+horizonWalls3:{SpawnHorizon: null},
 smallCeiling: {SpawnCore: null,ChangeSelf:{property: 'material', value: {src: auxl.pattern22, repeat: '5 5', color: "#623018", emissive: "#623018",}}},
 imageSwapper1:{SpawnImgSwap: null},
 },
@@ -13714,7 +13722,8 @@ start:{
 teleport0:{SpawnTeleport:null},
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: false},},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern83, repeat: '150 150',color: "#3c86b4", emissive: "#3c86b4",},}},
-nodeWalls:{SpawnLayer: null,ChangeParent:{property: 'scale', value: new THREE.Vector3(15,15,15)},ChangeAll:{property: 'material', value: {src: auxl.pattern55, repeat: '5 1.25', color: "#275876", emissive: "#275876",}}},
+//nodeWalls:{SpawnLayer: null,ChangeParent:{property: 'scale', value: new THREE.Vector3(15,15,15)},ChangeAll:{property: 'material', value: {src: auxl.pattern55, repeat: '5 1.25', color: "#275876", emissive: "#275876",}}},
+horizonWalls2:{SpawnHorizon: null},
 underwaterScene1:{SpawnMultiAsset:null},
 nodeCeiling:{SpawnCore:null},
 },
@@ -13808,8 +13817,6 @@ schema: {
 		this.el.removeEventListener('loaded', this.srcLoadedEvent);
 	},
 });
-
-
 
 //Model Loaded
 AFRAME.registerComponent('model-loaded', {
