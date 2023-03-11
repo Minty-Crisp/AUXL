@@ -1760,15 +1760,16 @@ this.Layer = (id, all) => {
 //Player
 this.Player = (layer) => {
 
-	layer.transition = 'blink';
+	//Default Transition Type
+	layer.transition = 'fade';
 	//instant
 	//fade
 	//sphere
 	//blink
+	//Default Transition Color
+	//layer.transitionMaterial = {shader: "flat", color: '#000000', opacity: 0, side: 'double'};
 
 	layer.teleporting = false;
-
-	//layer.controls = 'desktop';
 
 	//Initialize Player
 	layer.SpawnLayer(true);
@@ -1852,6 +1853,13 @@ this.Player = (layer) => {
 		}
 	}
 
+	const UpdateTransitionColor = (newColor) => {
+		auxl.fadeScreen.ChangeSelf({property: 'material', value:{color: newColor}});
+		auxl.sphereScreen.ChangeSelf({property: 'material', value:{color: newColor}});
+		auxl.blink1Screen.ChangeSelf({property: 'material', value:{color: newColor}});
+		auxl.blink2Screen.ChangeSelf({property: 'material', value:{color: newColor}});
+	}
+
 	const EnableVRLocomotion = () => {
 		DisableLocomotion();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'vr'});
@@ -1880,7 +1888,7 @@ this.Player = (layer) => {
 		}
 	}
 
-	return {layer, SetFlag, GetFlag, TempDisableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion}
+	return {layer, SetFlag, GetFlag, TempDisableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion}
 }
 //Scene Load Anim
 function playerSceneAnim(){
@@ -7039,7 +7047,7 @@ id:'fadeScreen',
 sources: false,
 text: false,
 geometry: {primitive: 'plane', width: 1, height: 0.5},
-material: {shader: "flat", color: "#000000", opacity: 0},
+material: {shader: "flat", color: '#000000', opacity: 0},
 position: new THREE.Vector3(0,0,-0.15),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -7066,7 +7074,7 @@ id:'sphereScreen',
 sources: false,
 text: false,
 geometry: {primitive: 'sphere', radius: 0.125, segmentsWidth: 36, segmentsHeight: 18, phiLength: 360, phiStart: 0, thetaLength: 0, thetaStart: 90},
-material: {shader: "flat", color: "#000000", opacity: 1, side: 'double'},
+material: {shader: "flat", color: '#000000', opacity: 1, side: 'double'},
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -7096,7 +7104,7 @@ id:'blink1Screen',
 sources: false,
 text: false,
 geometry: {primitive: 'plane', width: 5, height: 2},
-material: {shader: "flat", color: "#000000", opacity: 0, side: 'double'},
+material: {shader: "flat", color: '#000000', opacity: 0, side: 'double'},
 position: new THREE.Vector3(0,2.5,-0.15),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -7126,7 +7134,7 @@ id:'blink2Screen',
 sources: false,
 text: false,
 geometry: {primitive: 'plane', width: 5, height: 2},
-material: {shader: "flat", color: "#000000", opacity: 0, side: 'double'},
+material: {shader: "flat", color: '#000000', opacity: 0, side: 'double'},
 position: new THREE.Vector3(0,-2.5,-0.15),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -13157,7 +13165,9 @@ start:{
 
 },
 delay:{
-
+2000:{
+//player:{UpdateTransitionColor:'red',},
+},
 },
 interval:{
 
