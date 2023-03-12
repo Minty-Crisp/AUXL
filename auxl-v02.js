@@ -865,16 +865,28 @@ this.Core = (data) => {
 	core.parent = false;
 	let details = false;
 
+	let load3D = false;
+	let loadMat = false;
+	let loadNewMat = false;
+
 	//Import external JS script
 	async function getJsSrc(url){
 		const response = await fetch(url)
 		await import(response.url);
 		return true;
 	}
-
-	function loadTesting(){
-		console.log(core.id);
-		console.log('Asset loaded');
+	//Loading Asset
+	function loading(){
+		auxl.loadingObjects[core.id] = true;
+		if(auxl.loadingScene){} else {
+			auxl.loadingScene = true;
+		}
+	}
+	//Asset Loaded
+	function loaded(){
+		//console.log(core.id);
+		//console.log('Asset loaded');
+		delete auxl.loadingObjects[core.id];
 	}
 
 	const Generate = () => {
@@ -954,7 +966,7 @@ this.Core = (data) => {
 		//Material
 		if(core.material){
 			if(core.material.src){
-				core.components['src-loaded'] = null;
+				loadMat = true;
 			}
 			core.el.setAttribute('material', core.material);
 		}
@@ -975,12 +987,6 @@ this.Core = (data) => {
 			core.el.setAttribute('mixins', core.mixins);
 		}
 
-		//Wait until Models and Src Materials are loaded before letting player anim finish
-		//Add model-loaded component
-		if(core.components['gltf-model'] || core.components['obj-model']){
-			core.components['model-loaded'] = null;
-		}
-
 		//Add all classes
 		for (let key in core.classes) {
 			core.el.classList.add(core.classes[key]);
@@ -994,6 +1000,10 @@ this.Core = (data) => {
 			}
 		}
 
+		//Wait until Models and Src Materials are loaded before letting player anim finish
+		if(core.components['gltf-model'] || core.components['obj-model']){
+			load3D = true;
+		}
 		//Check for Component Settings
 		if(core.components){
 			let componentKeys = Object.keys(core.components);
@@ -1043,18 +1053,37 @@ this.Core = (data) => {
 		let needParent = parent || false;
 		let fromLayer = layer || false;
 		Generate();
+		//Loading should only apply to gltf, obj and material textures
+		if(load3D || loadMat){
+			loading();
+		}
+		//Add to Scene or Parent
 		if(core.entity === 'preAdded'){} else {
 			if(needParent){
 				core.parent = needParent;
 				needParent.appendChild(core.el);
 				//Need a specific unspawn object form to add to this.spawned
-			}else{
+			} else {
 				sceneEl.appendChild(core.el);
 			}
+		}
+		//Loaded Events
+		if(load3D){
+			core.el.addEventListener('model-loaded', loaded);
+		}
+		if(loadMat){
+			core.el.addEventListener('loaded', loaded);
 		}
 	}
 
 	const DespawnCore = (parent, layer, other) => {
+		//Loaded Events
+		if(load3D){
+			core.el.removeEventListener('model-loaded', loaded);
+		}
+		if(loadMat || loadNewMat){
+			core.el.removeEventListener('loaded', loaded);
+		}
 		//loop through and remove all core.components which removes all event listeners before clearing from scene
 		let componentKeys = Object.keys(core.components);
 		for (let key in componentKeys) {
@@ -1067,7 +1096,7 @@ this.Core = (data) => {
 		if(needParent){
 			//console.log(core.el)
 			needParent.removeChild(core.el);
-		}else{
+		} else {
 			//console.log(core)
 			//console.log(core.el)
 			sceneEl.removeChild(core.el);
@@ -1080,9 +1109,31 @@ this.Core = (data) => {
 	const ChangeSelf = (propertyValue) => {
 		if(Array.isArray(propertyValue)){
 			for(let each in propertyValue){
+				if(propertyValue[each].value){
+					if(propertyValue[each].value.src){
+						if(auxl.loadingScene){
+							if(loadNewMat){}else{
+								loadNewMat = true;
+								loading();
+								core.el.addEventListener('loaded', loaded);
+							}
+						}
+					}
+				}
 				GetEl().setAttribute(propertyValue[each].property, propertyValue[each].value);
 			}
 		} else {
+			if(propertyValue.value){
+				if(propertyValue.value.src){
+					if(auxl.loadingScene){
+						if(loadNewMat){}else{
+							loadNewMat = true;
+							loading();
+							core.el.addEventListener('loaded', loaded);
+						}
+					}
+				}
+			}
 			GetEl().setAttribute(propertyValue.property, propertyValue.value);
 		}
 	}
@@ -1804,52 +1855,46 @@ this.Player = (layer) => {
 		return layer[varName];
 	}
 
-	const TempDisableClick = () => {
-	//Not working well, upgrade
+	const TempDisableClick = (time) => {
+		let delayTime = time || 1000;
+		DisableClick();
+		let disableTimeout = setTimeout(function () {
+			EnableClick();
+			clearTimeout(disableTimeout);
+		}, delayTime);
+	}
 
-	//Need to check which controls are currently enabled
-	//mouseController
-	//vrController
-		let disableTimeout;
+	const DisableClick = () => {
 		if(auxl.controls === 'Desktop'){
 			auxl.mouseController.ChangeSelf({property: 'raycaster',value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
-			//Timeout
-			disableTimeout = setTimeout(function () {
-				auxl.mouseController.ChangeSelf({property: 'raycaster',value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
-				clearTimeout(disableTimeout);
-			}, 1000);
 		} else if(auxl.controls === 'VR'){
 			if(auxl.vrHand === 'both'){
 				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
 				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
-				//Timeout
-				disableTimeout = setTimeout(function () {
-					auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
-					auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
-					clearTimeout(disableTimeout);
-				}, 1000);
 			} else if(auxl.vrHand === 'right'){
 				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
-				//Timeout
-				disableTimeout = setTimeout(function () {
-					auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
-					clearTimeout(disableTimeout);
-				}, 1000);
 			} else if(auxl.vrHand === 'left'){
 				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
-				//Timeout
-				disableTimeout = setTimeout(function () {
-					auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
-					clearTimeout(disableTimeout);
-				}, 1000);
 			}
 		} else if(auxl.controls === 'Mobile'){
 			auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
-			//Timeout
-			disableTimeout = setTimeout(function () {
-				auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
-				clearTimeout(disableTimeout);
-			}, 1000);
+		}
+	}
+
+	const EnableClick = () => {
+		if(auxl.controls === 'Desktop'){
+			auxl.mouseController.ChangeSelf({property: 'raycaster',value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
+		} else if(auxl.controls === 'VR'){
+			if(auxl.vrHand === 'both'){
+				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+			} else if(auxl.vrHand === 'right'){
+				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+			} else if(auxl.vrHand === 'left'){
+				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+			}
+		} else if(auxl.controls === 'Mobile'){
+			auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
 		}
 	}
 
@@ -1888,7 +1933,7 @@ this.Player = (layer) => {
 		}
 	}
 
-	return {layer, SetFlag, GetFlag, TempDisableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion}
+	return {layer, SetFlag, GetFlag, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion}
 }
 //Scene Load Anim
 function playerSceneAnim(){
@@ -1904,20 +1949,21 @@ let animTimeout0 = setTimeout(function () {
 	if(auxl.player.layer.teleporting){} else {
 		auxl.player.layer.teleporting = true;
 		if(auxl.player.layer.transition === 'blink'){
-			auxl.player.TempDisableClick();
+			auxl.player.DisableClick();
 			auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
 			auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
 			auxl.blink1Screen.EmitEvent('blinkScene1');
 			auxl.blink2Screen.EmitEvent('blinkScene1');
 		} else if(auxl.player.layer.transition === 'fade'){
-			auxl.player.TempDisableClick();
+			auxl.player.DisableClick();
 			auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
 			auxl.fadeScreen.EmitEvent('fadeScene1');
 		} else if(auxl.player.layer.transition === 'sphere'){
-			auxl.player.TempDisableClick();
+			auxl.player.DisableClick();
 			auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
 			auxl.sphereScreen.EmitEvent('sphereScene1');
 		} else if(auxl.player.layer.transition === 'instant'){
+			auxl.player.DisableClick();
 		}
 	}
 }
@@ -2560,6 +2606,9 @@ let newNode;
 				spawnTracker(object, 'zone');
 			}
 		}
+
+//nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern69, repeat: '150 150',color: "#d6a9ba", emissive: "#d6a9ba",},}},
+
 		auxl[object][func](params);
 	}
 
@@ -6574,7 +6623,7 @@ let anim360Data = {
 
 },
 checkSceneLoad: function (time, timeDelta) {
-	//Do something on every scene tick or frame.
+
 	//console.log('loading...');
 	//console.log(this.loadingObjects);
 	//This needs to affect auxl.player.TempDisableClick(); as well
@@ -6588,6 +6637,7 @@ checkSceneLoad: function (time, timeDelta) {
 				this.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
 				this.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
 				this.player.layer.teleporting = false;
+				this.player.EnableClick();
 				clearTimeout(sceneTimeout);
 			}, 800);
 		} else if (this.player.layer.transition === 'fade'){
@@ -6596,6 +6646,7 @@ checkSceneLoad: function (time, timeDelta) {
 			sceneTimeout = setTimeout(() => {
 				this.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
 				this.player.layer.teleporting = false;
+				this.player.EnableClick();
 				clearTimeout(sceneTimeout);
 			}, 800);
 		} else if (this.player.layer.transition === 'sphere'){
@@ -6604,11 +6655,13 @@ checkSceneLoad: function (time, timeDelta) {
 			sceneTimeout = setTimeout(() => {
 				this.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
 				this.player.layer.teleporting = false;
+				this.player.EnableClick();
 				clearTimeout(sceneTimeout);
 			}, 800);
 		} else if (this.player.layer.transition === 'instant'){
 			this.loadingScene = false;
-			this.player.layer.teleporting = false;	
+			this.player.layer.teleporting = false;
+			this.player.EnableClick();
 		}
 		//console.log('loading done');
 		//console.log(this.loadingObjects);
@@ -6623,8 +6676,8 @@ tick: function (time, timeDelta) {
 	}
 
 },
-
 });
+
 
 //auxl-library
 //AUXL Library : List of Materials, Geometries, Sounds, Animations, Data, Cores, Layers & Objects
@@ -8323,6 +8376,32 @@ width: 'normal',
 };
 auxl.horizonBuildings2 = auxl.Horizon(auxl.horizonBuildings2Data);
 
+
+//
+//Testing GLTF Material Modification
+
+//modify materials testing
+auxl.testingData = {
+data:'testingData',
+id:'testing',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,1.5,-1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crop_melon.glb',
+//['modify-materials']:null,
+//['auxl-object']:{dataName: 'testingData'},
+},
+};
+auxl.testing = auxl.Core(auxl.testingData);
+
     },
 });
 
@@ -8348,7 +8427,7 @@ id:'nodeFloor',
 sources:false,
 text: false,
 geometry: {primitive: 'circle', radius: 340, segments: 32, thetaStart: 0, thetaLength: 360},
-material: {shader: "standard", color: "#27693d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#27693d", emissiveIntensity: 0.2, side: 'front'},
+material: {shader: "standard", color: "#b133a7", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#b133a7", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern75, repeat: '150 150'},
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(0.5,0.5,0.02),
@@ -8773,7 +8852,6 @@ mixins: false,
 classes: ['a-ent'],
 components:{
 ['gltf-model']:'./assets/3d/kenny/crop_melon.glb',
-//['model-loaded']:null,
 },
 };
 //flower_purpleA
@@ -13119,8 +13197,10 @@ multiRockFlatGrass:{SpawnObjRing :null},
 npcMinty:{SpawnNPC:null},
 horizonBuildings2:{SpawnHorizon:null},
 soundTesting:{SpawnCore:null},
+//testing:{SpawnCore:null},
 },
 delay:{
+
 },
 interval:{
 
@@ -13773,127 +13853,66 @@ auxl.zone5 = auxl.MapZone(auxl.zone5Data);
     },
 });
 
-
-
-//
-//AUXL Scene Loading
-
-//Combine model and src loaded into 1 common component that all items get attached to, an auxl support component
-
-//Needs to affect TempDisableClick()
-
-//Needs to account for timeline changes as well
-
-//Ensure any changes don't affect sceneCheckLoad if sceneMove is not active, i.e. the scene loaded and a delay prompts to change material
-
-//Auxl Object Support
-AFRAME.registerComponent('auxl-object', {
-dependencies: ['auxl'],
-schema: {
-	//bar: {type: 'number'},
-	//style: {type: 'string', default: 'random'},
-},
-	init: function () {
-		this.auxl = document.querySelector('a-scene').systems.auxl;
-		this.objectId = this.el.id;
-
-		//Model Done Loading Event Function
-		this.modelLoadedEvent = () => {
-			this.modelLoaded();
-		}
-		//Material Source Done Loading Event Function
-		this.srcLoadedEvent = () => {
-			this.srcLoaded();
-		}
-	},
-	modelLoaded: function () {
-		console.log(this.objectId)
-		delete this.auxl.loadingObjects[this.objectId];
-	},
-	srcLoaded: function () {
-		console.log(this.objectId)
-		delete this.auxl.loadingObjects[this.objectId];
-	},
-	update: function () {
-		this.auxl.loadingObjects[this.objectId] = true;
-		if(this.auxl.loadingScene){} else {
-			this.auxl.loadingScene = true;
-		}
-		this.el.addEventListener('model-loaded', this.modelLoadedEvent);
-		this.el.addEventListener('loaded', this.srcLoadedEvent);
-	},
-	remove: function () {
-		this.el.removeEventListener('model-loaded', this.modelLoadedEvent);
-		this.el.removeEventListener('loaded', this.srcLoadedEvent);
-	},
-});
-
-//Model Loaded
-AFRAME.registerComponent('model-loaded', {
-dependencies: ['auxl'],
-	init: function () {
-		this.auxl = document.querySelector('a-scene').systems.auxl;
-		this.objectId = this.el.id;
-		//Model Done Loading Event Function
-		this.modelLoadedEvent = () => {
-			this.modelLoaded();
-		}
-	},
-	modelLoaded: function () {
-		//console.log(this.objectId)
-		delete this.auxl.loadingObjects[this.objectId];
-	},
-	update: function () {
-		this.auxl.loadingObjects[this.objectId] = true;
-		if(this.auxl.loadingScene){} else {
-			this.auxl.loadingScene = true;
-		}
-		this.el.addEventListener('model-loaded', this.modelLoadedEvent);
-	},
-	remove: function () {
-		this.el.removeEventListener('model-loaded', this.modelLoadedEvent);
-	},
-});
-//Source Loaded
-AFRAME.registerComponent('src-loaded', {
-dependencies: ['auxl'],
-	init: function () {
-		this.auxl = document.querySelector('a-scene').systems.auxl;
-		this.objectId = this.el.id;
-		//Material Source Done Loading Event Function
-		this.srcLoadedEvent = () => {
-			this.srcLoaded();
-		}
-	},
-	srcLoaded: function () {
-		//console.log(this.objectId)
-		delete this.auxl.loadingObjects[this.objectId];
-	},
-	update: function () {
-		this.auxl.loadingObjects[this.objectId] = true;
-		if(this.auxl.loadingScene){} else {
-			this.auxl.loadingScene = true;
-		}
-		this.el.addEventListener('loaded', this.srcLoadedEvent);
-	},
-	remove: function () {
-		this.el.removeEventListener('loaded', this.srcLoadedEvent);
-	},
-});
-
 //Testing
-//Altering GLTF Materials
+//Altering GLTF Materials & Toon Shader
 AFRAME.registerComponent('modify-materials', {
+dependencies: ['auxl'],
 	init: function () {
+		const auxl = document.querySelector('a-scene').systems.auxl;
 		// Wait for model to load. GLTF/OBJ Event
 		this.el.addEventListener('model-loaded', () => {
 			// Grab the mesh / scene.
 			const obj = this.el.getObject3D('mesh');
 			// Go over the submeshes and modify materials we want.
+			//const materialTest = {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
+			//mesh.material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+			const materialTest = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+
+const threeTone = new THREE.TextureLoader().load('./assets/img/gradient/threeTone.jpg')
+threeTone.minFilter = THREE.NearestFilter
+threeTone.magFilter = THREE.NearestFilter
+
+const fourTone = new THREE.TextureLoader().load('./assets/img/gradient/fourTone.jpg')
+fourTone.minFilter = THREE.NearestFilter
+fourTone.magFilter = THREE.NearestFilter
+
+const fiveTone = new THREE.TextureLoader().load('./assets/img/gradient/fiveTone.jpg')
+fiveTone.minFilter = THREE.NearestFilter
+fiveTone.magFilter = THREE.NearestFilter
+
+			//const diffuseColor = new THREE.Color().setHSL( alpha, 0.5, gamma * 0.5 + 0.1 ).multiplyScalar( 1 - beta * 0.2 );
+			const gradientMap = new THREE.DataTexture( 2, 1, 2, 3 );
+			gradientMap.needsUpdate = true;
+
+			const materialToon = new THREE.MeshToonMaterial( {
+				color: 'blue',
+				gradientMap: fiveTone
+			} );
+
 			obj.traverse(node => {
-				if (node.name.indexOf('ship') !== -1) {
+				if(node.name.indexOf('Mesh_crop_melon') !== -1) {
+					node.material = materialToon;
+				}
+
+
+//testing
+//<empty string>
+//crop_melon
+//Mesh_crop_melon
+//Mesh_crop_melon_1
+//Mesh_crop_melon_2
+/*
+				console.log(node.name)
+				if(node.name.indexOf('Mesh_crop_melon') !== -1) {
 					node.material.color.set('red');
 				}
+				if(node.name.indexOf('Mesh_crop_melon_1') !== -1) {
+					node.material.color.set('blue');
+				}
+				if(node.name.indexOf('Mesh_crop_melon_2') !== -1) {
+					node.material.color.set('yellow');
+				}
+*/
 			});
 		});
 	}
