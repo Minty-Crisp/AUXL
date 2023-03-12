@@ -7684,6 +7684,32 @@ new THREE.Vector3(5,0.025,5),
 ];
 auxl.teleport0 = auxl.Teleport('teleport0', teleportPos0);
 
+//Raycast Teleportation Testing
+auxl.teleportPortalData = {
+data:'teleportPortalData',
+id:'teleportPortal',
+sources: false,
+text: false,
+geometry: {primitive: 'plane', width: 2, height: 10,},
+material: {shader: "standard", color: "#beef1a", opacity: 0.25, metalness: 0.6, roughness: 0.4, emissive: "#beef1a", emissiveIntensity: 0.2, side: 'double'},
+position: new THREE.Vector3(10,5,-10),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['a-ent','clickable'],
+components:{
+['look-at-xyz']:{match: 'camera', y:true},
+['raycast-teleportation']:null,
+},
+};
+auxl.teleportPortalData.id = 'teleportPortal1';
+auxl.teleportPortal1 = auxl.Core(auxl.teleportPortalData);
+auxl.teleportPortalData.id = 'teleportPortal2';
+auxl.teleportPortalData.position = new THREE.Vector3(0,5,3);
+auxl.teleportPortal2 = auxl.Core(auxl.teleportPortalData);
+
+
 //
 //Environment
 
@@ -13197,6 +13223,8 @@ multiRockFlatGrass:{SpawnObjRing :null},
 npcMinty:{SpawnNPC:null},
 horizonBuildings2:{SpawnHorizon:null},
 soundTesting:{SpawnCore:null},
+teleportPortal1:{SpawnCore:null},
+teleportPortal2:{SpawnCore:null},
 //testing:{SpawnCore:null},
 },
 delay:{
@@ -13812,7 +13840,6 @@ start:{
 teleport0:{SpawnTeleport:null},
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: false},},
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern83, repeat: '150 150',color: "#3c86b4", emissive: "#3c86b4",},}},
-//nodeWalls:{SpawnLayer: null,ChangeParent:{property: 'scale', value: new THREE.Vector3(15,15,15)},ChangeAll:{property: 'material', value: {src: auxl.pattern55, repeat: '5 1.25', color: "#275876", emissive: "#275876",}}},
 horizonWalls2:{SpawnHorizon: null},
 underwaterScene1:{SpawnMultiAsset:null},
 nodeCeiling:{SpawnCore:null},
@@ -13964,6 +13991,47 @@ AFRAME.registerComponent('attach', {
         //Set position for UI at 3js level for speed!
         this.attachee.object3D.position.copy(this.newPosVec3);
 		//console.log(this.newPosVec3);
+    },
+});
+
+//
+//Look At XYZ
+AFRAME.registerComponent('look-at-xyz', {
+	dependencies: ['auxl'],
+	schema: {
+		match: {type: 'string', default:'camera'},
+		x: {type: 'boolean', default: false},
+		y: {type: 'boolean', default: false},
+		z: {type: 'boolean', default: false},
+	},
+    init: function () {
+    },
+    update: function () {
+		this.rotation = this.el.object3D.rotation;
+		this.matchView = document.getElementById(this.data.match);
+		this.matchRotation = new THREE.Euler();
+		this.lookAtXYZThrottled = AFRAME.utils.throttle(this.lookAtXYZ, 30, this);
+    },
+    remove: function () {
+        //Do something the component or its entity is detached.
+    },
+    tick: function (time, timeDelta) {
+        //Do something on every scene tick or frame.
+        this.lookAtXYZThrottled();
+    },
+    lookAtXYZ: function () {
+		this.matchRotation.copy(this.matchView.object3D.rotation);
+		if(this.data.x){
+			this.rotation.x = this.matchRotation.x;
+		}
+		if(this.data.y){
+			this.rotation.y = this.matchRotation.y;
+		}
+		if(this.data.z){
+			this.rotation.z = this.matchRotation.z;
+		}
+        //Set rotation for UI at 3js level for speed!
+		this.el.object3D.rotation.copy(this.rotation);
     },
 });
 
