@@ -29,10 +29,13 @@ While ready to be tested and played with, various in-progress improvements for v
 - Horizon Object Generator : Generate an customizable radius horizon to simulate mountains, buildings/pillars, hills, cylinder wall or square wall with support for materials and color randomization.
 - Updated Locomotion component : Fixed a few bugs and added diagonal movement.
 - Reworked and optimized object tracking for Scenario, MapZone, NodeScene and NPC Books.
+- Added Player method to change the transition animation color.
+- Added support for Dual Handed Controllers.
+- Added look-at-xyz component which matches the roation of an object specified on the axis' enabled.
+- Scene swapping now dynamically delays the load in transition animation until all 3D asset and image textures have been fully downloaded.
+- Universal XR Controller testing in progress.
 
 # Remaining Goals for v0.2
-- VR Dual Handed Controller
-- Unified Hardware Controls
 - Updated Menu ObjGen
 - Updated Hamburger Menu
 - Enhanced MultiGen Asset Spawner
