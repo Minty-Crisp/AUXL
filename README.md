@@ -40,7 +40,7 @@ While ready to be tested and played with, various in-progress improvements for v
 - Updated Hamburger Menu
 - Enhanced MultiGen Asset Spawner
 - Mobile CSS Improvement
-- Basic Inventory & Key Checker System
+- Basic Inventory System
 - Readable Notes JS & Minified JS
 - Wiki, Individual Examples & Tutorials
 
