@@ -1,6 +1,6 @@
 # AUXL : A-Frame UX Library :palm_tree:
 
-## Web XR Scenario, Object Generator Engine & Unified Controller System
+## Web XR Scenario, Object Generator Engine & Universal Controller System
 
 Built specifically for use with [A-Frame](https://github.com/aframevr/). Essentially, AUXL provides a variety of critical object, scene and scenario building tools at the javascript level that allows for a more streamlined creation process. It's basically a scripting system and JSON structured data library with various UX add-ons built for the A-Frame XR renderer in addition to unifying the 3D/VR/AR controls to all devices. It is being released under the MIT license for all to use and hopefully will help with the adoption of the Web XR ecosystem.
 
@@ -29,15 +29,18 @@ While ready to be tested and played with, various in-progress improvements for v
 - Horizon Object Generator : Generate an customizable radius horizon to simulate mountains, buildings/pillars, hills, cylinder wall or square wall with support for materials and color randomization.
 - Updated Locomotion component : Fixed a few bugs and added diagonal movement.
 - Reworked and optimized object tracking for Scenario, MapZone, NodeScene and NPC Books.
+- Added Player method to change the transition animation color.
+- Added support for Dual Handed Controllers.
+- Added look-at-xyz component which matches the roation of an object specified on the axis' enabled.
+- Scene swapping now dynamically delays the load in transition animation until all 3D asset and image textures have been fully downloaded.
+- Universal XR Controller testing in progress.
 
 # Remaining Goals for v0.2
-- VR Dual Handed Controller
-- Unified Hardware Controls
 - Updated Menu ObjGen
 - Updated Hamburger Menu
 - Enhanced MultiGen Asset Spawner
 - Mobile CSS Improvement
-- Basic Inventory & Key Checker System
+- Basic Inventory System
 - Readable Notes JS & Minified JS
 - Wiki, Individual Examples & Tutorials
 
