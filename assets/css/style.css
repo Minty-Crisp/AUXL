@@ -182,7 +182,7 @@ display: flex;
 justify-content: space-evenly;
 }
 
-.ab{
+.abcdef{
 display: flex;
 justify-content: space-evenly;
 }
@@ -190,14 +190,39 @@ justify-content: space-evenly;
 .a{
 display: flex;
 justify-content: flex-start;
+margin-top: 6rem;
+}
+
+.d{
+display: flex;
+justify-content: flex-start;
 margin-top: 2rem;
 }
 
 .b{
 display: flex;
-justify-content: flex-end;
-margin-bottom: 2rem;
+justify-content: center;
+margin-top: 4rem;
 }
+
+.e{
+display: flex;
+justify-content: center;
+margin-top: 2rem;
+}
+
+.c{
+display: flex;
+justify-content: flex-end;
+margin-top: 2rem;
+}
+
+.f{
+display: flex;
+justify-content: flex-end;
+margin-top: 2rem;
+}
+
 .directionButtons {
 height: 8em;
 }
@@ -207,11 +232,11 @@ height: 3.5em;
 padding: 0 1.25em 0 1.6em;
 }
 
-.abButtons {
+.actionButtons {
 height: 5em;
 }
 
-.directionButtons, .startSelectButtons, .ab button{
+.directionButtons, .startSelectButtons, .abcdef button{
 background-color: transparent;
 border-radius: 4px;
 border: 0;

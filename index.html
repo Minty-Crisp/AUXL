@@ -44,7 +44,7 @@
 <span class="flexCol"><h4 id="scenarioMenuTitle"></h4></span>
 <li><button class="menu" id="startButton">Start</button></li>
 <li><button id="menuModeButton" class="flexCol">Mode : Desktop</button></li>
-<li><button id="vrHandButton" class="flexCol">Hands : Both</button></li>
+<li><button id="vrHandButton" class="flexCol">Hands : Right</button></li>
 <li><button id="audioButton" class="flexCol">Sound : Disabled</button></li>
 <li><button id="viewInfo" class="flexCol">View Instructions</button></li>
 </div>
@@ -115,23 +115,27 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 <div id="directional-buttons" class="column col1">
 <!-- Row 1 -->
 <div id="" class="directions">
-<button id="up" class="directionButtons">Up</button>
+<button id="upLeft" class="directionButtons">&#8598;</button>
+<button id="up" class="directionButtons">&#8593;</button>
+<button id="upRight" class="directionButtons">&#8599;</button>
 </div>
 <!-- Row 2 -->
 <div id="" class="directions">
-<button id="left" class="directionButtons">Left</button>
-<button id="right" class="directionButtons">Right</button>
+<button id="left" class="directionButtons">&#8592;</button>
+<button id="center" class="directionButtons">.</button>
+<button id="right" class="directionButtons">&#8594;</button>
 </div>
 <!-- Row 3 -->
 <div id="" class="directions">
-<button id="down" class="directionButtons">Down</button>
+<button id="downLeft" class="directionButtons">&#8601;</button>
+<button id="down" class="directionButtons">&#8595;</button>
+<button id="downRight" class="directionButtons">&#8600;</button>
 </div>
 <!-- End Directional Buttons -->
 </div>
 <!-- Start | Select Buttons -->
 <!-- Column 2 -->
 <div id="start-select-buttons" class="column col2">
-<!-- Row 3 -->
 <div id="" class="startselect">
 <button id="select" class="startSelectButtons">Select</button>
 <button id="start" class="startSelectButtons">Start</button>
@@ -140,17 +144,38 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 </div>
 <!-- A | B Buttons -->
 <!-- Column 3 -->
-<div id="a-b-buttons" class="column col3">
-<!-- Row 2 -->
-<div id="" class="ab">
+<div id="abc-buttons" class="column col3">
+<div id="" class="abcdef">
+
+<div id="" class="ad">
 <div id="" class="a">
-<button id="a" class="abButtons">A</button>
+<button id="a" class="actionButtons">A</button>
 </div>
+<div id="" class="d">
+<button id="d" class="actionButtons">D</button>
+</div>
+</div>
+
+<div id="" class="be">
 <div id="" class="b">
-<button id="b" class="abButtons">B</button>
+<button id="b" class="actionButtons">B</button>
+</div>
+<div id="" class="e">
+<button id="e" class="actionButtons">E</button>
 </div>
 </div>
-<!-- End A | B Buttons -->
+
+<div id="" class="cf">
+<div id="" class="c">
+<button id="c" class="actionButtons">C</button>
+</div>
+<div id="" class="f">
+<button id="f" class="actionButtons">F</button>
+</div>
+</div>
+
+</div>
+<!-- End ABC Buttons -->
 </div>
 
 <!-- End Controller -->
