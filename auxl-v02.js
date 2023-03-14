@@ -31,7 +31,7 @@ let auxl = this;
 this.expStarted = false;
 //Scene
 this.loadingScene = false;
-this.loadingObjects = {};
+this.loadingObjects = new Map();
 //JS Scripts Loaded
 this.jsLoaded = {};
 //JS Scripts Predefined, Ready to be loaded
@@ -428,8 +428,11 @@ function enableDesktopControls(){
 	mouseController.setAttribute('visible',true);
 	//Set mouseController raycaster to false
 	mouseController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-	//Remove cursor attribute
-	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
+	//Set cursor attribute
+	//mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
+	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true', upEvents: 'testUp', downEvents: 'testDown'});
+
+
 	//Enable Desktop Locomotion
 	auxl.player.EnableDesktopLocomotion();
 	//Update Controls
@@ -919,7 +922,7 @@ this.Core = (data) => {
 	}
 	//Loading Asset
 	function loading(){
-		auxl.loadingObjects[core.id] = true;
+		auxl.loadingObjects.set(core.id,true);
 		if(auxl.loadingScene){} else {
 			auxl.loadingScene = true;
 		}
@@ -928,7 +931,7 @@ this.Core = (data) => {
 	function loaded(){
 		//console.log(core.id);
 		//console.log('Asset loaded');
-		delete auxl.loadingObjects[core.id];
+		auxl.loadingObjects.delete(core.id);
 	}
 
 	const Generate = () => {
@@ -1910,7 +1913,11 @@ this.Player = (layer) => {
 		if(auxl.controls === 'Desktop'){
 			auxl.mouseController.ChangeSelf({property: 'raycaster',value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
 		} else if(auxl.controls === 'VR'){
-			if(auxl.vrHand === 'both'){
+			if(auxl.vrHand === 'bothRight'){
+				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+			} else if(auxl.vrHand === 'bothLeft'){
+				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+			} else if(auxl.vrHand === 'both'){
 				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
 				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
 			} else if(auxl.vrHand === 'right'){
@@ -1927,7 +1934,11 @@ this.Player = (layer) => {
 		if(auxl.controls === 'Desktop'){
 			auxl.mouseController.ChangeSelf({property: 'raycaster',value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'}});
 		} else if(auxl.controls === 'VR'){
-			if(auxl.vrHand === 'both'){
+			if(auxl.vrHand === 'bothRight'){
+				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+			} else if(auxl.vrHand === 'bothLeft'){
+				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
+			} else if(auxl.vrHand === 'both'){
 				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
 				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'}});
 			} else if(auxl.vrHand === 'right'){
@@ -6668,8 +6679,7 @@ checkSceneLoad: function (time, timeDelta) {
 
 	//console.log('loading...');
 	//console.log(this.loadingObjects);
-	//This needs to affect auxl.player.TempDisableClick(); as well
-	if(Object.keys(this.loadingObjects).length <= 0){
+	if(this.loadingObjects.size <= 0){
 		let sceneTimeout;
 		if(this.player.layer.transition === 'blink'){
 			this.blink1Screen.EmitEvent('blinkScene2');
@@ -6965,8 +6975,9 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-['desktop-inputs']:null,
-['mobile-inputs']:null,
+['universal-controls']:null,
+//['desktop-inputs']:null,
+//['mobile-inputs']:null,
 },};
 auxl.playerRig = auxl.Core(auxl.playerRigData);
 //Camera
@@ -13256,10 +13267,7 @@ description: 'Click anywhere on the floor to teleport on this island!',
 sceneText: true,
 },
 start:{
-nodeFloor:{
-ChangeSelf:[{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},},
-{property: 'position', value: new THREE.Vector3(0,0,0),},{property: 'raycast-teleportation', value: null,}],
-},
+nodeFloor:{ChangeSelf:[{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},},{property: 'position', value: new THREE.Vector3(0,0,0),},{property: 'raycast-teleportation', value: null,}],},
 forestScene2:{SpawnMultiAsset:null},
 multiRockFlatGrass:{SpawnObjRing :null},
 npcMinty:{SpawnNPC:null},
@@ -14332,11 +14340,11 @@ function clearMovement(){
 }
 //Toggle Speed Change
 function toggleSpeed(){
-	console.log('Toggling Speed');
+	//console.log('Toggling Speed');
 	//Brake is disabled for 1.5 seconds after engaging
 	if(brakeReady){
 		if(brakeToggle){
-			console.log('Break On');
+			//console.log('Break On');
 			//Set reset switch toggle
 			brakeToggle = false;
 			//Set reset timer switch toggle
@@ -14344,7 +14352,7 @@ function toggleSpeed(){
 			//Brake On
 			moveBrake = true;
 		} else {
-			console.log('Break Off');
+			//console.log('Break Off');
 			//Set reset switch toggle
 			brakeToggle = true;
 			//Set reset timer switch toggle
@@ -15292,236 +15300,6 @@ remove: function () {
 });
 
 //
-//Desktop Inputs
-//Mouse | Keyboard
-AFRAME.registerComponent('desktop-inputs', {
-dependencies: ['auxl'],
-//schema: {
-	//bar: {type: 'number'},
-	//baz: {type: 'string'}
-//},
-init: function () {
-	//Desktop Controls
-	//HMD View - Mouse Movement
-	//Main Trigger Click - Mouse Left Click
-	//Secondary Trigger Click - Mouse Right Click
-	//Locomotion Directional - WASD/Arrows
-	//Button 1 - Q
-	//Button 2 - E
-	//Button 3 - C
-	//Button 4 - V
-	const auxl = document.querySelector('a-scene').systems.auxl;
-
-	//Mouse
-	//
-	//Left Click
-	this.mouseClickEvent = (event) => {
-		this.mouseClick(event);
-	}
-	//Right Click
-	this.mouseAltClickEvent = (event) => {
-		this.mouseAltClick(event);
-	}
-	//Keyboard
-	//
-	//Key Down - WASD | QECV
-	this.keyboardDownEvent = (event) => {
-		this.keyboardDown(event);
-	}
-	//Key Up - WASD | QECV
-	this.keyboardUpEvent = (event) => {
-		this.keyboardUp(event);
-	}
-},
-updateInput: function (input){
-	//Display Inputs - DEV Testing
-	const displayInput = document.querySelector('#displayInput');
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-	displayInputText.value = input;
-	displayInput.setAttribute('text',displayInputText);
-},
-mouseClick: function (e){
-	this.updateInput('Mouse Click');
-},
-mouseAltClick: function (e){
-	this.updateInput('Mouse Alt Click');
-},
-keyboardDown: function (e){
-	if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
-		//Up
-		this.updateInput('up');
-		movingForward();
-	} else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
-		//Left
-		this.updateInput('left');
-		movingLeft();
-	} else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
-		//Down
-		this.updateInput('down');
-		movingReverse();
-	} else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
-		//Right
-		this.updateInput('right');
-		movingRight();
-	} else if (e.key === 'q' || e.key === 'Q') {
-		//Button 1
-		this.updateInput('button 1');
-	} else if (e.key === 'e' || e.key === 'E') {
-		//Button 2
-		this.updateInput('button 2');
-		toggleSpeed();
-	} else if (e.key === 'c' || e.key === 'C') {
-		//Button 3
-		this.updateInput('button 3');
-	} else if (e.key === 'v' || e.key === 'V') {
-		//Button 4
-		this.updateInput('button 4');
-	}
-
-},
-keyboardUp: function (e){
-	if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
-		//Up
-		this.updateInput('up');
-		cancelForward();
-	} else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
-		//Left
-		this.updateInput('left');
-		cancelLeft();
-	} else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
-		//Down
-		this.updateInput('down');
-		cancelReverse();
-	} else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
-		//Right
-		this.updateInput('right');
-		cancelRight();
-	} else if (e.key === 'q' || e.key === 'Q') {
-		//Button 1
-		this.updateInput('button 1');
-	} else if (e.key === 'e' || e.key === 'E') {
-		//Button 2
-		this.updateInput('button 2');
-		brakeReadyBuffer();
-	} else if (e.key === 'c' || e.key === 'C') {
-		//Button 3
-		this.updateInput('button 3');
-	} else if (e.key === 'v' || e.key === 'V') {
-		//Button 4
-		this.updateInput('button 4');
-	}
-},
-update: function () {
-	//Left Click
-	document.body.addEventListener('click', this.mouseClickEvent);
-	//Right Click
-	document.body.addEventListener('contextmenu', this.mouseAltClickEvent);
-	//Keyboard
-	document.body.addEventListener('keydown', this.keyboardDownEvent);
-	document.body.addEventListener('keyup', this.keyboardUpEvent);
-},
-remove: function () {
-	//Left Click
-	document.body.removeEventListener('click', this.mouseClickEvent);
-	//Right Click
-	document.body.removeEventListener('contextmenu', this.mouseAltClickEvent);
-	//Keyboard
-	document.body.removeEventListener('keydown', this.keyboardDownEvent);
-	document.body.removeEventListener('keyup', this.keyboardUpEvent);
-},
-});
-
-//
-//Mobile Inputs
-//Touchscreen | HTML Buttons
-AFRAME.registerComponent('mobile-inputs', {
-dependencies: ['auxl'],
-//schema: {
-	//bar: {type: 'number'},
-	//baz: {type: 'string'}
-//},
-init: function () {
-	//Mobile Controls
-	//HMD View - Mobile Gyro
-	//Main Trigger Click - Touchscreen Tap
-	//Secondary Trigger Click - Alt Touchscreen Tap
-	//Locomotion Directional - HTML Button Up/Down/Left/Right
-	//Button 1 - HTML Button X
-	//Button 2 - HTML Button Y
-	//Button 3 - HTML Button A
-	//Button 4 - HTML Button B
-	const auxl = document.querySelector('a-scene').systems.auxl;
-
-	//HTML Controller Support
-	this.htmlUp = document.getElementById('up');
-	this.htmlLeft = document.getElementById('left');
-	this.htmlRight = document.getElementById('right');
-	this.htmlDown = document.getElementById('down');
-	this.htmlselect = document.getElementById('select');
-	this.htmlstart = document.getElementById('start');
-	this.htmla = document.getElementById('a');
-	this.htmlb = document.getElementById('b');
-
-	//Mobile
-	//Click
-	this.mainClickEvent = (event) => {
-		this.mainClick(event);
-	}
-	//Alt Click
-	this.altClickEvent = (event) => {
-		this.altClick(event);
-	}
-
-//touchstart
-//touchend
-//touchcancel
-//touchmove
-
-    },
-updateInput: function (input){
-	//Display Inputs - DEV Testing
-	const displayInput = document.querySelector('#displayInput');
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-	displayInputText.value = input;
-	displayInput.setAttribute('text',displayInputText);
-},
-mainClick: function (e){
-	this.updateInput('Touchscreen Click');
-},
-altClick: function (e){
-	this.updateInput('Touchscreen Alt Click');
-},
-update: function () {
-	//Mouse Down
-	this.htmlUp.addEventListener('mousedown', movingForward);
-	this.htmlLeft.addEventListener('mousedown', movingLeft);
-	this.htmlRight.addEventListener('mousedown', movingRight);
-	this.htmlDown.addEventListener('mousedown', movingReverse);
-	this.htmlb.addEventListener('mousedown', toggleSpeed);
-	//Mouse Up
-	this.htmlUp.addEventListener('mouseup', cancelForward);
-	this.htmlLeft.addEventListener('mouseup', cancelLeft);
-	this.htmlRight.addEventListener('mouseup', cancelRight);
-	this.htmlDown.addEventListener('mouseup', cancelReverse);
-	this.htmlb.addEventListener('mouseup', brakeReadyBuffer);
-},
-remove: function () {
-	//Mouse Down
-	this.htmlUp.removeEventListener('mousedown', movingForward);
-	this.htmlLeft.removeEventListener('mousedown', movingLeft);
-	this.htmlRight.removeEventListener('mousedown', movingRight);
-	this.htmlDown.removeEventListener('mousedown', movingReverse);
-	this.htmlb.removeEventListener('mousedown', toggleSpeed);
-	//Mouse Up
-	this.htmlUp.removeEventListener('mouseup', cancelForward);
-	this.htmlLeft.removeEventListener('mouseup', cancelLeft);
-	this.htmlRight.removeEventListener('mouseup', cancelRight);
-	this.htmlDown.removeEventListener('mouseup', cancelReverse);
-	this.htmlb.removeEventListener('mouseup', brakeReadyBuffer);
-},
-});
-
-//
 //Teleportation
 AFRAME.registerComponent('teleportation',{
 dependencies: ['auxl'],
@@ -15857,6 +15635,586 @@ AFRAME.registerComponent('raycast-teleportation', {
 	remove: function () {
 		this.el.removeEventListener('click', this.raycastTeleport);
 	},
+});
+
+//
+//Universal Controls
+AFRAME.registerComponent('universal-controls', {
+dependencies: ['auxl'],
+schema: {
+	config: {type: 'string', default: 'desktop'},
+	altClick: {type: 'string', default: 'function'},
+	action1: {type: 'string', default: 'function'},
+	action2: {type: 'string', default: 'function'},
+	action3: {type: 'string', default: 'function'},
+	action4: {type: 'string', default: 'function'},
+	action5: {type: 'string', default: 'function'},
+	action6: {type: 'string', default: 'function'},
+},
+init: function () {
+
+this.aScene = document.querySelector('a-scene');
+this.auxl = document.querySelector('a-scene').systems.auxl;
+
+//Mobile HTML Buttons
+this.mobileUpLeft = document.getElementById('upLeft');
+this.mobileUp = document.getElementById('up');
+this.mobileUpRight = document.getElementById('upRight');
+this.mobileLeft = document.getElementById('left');
+this.mobileCenter = document.getElementById('center');
+this.mobileRight = document.getElementById('right');
+this.mobileDownLeft = document.getElementById('downLeft');
+this.mobileDown = document.getElementById('down');
+this.mobileDownRight = document.getElementById('downRight');
+this.mobileSelect = document.getElementById('select');
+this.mobileStart = document.getElementById('start');
+this.mobileA = document.getElementById('a');
+this.mobileB = document.getElementById('b');
+this.mobileC = document.getElementById('c');
+this.mobileD = document.getElementById('d');
+this.mobileE = document.getElementById('e');
+this.mobileF = document.getElementById('f');
+
+//Control Configurations :
+//Desktop : Mouse & Keyboard
+//Mobile : Touchscreen
+//VR Advanced : Dual 6DoF Controllers
+//VR Basic : Single 3DoF Button Controller
+//VR Mobile : Headset Only
+//Hand Tracking : Dual Hand Movements
+
+//Control Actions :
+//Main Click
+//Alt Click
+//Directional Movement
+//Rotational Movement
+//Action 1
+//Action 2
+//Action 3
+//Action 4
+//Action 5
+//Action 6
+
+//Remappable Controls
+this.controls = {
+directionForwardKeys: ['w','W','ArrowUp'],
+directionLeftKeys: ['a','A','ArrowLeft'],
+directionBackwardKeys: ['s','S','ArrowDown'],
+directionRightKeys: ['d','D','ArrowRight'],
+action1Keys: ['q','Q'],
+action2Keys: ['e','E'],
+action3Keys: ['r','R'],
+action4Keys: ['c','C'],
+action5Keys: ['v','V'],
+action6Keys: ['b','B'],
+};
+
+//
+//Control Events
+
+//Main Click
+this.mainClickDetail = {info: 'Main Click', click: null};
+this.mainClickEvent = new CustomEvent('mainClick', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.mainClickDetail,
+});
+//Alt Click
+this.altClickDetail = {info: 'Alt Click', click: null};
+this.altClickEvent = new CustomEvent('altClick', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.altClickDetail,
+});
+//Directional Movement
+this.directionEventDetail = {info: 'Direction', direction: null};
+this.directionEvent = new CustomEvent('direction', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.directionEventDetail,
+});
+//Rotational Movement
+this.rotationEventDetail = {info: 'Rotation', rotation: null};
+this.rotationEvent = new CustomEvent('rotation', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.rotationEventDetail,
+});
+//Action 1
+this.action1EventDetail = {info: 'Action 1', action: null};
+this.action1Event = new CustomEvent('action1', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action1EventDetail,
+});
+//Action 2
+this.action2EventDetail = {info: 'Action 2', action: null};
+this.action2Event = new CustomEvent('action2', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action2EventDetail,
+});
+//Action 3
+this.action3EventDetail = {info: 'Action 3', action: null};
+this.action3Event = new CustomEvent('action3', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action3EventDetail,
+});
+//Action 4
+this.action4EventDetail = {info: 'Action 4', action: null};
+this.action4Event = new CustomEvent('action4', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action4EventDetail,
+});
+//Action 5
+this.action5EventDetail = {info: 'Action 5', action: null};
+this.action5Event = new CustomEvent('action5', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action5EventDetail,
+});
+//Action 6
+this.action6EventDetail = {info: 'Action 6', action: null};
+this.action6Event = new CustomEvent('action6', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action6EventDetail,
+});
+
+//Main Click
+this.mainClickHit = (e) => {
+	this.mainClick(e);
+}
+this.mainClickDown = () => {
+	this.mainClickDetail.click = 'clickDown';
+	document.dispatchEvent(this.mainClickEvent);
+}
+this.mainClickUp = () => {
+	this.mainClickDetail.click = 'clickUp';
+	document.dispatchEvent(this.mainClickEvent);
+}
+
+//Alt Click
+this.altClickHit = (e) => {
+	this.altClick(e);
+}
+this.dispatchAlt = () => {
+	document.dispatchEvent(this.altClickEvent);
+}
+//Directional Movement
+this.directionHit = (e) => {
+	this.direction(e);
+}
+//Forward Left
+this.directionForwardLeftDown = () => {
+	this.directionForwardDown();
+	this.directionLeftDown();
+}
+this.directionForwardLeftUp = () => {
+	this.directionForwardUp();
+	this.directionLeftUp();
+}
+//Forward
+this.directionForwardDown = () => {
+	this.directionEventDetail.direction = 'forwardHit';
+	document.dispatchEvent(this.directionEvent);
+}
+this.directionForwardUp = () => {
+	this.directionEventDetail.direction = 'forwardRelease';
+	document.dispatchEvent(this.directionEvent);
+}
+//Forward Right
+this.directionForwardRightDown = () => {
+	this.directionForwardDown();
+	this.directionRightDown();
+}
+this.directionForwardRightUp = () => {
+	this.directionForwardUp();
+	this.directionRightUp();
+}
+//Left
+this.directionLeftDown = () => {
+	this.directionEventDetail.direction = 'leftHit';
+	document.dispatchEvent(this.directionEvent);
+}
+this.directionLeftUp = () => {
+	this.directionEventDetail.direction = 'leftRelease';
+	document.dispatchEvent(this.directionEvent);
+}
+//Backward Left
+this.directionBackwardLeftDown = () => {
+	this.directionBackwardDown();
+	this.directionLeftDown();
+}
+this.directionBackwardLeftUp = () => {
+	this.directionBackwardUp();
+	this.directionLeftUp();
+}
+//Backward
+this.directionBackwardDown = () => {
+	this.directionEventDetail.direction = 'backwardHit';
+	document.dispatchEvent(this.directionEvent);
+}
+this.directionBackwardUp = () => {
+	this.directionEventDetail.direction = 'backwardRelease';
+	document.dispatchEvent(this.directionEvent);
+}
+//Backward Right
+this.directionBackwardRightDown = () => {
+	this.directionBackwardDown();
+	this.directionRightDown();
+}
+this.directionBackwardRightUp = () => {
+	this.directionBackwardUp();
+	this.directionRightUp();
+}
+//Right
+this.directionRightDown = () => {
+	this.directionEventDetail.direction = 'rightHit';
+	document.dispatchEvent(this.directionEvent);
+}
+this.directionRightUp = () => {
+	this.directionEventDetail.direction = 'rightRelease';
+	document.dispatchEvent(this.directionEvent);
+}
+//Rotational Movement
+this.rotationHit = (e) => {
+	this.rotation(e);
+}
+this.dispatchRotation = () => {
+	document.dispatchEvent(this.rotationEvent);
+}
+//Action 1
+this.action1Hit = (e) => {
+	this.action1(e);
+}
+this.action1Down = () => {
+	this.action1EventDetail.action = 'action1Hit';
+	document.dispatchEvent(this.action1Event);
+}
+this.action1Up = () => {
+	this.action1EventDetail.action = 'action1Release';
+	document.dispatchEvent(this.action1Event);
+}
+//Action 2
+this.action2Hit = (e) => {
+	this.action2(e);
+}
+this.action2Down = () => {
+	this.action2EventDetail.action = 'action2Hit';
+	document.dispatchEvent(this.action2Event);
+}
+this.action2Up = () => {
+	this.action2EventDetail.action = 'action2Release';
+	document.dispatchEvent(this.action2Event);
+}
+//Action 3
+this.action3Hit = (e) => {
+	this.action3(e);
+}
+this.action3Down = () => {
+	this.action3EventDetail.action = 'action3Hit';
+	document.dispatchEvent(this.action3Event);
+}
+this.action3Up = () => {
+	this.action3EventDetail.action = 'action3Release';
+	document.dispatchEvent(this.action3Event);
+}
+//Action 4
+this.action4Hit = (e) => {
+	this.action4(e);
+}
+this.action4Down = () => {
+	this.action4EventDetail.action = 'action4Hit';
+	document.dispatchEvent(this.action4Event);
+}
+this.action4Up = () => {
+	this.action4EventDetail.action = 'action4Release';
+	document.dispatchEvent(this.action4Event);
+}
+//Action 5
+this.action5Hit = (e) => {
+	this.action5(e);
+}
+this.action5Down = () => {
+	this.action5EventDetail.action = 'action5Hit';
+	document.dispatchEvent(this.action5Event);
+}
+this.action5Up = () => {
+	this.action5EventDetail.action = 'action5Release';
+	document.dispatchEvent(this.action5Event);
+}
+//Action 6
+this.action6Hit = (e) => {
+	this.action6(e);
+}
+this.action6Down = () => {
+	this.action6EventDetail.action = 'action6Hit';
+	document.dispatchEvent(this.action6Event);
+}
+this.action6Up = () => {
+	this.action6EventDetail.action = 'action6Release';
+	document.dispatchEvent(this.action6Event);
+}
+
+//
+//Keyboard Events
+this.keyboardDownHit = (e) => {
+	this.keyboardDown(e);
+}
+this.keyboardUpHit = (e) => {
+	this.keyboardUp(e);
+}
+
+    },
+updateInput: function (input){
+	//Display Inputs - DEV Testing
+	const displayInput = document.querySelector('#displayInput');
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+	displayInputText.value = input;
+	displayInput.setAttribute('text',displayInputText);
+},
+//Main Click
+mainClick: function (e){
+	console.log(e.detail);
+	this.updateInput(e.detail.info);
+},
+//Alt Click
+altClick: function (e){
+	console.log(e.detail);
+	this.updateInput(e.detail.info);
+},
+//Directional Movement
+direction: function (e){
+	//console.log(e.detail);
+	this.updateInput(e.detail.info);
+	if(e.detail.direction === 'forwardHit'){
+		movingForward();
+	} else if(e.detail.direction === 'forwardRelease'){
+		cancelForward();
+	} else if(e.detail.direction === 'leftHit'){
+		movingLeft();
+	} else if(e.detail.direction === 'leftRelease'){
+		cancelLeft();
+	} else if(e.detail.direction === 'backwardHit'){
+		movingReverse();
+	} else if(e.detail.direction === 'backwardRelease'){
+		cancelReverse();
+	} else if(e.detail.direction === 'rightHit'){
+		movingRight();
+	} else if(e.detail.direction === 'rightRelease'){
+		cancelRight();
+	} 
+},
+//Rotational Movement
+rotation: function (e){
+	console.log(e.detail);
+	this.updateInput(e.detail.info);
+},
+//Action 1
+action1: function (e){
+	console.log(e.detail);
+	this.updateInput(e.detail.info);
+},
+//Action 2
+action2: function (e){
+	console.log(e.detail);
+	this.updateInput(e.detail.info);
+},
+//Action 3
+action3: function (e){
+	console.log(e.detail);
+	this.updateInput(e.detail.info);
+},
+//Action 4
+action4: function (e){
+	console.log(e.detail);
+	this.updateInput(e.detail.info);
+},
+//Action 5
+action5: function (e){
+	console.log(e.detail);
+	this.updateInput(e.detail.info);
+},
+//Action 6
+action6: function (e){
+	console.log(e.detail);
+	this.updateInput(e.detail.info);
+	if(e.detail.action === 'action6Hit'){
+		toggleSpeed();
+	} else if(e.detail.action === 'action6Release'){
+		brakeReadyBuffer();
+	}
+},
+
+keyboardDown: function (e){
+	if(this.controls.directionForwardKeys.includes(e.key)) {
+		//Direction : Forward
+		this.directionForwardDown();
+	} else if(this.controls.directionLeftKeys.includes(e.key)){
+		//Direction : Left
+		this.directionLeftDown();
+	} else if(this.controls.directionBackwardKeys.includes(e.key)){
+		//Direction : Backward
+		this.directionBackwardDown();
+	} else if(this.controls.directionRightKeys.includes(e.key)){
+		//Direction : Right
+		this.directionRightDown();
+	} else if(this.controls.action1Keys.includes(e.key)){
+		//Action 1
+		this.action1Down();
+	} else if(this.controls.action2Keys.includes(e.key)){
+		//Action 2
+		this.action2Down();
+	} else if(this.controls.action3Keys.includes(e.key)){
+		//Action 3
+		this.action3Down();
+	} else if(this.controls.action4Keys.includes(e.key)){
+		//Action 4
+		this.action4Down();
+	} else if(this.controls.action5Keys.includes(e.key)){
+		//Action 5
+		this.action5Down();
+	} else if(this.controls.action6Keys.includes(e.key)){
+		//Action 6
+		this.action6Down();
+	}
+},
+keyboardUp: function (e){
+	if(this.controls.directionForwardKeys.includes(e.key)) {
+		//Direction : Forward
+		this.directionForwardUp();
+	} else if(this.controls.directionLeftKeys.includes(e.key)){
+		//Direction : Left
+		this.directionLeftUp();
+	} else if(this.controls.directionBackwardKeys.includes(e.key)){
+		//Direction : Backward
+		this.directionBackwardUp();
+	} else if(this.controls.directionRightKeys.includes(e.key)){
+		//Direction : Right
+		this.directionRightUp();
+	} else if(this.controls.action1Keys.includes(e.key)){
+		//Action 1
+		this.action1Up();
+	} else if(this.controls.action2Keys.includes(e.key)){
+		//Action 2
+		this.action2Up();
+	} else if(this.controls.action3Keys.includes(e.key)){
+		//Action 3
+		this.action3Up();
+	} else if(this.controls.action4Keys.includes(e.key)){
+		//Action 4
+		this.action4Up();
+	} else if(this.controls.action5Keys.includes(e.key)){
+		//Action 5
+		this.action5Up();
+	} else if(this.controls.action6Keys.includes(e.key)){
+		//Action 6
+		this.action6Up();
+	}
+},
+
+update: function () {
+
+	//DOM Events
+	//document.addEventListener('mousedown', this.mainClickDown);
+	//document.addEventListener('mouseup', this.mainClickUp);
+
+	//Both the mouseCursor and Canvas element fire mousedown and mouseup resulting in 2 events firing at the same time
+/*
+mousedown { target: a-entity#mouseCursor, isTrusted: false, detail: {…}, srcElement: a-entity#mouseCursor, currentTarget: HTMLDocument http://localhost/auxl/test.html, eventPhase: 3, bubbles: true, cancelable: false, returnValue: true, defaultPrevented: false, … }
+test.html:119:10
+
+mousedown { target: canvas.a-canvas.a-grab-cursor, buttons: 1, clientX: 1245, clientY: 326, layerX: 1245, layerY: 326 }
+*/
+	document.addEventListener('mousedown', function(e){
+		//e.stopImmediatePropagation();
+		//e.stopPropagation();
+		//e.preventDefault();
+		console.log('Mouse Down')
+	});
+
+	//Desktop
+	document.addEventListener('contextmenu', this.dispatchAlt);
+	document.addEventListener('keydown', this.keyboardDownHit);
+	document.addEventListener('keyup', this.keyboardUpHit);
+
+	function mobileTest(){
+		console.log('Touch');
+	}
+
+	//Mobile
+	//touchstart
+	//touchend
+	this.mobileUpLeft.addEventListener('mousedown', this.directionForwardLeftDown);
+	this.mobileUpLeft.addEventListener('mouseup', this.directionForwardLeftUp);
+	this.mobileUp.addEventListener('mousedown', this.directionForwardDown);
+	this.mobileUp.addEventListener('mouseup', this.directionForwardUp);
+	this.mobileUpRight.addEventListener('mousedown', this.directionForwardRightDown);
+	this.mobileUpRight.addEventListener('mouseup', this.directionForwardRightUp);
+	this.mobileLeft.addEventListener('mousedown', this.directionLeftDown);
+	this.mobileLeft.addEventListener('mouseup', this.directionLeftUp);
+	this.mobileCenter.addEventListener('mousedown', mobileTest);
+	this.mobileCenter.addEventListener('mouseup', mobileTest);
+	this.mobileRight.addEventListener('mousedown', this.directionRightDown);
+	this.mobileRight.addEventListener('mouseup', this.directionRightUp);
+	this.mobileDownLeft.addEventListener('mousedown', this.directionBackwardLeftDown);
+	this.mobileDownLeft.addEventListener('mouseup', this.directionBackwardLeftUp);
+	this.mobileDown.addEventListener('mousedown', this.directionBackwardDown);
+	this.mobileDown.addEventListener('mouseup', this.directionBackwardUp);
+	this.mobileDownRight.addEventListener('mousedown', this.directionBackwardRightDown);
+	this.mobileDownRight.addEventListener('mouseup', this.directionBackwardRightUp);
+	this.mobileSelect.addEventListener('mousedown', mobileTest);
+	this.mobileSelect.addEventListener('mouseup', mobileTest);
+	this.mobileStart.addEventListener('mousedown', mobileTest);
+	this.mobileStart.addEventListener('mouseup', mobileTest);
+	this.mobileA.addEventListener('mousedown', this.action1Down);
+	this.mobileA.addEventListener('mouseup', this.action1Up);
+	this.mobileB.addEventListener('mousedown', this.action2Down);
+	this.mobileB.addEventListener('mouseup', this.action2Up);
+	this.mobileC.addEventListener('mousedown', this.action3Down);
+	this.mobileC.addEventListener('mouseup', this.action3Up);
+	this.mobileD.addEventListener('mousedown', this.action4Down);
+	this.mobileD.addEventListener('mouseup', this.action4Up);
+	this.mobileE.addEventListener('mousedown', this.action5Down);
+	this.mobileE.addEventListener('mouseup', this.action5Up);
+	this.mobileF.addEventListener('mousedown', this.action6Down);
+	this.mobileF.addEventListener('mouseup', this.action6Up);
+
+	//Universal Events
+	document.addEventListener('mainClick', this.mainClickHit);
+	document.addEventListener('altClick', this.altClickHit);
+	document.addEventListener('direction', this.directionHit);
+	document.addEventListener('rotation', this.rotationHit);
+	document.addEventListener('action1', this.action1Hit);
+	document.addEventListener('action2', this.action2Hit);
+	document.addEventListener('action3', this.action3Hit);
+	document.addEventListener('action4', this.action4Hit);
+	document.addEventListener('action5', this.action5Hit);
+	document.addEventListener('action6', this.action6Hit);
+},
+remove: function () {
+
+	//DOM Events
+	document.removeEventListener('click', this.dispatchMain);
+	document.removeEventListener('contextmenu', this.dispatchAlt);
+	document.removeEventListener('keydown', this.keyboardDownHit);
+	document.removeEventListener('keyup', this.keyboardUpHit);
+
+	//Universal Events
+	document.removeEventListener('mainClick', this.mainClickHit);
+	document.removeEventListener('altClick', this.altClickHit);
+	document.removeEventListener('direction', this.directionHit);
+	document.removeEventListener('rotation', this.rotationHit);
+	document.removeEventListener('action1', this.action1Hit);
+	document.removeEventListener('action2', this.action2Hit);
+	document.removeEventListener('action3', this.action3Hit);
+	document.removeEventListener('action4', this.action4Hit);
+	document.removeEventListener('action5', this.action5Hit);
+	document.removeEventListener('action6', this.action6Hit);
+},
 });
 
 //
