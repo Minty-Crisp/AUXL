@@ -59,7 +59,7 @@ this.audioEnabled = false;
 const controllerBlock = document.getElementById('controllerBlock');
 //Controls
 this.controls = 'Desktop';
-this.vrHand = 'bothRight';
+this.vrHand = 'bothLeft';
 this.mobilePermissionGranted = false;
 let playerRig;
 let camera;
@@ -403,8 +403,6 @@ function enableVRControls(){
 		//Enable VR Hover Locomotion
 		auxl.player.EnableVRHoverLocomotion('vrController1');
 	}
-	//Update Controls
-	auxl.controls = 'VR';
 }
 //Desktop
 function disableDesktopControls(){
@@ -509,7 +507,9 @@ function changeControls(){
 		auxl.controls = 'Desktop';
 		menuModeButton.innerHTML = 'Mode : Desktop'
 	}
-	updateControls();
+	if(auxl.expStarted){
+		updateControls();
+	}
 }
 menuModeButton.addEventListener('click', changeControls);
 
@@ -16252,8 +16252,8 @@ let timeout = setTimeout(function () {
 const vrController1 = document.getElementById('vrController1');
 const vrController2 = document.getElementById('vrController2');
 
-console.log(vrController1)
-console.log(vrController2)
+//console.log(vrController1)
+//console.log(vrController2)
 
 
 	//Triggers
