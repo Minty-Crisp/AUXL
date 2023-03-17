@@ -15640,8 +15640,6 @@ AFRAME.registerComponent('raycast-teleportation', {
 	},
 });
 
-let controlsTest;
-
 //
 //Universal Controls
 AFRAME.registerComponent('universal-controls', {
@@ -15657,8 +15655,6 @@ schema: {
 	action6: {type: 'string', default: 'function'},
 },
 init: function () {
-
-controlsTest = this;
 
 this.aScene = document.querySelector('a-scene');
 this.auxl = document.querySelector('a-scene').systems.auxl;
@@ -15990,12 +15986,6 @@ this.keyboardUpHit = (e) => {
 this.blankHit = (e) => {
 	this.blank(e);
 }
-
-
-
-
-
-
 
 
 //Controller Events
@@ -16398,110 +16388,10 @@ update: function () {
 			console.log('Mouse Down')
 		});
 	*/
-let timeout = setTimeout(function () {
-
-const displayInput = document.querySelector('#displayInput');
-
-let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-
-function updateInput(input){
-
-displayInputText.value = input;
-displayInput.setAttribute('text',displayInputText);
-
-}
-
-
-this.vrController1 = document.getElementById('vrController1');
-this.vrController2 = document.getElementById('vrController2');
-
-console.log(this.vrController1)
-console.log(this.vrController2)
-
-
-	//Triggers
-	//
-	//Main Trigger
-	this.vrController1.addEventListener('triggerdown', function (e) {
-		updateInput('left main trigger');
-	});
-
-	//
-	//Secondary Trigger
-	this.vrController1.addEventListener('gripdown', function (e) {
-		updateInput('left secondary trigger');
-	});
-	//
-	//Main Trigger
-	this.vrController2.addEventListener('triggerdown', function (e) {
-		updateInput('right main trigger');
-	});
-
-	//
-	//Secondary Trigger
-	this.vrController2.addEventListener('gripdown', function (e) {
-		updateInput('right secondary trigger');
-	});
-
-	//Buttons
-	//
-	//Right Controller - Button 1 (A)
-	this.vrController2.addEventListener('abuttondown', function (e) {
-		updateInput('right button 1');
-	});
-	//
-	//Right Controller - Button 2 (B)
-	this.vrController2.addEventListener('bbuttondown', function (e) {
-		updateInput('right button 2');
-	});
-	
-	//Left Controller - Button 1 (X)
-	this.vrController1.addEventListener('xbuttondown', (e) => {
-		controlsTest.updateInput('left button 1');
-	});
-	//this.vrController1.addEventListener('xbuttondown', this.blankHit);
-	//this.vrController1.addEventListener('xbuttonup', this.action1Up);
-	//
-	//Left Controller - Button 2 (Y)
-	this.vrController1.addEventListener('ybuttondown', controlsTest.action2Down);
-	this.vrController1.addEventListener('ybuttonup', controlsTest.action2Up);
-
-	//Joystick
-	//
-	//Controller
-	this.vrController1.addEventListener('thumbstickmoved', function (e) {
-		if (e.detail.y > 0.95) { 
-			updateInput('left down');
-		}
-		if (e.detail.y < -0.95) { 
-			updateInput('left up');
-		}
-		if (e.detail.x < -0.95) { 
-			updateInput('left left');
-		}
-		if (e.detail.x > 0.95) { 
-			updateInput('left right');
-		}
-	});
-	this.vrController2.addEventListener('thumbstickmoved', function (e) {
-		if (e.detail.y > 0.95) { 
-			updateInput('right down');
-		}
-		if (e.detail.y < -0.95) { 
-			updateInput('right up');
-		}
-		if (e.detail.x < -0.95) { 
-			updateInput('right left');
-		}
-		if (e.detail.x > 0.95) { 
-			updateInput('right right');
-		}
-	});
-
-}, 250);
-/*
-let initTimeout = setTimeout(function () {
+let initTimeout = setTimeout(() => {
 	//Quest
+	this.vrController1 = document.getElementById('vrController1');
+	this.vrController2 = document.getElementById('vrController2');
 	//Left
 	//Main Trigger
 	this.vrController1.addEventListener('triggerdown', this.questLeftMainClickDown);
@@ -16531,7 +16421,7 @@ let initTimeout = setTimeout(function () {
 	//Joystick
 	this.vrController2.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
 }, 1000);
-*/
+
 
 	//Mobile
 	//touchstart
