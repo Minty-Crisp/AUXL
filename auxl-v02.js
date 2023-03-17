@@ -15640,6 +15640,8 @@ AFRAME.registerComponent('raycast-teleportation', {
 	},
 });
 
+let controlsTest;
+
 //
 //Universal Controls
 AFRAME.registerComponent('universal-controls', {
@@ -15655,6 +15657,8 @@ schema: {
 	action6: {type: 'string', default: 'function'},
 },
 init: function () {
+
+controlsTest = this;
 
 this.aScene = document.querySelector('a-scene');
 this.auxl = document.querySelector('a-scene').systems.auxl;
@@ -16452,15 +16456,15 @@ console.log(this.vrController2)
 	});
 	
 	//Left Controller - Button 1 (X)
-	this.vrController1.addEventListener('xbuttondown', function (e) {
-		this.updateInput('left button 1');
+	this.vrController1.addEventListener('xbuttondown', (e) => {
+		controlsTest.updateInput('left button 1');
 	});
 	//this.vrController1.addEventListener('xbuttondown', this.blankHit);
 	//this.vrController1.addEventListener('xbuttonup', this.action1Up);
 	//
 	//Left Controller - Button 2 (Y)
-	this.vrController1.addEventListener('ybuttondown', this.action2Down);
-	this.vrController1.addEventListener('ybuttonup', this.action2Up);
+	this.vrController1.addEventListener('ybuttondown', controlsTest.action2Down);
+	this.vrController1.addEventListener('ybuttonup', controlsTest.action2Up);
 
 	//Joystick
 	//
