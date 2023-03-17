@@ -6976,6 +6976,7 @@ mixins: false,
 classes: ['a-ent','player'],
 components: {
 ['universal-controls']:null,
+['vr-input-test']:null,
 //['desktop-inputs']:null,
 //['mobile-inputs']:null,
 },};
@@ -14850,6 +14851,7 @@ this.player.object3D.position.copy(this.positionNew);
 
 },
 
+//spawnwithuser support
 userDirection: function (){
 	//Get User's current XZ position
 	this.userPos = this.player.getAttribute('position');
@@ -14983,7 +14985,7 @@ userDirection: function (){
 		this.positionTemp.z = 0;
 	}
 	this.positionNew = new THREE.Vector3(this.positionTemp.x, 0, this.positionTemp.z);
-},//spawnwithuser
+},
 
 });
 
@@ -15032,8 +15034,8 @@ init: function () {
 		this.questButton2(event);
 	}
 	//Joystick
-	this.questJoystickLeftEvent = (event) => {
-		this.questJoystickLeft(event);
+	this.questJoystickLocomotionEvent = (event) => {
+		this.questJoystickLocomotion(event);
 	}
 	//Locomotion
 	this.deadzone = 0.1;
@@ -15061,7 +15063,7 @@ questButton1: function (e){
 questButton2: function (e){
 	this.updateInputEvent('Y Button');
 },
-questJoystickLeft: function (e){
+questJoystickLocomotion: function (e){
 	this.xNum = e.detail.x;
 	this.yNum = e.detail.y;
 	this.angle = Math.atan2(this.xNum,this.yNum);
@@ -15135,7 +15137,7 @@ update: function () {
 	this.el.addEventListener('ybuttondown', this.questButton2Event);
 	//Joystick
 	if(this.data.joystickEnabled){
-		this.el.addEventListener('thumbstickmoved', this.questJoystickLeftEvent);
+		this.el.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
 	}
 },
 remove: function () {
@@ -15149,7 +15151,7 @@ remove: function () {
 	this.el.removeEventListener('ybuttondown', this.questButton2Event);
 	//Joystick
 	if(this.data.joystickEnabled){
-		this.el.removeEventListener('thumbstickmoved', this.questJoystickLeftEvent);
+		this.el.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
 	}
 },
 });
@@ -15787,6 +15789,10 @@ this.action6Event = new CustomEvent('action6', {
 this.mainClickHit = (e) => {
 	this.mainClick(e);
 }
+this.mainClickE = () => {
+	this.mainClickDetail.click = 'click';
+	document.dispatchEvent(this.mainClickEvent);
+}
 this.mainClickDown = () => {
 	this.mainClickDetail.click = 'clickDown';
 	document.dispatchEvent(this.mainClickEvent);
@@ -16121,22 +16127,21 @@ update: function () {
 	//DOM Events
 	//document.addEventListener('mousedown', this.mainClickDown);
 	//document.addEventListener('mouseup', this.mainClickUp);
-
 	//Both the mouseCursor and Canvas element fire mousedown and mouseup resulting in 2 events firing at the same time
-/*
-mousedown { target: a-entity#mouseCursor, isTrusted: false, detail: {…}, srcElement: a-entity#mouseCursor, currentTarget: HTMLDocument http://localhost/auxl/test.html, eventPhase: 3, bubbles: true, cancelable: false, returnValue: true, defaultPrevented: false, … }
-test.html:119:10
+	/*
+	mousedown { target: a-entity#mouseCursor, isTrusted: false, detail: {…}, srcElement: a-entity#mouseCursor, currentTarget: HTMLDocument http://localhost/auxl/test.html, eventPhase: 3, bubbles: true, cancelable: false, returnValue: true, defaultPrevented: false, … }
 
-mousedown { target: canvas.a-canvas.a-grab-cursor, buttons: 1, clientX: 1245, clientY: 326, layerX: 1245, layerY: 326 }
-*/
-	document.addEventListener('mousedown', function(e){
-		//e.stopImmediatePropagation();
-		//e.stopPropagation();
-		//e.preventDefault();
-		console.log('Mouse Down')
-	});
+	mousedown { target: canvas.a-canvas.a-grab-cursor, buttons: 1, clientX: 1245, clientY: 326, layerX: 1245, layerY: 326 }
 
+		document.addEventListener('mousedown', function(e){
+			//e.stopImmediatePropagation();
+			//e.stopPropagation();
+			//e.preventDefault();
+			console.log('Mouse Down')
+		});
+	*/
 	//Desktop
+	document.addEventListener('click', this.mainClickE);
 	document.addEventListener('contextmenu', this.dispatchAlt);
 	document.addEventListener('keydown', this.keyboardDownHit);
 	document.addEventListener('keyup', this.keyboardUpHit);
@@ -16148,6 +16153,8 @@ mousedown { target: canvas.a-canvas.a-grab-cursor, buttons: 1, clientX: 1245, cl
 	//Mobile
 	//touchstart
 	//touchend
+	//touchcancel
+	//touchmove
 	this.mobileUpLeft.addEventListener('mousedown', this.directionForwardLeftDown);
 	this.mobileUpLeft.addEventListener('mouseup', this.directionForwardLeftUp);
 	this.mobileUp.addEventListener('mousedown', this.directionForwardDown);
@@ -16216,6 +16223,132 @@ remove: function () {
 	document.removeEventListener('action6', this.action6Hit);
 },
 });
+
+
+//
+//Dev
+AFRAME.registerComponent('vr-input-test', {
+dependencies: ['auxl'],
+//schema: {
+	//bar: {type: 'number'},
+	//baz: {type: 'string'}
+//},
+
+init: function () {
+
+
+	const displayInput = document.querySelector('#displayInput');
+
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+
+	function updateInput(input){
+
+	displayInputText.value = input;
+	displayInput.setAttribute('text',displayInputText);
+
+	}
+
+let timeout = setTimeout(function () {
+
+
+const vrController1 = document.getElementById('vrController1');
+const vrController2 = document.getElementById('vrController2');
+
+console.log(vrController1)
+console.log(vrController2)
+
+
+	//Triggers
+	//
+	//Main Trigger
+	vrController1.addEventListener('triggerdown', function (e) {
+		updateInput('left main trigger');
+	});
+
+	//
+	//Secondary Trigger
+	vrController1.addEventListener('gripdown', function (e) {
+		updateInput('left secondary trigger');
+	});
+	//
+	//Main Trigger
+	vrController2.addEventListener('triggerdown', function (e) {
+		updateInput('right main trigger');
+	});
+
+	//
+	//Secondary Trigger
+	vrController2.addEventListener('gripdown', function (e) {
+		updateInput('right secondary trigger');
+	});
+
+	//Buttons
+	//
+	//Right Controller - Button 1 (A)
+	vrController2.addEventListener('abuttondown', function (e) {
+		updateInput('right button 1');
+	});
+	//
+	//Right Controller - Button 2 (B)
+	vrController2.addEventListener('bbuttondown', function (e) {
+		updateInput('right button 2');
+	});
+	//
+	//Left Controller - Button 1 (X)
+	vrController1.addEventListener('xbuttondown', function (e) {
+		updateInput('left button 1');
+	});
+	//
+	//Left Controller - Button 2 (Y)
+	vrController1.addEventListener('ybuttondown', function (e) {
+		updateInput('left button 2');
+	});
+
+	//Joystick
+	//
+	//Controller
+	vrController1.addEventListener('thumbstickmoved', function (e) {
+		if (e.detail.y > 0.95) { 
+			updateInput('left down');
+		}
+		if (e.detail.y < -0.95) { 
+			updateInput('left up');
+		}
+		if (e.detail.x < -0.95) { 
+			updateInput('left left');
+		}
+		if (e.detail.x > 0.95) { 
+			updateInput('left right');
+		}
+	});
+	vrController2.addEventListener('thumbstickmoved', function (e) {
+		if (e.detail.y > 0.95) { 
+			updateInput('right down');
+		}
+		if (e.detail.y < -0.95) { 
+			updateInput('right up');
+		}
+		if (e.detail.x < -0.95) { 
+			updateInput('right left');
+		}
+		if (e.detail.x > 0.95) { 
+			updateInput('right right');
+		}
+	});
+
+
+
+
+}, 250);
+
+
+
+
+
+
+    }//End Init
+});
+
 
 //
 //External Components
