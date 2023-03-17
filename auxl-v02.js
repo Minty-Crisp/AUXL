@@ -325,6 +325,7 @@ function enableVRControls(){
 		//vrController laser-controls property
 		vrController2.setAttribute('laser-controls',{hand: 'right'});
 		//vrController raycaster property
+		vrController1.setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
 		vrController2.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
 		//vrController cursor property
 		vrController2.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController2', mouseCursorStylesEnabled: 'true'});
@@ -344,6 +345,7 @@ function enableVRControls(){
 		vrController1.setAttribute('laser-controls',{hand: 'left'});
 		//vrController raycaster property
 		vrController1.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
+		vrController2.setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
 		//vrController cursor property
 		vrController1.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController1', mouseCursorStylesEnabled: 'true'});
 		//vrController Controls
