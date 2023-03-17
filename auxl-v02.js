@@ -59,7 +59,7 @@ this.audioEnabled = false;
 const controllerBlock = document.getElementById('controllerBlock');
 //Controls
 this.controls = 'Desktop';
-this.vrHand = 'both';
+this.vrHand = 'bothRight';
 this.mobilePermissionGranted = false;
 let playerRig;
 let camera;
@@ -315,7 +315,28 @@ function disableVRControls(){
 }
 function enableVRControls(){
 	//Enable VR Controls
-	if(auxl.vrHand === 'bothRight'){
+	if(auxl.vrHand === 'both'){
+		//vrController visible to true
+		vrController1.setAttribute('visible',true);
+		vrController2.setAttribute('visible',true);
+		//vrControllerUI visible to true
+		vrController1UI.setAttribute('visible',true);
+		vrController2UI.setAttribute('visible',true);
+		//vrController raycaster property
+		vrController1.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
+		vrController2.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
+		//vrController cursor property
+		vrController1.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController1', mouseCursorStylesEnabled: 'true'});
+		vrController2.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController2', mouseCursorStylesEnabled: 'true'});
+		//vrController laser-controls property
+		vrController1.setAttribute('laser-controls',{hand: 'left'});
+		vrController2.setAttribute('laser-controls',{hand: 'right'});
+		//vrController Controls
+		vrController1.setAttribute('vr-left-inputs',{joystickEnabled: true});
+		vrController2.setAttribute('vr-right-inputs',{joystickEnabled: true});
+		//Enable VR Locomotion
+		auxl.player.EnableVRLocomotion();
+	} else if(auxl.vrHand === 'bothRight'){
 		//vrController visible to true
 		vrController1.setAttribute('visible',true);
 		vrController2.setAttribute('visible',true);
@@ -346,27 +367,6 @@ function enableVRControls(){
 		vrController1.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController1', mouseCursorStylesEnabled: 'true'});
 		//vrController laser-controls property
 		vrController1.setAttribute('laser-controls',{hand: 'left'});
-		//vrController Controls
-		vrController1.setAttribute('vr-left-inputs',{joystickEnabled: true});
-		vrController2.setAttribute('vr-right-inputs',{joystickEnabled: true});
-		//Enable VR Locomotion
-		auxl.player.EnableVRLocomotion();
-	} else if(auxl.vrHand === 'both'){
-		//vrController visible to true
-		vrController1.setAttribute('visible',true);
-		vrController2.setAttribute('visible',true);
-		//vrControllerUI visible to true
-		vrController1UI.setAttribute('visible',true);
-		vrController2UI.setAttribute('visible',true);
-		//vrController raycaster property
-		vrController1.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
-		vrController2.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
-		//vrController cursor property
-		vrController1.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController1', mouseCursorStylesEnabled: 'true'});
-		vrController2.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController2', mouseCursorStylesEnabled: 'true'});
-		//vrController laser-controls property
-		vrController1.setAttribute('laser-controls',{hand: 'left'});
-		vrController2.setAttribute('laser-controls',{hand: 'right'});
 		//vrController Controls
 		vrController1.setAttribute('vr-left-inputs',{joystickEnabled: true});
 		vrController2.setAttribute('vr-right-inputs',{joystickEnabled: true});
@@ -514,21 +514,21 @@ function changeControls(){
 menuModeButton.addEventListener('click', changeControls);
 
 function changeVRHand(){
-	if(auxl.vrHand === 'bothRight'){
+	if(auxl.vrHand === 'both'){
+		auxl.vrHand = 'bothRight';
+		vrHandButton.innerHTML = 'Hands : Right Raycaster';
+	} else if(auxl.vrHand === 'bothRight'){
 		auxl.vrHand = 'bothLeft';
-		vrHandButton.innerHTML = 'Hands : Left';
+		vrHandButton.innerHTML = 'Hands : Left Raycaster';
 	} else if(auxl.vrHand === 'bothLeft'){
-		auxl.vrHand = 'both';
-		vrHandButton.innerHTML = 'Hands : Both';
-	} else if(auxl.vrHand === 'both'){
 		auxl.vrHand = 'right';
-		vrHandButton.innerHTML = 'Hand : Right';
+		vrHandButton.innerHTML = 'Hand : Right Raycaster';
 	} else if(auxl.vrHand === 'right'){
 		auxl.vrHand = 'left';
-		vrHandButton.innerHTML = 'Hand : Left';
+		vrHandButton.innerHTML = 'Hand : Left Raycaster';
 	} else {
-		auxl.vrHand = 'bothRight';
-		vrHandButton.innerHTML = 'Hands : Right';
+		auxl.vrHand = 'both';
+		vrHandButton.innerHTML = 'Hands : Both Raycaster';
 	}
 	updateControls();
 }
