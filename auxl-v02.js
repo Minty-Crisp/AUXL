@@ -16395,18 +16395,28 @@ update: function () {
 		});
 	*/
 let initTimeout = setTimeout(function () {
+
+	const displayInput = document.querySelector('#displayInput');
+
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+
+	function updateInput(input){
+		displayInputText.value = input;
+		displayInput.setAttribute('text',displayInputText);
+	}
+
 	//Quest
 	this.vrController1 = document.getElementById('vrController1');
 	//this.vrController2 = document.getElementById('vrController2');
 	//Left
 	//Left Controller - Button 1 (X)
 	this.vrController1.addEventListener('xbuttondown', function (e) {
-		this.updateInput('left button 1');
+		updateInput('left button 1');
 	});
 	//
 	//Left Controller - Button 2 (Y)
 	this.vrController1.addEventListener('ybuttondown', function (e) {
-		this.updateInput('left button 2');
+		updateInput('left button 2');
 	});
 
 }, 1000);
