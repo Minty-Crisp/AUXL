@@ -16394,32 +16394,106 @@ update: function () {
 			console.log('Mouse Down')
 		});
 	*/
-let initTimeout = setTimeout(function () {
+let timeout = setTimeout(function () {
 
-	const displayInput = document.querySelector('#displayInput');
+const displayInput = document.querySelector('#displayInput');
 
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
 
-	function updateInput(input){
-		displayInputText.value = input;
-		displayInput.setAttribute('text',displayInputText);
-	}
+function updateInput(input){
 
-	//Quest
-	this.vrController1 = document.getElementById('vrController1');
-	//this.vrController2 = document.getElementById('vrController2');
-	//Left
+displayInputText.value = input;
+displayInput.setAttribute('text',displayInputText);
+
+}
+
+
+const vrController1 = document.getElementById('vrController1');
+const vrController2 = document.getElementById('vrController2');
+
+console.log(vrController1)
+console.log(vrController2)
+
+
+	//Triggers
+	//
+	//Main Trigger
+	vrController1.addEventListener('triggerdown', function (e) {
+		updateInput('left main trigger');
+	});
+
+	//
+	//Secondary Trigger
+	vrController1.addEventListener('gripdown', function (e) {
+		updateInput('left secondary trigger');
+	});
+	//
+	//Main Trigger
+	vrController2.addEventListener('triggerdown', function (e) {
+		updateInput('right main trigger');
+	});
+
+	//
+	//Secondary Trigger
+	vrController2.addEventListener('gripdown', function (e) {
+		updateInput('right secondary trigger');
+	});
+
+	//Buttons
+	//
+	//Right Controller - Button 1 (A)
+	vrController2.addEventListener('abuttondown', function (e) {
+		updateInput('right button 1');
+	});
+	//
+	//Right Controller - Button 2 (B)
+	vrController2.addEventListener('bbuttondown', function (e) {
+		updateInput('right button 2');
+	});
+	//
 	//Left Controller - Button 1 (X)
-	this.vrController1.addEventListener('xbuttondown', function (e) {
+	vrController1.addEventListener('xbuttondown', function (e) {
 		updateInput('left button 1');
 	});
 	//
 	//Left Controller - Button 2 (Y)
-	this.vrController1.addEventListener('ybuttondown', function (e) {
+	vrController1.addEventListener('ybuttondown', function (e) {
 		updateInput('left button 2');
 	});
 
-}, 1000);
+	//Joystick
+	//
+	//Controller
+	vrController1.addEventListener('thumbstickmoved', function (e) {
+		if (e.detail.y > 0.95) { 
+			updateInput('left down');
+		}
+		if (e.detail.y < -0.95) { 
+			updateInput('left up');
+		}
+		if (e.detail.x < -0.95) { 
+			updateInput('left left');
+		}
+		if (e.detail.x > 0.95) { 
+			updateInput('left right');
+		}
+	});
+	vrController2.addEventListener('thumbstickmoved', function (e) {
+		if (e.detail.y > 0.95) { 
+			updateInput('right down');
+		}
+		if (e.detail.y < -0.95) { 
+			updateInput('right up');
+		}
+		if (e.detail.x < -0.95) { 
+			updateInput('right left');
+		}
+		if (e.detail.x > 0.95) { 
+			updateInput('right right');
+		}
+	});
+
+}, 250);
 /*
 let initTimeout = setTimeout(function () {
 	//Quest
@@ -16567,18 +16641,18 @@ dependencies: ['auxl'],
 init: function () {
 
 
-	const displayInput = document.querySelector('#displayInput');
-
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-
-	function updateInput(input){
-
-	displayInputText.value = input;
-	displayInput.setAttribute('text',displayInputText);
-
-	}
-
 let timeout = setTimeout(function () {
+
+const displayInput = document.querySelector('#displayInput');
+
+let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+
+function updateInput(input){
+
+displayInputText.value = input;
+displayInput.setAttribute('text',displayInputText);
+
+}
 
 
 const vrController1 = document.getElementById('vrController1');
