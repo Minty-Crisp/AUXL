@@ -59,7 +59,7 @@ this.audioEnabled = false;
 const controllerBlock = document.getElementById('controllerBlock');
 //Controls
 this.controls = 'Desktop';
-this.vrHand = 'bothLeft';
+this.vrHand = 'both';
 this.mobilePermissionGranted = false;
 let playerRig;
 let camera;
