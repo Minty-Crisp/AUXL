@@ -16408,63 +16408,63 @@ displayInput.setAttribute('text',displayInputText);
 }
 
 
-const vrController1 = document.getElementById('vrController1');
-const vrController2 = document.getElementById('vrController2');
+this.vrController1 = document.getElementById('vrController1');
+this.vrController2 = document.getElementById('vrController2');
 
-console.log(vrController1)
-console.log(vrController2)
+console.log(this.vrController1)
+console.log(this.vrController2)
 
 
 	//Triggers
 	//
 	//Main Trigger
-	vrController1.addEventListener('triggerdown', function (e) {
+	this.vrController1.addEventListener('triggerdown', function (e) {
 		updateInput('left main trigger');
 	});
 
 	//
 	//Secondary Trigger
-	vrController1.addEventListener('gripdown', function (e) {
+	this.vrController1.addEventListener('gripdown', function (e) {
 		updateInput('left secondary trigger');
 	});
 	//
 	//Main Trigger
-	vrController2.addEventListener('triggerdown', function (e) {
+	this.vrController2.addEventListener('triggerdown', function (e) {
 		updateInput('right main trigger');
 	});
 
 	//
 	//Secondary Trigger
-	vrController2.addEventListener('gripdown', function (e) {
+	this.vrController2.addEventListener('gripdown', function (e) {
 		updateInput('right secondary trigger');
 	});
 
 	//Buttons
 	//
 	//Right Controller - Button 1 (A)
-	vrController2.addEventListener('abuttondown', function (e) {
+	this.vrController2.addEventListener('abuttondown', function (e) {
 		updateInput('right button 1');
 	});
 	//
 	//Right Controller - Button 2 (B)
-	vrController2.addEventListener('bbuttondown', function (e) {
+	this.vrController2.addEventListener('bbuttondown', function (e) {
 		updateInput('right button 2');
 	});
 	//
 	//Left Controller - Button 1 (X)
-	vrController1.addEventListener('xbuttondown', function (e) {
+	this.vrController1.addEventListener('xbuttondown', function (e) {
 		updateInput('left button 1');
 	});
 	//
 	//Left Controller - Button 2 (Y)
-	vrController1.addEventListener('ybuttondown', function (e) {
+	this.vrController1.addEventListener('ybuttondown', function (e) {
 		updateInput('left button 2');
 	});
 
 	//Joystick
 	//
 	//Controller
-	vrController1.addEventListener('thumbstickmoved', function (e) {
+	this.vrController1.addEventListener('thumbstickmoved', function (e) {
 		if (e.detail.y > 0.95) { 
 			updateInput('left down');
 		}
@@ -16478,7 +16478,7 @@ console.log(vrController2)
 			updateInput('left right');
 		}
 	});
-	vrController2.addEventListener('thumbstickmoved', function (e) {
+	this.vrController2.addEventListener('thumbstickmoved', function (e) {
 		if (e.detail.y > 0.95) { 
 			updateInput('right down');
 		}
