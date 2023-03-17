@@ -15052,16 +15052,16 @@ updateInput: function (input){
 	displayInput.setAttribute('text',displayInputText);
 },
 questMainClick: function (e){
-	this.updateInputEvent('Left Main Trigger');
+	//this.updateInputEvent('Left Main Trigger');
 },
 questAltClick: function (e){
-	this.updateInputEvent('Left Secondary Trigger');
+	//this.updateInputEvent('Left Secondary Trigger');
 },
 questButton1: function (e){
-	this.updateInputEvent('X Button');
+	//this.updateInputEvent('X Button');
 },
 questButton2: function (e){
-	this.updateInputEvent('Y Button');
+	//this.updateInputEvent('Y Button');
 },
 questJoystickLocomotion: function (e){
 	this.xNum = e.detail.x;
@@ -15219,16 +15219,16 @@ updateInput: function (input){
 	displayInput.setAttribute('text',displayInputText);
 },
 questMainClick: function (e){
-	this.updateInputEvent('Right Main Trigger');
+	//this.updateInputEvent('Right Main Trigger');
 },
 questAltClick: function (e){
-	this.updateInputEvent('Right Secondary Trigger');
+	//this.updateInputEvent('Right Secondary Trigger');
 },
 questButton1: function (e){
-	this.updateInputEvent('A Button');
+	//this.updateInputEvent('A Button');
 },
 questButton2: function (e){
-	this.updateInputEvent('B Button');
+	//this.updateInputEvent('B Button');
 },
 questJoystickLeft: function (e){
 	this.xNum = e.detail.x;
