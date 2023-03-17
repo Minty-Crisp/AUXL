@@ -509,9 +509,7 @@ function changeControls(){
 		auxl.controls = 'Desktop';
 		menuModeButton.innerHTML = 'Mode : Desktop'
 	}
-	if(auxl.expStarted){
-		updateControls();
-	}
+	updateControls();
 }
 menuModeButton.addEventListener('click', changeControls);
 
