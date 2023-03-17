@@ -16455,7 +16455,7 @@ console.log(this.vrController2)
 	this.vrController1.addEventListener('xbuttondown', function (e) {
 		updateInput('left button 1');
 	});*/
-	this.vrController1.addEventListener('xbuttondown', this.action1Down);
+	this.vrController1.addEventListener('xbuttondown', this.blankHit);
 	//this.vrController1.addEventListener('xbuttonup', this.action1Up);
 	//
 	//Left Controller - Button 2 (Y)
