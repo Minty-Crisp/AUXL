@@ -304,8 +304,8 @@ function disableVRControls(){
 	vrController1.removeAttribute('cursor');
 	vrController2.removeAttribute('cursor');
 	//vrController raycaster property
-	vrController1.removeAttribute('raycaster');
-	vrController2.removeAttribute('raycaster');
+	//vrController1.removeAttribute('raycaster');
+	//vrController2.removeAttribute('raycaster');
 	//vrController laser-controls property
 	vrController1.removeAttribute('laser-controls');
 	vrController2.removeAttribute('laser-controls');
@@ -325,7 +325,6 @@ function enableVRControls(){
 		//vrController laser-controls property
 		vrController2.setAttribute('laser-controls',{hand: 'right'});
 		//vrController raycaster property
-		vrController1.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 		vrController2.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
 		//vrController cursor property
 		vrController2.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController2', mouseCursorStylesEnabled: 'true'});
