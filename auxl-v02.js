@@ -16456,12 +16456,11 @@ console.log(this.vrController2)
 		updateInput('left button 1');
 	});*/
 	this.vrController1.addEventListener('xbuttondown', this.action1Down);
-	this.vrController1.addEventListener('xbuttonup', this.action1Up);
+	//this.vrController1.addEventListener('xbuttonup', this.action1Up);
 	//
 	//Left Controller - Button 2 (Y)
-	this.vrController1.addEventListener('ybuttondown', function (e) {
-		updateInput('left button 2');
-	});
+	this.vrController1.addEventListener('ybuttondown', this.action2Down);
+	this.vrController1.addEventListener('ybuttonup', this.action2Up);
 
 	//Joystick
 	//
