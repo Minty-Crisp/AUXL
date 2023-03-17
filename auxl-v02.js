@@ -6977,6 +6977,7 @@ mixins: false,
 classes: ['a-ent','player'],
 components: {
 ['universal-controls']:null,
+['vr-input-test']:null,
 //['desktop-inputs']:null,
 //['mobile-inputs']:null,
 },};
@@ -15682,7 +15683,7 @@ this.vrController2;
 let initTimeout = setTimeout(function () {
 	this.vrController1 = document.getElementById('vrController1');
 	this.vrController2 = document.getElementById('vrController2');
-}, 250);
+}, 500);
 
 //Control Configurations :
 //Desktop : Mouse & Keyboard
@@ -15816,6 +15817,7 @@ this.altClickHit = (e) => {
 this.dispatchAlt = () => {
 	document.dispatchEvent(this.altClickEvent);
 }
+
 //Directional Movement
 this.directionHit = (e) => {
 	this.direction(e);
@@ -15892,6 +15894,7 @@ this.directionRightUp = () => {
 	this.directionEventDetail.direction = 'rightRelease';
 	document.dispatchEvent(this.directionEvent);
 }
+
 //Rotational Movement
 this.rotationHit = (e) => {
 	this.rotation(e);
@@ -15899,6 +15902,7 @@ this.rotationHit = (e) => {
 this.dispatchRotation = () => {
 	document.dispatchEvent(this.rotationEvent);
 }
+
 //Action 1
 this.action1Hit = (e) => {
 	this.action1(e);
@@ -15988,7 +15992,13 @@ this.blankHit = (e) => {
 }
 
 
-//Controller Functions
+
+
+
+
+
+
+//Controller Events
 //Left
 //Main Trigger
 this.questLeftMainClickEvent = (e) => {
@@ -16376,7 +16386,7 @@ update: function () {
 			console.log('Mouse Down')
 		});
 	*/
-
+/*
 let initTimeout = setTimeout(function () {
 	//Quest
 	//Left
@@ -16407,8 +16417,8 @@ let initTimeout = setTimeout(function () {
 	this.vrController2.addEventListener('bbuttonup', this.action4Up);
 	//Joystick
 	this.vrController2.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
-}, 500);
-
+}, 1000);
+*/
 
 	//Mobile
 	//touchstart
@@ -16470,29 +16480,7 @@ remove: function () {
 	document.removeEventListener('keydown', this.keyboardDownHit);
 	document.removeEventListener('keyup', this.keyboardUpHit);
 
-	//Quest
-	//Left
-	//Main Trigger
-	this.vrController1.removeEventListener('triggerdown', this.questLeftMainClickEvent);
-	//Secondary Trigger
-	this.vrController1.removeEventListener('gripdown', this.questLeftAltClickEvent);
-	//Button 1 (X)
-	this.vrController1.removeEventListener('xbuttondown', this.questLeftButton1Event);
-	//Button 2 (Y)
-	this.vrController1.removeEventListener('ybuttondown', this.questLeftButton2Event);
-	//Joystick
-	this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-	//Right
-	//Main Trigger
-	this.vrController2.removeEventListener('triggerdown', this.questRightMainClickEvent);
-	//Secondary Trigger
-	this.vrController2.removeEventListener('gripdown', this.questRightAltClickEvent);
-	//Button 1 (A)
-	this.vrController2.removeEventListener('abuttondown', this.questRightButton1Event);
-	//Button 2 (B)
-	this.vrController2.removeEventListener('bbuttondown', this.questRightButton2Event);
-	//Joystick
-	this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+
 
 	//Mobile
 	this.mobileUpLeft.removeEventListener('mousedown', this.directionForwardLeftDown);
@@ -16574,8 +16562,8 @@ let timeout = setTimeout(function () {
 const vrController1 = document.getElementById('vrController1');
 const vrController2 = document.getElementById('vrController2');
 
-//console.log(vrController1)
-//console.log(vrController2)
+console.log(vrController1)
+console.log(vrController2)
 
 
 	//Triggers
