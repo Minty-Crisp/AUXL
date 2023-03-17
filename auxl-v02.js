@@ -325,7 +325,7 @@ function enableVRControls(){
 		//vrController laser-controls property
 		vrController2.setAttribute('laser-controls',{hand: 'right'});
 		//vrController raycaster property
-		vrController1.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
+		vrController1.setAttribute('raycaster',{enabled: 'false', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
 		vrController2.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: 'true', useWorldCoordinates: 'false'});
 		//vrController cursor property
 		vrController2.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController2', mouseCursorStylesEnabled: 'true'});
