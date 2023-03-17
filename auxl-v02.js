@@ -6977,7 +6977,7 @@ mixins: false,
 classes: ['a-ent','player'],
 components: {
 ['universal-controls']:null,
-['vr-input-test']:null,
+//['vr-input-test']:null,
 //['desktop-inputs']:null,
 //['mobile-inputs']:null,
 },};
@@ -15680,10 +15680,6 @@ this.mobileF = document.getElementById('f');
 
 this.vrController1;
 this.vrController2;
-let initTimeout = setTimeout(function () {
-	this.vrController1 = document.getElementById('vrController1');
-	this.vrController2 = document.getElementById('vrController2');
-}, 500);
 
 //Control Configurations :
 //Desktop : Mouse & Keyboard
@@ -16365,6 +16361,18 @@ questRightButton2: function (e){
 
 update: function () {
 
+	//Universal Events
+	document.addEventListener('mainClick', this.mainClickHit);
+	document.addEventListener('altClick', this.altClickHit);
+	document.addEventListener('direction', this.directionHit);
+	document.addEventListener('rotation', this.rotationHit);
+	document.addEventListener('action1', this.action1Hit);
+	document.addEventListener('action2', this.action2Hit);
+	document.addEventListener('action3', this.action3Hit);
+	document.addEventListener('action4', this.action4Hit);
+	document.addEventListener('action5', this.action5Hit);
+	document.addEventListener('action6', this.action6Hit);
+
 	//Desktop
 	document.addEventListener('click', this.mainClickE);
 	document.addEventListener('contextmenu', this.dispatchAlt);
@@ -16386,6 +16394,23 @@ update: function () {
 			console.log('Mouse Down')
 		});
 	*/
+let initTimeout = setTimeout(function () {
+	//Quest
+	this.vrController1 = document.getElementById('vrController1');
+	this.vrController2 = document.getElementById('vrController2');
+	//Left
+	//Main Trigger
+	this.vrController1.addEventListener('triggerdown', this.questLeftMainClickDown);
+	this.vrController1.addEventListener('triggerup', this.questLeftMainClickUp);
+	//Button 2 (Y)
+	this.vrController1.addEventListener('ybuttondown', this.action2Down);
+	this.vrController1.addEventListener('ybuttonup', this.action2Up);
+	//Right
+	//Main Trigger
+	this.vrController2.addEventListener('triggerdown', this.questRightMainClickDown);
+	this.vrController2.addEventListener('triggerup', this.questRightMainClickUp);
+
+}, 1000);
 /*
 let initTimeout = setTimeout(function () {
 	//Quest
@@ -16459,18 +16484,6 @@ let initTimeout = setTimeout(function () {
 	this.mobileE.addEventListener('mouseup', this.action5Up);
 	this.mobileF.addEventListener('mousedown', this.action6Down);
 	this.mobileF.addEventListener('mouseup', this.action6Up);
-
-	//Universal Events
-	document.addEventListener('mainClick', this.mainClickHit);
-	document.addEventListener('altClick', this.altClickHit);
-	document.addEventListener('direction', this.directionHit);
-	document.addEventListener('rotation', this.rotationHit);
-	document.addEventListener('action1', this.action1Hit);
-	document.addEventListener('action2', this.action2Hit);
-	document.addEventListener('action3', this.action3Hit);
-	document.addEventListener('action4', this.action4Hit);
-	document.addEventListener('action5', this.action5Hit);
-	document.addEventListener('action6', this.action6Hit);
 },
 remove: function () {
 
