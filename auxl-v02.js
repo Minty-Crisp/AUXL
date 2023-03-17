@@ -16397,18 +16397,17 @@ update: function () {
 let initTimeout = setTimeout(function () {
 	//Quest
 	this.vrController1 = document.getElementById('vrController1');
-	this.vrController2 = document.getElementById('vrController2');
+	//this.vrController2 = document.getElementById('vrController2');
 	//Left
-	//Main Trigger
-	this.vrController1.addEventListener('triggerdown', this.questLeftMainClickDown);
-	this.vrController1.addEventListener('triggerup', this.questLeftMainClickUp);
-	//Button 2 (Y)
-	this.vrController1.addEventListener('ybuttondown', this.action2Down);
-	this.vrController1.addEventListener('ybuttonup', this.action2Up);
-	//Right
-	//Main Trigger
-	this.vrController2.addEventListener('triggerdown', this.questRightMainClickDown);
-	this.vrController2.addEventListener('triggerup', this.questRightMainClickUp);
+	//Left Controller - Button 1 (X)
+	this.vrController1.addEventListener('xbuttondown', function (e) {
+		this.updateInput('left button 1');
+	});
+	//
+	//Left Controller - Button 2 (Y)
+	this.vrController1.addEventListener('ybuttondown', function (e) {
+		this.updateInput('left button 2');
+	});
 
 }, 1000);
 /*
