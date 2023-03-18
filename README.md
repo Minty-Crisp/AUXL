@@ -33,7 +33,13 @@ While ready to be tested and played with, various in-progress improvements for v
 - Added support for Dual Handed Controllers.
 - Added look-at-xyz component which matches the roation of an object specified on the axis' enabled.
 - Scene swapping now dynamically delays the load in transition animation until all 3D asset and image textures have been fully downloaded.
-- Universal XR Controller testing in progress.
+- Added Universal Controller
+- - Currently supports unified controls for Desktop (Mouse & Keyboard), Mobile (Touchscreen & HTML buttons) and Dual VR 6DoF Controllers inputs. Future support for Single 3DoF 1 Button Controller, Headset Only and Hand Tracking.
+- - Click, Tap & Trigger preconfigured to standard click event.
+- - Directional Locomotion is preconfigured to Keyboard WASD/Arrows, Mobile HTML 8 Directional buttons and Left Controller Joystick.
+- - All other inputs AltClick & Buttons 1-6's Hit and Release functions are customizable via Scenario, MapZone or NodeScene section controls.
+- - Control functions assigned are to either AUXL object functions or entity component functions.
+- - Control functions assigned to respective area are removed when leaving said area.
 
 # Remaining Goals for v0.2
 - Updated Menu ObjGen
