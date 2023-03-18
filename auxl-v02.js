@@ -58,6 +58,7 @@ this.audioEnabled = false;
 //HTML Controls
 const controllerBlock = document.getElementById('controllerBlock');
 //Controls
+this.universalControls;
 this.controls = 'Desktop';
 this.vrHand = 'bothRight';
 this.mobilePermissionGranted = false;
@@ -433,8 +434,7 @@ function enableDesktopControls(){
 	mouseController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 	//Set cursor attribute
 	//mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
-	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true', upEvents: 'testUp', downEvents: 'testDown'});
-
+	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true',});
 
 	//Enable Desktop Locomotion
 	auxl.player.EnableDesktopLocomotion();
@@ -1868,6 +1868,9 @@ this.Player = (layer) => {
 
 	layer.teleporting = false;
 
+	layer.standing = true;
+	layer.animating = false;
+
 	//Initialize Player
 	layer.SpawnLayer(true);
 	//document.getElementById('camera').setAttribute('camera', 'active', true);
@@ -1981,13 +1984,30 @@ this.Player = (layer) => {
 	}
 
 	const DisableLocomotion = () => {
-		playerRig.removeAttribute('locomotion');
+		//playerRig.removeAttribute('locomotion');
 		if(document.getElementById('beltUIParent')){
 			auxl.locomotionUILayer.DespawnLayer(true);
 		}
 	}
 
-	return {layer, SetFlag, GetFlag, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion}
+	const ToggleCrouch = () => {
+		if(layer.animating){} else {
+			layer.animating = true;
+			if(layer.standing){
+				auxl.playerRig.EmitEvent('duck');
+				layer.standing = false;
+			} else {
+				auxl.playerRig.EmitEvent('stand');
+				layer.standing = true;
+			}
+		}
+		let timeout = setTimeout(function () {
+			layer.animating = false;
+			clearTimeout(timeout);
+		}, 775);
+	}
+
+	return {layer, SetFlag, GetFlag, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion, ToggleCrouch}
 }
 //Scene Load Anim
 function playerSceneAnim(){
@@ -2234,6 +2254,10 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 	//time : name of section within a core's pageData
 	//line : a single line set of instructions within time
 	//
+		if(time === 'controls'){
+			auxl.universalControls.updateAction(core[time]);
+			return;
+		}
 		//NodeScene Reading
 		for(let line in core[time]){
 			if(time === 'delay'){
@@ -2509,6 +2533,14 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		readTimeline('info');
 	}
 
+	const AddControls = () => {
+		readTimeline('controls');
+	}
+
+	const RemoveControls = () => {
+		auxl.universalControls.disableAction(core['controls']);
+	}
+
 	const Start = () => {
 		readTimeline('start');
 	}
@@ -2531,6 +2563,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 
 	const Exit = () => {
 		readTimeline('exit');
+		RemoveControls();
 		if(core.info.sceneText){
 			sceneText.KillStop();
 		}
@@ -2546,6 +2579,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		Interval();
 		Event();
 		Interaction();
+		AddControls();
 		sceneTextDisplay();
 	}
 
@@ -2740,7 +2774,10 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	//time : name of section within a core's pageData
 	//line : a single line set of instructions within time
 	//
-
+		if(time === 'controls'){
+			auxl.universalControls.updateAction(core[time]);
+			return;
+		}
 		//MapZone Reading
 		for(let line in core[time]){
 			if(time === 'delay'){
@@ -3016,6 +3053,14 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		readTimeline('info');
 	}
 
+	const AddControls = () => {
+		readTimeline('controls');
+	}
+
+	const RemoveControls = () => {
+		auxl.universalControls.disableAction(core['controls']);
+	}
+
 	const Start = () => {
 		readTimeline('start');
 	}
@@ -3046,6 +3091,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		Interval();
 		Event();
 		Interaction();
+		AddControls();
 	}
 
 	const StartScene = (nodeName) => {
@@ -3176,6 +3222,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	const ClearZone = () => {
 		Exit();
 		ClearZoneTimeIntEvt();
+		RemoveControls();
 		clearSpawned(auxl.zoneSpawned);
 
 	}
@@ -3195,6 +3242,8 @@ let startTimeout;
 let zoneSpawn = core.info.startZone;
 let scenarioName = core.info.name;
 let scenarioInstructions = core.info.instructions;
+
+
 
 //Set as default scenario, delay to allow object to be built
 let scenarioTimeout = setTimeout(function () {
@@ -3277,6 +3326,10 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 	}
 
 	function readTimeline(time){
+		if(time === 'controls'){
+			auxl.universalControls.updateAction(core[time]);
+			return;
+		}
 		for(let line in core[time]){
 			if(time === 'delay'){
 				for(let a in core[time][line]){
@@ -3446,6 +3499,14 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 		readTimeline('info');
 	}
 
+	const AddControls = () => {
+		readTimeline('controls');
+	}
+
+	const RemoveControls = () => {
+		auxl.universalControls.disableAction(core['controls']);
+	}
+
 	const Start = () => {
 		readTimeline('start');
 	}
@@ -3476,11 +3537,16 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 		Interval();
 		Event();
 		Interaction();
+		AddControls();
 	}
 
 	const StartScenario = () => {
 		if(core.scenarioLoaded){} else {
 			playerSceneAnim();
+			//Get Universal Controls component
+			auxl.universalControls = document.getElementById('playerRig').components['universal-controls'];
+			//console.log(auxl.universalControls);
+
 			//Start scene mid Player anim
 			startTimeout = setTimeout(function () {
 				//Load All Scenario Items
@@ -3496,6 +3562,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 	const ClearScenario = () => {
 		Exit();
 		ClearScenarioTimeIntEvt();
+		RemoveControls();
 		clearSpawned(auxl.scenarioSpawned);
 	}
 
@@ -5500,6 +5567,7 @@ this.Teleport = (id, locations) => {
 	return {teleport, SpawnTeleport, DespawnTeleport};
 }
 
+
 //
 //Memory Mini Game
 this.MemoryGame = (id, data) => {
@@ -6671,7 +6739,7 @@ let anim360Data = {
 		UpdateAll('forward');
 	}
 
-	return {imageCarousel, SpawnImgCarousel, DespawnImgCarousel};
+	return {imageCarousel, SpawnImgCarousel, DespawnImgCarousel, PlayPause};
 }
 
 
@@ -6729,6 +6797,7 @@ tick: function (time, timeDelta) {
 	}
 
 },
+
 });
 
 
@@ -6972,11 +7041,15 @@ material: false,
 position: new THREE.Vector3(0,0,0.5),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-animations: false,
+animations: {
+duck: {property: 'object3D.position.y', from: 0, to: -0.5, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'duck'},
+stand: {property: 'object3D.position.y', from: -0.5, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'stand'},
+},
 mixins: false,
 classes: ['a-ent','player'],
 components: {
 ['universal-controls']:null,
+['locomotion']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
 //['vr-input-test']:null,
 //['desktop-inputs']:null,
 //['mobile-inputs']:null,
@@ -13198,6 +13271,25 @@ default: true,
 startZone: 'zone0',
 instructions: 'A demo scenario of traversing a variety of different areas and showcasing the core features and functionality of the A-Frame UX Library engine v0.2.',
 },
+controls:{
+//altDown:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//altUp:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//action1Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//action1Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//action2Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//action2Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//action3Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//action3Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//action4Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//action4Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//action5Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//action5Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//action6Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+//action6Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
+
+action1Down:{auxlObj: 'player', component: false, func: 'ToggleCrouch'},
+action2Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
+},
 start:{
 skyBox0:{SpawnSkyBox: null},
 nodeFloor:{SpawnCore: null},
@@ -13240,6 +13332,9 @@ connect2: {inZone: 'zone3', node: 'zone3Node0',},
 connect3: {inZone: 'zone4', node: 'zone4Node0',},
 connect4: {inZone: 'zone5', node: 'zone5Node0',},
 },
+controls:{
+
+},
 start:{
 
 },
@@ -13267,6 +13362,9 @@ id:'zone0Node0',
 name: 'Floating Island',
 description: 'Click anywhere on the floor to teleport on this island!',
 sceneText: true,
+},
+controls:{
+
 },
 start:{
 nodeFloor:{ChangeSelf:[{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},},{property: 'position', value: new THREE.Vector3(0,0,0),},{property: 'raycast-teleportation', value: null,}],},
@@ -13321,6 +13419,9 @@ connect2: {inZone: 'zone2', node: 'zone2Node0',},
 zone1Node1:{
 connect0: {inZone: true, node: 'zone1Node0',},
 },
+controls:{
+
+},
 start:{
 
 },
@@ -13349,6 +13450,9 @@ id:'zone1Node0',
 name: 'Snowy Mountains',
 description: 'Open Tundra',
 sceneText: true,
+},
+controls:{
+
 },
 start:{
 teleport:{SpawnTeleport:null},
@@ -13383,6 +13487,9 @@ id:'zone1Node1',
 name: 'Mountain Cave',
 description: 'Underground Shelter',
 sceneText: true,
+},
+controls:{
+
 },
 start:{
 teleport0:{SpawnTeleport:null},
@@ -13520,6 +13627,9 @@ connect0: {inZone: 'zone0', node: 'zone0Node0',},
 connect1: {inZone: 'zone1', node: 'zone1Node0',},
 connect2: {inZone: 'zone3', node: 'zone3Node0',},
 },
+controls:{
+
+},
 start:{
 
 },
@@ -13546,6 +13656,10 @@ id:'zone2Node0',
 name: 'Deep Forest',
 description: 'Thick Woodlands',
 sceneText: true,
+},
+controls:{
+action3Down:{auxlObj: 'carouselTesting', component: false, func: 'PlayPause'},
+
 },
 start:{
 teleport:{SpawnTeleport:null},
@@ -13595,6 +13709,9 @@ connect3: {inZone: 'zone4', node: 'zone4Node0',},
 zone3Node1:{
 connect0: {inZone: true, node: 'zone3Node0',},
 },
+controls:{
+
+},
 start:{
 npc0:{SpawnNPC: null},
 },
@@ -13622,9 +13739,11 @@ name: 'Graveyard',
 description: 'Spooky Cemetary',
 sceneText: true,
 },
+controls:{
+
+},
 start:{
 teleport:{SpawnTeleport:null},
-
 nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern44, repeat: '150 150',color: "#618136", emissive: "#618136",},}},
 multiGrassyHillsBasic:{SpawnObjRing: null},
 graveyardScene1:{SpawnMultiAsset:null},
@@ -13655,6 +13774,9 @@ id:'zone3Node1',
 name: 'Cemetary Cabin',
 description: 'Graveyard Shelter',
 sceneText: true,
+},
+controls:{
+
 },
 start:{
 teleport0:{SpawnTeleport:null},
@@ -13705,6 +13827,9 @@ connect0: {inZone: 'zone0', node: 'zone0Node0',},
 connect1: {inZone: 'zone3', node: 'zone3Node0',},
 connect2: {inZone: 'zone5', node: 'zone5Node0',},
 },
+controls:{
+
+},
 start:{
 
 },
@@ -13731,6 +13856,9 @@ id:'zone4Node0',
 name: 'Open Desert',
 description: 'Dry Plains',
 sceneText: true,
+},
+controls:{
+
 },
 start:{
 teleport:{SpawnTeleport:null},
@@ -13780,6 +13908,9 @@ connect2: {inZone: true, node: 'zone5Node1',},
 },
 zone5Node1:{
 connect0: {inZone: true, node: 'zone5Node0',},
+},
+controls:{
+
 },
 start:{
 eventTesting2:{SpawnCore: null},
@@ -13844,6 +13975,9 @@ name: 'Oasis Beach',
 description: 'Rolling Sands',
 sceneText: true,
 },
+controls:{
+
+},
 start:{
 teleport:{SpawnTeleport:null},
 eventTesting5:{SetFlag:{flag: 'testExitVar', value: true}, EnableDetail: {text: 'An example of using start/exit to set variables and change scene settings.'}},
@@ -13887,6 +14021,9 @@ id:'zone5Node1',
 name: 'Underwater',
 description: 'Submerged',
 sceneText: true,
+},
+controls:{
+
 },
 start:{
 teleport0:{SpawnTeleport:null},
@@ -14273,114 +14410,6 @@ AFRAME.registerComponent('mouseuprun', {
 });
 
 //
-//Locomotion Support
-//Brake Engaged by Default
-let moveTo = false;
-let moveBack = false;
-let moveRight = false;
-let moveLeft = false;
-let moveBrake = true;
-let brakeReady = true;
-let brakeToggle = false;
-let brakeReset; //Delay
-let moveSpeedDefault = 0.075;
-let moveSpeedSlow = 0.03;
-//Move Forward
-function movingForward(){
-	if(moveTo){}else{
-		moveTo = true;
-	}
-}
-//Cancel Forward
-function cancelForward(){
-	if(moveTo){
-		moveTo = false;
-	}
-}
-//Move Reverse
-function movingReverse(){
-	if(moveBack){}else{
-		moveBack = true;
-	}
-}
-//Cancel Reverse
-function cancelReverse(){
-	if(moveBack){
-		moveBack = false;
-	}
-}
-//Move Left
-function movingLeft(){
-	if(moveLeft){}else{
-		moveLeft = true;
-	}
-}
-//Cancel Left
-function cancelLeft(){
-	if(moveLeft){
-		moveLeft = false;
-	}
-}
-//Move Right
-function movingRight(){
-	if(moveRight){}else{
-		moveRight = true;
-	}
-}
-//Cancel Right
-function cancelRight(){
-	if(moveRight){
-		moveRight = false;
-	}
-}
-//Clear All Movement
-function clearMovement(){
-	cancelForward();
-	cancelReverse();
-	cancelLeft();
-	cancelRight();
-}
-//Toggle Speed Change
-function toggleSpeed(){
-	//console.log('Toggling Speed');
-	//Brake is disabled for 1.5 seconds after engaging
-	if(brakeReady){
-		if(brakeToggle){
-			//console.log('Break On');
-			//Set reset switch toggle
-			brakeToggle = false;
-			//Set reset timer switch toggle
-			brakeReady = false;
-			//Brake On
-			moveBrake = true;
-		} else {
-			//console.log('Break Off');
-			//Set reset switch toggle
-			brakeToggle = true;
-			//Set reset timer switch toggle
-			brakeReady = false;
-			//Brake Off
-			moveBrake = false;
-		}
-	}
-}
-//Buffer for Toggling Speed Change
-function brakeReadyBuffer(){
-	brakeReset = setTimeout(function () {
-		//Set reset switch toggle
-		brakeReady = true;
-	}, 250); //Delay
-}
-//Buffer for Toggling Speed Change Long
-function brakeReadBufferLong(){
-	//This will start the reset timer to allow the brake to be re-engadged
-	//Brake Reset Timeout
-	brakeReset = setTimeout(function () {
-		//Set reset switch toggle
-		brakeReady = true;
-	}, 2250); //Delay
-}
-//
 //Locomotion
 AFRAME.registerComponent('locomotion', {
 	dependencies: ['auxl'],
@@ -14442,18 +14471,125 @@ init: function () {
 	this.newX;
 	this.newZ;
 
+	//Locomotion Support
+	//Brake Engaged by Default
+	this.moveTo = false;
+	this.moveBack = false;
+	this.moveRight = false;
+	this.moveLeft = false;
+	this.moveBrake = true;
+	this.brakeReady = true;
+	this.brakeToggle = false;
+	this.brakeReset; //Delay
+	this.moveSpeedDefault = 0.075;
+	this.moveSpeedSlow = 0.03;
+
+},
+//Move Forward
+movingForward: function (){
+	if(this.moveTo){}else{
+		this.moveTo = true;
+	}
+},
+//Cancel Forward
+cancelForward: function (){
+	if(this.moveTo){
+		this.moveTo = false;
+	}
+},
+//Move Reverse
+movingReverse: function (){
+	if(this.moveBack){}else{
+		this.moveBack = true;
+	}
+},
+//Cancel Reverse
+cancelReverse: function (){
+	if(this.moveBack){
+		this.moveBack = false;
+	}
+},
+//Move Left
+movingLeft: function (){
+	if(this.moveLeft){}else{
+		this.moveLeft = true;
+	}
+},
+//Cancel Left
+cancelLeft: function (){
+	if(this.moveLeft){
+		this.moveLeft = false;
+	}
+},
+//Move Right
+movingRight: function (){
+	if(this.moveRight){}else{
+		this.moveRight = true;
+	}
+},
+//Cancel Right
+cancelRight: function (){
+	if(this.moveRight){
+		this.moveRight = false;
+	}
+},
+//Clear All Movement
+clearMovement: function (){
+	this.cancelForward();
+	this.cancelReverse();
+	this.cancelLeft();
+	this.cancelRight();
+},
+//Toggle Speed Change
+toggleSpeed: function (){
+	//console.log('Toggling Speed');
+	//Brake is disabled for 1.5 seconds after engaging
+	if(this.brakeReady){
+		if(this.brakeToggle){
+			//console.log('Break On');
+			//Set reset switch toggle
+			this.brakeToggle = false;
+			//Set reset timer switch toggle
+			this.brakeReady = false;
+			//Brake On
+			this.moveBrake = true;
+		} else {
+			//console.log('Break Off');
+			//Set reset switch toggle
+			this.brakeToggle = true;
+			//Set reset timer switch toggle
+			this.brakeReady = false;
+			//Brake Off
+			this.moveBrake = false;
+		}
+		this.brakeReset = setTimeout(() => {
+			//Set reset switch toggle
+			this.brakeReady = true;
+			clearTimeout(this.brakeReset);
+		}, 250); //Delay
+	}
+},
+//Buffer for Toggling Speed Change Long
+brakeReadBufferLong: function (){
+	//This will start the reset timer to allow the brake to be re-engadged
+	//Brake Reset Timeout
+	this.brakeReset = setTimeout(() => {
+		//Set reset switch toggle
+		this.brakeReady = true;
+		clearTimeout(this.brakeReset);
+	}, 2250); //Delay
 },
 
-raycasterLocomotion: function (e) {
+hoverLocomotion: function (e) {
 	//Brake is disabled for 1.5 seconds after engaging
-	if(brakeReady){
-		if(brakeToggle){
+	if(this.brakeReady){
+		if(this.brakeToggle){
 			//Set reset switch toggle
-			brakeToggle = false;
+			this.brakeToggle = false;
 			//Set reset timer switch toggle
-			brakeReady = false;
+			this.brakeReady = false;
 			//Brake On
-			moveBrake = true;
+			this.moveBrake = true;
 			//set brake color to red
 			this.directionBrake1.setAttribute('material', {color: 'red'});
 			this.directionBrake2.setAttribute('material', {color: 'red'});
@@ -14468,11 +14604,11 @@ raycasterLocomotion: function (e) {
 			this.directionBrake4.emit('brakeOn',{});
 		} else {
 			//Set reset switch toggle
-			brakeToggle = true;
+			this.brakeToggle = true;
 			//Set reset timer switch toggle
-			brakeReady = false;
+			this.brakeReady = false;
 			//Brake Off
-			moveBrake = false;
+			this.moveBrake = false;
 			//set brake color to default
 			this.directionBrake1.setAttribute('material', {color: 'black'});
 			this.directionBrake2.setAttribute('material', {color: 'black'});
@@ -14490,6 +14626,19 @@ raycasterLocomotion: function (e) {
 },
 
 update: function () {
+	//Locomotion Support
+	//Brake Engaged by Default
+	this.moveTo = false;
+	this.moveBack = false;
+	this.moveRight = false;
+	this.moveLeft = false;
+	this.moveBrake = true;
+	this.brakeReady = true;
+	this.brakeToggle = false;
+	this.brakeReset; //Delay
+	this.moveSpeedDefault = 0.075;
+	this.moveSpeedSlow = 0.03;
+
 	//Keyboard Controller Event Listeners
 	if(this.movetype === 'desktop'){
 	} else if(this.movetype === 'mobile'){
@@ -14503,21 +14652,21 @@ update: function () {
 		this.directionBrake3 = document.getElementById('locomotionBrake3UI');
 		this.directionBrake4 = document.getElementById('locomotionBrake4UI');
 		//directionForward
-		this.directionForward.addEventListener('mouseenter', movingForward);
-		this.directionForward.addEventListener('mouseleave', cancelForward);
+		this.directionForward.addEventListener('mouseenter', this.movingForward);
+		this.directionForward.addEventListener('mouseleave', this.cancelForward);
 		//directionReverse
-		this.directionReverse.addEventListener('mouseenter', movingReverse);
-		this.directionReverse.addEventListener('mouseleave', cancelReverse);
+		this.directionReverse.addEventListener('mouseenter', this.movingReverse);
+		this.directionReverse.addEventListener('mouseleave', this.cancelReverse);
 
-		this.raycasterLocomotionEvent = (event) => {
-			this.raycasterLocomotion(event);
+		this.hoverLocomotionEvent = (event) => {
+			this.hoverLocomotion(event);
 		}
 		document.querySelectorAll('.directionBrake').forEach(item => {
-			item.addEventListener('mouseenter', event => this.raycasterLocomotionEvent)
+			item.addEventListener('mouseenter', event => this.hoverLocomotionEvent)
 		});
 
 		document.querySelectorAll('.directionBrake').forEach(item => {
-			item.addEventListener('mouseleave', event => brakeReadBufferLong)
+			item.addEventListener('mouseleave', event => this.brakeReadBufferLong)
 		});
 	}
 },
@@ -14529,18 +14678,18 @@ remove: function () {
 	} else if(this.movetype === 'vr'){
 	} else if(this.movetype === 'vrHover'){
 		//directionForward
-		this.directionForward.removeEventListener('mouseenter', movingForward);
-		this.directionForward.removeEventListener('mouseleave', cancelForward);
+		this.directionForward.removeEventListener('mouseenter', this.movingForward);
+		this.directionForward.removeEventListener('mouseleave', this.cancelForward);
 		//directionReverse
-		this.directionReverse.removeEventListener('mouseenter', movingReverse);
-		this.directionReverse.removeEventListener('mouseleave', cancelReverse);
+		this.directionReverse.removeEventListener('mouseenter', this.movingReverse);
+		this.directionReverse.removeEventListener('mouseleave', this.cancelReverse);
 
 		document.querySelectorAll('.directionBrake').forEach(item => {
-			item.removeEventListener('mouseenter', event => this.raycasterLocomotionEvent)
+			item.removeEventListener('mouseenter', event => this.hoverLocomotionEvent)
 		});
 
 		document.querySelectorAll('.directionBrake').forEach(item => {
-			item.removeEventListener('mouseleave', event => brakeReadBufferLong)
+			item.removeEventListener('mouseleave', event => this.brakeReadBufferLong)
 		});
 
 	}
@@ -14551,41 +14700,41 @@ everySome: function (time, timeDelta) {
 	//Do something on every scene tick or frame.
 	//console.log('everysome running');
 	//console.log(move);
-	if(moveBrake){
-		if(moveTo && moveRight) {
-			this.walk('forwardRight', moveSpeedSlow);
-		} else if(moveTo && moveLeft) {
-			this.walk('forwardLeft', moveSpeedSlow);
-		} else if(moveBack && moveRight) {
-			this.walk('reverseRight', moveSpeedSlow);
-		} else if(moveBack && moveLeft) {
-			this.walk('reverseLeft', moveSpeedSlow);
-		} else if(moveTo) {
-			this.walk('forward', moveSpeedSlow);
-		} else if(moveBack) {
-			this.walk('reverse', moveSpeedSlow);
-		} else if(moveRight) {
-			this.walk('right', moveSpeedSlow);
-		} else if(moveLeft) {
-			this.walk('left', moveSpeedSlow);
+	if(this.moveBrake){
+		if(this.moveTo && this.moveRight) {
+			this.walk('forwardRight', this.moveSpeedSlow);
+		} else if(this.moveTo && this.moveLeft) {
+			this.walk('forwardLeft', this.moveSpeedSlow);
+		} else if(this.moveBack && this.moveRight) {
+			this.walk('reverseRight', this.moveSpeedSlow);
+		} else if(this.moveBack && this.moveLeft) {
+			this.walk('reverseLeft', this.moveSpeedSlow);
+		} else if(this.moveTo) {
+			this.walk('forward', this.moveSpeedSlow);
+		} else if(this.moveBack) {
+			this.walk('reverse', this.moveSpeedSlow);
+		} else if(this.moveRight) {
+			this.walk('right', this.moveSpeedSlow);
+		} else if(this.moveLeft) {
+			this.walk('left', this.moveSpeedSlow);
 		}
 	} else {
-		if(moveTo && moveRight) {
-			this.walk('forwardRight', moveSpeedDefault);
-		} else if(moveTo && moveLeft) {
-			this.walk('forwardLeft', moveSpeedDefault);
-		} else if(moveBack && moveRight) {
-			this.walk('reverseRight', moveSpeedDefault);
-		} else if(moveBack && moveLeft) {
-			this.walk('reverseLeft', moveSpeedDefault);
-		} else if(moveTo) {
-			this.walk('forward', moveSpeedDefault);
-		} else if(moveBack) {
-			this.walk('reverse', moveSpeedDefault);
-		} else if(moveRight) {
-			this.walk('right', moveSpeedDefault);
-		} else if(moveLeft) {
-			this.walk('left', moveSpeedDefault);
+		if(this.moveTo && this.moveRight) {
+			this.walk('forwardRight', this.moveSpeedDefault);
+		} else if(this.moveTo && this.moveLeft) {
+			this.walk('forwardLeft', this.moveSpeedDefault);
+		} else if(this.moveBack && this.moveRight) {
+			this.walk('reverseRight', this.moveSpeedDefault);
+		} else if(this.moveBack && this.moveLeft) {
+			this.walk('reverseLeft', this.moveSpeedDefault);
+		} else if(this.moveTo) {
+			this.walk('forward', this.moveSpeedDefault);
+		} else if(this.moveBack) {
+			this.walk('reverse', this.moveSpeedDefault);
+		} else if(this.moveRight) {
+			this.walk('right', this.moveSpeedDefault);
+		} else if(this.moveLeft) {
+			this.walk('left', this.moveSpeedDefault);
 		}
 	}
 },
@@ -14991,318 +15140,6 @@ userDirection: function (){
 });
 
 //
-//VR Controller 1 Inputs
-//Left - Joystick(Locomotion) | X | Y
-AFRAME.registerComponent('vr-left-inputs', {
-dependencies: ['auxl'],
-schema: {
-	joystickEnabled: {type: 'boolean', default: true},
-},
-
-init: function () {
-	//VR Left Controls
-	//Controller Rotation
-	//Controller Position
-	//Main Trigger Click - Left Trigger Click
-	//Secondary Trigger Click - Left Grip Click
-	//Locomotion Directional - Joystick
-	//Button 1 - X
-	//Button 2 - Y
-	this.joystickEnabled = this.data.joystickEnabled;
-	const auxl = document.querySelector('a-scene').systems.auxl;
-
-	//Testing
-	this.updateInputEvent = (event) => {
-		this.updateInput(event);
-	}
-
-	//Controller Functions
-
-	//Main Trigger
-	this.questMainClickEvent = (event) => {
-		this.questMainClick(event);
-	}
-	//Secondary Trigger
-	this.questAltClickEvent = (event) => {
-		this.questAltClick(event);
-	}
-	//Button 1 (X)
-	this.questButton1Event = (event) => {
-		this.questButton1(event);
-	}
-	//Button 2 (Y)
-	this.questButton2Event = (event) => {
-		this.questButton2(event);
-	}
-	//Joystick
-	this.questJoystickLocomotionEvent = (event) => {
-		this.questJoystickLocomotion(event);
-	}
-	//Locomotion
-	this.deadzone = 0.1;
-	this.xNum = 0;
-	this.yNum = 0;
-	this.angle = 0;
-	this.angleDeg = 0;
-},
-updateInput: function (input){
-	//Display Inputs - DEV Testing
-	const displayInput = document.querySelector('#displayInput');
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-	displayInputText.value = input;
-	displayInput.setAttribute('text',displayInputText);
-},
-questMainClick: function (e){
-	this.updateInputEvent('Left Main Trigger');
-},
-questAltClick: function (e){
-	this.updateInputEvent('Left Secondary Trigger');
-},
-questButton1: function (e){
-	this.updateInputEvent('X Button');
-},
-questButton2: function (e){
-	this.updateInputEvent('Y Button');
-},
-questJoystickLocomotion: function (e){
-	this.xNum = e.detail.x;
-	this.yNum = e.detail.y;
-	this.angle = Math.atan2(this.xNum,this.yNum);
-	function radToDeg(rad) {
-	  return rad / (Math.PI / 180);
-	}
-	this.angleDeg = radToDeg(this.angle);
-
-	if(this.yNum < this.deadzone && this.yNum > this.deadzone*-1 && this.xNum > this.deadzone*-1 && this.xNum < this.deadzone){
-		clearMovement();
-		this.updateInputEvent('Locomotion Clear');
-	} else if(this.yNum > this.deadzone || this.yNum < this.deadzone*-1 || this.xNum < this.deadzone*-1 || this.xNum > this.deadzone) {
-		if(this.angleDeg > -22.5 && this.angleDeg < 22.5){
-		//Backward : -22.5 -> 22.5
-			clearMovement();
-			movingReverse();
-			this.updateInputEvent('Backward');
-		} else if(this.angleDeg > 22.5 && this.angleDeg < 67.5){
-		//BackwardRight : 22.5 -> 67.5
-			clearMovement();
-			movingReverse();
-			movingRight();
-			this.updateInputEvent('Backward Right');
-		} else if(this.angleDeg > 67.5 && this.angleDeg < 112.5){
-		//Right : 67.5 -> 112.5
-			clearMovement();
-			movingRight();
-			this.updateInputEvent('Right');
-		} else if(this.angleDeg > 112.5 && this.angleDeg < 157.5){
-		//ForwardRight : 112.5 -> 157.5
-			clearMovement();
-			movingForward();
-			movingRight();
-			this.updateInputEvent('Forward Right');
-		} else if(this.angleDeg > 157.5 || this.angleDeg < -157.5){//
-		//Forward : 157.5 -> 180 or -157.5 -> -180
-			clearMovement();
-			movingForward();
-			this.updateInputEvent('Forward');
-		} else if(this.angleDeg < -112.5 && this.angleDeg > -157.5){
-		//ForwardLeft: -112.5 -> -157.5
-			clearMovement();
-			movingForward();
-			movingLeft();
-			this.updateInputEvent('Forward Left');
-		} else if(this.angleDeg < -67.5 && this.angleDeg > -112.5){
-		//Left : -67.5 -> -112.5
-			clearMovement();
-			movingLeft();
-			this.updateInputEvent('Left');
-		} else if(this.angleDeg < -22.5 && this.angleDeg > -67.5){
-		//BackwardLeft: -22.5 -> -67.5 
-			clearMovement();
-			movingReverse();
-			movingLeft();
-			this.updateInputEvent('Backward Left');
-		}
-	} else {
-		clearMovement();
-		this.updateInputEvent('Locomotion Clear');
-	}
-},
-update: function () {
-	//Main Trigger
-	this.el.addEventListener('triggerdown', this.questMainClickEvent);
-	//Secondary Trigger
-	this.el.addEventListener('gripdown', this.questAltClickEvent);
-	//Button 1 (X)
-	this.el.addEventListener('xbuttondown', this.questButton1Event);
-	//Button 2 (Y)
-	this.el.addEventListener('ybuttondown', this.questButton2Event);
-	//Joystick
-	if(this.data.joystickEnabled){
-		this.el.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-	}
-},
-remove: function () {
-	//Main Trigger
-	this.el.removeEventListener('triggerdown', this.questMainClickEvent);
-	//Secondary Trigger
-	this.el.removeEventListener('gripdown', this.questAltClickEvent);
-	//Button 1 (X)
-	this.el.removeEventListener('xbuttondown', this.questButton1Event);
-	//Button 2 (Y)
-	this.el.removeEventListener('ybuttondown', this.questButton2Event);
-	//Joystick
-	if(this.data.joystickEnabled){
-		this.el.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-	}
-},
-});
-
-//
-//VR Controller 2 Inputs
-//Right - Joystick(Rotation) | A | B
-AFRAME.registerComponent('vr-right-inputs', {
-dependencies: ['auxl'],
-schema: {
-	joystickEnabled: {type: 'boolean', default: true},
-},
-
-init: function () {
-	//VR Right Controls
-	//Controller Rotation
-	//Controller Position
-	//Main Trigger Click - Right Trigger Click
-	//Secondary Trigger Click - Right Grip Click
-	//Rotation/Duck|Stand - Joystick
-	//Button 1 - A
-	//Button 2 - B
-	this.joystickEnabled = this.data.joystickEnabled;
-	const auxl = document.querySelector('a-scene').systems.auxl;
-
-	//Testing
-	this.updateInputEvent = (event) => {
-		this.updateInput(event);
-	}
-
-	//Controller Functions
-
-	//Main Trigger
-	this.questMainClickEvent = (event) => {
-		this.questMainClick(event);
-	}
-	//Secondary Trigger
-	this.questAltClickEvent = (event) => {
-		this.questAltClick(event);
-	}
-	//Button 1 (A)
-	this.questButton1Event = (event) => {
-		this.questButton1(event);
-	}
-	//Button 2 (B)
-	this.questButton2Event = (event) => {
-		this.questButton2(event);
-	}
-	//Joystick
-	this.questJoystickOtherEvent = (event) => {
-		this.questJoystickOther(event);
-	}
-	//Locomotion
-	this.deadzone = 0.1;
-	this.xNum = 0;
-	this.yNum = 0;
-	this.angle = 0;
-	this.angleDeg = 0;
-},
-updateInput: function (input){
-	//Display Inputs - DEV Testing
-	const displayInput = document.querySelector('#displayInput');
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-	displayInputText.value = input;
-	displayInput.setAttribute('text',displayInputText);
-},
-questMainClick: function (e){
-	this.updateInputEvent('Right Main Trigger');
-},
-questAltClick: function (e){
-	this.updateInputEvent('Right Secondary Trigger');
-},
-questButton1: function (e){
-	this.updateInputEvent('A Button');
-},
-questButton2: function (e){
-	this.updateInputEvent('B Button');
-},
-questJoystickOther: function (e){
-	this.xNum = e.detail.x;
-	this.yNum = e.detail.y;
-	this.angle = Math.atan2(this.xNum,this.yNum);
-	function radToDeg(rad) {
-	  return rad / (Math.PI / 180);
-	}
-	this.angleDeg = radToDeg(this.angle);
-
-	if(this.yNum < this.deadzone && this.yNum > this.deadzone*-1 && this.xNum > this.deadzone*-1 && this.xNum < this.deadzone){
-		this.updateInputEvent('Rotation|Duck Clear');
-	} else if(this.yNum > this.deadzone || this.yNum < this.deadzone*-1 || this.xNum < this.deadzone*-1 || this.xNum > this.deadzone) {
-		if(this.angleDeg > -22.5 && this.angleDeg < 22.5){
-		//Backward : -22.5 -> 22.5
-			this.updateInputEvent('Duck');
-		} else if(this.angleDeg > 22.5 && this.angleDeg < 67.5){
-		//BackwardRight : 22.5 -> 67.5
-			this.updateInputEvent('Rotate Right');
-		} else if(this.angleDeg > 67.5 && this.angleDeg < 112.5){
-		//Right : 67.5 -> 112.5
-			this.updateInputEvent('Rotate Right');
-		} else if(this.angleDeg > 112.5 && this.angleDeg < 157.5){
-		//ForwardRight : 112.5 -> 157.5
-			this.updateInputEvent('Rotate Right');
-		} else if(this.angleDeg > 157.5 || this.angleDeg < -157.5){//
-		//Forward : 157.5 -> 180 or -157.5 -> -180
-			this.updateInputEvent('Stand');
-		} else if(this.angleDeg < -112.5 && this.angleDeg > -157.5){
-		//ForwardLeft: -112.5 -> -157.5
-			this.updateInputEvent('Rotate Left');
-		} else if(this.angleDeg < -67.5 && this.angleDeg > -112.5){
-		//Left : -67.5 -> -112.5
-			this.updateInputEvent('Rotate Left');
-		} else if(this.angleDeg < -22.5 && this.angleDeg > -67.5){
-		//BackwardLeft: -22.5 -> -67.5 
-			this.updateInputEvent('Rotate Left');
-		}
-	} else {
-		this.updateInputEvent('Rotation|Duck Clear');
-	}
-},
-update: function () {
-	//Main Trigger
-	this.el.addEventListener('triggerdown', this.questMainClickEvent);
-	//Secondary Trigger
-	this.el.addEventListener('gripdown', this.questAltClickEvent);
-	//Button 1 (A)
-	this.el.addEventListener('abuttondown', this.questButton1Event);
-	//Button 2 (B)
-	this.el.addEventListener('bbuttondown', this.questButton2Event);
-	//Joystick
-	if(this.data.joystickEnabled){
-		this.el.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
-	}
-},
-remove: function () {
-	//Main Trigger
-	this.el.removeEventListener('triggerdown', this.questMainClickEvent);
-	//Secondary Trigger
-	this.el.removeEventListener('gripdown', this.questAltClickEvent);
-	//Button 1 (A)
-	this.el.removeEventListener('abuttondown', this.questButton1Event);
-	//Button 2 (B)
-	this.el.removeEventListener('bbuttondown', this.questButton2Event);
-	//Joystick
-	if(this.data.joystickEnabled){
-		this.el.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
-	}
-},
-});
-
-//
 //Teleportation
 AFRAME.registerComponent('teleportation',{
 dependencies: ['auxl'],
@@ -15644,20 +15481,49 @@ AFRAME.registerComponent('raycast-teleportation', {
 //Universal Controls
 AFRAME.registerComponent('universal-controls', {
 dependencies: ['auxl'],
-schema: {
-	config: {type: 'string', default: 'desktop'},
-	altClick: {type: 'string', default: 'function'},
-	action1: {type: 'string', default: 'function'},
-	action2: {type: 'string', default: 'function'},
-	action3: {type: 'string', default: 'function'},
-	action4: {type: 'string', default: 'function'},
-	action5: {type: 'string', default: 'function'},
-	action6: {type: 'string', default: 'function'},
-},
 init: function () {
+
+//Controls to Configure for :
+//Desktop : Mouse & Keyboard
+//Mobile : Touchscreen
+//VR Advanced : Dual 6DoF Controllers
+//VR Basic : Single 3DoF Button Controller - Need to Finish
+//VR Mobile : Headset Only - Need to Add
+//Hand Tracking : Dual Hand Movements - Need to Add
+
+//Control Actions :
+//Main Click
+//Alt Click
+//Directional Movement
+//Rotational Movement
+//Action 1 - Button X, Key Q, HTML A
+//Action 2 - Button Y, Key E, HTML B
+//Action 3 - Button A, Key R, HTML C
+//Action 4 - Button B, Key C, HTML D
+//Action 5 - Right Joystick Down, Key V, HTML E
+//Action 6 - Right Joystick Up, Key B, HTML F
 
 this.aScene = document.querySelector('a-scene');
 this.auxl = document.querySelector('a-scene').systems.auxl;
+//Locomotion Component
+this.locomotion;
+//VR Controllers
+this.vrController1;
+this.vrController2;
+
+//Remappable Controls
+this.controls = {
+directionForwardKeys: ['w','W','ArrowUp'],
+directionLeftKeys: ['a','A','ArrowLeft'],
+directionBackwardKeys: ['s','S','ArrowDown'],
+directionRightKeys: ['d','D','ArrowRight'],
+action1Keys: ['q','Q'],
+action2Keys: ['e','E'],
+action3Keys: ['r','R'],
+action4Keys: ['c','C'],
+action5Keys: ['v','V'],
+action6Keys: ['b','B'],
+};
 
 //Mobile HTML Buttons
 this.mobileUpLeft = document.getElementById('upLeft');
@@ -15678,42 +15544,21 @@ this.mobileD = document.getElementById('d');
 this.mobileE = document.getElementById('e');
 this.mobileF = document.getElementById('f');
 
-this.vrController1;
-this.vrController2;
-
-//Control Configurations :
-//Desktop : Mouse & Keyboard
-//Mobile : Touchscreen
-//VR Advanced : Dual 6DoF Controllers
-//VR Basic : Single 3DoF Button Controller
-//VR Mobile : Headset Only
-//Hand Tracking : Dual Hand Movements
-
-//Control Actions :
-//Main Click
-//Alt Click
-//Directional Movement
-//Rotational Movement
-//Action 1
-//Action 2
-//Action 3
-//Action 4
-//Action 5
-//Action 6
-
-//Remappable Controls
-this.controls = {
-directionForwardKeys: ['w','W','ArrowUp'],
-directionLeftKeys: ['a','A','ArrowLeft'],
-directionBackwardKeys: ['s','S','ArrowDown'],
-directionRightKeys: ['d','D','ArrowRight'],
-action1Keys: ['q','Q'],
-action2Keys: ['e','E'],
-action3Keys: ['r','R'],
-action4Keys: ['c','C'],
-action5Keys: ['v','V'],
-action6Keys: ['b','B'],
-};
+//Customizable Action Controls
+this.altDownFunc = false;
+this.altUpFunc = false;
+this.action1DownFunc = false;
+this.action1UpFunc = false;
+this.action2DownFunc = false;
+this.action2UpFunc = false;
+this.action3DownFunc = false;
+this.action3UpFunc = false;
+this.action4DownFunc = false;
+this.action4UpFunc = false;
+this.action5DownFunc = false;
+this.action5UpFunc = false;
+this.action6DownFunc = false;
+this.action6UpFunc = false;
 
 //
 //Control Events
@@ -15809,6 +15654,14 @@ this.mainClickUp = () => {
 //Alt Click
 this.altClickHit = (e) => {
 	this.altClick(e);
+}
+this.altClickDown = () => {
+	this.altClickDetail.click = 'altClickHit';
+	document.dispatchEvent(this.altClickEvent);
+}
+this.altClickUp = () => {
+	this.altClickDetail.click = 'altClickRelease';
+	document.dispatchEvent(this.altClickEvent);
 }
 this.dispatchAlt = () => {
 	document.dispatchEvent(this.altClickEvent);
@@ -15987,13 +15840,11 @@ this.blankHit = (e) => {
 	this.blank(e);
 }
 
-
+//
 //Controller Events
+
 //Left
 //Main Trigger
-this.questLeftMainClickEvent = (e) => {
-	this.questLeftMainClick(e);
-}
 this.questLeftMainClickDown = () => {
 	this.mainClickDetail.click = 'leftClickDown';
 	document.dispatchEvent(this.mainClickEvent);
@@ -16002,19 +15853,14 @@ this.questLeftMainClickUp = () => {
 	this.mainClickDetail.click = 'leftClickUp';
 	document.dispatchEvent(this.mainClickEvent);
 }
-
-
 //Secondary Trigger
-this.questLeftAltClickEvent = (e) => {
-	this.questLeftAltClick(e);
+this.questLeftAltClickDown = () => {
+	this.altClickDetail.click = 'leftAltClickDown';
+	document.dispatchEvent(this.altClickEvent);
 }
-//Button 1 (X)
-this.questLeftButton1Event = (e) => {
-	this.questLeftButton1(e);
-}
-//Button 2 (Y)
-this.questLeftButton2Event = (e) => {
-	this.questLeftButton2(e);
+this.questLeftAltClickUp = () => {
+	this.altClickDetail.click = 'leftAltClickUp';
+	document.dispatchEvent(this.altClickEvent);
 }
 //Joystick
 this.questJoystickLocomotionEvent = (e) => {
@@ -16029,10 +15875,6 @@ this.angleDegLoco = 0;
 
 //Right
 //Main Trigger
-this.questRightMainClickEvent = (e) => {
-	this.questRightMainClick(e);
-}
-
 this.questRightMainClickDown = () => {
 	this.mainClickDetail.click = 'rightClickDown';
 	document.dispatchEvent(this.mainClickEvent);
@@ -16041,18 +15883,14 @@ this.questRightMainClickUp = () => {
 	this.mainClickDetail.click = 'rightClickUp';
 	document.dispatchEvent(this.mainClickEvent);
 }
-
 //Secondary Trigger
-this.questRightAltClickEvent = (e) => {
-	this.questRightAltClick(e);
+this.questRightAltClickDown = () => {
+	this.altClickDetail.click = 'rightAltClickDown';
+	document.dispatchEvent(this.altClickEvent);
 }
-//Button 1 (A)
-this.questRightButton1Event = (e) => {
-	this.questRightButton1(e);
-}
-//Button 2 (B)
-this.questRightButton2Event = (e) => {
-	this.questRightButton2(e);
+this.questRightAltClickUp = () => {
+	this.altClickDetail.click = 'rightAltClickUp';
+	document.dispatchEvent(this.altClickEvent);
 }
 //Joystick
 this.questJoystickOtherEvent = (e) => {
@@ -16065,9 +15903,8 @@ this.yNumOther = 0;
 this.angleOther = 0;
 this.angleDegOther = 0;
 
-
-
     },
+//DEV
 updateInput: function (input){
 	//Display Inputs - DEV Testing
 	const displayInput = document.querySelector('#displayInput');
@@ -16075,36 +15912,146 @@ updateInput: function (input){
 	displayInputText.value = input;
 	displayInput.setAttribute('text',displayInputText);
 },
+//Change Action function
+updateAction: function (actionObj){
+	//console.log(actionObj);
+	for(let action in actionObj){
+		//console.log(action);//actionName
+		//console.log(actionObj[action]);//params
+		let actionFunc;
+		if(action === 'altDown'){
+			actionFunc = 'altDownFunc';
+		} else if(action === 'altUp'){
+			actionFunc = 'altUpFunc';
+		} else if(action === 'action1Down'){
+			actionFunc = 'action1DownFunc';
+		} else if(action === 'action1Up'){
+			actionFunc = 'action1UpFunc';
+		} else if(action === 'action2Down'){
+			actionFunc = 'action2DownFunc';
+		} else if(action === 'action2Up'){
+			actionFunc = 'action2UpFunc';
+		} else if(action === 'action3Down'){
+			actionFunc = 'action3DownFunc';
+		} else if(action === 'action3Up'){
+			actionFunc = 'action3UpFunc';
+		} else if(action === 'action4Down'){
+			actionFunc = 'action4DownFunc';
+		} else if(action === 'action4Up'){
+			actionFunc = 'action4UpFunc';
+		} else if(action === 'action5Down'){
+			actionFunc = 'action5DownFunc';
+		} else if(action === 'action5Up'){
+			actionFunc = 'action5UpFunc';
+		} else if(action === 'action6Down'){
+			actionFunc = 'action6DownFunc';
+		} else if(action === 'action6Up'){
+			actionFunc = 'action6UpFunc';
+		} else {
+			console.log('Failed to identify action')
+			return;
+		}
+
+		if(actionObj[action]){
+			let auxlObj = actionObj[action].auxlObj;
+			let component = actionObj[action].component;
+			let func = actionObj[action].func;
+			if(component){
+				//if component is not auxl, then the object is a dom entity and the component is attached to that object and the func is in that component
+				//if component is true, then
+				//document.getElementById(auxlObj).components[component].func;
+				this[actionFunc] = document.getElementById(auxlObj).components[component].func;
+			} else {
+				//if component is false, then
+				//this.auxl[auxlObj][func]
+				this[actionFunc] = this.auxl[auxlObj][func];
+			}
+		} else {
+			this[actionFunc] = false;
+		}
+	}
+},
+//Disable Action function
+disableAction: function (actionObj){
+	//console.log(actionObj);
+	for(let action in actionObj){
+		//console.log(action);//actionName
+		//console.log(actionObj[action]);//params
+		let actionFunc;
+		if(action === 'altDown'){
+			actionFunc = 'altDownFunc';
+		} else if(action === 'altUp'){
+			actionFunc = 'altUpFunc';
+		} else if(action === 'action1Down'){
+			actionFunc = 'action1DownFunc';
+		} else if(action === 'action1Up'){
+			actionFunc = 'action1UpFunc';
+		} else if(action === 'action2Down'){
+			actionFunc = 'action2DownFunc';
+		} else if(action === 'action2Up'){
+			actionFunc = 'action2UpFunc';
+		} else if(action === 'action3Down'){
+			actionFunc = 'action3DownFunc';
+		} else if(action === 'action3Up'){
+			actionFunc = 'action3UpFunc';
+		} else if(action === 'action4Down'){
+			actionFunc = 'action4DownFunc';
+		} else if(action === 'action4Up'){
+			actionFunc = 'action4UpFunc';
+		} else if(action === 'action5Down'){
+			actionFunc = 'action5DownFunc';
+		} else if(action === 'action5Up'){
+			actionFunc = 'action5UpFunc';
+		} else if(action === 'action6Down'){
+			actionFunc = 'action6DownFunc';
+		} else if(action === 'action6Up'){
+			actionFunc = 'action6UpFunc';
+		} else {
+			console.log('Failed to identify action')
+			return;
+		}
+		this[actionFunc] = false;
+	}
+},
 //Main Click
 mainClick: function (e){
-	console.log(e.detail);
+	//console.log(e.detail);
 	this.updateInput(e.detail.info);
 },
 //Alt Click
 altClick: function (e){
 	console.log(e.detail);
 	this.updateInput(e.detail.info);
+	if(e.detail.action === 'altClickHit'){
+		if(this.altDownFunc){
+			this.altDownFunc();
+		}
+	} else if(e.detail.action === 'altClickRelease'){
+		if(this.altUpFunc){
+			this.altUpFunc();
+		}
+	}
 },
 //Directional Movement
 direction: function (e){
 	//console.log(e.detail);
 	this.updateInput(e.detail.info);
 	if(e.detail.direction === 'forwardHit'){
-		movingForward();
+		this.locomotion.movingForward();
 	} else if(e.detail.direction === 'forwardRelease'){
-		cancelForward();
+		this.locomotion.cancelForward();
 	} else if(e.detail.direction === 'leftHit'){
-		movingLeft();
+		this.locomotion.movingLeft();
 	} else if(e.detail.direction === 'leftRelease'){
-		cancelLeft();
+		this.locomotion.cancelLeft();
 	} else if(e.detail.direction === 'backwardHit'){
-		movingReverse();
+		this.locomotion.movingReverse();
 	} else if(e.detail.direction === 'backwardRelease'){
-		cancelReverse();
+		this.locomotion.cancelReverse();
 	} else if(e.detail.direction === 'rightHit'){
-		movingRight();
+		this.locomotion.movingRight();
 	} else if(e.detail.direction === 'rightRelease'){
-		cancelRight();
+		this.locomotion.cancelRight();
 	} 
 },
 //Rotational Movement
@@ -16116,36 +16063,87 @@ rotation: function (e){
 action1: function (e){
 	console.log(e.detail);
 	this.updateInput(e.detail.info);
+	this.auxl.player.ToggleCrouch();
+	if(e.detail.action === 'action1Hit'){
+		if(this.action1DownFunc){
+			this.action1DownFunc();
+		}
+	} else if(e.detail.action === 'action1Release'){
+		if(this.action1UpFunc){
+			this.action1UpFunc();
+		}
+	}
 },
 //Action 2
 action2: function (e){
 	console.log(e.detail);
 	this.updateInput(e.detail.info);
+	this.locomotion.toggleSpeed();
 	if(e.detail.action === 'action2Hit'){
-		toggleSpeed();
+		if(this.action2DownFunc){
+			this.action2DownFunc();
+		}
 	} else if(e.detail.action === 'action2Release'){
-		brakeReadyBuffer();
+		if(this.action2UpFunc){
+			this.action2UpFunc();
+		}
 	}
 },
 //Action 3
 action3: function (e){
 	console.log(e.detail);
 	this.updateInput(e.detail.info);
+	if(e.detail.action === 'action3Hit'){
+		if(this.action3DownFunc){
+			this.action3DownFunc();
+		}
+	} else if(e.detail.action === 'action3Release'){
+		if(this.action3UpFunc){
+			this.action3UpFunc();
+		}
+	}
 },
 //Action 4
 action4: function (e){
 	console.log(e.detail);
 	this.updateInput(e.detail.info);
+	if(e.detail.action === 'action4Hit'){
+		if(this.action4DownFunc){
+			this.action4DownFunc();
+		}
+	} else if(e.detail.action === 'action4Release'){
+		if(this.action4UpFunc){
+			this.action4UpFunc();
+		}
+	}
 },
 //Action 5
 action5: function (e){
 	console.log(e.detail);
 	this.updateInput(e.detail.info);
+	if(e.detail.action === 'action5Hit'){
+		if(this.action5DownFunc){
+			this.action5DownFunc();
+		}
+	} else if(e.detail.action === 'action5Release'){
+		if(this.action5UpFunc){
+			this.action5UpFunc();
+		}
+	}
 },
 //Action 6
 action6: function (e){
 	console.log(e.detail);
 	this.updateInput(e.detail.info);
+	if(e.detail.action === 'action6Hit'){
+		if(this.action6DownFunc){
+			this.action6DownFunc();
+		}
+	} else if(e.detail.action === 'action6Release'){
+		if(this.action6UpFunc){
+			this.action6UpFunc();
+		}
+	}
 },
 
 keyboardDown: function (e){
@@ -16215,8 +16213,8 @@ keyboardUp: function (e){
 	}
 },
 
-
 questJoystickLocomotion: function (e){
+	//Update this.locomotion.func into this.directionEvent
 	this.xNumLoco = e.detail.x;
 	this.yNumLoco = e.detail.y;
 	this.angleLoco = Math.atan2(this.xNumLoco,this.yNumLoco);
@@ -16226,56 +16224,56 @@ questJoystickLocomotion: function (e){
 	this.angleDegLoco = radToDeg(this.angleLoco);
 
 	if(this.yNumLoco < this.deadzoneLoco && this.yNumLoco > this.deadzoneLoco*-1 && this.xNumLoco > this.deadzoneLoco*-1 && this.xNumLoco < this.deadzoneLoco){
-		clearMovement();
+		this.locomotion.clearMovement();
 		this.updateInput('Locomotion Clear');
 	} else if(this.yNumLoco > this.deadzoneLoco || this.yNumLoco < this.deadzoneLoco*-1 || this.xNumLoco < this.deadzoneLoco*-1 || this.xNumLoco > this.deadzoneLoco) {
 		if(this.angleDegLoco > -22.5 && this.angleDegLoco < 22.5){
-		//Backward : -22.5 -> 22.5
-			clearMovement();
-			movingReverse();
+			//Backward : -22.5 -> 22.5
+			this.locomotion.clearMovement();
+			this.locomotion.movingReverse();
 			this.updateInput('Backward');
 		} else if(this.angleDegLoco > 22.5 && this.angleDegLoco < 67.5){
-		//BackwardRight : 22.5 -> 67.5
-			clearMovement();
-			movingReverse();
-			movingRight();
+			//BackwardRight : 22.5 -> 67.5
+			this.locomotion.clearMovement();
+			this.locomotion.movingReverse();
+			this.locomotion.movingRight();
 			this.updateInput('Backward Right');
 		} else if(this.angleDegLoco > 67.5 && this.angleDegLoco < 112.5){
-		//Right : 67.5 -> 112.5
-			clearMovement();
-			movingRight();
+			//Right : 67.5 -> 112.5
+			this.locomotion.clearMovement();
+			this.locomotion.movingRight();
 			this.updateInput('Right');
 		} else if(this.angleDegLoco > 112.5 && this.angleDegLoco < 157.5){
-		//ForwardRight : 112.5 -> 157.5
-			clearMovement();
-			movingForward();
-			movingRight();
+			//ForwardRight : 112.5 -> 157.5
+			this.locomotion.clearMovement();
+			this.locomotion.movingForward();
+			this.locomotion.movingRight();
 			this.updateInput('Forward Right');
-		} else if(this.angleDegLoco > 157.5 || this.angleDegLoco < -157.5){//
-		//Forward : 157.5 -> 180 or -157.5 -> -180
-			clearMovement();
-			movingForward();
+		} else if(this.angleDegLoco > 157.5 || this.angleDegLoco < -157.5){
+			//Forward : 157.5 -> 180 or -157.5 -> -180
+			this.locomotion.clearMovement();
+			this.locomotion.movingForward();
 			this.updateInput('Forward');
 		} else if(this.angleDegLoco < -112.5 && this.angleDegLoco > -157.5){
-		//ForwardLeft: -112.5 -> -157.5
-			clearMovement();
-			movingForward();
-			movingLeft();
+			//ForwardLeft: -112.5 -> -157.5
+			this.locomotion.clearMovement();
+			this.locomotion.movingForward();
+			this.locomotion.movingLeft();
 			this.updateInput('Forward Left');
 		} else if(this.angleDegLoco < -67.5 && this.angleDegLoco > -112.5){
-		//Left : -67.5 -> -112.5
-			clearMovement();
-			movingLeft();
+			//Left : -67.5 -> -112.5
+			this.locomotion.clearMovement();
+			this.locomotion.movingLeft();
 			this.updateInput('Left');
 		} else if(this.angleDegLoco < -22.5 && this.angleDegLoco > -67.5){
-		//BackwardLeft: -22.5 -> -67.5 
-			clearMovement();
-			movingReverse();
-			movingLeft();
+			//BackwardLeft: -22.5 -> -67.5 
+			this.locomotion.clearMovement();
+			this.locomotion.movingReverse();
+			this.locomotion.movingLeft();
 			this.updateInput('Backward Left');
 		}
 	} else {
-		clearMovement();
+		this.locomotion.clearMovement();
 		this.updateInput('Locomotion Clear');
 	}
 },
@@ -16293,28 +16291,30 @@ questJoystickOther: function (e){
 		this.updateInput('Rotation|Duck Clear');
 	} else if(this.yNumOther > this.deadzoneOther || this.yNumOther < this.deadzoneOther*-1 || this.xNumOther < this.deadzoneOther*-1 || this.xNumOther > this.deadzoneOther) {
 		if(this.angleDegOther > -22.5 && this.angleDegOther < 22.5){
-		//Backward : -22.5 -> 22.5
+			//Backward : -22.5 -> 22.5
 			this.updateInput('Duck');
+			this.action5Down();
 		} else if(this.angleDegOther > 22.5 && this.angleDegOther < 67.5){
-		//BackwardRight : 22.5 -> 67.5
+			//BackwardRight : 22.5 -> 67.5
 			this.updateInput('Rotate Right');
 		} else if(this.angleDegOther > 67.5 && this.angleDegOther < 112.5){
-		//Right : 67.5 -> 112.5
+			//Right : 67.5 -> 112.5
 			this.updateInput('Rotate Right');
 		} else if(this.angleDegOther > 112.5 && this.angleDegOther < 157.5){
-		//ForwardRight : 112.5 -> 157.5
+			//ForwardRight : 112.5 -> 157.5
 			this.updateInput('Rotate Right');
-		} else if(this.angleDegOther > 157.5 || this.angleDegOther < -157.5){//
-		//Forward : 157.5 -> 180 or -157.5 -> -180
+		} else if(this.angleDegOther > 157.5 || this.angleDegOther < -157.5){
+			//Forward : 157.5 -> 180 or -157.5 -> -180
 			this.updateInput('Stand');
+			this.action6Down();
 		} else if(this.angleDegOther < -112.5 && this.angleDegOther > -157.5){
-		//ForwardLeft: -112.5 -> -157.5
+			//ForwardLeft: -112.5 -> -157.5
 			this.updateInput('Rotate Left');
 		} else if(this.angleDegOther < -67.5 && this.angleDegOther > -112.5){
-		//Left : -67.5 -> -112.5
+			//Left : -67.5 -> -112.5
 			this.updateInput('Rotate Left');
 		} else if(this.angleDegOther < -22.5 && this.angleDegOther > -67.5){
-		//BackwardLeft: -22.5 -> -67.5 
+			//BackwardLeft: -22.5 -> -67.5 
 			this.updateInput('Rotate Left');
 		}
 	} else {
@@ -16325,32 +16325,6 @@ questJoystickOther: function (e){
 blank: function (e){
 	console.log(e);
 	this.updateInput('Blank Button');
-},
-
-//OLD
-questLeftMainClick: function (e){
-	this.updateInput('Left Main Trigger');
-},
-questLeftAltClick: function (e){
-	this.updateInput('Left Secondary Trigger');
-},
-questLeftButton1: function (e){
-	this.updateInput('X Button');
-},
-questLeftButton2: function (e){
-	this.updateInput('Y Button');
-},
-questRightMainClick: function (e){
-	this.updateInput('Right Main Trigger');
-},
-questRightAltClick: function (e){
-	this.updateInput('Right Secondary Trigger');
-},
-questRightButton1: function (e){
-	this.updateInput('A Button');
-},
-questRightButton2: function (e){
-	this.updateInput('B Button');
 },
 
 update: function () {
@@ -16373,31 +16347,23 @@ update: function () {
 	document.addEventListener('keydown', this.keyboardDownHit);
 	document.addEventListener('keyup', this.keyboardUpHit);
 
-	//document.addEventListener('mousedown', this.mainClickDown);
-	//document.addEventListener('mouseup', this.mainClickUp);
-	//Both the mouseCursor and Canvas element fire mousedown and mouseup resulting in 2 events firing at the same time
-	/*
-	mousedown { target: a-entity#mouseCursor, isTrusted: false, detail: {…}, srcElement: a-entity#mouseCursor, currentTarget: HTMLDocument http://localhost/auxl/test.html, eventPhase: 3, bubbles: true, cancelable: false, returnValue: true, defaultPrevented: false, … }
-
-	mousedown { target: canvas.a-canvas.a-grab-cursor, buttons: 1, clientX: 1245, clientY: 326, layerX: 1245, layerY: 326 }
-
-		document.addEventListener('mousedown', function(e){
-			//e.stopImmediatePropagation();
-			//e.stopPropagation();
-			//e.preventDefault();
-			console.log('Mouse Down')
-		});
-	*/
+//Allow elements to spawn before grabbing/assigning
 let initTimeout = setTimeout(() => {
+
+	//Locomotion Component
+	this.locomotion = document.getElementById('playerRig').components.locomotion;
+
 	//Quest
 	this.vrController1 = document.getElementById('vrController1');
 	this.vrController2 = document.getElementById('vrController2');
+
 	//Left
 	//Main Trigger
 	this.vrController1.addEventListener('triggerdown', this.questLeftMainClickDown);
 	this.vrController1.addEventListener('triggerup', this.questLeftMainClickUp);
 	//Secondary Trigger
-	this.vrController1.addEventListener('gripdown', this.questLeftAltClickEvent);
+	this.vrController1.addEventListener('gripdown', this.questLeftAltClickDown);
+	this.vrController1.addEventListener('gripup', this.questLeftAltClickUp);
 	//Button 1 (X)
 	this.vrController1.addEventListener('xbuttondown', this.action1Down);
 	this.vrController1.addEventListener('xbuttonup', this.action1Up);
@@ -16411,7 +16377,8 @@ let initTimeout = setTimeout(() => {
 	this.vrController2.addEventListener('triggerdown', this.questRightMainClickDown);
 	this.vrController2.addEventListener('triggerup', this.questRightMainClickUp);
 	//Secondary Trigger
-	this.vrController2.addEventListener('gripdown', this.questRightAltClickEvent);
+	this.vrController2.addEventListener('gripdown', this.questRightAltClickDown);
+	this.vrController2.addEventListener('gripup', this.questRightAltClickUp);
 	//Button 1 (A)
 	this.vrController2.addEventListener('abuttondown', this.action3Down);
 	this.vrController2.addEventListener('abuttonup', this.action3Up);
@@ -16424,10 +16391,6 @@ let initTimeout = setTimeout(() => {
 
 
 	//Mobile
-	//touchstart
-	//touchend
-	//touchcancel
-	//touchmove
 	this.mobileUpLeft.addEventListener('mousedown', this.directionForwardLeftDown);
 	this.mobileUpLeft.addEventListener('mouseup', this.directionForwardLeftUp);
 	this.mobileUp.addEventListener('mousedown', this.directionForwardDown);
@@ -16462,8 +16425,41 @@ let initTimeout = setTimeout(() => {
 	this.mobileE.addEventListener('mouseup', this.action5Up);
 	this.mobileF.addEventListener('mousedown', this.action6Down);
 	this.mobileF.addEventListener('mouseup', this.action6Up);
+	//touchstart
+	//touchend
+	//touchcancel
+	//touchmove
+
+	//document.addEventListener('mousedown', this.mainClickDown);
+	//document.addEventListener('mouseup', this.mainClickUp);
+	//Both the mouseCursor and Canvas element fire mousedown and mouseup resulting in 2 events firing at the same time
+	/*
+	mousedown { target: a-entity#mouseCursor, isTrusted: false, detail: {…}, srcElement: a-entity#mouseCursor, currentTarget: HTMLDocument http://localhost/auxl/test.html, eventPhase: 3, bubbles: true, cancelable: false, returnValue: true, defaultPrevented: false, … }
+
+	mousedown { target: canvas.a-canvas.a-grab-cursor, buttons: 1, clientX: 1245, clientY: 326, layerX: 1245, layerY: 326 }
+
+		document.addEventListener('mousedown', function(e){
+			//e.stopImmediatePropagation();
+			//e.stopPropagation();
+			//e.preventDefault();
+			console.log('Mouse Down')
+		});
+	*/
+
 },
 remove: function () {
+
+	//Universal Events
+	document.removeEventListener('mainClick', this.mainClickHit);
+	document.removeEventListener('altClick', this.altClickHit);
+	document.removeEventListener('direction', this.directionHit);
+	document.removeEventListener('rotation', this.rotationHit);
+	document.removeEventListener('action1', this.action1Hit);
+	document.removeEventListener('action2', this.action2Hit);
+	document.removeEventListener('action3', this.action3Hit);
+	document.removeEventListener('action4', this.action4Hit);
+	document.removeEventListener('action5', this.action5Hit);
+	document.removeEventListener('action6', this.action6Hit);
 
 	//Desktop
 	document.removeEventListener('click', this.mainClickE);
@@ -16471,7 +16467,25 @@ remove: function () {
 	document.removeEventListener('keydown', this.keyboardDownHit);
 	document.removeEventListener('keyup', this.keyboardUpHit);
 
-
+	//VR Controllers
+	this.vrController1.removeEventListener('triggerdown', this.questLeftMainClickDown);
+	this.vrController1.removeEventListener('triggerup', this.questLeftMainClickUp);
+	this.vrController1.removeEventListener('gripdown', this.questLeftAltClickDown);
+	this.vrController1.removeEventListener('gripup', this.questLeftAltClickUp);
+	this.vrController1.removeEventListener('xbuttondown', this.action1Down);
+	this.vrController1.removeEventListener('xbuttonup', this.action1Up);
+	this.vrController1.removeEventListener('ybuttondown', this.action2Down);
+	this.vrController1.removeEventListener('ybuttonup', this.action2Up);
+	this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+	this.vrController2.removeEventListener('triggerdown', this.questRightMainClickDown);
+	this.vrController2.removeEventListener('triggerup', this.questRightMainClickUp);
+	this.vrController2.removeEventListener('gripdown', this.questRightAltClickDown);
+	this.vrController2.removeEventListener('gripup', this.questRightAltClickUp);
+	this.vrController2.removeEventListener('abuttondown', this.action3Down);
+	this.vrController2.removeEventListener('abuttonup', this.action3Up);
+	this.vrController2.removeEventListener('bbuttondown', this.action4Down);
+	this.vrController2.removeEventListener('bbuttonup', this.action4Up);
+	this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
 
 	//Mobile
 	this.mobileUpLeft.removeEventListener('mousedown', this.directionForwardLeftDown);
@@ -16509,17 +16523,6 @@ remove: function () {
 	this.mobileF.removeEventListener('mousedown', this.action6Down);
 	this.mobileF.removeEventListener('mouseup', this.action6Up);
 
-	//Universal Events
-	document.removeEventListener('mainClick', this.mainClickHit);
-	document.removeEventListener('altClick', this.altClickHit);
-	document.removeEventListener('direction', this.directionHit);
-	document.removeEventListener('rotation', this.rotationHit);
-	document.removeEventListener('action1', this.action1Hit);
-	document.removeEventListener('action2', this.action2Hit);
-	document.removeEventListener('action3', this.action3Hit);
-	document.removeEventListener('action4', this.action4Hit);
-	document.removeEventListener('action5', this.action5Hit);
-	document.removeEventListener('action6', this.action6Hit);
 },
 });
 
