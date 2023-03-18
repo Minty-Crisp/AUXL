@@ -1868,8 +1868,32 @@ this.Player = (layer) => {
 
 	layer.teleporting = false;
 
+	//Sitting or Standing Mode
+	layer.stand = true;
+
+	//Duck | Standing
+	let crouchTimeout;
 	layer.standing = true;
 	layer.animating = false;
+
+	//Snap Rotation
+	layer.snapRotating = false;
+	let snapTimeout;
+	//Rotate 45
+	let anim45Data = {
+		name: 'anim45',
+		property: 'object3D.rotation.y',
+		from: '0',
+		to: '45', 
+		dur: 250,
+		delay: 0, 
+		loop: 'false', 
+		dir: 'normal', 
+		easing: 'easeInOutSine', 
+		elasticity: 400, 
+		autoplay: true, 
+		enabled: true,
+	};
 
 	//Initialize Player
 	layer.SpawnLayer(true);
@@ -1990,24 +2014,86 @@ this.Player = (layer) => {
 		}
 	}
 
-	const ToggleCrouch = () => {
+	const ToggleSittingMode = () => {
 		if(layer.animating){} else {
 			layer.animating = true;
-			if(layer.standing){
-				auxl.playerRig.EmitEvent('duck');
-				layer.standing = false;
+			if(layer.stand){
+				auxl.playerRig.EmitEvent('sit');
+				layer.stand = false;
 			} else {
 				auxl.playerRig.EmitEvent('stand');
-				layer.standing = true;
+				layer.stand = true;
 			}
+			crouchTimeout = setTimeout(function () {
+				layer.animating = false;
+				clearTimeout(crouchTimeout);
+			}, 775);
 		}
-		let timeout = setTimeout(function () {
-			layer.animating = false;
-			clearTimeout(timeout);
-		}, 775);
 	}
 
-	return {layer, SetFlag, GetFlag, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion, ToggleCrouch}
+	const ToggleCrouch = () => {
+		if(layer.stand){
+			if(layer.animating){} else {
+				layer.animating = true;
+				if(layer.standing){
+					auxl.playerRig.EmitEvent('crouchDownStanding');
+					layer.standing = false;
+				} else {
+					auxl.playerRig.EmitEvent('crouchUpStanding');
+					layer.standing = true;
+				}
+				crouchTimeout = setTimeout(function () {
+					layer.animating = false;
+					clearTimeout(crouchTimeout);
+				}, 775);
+			}
+		} else {
+			if(layer.animating){} else {
+				layer.animating = true;
+				if(layer.standing){
+					auxl.playerRig.EmitEvent('crouchDownSitting');
+					layer.standing = false;
+				} else {
+					auxl.playerRig.EmitEvent('crouchUpSitting');
+					layer.standing = true;
+				}
+				crouchTimeout = setTimeout(function () {
+					layer.animating = false;
+					clearTimeout(crouchTimeout);
+				}, 775);
+			}
+		}
+	}
+
+	const SnapRight = () => {
+		if(layer.snapRotating){} else {
+			layer.snapRotating = true;
+			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
+			anim45Data.from = rotY;
+			anim45Data.to = rotY - 45;
+			auxl.playerRig.Animate(anim45Data);
+			snapTimeout = setTimeout(() => {
+				layer.snapRotating = false;
+				clearTimeout(snapTimeout);
+			}, anim45Data.dur+10);
+		}
+	}
+
+	const SnapLeft = () => {
+		if(layer.snapRotating){} else {
+			layer.snapRotating = true;
+			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
+			anim45Data.from = rotY;
+			anim45Data.to = rotY + 45;
+			auxl.playerRig.Animate(anim45Data);
+			snapTimeout = setTimeout(() => {
+				layer.snapRotating = false;
+				clearTimeout(snapTimeout);
+			}, anim45Data.dur+10);
+		}
+	}
+
+	return {layer, SetFlag, GetFlag, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft}
 }
 //Scene Load Anim
 function playerSceneAnim(){
@@ -7038,12 +7124,19 @@ sources: false,
 text: false,
 geometry: false,
 material: false,
-position: new THREE.Vector3(0,0,0.5),
-rotation: new THREE.Vector3(0,0,0),
+position: new THREE.Vector3(0,0,1),
+rotation: new THREE.Vector3(0,1,0),
 scale: new THREE.Vector3(1,1,1),
 animations: {
-duck: {property: 'object3D.position.y', from: 0, to: -0.5, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'duck'},
-stand: {property: 'object3D.position.y', from: -0.5, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'stand'},
+crouchdownstanding: {property: 'object3D.position.y', from: 0, to: -0.5, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchDownStanding'},
+crouchupstanding: {property: 'object3D.position.y', from: -0.5, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchUpStanding'},
+
+crouchdownsitting: {property: 'object3D.position.y', from: 0.5, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchDownSitting'},
+crouchupsitting: {property: 'object3D.position.y', from: 0, to: 0.5, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchUpSitting'},
+
+sit: {property: 'object3D.position.y', from: 0, to: 0.5, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sit'},
+stand: {property: 'object3D.position.y', from: 0.5, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'stand'},
+
 },
 mixins: false,
 classes: ['a-ent','player'],
@@ -13287,8 +13380,13 @@ controls:{
 //action6Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
 //action6Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
 
-action1Down:{auxlObj: 'player', component: false, func: 'ToggleCrouch'},
-action2Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
+//auxl.player.SnapLeft();
+//auxl.player.SnapRight();
+
+action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
+action5Down:{auxlObj: 'player', component: false, func: 'ToggleCrouch'},
+action6Down:{auxlObj: 'player', component: false, func: 'ToggleSittingMode'},
+
 },
 start:{
 skyBox0:{SpawnSkyBox: null},
@@ -15523,6 +15621,8 @@ action3Keys: ['r','R'],
 action4Keys: ['c','C'],
 action5Keys: ['v','V'],
 action6Keys: ['b','B'],
+snapLeftKeys: ['z','Z'],
+snapRightKeys: ['x','X'],
 };
 
 //Mobile HTML Buttons
@@ -15537,6 +15637,8 @@ this.mobileDown = document.getElementById('down');
 this.mobileDownRight = document.getElementById('downRight');
 this.mobileSelect = document.getElementById('select');
 this.mobileStart = document.getElementById('start');
+this.mobileSnapLeft = document.getElementById('snapLeft');
+this.mobileSnapRight = document.getElementById('snapRight');
 this.mobileA = document.getElementById('a');
 this.mobileB = document.getElementById('b');
 this.mobileC = document.getElementById('c');
@@ -15903,6 +16005,14 @@ this.yNumOther = 0;
 this.angleOther = 0;
 this.angleDegOther = 0;
 
+//Snap Turning
+this.snapLeftHit = (e) => {
+	this.snapLeft();
+}
+this.snapRightHit = (e) => {
+	this.snapRight();
+}
+
     },
 //DEV
 updateInput: function (input){
@@ -15959,8 +16069,8 @@ updateAction: function (actionObj){
 			if(component){
 				//if component is not auxl, then the object is a dom entity and the component is attached to that object and the func is in that component
 				//if component is true, then
-				//document.getElementById(auxlObj).components[component].func;
-				this[actionFunc] = document.getElementById(auxlObj).components[component].func;
+//Bind function to the component itself
+this[actionFunc] = document.getElementById(auxlObj).components[component][func].bind(document.getElementById(auxlObj).components[component]);
 			} else {
 				//if component is false, then
 				//this.auxl[auxlObj][func]
@@ -16020,7 +16130,7 @@ mainClick: function (e){
 },
 //Alt Click
 altClick: function (e){
-	console.log(e.detail);
+	//console.log(e.detail);
 	this.updateInput(e.detail.info);
 	if(e.detail.action === 'altClickHit'){
 		if(this.altDownFunc){
@@ -16056,14 +16166,13 @@ direction: function (e){
 },
 //Rotational Movement
 rotation: function (e){
-	console.log(e.detail);
+	//console.log(e.detail);
 	this.updateInput(e.detail.info);
 },
 //Action 1
 action1: function (e){
-	console.log(e.detail);
+	//console.log(e.detail);
 	this.updateInput(e.detail.info);
-	this.auxl.player.ToggleCrouch();
 	if(e.detail.action === 'action1Hit'){
 		if(this.action1DownFunc){
 			this.action1DownFunc();
@@ -16076,9 +16185,8 @@ action1: function (e){
 },
 //Action 2
 action2: function (e){
-	console.log(e.detail);
+	//console.log(e.detail);
 	this.updateInput(e.detail.info);
-	this.locomotion.toggleSpeed();
 	if(e.detail.action === 'action2Hit'){
 		if(this.action2DownFunc){
 			this.action2DownFunc();
@@ -16091,7 +16199,7 @@ action2: function (e){
 },
 //Action 3
 action3: function (e){
-	console.log(e.detail);
+	//console.log(e.detail);
 	this.updateInput(e.detail.info);
 	if(e.detail.action === 'action3Hit'){
 		if(this.action3DownFunc){
@@ -16105,7 +16213,7 @@ action3: function (e){
 },
 //Action 4
 action4: function (e){
-	console.log(e.detail);
+	//console.log(e.detail);
 	this.updateInput(e.detail.info);
 	if(e.detail.action === 'action4Hit'){
 		if(this.action4DownFunc){
@@ -16119,7 +16227,7 @@ action4: function (e){
 },
 //Action 5
 action5: function (e){
-	console.log(e.detail);
+	//console.log(e.detail);
 	this.updateInput(e.detail.info);
 	if(e.detail.action === 'action5Hit'){
 		if(this.action5DownFunc){
@@ -16133,7 +16241,7 @@ action5: function (e){
 },
 //Action 6
 action6: function (e){
-	console.log(e.detail);
+	//console.log(e.detail);
 	this.updateInput(e.detail.info);
 	if(e.detail.action === 'action6Hit'){
 		if(this.action6DownFunc){
@@ -16177,7 +16285,14 @@ keyboardDown: function (e){
 	} else if(this.controls.action6Keys.includes(e.key)){
 		//Action 6
 		this.action6Down();
+	} else if(this.controls.snapLeftKeys.includes(e.key)){
+		//Snap Left
+		this.snapLeftHit();
+	} else if(this.controls.snapRightKeys.includes(e.key)){
+		//Snap Right
+		this.snapRightHit();
 	}
+
 },
 keyboardUp: function (e){
 	if(this.controls.directionForwardKeys.includes(e.key)) {
@@ -16212,7 +16327,7 @@ keyboardUp: function (e){
 		this.action6Up();
 	}
 },
-
+//Joystick Locomotion
 questJoystickLocomotion: function (e){
 	//Update this.locomotion.func into this.directionEvent
 	this.xNumLoco = e.detail.x;
@@ -16277,7 +16392,15 @@ questJoystickLocomotion: function (e){
 		this.updateInput('Locomotion Clear');
 	}
 },
-
+//Snap Turning Left
+snapLeft: function (){
+	this.auxl.player.SnapLeft();
+},
+//Snap Turning Right
+snapRight: function (){
+	this.auxl.player.SnapRight();
+},
+//Joystick Other
 questJoystickOther: function (e){
 	this.xNumOther = e.detail.x;
 	this.yNumOther = e.detail.y;
@@ -16297,12 +16420,15 @@ questJoystickOther: function (e){
 		} else if(this.angleDegOther > 22.5 && this.angleDegOther < 67.5){
 			//BackwardRight : 22.5 -> 67.5
 			this.updateInput('Rotate Right');
+			this.snapRightHit();
 		} else if(this.angleDegOther > 67.5 && this.angleDegOther < 112.5){
 			//Right : 67.5 -> 112.5
 			this.updateInput('Rotate Right');
+			this.snapRightHit();
 		} else if(this.angleDegOther > 112.5 && this.angleDegOther < 157.5){
 			//ForwardRight : 112.5 -> 157.5
 			this.updateInput('Rotate Right');
+			this.snapRightHit();
 		} else if(this.angleDegOther > 157.5 || this.angleDegOther < -157.5){
 			//Forward : 157.5 -> 180 or -157.5 -> -180
 			this.updateInput('Stand');
@@ -16310,12 +16436,15 @@ questJoystickOther: function (e){
 		} else if(this.angleDegOther < -112.5 && this.angleDegOther > -157.5){
 			//ForwardLeft: -112.5 -> -157.5
 			this.updateInput('Rotate Left');
+			this.snapLeftHit();
 		} else if(this.angleDegOther < -67.5 && this.angleDegOther > -112.5){
 			//Left : -67.5 -> -112.5
 			this.updateInput('Rotate Left');
+			this.snapLeftHit();
 		} else if(this.angleDegOther < -22.5 && this.angleDegOther > -67.5){
 			//BackwardLeft: -22.5 -> -67.5 
 			this.updateInput('Rotate Left');
+			this.snapLeftHit();
 		}
 	} else {
 		this.updateInput('Rotation|Duck Clear');
@@ -16410,9 +16539,13 @@ let initTimeout = setTimeout(() => {
 	this.mobileDownRight.addEventListener('mousedown', this.directionBackwardRightDown);
 	this.mobileDownRight.addEventListener('mouseup', this.directionBackwardRightUp);
 	this.mobileSelect.addEventListener('mousedown', this.blankHit);
-	this.mobileSelect.addEventListener('mouseup', this.blankHit);
+	//this.mobileSelect.addEventListener('mouseup', this.blankHit);
 	this.mobileStart.addEventListener('mousedown', this.blankHit);
-	this.mobileStart.addEventListener('mouseup', this.blankHit);
+	//this.mobileStart.addEventListener('mouseup', this.blankHit);
+	this.mobileSnapLeft.addEventListener('mousedown', this.snapLeftHit);
+	//this.mobileSnapLeft.addEventListener('mouseup', this.blankHit);
+	this.mobileSnapRight.addEventListener('mousedown', this.snapRightHit);
+	//this.mobileSnapRight.addEventListener('mouseup', this.blankHit);
 	this.mobileA.addEventListener('mousedown', this.action1Down);
 	this.mobileA.addEventListener('mouseup', this.action1Up);
 	this.mobileB.addEventListener('mousedown', this.action2Down);
@@ -16507,9 +16640,13 @@ remove: function () {
 	this.mobileDownRight.removeEventListener('mousedown', this.directionBackwardRightDown);
 	this.mobileDownRight.removeEventListener('mouseup', this.directionBackwardRightUp);
 	this.mobileSelect.removeEventListener('mousedown', this.blankHit);
-	this.mobileSelect.removeEventListener('mouseup', this.blankHit);
+	//this.mobileSelect.removeEventListener('mouseup', this.blankHit);
 	this.mobileStart.removeEventListener('mousedown', this.blankHit);
-	this.mobileStart.removeEventListener('mouseup', this.blankHit);
+	//this.mobileStart.removeEventListener('mouseup', this.blankHit);
+	this.mobileSnapLeft.removeEventListener('mousedown', this.snapLeftHit);
+	//this.mobileSnapLeft.removeEventListener('mouseup', this.blankHit);
+	this.mobileSnapRight.removeEventListener('mousedown', this.snapRightHit);
+	//this.mobileSnapRight.removeEventListener('mouseup', this.blankHit);
 	this.mobileA.removeEventListener('mousedown', this.action1Down);
 	this.mobileA.removeEventListener('mouseup', this.action1Up);
 	this.mobileB.removeEventListener('mousedown', this.action2Down);
