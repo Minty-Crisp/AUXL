@@ -45,6 +45,12 @@ flex-direction: column;
 justify-content: center;
 }
 
+.flexRowCenter {
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
 .a-enter-ar, .a-enter-vr {
 position: fixed;
 }

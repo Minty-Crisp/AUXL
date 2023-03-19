@@ -357,7 +357,7 @@ function enableVRControls(){
 		//vrController2.setAttribute('vr-right-inputs',{joystickEnabled: true});
 		//Enable VR Locomotion
 		auxl.player.EnableVRLocomotion();
-	} else if(auxl.vrHand === 'both'){
+	} else if(auxl.vrHand === 'bothRightLoco' || auxl.vrHand === 'bothLeftLoco'){
 		//vrController visible to true
 		vrController1.setAttribute('visible',true);
 		vrController2.setAttribute('visible',true);
@@ -519,19 +519,22 @@ menuModeButton.addEventListener('click', changeControls);
 function changeVRHand(){
 	if(auxl.vrHand === 'bothRight'){
 		auxl.vrHand = 'bothLeft';
-		vrHandButton.innerHTML = '2 Hands : Left Raycaster';
+		vrHandButton.innerHTML = '2 Hands : Left Ray | Right Move';
 	} else if(auxl.vrHand === 'bothLeft'){
-		auxl.vrHand = 'both';
-		vrHandButton.innerHTML = '2 Hands : Both Raycaster';
-	} else if(auxl.vrHand === 'both'){
+		auxl.vrHand = 'bothLeftLoco';
+		vrHandButton.innerHTML = '2 Hands : Dual Ray | Left Move';
+	} else if(auxl.vrHand === 'bothLeftLoco'){
+		auxl.vrHand = 'bothRightLoco';
+		vrHandButton.innerHTML = '2 Hands : Dual Ray | Right Move';
+	} else if(auxl.vrHand === 'bothRightLoco'){
 		auxl.vrHand = 'right';
-		vrHandButton.innerHTML = '1 Hand : Right Raycaster';
+		vrHandButton.innerHTML = '1 Hand : Right Ray | Belt Move';
 	} else if(auxl.vrHand === 'right'){
 		auxl.vrHand = 'left';
-		vrHandButton.innerHTML = '1 Hand : Left Raycaster';
-	} else {
+		vrHandButton.innerHTML = '1 Hand : Left Ray | Belt Move';
+	} else if(auxl.vrHand = 'left') {
 		auxl.vrHand = 'bothRight';
-		vrHandButton.innerHTML = '2 Hands : Right Raycaster';
+		vrHandButton.innerHTML = '2 Hands : Right Ray | Left Move';
 	}
 	updateControls();
 }
@@ -1260,7 +1263,8 @@ this.Core = (data) => {
 
 		let aEl = document.getElementById(core.id);
 		if(aEl){}else{
-			console.log(core.id)
+			//console.log(core.id)
+			return false;
 		}
 		return aEl;
 	}
@@ -1992,8 +1996,9 @@ this.Player = (layer) => {
 	}
 
 	const EnableVRHoverLocomotion = (vrHand) => {
-		DisableLocomotion();
-		auxl.locomotionUILayer.SpawnLayer(true);
+		if(auxl.locomotionUILayer.GetParentEl()){} else{
+			auxl.locomotionUILayer.SpawnLayer(true);
+		}
 		playerRig.setAttribute('locomotion',{uiid: 'beltUIParent', courserid: 'mouseController', movetype: 'vrHover'});
 	}
 
@@ -2008,7 +2013,6 @@ this.Player = (layer) => {
 	}
 
 	const DisableLocomotion = () => {
-		//playerRig.removeAttribute('locomotion');
 		if(document.getElementById('beltUIParent')){
 			auxl.locomotionUILayer.DespawnLayer(true);
 		}
@@ -14737,6 +14741,17 @@ update: function () {
 	this.moveSpeedDefault = 0.075;
 	this.moveSpeedSlow = 0.03;
 
+	//Schema Imoprt
+	//
+	//Cursor Element
+	this.mouseCursor = document.getElementById(this.data.courserid);
+	//UI to attach
+	if(this.data.uiid){
+		this.ui = document.getElementById(this.data.uiid);
+	}
+	//Movement Type
+	this.movetype = this.data.movetype;
+
 	//Keyboard Controller Event Listeners
 	if(this.movetype === 'desktop'){
 	} else if(this.movetype === 'mobile'){
@@ -16499,8 +16514,7 @@ let initTimeout = setTimeout(() => {
 	//Button 2 (Y)
 	this.vrController1.addEventListener('ybuttondown', this.action2Down);
 	this.vrController1.addEventListener('ybuttonup', this.action2Up);
-	//Joystick
-	this.vrController1.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+
 	//Right
 	//Main Trigger
 	this.vrController2.addEventListener('triggerdown', this.questRightMainClickDown);
@@ -16514,8 +16528,26 @@ let initTimeout = setTimeout(() => {
 	//Button 2 (B)
 	this.vrController2.addEventListener('bbuttondown', this.action4Down);
 	this.vrController2.addEventListener('bbuttonup', this.action4Up);
-	//Joystick
-	this.vrController2.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+
+	//Joysticks
+	if(this.auxl.vrHand === 'bothRight' || this.auxl.vrHand === 'bothLeftLoco'){
+		//Left Locomotion
+		this.vrController1.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		//Right Other
+		this.vrController2.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+	} else if(this.auxl.vrHand === 'bothLeft' || this.auxl.vrHand === 'bothRightLoco'){
+		//Right Locomotion
+		this.vrController2.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		//Left Other
+		this.vrController1.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+	} else {
+		//Left Locomotion
+		this.vrController1.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		//Right Other
+		this.vrController2.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+	}
+	console.log(this.auxl.vrHand);
+
 }, 1000);
 
 
@@ -16619,6 +16651,17 @@ remove: function () {
 	this.vrController2.removeEventListener('bbuttondown', this.action4Down);
 	this.vrController2.removeEventListener('bbuttonup', this.action4Up);
 	this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+	//Joysticks
+	if(this.auxl.vrHand === 'bothRight' || this.auxl.vrHand === 'bothLeftLoco'){
+		this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+	} else if(this.auxl.vrHand === 'bothLeft' || this.auxl.vrHand === 'bothRightLoco'){
+		this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+	} else {
+		this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+	}
 
 	//Mobile
 	this.mobileUpLeft.removeEventListener('mousedown', this.directionForwardLeftDown);

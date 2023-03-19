@@ -40,6 +40,10 @@ While ready to be tested and played with, various in-progress improvements for v
 - - All other inputs AltClick & Buttons 1-6's Hit and Release functions are customizable via Scenario, MapZone or NodeScene section controls.
 - - Control functions assigned are to either AUXL object functions or entity component functions.
 - - Control functions assigned to respective area are removed when leaving said area.
+- - SnapRight & SnapLeft 45 degree turning added to Joystick other left/right, Desktop Keys currently Z/X and Mobile left/right side buttons
+- - ToggleSittingMode & ToggleCrouch methods
+- - Added more controller options to swap Locomotion and Snap Turning + Action 5/6 joystick controls
+- - Desktop controls are adjustable via universal-controls component controls object
 
 # Remaining Goals for v0.2
 - Updated Menu ObjGen
