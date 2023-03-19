@@ -1974,6 +1974,7 @@ this.Player = (layer) => {
 			UpdateInventoryScreen();
 		}
 		//Notifications
+		inventoryTimeouts = [];
 		if(Array.isArray(item)){
 			for(let each in item){
 				let delay = 3800;
@@ -2007,6 +2008,7 @@ this.Player = (layer) => {
 			UpdateInventoryScreen();
 		}
 		//Notifications
+		inventoryTimeouts = [];
 		if(Array.isArray(item)){
 			for(let each in item){
 				let delay = 3800;
