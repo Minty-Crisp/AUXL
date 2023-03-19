@@ -303,9 +303,9 @@ white-space: nowrap;
 .a-dialog-ok-button {
 	background-color: green;
 }
-/*
-    --color-text: #FFFFFF;
-*/
+.a-dialog {
+	color: #b2b1b1;
+}
 :root {
     --active-brightness: 0.45;
     --border-radius: 5px;
@@ -318,7 +318,7 @@ white-space: nowrap;
     --color-secondary-accent: #920de90b;
     --color-shadow: #393434;
     --color-table: #118bee;
-    --color-text: #b2b1b1;
+    --color-text: #FFFFFF;
     --color-text-secondary: #999;
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     --hover-brightness: 1.2;
