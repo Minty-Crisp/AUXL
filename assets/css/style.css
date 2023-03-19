@@ -58,7 +58,7 @@ position: fixed;
 
 #stickyBar {
 padding: 0.25em;
-background-color: #46c496;
+background-color: transparent;
 height: 2.75em;
 }
 
@@ -256,7 +256,7 @@ font-weight: 900;
 height: 3.5em;
 letter-spacing: 0.35em;
 overflow: hidden;
-padding: 1em 2em 1em 2.5em;
+padding: 1rem;
 text-align: center;
 text-decoration: none;
 text-overflow: ellipsis;
@@ -286,7 +286,7 @@ font-size: 0.7em;
 font-weight: 900;
 letter-spacing: 0.35em;
 width: 20vw;
-padding: 1em 2em 1em 2.5em;
+padding: 1rem;
 text-align: center;
 text-decoration: none;
 text-overflow: ellipsis;
@@ -294,6 +294,14 @@ white-space: nowrap;
 -webkit-user-select: none; /* Safari */
 -ms-user-select: none; /* IE 10+ */
 user-select: none;
+}
+
+#scenarioHeaderTitle {
+	margin-right: 0.5em;
+}
+
+#stickyMenu {
+	background-color: transparent;
 }
 
 
