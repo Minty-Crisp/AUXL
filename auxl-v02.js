@@ -295,6 +295,7 @@ startButton.addEventListener('click', startExp);
 //VR
 function disableVRControls(){
 	//Disable VR Controls
+	//playerRig.removeAttribute('universal-controls');
 	//vrController visible to true
 	vrController1.setAttribute('visible',false);
 	vrController2.setAttribute('visible',false);
@@ -337,6 +338,7 @@ function enableVRControls(){
 		//vrController2.setAttribute('vr-right-inputs',{joystickEnabled: true});
 		//Enable VR Locomotion
 		auxl.player.EnableVRLocomotion();
+		playerRig.setAttribute('universal-controls',{update: 1});
 	} else if(auxl.vrHand === 'bothLeft'){
 		//vrController visible to true
 		vrController1.setAttribute('visible',true);
@@ -357,6 +359,7 @@ function enableVRControls(){
 		//vrController2.setAttribute('vr-right-inputs',{joystickEnabled: true});
 		//Enable VR Locomotion
 		auxl.player.EnableVRLocomotion();
+		playerRig.setAttribute('universal-controls',{update: 2});
 	} else if(auxl.vrHand === 'bothRightLoco' || auxl.vrHand === 'bothLeftLoco'){
 		//vrController visible to true
 		vrController1.setAttribute('visible',true);
@@ -378,6 +381,7 @@ function enableVRControls(){
 		//vrController2.setAttribute('vr-right-inputs',{joystickEnabled: true});
 		//Enable VR Locomotion
 		auxl.player.EnableVRLocomotion();
+		playerRig.setAttribute('universal-controls',{update: 3});
 	} else if(auxl.vrHand === 'right'){
 		//vrController visible to true
 		vrController2.setAttribute('visible',true);
@@ -393,6 +397,7 @@ function enableVRControls(){
 		//vrController2.setAttribute('vr-right-inputs',{joystickEnabled: false});
 		//Enable VR Hover Locomotion
 		auxl.player.EnableVRHoverLocomotion('vrController2');
+		playerRig.setAttribute('universal-controls',{update: 4});
 	} else if(auxl.vrHand === 'left'){
 		//vrController visible to true
 		vrController1.setAttribute('visible',true);
@@ -408,11 +413,13 @@ function enableVRControls(){
 		//vrController1.setAttribute('vr-left-inputs',{joystickEnabled: false});
 		//Enable VR Hover Locomotion
 		auxl.player.EnableVRHoverLocomotion('vrController1');
+		playerRig.setAttribute('universal-controls',{update: 5});
 	}
 }
 //Desktop
 function disableDesktopControls(){
 	//Disable Desktop Controls
+	//playerRig.removeAttribute('universal-controls');
 	//Remove Desktop WASD Controls
 	//playerRig.removeAttribute('wasd-controls');
 	//playerRig.removeAttribute('movement-controls');
@@ -440,9 +447,11 @@ function enableDesktopControls(){
 	auxl.player.EnableDesktopLocomotion();
 	//Update Controls
 	auxl.controls = 'Desktop';
+		playerRig.setAttribute('universal-controls',{update: 0});
 }
 //Mobile
 function disableMobileControls(){
+	//playerRig.removeAttribute('universal-controls');
 	//sceneEl.setAttribute('device-orientation-permission-ui', {enabled: false});
 	//playerRig.removeAttribute('movement-controls');
 	//Set mouseController to invisible
@@ -480,6 +489,7 @@ function enableMobileControls(){
 	auxl.player.EnableMobileLocomotion();
 	//Update Controls
 	auxl.controls = 'Mobile';
+		playerRig.setAttribute('universal-controls',{update: 6});
 }
 //Update Controls
 function updateControls(){
@@ -1991,7 +2001,7 @@ this.Player = (layer) => {
 	}
 
 	const EnableVRLocomotion = () => {
-		DisableLocomotion();
+		RemoveBelt();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'vr'});
 	}
 
@@ -2003,19 +2013,24 @@ this.Player = (layer) => {
 	}
 
 	const EnableDesktopLocomotion = () => {
-		DisableLocomotion();
+		RemoveBelt();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'desktop'});
 	}
 
 	const EnableMobileLocomotion = () => {
-		DisableLocomotion();
+		RemoveBelt();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'mobile'});
 	}
 
-	const DisableLocomotion = () => {
+	const RemoveBelt = () => {
 		if(document.getElementById('beltUIParent')){
 			auxl.locomotionUILayer.DespawnLayer(true);
 		}
+	}
+
+	const ResetControls = () => {
+		playerRig.removeAttribute('universal-controls');
+		playerRig.setAttribute('universal-controls',{});
 	}
 
 	const ToggleSittingMode = () => {
@@ -2097,7 +2112,7 @@ this.Player = (layer) => {
 		}
 	}
 
-	return {layer, SetFlag, GetFlag, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, DisableLocomotion, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft}
+	return {layer, SetFlag, GetFlag, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft}
 }
 //Scene Load Anim
 function playerSceneAnim(){
@@ -2154,8 +2169,8 @@ menu.data.position.y = menuData.pos.y;
 menu.data.position.z = menuData.pos.z;
 //Menu Options Total
 let menuLength = Object.keys(menu.options).length;
-
 //Menu Style
+menu.layout = menuData.layout;
 //Flat side with Text : Triangle, Square, Rectangle, Hex|Deca|Iso, Circle
 //combo together for more flair/style or make a custom obj
 
@@ -2183,7 +2198,7 @@ let menuNum = 0;
 		//Sub Menu Adjustments
 		menu.data.position.x = menu.data.geometry.width * 1.15;
 		menu.data.position.z = 0;
-		if(menuLength === 1){
+		if(menuLength === 1 || menu.layout === 'horizontal'){
 			menu.data.position.y = 0;
 		} else {
 			menu.data.position.y = (menu.data.geometry.height*0.75) * menuLength/2;
@@ -2199,7 +2214,14 @@ let menuNum = 0;
 		//generate 1 for each responses use option
 		for(let menuItem in menu.options){
 			if(menuLength === 1 || menuNum === 0){} else {
-				menu.data.position.y -= (menu.data.geometry.height*1.15);
+				if(menu.layout === 'vertical'){
+					menu.data.position.y -= (menu.data.geometry.height*1.15);
+				} else if(menu.layout === 'horizontal'){
+					menu.data.position.x += (menu.data.geometry.width*1.15);
+				} else {
+					//backup for legacy, classic vertical mode
+					menu.data.position.y -= (menu.data.geometry.height*1.15);
+				}
 			}
 			//menu.data.position.y -= 0.2;
 			menu.data.material.color, menu.data.material.emissive = auxl.colorTheoryGen().base;
@@ -4095,8 +4117,8 @@ this.Book = (core, npc) => {
 		//Check if spawning to add to Tracker
 		for (let spawn of auxl.spawnFunc) {
 			if(func === spawn){
-				console.log(object);
-				console.log(npc.id);
+				//console.log(object);
+				//console.log(npc.id);
 				spawnTracker(object, 'book', npc.id);
 			}
 		}
@@ -4609,7 +4631,7 @@ ham.sceneSettingsOpen = false;
 //Scene Settings : Color Themes, Accessibility, Scene Info, etc...
 let systemMenuButtons = {
 travelSettings: 'Travel Settings',
-sceneSettings: '[DISABLED]',
+sceneSettings: 'More Settings[DISABLED]',
 };
 
 let travelSettingsButtons = {
@@ -4696,6 +4718,7 @@ author: 'Made by Minty Crisp!',
 			closeTravelSettingsMenu()
 			systemSpawnMenu();
 		} else if(ham.sceneSettingsOpen){
+
 		} else {
 			systemSpawnMenu();
 		}
@@ -4709,6 +4732,7 @@ author: 'Made by Minty Crisp!',
 			prompt: 'X - System Menu',
 			options: {option0: '0'},
 			actions: {action0: '0'},
+			layout: 'vertical',
 			data: auxl.menuBaseData,
 			cursorObj: ham.id,
 			method: 'SystemMenuClick',
@@ -4766,6 +4790,7 @@ author: 'Made by Minty Crisp!',
 			prompt: '< - Travel Settings',
 			options: {option0: '0'},
 			actions: {action0: '0'},
+			layout: 'vertical',
 			data: auxl.menuBaseData,
 			cursorObj: ham.id,
 			method: 'TravelSettingsMenuClick',
@@ -4811,7 +4836,7 @@ author: 'Made by Minty Crisp!',
 	}
 
 	const sceneSettings = () => {
-		//console.log('Scene Settings');
+		console.log('Scene Settings');
 	}
 
 return{ham, SpawnHam, DespawnHam, SystemMenuClick, TravelSettingsMenuClick};
@@ -13075,7 +13100,8 @@ ifFalse: {
 npc0:{Speak:{role: 'Dev', speech:'Is False'}},},}}},
 },
 timeline2:{
-npc0:{Speak:{role: 'Dev', speech:'Jump to Text section.'}, SelectJump:[['Answer 1','timeline3'], ['Answer 2','timeline4'], ['Answer 3','timeline5']]},
+//npc0:{Speak:{role: 'Dev', speech:'Jump to Text section.'}, SelectJump:[['Answer 1','timeline3'], ['Answer 2','timeline4'], ['Answer 3','timeline5']]},
+npc0:{Speak:{role: 'Dev', speech:'Jump to Text section.'}, SelectJump:[['Answer 1','timeline3'], ['Answer 2','timeline4'], ['Answer 3','timeline5'],]},
 },
 timeline3:{
 npc0:{Speak:{role: 'Dev', speech:'Jumped to the Answer 1 section.'}, Jump: {timeline: 'timeline6'}},
@@ -14514,12 +14540,12 @@ AFRAME.registerComponent('mouseuprun', {
 //
 //Locomotion
 AFRAME.registerComponent('locomotion', {
-	dependencies: ['auxl'],
-    schema: {
-        uiid: {type: 'string', default: 'ui'},
-		courserid: {type: 'string', default: 'mouseCursor'},
-		movetype: {type: 'string', default: 'vr'},
-    },
+dependencies: ['auxl'],
+schema: {
+	uiid: {type: 'string', default: 'ui'},
+	courserid: {type: 'string', default: 'mouseCursor'},
+	movetype: {type: 'string', default: 'vr'},
+},
 
 init: function () {
 	const auxl = document.querySelector('a-scene').systems.auxl;
@@ -15471,129 +15497,132 @@ remove: function () {
 //
 //Raycast Teleportation
 AFRAME.registerComponent('raycast-teleportation', {
-    init: function () {},
-	clickToTeleport: function (event) {
-		let user = document.getElementById('playerRig');
-		let userView = document.getElementById('camera');
-		let auxl = document.querySelector('a-scene').systems.auxl;
-		let userPos = user.getAttribute('position');
-		let teleportType = auxl.player.layer.transition;
-		let newPosition = new THREE.Vector3();
-		let teleportPos = event.detail.intersection.point;
-		let allTeleportors = document.querySelectorAll('.teleporter');
-		let posTimeout;
-		let animTimeout;
+init: function () {},
+clickToTeleport: function (event) {
+	let user = document.getElementById('playerRig');
+	let userView = document.getElementById('camera');
+	let auxl = document.querySelector('a-scene').systems.auxl;
+	let userPos = user.getAttribute('position');
+	let teleportType = auxl.player.layer.transition;
+	let newPosition = new THREE.Vector3();
+	let teleportPos = event.detail.intersection.point;
+	let allTeleportors = document.querySelectorAll('.teleporter');
+	let posTimeout;
+	let animTimeout;
 
-		function playerTeleportAnim(){
-			if(auxl.player.layer.teleporting){} else {
-				auxl.player.layer.teleporting = true;
-				if(auxl.player.layer.transition === 'blink'){
-					auxl.player.TempDisableClick();
-					auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
-					auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
-					auxl.blink1Screen.EmitEvent('blink');
-					auxl.blink2Screen.EmitEvent('blink');
-					animTimeout = setTimeout(function () {
-						auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
-						auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
-						auxl.player.layer.teleporting = false;
-						clearTimeout(animTimeout);
-					}, 1200);
-				} else if (auxl.player.layer.transition === 'fade'){
-					auxl.player.TempDisableClick();
-					auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
-					auxl.fadeScreen.EmitEvent('fade');
-					animTimeout = setTimeout(function () {
-						auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
-						auxl.player.layer.teleporting = false;
-						clearTimeout(animTimeout);
-					}, 1200);
-				} else if (auxl.player.layer.transition === 'sphere'){
-					auxl.player.TempDisableClick();
-					auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
-					auxl.sphereScreen.EmitEvent('sphere');
-					animTimeout = setTimeout(function () {
-						auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
-						auxl.player.layer.teleporting = false;
-						clearTimeout(animTimeout);
-					}, 1200);
-				} else if (auxl.player.layer.transition === 'instant'){
-					animTimeout = setTimeout(function () {
-						auxl.player.layer.teleporting = false;
-						clearTimeout(animTimeout);
-					}, 500);
-				}
+	function playerTeleportAnim(){
+		if(auxl.player.layer.teleporting){} else {
+			auxl.player.layer.teleporting = true;
+			if(auxl.player.layer.transition === 'blink'){
+				auxl.player.TempDisableClick();
+				auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.blink1Screen.EmitEvent('blink');
+				auxl.blink2Screen.EmitEvent('blink');
+				animTimeout = setTimeout(function () {
+					auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
+					auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
+					auxl.player.layer.teleporting = false;
+					clearTimeout(animTimeout);
+				}, 1200);
+			} else if (auxl.player.layer.transition === 'fade'){
+				auxl.player.TempDisableClick();
+				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.fadeScreen.EmitEvent('fade');
+				animTimeout = setTimeout(function () {
+					auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
+					auxl.player.layer.teleporting = false;
+					clearTimeout(animTimeout);
+				}, 1200);
+			} else if (auxl.player.layer.transition === 'sphere'){
+				auxl.player.TempDisableClick();
+				auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.sphereScreen.EmitEvent('sphere');
+				animTimeout = setTimeout(function () {
+					auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
+					auxl.player.layer.teleporting = false;
+					clearTimeout(animTimeout);
+				}, 1200);
+			} else if (auxl.player.layer.transition === 'instant'){
+				animTimeout = setTimeout(function () {
+					auxl.player.layer.teleporting = false;
+					clearTimeout(animTimeout);
+				}, 500);
 			}
 		}
+	}
 
-		function prepMove(newPos, telePos){
-			//Clone current entity's position User
-			newPos.copy(telePos);
-			//Reset User's Y back to 0 - Flat Mode
-			newPos.y = 0;
-		}
+	function prepMove(newPos, telePos){
+		//Clone current entity's position User
+		newPos.copy(telePos);
+		//Reset User's Y back to 0 - Flat Mode
+		newPos.y = 0;
+	}
 
-		//Teleportation Type
-		if(teleportType === 'instant') {
-			prepMove(newPosition, teleportPos);
-			posTimeout = setTimeout(function () {
-				user.object3D.position.copy(newPosition);
-				clearTimeout(posTimeout);
-			}, 150);
-		} else if(teleportType === 'fade') {
-			playerTeleportAnim();
-			prepMove(newPosition, teleportPos);
-			posTimeout = setTimeout(function () {
-				user.object3D.position.copy(newPosition);
-				clearTimeout(posTimeout);
-			}, 1050);
-		} else if(teleportType === 'locomotion') {
-			//Create locomotion animation based on teleported Pos
-			let travelParams = {
-				property: 'position',
-				from: {x: userPos.x, y: 0, z: userPos.z},
-				to: {x: teleportPos.x, y: 0, z: teleportPos.z},
-				dur: 1000,
-				delay: 0,
-				loop: 'false',
-				dir: 'normal',
-				easing:'easeInOutSine',
-				elasticity: 400,
-				autoplay: 'true',
-				enabled: 'true',
-				};
-			user.setAttribute('animation__locomotion', travelParams);
-		} else if(teleportType === 'sphere') {
-			playerTeleportAnim();
-			prepMove(newPosition, teleportPos);
-			posTimeout = setTimeout(function () {
-				user.object3D.position.copy(newPosition);
-				clearTimeout(posTimeout);
-			}, 1000);
-		} else if(teleportType === 'blink') {
-			playerTeleportAnim();
-			prepMove(newPosition, teleportPos);
-			posTimeout = setTimeout(function () {
-				user.object3D.position.copy(newPosition);
-				clearTimeout(posTimeout);
-			}, 800);
-		}
-	},
-	update: function () {
-		this.raycastTeleport = (event) => {
-			this.clickToTeleport(event);
-		}
-		this.el.addEventListener('click', this.raycastTeleport);
-	},
-	remove: function () {
-		this.el.removeEventListener('click', this.raycastTeleport);
-	},
+	//Teleportation Type
+	if(teleportType === 'instant') {
+		prepMove(newPosition, teleportPos);
+		posTimeout = setTimeout(function () {
+			user.object3D.position.copy(newPosition);
+			clearTimeout(posTimeout);
+		}, 150);
+	} else if(teleportType === 'fade') {
+		playerTeleportAnim();
+		prepMove(newPosition, teleportPos);
+		posTimeout = setTimeout(function () {
+			user.object3D.position.copy(newPosition);
+			clearTimeout(posTimeout);
+		}, 1050);
+	} else if(teleportType === 'locomotion') {
+		//Create locomotion animation based on teleported Pos
+		let travelParams = {
+			property: 'position',
+			from: {x: userPos.x, y: 0, z: userPos.z},
+			to: {x: teleportPos.x, y: 0, z: teleportPos.z},
+			dur: 1000,
+			delay: 0,
+			loop: 'false',
+			dir: 'normal',
+			easing:'easeInOutSine',
+			elasticity: 400,
+			autoplay: 'true',
+			enabled: 'true',
+			};
+		user.setAttribute('animation__locomotion', travelParams);
+	} else if(teleportType === 'sphere') {
+		playerTeleportAnim();
+		prepMove(newPosition, teleportPos);
+		posTimeout = setTimeout(function () {
+			user.object3D.position.copy(newPosition);
+			clearTimeout(posTimeout);
+		}, 1000);
+	} else if(teleportType === 'blink') {
+		playerTeleportAnim();
+		prepMove(newPosition, teleportPos);
+		posTimeout = setTimeout(function () {
+			user.object3D.position.copy(newPosition);
+			clearTimeout(posTimeout);
+		}, 800);
+	}
+},
+update: function () {
+	this.raycastTeleport = (event) => {
+		this.clickToTeleport(event);
+	}
+	this.el.addEventListener('click', this.raycastTeleport);
+},
+remove: function () {
+	this.el.removeEventListener('click', this.raycastTeleport);
+},
 });
 
 //
 //Universal Controls
 AFRAME.registerComponent('universal-controls', {
 dependencies: ['auxl'],
+schema: {
+	update: {type: 'number', default: '0'},
+},
 init: function () {
 
 //Controls to Configure for :
@@ -16546,9 +16575,7 @@ let initTimeout = setTimeout(() => {
 		//Right Other
 		this.vrController2.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
 	}
-	console.log(this.auxl.vrHand);
-
-}, 1000);
+}, 100);
 
 
 	//Mobile
