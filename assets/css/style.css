@@ -292,6 +292,20 @@ text-overflow: ellipsis;
 white-space: nowrap;
 }
 
+.a-dialog-allow-button {
+	background-color: red;
+}
+
+.a-dialog-deny-button {
+	background-color: blue;
+}
+
+.a-dialog-ok-button {
+	background-color: green;
+}
+/*
+    --color-text: #FFFFFF;
+*/
 :root {
     --active-brightness: 0.45;
     --border-radius: 5px;
@@ -304,7 +318,7 @@ white-space: nowrap;
     --color-secondary-accent: #920de90b;
     --color-shadow: #393434;
     --color-table: #118bee;
-    --color-text: #FFFFFF;
+    --color-text: #8b8a8a;
     --color-text-secondary: #999;
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     --hover-brightness: 1.2;
