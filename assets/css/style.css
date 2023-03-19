@@ -263,6 +263,10 @@ text-align: center;
 text-decoration: none;
 text-overflow: ellipsis;
 white-space: nowrap;
+
+-webkit-user-select: none; /* Safari */
+-ms-user-select: none; /* IE 10+ */
+user-select: none;
 }
 
 .snapView {
@@ -290,6 +294,10 @@ text-align: center;
 text-decoration: none;
 text-overflow: ellipsis;
 white-space: nowrap;
+
+-webkit-user-select: none; /* Safari */
+-ms-user-select: none; /* IE 10+ */
+user-select: none;
 }
 
 .a-dialog-allow-button {
