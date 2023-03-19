@@ -8,6 +8,7 @@ body {
 background-color: #C14B76;
 background-image: none;
 background-repeat: repeat;
+touch-action: manipulation;
 }
 
 header {
@@ -314,6 +315,8 @@ user-select: none;
 .a-dialog {
 	color: #b2b1b1;
 }
+
+
 :root {
     --active-brightness: 0.45;
     --border-radius: 5px;
