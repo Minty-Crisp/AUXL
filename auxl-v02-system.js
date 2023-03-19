@@ -1870,8 +1870,12 @@ this.Player = (layer) => {
 	//blink
 	//Default Transition Color
 	//layer.transitionMaterial = {shader: "flat", color: '#000000', opacity: 0, side: 'double'};
-
 	layer.teleporting = false;
+
+	//Notifications
+	let notificationTimeout;
+	let displayTime;
+	let inventoryTimeouts = [];
 
 	//Sitting or Standing Mode
 	layer.stand = true;
@@ -1922,6 +1926,20 @@ this.Player = (layer) => {
 	vrController2 = document.getElementById('vrController2');
 	vrController2UI = document.getElementById('vrController2UI');
 
+	const Notification = (message, time) => {
+		displayTime = time || 3750;
+
+		TempDisableClick(displayTime);
+		auxl.cameraUI.ChangeSelf({property: 'text', value: {value: message, width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold", side: 'double', opacity: 0},});
+		auxl.cameraUI.ChangeSelf({property: 'visible', value: 'true'});
+		auxl.cameraUI.EmitEvent('cameraMsg');
+		notificationTimeout = setTimeout(function () {
+			auxl.cameraUI.ChangeSelf({property: 'visible', value: 'false'});
+			clearTimeout(notificationTimeout);
+		}, displayTime);
+
+	}
+
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
@@ -1955,6 +1973,20 @@ this.Player = (layer) => {
 		if(auxl.ham.ham.show){
 			UpdateInventoryScreen();
 		}
+		//Notifications
+		if(Array.isArray(item)){
+			for(let each in item){
+				let delay = 3800;
+				delay *= each;
+				inventoryTimeouts[each] = setTimeout(function () {
+					Notification('Acquired : ' + item[each]);
+					clearTimeout(inventoryTimeouts[each]);
+				}, delay);
+			}
+		} else {
+			Notification('Acquired : ' + item);
+		}
+
 	}
 
 	const RemoveFromInventory = (item) => {
@@ -1973,6 +2005,19 @@ this.Player = (layer) => {
 		}
 		if(auxl.ham.ham.show){
 			UpdateInventoryScreen();
+		}
+		//Notifications
+		if(Array.isArray(item)){
+			for(let each in item){
+				let delay = 3800;
+				delay *= each;
+				inventoryTimeouts[each] = setTimeout(function () {
+					Notification('Removed : ' + item[each]);
+					clearTimeout(inventoryTimeouts[each]);
+				}, delay);
+			}
+		} else {
+			Notification('Removed : ' + item);
 		}
 	}
 
@@ -2168,7 +2213,7 @@ this.Player = (layer) => {
 		}
 	}
 
-	return {layer, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft}
+	return {layer, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft}
 }
 //Scene Load Anim
 function playerSceneAnim(){
@@ -3348,17 +3393,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		if(newNode.locked && !auxl.player.GetFlag(newNode.key)){
 			//console.log('Needs key');
 			clearTimeout(timeout2);
-			auxl.player.TempDisableClick();
-			auxl.cameraUI.ChangeSelf({property: 'text', value: {value:'Requires : ' + newNode.key, width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold", side: 'double', opacity: 0},});
-			auxl.cameraUI.ChangeSelf({property: 'visible', value: 'true'});
-			auxl.cameraUI.EmitEvent('cameraMsg');
-			timeout2 = setTimeout(function () {
-				auxl.cameraUI.ChangeSelf({property: 'visible', value: 'false'});
-				clearTimeout(timeout2);
-			}, 3750);
-			//Testing
-			//auxl.player.SetFlag({flag: newNode.key, value: true})
-			//console.log('Key given');
+			auxl.player.Notification('Requires : ' + newNode.key);
 		} else {
 			if(newNode.locked && auxl.player.GetFlag(newNode.key) && !newNode.keepKey){
 				auxl.player.SetFlag({flag: newNode.key, value: false})
@@ -3379,10 +3414,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 					}
 				clearTimeout(timeout);
 			}, 425);
-			//Instant, Shrink/Grow, Fade, Sphere, Blink
-			//console.log(auxl.player)
-			//console.log(auxl.player.layer)
-			//console.log(auxl.player.layer.transition)
+			//Play Transition Animation
 			playerSceneAnim();
 		}
 	}

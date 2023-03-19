@@ -4666,6 +4666,7 @@ npc2:{Speak:{role: 'Ham', speech:'I found this key, but I don\'t know what it is
 timeline1:{
 npc2:{Speak:{role: 'Ham', speech:'Here you go!'}, SetFlag: {flag: 'masterKey', value: true}},
 player:{AddToInventory: 'masterKey'},
+//player:{AddToInventory: ['masterKey1','masterKey2','masterKey3']},
 },
 timeline2:{
 npc2:{Speak:{role: 'Ham', speech:'Good luck finding where it goes!'}},
