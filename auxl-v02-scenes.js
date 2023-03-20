@@ -5,19 +5,145 @@
 //
 //Created by Minty-Crisp (mintycrisp.com)
 
-//AUXL v0.2 Scenes - In Progress
+//AUXL v0.2 Scenes
 
 //auxl-scene-library
 //User Library : User added Library items
 AFRAME.registerComponent('auxl-scene-library', {
-	dependencies: ['auxl'],
-    //schema: {
-        //clickObj: {type: 'string', default: 'auxlObj'}
-    //},
-    init: function () {
-		//console.log('AUXL Data INIT');
-		//AUXL System
-		const auxl = document.querySelector('a-scene').systems.auxl;
+dependencies: ['auxl'],
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
+
+//
+//Horizon
+
+//Mountains 1
+//Forest Mountains
+auxl.horizonMountains1Data = {
+id: 'horizonMountains1',
+type: 'mountains',
+texture: false,
+baseColor: false,
+baseColorFamily: 'maroon',
+radius: 200,
+density: 'normal',
+height: 'normal',
+width: 'normal',
+};
+auxl.horizonMountains1 = auxl.Horizon(auxl.horizonMountains1Data);
+//Mountains 2
+//Snow Mountains
+auxl.horizonMountains2Data = {
+id: 'horizonMountains2',
+type: 'mountains',
+texture: false,
+baseColor: '#e0d7ca',
+baseColorFamily: false,
+radius: 200,
+density: 'normal',
+height: 'high',
+width: 'normal',
+};
+auxl.horizonMountains2 = auxl.Horizon(auxl.horizonMountains2Data);
+//Hills
+//Graveyard Hills
+auxl.horizonHills1Data = {
+id: 'horizonHills1',
+type: 'hills',
+texture: false,
+baseColor: false,
+baseColorFamily: 'olive',
+radius: 200,
+density: 'normal',
+height: 'normal',
+width: 'normal',
+};
+auxl.horizonHills1 = auxl.Horizon(auxl.horizonHills1Data);
+//Wall 1 - Cylinder
+//Desert Wall
+auxl.horizonWalls1Data = {
+id: 'horizonWalls1',
+type: 'cylinderWall',
+texture: false,
+baseColor: false,
+baseColorFamily: 'orange',
+radius: 200,
+density: 'normal',
+height: 'low',
+width: 'normal',
+};
+auxl.horizonWalls1 = auxl.Horizon(auxl.horizonWalls1Data);
+//Wall2 - Square
+//Underwater
+auxl.horizonWalls2Data = {
+id: 'horizonWalls2',
+type: 'squareWall',
+texture: {src: auxl.pattern55, repeat: '6 4', emissive: true,},
+baseColor: '#275876',
+baseColorFamily: false,
+radius: 100,
+density: 'normal',
+height: 'normal',
+width: 'normal',
+};
+auxl.horizonWalls2 = auxl.Horizon(auxl.horizonWalls2Data);
+//Wall3 - Square
+//Indoor Room
+auxl.horizonWalls3Data = {
+id: 'horizonWalls3',
+type: 'squareWall',
+texture: {src: auxl.pattern18, repeat: '4 4', emissive: true,},
+baseColor: '#80401f',
+baseColorFamily: false,
+radius: 10,
+density: 'low',
+height: 'low',
+width: 'low',
+};
+auxl.horizonWalls3 = auxl.Horizon(auxl.horizonWalls3Data);
+//Wall4 - Square
+//Cave
+auxl.horizonWalls4Data = {
+id: 'horizonWalls4',
+type: 'squareWall',
+texture: {src: auxl.pattern81, repeat: '4 4', emissive: true,},
+baseColor: '#bc8fa0',
+baseColorFamily: false,
+radius: 10,
+density: 'low',
+height: 'low',
+width: 'low',
+};
+auxl.horizonWalls4 = auxl.Horizon(auxl.horizonWalls4Data);
+//Buildings
+//Beach Pillars
+auxl.horizonBuildings1Data = {
+id: 'horizonBuildings1',
+type: 'buildings',
+texture: {src: auxl.pattern74, repeat: '1 1'},
+baseColor: false,
+baseColorFamily: 'yellow',
+radius: 200,
+density: 'normal',
+height: 'normal',
+width: 'normal',
+};
+auxl.horizonBuildings1 = auxl.Horizon(auxl.horizonBuildings1Data);
+//Random Buildings
+//Starting Island Misc
+auxl.horizonBuildings2Data = {
+id: 'horizonBuildings2',
+type: 'buildings',
+texture: {src: auxl.patterns, repeat: '2 2', opacity: 1, metalness: 0.4, roughness: 0.6, emissive: true, emissiveIntensity: 0.3,},
+baseColor: false,
+baseColorFamily: false,
+radius: 200,
+density: 'high',
+height: 'high',
+width: 'normal',
+};
+auxl.horizonBuildings2 = auxl.Horizon(auxl.horizonBuildings2Data);
 
 //Floor
 //
@@ -246,8 +372,8 @@ child7: {core: auxl.cloud8},
 }
 auxl.clouds = auxl.Layer('clouds',auxl.cloudLayerData);
 
-//Environmental Ring Gen from Single Asset Testing
 //
+//Environmental Ring Gen from Single Asset Testing
 
 //Snow Mountains Basic
 auxl.snowMountainsBasicData = {
@@ -4691,20 +4817,16 @@ auxl.npc2Core = auxl.Core(auxl.npc2Data);
 auxl.npc2TextBubble = auxl.Core(auxl.npc2TextBubbleData);
 auxl.npc2 = auxl.NPC(auxl.npc2Core, auxl.npc2BookTestData, auxl.npc2TextBubble);
 
-    },
+},
 });
 
 //auxl-scenes
 //AUXL Scenario : NodeScene and MapZone's Data and Cores
 AFRAME.registerComponent('auxl-scenes', {
-	dependencies: ['auxl'],
-    //schema: {
-        //clickObj: {type: 'string', default: 'auxlObj'}
-    //},
-    init: function () {
-		//console.log('AUXL Scenes INIT');
-		//AUXL System
-		const auxl = document.querySelector('a-scene').systems.auxl;
+dependencies: ['auxl'],
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
 
 //
 //Scenarios
@@ -4714,47 +4836,28 @@ AFRAME.registerComponent('auxl-scenes', {
 //scenarioDemo
 auxl.scenarioDemoData = {
 info:{
-id: 'scenarioDemo',
-name: 'Example Demo',
-scenarioNum: 0,
-default: true,
-startZone: 'zone0',
-instructions: 'A demo scenario of traversing a variety of different areas and showcasing the core features and functionality of the A-Frame UX Library engine v0.2.',
+	id: 'scenarioDemo',
+	name: 'Example Demo',
+	scenarioNum: 0,
+	default: true,
+	startZone: 'zone0',
+	instructions: 'A demo scenario of traversing a variety of different areas and showcasing the core features and functionality of the A-Frame UX Library engine v0.2.',
 },
 controls:{
-//altDown:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//altUp:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//action1Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//action1Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//action2Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//action2Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//action3Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//action3Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//action4Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//action4Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//action5Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//action5Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//action6Down:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-//action6Up:{auxlObj: 'auxlObj', component: false, func: 'Name'},
-
-//auxl.player.SnapLeft();
-//auxl.player.SnapRight();
-
-action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
-action5Down:{auxlObj: 'player', component: false, func: 'ToggleCrouch'},
-action6Down:{auxlObj: 'player', component: false, func: 'ToggleSittingMode'},
-
+	action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
+	action5Down:{auxlObj: 'player', component: false, func: 'ToggleCrouch'},
+	action6Down:{auxlObj: 'player', component: false, func: 'ToggleSittingMode'},
 },
 start:{
-skyBox0:{SpawnSkyBox: null},
-nodeFloor:{SpawnCore: null},
-clouds:{SpawnLayer: null},
-ham:{SpawnHam:null},
+	skyBox0:{SpawnSkyBox: null},
+	nodeFloor:{SpawnCore: null},
+	clouds:{SpawnLayer: null},
+	ham:{SpawnHam:null},
 },
 delay:{
-100:{
-skyBox0:{DayNightCycle: null},
-},
+	100:{
+		skyBox0:{DayNightCycle: null},
+	},
 },
 interval:{
 },
@@ -4775,80 +4878,66 @@ auxl.scenarioDemo = auxl.Scenario(auxl.scenarioDemoData);
 //Zone 0
 auxl.zone0Data = {
 info:{
-id: 'zone0',
-name: 'Zone0',
-zoneNum: 0,
-start: 'zone0Node0',
+	id: 'zone0',
+	name: 'Zone0',
+	zoneNum: 0,
+	start: 'zone0Node0',
 },
 zone0Node0:{
-connect0: {inZone: 'zone1', node: 'zone1Node0',},
-connect1: {inZone: 'zone2', node: 'zone2Node0',},
-connect2: {inZone: 'zone3', node: 'zone3Node0',},
-connect3: {inZone: 'zone4', node: 'zone4Node0',},
-connect4: {inZone: 'zone5', node: 'zone5Node0',},
+	connect0: {inZone: 'zone1', node: 'zone1Node0',},
+	connect1: {inZone: 'zone2', node: 'zone2Node0',},
+	connect2: {inZone: 'zone3', node: 'zone3Node0',},
+	connect3: {inZone: 'zone4', node: 'zone4Node0',},
+	connect4: {inZone: 'zone5', node: 'zone5Node0',},
 },
 controls:{
-
 },
 start:{
-
 },
 delay:{
-
 },
 interval:{
-
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
-
 },
-
 };
 //Node 0
 auxl.zone0Node0Data = {
 info:{
-id:'zone0Node0',
-name: 'Floating Island',
-description: 'Click anywhere on the floor to teleport on this island!',
-sceneText: true,
+	id:'zone0Node0',
+	name: 'Floating Island',
+	description: 'Click anywhere on the floor to teleport on this island!',
+	sceneText: true,
 },
 controls:{
-
 },
 start:{
-nodeFloor:{ChangeSelf:[{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},},{property: 'position', value: new THREE.Vector3(0,0,0),},{property: 'raycast-teleportation', value: null,}],},
-forestScene2:{SpawnMultiAsset:null},
-multiRockFlatGrass:{SpawnObjRing :null},
-npcMinty:{SpawnNPC:null},
-horizonBuildings2:{SpawnHorizon:null},
-soundTesting:{SpawnCore:null},
-teleportPortal1:{SpawnCore:null},
-teleportPortal2:{SpawnCore:null},
-//testing:{SpawnCore:null},
+	nodeFloor:{ChangeSelf:[{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#27693d", emissive: "#27693d",},},{property: 'position', value: new THREE.Vector3(0,0,0),},{property: 'raycast-teleportation', value: null,}],},
+	forestScene2:{SpawnMultiAsset:null},
+	multiRockFlatGrass:{SpawnObjRing :null},
+	npcMinty:{SpawnNPC:null},
+	horizonBuildings2:{SpawnHorizon:null},
+	soundTesting:{SpawnCore:null},
+	teleportPortal1:{SpawnCore:null},
+	teleportPortal2:{SpawnCore:null},
 },
 delay:{
-
 },
 interval:{
-
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
-nodeFloor:{RemoveComponent:'raycast-teleportation'},
+	nodeFloor:{RemoveComponent:'raycast-teleportation'},
 },
 map:{
-data: auxl.zone0Data.zone0Node0,
+	data: auxl.zone0Data.zone0Node0,
 },
 };
 //Node Scene 0
@@ -4861,203 +4950,179 @@ auxl.zone0 = auxl.MapZone(auxl.zone0Data);
 //Zone 1
 auxl.zone1Data = {
 info:{
-id: 'zone1',
-name: 'Zone1',
-zoneNum: 0,
-start: 'zone1Node0',
+	id: 'zone1',
+	name: 'Zone1',
+	zoneNum: 0,
+	start: 'zone1Node0',
 },
 zone1Node0:{
-connect0: {inZone: 'zone0', node: 'zone0Node0',},
-connect1: {inZone: true, node: 'zone1Node1',},
-connect2: {inZone: 'zone2', node: 'zone2Node0',},
+	connect0: {inZone: 'zone0', node: 'zone0Node0',},
+	connect1: {inZone: true, node: 'zone1Node1',},
+	connect2: {inZone: 'zone2', node: 'zone2Node0',},
 },
 zone1Node1:{
-connect0: {inZone: true, node: 'zone1Node0',},
+	connect0: {inZone: true, node: 'zone1Node0',},
 },
 controls:{
-
 },
 start:{
-
 },
 delay:{
-2000:{
-//player:{UpdateTransitionColor:'red',},
-},
 },
 interval:{
-
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
-
 },
 };
 //Node 0
 auxl.zone1Node0Data = {
 info:{
-id:'zone1Node0',
-name: 'Snowy Mountains',
-description: 'Open Tundra',
-sceneText: true,
+	id:'zone1Node0',
+	name: 'Snowy Mountains',
+	description: 'Open Tundra',
+	sceneText: true,
 },
 controls:{
-
 },
 start:{
-teleport:{SpawnTeleport:null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern69, repeat: '150 150',color: "#d6a9ba", emissive: "#d6a9ba",},}},
-snowForestScene1:{SpawnMultiAsset:null},
-npc1:{SpawnNPC: null},
-horizonMountains2:{SpawnHorizon: null},
-multiSnowMountainsBasic:{SpawnObjRing: null},
+	teleport:{SpawnTeleport:null},
+	nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern69, repeat: '150 150',color: "#d6a9ba", emissive: "#d6a9ba",},}},
+	snowForestScene1:{SpawnMultiAsset:null},
+	npc1:{SpawnNPC: null},
+	horizonMountains2:{SpawnHorizon: null},
+	multiSnowMountainsBasic:{SpawnObjRing: null},
 },
 delay:{
-
 },
 interval:{
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
-
 },
 map:{
-data: auxl.zone1Data.zone1Node0,
+	data: auxl.zone1Data.zone1Node0,
 },
 };
 //Node 1
 auxl.zone1Node1Data = {
 info:{
-id:'zone1Node1',
-name: 'Mountain Cave',
-description: 'Underground Shelter',
-sceneText: true,
+	id:'zone1Node1',
+	name: 'Mountain Cave',
+	description: 'Underground Shelter',
+	sceneText: true,
 },
 controls:{
-
 },
 start:{
-teleport0:{SpawnTeleport:null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern37, repeat: '150 150',color: "#bc8fa0", emissive: "#bc8fa0",},}},
-//nodeWalls: {SpawnLayer: null,ChangeAll:{property: 'material', value: {src: auxl.pattern81, repeat: '5 1.25', color: "#bc8fa0", emissive: "#bc8fa0",}}},
-horizonWalls4:{SpawnHorizon: null},
-eventTesting:{SpawnCore: null, EnableDetail: {text: 'This shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.', textColor: 'black', windowColor: 'white', windowWidth: 2, windowHeight: 2}},
-eventTesting2:{SpawnCore: null, EnableDetail: {text: 'This also shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.'}},
-eventTesting3:{SpawnCore: null,},
-eventTesting4:{SpawnCore: null,},
-smallCeiling: {SpawnCore: null,ChangeSelf:{property: 'material', value: {src: auxl.pattern76, repeat: '10 10', color: "#9b7a87", emissive: "#9b7a87",}}},
+	teleport0:{SpawnTeleport:null},
+	nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern37, repeat: '150 150',color: "#bc8fa0", emissive: "#bc8fa0",},}},
+	horizonWalls4:{SpawnHorizon: null},
+	eventTesting:{SpawnCore: null, EnableDetail: {text: 'This shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.', textColor: 'black', windowColor: 'white', windowWidth: 2, windowHeight: 2}},
+	eventTesting2:{SpawnCore: null, EnableDetail: {text: 'This also shows various ways to utilize Delay, Interval, Events and Interactions to affect the scene.'}},
+	eventTesting3:{SpawnCore: null,},
+	eventTesting4:{SpawnCore: null,},
+	smallCeiling: {SpawnCore: null,ChangeSelf:{property: 'material', value: {src: auxl.pattern76, repeat: '10 10', color: "#9b7a87", emissive: "#9b7a87",}}},
 },
 delay:{
-
-2000:{
-eventTesting:{EmitEvent: 'customevent1'},
-},
-4000:{
-eventTesting:{IfElse: {player:{cond: 'testDelayVar',
-ifTrue: {
-eventTesting:{EmitEvent: 'customevent3'},
-},ifFalse: {
-eventTesting:{EmitEvent: 'customevent2'},
-},}}},
-},
-6000:{
-player:{SetFlag:{flag: 'testDelayVar', value: true},},
-},
-8000:{
-eventTesting:{IfElse: {player:{cond: 'testDelayVar',
-ifTrue: {
-eventTesting:{EmitEvent: 'customevent3'},
-},ifFalse: {
-eventTesting:{EmitEvent: 'customevent2'},
-},}}},
-},
-
+	2000:{
+		eventTesting:{EmitEvent: 'customevent1'},
+	},
+	4000:{
+		eventTesting:{IfElse: {player:{cond: 'testDelayVar',
+		ifTrue: {
+		eventTesting:{EmitEvent: 'customevent3'},
+		},ifFalse: {
+		eventTesting:{EmitEvent: 'customevent2'},
+		},}}},
+	},
+	6000:{
+		player:{SetFlag:{flag: 'testDelayVar', value: true},},
+	},
+	8000:{
+		eventTesting:{IfElse: {player:{cond: 'testDelayVar',
+		ifTrue: {
+		eventTesting:{EmitEvent: 'customevent3'},
+		},ifFalse: {
+		eventTesting:{EmitEvent: 'customevent2'},
+		},}}},
+	},
 },
 interval:{
-
-5000: {run: {eventTesting2:{IfElse: {eventTesting2: {cond: 'testIntervalVar',
-ifTrue: {
-eventTesting2:{EmitEvent: 'customevent5',SetFlag:{flag: 'testIntervalVar', value: false},},
-},
-ifFalse: {
-eventTesting2:{EmitEvent: 'customevent6',SetFlag:{flag: 'testIntervalVar', value: true},},
-},
-},}},}, loop: 'infinite'},
-
-6000: {run: {
-eventTesting4:{EmitEvent: 'testintervalevent'},
-}, loop: 'infinite'},
-
+	5000: {
+		run: {eventTesting2:{IfElse: {eventTesting2: {cond: 'testIntervalVar',
+		ifTrue: {
+		eventTesting2:{EmitEvent: 'customevent5',SetFlag:{flag: 'testIntervalVar', value: false},},
+		},
+		ifFalse: {
+		eventTesting2:{EmitEvent: 'customevent6',SetFlag:{flag: 'testIntervalVar', value: true},},
+		},
+		},}},}, loop: 'infinite'
+		  },
+	6000: {
+		run: {eventTesting4:{EmitEvent: 'testintervalevent'},}, loop: 'infinite'
+	},
 },
 event:{
-
-customevent1: {
-eventTesting: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},
-},
-customevent2: {
-eventTesting: {ChangeSelf: {property: 'material', value: {color: '#3630c7', emissive: '#3630c7'}}},
-},
-customevent3: {
-eventTesting: {ChangeSelf: {property: 'material', value: {color: '#c73076', emissive: '#c73076'}}},
-},
-customevent4: {
-eventTesting: {ChangeSelf: {property: 'material', value: {color: '#d1e62f', emissive: '#d1e62f'}}},
-},
-customevent5: {
-eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},
-},
-customevent6: {
-eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#d1e62f', emissive: '#d1e62f'}}},
-},
-customevent7: {
-eventTesting3: {ChangeSelf: {property: 'material', value: {color: '#1da356', emissive: '#1da356'}}},
-},
-customevent8: {
-eventTesting3: {ChangeSelf: {property: 'material', value: {color: '#a72fe6', emissive: '#a72fe6'}}},
-},
-customevent9: {
-eventTesting4: {ChangeSelf: {property: 'material', value: {color: '#5c3724', emissive: '#5c3724'}}},
-},
-customevent10: {
-eventTesting4: {ChangeSelf: {property: 'material', value: {color: '#e62f2f', emissive: '#e62f2f'}}},
-},
-testintervalevent: {
-eventTesting4:{IfElse: {eventTesting4:{cond: 'testInteractionVar',
-ifTrue: {
-eventTesting4:{EmitEvent: 'customevent9',SetFlag:{flag: 'testInteractionVar', value: false},},
-},ifFalse: {
-eventTesting4:{EmitEvent: 'customevent10',SetFlag:{flag: 'testInteractionVar', value: true},},
-},}}},
-},
-
+	customevent1: {
+		eventTesting: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},
+	},
+	customevent2: {
+		eventTesting: {ChangeSelf: {property: 'material', value: {color: '#3630c7', emissive: '#3630c7'}}},
+	},
+	customevent3: {
+		eventTesting: {ChangeSelf: {property: 'material', value: {color: '#c73076', emissive: '#c73076'}}},
+	},
+	customevent4: {
+		eventTesting: {ChangeSelf: {property: 'material', value: {color: '#d1e62f', emissive: '#d1e62f'}}},
+	},
+	customevent5: {
+		eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},
+	},
+	customevent6: {
+		eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#d1e62f', emissive: '#d1e62f'}}},
+	},
+	customevent7: {
+		eventTesting3: {ChangeSelf: {property: 'material', value: {color: '#1da356', emissive: '#1da356'}}},
+	},
+	customevent8: {
+		eventTesting3: {ChangeSelf: {property: 'material', value: {color: '#a72fe6', emissive: '#a72fe6'}}},
+	},
+	customevent9: {
+		eventTesting4: {ChangeSelf: {property: 'material', value: {color: '#5c3724', emissive: '#5c3724'}}},
+	},
+	customevent10: {
+		eventTesting4: {ChangeSelf: {property: 'material', value: {color: '#e62f2f', emissive: '#e62f2f'}}},
+	},
+	testintervalevent: {
+		eventTesting4:{IfElse: {eventTesting4:{cond: 'testInteractionVar',
+		ifTrue: {
+		eventTesting4:{EmitEvent: 'customevent9',SetFlag:{flag: 'testInteractionVar', value: false},},
+		},ifFalse: {
+		eventTesting4:{EmitEvent: 'customevent10',SetFlag:{flag: 'testInteractionVar', value: true},},
+		},}}},
+	},
 },
 interaction:{
-
-click: {
-eventTesting3:{IfElse: {eventTesting3:{cond: 'testInteractionVar',
-ifTrue: {
-eventTesting3:{EmitEvent: 'customevent7',SetFlag:{flag: 'testInteractionVar', value: false},},
-},ifFalse: {
-eventTesting3:{EmitEvent: 'customevent8',SetFlag:{flag: 'testInteractionVar', value: true},},
-},}}},
-},
-
+	click: {
+		eventTesting3:{IfElse: {eventTesting3:{cond: 'testInteractionVar',
+		ifTrue: {
+		eventTesting3:{EmitEvent: 'customevent7',SetFlag:{flag: 'testInteractionVar', value: false},},
+		},ifFalse: {
+		eventTesting3:{EmitEvent: 'customevent8',SetFlag:{flag: 'testInteractionVar', value: true},},
+		},}}},
+	},
 },
 exit:{
-
 },
 map:{
-data: auxl.zone1Data.zone1Node1,
+	data: auxl.zone1Data.zone1Node1,
 },
 };
 //Node Scene 0
@@ -5072,72 +5137,61 @@ auxl.zone1 = auxl.MapZone(auxl.zone1Data);
 //Zone 2
 auxl.zone2Data = {
 info:{
-id: 'zone2',
-name: 'Zone2',
-zoneNum: 0,
-start: 'zone2Node0',
+	id: 'zone2',
+	name: 'Zone2',
+	zoneNum: 0,
+	start: 'zone2Node0',
 },
 zone2Node0:{
-connect0: {inZone: 'zone0', node: 'zone0Node0',},
-connect1: {inZone: 'zone1', node: 'zone1Node0',},
-connect2: {inZone: 'zone3', node: 'zone3Node0',},
+	connect0: {inZone: 'zone0', node: 'zone0Node0',},
+	connect1: {inZone: 'zone1', node: 'zone1Node0',},
+	connect2: {inZone: 'zone3', node: 'zone3Node0',},
 },
 controls:{
-
 },
 start:{
-
 },
 delay:{
-
 },
 interval:{
-
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
-
 },
 };
 //Node 0
 auxl.zone2Node0Data = {
 info:{
-id:'zone2Node0',
-name: 'Deep Forest',
-description: 'Thick Woodlands',
-sceneText: true,
+	id:'zone2Node0',
+	name: 'Deep Forest',
+	description: 'Thick Woodlands',
+	sceneText: true,
 },
 controls:{
-action3Down:{auxlObj: 'carouselTesting', component: false, func: 'PlayPause'},
-
+	action3Down:{auxlObj: 'carouselTesting', component: false, func: 'PlayPause'},
 },
 start:{
-teleport:{SpawnTeleport:null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern24, repeat: '300 300', color: "#228343", emissive: "#228343",},}},
-forestScene1:{SpawnMultiAsset:null},
-horizonMountains1:{SpawnHorizon: null},
-carouselTesting:{SpawnImgCarousel:null},
+	teleport:{SpawnTeleport:null},
+	nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern24, repeat: '300 300', color: "#228343", emissive: "#228343",},}},
+	forestScene1:{SpawnMultiAsset:null},
+	horizonMountains1:{SpawnHorizon: null},
+	carouselTesting:{SpawnImgCarousel:null},
 },
 delay:{
 },
 interval:{
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
-
 },
 map:{
-data: auxl.zone2Data.zone2Node0,
+	data: auxl.zone2Data.zone2Node0,
 },
 };
 //Node Scene 0
@@ -5150,37 +5204,32 @@ auxl.zone2 = auxl.MapZone(auxl.zone2Data);
 //Zone 3
 auxl.zone3Data = {
 info:{
-id: 'zone3',
-name: 'Zone3',
-zoneNum: 0,
-start: 'zone3Node0',
+	id: 'zone3',
+	name: 'Zone3',
+	zoneNum: 0,
+	start: 'zone3Node0',
 },
 zone3Node0:{
-connect0: {inZone: 'zone0', node: 'zone0Node0',},
-connect1: {inZone: 'zone2', node: 'zone2Node0',},
-connect2: {inZone: true, node: 'zone3Node1', locked: true, key: 'masterKey', keepKey: true},
-connect3: {inZone: 'zone4', node: 'zone4Node0',},
+	connect0: {inZone: 'zone0', node: 'zone0Node0',},
+	connect1: {inZone: 'zone2', node: 'zone2Node0',},
+	connect2: {inZone: true, node: 'zone3Node1', locked: true, key: 'masterKey', keepKey: true},
+	connect3: {inZone: 'zone4', node: 'zone4Node0',},
 },
 zone3Node1:{
-connect0: {inZone: true, node: 'zone3Node0',},
+	connect0: {inZone: true, node: 'zone3Node0',},
 },
 controls:{
-
 },
 start:{
-npc0:{SpawnNPC: null},
+	npc0:{SpawnNPC: null},
 },
 delay:{
-
 },
 interval:{
-
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
 
@@ -5189,75 +5238,64 @@ exit:{
 //Node 0
 auxl.zone3Node0Data = {
 info:{
-id:'zone3Node0',
-name: 'Graveyard',
-description: 'Spooky Cemetary',
-sceneText: true,
+	id:'zone3Node0',
+	name: 'Graveyard',
+	description: 'Spooky Cemetary',
+	sceneText: true,
 },
 controls:{
-
 },
 start:{
-teleport:{SpawnTeleport:null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern44, repeat: '150 150',color: "#618136", emissive: "#618136",},}},
-multiGrassyHillsBasic:{SpawnObjRing: null},
-graveyardScene1:{SpawnMultiAsset:null},
-horizonHills1:{SpawnHorizon: null},
+	teleport:{SpawnTeleport:null},
+	nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern44, repeat: '150 150',color: "#618136", emissive: "#618136",},}},
+	multiGrassyHillsBasic:{SpawnObjRing: null},
+	graveyardScene1:{SpawnMultiAsset:null},
+	horizonHills1:{SpawnHorizon: null},
 },
 delay:{
-
 },
 interval:{
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
-
 },
 map:{
-data: auxl.zone3Data.zone3Node0,
+	data: auxl.zone3Data.zone3Node0,
 },
 };
 //Node 1
 auxl.zone3Node1Data = {
 info:{
-id:'zone3Node1',
-name: 'Cemetary Cabin',
-description: 'Graveyard Shelter',
-sceneText: true,
+	id:'zone3Node1',
+	name: 'Cemetary Cabin',
+	description: 'Graveyard Shelter',
+	sceneText: true,
 },
 controls:{
-
 },
 start:{
-teleport0:{SpawnTeleport:null},
-memory:{SpawnMemGame: null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern50, repeat: '150 150',color: "#763a3a", emissive: "#763a3a",},}},
-//nodeWalls: {SpawnLayer: null,ChangeAll:{property: 'material', value: {src: auxl.pattern18, repeat: '10 2.5', color: "#80401f", emissive: "#80401f",}}},
-horizonWalls3:{SpawnHorizon: null},
-smallCeiling: {SpawnCore: null,ChangeSelf:{property: 'material', value: {src: auxl.pattern22, repeat: '5 5', color: "#623018", emissive: "#623018",}}},
-imageSwapper1:{SpawnImgSwap: null},
+	teleport0:{SpawnTeleport:null},
+	memory:{SpawnMemGame: null},
+	nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern50, repeat: '150 150',color: "#763a3a", emissive: "#763a3a",},}},
+	horizonWalls3:{SpawnHorizon: null},
+	smallCeiling: {SpawnCore: null,ChangeSelf:{property: 'material', value: {src: auxl.pattern22, repeat: '5 5', color: "#623018", emissive: "#623018",}}},
+	imageSwapper1:{SpawnImgSwap: null},
 },
 delay:{
-
 },
 interval:{
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
-
 },
 map:{
-data: auxl.zone3Data.zone3Node1,
+	data: auxl.zone3Data.zone3Node1,
 },
 };
 //Node Scene 0
@@ -5272,73 +5310,61 @@ auxl.zone3 = auxl.MapZone(auxl.zone3Data);
 //Zone 4
 auxl.zone4Data = {
 info:{
-id: 'zone4',
-name: 'Zone4',
-zoneNum: 0,
-start: 'zone4Node0',
+	id: 'zone4',
+	name: 'Zone4',
+	zoneNum: 0,
+	start: 'zone4Node0',
 },
 zone4Node0:{
-connect0: {inZone: 'zone0', node: 'zone0Node0',},
-connect1: {inZone: 'zone3', node: 'zone3Node0',},
-connect2: {inZone: 'zone5', node: 'zone5Node0',},
+	connect0: {inZone: 'zone0', node: 'zone0Node0',},
+	connect1: {inZone: 'zone3', node: 'zone3Node0',},
+	connect2: {inZone: 'zone5', node: 'zone5Node0',},
 },
 controls:{
-
 },
 start:{
-
 },
 delay:{
-
 },
 interval:{
-
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
-
 },
 };
 //Node 0
 auxl.zone4Node0Data = {
 info:{
-id:'zone4Node0',
-name: 'Open Desert',
-description: 'Dry Plains',
-sceneText: true,
+	id:'zone4Node0',
+	name: 'Open Desert',
+	description: 'Dry Plains',
+	sceneText: true,
 },
 controls:{
-
 },
 start:{
-teleport:{SpawnTeleport:null},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern58, repeat: '150 150',color: "#c1bd52", emissive: "#c1bd52",},}},
-npc2:{SpawnNPC: null},
-multiDesertPlainsBasic:{SpawnObjRing: null},
-desertScene1:{SpawnMultiAsset:null},
-horizonWalls1:{SpawnHorizon:null},
+	teleport:{SpawnTeleport:null},
+	nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern58, repeat: '150 150',color: "#c1bd52", emissive: "#c1bd52",},}},
+	npc2:{SpawnNPC: null},
+	multiDesertPlainsBasic:{SpawnObjRing: null},
+	desertScene1:{SpawnMultiAsset:null},
+	horizonWalls1:{SpawnHorizon:null},
 },
 delay:{
-
 },
 interval:{
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
-
 },
 map:{
-data: auxl.zone4Data.zone4Node0,
+	data: auxl.zone4Data.zone4Node0,
 },
 };
 //Node Scene 0
@@ -5351,167 +5377,146 @@ auxl.zone4 = auxl.MapZone(auxl.zone4Data);
 //Zone 5
 auxl.zone5Data = {
 info:{
-id: 'zone5',
-name: 'Zone5',
-zoneNum: 0,
-start: 'zone5Node0',
+	id: 'zone5',
+	name: 'Zone5',
+	zoneNum: 0,
+	start: 'zone5Node0',
 },
 zone5Node0:{
-connect0: {inZone: 'zone0', node: 'zone0Node0',},
-connect1: {inZone: 'zone4', node: 'zone4Node0',},
-connect2: {inZone: true, node: 'zone5Node1',},
+	connect0: {inZone: 'zone0', node: 'zone0Node0',},
+	connect1: {inZone: 'zone4', node: 'zone4Node0',},
+	connect2: {inZone: true, node: 'zone5Node1',},
 },
 zone5Node1:{
-connect0: {inZone: true, node: 'zone5Node0',},
+	connect0: {inZone: true, node: 'zone5Node0',},
 },
 controls:{
-
 },
 start:{
-eventTesting2:{SpawnCore: null},
-eventTesting5:{SpawnCore: null},
+	eventTesting2:{SpawnCore: null},
+	eventTesting5:{SpawnCore: null},
 },
 delay:{
-
-2000:{
-eventTesting2:{EmitEvent: 'customevent1'},
-},
-
+	2000:{
+		eventTesting2:{EmitEvent: 'customevent1'},
+	},
 },
 interval:{
-
-5000: {run: {eventTesting2:{IfElse: {eventTesting2: {cond: 'testIntervalVar',
-ifTrue: {
-eventTesting2:{EmitEvent: 'customevent5',SetFlag:{flag: 'testIntervalVar', value: false},},
-},
-ifFalse: {
-eventTesting2:{EmitEvent: 'customevent6',SetFlag:{flag: 'testIntervalVar', value: true},},
-},
-},}},}, loop: 'infinite'},
-
+	5000: {
+		run: {eventTesting2:{IfElse: {eventTesting2: {cond: 'testIntervalVar',
+		ifTrue: {
+		eventTesting2:{EmitEvent: 'customevent5',SetFlag:{flag: 'testIntervalVar', value: false},},
+		},
+		ifFalse: {
+		eventTesting2:{EmitEvent: 'customevent6',SetFlag:{flag: 'testIntervalVar', value: true},},
+		},
+		},}},}, loop: 'infinite'
+	},
 },
 event:{
-
-customevent5: {
-eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},
-},
-customevent6: {
-eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#d1e62f', emissive: '#d1e62f'}}},
-},
-customevent7: {
-eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#1da356', emissive: '#1da356'}}},
-},
-customevent8: {
-eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#a72fe6', emissive: '#a72fe6'}}},
-},
-
+	customevent5: {
+		eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#c76530', emissive: '#c76530'}}},
+	},
+	customevent6: {
+		eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#d1e62f', emissive: '#d1e62f'}}},
+	},
+	customevent7: {
+		eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#1da356', emissive: '#1da356'}}},
+	},
+	customevent8: {
+		eventTesting2: {ChangeSelf: {property: 'material', value: {color: '#a72fe6', emissive: '#a72fe6'}}},
+	},
 },
 interaction:{
-
-click: {
-eventTesting2:{IfElse: {eventTesting2:{cond: 'testInteractionVar',
-ifTrue: {
-eventTesting2:{EmitEvent: 'customevent7',SetFlag:{flag: 'testInteractionVar', value: false},},
-},ifFalse: {
-eventTesting2:{EmitEvent: 'customevent8',SetFlag:{flag: 'testInteractionVar', value: true},},
-},}}},
-},
-
+	click: {
+		eventTesting2:{IfElse: {eventTesting2:{cond: 'testInteractionVar',
+		ifTrue: {
+		eventTesting2:{EmitEvent: 'customevent7',SetFlag:{flag: 'testInteractionVar', value: false},},
+		},ifFalse: {
+		eventTesting2:{EmitEvent: 'customevent8',SetFlag:{flag: 'testInteractionVar', value: true},},
+		},}}},
+	},
 },
 exit:{
-
 },
 };
 //Node 0
 auxl.zone5Node0Data = {
 info:{
-id:'zone5Node0',
-name: 'Oasis Beach',
-description: 'Rolling Sands',
-sceneText: true,
+	id:'zone5Node0',
+	name: 'Oasis Beach',
+	description: 'Rolling Sands',
+	sceneText: true,
 },
 controls:{
-
 },
 start:{
-teleport:{SpawnTeleport:null},
-eventTesting5:{SetFlag:{flag: 'testExitVar', value: true}, EnableDetail: {text: 'An example of using start/exit to set variables and change scene settings.'}},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55, repeat: '150 150',color: "#b4933c", emissive: "#b4933c",},}},
-multiOceanBeachBasic:{SpawnObjRing: null},
-beachScene1:{SpawnMultiAsset:null},
-horizonBuildings1:{SpawnHorizon: null},
-canoe:{SpawnCore:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(1.5,0,3),}},
-canoe_paddle:{SpawnCore:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(-2,0.1,1),}},
-waterFloor:{SpawnCore:null},
+	teleport:{SpawnTeleport:null},
+	eventTesting5:{SetFlag:{flag: 'testExitVar', value: true}, EnableDetail: {text: 'An example of using start/exit to set variables and change scene settings.'}},
+	nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55, repeat: '150 150',color: "#b4933c", emissive: "#b4933c",},}},
+	multiOceanBeachBasic:{SpawnObjRing: null},
+	beachScene1:{SpawnMultiAsset:null},
+	horizonBuildings1:{SpawnHorizon: null},
+	canoe:{SpawnCore:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(1.5,0,3),}},
+	canoe_paddle:{SpawnCore:null,ChangeSelf:{property: 'position', value: new THREE.Vector3(-2,0.1,1),}},
+	waterFloor:{SpawnCore:null},
 },
 delay:{
-
 },
 interval:{
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
-
-eventTesting5:{IfElse: {eventTesting5:{cond: 'testExitVar',
-ifTrue: {
-eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55,color: "#1f5298", emissive: "#1f5298",},}},
-},ifFalse: {
-eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern54,color: "#9b206c", emissive: "#9b206c",},}},
-},}}},
-
+	eventTesting5:{IfElse: {eventTesting5:{cond: 'testExitVar',
+	ifTrue: {
+	eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55,color: "#1f5298", emissive: "#1f5298",},}},
+	},ifFalse: {
+	eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern54,color: "#9b206c", emissive: "#9b206c",},}},
+	},}}},
 },
 map:{
-data: auxl.zone5Data.zone5Node0,
+	data: auxl.zone5Data.zone5Node0,
 },
 };
 //Node 1
 auxl.zone5Node1Data = {
 info:{
-id:'zone5Node1',
-name: 'Underwater',
-description: 'Submerged',
-sceneText: true,
+	id:'zone5Node1',
+	name: 'Underwater',
+	description: 'Submerged',
+	sceneText: true,
 },
 controls:{
-
 },
 start:{
-teleport0:{SpawnTeleport:null},
-eventTesting5:{SetFlag:{flag: 'testExitVar', value: false},},
-nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern83, repeat: '150 150',color: "#3c86b4", emissive: "#3c86b4",},}},
-horizonWalls2:{SpawnHorizon: null},
-underwaterScene1:{SpawnMultiAsset:null},
-nodeCeiling:{SpawnCore:null},
+	teleport0:{SpawnTeleport:null},
+	eventTesting5:{SetFlag:{flag: 'testExitVar', value: false},},
+	nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern83, repeat: '150 150',color: "#3c86b4", emissive: "#3c86b4",},}},
+	horizonWalls2:{SpawnHorizon: null},
+	underwaterScene1:{SpawnMultiAsset:null},
+	nodeCeiling:{SpawnCore:null},
 },
 delay:{
-
 },
 interval:{
 },
 event:{
-
 },
 interaction:{
-
 },
 exit:{
-nodeWalls: {ChangeParent:{property: 'scale', value: new THREE.Vector3(1,1,1)}},
-
-eventTesting5:{IfElse: {eventTesting5:{cond: 'testExitVar',
-ifTrue: {
-eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55,color: "#1f5298", emissive: "#1f5298",},}},
-},ifFalse: {
-eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern54,color: "#9b206c", emissive: "#9b206c",},}},
-},}}},
-
+	eventTesting5:{IfElse: {eventTesting5:{cond: 'testExitVar',
+	ifTrue: {
+	eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern55,color: "#1f5298", emissive: "#1f5298",},}},
+	},ifFalse: {
+	eventTesting5:{ChangeSelf:{property: 'material', value: {src: auxl.pattern54,color: "#9b206c", emissive: "#9b206c",},}},
+	},}}},
 },
 map:{
-data: auxl.zone5Data.zone5Node1,
+	data: auxl.zone5Data.zone5Node1,
 },
 };
 //Node Scene 0

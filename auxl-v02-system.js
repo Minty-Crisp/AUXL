@@ -5,41 +5,18 @@
 //
 //Created by Minty-Crisp (mintycrisp.com)
 
-//AUXL v0.2 - Sytem - In Progress
+//AUXL v0.2 - System
 
 //auxl
 //AUXL System : System, ObjGens & Support Functions
 AFRAME.registerSystem('auxl', {
-//schema: {
-	//bar: {type: 'number'},
-	//style: {type: 'string', default: 'random'}
-//},
-
 init: function () {
-//console.log('AUXL INIT');
 // System
 /*************************************************************/
 //
-//Scene Load Checking
-this.checkSceneLoadThrottled = AFRAME.utils.throttle(this.checkSceneLoad, 30, this);
-
-//Establish a-frame objects
+//HTML Elements
 const sceneEl = document.querySelector('a-scene');
 const head = document.querySelector('head');
-let auxl = this;
-//Experience
-this.expStarted = false;
-//Scene
-this.loadingScene = false;
-this.loadingObjects = new Map();
-//JS Scripts Loaded
-this.jsLoaded = {};
-//JS Scripts Predefined, Ready to be loaded
-this.jsAll = {
-['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',
-//threeGradShader: 'https://unpkg.com/@tlaukkan/aframe-three-color-gradient-shader@0.0.1/index.js',//Shaders needs it's own checker
-};
-//Menu
 const stickyMenu = document.getElementById('stickyMenu');
 const beginDiv = document.getElementById('beginDiv');
 const startButton = document.getElementById('startButton');
@@ -51,17 +28,7 @@ const infoClose = document.getElementById('infoClose');
 const instructions = document.getElementById('instructions');
 const scenarioHeaderTitle = document.getElementById('scenarioHeaderTitle');
 const scenarioMenuTitle = document.getElementById('scenarioMenuTitle');
-this.menuOpen = true;
-this.infoOpen = false;
-//Audio
-this.audioEnabled = false;
-//HTML Controls
 const controllerBlock = document.getElementById('controllerBlock');
-//Controls
-this.universalControls;
-this.controls = 'Desktop';
-this.vrHand = 'bothRight';
-this.mobilePermissionGranted = false;
 let playerRig;
 let camera;
 let cameraUI;
@@ -71,9 +38,28 @@ let vrController1;
 let vrController1UI;
 let vrController2;
 let vrController2UI;
-this.joystickReader = '';
-this.controller1Reader = '';
-this.controller2Reader = '';
+//System
+let auxl = this;
+this.expStarted = false;
+this.defaultScenario;
+//Throttled Scene Loading Function
+this.checkSceneLoadThrottled = AFRAME.utils.throttle(this.checkSceneLoad, 30, this);
+this.loadingScene = false;
+this.loadingObjects = new Map();
+this.jsLoaded = {};
+//JS Scripts Predefined, Ready to be loaded dynamically
+this.jsAll = {
+['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',
+//threeGradShader: 'https://unpkg.com/@tlaukkan/aframe-three-color-gradient-shader@0.0.1/index.js',//Shaders needs it's own checker
+};
+//Menu
+this.menuOpen = true;
+this.infoOpen = false;
+this.audioEnabled = false;
+this.universalControls;
+this.controls = 'Desktop';
+this.vrHand = 'bothRight';
+this.mobilePermissionGranted = false;
 //Object Tracking
 this.spawned = {};
 this.scenarioSpawned = {};
@@ -182,7 +168,7 @@ function spawnTracker(obj, spawnLocation, bookName){
 	}
 
 }
-//Clear Spawned from Scenario, Zone or Node
+//Clear Spawned from Scenario, Zone, Node or Book
 function clearSpawned(spawned){
 	for(let spawn in spawned){
 		//console.log(spawn);//name of ID
@@ -256,21 +242,19 @@ this.intervals = {};
 this.interactions = {};
 this.events = {};
 //Environmental Settings
-this.defaultScenario;
+//Day|Night Time Length
 this.timeInDay = 360000;
 
 //
 //HTML Menu
 function toggleMenu(){
 	if(auxl.menuOpen){
-		//Close Menu
 		beginDiv.style.display = 'none';
 		auxl.menuOpen = false;
 		if(auxl.infoOpen){
 			toggleInfo();
 		}
 	} else {
-		//Open Menu
 		beginDiv.style.display = 'flex';
 		auxl.menuOpen = true;
 	}
@@ -292,204 +276,114 @@ startButton.addEventListener('click', startExp);
 
 //
 //Controls
+
 //VR
 function disableVRControls(){
-	//Disable VR Controls
-	//playerRig.removeAttribute('universal-controls');
-	//vrController visible to true
 	vrController1.setAttribute('visible',false);
 	vrController2.setAttribute('visible',false);
-	//vrControllerUI visible to true
 	vrController1UI.setAttribute('visible',false);
 	vrController2UI.setAttribute('visible',false);
-	//vrController cursor property
 	vrController1.removeAttribute('cursor');
 	vrController2.removeAttribute('cursor');
-	//vrController raycaster property
-	//Removing and re-adding raycaster messes up the pointer's direction
-	//vrController1.removeAttribute('raycaster');
-	//vrController2.removeAttribute('raycaster');
-	//vrController laser-controls property
 	vrController1.removeAttribute('laser-controls');
 	vrController2.removeAttribute('laser-controls');
-	//vrController controls property
-	//vrController1.removeAttribute('vr-left-inputs');
-	//vrController2.removeAttribute('vr-right-inputs');
 }
 function enableVRControls(){
-	//Enable VR Controls
 	if(auxl.vrHand === 'bothRight'){
-		//vrController visible to true
 		vrController1.setAttribute('visible',true);
 		vrController2.setAttribute('visible',true);
-		//vrControllerUI visible to true
 		vrController1UI.setAttribute('visible',true);
 		vrController2UI.setAttribute('visible',true);
-		//vrController laser-controls property
 		vrController1.setAttribute('laser-controls',{hand: 'left'});
 		vrController2.setAttribute('laser-controls',{hand: 'right'});
-		//vrController raycaster property
 		vrController1.setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
 		vrController2.setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		//vrController cursor property
 		vrController2.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		//vrController Controls
-		//vrController1.setAttribute('vr-left-inputs',{joystickEnabled: true});
-		//vrController2.setAttribute('vr-right-inputs',{joystickEnabled: true});
-		//Enable VR Locomotion
-		auxl.player.EnableVRLocomotion();
 		playerRig.setAttribute('universal-controls',{update: 1});
+		auxl.player.EnableVRLocomotion();
 	} else if(auxl.vrHand === 'bothLeft'){
-		//vrController visible to true
 		vrController1.setAttribute('visible',true);
 		vrController2.setAttribute('visible',true);
-		//vrControllerUI visible to true
 		vrController1UI.setAttribute('visible',true);
 		vrController2UI.setAttribute('visible',true);
-		//vrController laser-controls property
 		vrController1.setAttribute('laser-controls',{hand: 'left'});
 		vrController2.setAttribute('laser-controls',{hand: 'right'});
-		//vrController raycaster property
 		vrController1.setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
 		vrController2.setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
-		//vrController cursor property
 		vrController1.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
-		//vrController Controls
-		//vrController1.setAttribute('vr-left-inputs',{joystickEnabled: true});
-		//vrController2.setAttribute('vr-right-inputs',{joystickEnabled: true});
-		//Enable VR Locomotion
-		auxl.player.EnableVRLocomotion();
 		playerRig.setAttribute('universal-controls',{update: 2});
+		auxl.player.EnableVRLocomotion();
 	} else if(auxl.vrHand === 'bothRightLoco' || auxl.vrHand === 'bothLeftLoco'){
-		//vrController visible to true
 		vrController1.setAttribute('visible',true);
 		vrController2.setAttribute('visible',true);
-		//vrControllerUI visible to true
 		vrController1UI.setAttribute('visible',true);
 		vrController2UI.setAttribute('visible',true);
-		//vrController laser-controls property
 		vrController1.setAttribute('laser-controls',{hand: 'left'});
 		vrController2.setAttribute('laser-controls',{hand: 'right'});
-		//vrController raycaster property
 		vrController1.setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: 'false'});
 		vrController2.setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		//vrController cursor property
 		vrController1.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
 		vrController2.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		//vrController Controls
-		//vrController1.setAttribute('vr-left-inputs',{joystickEnabled: true});
-		//vrController2.setAttribute('vr-right-inputs',{joystickEnabled: true});
-		//Enable VR Locomotion
-		auxl.player.EnableVRLocomotion();
 		playerRig.setAttribute('universal-controls',{update: 3});
+		auxl.player.EnableVRLocomotion();
 	} else if(auxl.vrHand === 'right'){
-		//vrController visible to true
 		vrController2.setAttribute('visible',true);
-		//vrControllerUI visible to true
 		vrController2UI.setAttribute('visible',true);
-		//vrController laser-controls property
 		vrController2.setAttribute('laser-controls',{hand: 'right'});
-		//vrController raycaster property
 		vrController2.setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		//vrController cursor property
 		vrController2.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		//vrController Controls
-		//vrController2.setAttribute('vr-right-inputs',{joystickEnabled: false});
-		//Enable VR Hover Locomotion
-		auxl.player.EnableVRHoverLocomotion('vrController2');
 		playerRig.setAttribute('universal-controls',{update: 4});
+		auxl.player.EnableVRHoverLocomotion('vrController2');
 	} else if(auxl.vrHand === 'left'){
-		//vrController visible to true
 		vrController1.setAttribute('visible',true);
-		//vrControllerUI visible to true
 		vrController1UI.setAttribute('visible',true);
-		//vrController laser-controls property
 		vrController1.setAttribute('laser-controls',{hand: 'left'});
-		//vrController raycaster property
 		vrController1.setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		//vrController cursor property
 		vrController1.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
-		//vrController Controls
-		//vrController1.setAttribute('vr-left-inputs',{joystickEnabled: false});
-		//Enable VR Hover Locomotion
-		auxl.player.EnableVRHoverLocomotion('vrController1');
 		playerRig.setAttribute('universal-controls',{update: 5});
+		auxl.player.EnableVRHoverLocomotion('vrController1');
 	}
 }
 //Desktop
 function disableDesktopControls(){
-	//Disable Desktop Controls
-	//playerRig.removeAttribute('universal-controls');
-	//Remove Desktop WASD Controls
-	//playerRig.removeAttribute('wasd-controls');
-	//playerRig.removeAttribute('movement-controls');
-	//Set mouseController to invisible
 	mouseController.setAttribute('visible',false);
-	//Set mouseController raycaster to false
 	mouseController.removeAttribute('raycaster');
-	//Remove cursor attribute
 	mouseController.removeAttribute('cursor');
 }
 function enableDesktopControls(){
-	//Enable Desktop Controls
-	//Remove Desktop WASD Controls
-	//playerRig.setAttribute('wasd-controls',{enabled: 'true', acceleration: 25});
-	//playerRig.setAttribute('movement-controls',{enabled: 'true', controls: 'keyboard', speed: 0.1, fly: false, constrainToNavMesh: false, camera: '#camera'});
-	//Set mouseController to invisible
 	mouseController.setAttribute('visible',true);
-	//Set mouseController raycaster to false
 	mouseController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-	//Set cursor attribute
-	//mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
 	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true',});
-
-	//Enable Desktop Locomotion
+	playerRig.setAttribute('universal-controls',{update: 0});
 	auxl.player.EnableDesktopLocomotion();
-	//Update Controls
-	auxl.controls = 'Desktop';
-		playerRig.setAttribute('universal-controls',{update: 0});
 }
 //Mobile
 function disableMobileControls(){
-	//playerRig.removeAttribute('universal-controls');
-	//sceneEl.setAttribute('device-orientation-permission-ui', {enabled: false});
-	//playerRig.removeAttribute('movement-controls');
-	//Set mouseController to invisible
 	mouseController.setAttribute('visible',false);
-	//Set mouseController raycaster to false
 	mouseController.removeAttribute('raycaster');
-	//Remove cursor attribute
 	mouseController.removeAttribute('cursor');
-	//HTML Controller
 	controllerBlock.style.display = 'none';
 }
 function enableMobileControls(){
-//deviceorientationpermissiongranted
-//deviceorientationpermissionrejected
-//deviceorientationpermissionrequested
+	/*
 	function mobilePermissionGrantedTrue(){
 		auxl.mobilePermissionGranted = true;
 	}
 	function mobilePermissionGrantedFalse(){
 		auxl.mobilePermissionGranted = false;
-	}
+	}*/
+	//deviceorientationpermissiongranted
+	//deviceorientationpermissionrejected
+	//deviceorientationpermissionrequested
 	//sceneEl.setAttribute('device-orientation-permission-ui', {enabled: true});
 	//sceneEl.addEventListener('deviceorientationpermissiongranted', mobilePermissionGrantedTrue);
 	//sceneEl.addEventListener('deviceorientationpermissionrejected', mobilePermissionGrantedFalse);
-	//playerRig.setAttribute('movement-controls',{enabled: 'false', controls: 'touch', speed: 0.1, fly: false, constrainToNavMesh: false, camera: '#camera'});
-	//Set mouseController to invisible
 	mouseController.setAttribute('visible',true);
-	//Set mouseController raycaster to false
 	mouseController.setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-	//Remove cursor attribute
 	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
-	//HTML Controller
 	controllerBlock.style.display = 'flex';
-	//Enable Desktop Locomotion
+	playerRig.setAttribute('universal-controls',{update: 6});
 	auxl.player.EnableMobileLocomotion();
-	//Update Controls
-	auxl.controls = 'Mobile';
-		playerRig.setAttribute('universal-controls',{update: 6});
 }
 //Update Controls
 function updateControls(){
@@ -508,7 +402,7 @@ function updateControls(){
 		enableVRControls();
 	}
 }
-//Menu Button Controls
+//Menu Controls Button
 function changeControls(){
 	if(auxl.controls === 'Desktop'){
 		auxl.controls = 'VR';
@@ -525,7 +419,7 @@ function changeControls(){
 	updateControls();
 }
 menuModeButton.addEventListener('click', changeControls);
-
+//Cycle VR Configurations
 function changeVRHand(){
 	if(auxl.vrHand === 'bothRight'){
 		auxl.vrHand = 'bothLeft';
@@ -551,14 +445,12 @@ function changeVRHand(){
 vrHandButton.addEventListener('click', changeVRHand);
 
 //
-//Audio
+//Toggle Audio
 function toggleAudio(){
 	if(auxl.audioEnabled){
-		//Disable Audio
 		auxl.audioEnabled = false;
 		audioButton.innerHTML = 'Sound : Disabled';
 	} else {
-		//Enable Audio
 		auxl.audioEnabled = true;
 		audioButton.innerHTML = 'Sound : Enabled';
 	}
@@ -566,14 +458,12 @@ function toggleAudio(){
 audioButton.addEventListener('click', toggleAudio);
 
 //
-//Instructions
+//Toggle Instructions
 function toggleInfo(){
 	if(auxl.infoOpen){
-		//Close Info
 		expInfo.style.display = 'none';
 		auxl.infoOpen = false;
 	} else {
-		//Open Info
 		expInfo.style.display = 'flex';
 		auxl.infoOpen = true;
 	}
@@ -586,20 +476,9 @@ infoClose.addEventListener('click', toggleInfo);
 
 //
 //Color Theory Generator
-//Generate a color theory palette from a given color, color family or a random color
+//Generate a color theory palette from a given color, color family or a random color. Exported object contains Base, Complementary, Split-complementary, Triadic, Tetradic, Analagous & Monochrome(Not Yet)
 this.colorTheoryGen = (color, family) => {
-
 //color accepts Hex values only at the moment, more options coming soon
-
-//Colors Generated :
-//Base
-//Complementary
-//Split-complementary
-//Triadic
-//Tetradic
-//Analagous
-//Monochrome - coming soon
-
 let r;
 let r0;
 let g;
@@ -613,10 +492,6 @@ const colorFamily =['red','orange','yellow','lime','blue','cyan','magenta','maro
 
 //Support Functions
 function HSLToRGB(h,s,l) {
-	// Must be fractions of 1
-	//s /= 100;
-	//l /= 100;
-
 	let c = (1 - Math.abs(2 * l - 1)) * s,
 	  x = c * (1 - Math.abs((h / 60) % 2 - 1)),
 	  m = l - c/2,
@@ -660,25 +535,22 @@ function RGBToHex(r,g,b) {
 function hexToRGB(h) {
 	let r = 0, g = 0, b = 0;
 
-	// 3 digits
 	if (h.length == 4) {
 	r = "0x" + h[1] + h[1];
 	g = "0x" + h[2] + h[2];
 	b = "0x" + h[3] + h[3];
 
-	// 6 digits
 	} else if (h.length == 7) {
 	r = "0x" + h[1] + h[2];
 	g = "0x" + h[3] + h[4];
 	b = "0x" + h[5] + h[6];
 	}
 
-	//return "rgb("+ +r + "," + +g + "," + +b + ")";
 	return {r,g,b};
 }
 function randomColorFamily(){
-	return colorFamily[Math.floor(Math.random()*(colorFamily.length-4))];
 	//Ignore last 4 Black/White/Grey/Silver
+	return colorFamily[Math.floor(Math.random()*(colorFamily.length-4))];
 }
 
 //Check if color input is useable
@@ -772,8 +644,6 @@ if(color){
 	base = RGBToHex(r,g,b);
 }
 
-//Convert RGB to HSL for Color Theory support
-
 //Luminosity
 //Find max and min
 let max = Math.max(r0, g0, b0);
@@ -815,8 +685,6 @@ sat = 0;
 } else {
 sat = ((max - min) / (1 - (lum*2 - 1)));
 }
-
-//Base HSL color... hue, sat, lum
 
 //Complementary
 let complRGB = HSLToRGB(Math.abs((hue + 180) - 360), sat, lum);
@@ -884,23 +752,6 @@ mono.push(dark);
 return {base, light, dark, compl, splitCompl, triadic, tetradic, analog};
 
 }
-/*
-auxl.newColor1 = auxl.colorTheoryGen();
-auxl.newColor1 = auxl.colorTheoryGen('#00d3d3');
-auxl.newColor1 = auxl.colorTheoryGen(false, 'red');
-console.log(auxl.newColor1.base);
-console.log(auxl.newColor1.compl);
-console.log(auxl.newColor1.splitCompl[0]);
-console.log(auxl.newColor1.splitCompl[1]);
-console.log(auxl.newColor1.triadic[0]);
-console.log(auxl.newColor1.triadic[1]);
-console.log(auxl.newColor1.tetradic[0]);
-console.log(auxl.newColor1.tetradic[1]);
-console.log(auxl.newColor1.tetradic[2]);
-console.log(auxl.newColor1.analog[0]);
-console.log(auxl.newColor1.analog[1]);
-console.log(auxl.newColor1.analog[2]);
-*/
 
 //
 //Object Generators
@@ -908,13 +759,10 @@ console.log(auxl.newColor1.analog[2]);
 //
 //Entity Core
 this.Core = (data) => {
-
-	//Import Data
 	let core = JSON.parse(JSON.stringify(data));
 	core.el = {};
 	core.parent = false;
 	let details = false;
-
 	let load3D = false;
 	let loadMat = false;
 	let loadNewMat = false;
@@ -934,17 +782,13 @@ this.Core = (data) => {
 	}
 	//Asset Loaded
 	function loaded(){
-		//console.log(core.id);
-		//console.log('Asset loaded');
 		auxl.loadingObjects.delete(core.id);
 	}
-
+	//Generate Entity Element
 	const Generate = () => {
-
-		//Check for external sources and append
+		core.el = {};
+		//Instead of adding a source to each object that uses a component, add it to auxl.jsAll to dynamically load instead
 		if(core.sources){
-			//Instead of adding a source to each object that uses a component, add it to auxl.jsAll to automatically check instead
-			//External JS Import
 			let propertyKeys = Object.keys(core.sources);
 			let propertyValues = Object.values(core.sources);
 			for (let propKey in propertyKeys) {
@@ -984,31 +828,22 @@ this.Core = (data) => {
 				}
 			}
 		}
-
-		core.el = {};
-
+		//Entity Type
 		if(core.entity === 'preAdded'){
 			core.el = document.getElementById(core.id);
-			//return core.el;
 		} else if(core.entity){
 			core.el = document.createElement(core.entity);
 		} else {
 			core.el = document.createElement('a-entity');
 		}
-		//console.log('generating...');
-		//console.log(core);
-
 		//Sound
 		if(this.audioEnabled){
 			if(core.sound){core.el.setAttribute('sound', core.sound)};
 		}
-
 		//Text
 		if(core.text){core.el.setAttribute('text', core.text)};
-
 		//ID
 		core.el.setAttribute('id', core.id);
-
 		//Geometry
 		if(core.geometry){
 			core.el.setAttribute('geometry', core.geometry);
@@ -1036,12 +871,11 @@ this.Core = (data) => {
 		if(core.mixins){
 			core.el.setAttribute('mixins', core.mixins);
 		}
-
-		//Add all classes
+		//Class
 		for (let key in core.classes) {
 			core.el.classList.add(core.classes[key]);
 		}
-		//There are a list of animations, loop through and set each as the object's keyName
+		//Animations
 		let animationKeys = Object.keys(core.animations);
 		let animationValues = Object.values(core.animations);
 		for (let key in animationKeys) {
@@ -1049,12 +883,11 @@ this.Core = (data) => {
 				core.el.setAttribute('animation__'+animationKeys[key], animationValues[key]);
 			}
 		}
-
-		//Wait until Models and Src Materials are loaded before letting player anim finish
+		//Wait for Model to Load?
 		if(core.components['gltf-model'] || core.components['obj-model']){
 			load3D = true;
 		}
-		//Check for Component Settings
+		//Components with auxl.jsAll dynamic JS loading support
 		if(core.components){
 			let componentKeys = Object.keys(core.components);
 			let componentValues = Object.values(core.components);
@@ -1098,10 +931,11 @@ this.Core = (data) => {
 		//Object element generation done
 		return core.el;
 	}
-
+	//Spawn Entity Object
 	const SpawnCore = (parent, layer, other) => {
 		let needParent = parent || false;
 		let fromLayer = layer || false;
+		//Generate Entity Element
 		Generate();
 		//Loading should only apply to gltf, obj and material textures
 		if(load3D || loadMat){
@@ -1112,7 +946,6 @@ this.Core = (data) => {
 			if(needParent){
 				core.parent = needParent;
 				needParent.appendChild(core.el);
-				//Need a specific unspawn object form to add to this.spawned
 			} else {
 				sceneEl.appendChild(core.el);
 			}
@@ -1125,7 +958,7 @@ this.Core = (data) => {
 			core.el.addEventListener('loaded', loaded);
 		}
 	}
-
+	//Despawn Entity Object
 	const DespawnCore = (parent, layer, other) => {
 		//Loaded Events
 		if(load3D){
@@ -1134,7 +967,7 @@ this.Core = (data) => {
 		if(loadMat || loadNewMat){
 			core.el.removeEventListener('loaded', loaded);
 		}
-		//loop through and remove all core.components which removes all event listeners before clearing from scene
+		//Remove all core.components to remove all event listeners before clearing from scene
 		let componentKeys = Object.keys(core.components);
 		for (let key in componentKeys) {
 			if(key === 0){} else {
@@ -1143,19 +976,18 @@ this.Core = (data) => {
 		}
 		let needParent = parent || false;
 		let fromLayer = layer || false;
+		//Remove from Scene or Parent
 		if(needParent){
-			//console.log(core.el)
 			needParent.removeChild(core.el);
 		} else {
-			//console.log(core)
-			//console.log(core.el)
 			sceneEl.removeChild(core.el);
 		}
+		//Scene Tracking Support
 		if(fromLayer || other){} else {
 			RemoveFromTracker(core.id);
 		}
 	}
-
+	//Change Element - Single or Array
 	const ChangeSelf = (propertyValue) => {
 		if(Array.isArray(propertyValue)){
 			for(let each in propertyValue){
@@ -1187,7 +1019,7 @@ this.Core = (data) => {
 			GetEl().setAttribute(propertyValue.property, propertyValue.value);
 		}
 	}
-
+	//Remove Element Component
 	const RemoveComponent = (property) => {
 		if(Array.isArray(property)){
 			for(let each in property){
@@ -1197,9 +1029,8 @@ this.Core = (data) => {
 			GetEl().removeAttribute(property);
 		}
 	}
-
+	//Prepare Animation Input for Animate()
 	function prepAnimation(animProps){
-
 		let name = 'animation__' + animProps.name || 'animation__customAnim';
 		let property = animProps.property;
 		let from = animProps.from || false;
@@ -1215,7 +1046,6 @@ this.Core = (data) => {
 		let startEvents = animProps.startEvents || false;
 		let pauseEvents = animProps.pauseEvents || false;
 		let resumeEvents = animProps.resumeEvents || false;
-
 		let anim = {
 			property: 'object3D.rotation.y',
 			to: 360,
@@ -1228,7 +1058,6 @@ this.Core = (data) => {
 			autoplay: 'true',
 			enabled: 'true',
 		};
-
 		if(property){anim.property = property};
 		if(from){anim.from = from};
 		if(to){anim.to = to};
@@ -1246,7 +1075,7 @@ this.Core = (data) => {
 
 		return {name, anim}
 	}
-
+	//Add Animation to Element - Single or Array
 	const Animate = (animProps) => {
 		if(Array.isArray(animProps)){
 			for(let each in animProps){
@@ -1258,18 +1087,15 @@ this.Core = (data) => {
 			GetEl().setAttribute(animation.name, animation.anim);
 		}
 	}
-
+	//Return Element in Scene
 	const GetEl = () => {
-		//return core.id;
-
 		let aEl = document.getElementById(core.id);
 		if(aEl){}else{
-			//console.log(core.id)
 			return false;
 		}
 		return aEl;
 	}
-
+	//Emit Event from Entity Element - Single or Array
 	const EmitEvent = (eventName) => {
 		if(Array.isArray(eventName)){
 			for(let each in eventName){
@@ -1279,7 +1105,7 @@ this.Core = (data) => {
 			GetEl().emit(eventName,{bubbles: false});
 		}
 	}
-
+	//Set Flag & Value to Object - Single or Array
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
@@ -1289,43 +1115,19 @@ this.Core = (data) => {
 			core[flagValue.flag] = flagValue.value;
 		}
 	}
-
-	const GetFlag = (varName) => {
-		//console.log(varName)
-		//console.log(core[varName])
-		return core[varName];
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(core(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return core[flag];
+		}
 	}
-
-	const ClickRun = (el) => {
-		//console.log('Click');
-		//console.log(el);
-	}
-
-	const FuseClickRun = (el) => {
-		//console.log('Fuse Click');
-		//console.log(el);
-	}
-
-	const CursorDownRun = (el) => {
-		//console.log('Cursor Down');
-		//console.log(el);
-	}
-
-	const CursorEnterRun = (el) => {
-		//console.log('Cursor Enter');
-		//console.log(el);
-	}
-
-	const CursorLeaveRun = (el) => {
-		//console.log('Cursor Leave');
-		//console.log(el);
-	}
-
-	const CursorUpRun = (el) => {
-		//console.log('Cursor Up');
-		//console.log(el);
-	}
-
+	//Prep Details for Scene Display
 	const prepDetails = (text, position, textColor, windowColor, windowWidth, windowHeight) => {
 		core.isOpen = false;
 		//Main Screen
@@ -1376,16 +1178,16 @@ this.Core = (data) => {
 		core.detailAll = auxl.Layer('detailAll',core.detailLayer);
 		details = true;
 	}
-
+	//Open Details Support
 	function detailPrompt_open(){
 	let elGenDelay = setTimeout(function () {
 		core.detailMain.core.el.emit('open',{});
 		core.detailClose.core.el.emit('open',{});
 		core.isOpen = true;
 		clearTimeout(elGenDelay);
-	}, 25); //Delay
+	}, 25);
 	}
-
+	//Close Details Support
 	function detailPrompt_close(){
 		core.detailMain.core.el.emit('close',{});
 		core.detailClose.core.el.emit('close',{});
@@ -1393,54 +1195,46 @@ this.Core = (data) => {
 			core.detailAll.DespawnLayer(true);
 			core.isOpen = false;
 			clearTimeout(elDelDelay);
-		}, 550); //Delay
+		}, 550);
 	}
-
+	//Toggle Details Support
 	function openClose(){
-		//console.log('Running openClose');
 		function closePrompt(){
 			core.detailClose.core.el.removeEventListener('click',closePrompt);
 			core.isOpen = detailPrompt_close();
 		}
 		if(core.isOpen){
-			//console.log('Is Open');
 			core.isOpen = detailPrompt_close();
 			core.detailClose.core.el.removeEventListener('click',closePrompt);
 		} else {
-			//console.log('Is Closed');
 			core.detailAll.SpawnLayer();
 			core.isOpen = detailPrompt_open();
 			core.detailClose.core.el.addEventListener('click', closePrompt);
 		}
 	}
-
+	//Enable Details Window on Click
 	const EnableDetail = (detailInfo) => {
-
 		if(details){} else {
 			prepDetails(detailInfo.text, detailInfo.position, detailInfo.textColor, detailInfo.windowColor, detailInfo.windowWidth, detailInfo.windowHeight);
 		}
-			//Add Event Listener
 			GetEl().addEventListener('click', openClose);
 	}
-
+	//Disable Details Window
 	const DisableDetail = () => {
-		//When core is removed from the scene...
-		//Remove Event Listener
 		GetEl().removeEventListener('click', openClose);
 	}
 
-	return {core, Generate, SpawnCore, DespawnCore, RemoveComponent, ChangeSelf, Animate, GetEl, EmitEvent, SetFlag, GetFlag, ClickRun, FuseClickRun, CursorDownRun, CursorEnterRun, CursorLeaveRun, CursorUpRun, EnableDetail, DisableDetail};
+	return {core, Generate, SpawnCore, DespawnCore, RemoveComponent, ChangeSelf, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
 }
 
 //
-//layered Core
+//layered Cores
 this.Layer = (id, all) => {
-
 	let layer = {id, all};
 	layer.children = {};
 	layer.secondParents = [];
 	layer.thirdParents = [];
-
+	//Spawn Multi Entity Object
 	const SpawnLayer = (other) => {
 		for(let each in all){
 			if(each === 'parent'){
@@ -1449,25 +1243,21 @@ this.Layer = (id, all) => {
 				for(let a in all[each]){
 					if(a === 'core'){
 						layer.children[all[each].core.core.id] = {obj: all[each][a], parent: all.parent.core.core.el};
-						//console.log(layer.children)
 						all[each][a].SpawnCore(all.parent.core.core.el, true);
 					} else {
 						if(a === 'parent'){
 							layer.children[all[each][a].core.core.id] = {obj: all[each][a].core, parent: all.parent.core.core.el};
 							layer.secondParents.push(all[each][a].core);
-							//console.log(layer.children)
 							all[each][a].core.SpawnCore(all.parent.core.core.el, true);
 						} else {
 							for(let b in all[each][a]){
 								if(b === 'core'){
 									layer.children[all[each][a].core.core.id] = {obj: all[each][a][b], parent: all[each].parent.core.core.el};
-									//console.log(layer.children)
 									all[each][a][b].SpawnCore(all[each].parent.core.core.el, true);
 								} else {
 									if(b === 'parent'){
 										layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b].core, parent: all[each].parent.core.core.el};
 										layer.thirdParents.push(all[each][a][b].core);
-										//console.log(layer.children)
 										all[each][a][b].core.SpawnCore(all[each].parent.core.core.el, true);
 									} else {
 										for(let c in all[each][a][b]){
@@ -1475,7 +1265,6 @@ this.Layer = (id, all) => {
 												console.log('Add support for more layers')
 											} else {
 												layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b][c], parent: all[each][a].parent.core.core.el};
-												//console.log(layer.children)
 												all[each][a][b][c].SpawnCore(all[each][a].parent.core.core.el, true);
 											}
 										}
@@ -1488,37 +1277,28 @@ this.Layer = (id, all) => {
 			}
 		}
 	}
-
+	//Order of Despawning
 	function layerOrder(object) {
-	let result = [[], [], [], []];
-	function traverse(object, depth) {
-		for (let key in object) {
-			if (object.hasOwnProperty(key)) {
-				if (key === 'core') {
-					//console.log('Hit core');
-					//console.log(object[key]);
-					//console.log(result);
-					result[depth].push(object[key]);
-				} else if (key === "parent" && object[key].hasOwnProperty('core')) {
-					//console.log('Hit a Parent');
-					//console.log(object[key]);
-					//console.log(result);
-					result[depth].push(object[key].core);
-				} else if (typeof object[key] === 'object') {
-					//console.log('Hit End');
-					//console.log(object[key]);
-					//console.log(result);
-					traverse(object[key], depth + 1);
+		let result = [[], [], [], []];
+		function traverse(object, depth) {
+			for (let key in object) {
+				if (object.hasOwnProperty(key)) {
+					if (key === 'core') {
+						result[depth].push(object[key]);
+					} else if (key === "parent" && object[key].hasOwnProperty('core')) {
+						result[depth].push(object[key].core);
+					} else if (typeof object[key] === 'object') {
+						traverse(object[key], depth + 1);
+					}
 				}
 			}
 		}
-	}
 
-	traverse(object, 0);
-	return result;
+		traverse(object, 0);
+		return result;
 	}
 	let accessOrder = layerOrder(layer.all);
-
+	//Despawn Multi Entity Object
 	const DespawnLayer = (other) => {
 		let removeOrder = layerOrder(layer.all).reverse();
 		for(let layer of removeOrder){
@@ -1530,15 +1310,16 @@ this.Layer = (id, all) => {
 				}
 			}
 		}
+		//Scene Tracking Support
 		if(other){} else {
 			RemoveFromTracker(layer.id);
 		}
 	}
-
+	//Return Parent Element in Scene
 	const GetParentEl = () => {
 		return layer.all.parent.core.GetEl();
 	}
-
+	//Emit Event from Parent Entity Element - Single or Array
 	const EmitEventParent = (eventName) => {
 		if(Array.isArray(eventName)){
 			for(let each in eventName){
@@ -1548,7 +1329,7 @@ this.Layer = (id, all) => {
 			all.parent.core.EmitEvent(eventName);
 		}
 	}
-
+	//Emit Event from a Child Entity Element - Single or Array
 	const EmitEventChild = (child, eventName) => {
 		let childCore = GetChild(child);
 
@@ -1560,7 +1341,7 @@ this.Layer = (id, all) => {
 			childCore.EmitEvent(eventName);
 		}
 	}
-
+	//Emit Event from All Entity Elements - Single or Array
 	const EmitAll = (eventName) => {
 		if(Array.isArray(eventName)){
 			for(let each in eventName){
@@ -1578,7 +1359,7 @@ this.Layer = (id, all) => {
 			}
 		}
 	}
-
+	//Change Parent Element - Single or Array
 	const ChangeParent = (propertyValue) => {
 		if(Array.isArray(propertyValue)){
 			for(let each in propertyValue){
@@ -1588,10 +1369,9 @@ this.Layer = (id, all) => {
 			all.parent.core.ChangeSelf(propertyValue);
 		}
 	}
-
+	//Change Child Element - Single or Array
 	const ChangeChild = (child, propertyValue) => {
 		let childCore = GetChild(child);
-
 		if(Array.isArray(propertyValue)){
 			for(let each in propertyValue){
 				childCore.ChangeSelf(propertyValue[each]);
@@ -1600,7 +1380,7 @@ this.Layer = (id, all) => {
 			childCore.ChangeSelf(propertyValue);
 		}
 	}
-
+	//Change All Elements - Single or Array
 	const ChangeAll = (propertyValue) => {
 		if(Array.isArray(propertyValue)){
 			for(let each in propertyValue){
@@ -1618,7 +1398,7 @@ this.Layer = (id, all) => {
 			}
 		}
 	}
-
+	//Remove Parent Element Component - Single or Array
 	const RemoveComponentParent = (property) => {
 		if(Array.isArray(property)){
 			for(let each in property){
@@ -1628,10 +1408,9 @@ this.Layer = (id, all) => {
 			all.parent.core.RemoveComponent(property);
 		}
 	}
-
+	//Remove Child Element Component - Single or Array
 	const RemoveComponentChild = (child, property) => {
 		let childCore = GetChild(child);
-
 		if(Array.isArray(property)){
 			for(let each in property){
 				childCore.RemoveComponent(property[each]);
@@ -1640,7 +1419,7 @@ this.Layer = (id, all) => {
 			childCore.RemoveComponent(property);
 		}
 	}
-
+	//Remove All Elements Component - Single or Array
 	const RemoveComponentAll = (property) => {
 		if(Array.isArray(property)){
 			for(let each in property){
@@ -1658,7 +1437,7 @@ this.Layer = (id, all) => {
 			}
 		}
 	}
-
+	//Add Animation to Parent Element - Single or Array
 	const AnimateParent = (animProps) => {
 		if(Array.isArray(animProps)){
 			for(let each in animProps){
@@ -1668,10 +1447,9 @@ this.Layer = (id, all) => {
 			all.parent.core.Animate(animProps);
 		}
 	}
-
+	//Add Animation to Child Element - Single or Array
 	const AnimateChild = (child, animProps) => {
 		let childCore = GetChild(child);
-
 		if(Array.isArray(animProps)){
 			for(let each in animProps){
 				childCore.Animate(animProps[each]);
@@ -1680,7 +1458,7 @@ this.Layer = (id, all) => {
 			childCore.Animate(animProps);
 		}
 	}
-
+	//Add Animation to All Elements - Single or Array
 	const AnimateAll = (animProps) => {
 		if(Array.isArray(animProps)){
 			for(let each in animProps){
@@ -1698,7 +1476,7 @@ this.Layer = (id, all) => {
 			}
 		}
 	}
-
+	//Set Flag & Value to Parent Object - Single or Array
 	const SetFlagParent = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
@@ -1708,10 +1486,9 @@ this.Layer = (id, all) => {
 			all.parent.core.SetFlag(flagValue);
 		}
 	}
-
+	//Set Flag & Value to Child Object - Single or Array
 	const SetFlagChild = (child, flagValue) => {
 		let childCore = GetChild(child);
-
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
 				childCore.SetFlag(flagValue[each]);
@@ -1720,7 +1497,7 @@ this.Layer = (id, all) => {
 			childCore.SetFlag(flagValue);
 		}
 	}
-
+	//Set Flag & Value to All Objects - Single or Array
 	const SetFlagAll = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
@@ -1738,7 +1515,7 @@ this.Layer = (id, all) => {
 			}
 		}
 	}
-
+	//Retreive Flag Value from Parent Object - Single or Array
 	const GetFlagParent = (flag) => {
 		if(Array.isArray(flag)){
 			let flagArray = [];
@@ -1750,10 +1527,9 @@ this.Layer = (id, all) => {
 			return all.parent.core.GetFlag(flag);
 		}
 	}
-
+	//Retreive Flag Value from Child Object - Single or Array
 	const GetFlagChild = (child, flag) => {
 		let childCore = GetChild(child);
-
 		if(Array.isArray(flag)){
 			let flagArray = [];
 			for(let each in flag){
@@ -1764,7 +1540,7 @@ this.Layer = (id, all) => {
 			return childCore.GetFlag(flag);
 		}
 	}
-
+	//Retreive Flag Value from All Objects - Single or Array
 	const GetFlagAll = (flag) => {
 		let allObjects = [];
 		if(Array.isArray(flag)){
@@ -1787,15 +1563,15 @@ this.Layer = (id, all) => {
 			return allObjects;
 		}
 	}
-
+	//Enable Details for Parent Object
 	const EnableDetailParent = (detailInfo) => {
 		all.parent.core.EnableDetail(detailInfo);
 	}
-
+	//Enable Details for Child Object
 	const EnableDetailChild = (child, detailInfo) => {
 		GetChild(child).EnableDetail(detailInfo);
 	}
-
+	//Enable Details for All Objects
 	const EnableDetailAll = (detailInfo) => {
 		for(let section of accessOrder){
 			for(let indv of section){
@@ -1803,42 +1579,23 @@ this.Layer = (id, all) => {
 			}
 		}
 	}
-
+	//Support by returning child core object from name
 	const GetChild = (childName) => {
-
-		//return specific child to access their indv change/animate/remove funcs
 		let result = [];
 		function traverse(object, depth) {
 			for (let key in object) {
 				if (object.hasOwnProperty(key)) {
 					if (key === 'core') {
-						//console.log('Hit core');
-						//console.log(object[key]);
-						//console.log(result);
-						//result[depth].push(object[key]);
 						if(object[key].core.id === childName){
-							//console.log('Child Hit!');
-							//console.log(object[key].core.id);
-							//console.log(object[key]);
 							result.push(object[key]);
 							return;
 						}
 					} else if (key === "parent" && object[key].hasOwnProperty('core')) {
-						//console.log('Hit a Parent');
-						//console.log(object[key].core);
-						//console.log(result);
-						//result[depth].push(object[key].core);
 						if(object[key].core.core.id === childName){
-							//console.log('Child Hit!');
-							//console.log(object[key].core.core.id);
-							//console.log(object[key].core);
 							result.push(object[key].core);
 							return;
 						}
 					} else if (typeof object[key] === 'object') {
-						//console.log('Hit End');
-						//console.log(object[key]);
-						//console.log(result);
 						traverse(object[key], depth + 1);
 					}
 				}
@@ -1847,10 +1604,8 @@ this.Layer = (id, all) => {
 
 		traverse(layer.all, 0);
 		if(result[0]){
-			//console.log(result[0]);
 			return result[0];
 		} else {
-			//console.log(result);
 			console.log('Unable to find child');
 		}
 	}
@@ -1861,30 +1616,25 @@ this.Layer = (id, all) => {
 //
 //Player
 this.Player = (layer) => {
+	//Build directly off of imported Layer and load right away as only single player is supported
 
 	//Default Transition Type
-	layer.transition = 'fade';
 	//instant
 	//fade
 	//sphere
 	//blink
-	//Default Transition Color
-	//layer.transitionMaterial = {shader: "flat", color: '#000000', opacity: 0, side: 'double'};
+	layer.transition = 'fade';
 	layer.teleporting = false;
-
 	//Notifications
 	let notificationTimeout;
 	let displayTime;
 	let inventoryTimeouts = [];
-
 	//Sitting or Standing Mode
 	layer.stand = true;
-
 	//Duck | Standing
 	let crouchTimeout;
 	layer.standing = true;
 	layer.animating = false;
-
 	//Snap Rotation
 	layer.snapRotating = false;
 	let snapTimeout;
@@ -1903,19 +1653,16 @@ this.Player = (layer) => {
 		autoplay: true, 
 		enabled: true,
 	};
-
 	//Inventory
 	layer.inventory = [];
 	layer.inventoryPreText = 'Inventory :\n';
 	layer.inventoryText = layer.inventoryPreText + 'Empty';
 
-	//Initialize Player
+	//Spawn Player
 	layer.SpawnLayer(true);
-	//document.getElementById('camera').setAttribute('camera', 'active', true);
-
 	//Currently not tracking Player object as it should not be removed
 
-	//Update Control Variables
+	//Grab HTML Elements that have spawned
 	playerRig = document.getElementById('playerRig');
 	camera = document.getElementById('camera');
 	cameraUI = document.getElementById('cameraUI');
@@ -1926,9 +1673,9 @@ this.Player = (layer) => {
 	vrController2 = document.getElementById('vrController2');
 	vrController2UI = document.getElementById('vrController2UI');
 
+	//Display Camera UI Notification
 	const Notification = (message, time) => {
 		displayTime = time || 3750;
-
 		TempDisableClick(displayTime);
 		auxl.cameraUI.ChangeSelf({property: 'text', value: {value: message, width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold", side: 'double', opacity: 0},});
 		auxl.cameraUI.ChangeSelf({property: 'visible', value: 'true'});
@@ -1937,9 +1684,8 @@ this.Player = (layer) => {
 			auxl.cameraUI.ChangeSelf({property: 'visible', value: 'false'});
 			clearTimeout(notificationTimeout);
 		}, displayTime);
-
 	}
-
+	//Set Flag & Value to Player - Single or Array
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
@@ -1949,25 +1695,27 @@ this.Player = (layer) => {
 			layer[flagValue.flag] = flagValue.value;
 		}
 	}
-
-	const GetFlag = (varName) => {
-		//console.log(varName)
-		//console.log(core[varName])
-		return layer[varName];
+	//Retreive Flag Value from Player - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(layer(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return layer[flag];
+		}
 	}
-
+	//Add Item/Key to Player Inventory - Single or Array
 	const AddToInventory = (item) => {
 		if(Array.isArray(item)){
 			for(let each in item){
-				//Update Inventory
 				layer.inventory.push(item[each]);
-				//Set Flag
 				layer[item[each]] = true;
 			}
 		} else {
-			//Update Inventory
 			layer.inventory.push(item);
-			//Set Flag
 			layer[item] = true;
 		}
 		if(auxl.ham.ham.show){
@@ -1987,21 +1735,16 @@ this.Player = (layer) => {
 		} else {
 			Notification('Acquired : ' + item);
 		}
-
 	}
-
+	//Remove Item/Key to Player Inventory - Single or Array
 	const RemoveFromInventory = (item) => {
 		if(Array.isArray(item)){
 			for(let each in item){
-				//Update Inventory
 				layer.inventory.splice(layer.inventory.indexOf(item[each]), 1);
-				//Set Flag
 				layer[item[each]] = false;
 			}
 		} else {
-			//Update Inventory
 			layer.inventory.splice(layer.inventory.indexOf(item), 1);
-			//Set Flag
 			layer[item] = false;
 		}
 		if(auxl.ham.ham.show){
@@ -2022,15 +1765,27 @@ this.Player = (layer) => {
 			Notification('Removed : ' + item);
 		}
 	}
-
+	//Check if Item/Key is in Player Inventory - Single or Array
 	const CheckInventory = (item) => {
-		if(layer.inventory.includes(item)){
-			return true;
+		if(Array.isArray(item)){
+			let itemArray = [];
+			for(let each in item){
+				if(layer.inventory.includes(item)){
+					itemArray.push(true);
+				} else {
+					itemArray.push(false);
+				}
+			}
+			return itemArray;
 		} else {
-			return false;
+			if(layer.inventory.includes(item)){
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
-
+	//Update Inventory Display Screen
 	const UpdateInventoryScreen = () => {
 		if(layer.inventory.length > 0){
 			layer.inventoryText = layer.inventoryPreText;
@@ -2044,7 +1799,7 @@ this.Player = (layer) => {
 		}
 		auxl.inventoryScreen.ChangeSelf({property: 'text', value:{value:layer.inventoryText}})
 	}
-
+	//Disable Player Selection for a Time
 	const TempDisableClick = (time) => {
 		let delayTime = time || 1000;
 		DisableClick();
@@ -2053,7 +1808,7 @@ this.Player = (layer) => {
 			clearTimeout(disableTimeout);
 		}, delayTime);
 	}
-
+	//Disable Player Selection
 	const DisableClick = () => {
 		if(auxl.controls === 'Desktop'){
 			auxl.mouseController.ChangeSelf({property: 'raycaster',value: {enabled: true, autoRefresh: true, objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false}});
@@ -2074,7 +1829,7 @@ this.Player = (layer) => {
 			auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false}});
 		}
 	}
-
+	//Enable Player Selection
 	const EnableClick = () => {
 		if(auxl.controls === 'Desktop'){
 			auxl.mouseController.ChangeSelf({property: 'raycaster',value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false}});
@@ -2095,47 +1850,42 @@ this.Player = (layer) => {
 			auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false}});
 		}
 	}
-
+	//Change Player Transition Color
 	const UpdateTransitionColor = (newColor) => {
 		auxl.fadeScreen.ChangeSelf({property: 'material', value:{color: newColor}});
 		auxl.sphereScreen.ChangeSelf({property: 'material', value:{color: newColor}});
 		auxl.blink1Screen.ChangeSelf({property: 'material', value:{color: newColor}});
 		auxl.blink2Screen.ChangeSelf({property: 'material', value:{color: newColor}});
 	}
-
+	//Enable VR Controller Joystick Locomotion
 	const EnableVRLocomotion = () => {
 		RemoveBelt();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'vr'});
 	}
-
+	//Enable VR Belt UI Locomotion
 	const EnableVRHoverLocomotion = (vrHand) => {
 		if(auxl.locomotionUILayer.GetParentEl()){} else{
 			auxl.locomotionUILayer.SpawnLayer(true);
 		}
 		playerRig.setAttribute('locomotion',{uiid: 'beltUIParent', courserid: 'mouseController', movetype: 'vrHover'});
 	}
-
+	//Enable Desktop Locomotion
 	const EnableDesktopLocomotion = () => {
 		RemoveBelt();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'desktop'});
 	}
-
+	//Enable Mobile Locomotion
 	const EnableMobileLocomotion = () => {
 		RemoveBelt();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'mobile'});
 	}
-
+	//Despawn VR Belt UI
 	const RemoveBelt = () => {
 		if(document.getElementById('beltUIParent')){
 			auxl.locomotionUILayer.DespawnLayer(true);
 		}
 	}
-
-	const ResetControls = () => {
-		playerRig.removeAttribute('universal-controls');
-		playerRig.setAttribute('universal-controls',{});
-	}
-
+	//Toggle Sitting|Standing View Mode
 	const ToggleSittingMode = () => {
 		if(layer.animating){} else {
 			layer.animating = true;
@@ -2152,7 +1902,7 @@ this.Player = (layer) => {
 			}, 775);
 		}
 	}
-
+	//Toggle Player Crouch
 	const ToggleCrouch = () => {
 		if(layer.stand){
 			if(layer.animating){} else {
@@ -2186,7 +1936,7 @@ this.Player = (layer) => {
 			}
 		}
 	}
-
+	//Play Snap View Anim to the Right
 	const SnapRight = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
@@ -2200,7 +1950,7 @@ this.Player = (layer) => {
 			}, anim45Data.dur+10);
 		}
 	}
-
+	//Play Snap View Anim to the Left
 	const SnapLeft = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
@@ -2217,17 +1967,15 @@ this.Player = (layer) => {
 
 	return {layer, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft}
 }
-//Scene Load Anim
+//Scene Load Animation Support
 function playerSceneAnim(){
-
-//Minimum Anim Delay if assets don't need loading
-let animTimeout0 = setTimeout(function () {
-	if(auxl.loadingScene){} else {
-		auxl.loadingScene = true;
-	}
-	clearTimeout(animTimeout0);
-}, 800);
-
+	//Minimum Anim Delay if assets don't need loading
+	let animTimeout0 = setTimeout(function () {
+		if(auxl.loadingScene){} else {
+			auxl.loadingScene = true;
+		}
+		clearTimeout(animTimeout0);
+	}, 800);
 	if(auxl.player.layer.teleporting){} else {
 		auxl.player.layer.teleporting = true;
 		if(auxl.player.layer.transition === 'blink'){
@@ -2253,52 +2001,43 @@ let animTimeout0 = setTimeout(function () {
 //
 //Menu
 this.Menu = (menuData) => {
+	let menu = {};
+	menu.data = Object.assign({}, menuData.data);
+	menu.id = menuData.id || 'menu';
+	menu.prompt = menuData.prompt;
+	menu.options = menuData.options;
+	menu.actions = menuData.actions;
+	menu.layers = {};
+	menu.layer = {};
+	let prompt = {};
+	let menuOption = {};
+	let menuOptions = [];
+	let menuNum = 0;
+	let menuLength = Object.keys(menu.options).length;
+	//Reset component data
+	menu.clickrun = {};
+	menu.clickrun.cursorObj = menuData.cursorObj || false;
+	menu.clickrun.method = menuData.method || 'Click';
+	menu.clickrun.params = menuData.params || 'null';
+	//Menu Style
+	menu.layout = menuData.layout;
+	//Default Start Position
+	menu.data.position.x = menuData.pos.x;
+	menu.data.position.y = menuData.pos.y;
+	menu.data.position.z = menuData.pos.z;
 
-let menu = {};
-//Import
-menu.id = menuData.id || 'menu';
-menu.prompt = menuData.prompt;
-menu.options = menuData.options;
-menu.actions = menuData.actions;
-menu.data = Object.assign({}, menuData.data);
-//Component settings to hit like This.ClickFuncName.Click()
-menu.clickrun = {};
-menu.clickrun.cursorObj = menuData.cursorObj || false;
-menu.clickrun.method = menuData.method || 'Click';
-menu.clickrun.params = menuData.params || 'null';
-//Update Starting Position
-menu.data.position.x = menuData.pos.x;
-menu.data.position.y = menuData.pos.y;
-menu.data.position.z = menuData.pos.z;
-//Menu Options Total
-let menuLength = Object.keys(menu.options).length;
-//Menu Style
-menu.layout = menuData.layout;
-//Flat side with Text : Triangle, Square, Rectangle, Hex|Deca|Iso, Circle
-//combo together for more flair/style or make a custom obj
-
-//Menu Support
-menu.layers = {};
-menu.layer = {};
-let prompt = {};
-let menuOption = {};
-let menuOptions = [];
-let menuNum = 0;
-//Testing
-//console.log(menuData.id);
-//console.log(menuData.clickObj);
-//console.log(menu.clickObj);
+	//Generate & Spawn Menu
 	const SpawnMenu = () => {
 		menuNum=0;
 		menuOptions = [];
 		menuOption = {};
+		//Layer Parent Prompt
 		menu.data.id = menu.id + 'prompt';
 		menu.data.text.value = menu.prompt;
 		menu.data.material.color, menu.data.material.emissive = auxl.colorTheoryGen().base;
 		prompt = auxl.Core(menu.data);
 		menu.layers = {
 		parent: {core: prompt},}
-		//Sub Menu Adjustments
 		menu.data.position.x = menu.data.geometry.width * 1.15;
 		menu.data.position.z = 0;
 		if(menuLength === 1 || menu.layout === 'horizontal'){
@@ -2306,15 +2045,14 @@ let menuNum = 0;
 		} else {
 			menu.data.position.y = (menu.data.geometry.height*0.75) * menuLength/2;
 		}
-		//components: {clickfunc: {clickObj: 'auxlObj'}},
-		//components: {clickrun: {cursorObj: 'auxlObj', method: 'Method', params: null}},
+		//Reset component data
 		menu.data.sources = {};
 		menu.data.components = {};
 		menu.data.components.clickrun = {};
 		menu.data.components.clickrun.cursorObj = menu.clickrun.cursorObj ;
 		menu.data.components.clickrun.method = menu.clickrun.method;
 		menu.data.components.clickrun.params = menu.clickrun.params;
-		//generate 1 for each responses use option
+		//Layer Children Options
 		for(let menuItem in menu.options){
 			if(menuLength === 1 || menuNum === 0){} else {
 				if(menu.layout === 'vertical'){
@@ -2326,38 +2064,30 @@ let menuNum = 0;
 					menu.data.position.y -= (menu.data.geometry.height*1.15);
 				}
 			}
-			//menu.data.position.y -= 0.2;
 			menu.data.material.color, menu.data.material.emissive = auxl.colorTheoryGen().base;
 			menu.data.text.value = menu.options[menuItem];
 			menu.data.id = menu.id + 'option' + menuNum;
 			menu.data.components.result = menu.actions['action'+menuNum];
 			menuOption = auxl.Core(menu.data);
-			//menuOption.SpawnCore();
 			menuOptions.push(menuOption);
 			menu.layers['child'+menuNum] = {core: menuOptions[menuNum]}
 			menuNum++;
 		}
-
-		//Build layered Menu
 		menu.layer = auxl.Layer(menu.id, menu.layers);
 		menu.layer.SpawnLayer(true);
-		//menu.layer.ChangeParent({property: 'look-at', value: '#camera'})
 	}
-
+	//Despawn Menu
 	const DespawnMenu = () => {
 		menu.layer.DespawnLayer(true);
-		//RemoveFromTracker(menu.id);
 	}
-
+	//Enable Clicking on Options
 	const ToggleOptionClicking = () => {
 		for(let options in menuOptions){
 			menuOptions[options].GetEl().classList.toggle('clickable');
-			//element.classList.toggle('clickable', false);
 		}
 	}
-
+	//Attach Menu to Tracker matching object generator 
 	const AddToParentSpawnTracker = (obj, parent) => {
-		//match wherever the parent object created this menu is being tracked in
 		if(auxl.scenarioSpawned[parent.id]){
 			auxl.scenarioSpawned[menu.id] = {type: 'menu', obj};
 		} else if(auxl.zoneSpawned[parent.id]){
@@ -2368,7 +2098,7 @@ let menuNum = 0;
 			auxl.bookSpawned[menu.id] = {type: 'menu', obj};
 		}
 	}
-
+	//Remove Menu from Tracker matching object generator 
 	const RemoveMenuFromSceneTracker = () => {
 		if(auxl.scenarioSpawned[menu.id]){
 			delete auxl.scenarioSpawned[menu.id];
@@ -2388,12 +2118,11 @@ let menuNum = 0;
 //Scene Node ObjGen
 //scenePlaceTownBuildingCastleLabrynthLevelAreaOfInterest
 this.SceneNode = (sceneData) => {
-//Configure and Display Scene
-let core = Object.assign({}, sceneData);
-
-let textBubble = auxl.Core(this.sceneTextData);
-let sceneText = auxl.SpeechSystem(textBubble);
-
+	let core = Object.assign({}, sceneData);
+	//Scene Text Support
+	let textBubble = auxl.Core(this.sceneTextData);
+	let sceneText = auxl.SpeechSystem(textBubble);
+	//If/Else support to run auxlObjMethod()
 	const IfElse = (objRef, condObj,{cond, ifTrue, ifFalse}) => {
 		if(auxl[condObj].GetFlag(cond)) {
 			for(let a in ifTrue){
@@ -2410,7 +2139,7 @@ let sceneText = auxl.SpeechSystem(textBubble);
 		}
 
 	}
-
+	//Add Timeout, Interval, Interaction & Event listeners to NodeScene Tracker
 	const AddToTimeIntEvtTracker = ({name,type,id,method,params,event}) => {
 		let nameId = name+id;
 		if(type === 'timeout'){
@@ -2421,11 +2150,11 @@ let sceneText = auxl.SpeechSystem(textBubble);
 			auxl.running[nameId] = {type, name, id, nameId, method, params, event};
 		}
 	}
-
+	//Remove Timeout, Interval, Interaction & Event listeners from NodeScene Tracker
 	const RemoveFromTimeIntEvtTracker = (name) => {
 		delete auxl.running[name];
 	}
-
+	//Clear All Timeout, Interval, Interaction & Event NodeScene Tracker Listeners
 	const ClearSceneTimeIntEvt = () => {
 		for(let ran in auxl.running){
 			if(auxl.running[ran].type === 'timeout'){
@@ -2442,17 +2171,13 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 			RemoveFromTimeIntEvtTracker(ran);
 		}
 	}
-
+	//Exit & Clear NodeScene
 	const ClearScene = () => {
-		//Clear Core | Layer Scene Tracked Items
-		//Run Exit section of current Node
 		Exit();
-		//Clear Timeout, Intervals and Event Listeners first
 		ClearSceneTimeIntEvt();
-		//Clear all objects spawned in the NodeScene
 		clearSpawned(auxl.nodeSpawned);
 	}
-
+	//Run Object Generator Function within NodeScene w/Scene Tracking
 	const auxlObjMethod = (object, func, params) => {
 		//Check if spawning to add to Tracker
 		for (let spawn of auxl.spawnFunc) {
@@ -2462,60 +2187,36 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		}
 		auxl[object][func](params);
 	}
-
+	//Read NodeScene Data Timeline
 	function readTimeline(time){
-	//find a specific timeline/key name and load up that
-	//core : page/data/object
-	//time : name of section within a core's pageData
-	//line : a single line set of instructions within time
-	//
 		if(time === 'controls'){
 			auxl.universalControls.updateAction(core[time]);
 			return;
 		}
-		//NodeScene Reading
 		for(let line in core[time]){
+			//Check for special object support
 			if(time === 'delay'){
-				//console.log('Delay Running...');
 				for(let a in core[time][line]){
-					//console.log(time);//delay
-					//console.log(line);//time of delay
-					//console.log(core[time][line]);//this.object w/ method and params
-					//console.log(a);//this.object name
-					//console.log(core[time][line][a]);//func w/ params
 					for(let b in core[time][line][a]){
-						//console.log(b);//func name
-						//console.log(core[time][line][a][b]);//params
 						if(b === 'IfElse'){
-							//console.log('IfElse Timeout');
 							for(let c in core[time][line][a][b]){
-								//console.log(core[time][line][a][b][c]);//params
 								AddToTimeIntEvtTracker({name: line, type: 'timeout', id: a});
 								auxl.timeouts[line+a] = setTimeout(function () {
-									//console.log('IfElse Timeout Hit');
 									IfElse(a,c,core[time][line][a][b][c]);
 									clearTimeout(auxl.timeouts[line+a]);
-								}, line); //Delay
+								}, line);
 							}
 						} else {
-							//console.log('Normal Timeout');
 							AddToTimeIntEvtTracker({name: line, type: 'timeout', id: a});
 							auxl.timeouts[line+a] = setTimeout(function () {
-								//console.log('Timeout Hit')
 								auxlObjMethod(a,b,core[time][line][a][b]);
 								clearTimeout(auxl.timeouts[line+a]);
-							}, line); //Delay
+							}, line);
 						}
 					}
 				}
 			} else if(time === 'interval'){
-				//console.log('Interval Running...');
 				for(let a in core[time][line]){
-					//console.log(time);//interval
-					//console.log(line);//time of interval
-					//console.log(core[time][line]);//this.object w/ method and params
-					//console.log(a);//run,loop,end
-					//console.log(core[time][line][a]);//this.object name, func w/ params or params
 					let ranTotal = 0;
 					let loopTotal = core[time][line]['loop'];
 					let endCond;
@@ -2525,23 +2226,15 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 					if(a === 'run'){
 						for(let b in core[time][line][a]){
 							for(let c in core[time][line][a][b]){
-								//console.log(b);//this.obj name
-								//console.log(core[time][line][a][b]);//method w/ params
-								//console.log(c);//method
-								//console.log(core[time][line][a][b][c]);//parms
 								if(c === 'IfElse'){
 									for(let d in core[time][line][a][b][c]){
 										AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
 										auxl.intervals[line+b] = setInterval(function() {
-											//Interval Functions
-											//Check for End Condition
 											if(auxl[b].GetFlag(endCond) === 'true'){
 												clearInterval(auxl.intervals[line+b]);
 												RemoveFromTimeIntEvtTracker(line+b);
 											}
-											//console.log('IfElse Interval Hit')
 											IfElse(b,d,core[time][line][a][b][c][d]);
-											//Check and update Loop Total
 											if(loopTotal === 'infinite'){} else {
 												ranTotal++;
 												if(ranTotal >= loopTotal){
@@ -2549,22 +2242,18 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 													RemoveFromTimeIntEvtTracker(line+b);
 												}
 											}
-										}, line); //Interval
+										}, line);
 									}
 								} else {
-									//console.log('Normal Interval');
 									let method = c;
 									let params = core[time][line][a][b][c];
 									AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
 									auxl.intervals[line+b] = setInterval(function() {
-										//Interval Functions
-										//Check for End Condition
 										if(auxl[b].GetFlag(endCond) === 'true'){
 											clearInterval(auxl.intervals[line+b]);
 											RemoveFromTimeIntEvtTracker(line+b);
 										}
 										auxlObjMethod(b,method,params);
-										//Check and update Loop Total
 										if(loopTotal === 'infinite'){} else {
 											ranTotal++;
 											if(ranTotal >= loopTotal){
@@ -2572,152 +2261,80 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 												RemoveFromTimeIntEvtTracker(line+b);
 											}
 										}
-										//clearInterval(interval);
-									}, line); //Interval
+									}, line);
 								}
 							}
 						}
 					}
 				}
 			} else if(time === 'interaction'){
-				//console.log('Interaction Added...');
 				for(let a in core[time][line]){
-					//console.log(time);//interaction
-					//console.log(line);//type of interaction | click
-					//console.log(core[time][line]);//this.object w/ method and params
-					//console.log(a);//this.object name
-					//console.log(core[time][line][a]);//func w/ params
 					for(let b in core[time][line][a]){
-						//console.log(b);//func name
-						//console.log(core[time][line][a][b]);//params
 						let object;
 						let method;
 						let params;
 						if(b === 'IfElse'){
-							//console.log('IfElse Interaction');
 							for(let c in core[time][line][a][b]){
-								//console.log(core[time][line][a][b]);//condObject w/params and iftrue/iffalse
-								//console.log(core[time][line][a][b][c]);//cond, iftrue, ifflase
-								//console.log(a)//this.object name
-								//console.log(b)//ifelse
-								//console.log(c)//condObj
 								object = a;
 								params = core[time][line][a][b][c];
 
 								AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
 								auxl[object].GetEl().addEventListener(line, function(){
 									IfElse(object,c,params);
-									//auxlObjMethod(object,method,params);
 								});
 							}
 						} else {
-							//console.log('Normal Interaction');
 							object = a;
 							method = b;
 							params = core[time][line][a][b];
-							//auxl.interactions[object];
-							//auxl.running[ran].name;
 							AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
 							auxl[object].GetEl().addEventListener(line, function(){
 								auxlObjMethod(object,method,params);
 							});
 						}
 					}
-					//auxl[line][a](core[time][line][a]);
 				}
 			} else if(time === 'event'){
-				//console.log('Listening for Event...');
 				for(let a in core[time][line]){
-					//console.log(time);//event
-					//console.log(line);//event name
-					//console.log(core[time][line]);//this.object w/ method and params
-					//console.log(a);//this.object name
-					//console.log(core[time][line][a]);//func w/ params
 					for(let b in core[time][line][a]){
-						//console.log(b);//func name
-						//console.log(core[time][line][a][b]);//params
 						let object;
 						let method;
 						let params;
 						if(b === 'IfElse'){
-							//console.log('IfElse Event');
 							for(let c in core[time][line][a][b]){
-								//console.log(core[time][line][a][b]);//condObject w/params and iftrue/iffalse
-								//console.log(core[time][line][a][b][c]);//cond, iftrue, ifflase
-								//console.log(a)//this.object name
-								//console.log(b)//ifelse
-								//console.log(c)//condObj
 								object = a;
 								params = core[time][line][a][b][c];
 
 								AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
 								auxl[object].GetEl().addEventListener(line, function(){
 									IfElse(object,c,params);
-									//auxlObjMethod(object,method,params);
 								});
 							}
 						} else {
-							//console.log('Normal Event');
 							object = a;
 							method = b;
 							params = core[time][line][a][b];
-							//auxl.interactions[object];
-							//auxl.running[ran].name;
 							AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
 							auxl[object].GetEl().addEventListener(line, function(){
 								auxlObjMethod(object,method,params);
 							});
 						}
-
-
-						/*
-						let object = a;
-						let method = b;
-						let params = core[time][line][a][b];
-						//console.log(line)
-						//console.log(object)
-						//console.log(method)
-						//console.log(params)
-						//auxl.interactions[object];
-						//auxl.running[ran].name;
-						AddToTimeIntEvtTracker({name: object, type: 'event', id: line, method, params, event: line});
-						auxl[object].GetEl().addEventListener(line, function(){
-							auxlObjMethod(object,method,params);
-						});
-						*/
 					}
-					//auxl[line][a](core[time][line][a]);
 				}
 			} else {
 				//Reading non-special timeline, read normally
 				for(let a in core[time][line]){
 					if(time === 'start'){
-						//console.log('Initializing an Object');
-						//console.log(time);//start
-						//console.log(line);//this.object name
-						//console.log(core[time][line]);//func w/ params
-						//console.log(a);//method name. can be universal like IfElse
-						//console.log(core[time][line][a]);//params
 						if(a === 'IfElse'){
 							for(let b in core[time][line][a]){
-								//console.log(b);
-								//console.log(core[time][line][a][b]);
 								IfElse(line,b,core[time][line][a][b]);
 							}
 						} else {
 							auxlObjMethod(line,a,core[time][line][a]);
 						}
 					} else if(time === 'exit'){
-						//console.log('Exiting Scene');
-						//console.log(time);//exit
-						//console.log(line);//this.object name
-						//console.log(core[time][line]);//func w/ params
-						//console.log(a);//method name. can be universal like IfElse
-						//console.log(core[time][line][a]);//params
 						if(a === 'IfElse'){
 							for(let b in core[time][line][a]){
-								//console.log(b);
-								//console.log(core[time][line][a][b]);
 								IfElse(line,b,core[time][line][a][b]);
 							}
 						} else {
@@ -2727,55 +2344,45 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 						//Data only
 					} else {
 						console.log('Hit Other Timeline, Please Investigate');
-						//console.log('Executing Timeline...');
-						//console.log(time);//timeline
-						//console.log(line);//this.obj name
-						//console.log(core[time][line]);//method and params
-						//console.log(a);//method
-						//console.log(core[time][line][a]);//parms
-						//console.log(auxl);//this.object
-						//console.log(auxl[line]);//this.object
-						//auxl[line][a](core[time][line][a]);
-						//auxlObjMethod(line,a,core[time][line][a]);
 					}
 				}
 			}
 		}
-	return;
+		return;
 	}
-
+	//Read NodeScene Info Section
 	const Info = () => {
 		readTimeline('info');
 	}
-
+	//Add Controls into NodeScene
 	const AddControls = () => {
 		readTimeline('controls');
 	}
-
+	//Remove NodeScene Controls
 	const RemoveControls = () => {
 		auxl.universalControls.disableAction(core['controls']);
 	}
-
+	//Read NodeScene Start Section
 	const Start = () => {
 		readTimeline('start');
 	}
-
+	//Read NodeScene Delay Section
 	const Delay = () => {
 		readTimeline('delay');
 	}
-
+	//Read NodeScene Interval Section
 	const Interval = () => {
 		readTimeline('interval');
 	}
-
+	//Read NodeScene Event Section
 	const Event = () => {
 		readTimeline('event');
 	}
-
+	//Read NodeScene Interaction Section
 	const Interaction = () => {
 		readTimeline('interaction');
 	}
-
+	//Read NodeScene Exit Section & Remove NodeScene Controls
 	const Exit = () => {
 		readTimeline('exit');
 		RemoveControls();
@@ -2783,11 +2390,11 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 			sceneText.KillStop();
 		}
 	}
-
+	//Support to Connect NodeScenes
 	const Map = () => {
 		readTimeline('map');
 	}
-
+	//NodeScene Start
 	const StartScene = () => {
 		Start();
 		Delay();
@@ -2797,7 +2404,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		AddControls();
 		sceneTextDisplay();
 	}
-
+	//Scene Text Support
 	const sceneTextDisplay = () => {
 		if(core.info.sceneText){
 			sceneText.Start();
@@ -2805,7 +2412,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 			let sceneTextTimeout = setTimeout(function () {
 				sceneText.DisplaySpeech({role: core.info.name,speech: core.info.description});
 				clearTimeout(sceneTextTimeout);
-			}, 1250); //Delay
+			}, 1250);
 		}
 	}
 
@@ -2816,92 +2423,48 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 //Map Zone Gen & reader
 //mapRegionDistrictTerritoryZoneSection
 this.MapZone = (mapZoneData) => {
-//Display Local Map and facilitate travel between Nodes
-//let core = {};
-//core.map = Object.assign({}, mapZoneData);
-let core = Object.assign({}, mapZoneData);
-core.mapMenuData = false;
-core.mapMenu;
-core.nodes = {};
-core.info;
-core.currentNode;
-core.zoneLoaded = false;
-//core.nodes.nodeName.map = {connect0:{},connect1:{}};
-//console.log('Running Map Zone...');
-//console.log(mapZoneData);
+	let core = Object.assign({}, mapZoneData);
+	core.mapMenuData = false;
+	core.mapMenu;
+	core.nodes = {};
+	core.info;
+	core.currentNode;
+	core.zoneLoaded = false;
+	//Map Movement Support
+	let timeout;
+	let timeout2;
+	let newNode;
 
-//Map Movement Support
-let timeout;
-let timeout2;
-let newNode;
-
+	//Prepare Zone Map
 	const ReadMapData = () => {
 		for(let key in core){
 			if(key === 'info'){
 				core.info = core[key]
-			} else if(key === 'start' || key === 'delay' || key === 'interval' || key === 'event' || key === 'interaction' || key === 'exit'){
+			} else if(key === 'controls' || key === 'start' || key === 'delay' || key === 'interval' || key === 'event' || key === 'interaction' || key === 'exit'){
 				//Ignore
 			} else {
-				//console.log(key)//key - info, zone0Node0In1
 				core.nodes[key] = auxl[key];
-				//console.log(auxl[key])//this.nodeObj
-				//console.log(core[key])//value - node connections
-				for(let connect in core[key]){
-					//console.log(core[key][connect]);//connect0, connect1
-					for(let travel in core[key][connect]){
-						//console.log(travel);//connect keys
-						//console.log(core[key][connect][travel]);//connect values
-						//inZone: true,
-						//node: 'zone0Node0Out',
-						//locked: true,
-						//key: 'masterKey',
-						//keepKey: true
-					}
-				}
 			}
 		}
 	}
-	//Prep for use on init
 	ReadMapData();
-
+	//If/Else support to run auxlObjMethod()
 	const IfElse = (objRef, condObj,{cond, ifTrue, ifFalse}) => {
-
-		//Uses text for true, text and undefined for false
-		//Test using bools only
-
-		//ifTrue
-		//ifFalse
-		//for loop for above objects with key name as object and value key as method and that value the params
-		//console.log(objRef)//this.obj name
-		//console.log(condObj)//this.obj name used to check Condition from
-		//console.log(cond)//cond name
-		//console.log(ifTrue)
-		//console.log(ifFalse)
-		//console.log(auxl[condObj].GetFlag(cond))
 		if(auxl[condObj].GetFlag(cond)) {
-			//run ifTrue
 			for(let a in ifTrue){
-				//console.log(ifTrue);
-				//console.log(a);
-				//console.log(ifTrue[a]);
 				for(let b in ifTrue[a]){
 					auxlObjMethod(a,b,ifTrue[a][b]);
 				}
 			}
 		} else {
-			//run ifFalse
 			for(let a in ifFalse){
-				//console.log(ifFalse);
-				//console.log(a);//this.object name should match objRef
-				//console.log(ifFalse[a]);//method w/ params
 				for(let b in ifFalse[a]){
 					auxlObjMethod(a,b,ifFalse[a][b]);
 				}
 			}
 		}
-
 	}
-
+	//Run Object Generator Function within MapZone w/Scene Tracking
 	const auxlObjMethod = (object, func, params) => {
 		//Check if spawning to add to Tracker
 		for (let spawn of auxl.spawnFunc) {
@@ -2909,55 +2472,33 @@ let newNode;
 				spawnTracker(object, 'zone');
 			}
 		}
-
-//nodeFloor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern69, repeat: '150 150',color: "#d6a9ba", emissive: "#d6a9ba",},}},
-
 		auxl[object][func](params);
 	}
-
+	//Add Timeout, Interval, Interaction & Event listeners to MapZone Tracker
 	const AddToZoneTimeIntEvtTracker = ({name,type,id,method,params,event}) => {
-		//console.log({name,type,id,method,params,event})
 		let nameId = name+id;
 		if(type === 'timeout'){
 			auxl.zoneRunning[nameId] = {type, name, id, nameId};
 		} else if (type === 'interval'){
 			auxl.zoneRunning[nameId] = {type, name, id, nameId};
 		} else if (type === 'interaction' || type === 'event'){
-			//console.log({name,type,id,method,params,event})
-			//console.log(nameId);
 			auxl.zoneRunning[nameId] = {type, name, id, nameId, method, params, event};
 		}
-		//console.log(auxl.running);
 	}
-
+	//Remove Timeout, Interval, Interaction & Event listeners from MapZone Tracker
 	const RemoveFromZoneTimeIntEvtTracker = (name) => {
 		delete auxl.zoneRunning[name];
 	}
-
+	//Clear All Timeout, Interval, Interaction & Event MapZone Tracker Listeners
 	const ClearZoneTimeIntEvt = () => {
-		//console.log('Clearing ZoneTimeIntEvt');
-		//console.log(auxl.zoneRunning);
 		for(let ran in auxl.zoneRunning){
-			//console.log(ran);//name of ID
-			//console.log(auxl.running[ran]);//object
 			if(auxl.zoneRunning[ran].type === 'timeout'){
-				//console.log('clearing timeout');
-				//console.log(auxl.zoneRunning[ran].nameId);
-				//console.log(auxl.timeouts[auxl.zoneRunning[ran].nameId]);
-				//clearTimeout(auxl.zoneRunning[ran].nameId);
 				clearTimeout(auxl.timeouts[auxl.zoneRunning[ran].nameId]);
 				delete auxl.timeouts[auxl.zoneRunning[ran].nameId];
 			} else if (auxl.zoneRunning[ran].type === 'interval'){
-				//console.log('clearing interval');
-				//console.log(auxl.zoneRunning[ran].nameId);
-				//console.log(auxl.intervals);
 				clearInterval(auxl.intervals[auxl.zoneRunning[ran].nameId]);
 				delete auxl.intervals[auxl.zoneRunning[ran].nameId];
 			} else if (auxl.zoneRunning[ran].type === 'interaction' || auxl.zoneRunning[ran].type === 'event'){
-				//Event
-				//console.log('clearing interaction|event');
-				//console.log(auxl.zoneRunning[ran].name);
-				//console.log(auxl.zoneRunning[ran].event);
 auxl[auxl.zoneRunning[ran].name].GetEl().removeEventListener(auxl.zoneRunning[ran].event, function(){
 auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zoneRunning[ran].params);
 });
@@ -2965,77 +2506,37 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			}
 			RemoveFromZoneTimeIntEvtTracker(ran);
 		}
-		//console.log(auxl.zoneRunning);
-		//console.log(auxl.timeouts);
-		//console.log(auxl.intervals);
 	}
-
-	const AddToZoneTracker = (type, obj) => {
-		if(type === 'core'){
-    		auxl.zoneSpawned[obj.core.id] = {type, obj};
-		} else if(type === 'layer'){
-    		auxl.zoneSpawned[obj.layer.id] = {type, obj};
-		}
-		//console.log(auxl.zoneSpawned)
-	}
-
-	const RemoveFromZoneTracker = (type) => {
-		delete auxl.zoneSpawned[type.id];
-	}
-
+	//Read MapZone Data Timeline
 	function readTimeline(time){
-	//find a specific timeline/key name and load up that
-	//core : page/data/object
-	//time : name of section within a core's pageData
-	//line : a single line set of instructions within time
-	//
 		if(time === 'controls'){
 			auxl.universalControls.updateAction(core[time]);
 			return;
 		}
-		//MapZone Reading
 		for(let line in core[time]){
+			//Check for special object support
 			if(time === 'delay'){
-				//console.log('Delay Running...');
 				for(let a in core[time][line]){
-					//console.log(time);//delay
-					//console.log(line);//time of delay
-					//console.log(core[time][line]);//this.object w/ method and params
-					//console.log(a);//this.object name
-					//console.log(core[time][line][a]);//func w/ params
 					for(let b in core[time][line][a]){
-						//console.log(b);//func name
-						//console.log(core[time][line][a][b]);//params
 						if(b === 'IfElse'){
-							//console.log('IfElse Timeout');
 							for(let c in core[time][line][a][b]){
-								//console.log(core[time][line][a][b][c]);//params
 								AddToZoneTimeIntEvtTracker({name: line, type: 'timeout', id: a});
 								auxl.timeouts[line+a] = setTimeout(function () {
-									//console.log('IfElse Timeout Hit');
 									IfElse(a,c,core[time][line][a][b][c]);
 									clearTimeout(auxl.timeouts[line+a]);
-								}, line); //Delay
+								}, line);
 							}
 						} else {
-							//console.log('Normal Timeout');
 							AddToZoneTimeIntEvtTracker({name: line, type: 'timeout', id: a});
 							auxl.timeouts[line+a] = setTimeout(function () {
-								//console.log('Timeout Hit')
 								auxlObjMethod(a,b,core[time][line][a][b]);
 								clearTimeout(auxl.timeouts[line+a]);
-							}, line); //Delay
+							}, line);
 						}
 					}
 				}
 			} else if(time === 'interval'){
-				//console.log('Interval Running...');
 				for(let a in core[time][line]){
-					//console.log(time);//interval
-					//console.log(line);//time of interval
-					//console.log(core[time][line]);//this.object w/ method and params
-					//console.log(a);//run,loop,end
-					//console.log(core[time][line][a]);//this.object name, func w/ params or params
 					let ranTotal = 0;
 					let loopTotal = core[time][line]['loop'];
 					let endCond;
@@ -3045,23 +2546,15 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 					if(a === 'run'){
 						for(let b in core[time][line][a]){
 							for(let c in core[time][line][a][b]){
-								//console.log(b);//this.obj name
-								//console.log(core[time][line][a][b]);//method w/ params
-								//console.log(c);//method
-								//console.log(core[time][line][a][b][c]);//parms
 								if(c === 'IfElse'){
 									for(let d in core[time][line][a][b][c]){
 										AddToZoneTimeIntEvtTracker({name: line, type: 'interval', id: b});
 										auxl.intervals[line+b] = setInterval(function() {
-											//Interval Functions
-											//Check for End Condition
 											if(auxl[b].GetFlag(endCond) === 'true'){
 												clearInterval(auxl.intervals[line+b]);
 												RemoveFromZoneTimeIntEvtTracker(line+b);
 											}
-											//console.log('IfElse Interval Hit')
 											IfElse(b,d,core[time][line][a][b][c][d]);
-											//Check and update Loop Total
 											if(loopTotal === 'infinite'){} else {
 												ranTotal++;
 												if(ranTotal >= loopTotal){
@@ -3069,22 +2562,18 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 													RemoveFromZoneTimeIntEvtTracker(line+b);
 												}
 											}
-										}, line); //Interval
+										}, line);
 									}
 								} else {
-									//console.log('Normal Interval');
 									let method = c;
 									let params = core[time][line][a][b][c];
 									AddToZoneTimeIntEvtTracker({name: line, type: 'interval', id: b});
 									auxl.intervals[line+b] = setInterval(function() {
-										//Interval Functions
-										//Check for End Condition
 										if(auxl[b].GetFlag(endCond) === 'true'){
 											clearInterval(auxl.intervals[line+b]);
 											RemoveFromZoneTimeIntEvtTracker(line+b);
 										}
 										auxlObjMethod(b,method,params);
-										//Check and update Loop Total
 										if(loopTotal === 'infinite'){} else {
 											ranTotal++;
 											if(ranTotal >= loopTotal){
@@ -3092,152 +2581,80 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 												RemoveFromZoneTimeIntEvtTracker(line+b);
 											}
 										}
-										//clearInterval(interval);
-									}, line); //Interval
+									}, line);
 								}
 							}
 						}
 					}
 				}
 			} else if(time === 'interaction'){
-				//console.log('Interaction Added...');
 				for(let a in core[time][line]){
-					//console.log(time);//interaction
-					//console.log(line);//type of interaction | click
-					//console.log(core[time][line]);//this.object w/ method and params
-					//console.log(a);//this.object name
-					//console.log(core[time][line][a]);//func w/ params
 					for(let b in core[time][line][a]){
-						//console.log(b);//func name
-						//console.log(core[time][line][a][b]);//params
 						let object;
 						let method;
 						let params;
 						if(b === 'IfElse'){
-							//console.log('IfElse Interaction');
 							for(let c in core[time][line][a][b]){
-								//console.log(core[time][line][a][b]);//condObject w/params and iftrue/iffalse
-								//console.log(core[time][line][a][b][c]);//cond, iftrue, ifflase
-								//console.log(a)//this.object name
-								//console.log(b)//ifelse
-								//console.log(c)//condObj
 								object = a;
 								params = core[time][line][a][b][c];
 
 								AddToZoneTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
 								auxl[object].GetEl().addEventListener(line, function(){
 									IfElse(object,c,params);
-									//auxlObjMethod(object,method,params);
 								});
 							}
 						} else {
-							//console.log('Normal Interaction');
 							object = a;
 							method = b;
 							params = core[time][line][a][b];
-							//auxl.interactions[object];
-							//auxl.running[ran].name;
 							AddToZoneTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
 							auxl[object].GetEl().addEventListener(line, function(){
 								auxlObjMethod(object,method,params);
 							});
 						}
 					}
-					//auxl[line][a](core[time][line][a]);
 				}
 			} else if(time === 'event'){
-				//console.log('Listening for Event...');
 				for(let a in core[time][line]){
-					//console.log(time);//event
-					//console.log(line);//event name
-					//console.log(core[time][line]);//this.object w/ method and params
-					//console.log(a);//this.object name
-					//console.log(core[time][line][a]);//func w/ params
 					for(let b in core[time][line][a]){
-						//console.log(b);//func name
-						//console.log(core[time][line][a][b]);//params
 						let object;
 						let method;
 						let params;
 						if(b === 'IfElse'){
-							//console.log('IfElse Event');
 							for(let c in core[time][line][a][b]){
-								//console.log(core[time][line][a][b]);//condObject w/params and iftrue/iffalse
-								//console.log(core[time][line][a][b][c]);//cond, iftrue, ifflase
-								//console.log(a)//this.object name
-								//console.log(b)//ifelse
-								//console.log(c)//condObj
 								object = a;
 								params = core[time][line][a][b][c];
 
 								AddToZoneTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
 								auxl[object].GetEl().addEventListener(line, function(){
 									IfElse(object,c,params);
-									//auxlObjMethod(object,method,params);
 								});
 							}
 						} else {
-							//console.log('Normal Event');
 							object = a;
 							method = b;
 							params = core[time][line][a][b];
-							//auxl.interactions[object];
-							//auxl.running[ran].name;
 							AddToZoneTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
 							auxl[object].GetEl().addEventListener(line, function(){
 								auxlObjMethod(object,method,params);
 							});
 						}
-
-
-						/*
-						let object = a;
-						let method = b;
-						let params = core[time][line][a][b];
-						//console.log(line)
-						//console.log(object)
-						//console.log(method)
-						//console.log(params)
-						//auxl.interactions[object];
-						//auxl.running[ran].name;
-						AddToZoneTimeIntEvtTracker({name: object, type: 'event', id: line, method, params, event: line});
-						auxl[object].GetEl().addEventListener(line, function(){
-							auxlObjMethod(object,method,params);
-						});
-						*/
 					}
-					//auxl[line][a](core[time][line][a]);
 				}
 			} else {
 				//Reading non-special timeline, read normally
 				for(let a in core[time][line]){
 					if(time === 'start'){
-						//console.log('Initializing an Object');
-						//console.log(time);//start
-						//console.log(line);//this.object name
-						//console.log(core[time][line]);//func w/ params
-						//console.log(a);//method name. can be universal like IfElse
-						//console.log(core[time][line][a]);//params
 						if(a === 'IfElse'){
 							for(let b in core[time][line][a]){
-								//console.log(b);
-								//console.log(core[time][line][a][b]);
 								IfElse(line,b,core[time][line][a][b]);
 							}
 						} else {
 							auxlObjMethod(line,a,core[time][line][a]);
 						}
 					} else if(time === 'exit'){
-						//console.log('Exiting Scene');
-						//console.log(time);//exit
-						//console.log(line);//this.object name
-						//console.log(core[time][line]);//func w/ params
-						//console.log(a);//method name. can be universal like IfElse
-						//console.log(core[time][line][a]);//params
 						if(a === 'IfElse'){
 							for(let b in core[time][line][a]){
-								//console.log(b);
-								//console.log(core[time][line][a][b]);
 								IfElse(line,b,core[time][line][a][b]);
 							}
 						} else {
@@ -3247,59 +2664,50 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 						//Data only
 					} else {
 						console.log('Hit Other Timeline, Please Investigate');
-						//console.log('Executing Timeline...');
-						//console.log(time);//timeline
-						//console.log(line);//this.obj name
-						//console.log(core[time][line]);//method and params
-						//console.log(a);//method
-						//console.log(core[time][line][a]);//parms
-						//console.log(auxl);//this.object
-						//console.log(auxl[line]);//this.object
-						//auxl[line][a](core[time][line][a]);
-						//auxlObjMethod(line,a,core[time][line][a]);
 					}
 				}
 			}
 		}
-	return;
+		return;
 	}
-
+	//Read MapZone Info Section
 	const Info = () => {
 		readTimeline('info');
 	}
-
+	//Add Controls into MapZone
 	const AddControls = () => {
 		readTimeline('controls');
 	}
-
+	//Remove MapZone Controls
 	const RemoveControls = () => {
 		auxl.universalControls.disableAction(core['controls']);
 	}
-
+	//Read MapZone Start Section
 	const Start = () => {
 		readTimeline('start');
 	}
-
+	//Read MapZone Delay Section
 	const Delay = () => {
 		readTimeline('delay');
 	}
-
+	//Read MapZone Interval Section
 	const Interval = () => {
 		readTimeline('interval');
 	}
-
+	//Read MapZone Event Section
 	const Event = () => {
 		readTimeline('event');
 	}
-
+	//Read MapZone Interaction Section
 	const Interaction = () => {
 		readTimeline('interaction');
 	}
-
+	//Read MapZone Exit Section & Remove MapZone Controls
 	const Exit = () => {
 		readTimeline('exit');
+		RemoveControls();
 	}
-
+	//MapZone Start
 	const StartZone = () => {
 		Start();
 		Delay();
@@ -3308,9 +2716,8 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		Interaction();
 		AddControls();
 	}
-
+	//Start NodeScene within MapZone
 	const StartScene = (nodeName) => {
-		//core.currentNode = nodeName || Object.keys(core.nodes)[0];
 		core.currentNode = nodeName || core.info.start;
 		core.currentZone = core.info.id;
 		if(core.zoneLoaded){} else {
@@ -3319,15 +2726,13 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		}
 		auxl[core.currentNode].StartScene();
 		MoveSpawnMenu();
-
 	}
-
+	//Exit & Clear NodeScene
 	const ClearScene = () => {
 		auxl[core.currentNode].ClearScene();
 	}
-
+	//Generate & Spawn MapZone Map Menu
 	const MoveSpawnMenu = () => {
-
 		core.mapMenuData = {
 			id: 'moveMenu',
 			prompt: 'Move to...',
@@ -3338,26 +2743,16 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			method: 'MenuMoveClick',
 			pos: new THREE.Vector3(-1.5,1.5,-1),
 		}
-		//console.log(core);
-		//console.log(core[core.currentNode]);
 		let currNum = 0;
 		let moveToNode;
 		for(let connect in core[core.currentNode]){
-			//console.log(connect);
-			//core[core.currentNode][connect].inZone
-			//core[core.currentNode][connect].node
-			//core[core.currentNode][connect].travel
-			//core[core.currentNode][connect].locked
-			//core[core.currentNode][connect].key
-			//core[core.currentNode][connect].keepKey
-
 			//In Zone Node or Out of Zone Node
 			if(core.nodes[core[core.currentNode][connect].node]){
 				moveToNode = core.nodes[core[core.currentNode][connect].node];
 			} else {
 				moveToNode = auxl[core[core.currentNode][connect].node];
 			}
-
+			//Open, Locked or Unlocked Travel
 			if(core[core.currentNode][connect].locked && !auxl.player.GetFlag(core[core.currentNode][connect].key)){
 				core.mapMenuData.options['option'+currNum] = moveToNode.core.info.name + ' [Locked]';
 			} else if(core[core.currentNode][connect].locked && auxl.player.GetFlag(core[core.currentNode][connect].key)){
@@ -3365,68 +2760,50 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			} else {
 				core.mapMenuData.options['option'+currNum] = moveToNode.core.info.name;
 			}
-
 			core.mapMenuData.actions['action'+currNum] = connect;
-			//core.mapMenuData.actions['action'+currNum] = moveToNode.core.info.id;
 			currNum++;
-
 		}
-		//core[core.currentNode][connect].inZone;
-		//inZone
-		//node
-		//travel
-		//locked
-		//key
-		//keepKey
 		core.mapMenu = auxl.Menu(core.mapMenuData);
 		core.mapMenu.SpawnMenu();
 	}
-
+	//MapZone Menu Click
 	const MenuMoveClick = (el) => {
 		let result = el.getAttribute('result');
-		//console.log(result);//connect0
 		Move(result);
 	}
-
+	//Move Scenes
 	const Move = (connect) => {
-
 		newNode = core[core.currentNode][connect];
-
+		//Check for Lock & Keys
 		if(newNode.locked && !auxl.player.GetFlag(newNode.key)){
-			//console.log('Needs key');
 			clearTimeout(timeout2);
 			auxl.player.Notification('Requires : ' + newNode.key);
 		} else {
 			if(newNode.locked && auxl.player.GetFlag(newNode.key) && !newNode.keepKey){
 				auxl.player.SetFlag({flag: newNode.key, value: false})
-				//console.log('Key taken');
 			}
-			//Timeout
+			//Move to NodeScene and/or MapZone
 			timeout = setTimeout(function () {
 					core.mapMenu.DespawnMenu();
 					ClearScene();
-					//check if results name as a key exists in this zone
 					if(core.nodes[newNode.node]){
 						StartScene(newNode.node);
 					} else {
-						//switch zones / object control
 						ClearZone();
 						core.zoneLoaded = false;
 						auxl[newNode.inZone].StartScene(newNode.node)
 					}
 				clearTimeout(timeout);
 			}, 425);
-			//Play Transition Animation
 			playerSceneAnim();
 		}
 	}
-
+	//Clear Zone on Move
 	const ClearZone = () => {
 		Exit();
 		ClearZoneTimeIntEvt();
 		RemoveControls();
 		clearSpawned(auxl.zoneSpawned);
-
 	}
 
 	return {core, ReadMapData, StartScene, MoveSpawnMenu, MenuMoveClick, Move, ClearZone};
@@ -3436,25 +2813,23 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 //Scenario Gen
 //entireScenarioSpawnLocationAlwaysDisplay
 this.Scenario = (scenarioData) => {
+	let core = Object.assign({}, scenarioData);
+	core.scenarioLoaded = false;
+	let startTimeout;
+	let zoneSpawn = core.info.startZone;
+	let scenarioName = core.info.name;
+	let scenarioInstructions = core.info.instructions;
 
-let core = Object.assign({}, scenarioData);
-core.scenarioLoaded = false;
-
-let startTimeout;
-let zoneSpawn = core.info.startZone;
-let scenarioName = core.info.name;
-let scenarioInstructions = core.info.instructions;
-
-//Set as default scenario, delay to allow object to be built
-let scenarioTimeout = setTimeout(function () {
-	if(core.info.default){
-		auxl.defaultScenario = auxl[core.info.id];
-		updateHTMLTitle();
-		updateHTMLInstructions();
-	}
-	clearTimeout(scenarioTimeout);
-}, 50);
-
+	//Check if default scenario, delay to allow object to be built
+	let scenarioTimeout = setTimeout(function () {
+		if(core.info.default){
+			auxl.defaultScenario = auxl[core.info.id];
+			updateHTMLTitle();
+			updateHTMLInstructions();
+		}
+		clearTimeout(scenarioTimeout);
+	}, 50);
+	//If/Else support to run auxlObjMethod()
 	const IfElse = (objRef, condObj,{cond, ifTrue, ifFalse}) => {
 		if(auxl[condObj].GetFlag(cond)) {
 			for(let a in ifTrue){
@@ -3470,7 +2845,7 @@ let scenarioTimeout = setTimeout(function () {
 			}
 		}
 	}
-
+	//Run Object Generator Function within Scenario w/Scene Tracking
 	const auxlObjMethod = (object, func, params) => {
 		//Check if spawning to add to Tracker
 		for (let spawn of auxl.spawnFunc) {
@@ -3480,7 +2855,7 @@ let scenarioTimeout = setTimeout(function () {
 		}
 		auxl[object][func](params);
 	}
-
+	//Remove Timeout, Interval, Interaction & Event listeners from Scenario Tracker
 	const AddToScenarioTimeIntEvtTracker = ({name,type,id,method,params,event}) => {
 		let nameId = name+id;
 		if(type === 'timeout'){
@@ -3491,11 +2866,11 @@ let scenarioTimeout = setTimeout(function () {
 			auxl.scenarioRunning[nameId] = {type, name, id, nameId, method, params, event};
 		}
 	}
-
+	//Clear All Timeout, Interval, Interaction & Event Scenario Tracker Listeners
 	const RemoveFromScenarioTimeIntEvtTracker = (name) => {
 		delete auxl.scenarioRunning[name];
 	}
-
+	//Clear All Timeout, Interval, Interaction & Event Scenario Tracker Listeners
 	const ClearScenarioTimeIntEvt = () => {
 		for(let ran in auxl.scenarioRunning){
 			if(auxl.scenarioRunning[ran].type === 'timeout'){
@@ -3512,25 +2887,14 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 			RemoveFromScenarioTimeIntEvtTracker(ran);
 		}
 	}
-
-	const AddToScenarioTracker = (type, obj) => {
-		if(type === 'core'){
-    		auxl.scenarioSpawned[obj.core.id] = {type, obj};
-		} else if(type === 'layer'){
-    		auxl.scenarioSpawned[obj.layer.id] = {type, obj};
-		}
-	}
-
-	const RemoveFromScenarioTracker = (type) => {
-		delete auxl.scenarioSpawned[type.id];
-	}
-
+	//Read Scenario Data Timeline
 	function readTimeline(time){
 		if(time === 'controls'){
 			auxl.universalControls.updateAction(core[time]);
 			return;
 		}
 		for(let line in core[time]){
+			//Check for special object support
 			if(time === 'delay'){
 				for(let a in core[time][line]){
 					for(let b in core[time][line][a]){
@@ -3659,6 +3023,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 					}
 				}
 			} else {
+				//Reading non-special timeline, read normally
 				for(let a in core[time][line]){
 					if(time === 'start'){
 						if(a === 'IfElse'){
@@ -3685,52 +3050,53 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 		}
 	return;
 	}
-
+	//Update HTML w/Scenario Name
 	function updateHTMLTitle(){
 		scenarioHeaderTitle.innerHTML = scenarioName;
 		scenarioMenuTitle.innerHTML = scenarioName;
 	}
-
+	//Update HTML w/Scenario Info
 	function updateHTMLInstructions(){
 		instructions.innerHTML = scenarioInstructions;
 	}
-
+	//Read Scenario Info Section
 	const Info = () => {
 		readTimeline('info');
 	}
-
+	//Add Controls into Scenario
 	const AddControls = () => {
 		readTimeline('controls');
 	}
-
+	//Remove Scenario Controls
 	const RemoveControls = () => {
 		auxl.universalControls.disableAction(core['controls']);
 	}
-
+	//Read Scenario Start Section
 	const Start = () => {
 		readTimeline('start');
 	}
-
+	//Read Scenario Delay Section
 	const Delay = () => {
 		readTimeline('delay');
 	}
-
+	//Read Scenario Interval Section
 	const Interval = () => {
 		readTimeline('interval');
 	}
-
+	//Read Scenario Event Section
 	const Event = () => {
 		readTimeline('event');
 	}
-
+	//Read Scenario Interaction Section
 	const Interaction = () => {
 		readTimeline('interaction');
 	}
-
+	//Read Scenario Exit Section & Remove Scenario Controls
 	const Exit = () => {
 		readTimeline('exit');
+		RemoveControls();
 	}
-
+	//Load all Scenario Items
 	const Init = () => {
 		Start();
 		Delay();
@@ -3739,14 +3105,12 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 		Interaction();
 		AddControls();
 	}
-
+	//Start Scenario
 	const StartScenario = () => {
 		if(core.scenarioLoaded){} else {
 			playerSceneAnim();
 			//Get Universal Controls component
 			auxl.universalControls = document.getElementById('playerRig').components['universal-controls'];
-			//console.log(auxl.universalControls);
-
 			//Start scene mid Player anim
 			startTimeout = setTimeout(function () {
 				//Load All Scenario Items
@@ -3758,7 +3122,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 			}, 425);
 		}
 	}
-
+	//Exit & Clear Scenario
 	const ClearScenario = () => {
 		Exit();
 		ClearScenarioTimeIntEvt();
@@ -3773,16 +3137,10 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 //SkyBox
 //Lights, Sky, Space
 this.SkyBox = (skyBoxData) => {
-
-	//work on importing chunks of each section
 	let skyBox = Object.assign({}, skyBoxData);
-	//skyBox.lights
-	//skyBox.sky
-	//skyBox.space
-
 	let dayNightTimeout;
 	let dayNightInterval;
-
+	//Spawn All Light Core/Layers
 	const SpawnLights = () => {
 		for(let each in skyBox.lights){
 			if(skyBox.lights[each].SpawnCore){
@@ -3795,7 +3153,7 @@ this.SkyBox = (skyBoxData) => {
 			}
 		}
 	}
-
+	//Despawn All Light Core/Layers
 	const DespawnLights = () => {
 		for(let each in skyBox.lights){
 			if(skyBox.lights[each].DespawnCore){
@@ -3808,9 +3166,8 @@ this.SkyBox = (skyBoxData) => {
 			}
 		}
 	}
-
+	//Spawn All Sky Core/Layers
 	const SpawnSky = () => {
-		//combine with atmosphere?
 		for(let each in skyBox.sky){
 			if(skyBox.sky[each].SpawnCore){
 				skyBox.sky[each].SpawnCore(false, false, true);
@@ -3822,9 +3179,8 @@ this.SkyBox = (skyBoxData) => {
 			}
 		}
 	}
-
+	//Despawn All Sky Core/Layers
 	const DespawnSky = () => {
-		//combine with atmosphere?
 		for(let each in skyBox.sky){
 			if(skyBox.sky[each].DespawnCore){
 				skyBox.sky[each].DespawnCore(false, false, true);
@@ -3836,7 +3192,7 @@ this.SkyBox = (skyBoxData) => {
 			}
 		}
 	}
-
+	//Spawn All Sky Core/Layers
 	const SpawnSpace = () => {
 		for(let each in skyBox.space){
 			if(skyBox.space[each].SpawnCore){
@@ -3849,7 +3205,7 @@ this.SkyBox = (skyBoxData) => {
 			}
 		}
 	}
-
+	//Despawn All Sky Core/Layers
 	const DespawnSpace = () => {
 		for(let each in skyBox.space){
 			if(skyBox.space[each].DespawnCore){
@@ -3862,13 +3218,13 @@ this.SkyBox = (skyBoxData) => {
 			}
 		}
 	}
-
+	//Spawn SkyBox
 	const SpawnSkyBox = () => {
 		SpawnLights();
 		SpawnSky();
 		SpawnSpace();
 	}
-
+	//Despawn SkyBox
 	const DespawnSkyBox = () => {
 		clearTimeout(dayNightTimeout);
 		clearInterval(dayNightInterval);
@@ -3877,7 +3233,7 @@ this.SkyBox = (skyBoxData) => {
 		DespawnSpace();
 		RemoveFromTracker(skyBox.id);
 	}
-
+	//Sunrise Animation Event
 	const Sunrise = () => {
 		auxl.directionalLight.EmitEvent('sunrise');
 		auxl.directionalLight2.EmitEvent('sunrise');
@@ -3887,7 +3243,7 @@ this.SkyBox = (skyBoxData) => {
 		auxl.sunLayer.EmitEventParent('sunrise');
 		auxl.moonLayer.EmitEventParent('sunrise');
 	}
-
+	//Suspend Day/Night Animation
 	const PauseDayNight = () => {
 		auxl.directionalLight.EmitEvent('pauseDayNight');
 		auxl.directionalLight2.EmitEvent('pauseDayNight');
@@ -3897,7 +3253,7 @@ this.SkyBox = (skyBoxData) => {
 		auxl.sunLayer.EmitEventParent('pauseDayNight');
 		auxl.moonLayer.EmitEventParent('pauseDayNight');
 	}
-
+	//Resume Day/Night Animation
 	const ResumeDayNight = () => {
 		auxl.directionalLight.EmitEvent('resumeDayNight');
 		auxl.directionalLight2.EmitEvent('resumeDayNight');
@@ -3907,9 +3263,8 @@ this.SkyBox = (skyBoxData) => {
 		auxl.sunLayer.EmitEventParent('resumeDayNight');
 		auxl.moonLayer.EmitEventParent('resumeDayNight');
 	}
-
+	//Looping Day/Night Cycle
 	const DayNightCycle = (dayLength) => {
-
 		if(dayLength){
 			if(typeof dayLength === 'number'){
 				//shortest day allowed 24 seconds
@@ -3921,8 +3276,6 @@ this.SkyBox = (skyBoxData) => {
 
 		Sunrise();
 		auxl.skyGrad.SetFlag({flag:'day', value: true});
-		//SkyGrad Color Anim
-		//Timeout
 		dayNightTimeout = setTimeout(function () {
 			auxl.skyGrad.SetFlag({flag:'day', value: false});
 			auxl.skyGrad.EmitEvent('sunset');
@@ -3935,10 +3288,10 @@ this.SkyBox = (skyBoxData) => {
 					auxl.skyGrad.EmitEvent('sunrise');
 				}
 
-			}, auxl.timeInDay/2); //Interval
-		}, auxl.timeInDay/2 - auxl.timeInDay/24); //Delay
+			}, auxl.timeInDay/2);
+		}, auxl.timeInDay/2 - auxl.timeInDay/24);
 	}
-
+	//Restart Day/Night Animation
 	const RestartDayNight = (dayLength) => {
 		PauseDayNight();
 		Despawn();
@@ -3953,241 +3306,222 @@ this.SkyBox = (skyBoxData) => {
 //Horizon
 //Mountains, Hills, Buildings, Cylinder/Square Wall
 this.Horizon = (horizonData) => {
-
-	//work on importing chunks of each section
 	let horizon = Object.assign({}, horizonData);
-/*
-auxl.horizonMountainData = {
-id: 'horizonMountain',
-type: 'mountains',//hills,buildings,cylinder|square walls
-texture: false,//omit to use ThreeGradientShader
-baseColor: false,
-baseColorFamily: 'lime',
-radius: 200,
-density: 'normal',//low,normal,high
-height: 'normal',//low,normal,high
-width: 'normal',//low,normal,high
-};
 
-Allow to specify top,mid,bottom threeGrad colors?
-*/
+	//Prep Material
+	let top;
+	let mid;
+	let bottom;
+	let colorPick;
 
-//Material
-let top;
-let mid;
-let bottom;
-let colorPick;
-
-//Density
-let spawnAmount;
-if(horizon.density === 'low'){
-	spawnAmount = 5;
-} else if(horizon.density === 'normal'){
-	spawnAmount = 10;
-} else if(horizon.density === 'high'){
-	spawnAmount = 20;
-}
-
-//Height
-let spawnHeight;
-if(horizon.height === 'low'){
-	spawnHeight = 0.5;
-} else if(horizon.height === 'normal'){
-	spawnHeight = 1;
-} else if(horizon.height === 'high'){
-	spawnHeight = 1.5;
-}
-
-//Width
-let spawnWidth;
-if(horizon.width === 'low'){
-	spawnWidth = 0.5;
-} else if(horizon.width === 'normal'){
-	spawnWidth = 1;
-} else if(horizon.width === 'high'){
-	spawnWidth = 1.5;
-}
-
-//Type
-let geometry;
-let position = new THREE.Vector3(0,0,horizon.radius*-1);
-let scale = new THREE.Vector3(1,1,1);
-let height;
-if(horizon.type === 'mountains'){
-	height = 100*spawnHeight;
-	geometry = {primitive: 'cone', height: height, radiusBottom: 50, radiusTop: 0, openEnded: true, segmentsHeight: 1, segmentsRadial: 9, thetaLength: 180, thetaStart: 90},
-	scale.x = 1.5*spawnWidth;
-} else if(horizon.type === 'hills'){
-	height = 50*spawnHeight;
-	geometry = {primitive: 'circle', radius: height, thetaStart: 0, thetaLength: 180};
-	scale.x = 1.5*spawnWidth;
-} else if(horizon.type === 'buildings'){
-	height = 100*spawnHeight;
-	geometry = {primitive: 'plane', width: 40*spawnWidth, height: height};
-} else if(horizon.type === 'cylinderWall'){
-	height = 50*spawnHeight;
-	geometry = {primitive: 'cylinder', openEnded: true, radius: horizon.radius, height: height, segmentsHeight: 9, segmentsRadial: 32, thetaStart: 0, thetaLength: 360 };
-	position.z = 0;
-	spawnAmount = 1;
-} else if(horizon.type === 'squareWall'){
-	height = 40*spawnHeight;
-	geometry = {primitive: 'plane', width: horizon.radius*2, height: height};
-	spawnAmount = 4;
-}
-
-let horizonAllData = {
-data:'horizonAllData',
-id:'horizonParent',
-sources:false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-let horizonAll = auxl.Core(horizonAllData);
-let horizonLayerData = {
-	parent: {core: horizonAll},
-};
-
-let horizonParentData = {
-data:'horizonParentData',
-id:'horizonParent',
-sources:false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-let horizonChildData = {
-data:'horizonChildData',
-id:'horizonChild',
-sources:false,
-text: false,
-geometry: geometry,
-material: false,
-position: position,
-rotation: new THREE.Vector3(0,0,0),
-scale: scale,
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-let horizonParentId = 'horizonParent';
-let horizonParentCores = [];
-let horizonChildId = 'horizonChild';
-let horizonChildCores = [];
-
-for(let a=0; a < spawnAmount; a++){
-
-	//Parent
-	horizonParentId = 'horizonParent' + a;
-	let parentRotation = new THREE.Vector3(0,0,0);
-	parentRotation.y = 360/spawnAmount*a;
-	horizonParentData.id = horizonParentId;
-	horizonParentData.rotation = parentRotation;
-	horizonParentCores[a] = auxl.Core(horizonParentData);
-	//Child
-	horizonChildId = 'horizonChild' + a;
-	horizonChildData.id = horizonChildId;
-	if(horizon.type === 'squareWall'){}else{
-		horizonChildData.scale.x = (1.5*spawnWidth) +(Math.random()*0.1-0.2);
-		horizonChildData.scale.y = 1 + (Math.random()*0.2-0.4);
+	//Prep Density
+	let spawnAmount;
+	if(horizon.density === 'low'){
+		spawnAmount = 5;
+	} else if(horizon.density === 'normal'){
+		spawnAmount = 10;
+	} else if(horizon.density === 'high'){
+		spawnAmount = 20;
 	}
-	if(horizon.type === 'mountains' || horizon.type === 'buildings' || horizon.type === 'cylinderWall' || horizon.type === 'squareWall'){
-		horizonChildData.position.y = ((horizonChildData.scale.y*height)/2)-1;
+
+	//Prep Height
+	let spawnHeight;
+	if(horizon.height === 'low'){
+		spawnHeight = 0.5;
+	} else if(horizon.height === 'normal'){
+		spawnHeight = 1;
+	} else if(horizon.height === 'high'){
+		spawnHeight = 1.5;
+	}
+
+	//Prep Width
+	let spawnWidth;
+	if(horizon.width === 'low'){
+		spawnWidth = 0.5;
+	} else if(horizon.width === 'normal'){
+		spawnWidth = 1;
+	} else if(horizon.width === 'high'){
+		spawnWidth = 1.5;
+	}
+
+	//Prep Type
+	let geometry;
+	let position = new THREE.Vector3(0,0,horizon.radius*-1);
+	let scale = new THREE.Vector3(1,1,1);
+	let height;
+	if(horizon.type === 'mountains'){
+		height = 100*spawnHeight;
+		geometry = {primitive: 'cone', height: height, radiusBottom: 50, radiusTop: 0, openEnded: true, segmentsHeight: 1, segmentsRadial: 9, thetaLength: 180, thetaStart: 90},
+		scale.x = 1.5*spawnWidth;
 	} else if(horizon.type === 'hills'){
-		horizonChildData.position.y = -1;
+		height = 50*spawnHeight;
+		geometry = {primitive: 'circle', radius: height, thetaStart: 0, thetaLength: 180};
+		scale.x = 1.5*spawnWidth;
+	} else if(horizon.type === 'buildings'){
+		height = 100*spawnHeight;
+		geometry = {primitive: 'plane', width: 40*spawnWidth, height: height};
+	} else if(horizon.type === 'cylinderWall'){
+		height = 50*spawnHeight;
+		geometry = {primitive: 'cylinder', openEnded: true, radius: horizon.radius, height: height, segmentsHeight: 9, segmentsRadial: 32, thetaStart: 0, thetaLength: 360 };
+		position.z = 0;
+		spawnAmount = 1;
+	} else if(horizon.type === 'squareWall'){
+		height = 40*spawnHeight;
+		geometry = {primitive: 'plane', width: horizon.radius*2, height: height};
+		spawnAmount = 4;
 	}
-	//Material
-	let material;
-	let textureSrc;
-	if(horizon.texture){
-		if(horizon.baseColor){
+	//Horizon Layer
+	let horizonAllData = {
+	data:'horizonAllData',
+	id:'horizonParent',
+	sources:false,
+	text: false,
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	let horizonAll = auxl.Core(horizonAllData);
+	let horizonLayerData = {
+		parent: {core: horizonAll},
+	};
+	//Horizon Parent
+	let horizonParentData = {
+	data:'horizonParentData',
+	id:'horizonParent',
+	sources:false,
+	text: false,
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	let horizonParentId = 'horizonParent';
+	let horizonParentCores = [];
+	//Horizon Child
+	let horizonChildData = {
+	data:'horizonChildData',
+	id:'horizonChild',
+	sources:false,
+	text: false,
+	geometry: geometry,
+	material: false,
+	position: position,
+	rotation: new THREE.Vector3(0,0,0),
+	scale: scale,
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	let horizonChildId = 'horizonChild';
+	let horizonChildCores = [];
+	//Build Layer
+	for(let a=0; a < spawnAmount; a++){
+		//Parent
+		horizonParentId = 'horizonParent' + a;
+		let parentRotation = new THREE.Vector3(0,0,0);
+		parentRotation.y = 360/spawnAmount*a;
+		horizonParentData.id = horizonParentId;
+		horizonParentData.rotation = parentRotation;
+		horizonParentCores[a] = auxl.Core(horizonParentData);
+		//Child
+		horizonChildId = 'horizonChild' + a;
+		horizonChildData.id = horizonChildId;
+		if(horizon.type === 'squareWall'){}else{
+			horizonChildData.scale.x = (1.5*spawnWidth) +(Math.random()*0.1-0.2);
+			horizonChildData.scale.y = 1 + (Math.random()*0.2-0.4);
+		}
+		if(horizon.type === 'mountains' || horizon.type === 'buildings' || horizon.type === 'cylinderWall' || horizon.type === 'squareWall'){
+			horizonChildData.position.y = ((horizonChildData.scale.y*height)/2)-1;
+		} else if(horizon.type === 'hills'){
+			horizonChildData.position.y = -1;
+		}
+		//Material
+		let material;
+		let textureSrc;
+		if(horizon.texture){
+			if(horizon.baseColor){
+				colorPick = auxl.colorTheoryGen(horizon.baseColor);
+			} else if(horizon.baseColorFamily){
+				colorPick = auxl.colorTheoryGen(false, horizon.baseColorFamily);
+			} else {
+				colorPick = auxl.colorTheoryGen();
+			}
+			colorPickBase = colorPick.base;
+			material = {shader: "standard", side: 'double', color: colorPickBase};
+
+			if(horizon.texture.src){
+				if(Array.isArray(horizon.texture.src)){
+					textureSrc = horizon.texture.src[Math.floor(Math.random()*horizon.texture.src.length)];
+				} else {
+					textureSrc = horizon.texture.src;
+				}
+				material.src = textureSrc;
+			}
+			if(horizon.texture.repeat){
+				material.repeat = horizon.texture.repeat;
+			}
+			if(horizon.texture.opacity){
+				material.opacity = horizon.texture.opacity;
+			}
+			if(horizon.texture.metalness){
+				material.metalness = horizon.texture.metalness;
+			}
+			if(horizon.texture.roughness){
+				material.roughness = horizon.texture.roughness;
+			}
+			if(horizon.texture.emissive){
+				material.emissive = colorPickBase;
+			}
+			if(horizon.texture.emissiveIntensity){
+				material.emissiveIntensity = horizon.texture.emissiveIntensity;
+			}
+
+		} else if(horizon.baseColor){
 			colorPick = auxl.colorTheoryGen(horizon.baseColor);
+			mid = colorPick.base;
+			top = colorPick.tetradic[0];
+			bottom = colorPick.tetradic[1];
+			material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
 		} else if(horizon.baseColorFamily){
 			colorPick = auxl.colorTheoryGen(false, horizon.baseColorFamily);
+			mid = colorPick.base;
+			top = colorPick.tetradic[0];
+			bottom = colorPick.tetradic[1];
+			material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
 		} else {
 			colorPick = auxl.colorTheoryGen();
+			mid = colorPick.base;
+			top = colorPick.tetradic[0];
+			bottom = colorPick.tetradic[1];
+			material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
 		}
-		colorPickBase = colorPick.base;
-		material = {shader: "standard", side: 'double', color: colorPickBase};
-
-		if(horizon.texture.src){
-			if(Array.isArray(horizon.texture.src)){
-				textureSrc = horizon.texture.src[Math.floor(Math.random()*horizon.texture.src.length)];
-			} else {
-				textureSrc = horizon.texture.src;
-			}
-			material.src = textureSrc;
-		}
-		if(horizon.texture.repeat){
-			material.repeat = horizon.texture.repeat;
-		}
-		if(horizon.texture.opacity){
-			material.opacity = horizon.texture.opacity;
-		}
-		if(horizon.texture.metalness){
-			material.metalness = horizon.texture.metalness;
-		}
-		if(horizon.texture.roughness){
-			material.roughness = horizon.texture.roughness;
-		}
-		if(horizon.texture.emissive){
-			material.emissive = colorPickBase;
-		}
-		if(horizon.texture.emissiveIntensity){
-			material.emissiveIntensity = horizon.texture.emissiveIntensity;
-		}
-
-	} else if(horizon.baseColor){
-		colorPick = auxl.colorTheoryGen(horizon.baseColor);
-		mid = colorPick.base;
-		top = colorPick.tetradic[0];
-		bottom = colorPick.tetradic[1];
-		material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
-	} else if(horizon.baseColorFamily){
-		colorPick = auxl.colorTheoryGen(false, horizon.baseColorFamily);
-		mid = colorPick.base;
-		top = colorPick.tetradic[0];
-		bottom = colorPick.tetradic[1];
-		material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
-	} else {
-		colorPick = auxl.colorTheoryGen();
-		mid = colorPick.base;
-		top = colorPick.tetradic[0];
-		bottom = colorPick.tetradic[1];
-		material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
+		horizonChildData.material = material;
+		//Core
+		horizonChildCores[a] = auxl.Core(horizonChildData);
+		//Layer
+		horizonLayerData['child'+a] = {
+			parent: {core: horizonParentCores[a]}, 
+			child0: {core: horizonChildCores[a]},
+		};
 	}
-	horizonChildData.material = material;
-	//Core
-	horizonChildCores[a] = auxl.Core(horizonChildData);
-	//Layer
-	horizonLayerData['child'+a] = {
-		parent: {core: horizonParentCores[a]}, 
-		child0: {core: horizonChildCores[a]},
-	};
-}
-let horizonLayer = auxl.Layer('horizonLayer',horizonLayerData);
-
+	let horizonLayer = auxl.Layer('horizonLayer',horizonLayerData);
+	//Spawn Horizon
 	const SpawnHorizon = () => {
 		horizonLayer.SpawnLayer(true);
 	}
-
+	//Despawn Horizon
 	const DespawnHorizon = () => {
 		horizonLayer.DespawnLayer(true);
 		RemoveFromTracker(horizon.id);
@@ -4197,202 +3531,124 @@ let horizonLayer = auxl.Layer('horizonLayer',horizonLayerData);
 }
 
 //
-//Story Book - Linear, Tree, Quests, Jump, Menu, Conditionals, Flags...
+//Story Book
+//Linear, Tree, Quests, Jump, Menu, Conditionals, Flags...
 this.Book = (core, npc) => {
-//facilitate interaction between user, objects and story.
 
+	//Run Object Generator Function within Book w/Scene Tracking
 	const auxlObjMethod = (object, func, params) => {
 		//Check if spawning to add to Tracker
 		for (let spawn of auxl.spawnFunc) {
 			if(func === spawn){
-				//console.log(object);
-				//console.log(npc.id);
 				spawnTracker(object, 'book', npc.id);
 			}
 		}
 		auxl[object][func](params);
 	}
-
+	//Yield Timeline
 	function* lineReader(book,time){
 		for(let line in time){
-			//console.log(line);//id,timeline,transition,textBubble,... key name
-			//console.log(time[line]);//id,timeline,transition,textBubble,... value object
-
 			//Ignore Page Data
 			if(line === 'id' || line === 'description' ||line === 'tags' ||line === 'nextPage' ||line === 'prevPage' ||line === 'timeline'){
-			//page data only
+				//page data only
 			} else if(line === 'pureFunction'){
 				//pure functions
 				//not object generated methods
 				//Need a good check condition for this.func() and not this.obj.func()
-
-				//console.log(line)
-				//console.log(time)
-				//console.log(time[line])
-				//console.log(auxl[line])
-				//auxl[line](time[line])
-				//console.log('pureFunction');
-				//console.log(auxl[line]);
 				auxl[line](time[line])
 			} else {
-				//console.log(line);
-				//console.log(time[line]);
 				for(let a in time[line]){
-					//console.log(a);//SpawnCore / ChangeSelf
-					//console.log(time[line]);//{SpawnCore: null} / {ChangeSelf: {mat...}}
-					//console.log(time[line][a]);//params
-					//console.log('Executing...');
-					//console.log(line);//objectName
-					//console.log(a);//func
-					//console.log(auxl[line][a]);
-					//auxl[line][a](time[line][a]);
 					auxlObjMethod(line,a,time[line][a]);
 				}
-
-			}//else
-
-		}//for line in time
-		//console.log(book);
-		//console.log('Stop here please.');
+			}
+		}
 		yield;
-
 	}
-
+	//Yield Time
 	function* timeReader(book,page){
 		for(let time in page){
-			//console.log(time);//info,timeline0,timeline1,... key name
-			//console.log(page[time]);//info,timeline0,timeline1,... value object
 			book.currentTimeline = time;
 			book.timelineQue.push([time,page[time]]);
 			//Skip|Ignore Data til timeline# reach if jumping
 			if(time === core.jumpTo){
 				core.jumping = false;
-				//console.log('timeline hit')
-				//console.log(time)
 			}
-			if(core.jumping){
-			//console.log('jumping');
-			//console.log(time);
-			}else{
-			//console.log('Running');
-			//console.log(time);
-			yield* lineReader(book, page[time]);
+			if(core.jumping){}else{
+				yield* lineReader(book, page[time]);
 			}
-
-
-		}//Page
+		}
 	}
-
+	//Yield Page
 	function* pageReader(book){
 		for(let page in book.pages){
-			//console.log(page);//page0,page1,... key name
-			//console.log(pages[page]);//page0,page1,... value object
 			book.currentPage = page;
 			book.pageQue.push([page,book.pages[page]]);
 			yield* timeReader(book, book.pages[page]);
-
-		}//Page
+		}
 	}
-
+	//Yield Book
 	function* bookReader(book){
+		book.currentPage = 0;
+		book.currentTimeline = 0;
+		book.currentEntry = 0;
+		book.currentDialog = 0;
+		book.pageQue = [];
+		book.timelineQue = [];
+		book.entryQue = [];
+		book.textBubbleQue = [];
+		book.speaker = '';
+		book.speaking = false;
+		book.jumping = false;
+		book.jumpTo;
+		book.selectJumpMenu;
+		//Book Info & Contents
+		//for(let setting in book.info){
+			//console.log(setting);
+			//console.log(book.info[setting]);
+			//Book Info
+			//id
+			//description
+			//tags
+		//};
 
-	//let value;
-	//let entry;
-	//entry = {};
-	//entry[key] = value;
-	//pageDecrypt.push(entry);
-
-	book.currentPage = 0;
-	book.currentTimeline = 0;
-	book.currentEntry = 0;
-	book.currentDialog = 0;
-	book.pageQue = [];
-	book.timelineQue = [];
-	book.entryQue = [];
-	book.textBubbleQue = [];
-	book.speaker = '';
-	book.speaking = false;
-	book.jumping = false;
-	book.jumpTo;
-	book.selectJumpMenu;
-	for(let props in book.scene){
-		//console.log(props);
-		//console.log(book.scene[props]);
+		//Start reading Pages
+		yield* pageReader(book);
 	};
-
-
-	//Book Info & Contents
-	//display this info in scene on a plane above controller 
-	//for(let setting in book.info){
-		//console.log(setting);
-		//console.log(book.info[setting]);
-		//Book Info
-		//id
-		//description
-		//tags
-	//};
-	//Book Initialized
-	//yield;//Do you want to continue|confirm?
-	//Start reading Pages
-	//Pages Ingo & Contents
-	yield* pageReader(book);
-
-	};
-
+	//Init Yield Gen Book
 	let book = bookReader(core);
-
+	//Read Book Timeline
 	function readTimeline({page,time}){
-	//find a specific timeline/key name and load up that
-	//auxl.bookOverviewAuxlFeatures.readTimeline('page0','timeline6');
-	//page - 'page0'
-	//time - 'timeline6'
 		for(let line in core.pages[page][time]){
 			if(line === 'pureFunction'){
 				//Need a good check condition for this.func() and not this.obj.func()
-				//console.log('pureFunction');
-				//console.log(auxl[line]);
 				auxl[line](time[line])
 			} else {
 				for(let a in core.pages[page][time][line]){
-					//console.log('Executing...');
-					//console.log(auxl[line][a]);
 					auxl[line][a](core.pages[page][time][line][a]);
 				}
 			}
 		}
-	return;
-}
-
+		return;
+	}
+	//Next Yield
 	const Next = () => {
-		//next yielded spot and update done var
 		book.done = book.next().done;
-
 		if(book.done){
 			//console.log('All Done!');
 		} else {
 			//console.log('Continue...')
 		}
 	}
-
+	//Jump to Timeline
 	const Jump = ({timeline, page}) => {
-
-		//let toBook = book || false;
 		let toPage = page || core.currentPage;
 		core.jumpTo = timeline;
-
-		//if exists
 		if(core.pages[toPage][core.jumpTo]){
-		   //book.currentTimeline - name of current timeline
-			//console.log('It exists!');
 			core.jumping = true;
-		} else {
-		   //console.log(timeline)
-		   //console.log('Error Timeline does not exist.')
 		}
 	}
-
+	//Jump Menu
 	const SelectJump = (jumpOptions) => {
-	//gen a menu that displays options which when selected jump to a specific timeline#
 		let selectedTime;
 		let selectedPage = false;
 		let selectJumpData = {
@@ -4405,18 +3661,13 @@ this.Book = (core, npc) => {
 			pos: new THREE.Vector3(1,1.5,-0.5),
 			method: 'Click',
 		}
-
 		for(let a = 0; a < jumpOptions.length; a++){
 			selectJumpData.options['option'+a] = jumpOptions[a][0];
 			selectJumpData.actions['action'+a] = jumpOptions[a][1];
 		}
-
 		book.selectJumpMenu = auxl.Menu(selectJumpData);
 		book.selectJumpMenu.SpawnMenu();
 		book.selectJumpMenu.AddToParentSpawnTracker(book.selectJumpMenu, npc);
-		//book.selectJumpMenu.RemoveMenuFromSceneTracker();
-		//disable main el clickable class
-		//Need to update after creating book control component
 		npc.GetEl().classList.toggle('clickable', false);
 	}
 
@@ -4424,40 +3675,40 @@ this.Book = (core, npc) => {
 }
 
 //
-//Speech System Textbubble
+//Speech System
+//Speaking Textbubble
 this.SpeechSystem = (core) => {
-
 	core.on = false;
 	core.speaking = false;
 	core.textDisplayInterval;
-
+	//Start Textbubble
 	const Start = () => {
 		core.SpawnCore(false,false,true);
 		core.GetEl().addEventListener('mouseenter', Skip);
 		core.on = true;
 	}
-
+	//Skip to end of speech
 	const Skip = () => {
 		core.GetEl().emit('skip',{});
 	}
-
+	//Stop Textbubble
 	const Stop = () => {
 		core.GetEl().removeEventListener('mouseenter', Skip);
 		core.DespawnCore(false,false,true);
 		core.on = false;
 	}
-
-	const Kill = (interval) => {
+	//Kill Speech
+	const Kill = () => {
 		core.speaking = false;
 		clearInterval(auxl.intervals[core.core.id]);
 		delete auxl.intervals[core.core.id];
 	}
-
+	//Kill Speech & Stop Textbuble
 	const KillStop = () => {
 		Kill();
 		Stop();
 	}
-
+	//Change Textbubble - Single or Array
 	const ChangeCore = (setAlt) => {
 		if(Array.isArray(setAlt)){
 			for(let each in setAlt){
@@ -4467,7 +3718,7 @@ this.SpeechSystem = (core) => {
 			core.ChangeSelf(setAlt)
 		}
 	}
-
+	//Speaking Controls
 	const DisplaySpeech = ({role,speech}) => {
 		let startText = role + ' : ';
 		let currText = startText;
@@ -4481,7 +3732,6 @@ this.SpeechSystem = (core) => {
 			Kill();
 			core.GetEl().removeEventListener('skip',skipText);
 		}
-
 		core.GetEl().addEventListener('skip', skipText);
 
 		AddToTimeIntEvtTracker({name: 'textDisplayInterval', type: 'interval', id: core.core.id});
@@ -4499,9 +3749,9 @@ this.SpeechSystem = (core) => {
 			if(core.on){
 				core.GetEl().setAttribute('text',{value: currText});
 			}
-		}, 20); //Interval
+		}, 20);
 	}
-
+	//Add Textbubble Timeout, Interval, Interaction & Events to Tracker
 	const AddToTimeIntEvtTracker = ({name,type,id,method,params}) => {
 		let nameId = name+id;
 		if(type === 'timeout'){
@@ -4512,7 +3762,7 @@ this.SpeechSystem = (core) => {
 			auxl.running[nameId] = {type, name, id, nameId, method, params, event};
 		}
 	}
-
+	//Remove Textbubble Timeout, Interval, Interaction & Events to Tracker
 	const RemoveFromTimeIntEvtTracker = (name) => {
 		delete auxl.running[name];
 	}
@@ -4522,70 +3772,57 @@ this.SpeechSystem = (core) => {
 
 //
 //NPC
+//Core Object w/ Book|Pages & Textbubble
 this.NPC = (core, bookData, textDisplay) => {
+	let npc = Object.assign({}, core);
+	npc.id = npc.core.id;
+	let bubble = Object.assign({}, textDisplay);
+	let book;
+	let text = auxl.SpeechSystem(bubble);
+	let menuTimeout;
 
-let npc = Object.assign({}, core);
-npc.id = npc.core.id;
-let bubble = Object.assign({}, textDisplay);
-let book;
-//bubble.core.position.x = core.core.position.x;
-//bubble.core.position.y = core.core.position.y - 0.5;
-//bubble.core.position.z = core.core.position.z + 0.25;
-let text = auxl.SpeechSystem(bubble);
-let menuTimeout;
-
+	//Spawn NPC, Reset Book & Start Speaking
 	const SpawnNPC = () => {
 		//Reset book on each spawn
 		book = auxl.Book(bookData, npc);
 		npc.SpawnCore(false,false,true);
 		EnableSpeech();
-		//AddToNPCSceneTracker();
-		//Need an NPC tracker, so it can run DisableSpeech on scene change
-		//console.log('Spawn');
 	}
-
+	//Despawn NPC
 	const DespawnNPC = () => {
 		ClearBookSpawn();
 		DisableSpeech();
 		npc.DespawnCore(false,false,true);
 		RemoveFromTracker(npc.id);
 	}
-
+	//Clear Book Spawned Objects
 	const ClearBookSpawn = () => {
 		clearSpawned(auxl.bookSpawned[npc.id]);
 		delete auxl.bookSpawned[npc.id];
 	}
-
+	//Prep & Start NPC Speaking
 	const EnableSpeech = () => {
-		//console.log('Enable Speech');
 		text.Start();
 		npc.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}})
-		//Jump to Timeline0
+		//Jump over Info to Timeline0
 		NextPage();
 		NextPage();
 		npc.GetEl().addEventListener('mouseenter', NextPage);
 		npc.GetEl().addEventListener('click', ResetBook);
 	}
-
+	//Disable NPC Speaking
 	const DisableSpeech = () => {
-		//console.log('Disable Speech');
 		text.KillStop();
 		npc.GetEl().removeEventListener('mouseenter', NextPage);
 		npc.GetEl().removeEventListener('click', ResetBook);
 	}
-
+	//NPC Speaking
 	const Speak = ({role,speech}) => {
-		//console.log('Speak')
-		//console.log(role)
-		//console.log(speech)
 		text.DisplaySpeech({role, speech});
 	}
-
+	//NPC Book Next Item
 	const NextPage = () => {
 		//Prevent pushing next speech until current is over or skipped to end
-		//console.log('Next Page')
-		//console.log(text.core.on)
-		//console.log(text.core.speaking)
 		if(text.core.on){
 			if(text.core.speaking){} else {
 				book.Next()
@@ -4594,96 +3831,62 @@ let menuTimeout;
 			book.Next()
 		}
 	}
-
+	//Reset NPC Book
 	const ResetBook = (force) => {
 		if(book.book.done || force){
-			//console.log('Reseting Book...');
-			//Reset Book
 			ClearBookSpawn();
 			book = auxl.Book(bookData, npc);
 			NextPage();
 			NextPage();
-			//npc.ChangeSelf({property: 'material', value: {opacity: 1}});
-			//npc.ChangeSelf({property: 'text', value: {value: 'Menu'}});
-			//console.log('Book Ready!');
-		} else {
-			//console.log('Book is not done!')
 		}
 	}
-
+	//NPC Book Jump Menu Click
 	const Click = (el) => {
 		let result = el.getAttribute('result');
 		Jump({timeline: result});
 		book.Next();
-
 		//Need to update after creating book control component
 		npc.GetEl().classList.toggle('clickable', true);
-		//Timeout
 		menuTimeout = setTimeout(function () {
 			book.book.selectJumpMenu.DespawnMenu();
 			book.book.selectJumpMenu.RemoveMenuFromSceneTracker();
 			clearTimeout(menuTimeout);
-		}, 250); //Delay
+		}, 250);
 	}
-
+	//NPC Book Jump
 	const Jump = ({timeline, page}) => {
 		book.Jump({timeline, page})
 	}
-
+	//NPC Book Menu Jump
 	const SelectJump = (jumpOptions) => {
 		book.SelectJump(jumpOptions);
 	}
-
+	//Run NPC Methods
 	const auxlObjMethod = (object, func, params) => {
-		//console.log('NPC running method');
-		//console.log(object);
-		//console.log(func);
-		//Used to run NPC methods
+		//Only used to run NPC methods
 		auxl[object][func](params);
 	}
-
+	//If/Else for NPC Methods
 	const IfElse = (obj) => {
-		//Used to run NPC methods
-		//console.log('NPC running ifElse');
-		//console.log(obj);
-		//ifTrue
-		//ifFalse
-		//for loop for above objects with key name as object and value key as method and that value the params
-		//console.log(obj)//entire ifElse object
 		let objRef = Object.keys(obj);
-		//console.log(Object.keys(obj))//this.obj name
 		let cond = obj[objRef].cond;
 		let ifTrue = obj[objRef].ifTrue;
 		let ifFalse = obj[objRef].ifFalse;
-		//console.log(cond)//cond name
-		//console.log(ifTrue)
-		//console.log(ifFalse)
-
-		//console.log(auxl[objRef].GetFlag(cond))
 		if(auxl[objRef].GetFlag(cond)) {
-			//run ifTrue
 			for(let a in ifTrue){
-				//console.log(ifTrue);
-				//console.log(a);
-				//console.log(ifTrue[a]);
 				for(let b in ifTrue[a]){
 					auxlObjMethod(a,b,ifTrue[a][b]);
 				}
 			}
 		} else {
-			//run ifFalse
 			for(let a in ifFalse){
-				//console.log(ifFalse);
-				//console.log(a);//this.object name should match objRef
-				//console.log(ifFalse[a]);//method w/ params
 				for(let b in ifFalse[a]){
 					auxlObjMethod(a,b,ifFalse[a][b]);
 				}
 			}
 		}
-
 	}
-
+	//Set Flag & Value to Object - Single or Array
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
@@ -4693,81 +3896,85 @@ let menuTimeout;
 			npc[flagValue.flag] = flagValue.value;
 		}
 	}
-
-	const GetFlag = (varName) => {
-		//console.log(varName)
-		//console.log(core[varName])
-		return npc[varName];
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(npc(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return npc[flag];
+		}
 	}
 
 return {npc, SpawnNPC, DespawnNPC, EnableSpeech, DisableSpeech, Speak, NextPage, ResetBook, Click, Jump, SelectJump, auxlObjMethod, IfElse, SetFlag, GetFlag}
 }
 
 //
-//Hamburger Menu Companion
+//Ham Companion
+//System Menu & Inventory
 this.HamMenu = (id, core) => {
+	let ham = Object.assign({}, core);
+	ham.id = id;
+	ham.systemOpen = false;
+	ham.travelSettingsOpen = false;
+	ham.sceneSettingsOpen = false;
+	ham.show = false;
+	ham.pos = auxl.playerRig.GetEl().getAttribute('position');
+	//Hamburger Menu Companion - Main Menu, Settings and Controls
+	//More Settings to be added
 
-let ham = Object.assign({}, core);
-ham.id = id;
-ham.systemOpen = false;
-ham.travelSettingsOpen = false;
-ham.sceneSettingsOpen = false;
-ham.show = false;
-ham.pos = auxl.playerRig.GetEl().getAttribute('position');
+	//Travel|Site Menu
+	let systemMenuButtons = {
+	travelSettings: 'Travel Settings',
+	sceneSettings: 'More Settings[DISABLED]',
+	};
+	let systemMenuTimeout;
+	//Travel Settings : Instant, Blink, Fade, Sphere
+	let travelSettingsButtons = {
+	instant: 'Instant Transition',
+	blink: 'Blink Transition',
+	fade: 'Fade In/Out Transition',
+	sphere: 'Sphere Transition',
+	};
+	let travelMenuTimeout;
+	//Scene Settings : Color Themes, Accessibility, Scene Info, etc...
+	let sceneSettingsButtons = {
+	theme: 'Color Theme',
+	accessibility: 'Accessibility Settings',
+	author: 'Made by Minty Crisp!',
+	};
 
-//Emoti Display
-let speechIntervalB;
-let speechTimeoutB;
+	//Emoti Prep
+	let speechIntervalB;
+	let speechTimeoutB;
 
-//Hamburger Menu Companion - Main Menu, Settings and Controls
-//Travel Settings : Instant, Blink, Fade, Sphere
-//Travel|Site Menu
-//Scene Settings : Color Themes, Accessibility, Scene Info, etc...
-let systemMenuButtons = {
-travelSettings: 'Travel Settings',
-sceneSettings: 'More Settings[DISABLED]',
-};
-
-let travelSettingsButtons = {
-instant: 'Instant Transition',
-blink: 'Blink Transition',
-fade: 'Fade In/Out Transition',
-sphere: 'Sphere Transition',
-};
-
-let sceneSettingsButtons = {
-theme: 'Color Theme',
-accessibility: 'Accessibility Settings',
-author: 'Made by Minty Crisp!',
-};
-	//
-	//Emoti Display
+	//Emoticon Loop Display
 	const autoScriptEmoticon = () => {
-
-	function* emotiSpeech() {
-		yield '-_-';
-		yield 'O_O';
-		yield 'o_o';
-		yield 'o_O';
-		yield 'O_o';
-		yield 'O_^';
-		yield '^_o';
-		yield '^_^';
-		yield 'o_^';
-		yield '^_O';
-		yield '<_<';
-		yield '>_>';
-		yield '>_<';
-		yield 'X_X';
-		yield '*_*';
-		yield '+_+';
-		yield '0_0';
-	}
-
+		//Emoticons
+		function* emotiSpeech() {
+			yield '-_-';
+			yield 'O_O';
+			yield 'o_o';
+			yield 'o_O';
+			yield 'O_o';
+			yield 'O_^';
+			yield '^_o';
+			yield '^_^';
+			yield 'o_^';
+			yield '^_O';
+			yield '<_<';
+			yield '>_>';
+			yield '>_<';
+			yield 'X_X';
+			yield '*_*';
+			yield '+_+';
+			yield '0_0';
+		}
 		let emotiSpeechArray = [];
-		//Only do 1 step per run, not all though?
 		for (speech of emotiSpeech()) {
-			//console.log(speech);
 			emotiSpeechArray.push(speech);
 		}
 		let buddy;
@@ -4776,15 +3983,14 @@ author: 'Made by Minty Crisp!',
 		speechTimeoutB = setTimeout(function () {
 			b = 0;
 			buddy = ham.GetEl();
-
 			speechIntervalB = setInterval(function() {
 				buddyFaceMaterial.value = emotiSpeechArray[b];
 				buddy.setAttribute('text', buddyFaceMaterial);
 				if(b === emotiSpeechArray.length){b = 0}else{b++}
-			}, 2700); //Interval
-		}, 250); //Delay
+			}, 2700);
+		}, 250);
 	}
-
+	//Toggle Ham Display
 	const ToggleHam = () => {
 		if(ham.show){
 			closeAll();
@@ -4795,7 +4001,7 @@ author: 'Made by Minty Crisp!',
 	}
 	//Attach Toggle to playerFloor
 	playerFloor.addEventListener('click',ToggleHam);
-
+	//Spawn & Start Ham
 	const SpawnHam = () => {
 		ham.SpawnCore(auxl.playerRig.GetEl(), false, true);
 		ShowInventory();
@@ -4803,7 +4009,7 @@ author: 'Made by Minty Crisp!',
 		autoScriptEmoticon();
 		ham.GetEl().addEventListener('click', openCloseMenu);
 	}
-
+	//Despawn & Stop Ham
 	const DespawnHam = () => {
 		clearInterval(speechTimeoutB);
 		clearInterval(speechIntervalB);
@@ -4814,17 +4020,16 @@ author: 'Made by Minty Crisp!',
 		ham.systemOpen = false;
 		RemoveFromTracker(ham.id);
 	}
-
+	//Display Inventory Screen attached to Ham
 	const ShowInventory = () => {
 		auxl.inventoryScreen.SpawnCore(ham.GetEl(), false, true);
 		auxl.player.UpdateInventoryScreen();
 	}
-
+	//Remove Inventory Screen
 	const HideInventory = () => {
 		auxl.inventoryScreen.DespawnCore(ham.GetEl(), false, true);
 	}
-
-
+	//Toggle Ham Menu
 	const openCloseMenu = () => {
 		if(ham.systemOpen){
 			closeSystemMenu();
@@ -4832,21 +4037,22 @@ author: 'Made by Minty Crisp!',
 			closeTravelSettingsMenu()
 			systemSpawnMenu();
 		} else if(ham.sceneSettingsOpen){
-
+			//Incomplete
 		} else {
 			systemSpawnMenu();
 		}
 	}
-
+	//Close Any Opened Ham Menu
 	const closeAll = () => {
 		if(ham.systemOpen){
 			closeSystemMenu();
 		} else if(ham.travelSettingsOpen){
 			closeTravelSettingsMenu()
 		} else if(ham.sceneSettingsOpen){
+			//Incomplete
 		}
 	}
-
+	//Spawn Ham System Menu
 	const systemSpawnMenu = () => {
 		ham.systemOpen = true;
 		ham.GetEl().classList.toggle('clickable');
@@ -4862,10 +4068,8 @@ author: 'Made by Minty Crisp!',
 			method: 'SystemMenuClick',
 			pos: new THREE.Vector3(ham.pos.x+1,1.5,ham.pos.z-1),
 		}
-
 		let currNum = 0;
 		for(let options in systemMenuButtons){
-			//console.log(options);
 			ham.systemMenuData.options['option'+currNum] = systemMenuButtons[options];
 			ham.systemMenuData.actions['action'+currNum] = options;
 			currNum++;
@@ -4874,39 +4078,28 @@ author: 'Made by Minty Crisp!',
 		ham.systemMenu.SpawnMenu();
 		ham.systemMenu.AddToParentSpawnTracker(ham.systemMenu, ham);
 		ham.GetEl().classList.toggle('clickable');
-		//ham.systemMenu.menu.layer.AnimateParent(auxl.animClickData);
 	}
-
+	//Despawn Ham System Menu
 	const closeSystemMenu = () => {
 		ham.systemOpen = false;
 		ham.systemMenu.DespawnMenu();
 		ham.systemMenu.RemoveMenuFromSceneTracker();
 	}
-
+	//Ham System Menu Click
 	const SystemMenuClick = (el) => {
 		let result = el.getAttribute('result');
-		//console.log(result);//connect0
-		//toggle clickable class
-		//ham.systemMenu
 		ham.systemMenu.ToggleOptionClicking();
-		//Timeout
-		let timeout = setTimeout(function () {
+		systemMenuTimeout = setTimeout(function () {
 			if(result === 'travelSettings'){
-				travelSettings();
+				travelSettingsSpawnMenu();
 			} else if(result === 'sceneSettings'){
-				sceneSettings();
+				//Incomplete
 			}
-			//Removing this menu breaks the mapZone travel menu
 			closeSystemMenu();
-			clearTimeout(timeout);
+			clearTimeout(systemMenuTimeout);
 		}, 250);
 	}
-
-	const travelSettings = () => {
-		//console.log('Travel Settings');
-		travelSettingsSpawnMenu();
-	}
-
+	//Open Travel Menu
 	const travelSettingsSpawnMenu = () => {
 		ham.travelSettingsOpen = true;
 		ham.pos = auxl.playerRig.GetEl().getAttribute('position');
@@ -4921,10 +4114,8 @@ author: 'Made by Minty Crisp!',
 			method: 'TravelSettingsMenuClick',
 			pos: new THREE.Vector3(ham.pos.x+1,1.5,ham.pos.z-1),
 		}
-
 		let currNum = 0;
 		for(let options in travelSettingsButtons){
-			//console.log(options);
 			ham.travelSettingsMenuData.options['option'+currNum] = travelSettingsButtons[options];
 			ham.travelSettingsMenuData.actions['action'+currNum] = options;
 			currNum++;
@@ -4932,71 +4123,34 @@ author: 'Made by Minty Crisp!',
 		ham.travelSettingsMenu = auxl.Menu(ham.travelSettingsMenuData);
 		ham.travelSettingsMenu.SpawnMenu();
 		ham.systemMenu.AddToParentSpawnTracker(ham.travelSettingsMenu, ham);
-
 	}
-
+	//Close Travel Menu
 	const closeTravelSettingsMenu = () => {
 		ham.travelSettingsOpen = false;
 		ham.travelSettingsMenu.DespawnMenu();
 		ham.travelSettingsMenu.RemoveMenuFromSceneTracker();
 	}
-
+	//Handle Travel Menu Click
 	const TravelSettingsMenuClick = (el) => {
 		let result = el.getAttribute('result');
-		//console.log(result);
-		//Display confirmation window on selection
-		//Add animation feedback on click of button
-		//instant
-		//fade
-		//sphere
-		//blink
 		ham.travelSettingsMenu.ToggleOptionClicking();
 		auxl.player.layer.transition = result;
-		//Timeout
-		let timeout = setTimeout(function () {
+		travelMenuTimeout = setTimeout(function () {
 			closeTravelSettingsMenu();
-			clearTimeout(timeout);
+			clearTimeout(travelMenuTimeout);
 		}, 250);
 	}
 
-	const sceneSettings = () => {
-		//console.log('Scene Settings');
-	}
-
-return{ham, SpawnHam, DespawnHam, SystemMenuClick, TravelSettingsMenuClick};
+	return{ham, SpawnHam, DespawnHam, SystemMenuClick, TravelSettingsMenuClick};
 }
 
 //
-//Single Objs Gen Ring Spawn
+//Ring of Objects
+//Randomize Set of Objects from Single in a Ring Radius
 this.ObjsGenRing = (data) => {
 	let singleGen = Object.assign({}, data);
 	let ogData = Object.assign({}, data.objData);
 	let objData = JSON.parse(JSON.stringify(data.objData));
-
-//scenario
-//zone
-//node
-//let spawnSection;
-
-	//gen.id
-	//gen.objData
-	//gen.total
-	//gen.outerRingRadius
-	//gen.innerRingRadius
-	//gen.sameTypeRadius
-	//gen.otherTypeRadius
-	//gen.ranYPos
-	//gen.yPosFlex
-	//gen.ranScaleX
-	//gen.ranScaleY
-	//gen.ranScaleZ
-	//gen.scaleFlex
-	//gen.ranRotX
-	//gen.ranRotY
-	//gen.ranRotZ
-	//gen.ranColor
-	//gen.ranTexture
-
 	singleGen.all = [];
 	let posX;
 	let posY;
@@ -5014,18 +4168,16 @@ this.ObjsGenRing = (data) => {
 	function distance(x1, z1, x2, z2) {
 		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(z2 - z1, 2) * 1.0);
 	}
-
+	//Return a random position within Ring radius
 	function randomPosition(radius, yPos){
 		posX = Math.random() * (radius*2) - radius;
 		posZ = Math.random() * (radius*2) - radius;
 		return new THREE.Vector3(posX, yPos, posZ);
 	}
-
+	//Generate Randomized Cores
 	const genCores = () => {
-
 		for(let a = 0; a < singleGen.total; a++){
 			objData.id = ogData.id + a;
-
 			//Color
 			if(singleGen.ranColor){
 				color = auxl.colorTheoryGen().base;
@@ -5052,7 +4204,6 @@ this.ObjsGenRing = (data) => {
 				rotZ += Math.random() * 360;
 			}
 			objData.rotation = new THREE.Vector3(rotX, rotY, rotZ);
-
 			//Scale
 			scaleX = singleGen.objData.scale.x;
 			scaleY = singleGen.objData.scale.y;
@@ -5067,18 +4218,14 @@ this.ObjsGenRing = (data) => {
 				scaleZ += Math.random() * singleGen.scaleFlex;
 			}
 			objData.scale = new THREE.Vector3(scaleX, scaleY, scaleZ);
-
-			//Scale adjustment needs affect gen.sameTypeRadius
-			//Need to spawn equal amount in each quadrant?
+			//Scale affects position
 			posY = singleGen.objData.position.y;
 			if(singleGen.ranYPos){
 				posY += Math.random() * singleGen.yPosFlex;
 			}
-
 			//Position
 			positionVec3 = randomPosition(singleGen.outerRingRadius, posY);
 			objData.position = positionVec3;
-
 			//Max attempts to check for avoiding collision
 			let checking = 42;
 			checkAllData: while (checking > 0) {
@@ -5103,20 +4250,18 @@ this.ObjsGenRing = (data) => {
 				}
 				break;
 			}
-
 			//Add randomized Core to All
 			singleGen.all.push(auxl.Core(objData));
 		}
-
 	}
-
+	//Spawn all Randomized Cores
 	const SpawnObjRing = () => {
 		genCores();
 		for(let a = 0; a < singleGen.total; a++){
 			singleGen.all[a].SpawnCore(false, false, true);
 		}
 	}
-
+	//Despawn all Randomized Cores
 	const DespawnObjRing = () => {
 		for(let a = 0; a < singleGen.total; a++){
 			singleGen.all[a].DespawnCore(false, false, true);
@@ -5129,18 +4274,10 @@ this.ObjsGenRing = (data) => {
 
 //
 //Multi Asset Generator
+//Randomize Sets of Various Sized Objects in various Ring Radius'
 this.MultiAssetGen = (multiGenData) =>{
-	//let ogData = Object.assign({}, data.objData);
-	//let objData = JSON.parse(JSON.stringify(data.objData));
-	//multiGenData.data
-	//multiGenData.id
 //Add the ability to read an array of different objects for same size
 //Need to better optimize each size's radius
-	//multiGenData.tiny
-	//multiGenData.small
-	//multiGenData.med
-	//multiGenData.large
-	//multiGenData.huge
 	let multiGen = Object.assign({}, multiGenData);
 	multiGen.assets = {}
 	multiGen.assets.tiny = [];
@@ -5156,21 +4293,7 @@ this.MultiAssetGen = (multiGenData) =>{
 	multiGen.ring3 = [];
 	multiGen.ring4 = [];
 	multiGen.ring5 = [];
-	/*
-	multiGen.ring = {
-		i0:0.25,
-		o0:4,
-		i1:1,
-		o1:8,
-		i2:2,
-		o2:16,
-		i3:4,
-		o3:32,
-		i4:8,
-		o4:64,
-		i5:16,
-		o5:128,
-	};*/
+	//Multi Ring Inner/Outer Radius'
 	multiGen.ring = {
 		i0:0.5,
 		o0:4,
@@ -5185,381 +4308,230 @@ this.MultiAssetGen = (multiGenData) =>{
 		i5:18,
 		o5:150,
 	};
-	//multiGen.size.data
-	//multiGen.size.id
-	//multiGen.size.type
-	//multiGen.size.radius
-	//multiGen.size.min
-	//multiGen.size.max
-	//multiGen.size.rings
-	//multiGen.size.objs
-	//multiGen.size.ranYPos
-	//multiGen.size.yPosFlex
-	//multiGen.size.ranScaleX
-	//multiGen.size.ranScaleY
-	//multiGen.size.ranScaleZ
-	//multiGen.size.scaleFlex
-	//multiGen.size.ranRotX
-	//multiGen.size.ranRotY
-	//multiGen.size.ranRotZ
-	//multiGen.size.ranColor
-	//multiGen.size.ranTexture
-	//multiGen.size.ranAnim
-//Ring 0 : 0-2 Radius - user spawn area - tiny/small
-//Ring 1 : 2-4 Radius - immeadiately surrounding the spawn area - tiny/small/med
-//Ring 2 : 4-8 Radius - a bit farther from spawn area - small/med/large
-//Ring 3 : 8-12 Radius - medium distance from spawn - med/large
-//Ring 4 : 12-20 Radius - far distance from spawn - large/huge
-//Ring 5 : 20-40 Radius - super far distance from spawn - huge
-//As grid creation creates a rectangle, could delete everything beyond 5
+	//Ring 0 - user spawn area - tiny/small
+	//Ring 1 - immeadiately surrounding the spawn area - tiny/small/med
+	//Ring 2 - a bit farther from spawn area - small/med/large
+	//Ring 3 - medium distance from spawn - med/large
+	//Ring 4 - far distance from spawn - large/huge
+	//Ring 5 - super far distance from spawn - huge
 
-//Object Size Radius (meters)
-//tiny - 0.1
-//small - 0.25
-//med - 1
-//large - 2
-//huge - 3
+	//On every loop through the grid creator, it will always use the center to spawn one, allow that one a parent, but do not use it for a spawning location
 
-//On every loop through the grid creator, it will always use the center to spawn one, allow that one a parent, but do not use it for a spawning location
+	//Start with 1 mega mutating grid and add each size's recently added only on grid during generation
 
-//Start with 1 mega mutating grid and add each size's recently added only on grid during generation
-//Huge object grid spawn
-//Import generated grid and spawn Large
-//Import mutated grid and spawn Med
-//Import mutated grid and spawn Small
-//Import mutated grid and spawn Tiny
-//console.log(multiGen.ring);
-//Generate Distribution Points at Ring Radius'
-let ring5 = [];
-let ring4 = [];
-let ring3 = [];
-let ring2 = [];
-let ring1 = [];
-let ring0 = [];
-let gridRing5 = discSampling('ring5',multiGen.ring.o5,multiGen.ring.i5);
-//console.log(gridRing5);
-
-let gridRing4 = discSampling('ring4',multiGen.ring.o4,multiGen.ring.i4,gridRing5);
-//console.log(gridRing4);
-
-let gridRing3 = discSampling('ring3',multiGen.ring.o3,multiGen.ring.i3,gridRing4);
-//console.log(gridRing3);
-
-let gridRing2 = discSampling('ring2',multiGen.ring.o2,multiGen.ring.i2,gridRing3);
-//console.log(gridRing2);
-
-let gridRing1 = discSampling('ring1',multiGen.ring.o1,multiGen.ring.i1,gridRing2);
-//console.log(gridRing1);
-
-let gridRing0 = discSampling('ring0',multiGen.ring.o0,multiGen.ring.i0,gridRing1);
-//console.log(gridRing0);
-//console.log(gridRing0.length);
-let ring5Current = 0;
-let ring4Current = 0;
-let ring3Current = 0;
-let ring2Current = 0;
-let ring1Current = 0;
-let ring0Current = 0;
-
-
-//And check each for how close to center they are, if too close, remove
-//Instead of offsetting here, which pushes all smaller ones super negative, offset them forward in the gridGeneration stage
-
-//Offset all to center and remove center
-for(let pos in ring5){
-	ring5[pos][0] -= multiGen.ring.o5/2;
-	ring5[pos][1] -= multiGen.ring.o5/2;
-	if(ring5[pos][0] === 0 && ring5[pos][1] === 0){
-		ring5[pos][0] = ring5[pos][1] = multiGen.ring.o5/2;
-	}
-}
-for(let pos in ring4){
-	ring4[pos][0] -= multiGen.ring.o4/2;
-	ring4[pos][1] -= multiGen.ring.o4/2;
-	if(ring4[pos][0] === 0 && ring4[pos][1] === 0){
-		ring4[pos][0] = ring4[pos][1] = multiGen.ring.o4/2;
-	}
-}
-for(let pos in ring3){
-	ring3[pos][0] -= multiGen.ring.o3/2;
-	ring3[pos][1] -= multiGen.ring.o3/2;
-	if(ring3[pos][0] === 0 && ring3[pos][1] === 0){
-		ring3[pos][0] = ring3[pos][1] = multiGen.ring.o3/2;
-	}
-}
-for(let pos in ring2){
-	ring2[pos][0] -= multiGen.ring.o2/2;
-	ring2[pos][1] -= multiGen.ring.o2/2;
-	if(ring2[pos][0] === 0 && ring2[pos][1] === 0){
-		ring2[pos][0] = ring2[pos][1] = multiGen.ring.o2/2;
-	}
-}
-for(let pos in ring1){
-	ring1[pos][0] -= multiGen.ring.o1/2;
-	ring1[pos][1] -= multiGen.ring.o1/2;
-	if(ring1[pos][0] === 0 && ring1[pos][1] === 0){
-		ring1[pos][0] = ring1[pos][1] = multiGen.ring.o1/2;
-	}
-}
-for(let pos in ring0){
-	ring0[pos][0] -= multiGen.ring.o0/2;
-	ring0[pos][1] -= multiGen.ring.o0/2;
-	if(ring0[pos][0] === 0 && ring0[pos][1] === 0){
-		ring0[pos][0] = ring0[pos][1] = multiGen.ring.o0/2;
-	}
-}
-
-//Shuffle Array
-function shuffle(array) {
-	array.sort(() => Math.random() - 0.5);
-}
-
-//Shuffle Each Array for better randomness
-shuffle(ring5);
-shuffle(ring4);
-shuffle(ring3);
-shuffle(ring2);
-shuffle(ring1);
-shuffle(ring0);
-//console.log(ring5);
-//console.log(ring4);
-//console.log(ring3);
-//console.log(ring2);
-//console.log(ring1);
-//console.log(ring0);
-
-//
-//Disc Sampling
-function discSampling(ring, area, space, currentGrid){
-//Generates grid starting from 0,0 in the + direction
-//Could adjust to use - as well or just spawn and shift the entire spawned set based on provided grid. i.e. 10x10 grid, move everything -5,-5
-//But need a center radius to be clear which would be within 5,5 here. Could create a sample automatically which is always blank which would be the very first sample always!
-
-//Need different radius for different objects and all checked
-
-//Generates grid starting from 0,0 in the + direction
-//Could adjust to use - as well or just spawn and shift the entire spawned set based on provided grid. i.e. 10x10 grid, move everything -5,-5
-//But need a center radius to be clear which would be within 5,5 here. Could create a sample automatically which is always blank which would be the very first sample always!
-//console.log(ring);
-//Need different radius for different objects and all checked
-let grid;
-let center;
-if(currentGrid){
-	center = currentGrid.center;
-} else {
-	center = false;
-}
-function* poissonDiscSampler(width, height, radius, center){
-	//const k = 4; // maximum number of samples before rejection
-	const k = 15// maximum number of samples before rejection
-	const radius2 = radius * radius;
-	//radius is of the generated area
-	//radius2 is the minimum distance allowed between spawns
-	const cellSize = radius * Math.SQRT1_2;
-	//Math.SQRT1_2 is a constant square root of 0.5 which is ~0.707
-	const gridWidth = Math.ceil(width / cellSize);
-	const gridHeight = Math.ceil(height / cellSize);
-	//const grid = new Array(gridWidth * gridHeight);
-	//const queue = [];
-	let queue = [];
-	grid = new Array(gridWidth * gridHeight);
-	if(currentGrid){
-		for(let each in currentGrid){
-			grid[each] = currentGrid[each];
-			queue[each] = currentGrid[each];
+	//Generate Distribution Points at Ring Radius'
+	let ring5 = [];
+	let ring4 = [];
+	let ring3 = [];
+	let ring2 = [];
+	let ring1 = [];
+	let ring0 = [];
+	let gridRing5 = discSampling('ring5',multiGen.ring.o5,multiGen.ring.i5);
+	let gridRing4 = discSampling('ring4',multiGen.ring.o4,multiGen.ring.i4,gridRing5);
+	let gridRing3 = discSampling('ring3',multiGen.ring.o3,multiGen.ring.i3,gridRing4);
+	let gridRing2 = discSampling('ring2',multiGen.ring.o2,multiGen.ring.i2,gridRing3);
+	let gridRing1 = discSampling('ring1',multiGen.ring.o1,multiGen.ring.i1,gridRing2);
+	let gridRing0 = discSampling('ring0',multiGen.ring.o0,multiGen.ring.i0,gridRing1);
+	let ring5Current = 0;
+	let ring4Current = 0;
+	let ring3Current = 0;
+	let ring2Current = 0;
+	let ring1Current = 0;
+	let ring0Current = 0;
+	//Offset all to center and remove center
+	for(let pos in ring5){
+		ring5[pos][0] -= multiGen.ring.o5/2;
+		ring5[pos][1] -= multiGen.ring.o5/2;
+		if(ring5[pos][0] === 0 && ring5[pos][1] === 0){
+			ring5[pos][0] = ring5[pos][1] = multiGen.ring.o5/2;
 		}
-		//console.log(currentGrid);
-		//console.log(grid);
 	}
-	//
-	if(center){
-		yield {add: sample(center, center, null)};
-	} else {
-		yield {add: sample(width / 2 , height / 2, null)};
-	}
-
-
-	//console.log(k);//4
-	//console.log(radius2);//4
-	//console.log(cellSize);//1.4
-	//console.log(gridWidth);//8
-	//console.log(gridHeight);//8
-	//console.log(grid);//64slots = 8x8 grid
-	//console.log(queue);
-	//
-	//Instead of letting it go to what it thinks is center, offset the starting position be center of the very first one
-	//
-	// Pick the first sample at center of width/height grid
-	//console.log('Picking 1st Sample');
-
-
-	// Pick a random existing sample from the queue.
-	pick: while (queue.length) {
-		//console.log('Picking...');
-		//const i = Math.random() * queue.length | 0;
-		const i = Math.trunc(Math.random() * queue.length);
-		const parent = queue[i];
-		const seed = Math.random();
-		const epsilon = 0.0000001;
-		//console.log(i);
-		//console.log(parent);
-		//console.log(seed);
-		//console.log(epsilon);
-
-		// Make a new candidate.
-		//console.log('Make New Candidate');
-		for (let j = 0; j < k; ++j) {
-			const a = 2 * Math.PI * (seed + 1.0*j/k);
-			//Depending on the amount of tries allowed
-			//start from 0degrees and move radius to check
-			//as the loop continues/fails, keep moving counter-clockwise in equal parts depending on the current attempt number out of max
-			//checking each new direction if that space is available
-			const r = radius + epsilon;
-			const x = parent[0] + r * Math.cos(a);
-			const y = parent[1] + r * Math.sin(a);
-			//console.log('Candidate Loop...');
-			//console.log(a);
-			//console.log(r);
-			//console.log(x);
-			//console.log(y);
-
-			// Accept candidates that are inside the allowed extent
-			// and farther than 2 * radius to all existing samples.
-			//area o0 4
-			//space i0 0.5
-			if (space <= x && x < area && space <= y && y < area && far(x, y)) {
-				//console.log('Candidate Accepted');
-				yield {add: sample(x, y), parent};
-				//console.log('Pick Again');
-				continue pick;
-			}
-			//console.log('Candidate Rejected');
+	for(let pos in ring4){
+		ring4[pos][0] -= multiGen.ring.o4/2;
+		ring4[pos][1] -= multiGen.ring.o4/2;
+		if(ring4[pos][0] === 0 && ring4[pos][1] === 0){
+			ring4[pos][0] = ring4[pos][1] = multiGen.ring.o4/2;
 		}
-
-		// If none of k candidates were accepted, remove it from the queue.
-		//console.log('Max Attempts Hit. Clear Parent');
-		const r = queue.pop();
-		if (i < queue.length) queue[i] = r;
-			yield {remove: parent};
 	}
+	for(let pos in ring3){
+		ring3[pos][0] -= multiGen.ring.o3/2;
+		ring3[pos][1] -= multiGen.ring.o3/2;
+		if(ring3[pos][0] === 0 && ring3[pos][1] === 0){
+			ring3[pos][0] = ring3[pos][1] = multiGen.ring.o3/2;
+		}
+	}
+	for(let pos in ring2){
+		ring2[pos][0] -= multiGen.ring.o2/2;
+		ring2[pos][1] -= multiGen.ring.o2/2;
+		if(ring2[pos][0] === 0 && ring2[pos][1] === 0){
+			ring2[pos][0] = ring2[pos][1] = multiGen.ring.o2/2;
+		}
+	}
+	for(let pos in ring1){
+		ring1[pos][0] -= multiGen.ring.o1/2;
+		ring1[pos][1] -= multiGen.ring.o1/2;
+		if(ring1[pos][0] === 0 && ring1[pos][1] === 0){
+			ring1[pos][0] = ring1[pos][1] = multiGen.ring.o1/2;
+		}
+	}
+	for(let pos in ring0){
+		ring0[pos][0] -= multiGen.ring.o0/2;
+		ring0[pos][1] -= multiGen.ring.o0/2;
+		if(ring0[pos][0] === 0 && ring0[pos][1] === 0){
+			ring0[pos][0] = ring0[pos][1] = multiGen.ring.o0/2;
+		}
+	}
+	//Shuffle Each Array for better randomness
+	function shuffle(array) {
+		array.sort(() => Math.random() - 0.5);
+	}
+	shuffle(ring5);
+	shuffle(ring4);
+	shuffle(ring3);
+	shuffle(ring2);
+	shuffle(ring1);
+	shuffle(ring0);
 
-	function far(x, y) {
-		//const i = x / cellSize | 0;
-		const i = Math.trunc(x / cellSize);
-		//const j = y / cellSize | 0;
-		const j = Math.trunc(y / cellSize);
-		// | is bitwise OR operator
-		//returns a 1 in each bit position for which the corresponding bits of either or both operands are 1s. 
-		//const a = 5;        // 00000000000000000000000000000101
-		//const b = 3;        // 00000000000000000000000000000011
-		//console.log(a | b); // 00000000000000000000000000000111
-		// Expected output: 7
-		//Bitwise ORing any number x with 0 returns x converted to a 32-bit integer. Do not use | 0 to truncate numbers to integers; use Math.trunc() instead.
-		const i0 = Math.max(i - 2, 0);
-		const j0 = Math.max(j - 2, 0);
-		const i1 = Math.min(i + 3, gridWidth);
-		const j1 = Math.min(j + 3, gridHeight);
-		//Only check surrounding squares of a 2x2 grid from candidate xy center
-
-		//console.log('Checking Distance');
-		//console.log(i);
-		//console.log(j);
-		//console.log(i0);
-		//console.log(j0);
-		//console.log(i1);
-		//console.log(j1);
-
-		//Loop through grid
-		for (let j = j0; j < j1; ++j) {
-			const o = j * gridWidth;
-			for (let i = i0; i < i1; ++i) {
-				const s = grid[o + i];
-				//only does a check if something on the grid in that position exists
-				if (s) {
-					//get the difference in grid stored xy with the imported
-					const dx = s[0] - x;
-					const dy = s[1] - y;
-					//pythagorean check for distance. Needs to be at least 2xRadius away from current check point
-					if (dx * dx + dy * dy < radius2) return false;
+	//Disc Sampling Support Function
+	function discSampling(ring, area, space, currentGrid){
+		//Generates grid starting from 0,0 in the + direction
+		let grid;
+		let center;
+		if(currentGrid){
+			center = currentGrid.center;
+		} else {
+			center = false;
+		}
+		function* poissonDiscSampler(width, height, radius, center){
+			//radius is of the generated area
+			//k is maximum number of samples before rejection
+			const k = 15
+			//radius2 is the minimum distance allowed between spawns
+			const radius2 = radius * radius;
+			//Math.SQRT1_2 is a constant square root of 0.5 which is ~0.707
+			const cellSize = radius * Math.SQRT1_2;
+			//Grid
+			const gridWidth = Math.ceil(width / cellSize);
+			const gridHeight = Math.ceil(height / cellSize);
+			let queue = [];
+			grid = new Array(gridWidth * gridHeight);
+			if(currentGrid){
+				for(let each in currentGrid){
+					grid[each] = currentGrid[each];
+					queue[each] = currentGrid[each];
 				}
 			}
+			//Ignore center object
+			if(center){
+				yield {add: sample(center, center, null)};
+			} else {
+				yield {add: sample(width / 2 , height / 2, null)};
+			}
+			// Pick a random existing sample from the queue.
+			pick: while (queue.length) {
+				const i = Math.trunc(Math.random() * queue.length);
+				const parent = queue[i];
+				const seed = Math.random();
+				const epsilon = 0.0000001;
+				// Make a new candidate.
+				for (let j = 0; j < k; ++j) {
+					const a = 2 * Math.PI * (seed + 1.0*j/k);
+					//Depending on the amount of tries allowed
+					//start from 0degrees and move radius to check
+					//as the loop continues/fails, keep moving counter-clockwise in equal parts depending on the current attempt number out of max
+					//checking each new direction if that space is available
+					const r = radius + epsilon;
+					const x = parent[0] + r * Math.cos(a);
+					const y = parent[1] + r * Math.sin(a);
+					//Accept candidates that are inside the allowed extent and farther than 2 * radius to all existing samples.
+					//area o0 4 aka outer radiues
+					//space i0 0.5 aka inner radius
+					if (space <= x && x < area && space <= y && y < area && far(x, y)) {
+						//Accepted
+						yield {add: sample(x, y), parent};
+						//Try Again
+						continue pick;
+					}
+				}
+				//Rejected, remove from Queue
+				const r = queue.pop();
+				if (i < queue.length) queue[i] = r;
+					yield {remove: parent};
+			}
+
+			function far(x, y) {
+				const i = Math.trunc(x / cellSize);
+				const j = Math.trunc(y / cellSize);
+				const i0 = Math.max(i - 2, 0);
+				const j0 = Math.max(j - 2, 0);
+				const i1 = Math.min(i + 3, gridWidth);
+				const j1 = Math.min(j + 3, gridHeight);
+				//Only check surrounding squares of a 2x2 grid from candidate xy center
+				//Loop through grid
+				for (let j = j0; j < j1; ++j) {
+					const o = j * gridWidth;
+					for (let i = i0; i < i1; ++i) {
+						const s = grid[o + i];
+						//only does a check if something on the grid in that position exists
+						if (s) {
+							//get the difference in grid stored xy with the imported
+							const dx = s[0] - x;
+							const dy = s[1] - y;
+							//pythagorean check for distance. Needs to be at least 2xRadius away from current check point
+							if (dx * dx + dy * dy < radius2) return false;
+						}
+					}
+				}
+				return true;
+			}
+			//Accepted Sample, Add to Ring
+			function sample(x, y, parent) {
+				const s = grid[gridWidth * (Math.trunc(y / cellSize)) + (Math.trunc(x / cellSize))] = [x, y];
+				queue.push(s);
+				if(ring === 'ring5'){
+					ring5.push(s);
+				} else if(ring === 'ring4'){
+					ring4.push(s);
+				} else if(ring === 'ring3'){
+					ring3.push(s);
+				} else if(ring === 'ring2'){
+					ring2.push(s);
+				} else if(ring === 'ring1'){
+					ring1.push(s);
+				} else if(ring === 'ring0'){
+					ring0.push(s);
+				}
+				return s;
+			}
 		}
-		return true;
-	}
-
-	//Sample
-	function sample(x, y, parent) {
-		//const s = grid[gridWidth * (y / cellSize | 0) + (x / cellSize | 0)] = [x, y];
-		const s = grid[gridWidth * (Math.trunc(y / cellSize)) + (Math.trunc(x / cellSize))] = [x, y];
-		queue.push(s);
-		//console.log('Sample Added!');
-		//console.log(s);
-		//console.log(queue);
-		if(ring === 'ring5'){
-			ring5.push(s);
-			//console.log(ring5)
-		} else if(ring === 'ring4'){
-			ring4.push(s);
-		} else if(ring === 'ring3'){
-			ring3.push(s);
-		} else if(ring === 'ring2'){
-			ring2.push(s);
-		} else if(ring === 'ring1'){
-			ring1.push(s);
-		} else if(ring === 'ring0'){
-			ring0.push(s);
+		//Init Disc Sampling of Grid
+		let gridSample = poissonDiscSampler(area,area,space,center);
+		//Continue Disc Sampling
+		function next(){
+			gridSample.done = gridSample.next().done;
+			if(gridSample.done){} else {
+				next();
+			}
 		}
-		return s;
-	}
-
-}
-
-	let gridSample = poissonDiscSampler(area,area,space,center);
-
-	function next(){
-		//next yielded spot and update done var
-		gridSample.done = gridSample.next().done;
-		if(gridSample.done){
-			//console.log('All Done!');
-			//console.log(grid)
-			//console.log(grid.length)
-		} else {
-			//console.log('Running...');
-			next();
+		//Start Disc Sampling of Grid
+		next();
+		//Prep Grid Array
+		let goodGrid = [];
+		for(let each in grid){
+			if(grid[each]){
+				goodGrid.push(grid[each]);
+			}
 		}
+		return goodGrid;
 	}
-	next();
-	let goodGrid = [];
-	for(let each in grid){
-		if(grid[each]){
-			goodGrid.push(grid[each]);
-		}
-	}
-
-	//console.log(goodGrid);
-	return goodGrid;
-}
-
+	//Generate Multi Objects Ring Cores w/ Randomization Support
 	const genCores = () => {
-
-		//loop through each size
+		//Each Size
 		for(let type in sizes){
-			//sizes[type]//tiny,small,med,large,huge
-			//let size = multiGen[sizes[type]];//multiGen.tiny object, multiGen.small object
 			let size = Object.assign({}, multiGen[sizes[type]]);
-			//console.log(size);
-			//Inside of single data object of a Size
-			//Tiny
-
-			//using max amount dived by amount of objs provided, loop through that many for each of those obj
-
-			//using obj data provided, randomize max amount of potential data objects to be spawned
-
-
-			//loop through each different object provided
+			//Each Object Data
 			for(let each in size.objs){
 				let ogData = Object.assign({}, size.objs[each]);
-				//console.log(ogData);
 				let objData = JSON.parse(JSON.stringify(size.objs[each]));
 				let posX;
 				let posY;
@@ -5572,22 +4544,20 @@ function* poissonDiscSampler(width, height, radius, center){
 				let rotY;
 				let rotZ;
 				let color;
-
 //instanced-mesh="positioning: local"
 //instanced-mesh-member="mesh:#instanceTest1"
-
-				//Loop through an even amount for each obj based on max
+				//Each Object
 				for(let a = 0; a < size.max/size.objs.length; a++){
 					objData.id = ogData.id + a;
-					/* Instanced Mesh struggles with GLTF layers
+/* Instanced Mesh struggles with GLTF layers
 <script src="https://cdn.jsdelivr.net/gh/diarmidmackenzie/instanced-mesh@v0.5.0/src/instanced-mesh.min.js"></script>
-					if(a === 0){
-						objData.components['instanced-mesh'] = {positioning: 'world'};
-					} else {
-						//Remove gltf component and add instanced mesh
-						delete objData.components['gltf-model'];
-						objData.components['instanced-mesh-member'] = {mesh: '#'+ogData.id+0};
-					}*/
+if(a === 0){
+	objData.components['instanced-mesh'] = {positioning: 'world'};
+} else {
+	//Remove gltf component and add instanced mesh
+	delete objData.components['gltf-model'];
+	objData.components['instanced-mesh-member'] = {mesh: '#'+ogData.id+0};
+}*/
 					//Color
 					if(size.ranColor){
 						color = auxl.colorTheoryGen().base;
@@ -5614,7 +4584,6 @@ function* poissonDiscSampler(width, height, radius, center){
 						rotZ += Math.random() * 360;
 					}
 					objData.rotation = new THREE.Vector3(rotX, rotY, rotZ);
-
 					//Scale
 					scaleX = ogData.scale.x;
 					scaleY = ogData.scale.y;
@@ -5629,20 +4598,18 @@ function* poissonDiscSampler(width, height, radius, center){
 						scaleZ += Math.random() * size.scaleFlex;
 					}
 					objData.scale = new THREE.Vector3(scaleX, scaleY, scaleZ);
-
 					//Position
 					posY = ogData.position.y;
 					if(size.ranYPos){
 						posY += Math.random() * size.yPosFlex;
 					}
+					//If ran out of predefined positions, choose random
 					if(size.rings === 0){
 						if(ring0Current < ring0.length){
 							posX = ring0[ring0Current][0];
 							posZ = ring0[ring0Current][1];
 							ring0Current++;
 						} else {
-							//Out of predefined positions, choose ran
-							//console.log('Out of Ring 0 Pos');
 							posX = (Math.random() * (multiGen.ring.o0*2) - multiGen.ring.o0) + multiGen.ring.i0;
 							posZ = (Math.random() * (multiGen.ring.o0*2) - multiGen.ring.o0) + multiGen.ring.i0;
 						}
@@ -5652,8 +4619,6 @@ function* poissonDiscSampler(width, height, radius, center){
 							posZ = ring1[ring1Current][1];
 							ring1Current++;
 						} else {
-							//Out of predefined positions, choose ran
-							//console.log('Out of Ring 1 Pos');
 							posX = (Math.random() * (multiGen.ring.o1*2) - multiGen.ring.o1) + multiGen.ring.i1;
 							posZ = (Math.random() * (multiGen.ring.o1*2) - multiGen.ring.o1) + multiGen.ring.i1;
 						}
@@ -5663,8 +4628,6 @@ function* poissonDiscSampler(width, height, radius, center){
 							posZ = ring2[ring2Current][1];
 							ring2Current++;
 						} else {
-							//Out of predefined positions, choose ran
-							//console.log('Out of Ring 2 Pos');
 							posX = (Math.random() * (multiGen.ring.o2*2) - multiGen.ring.o2) + multiGen.ring.i2;
 							posZ = (Math.random() * (multiGen.ring.o2*2) - multiGen.ring.o2) + multiGen.ring.i2;
 						}
@@ -5674,8 +4637,6 @@ function* poissonDiscSampler(width, height, radius, center){
 							posZ = ring3[ring3Current][1];
 							ring3Current++;
 						} else {
-							//Out of predefined positions, choose ran
-							//console.log('Out of Ring 3 Pos');
 							posX = (Math.random() * (multiGen.ring.o3*2) - multiGen.ring.o3) + multiGen.ring.i3;
 							posZ = (Math.random() * (multiGen.ring.o3*2) - multiGen.ring.o3) + multiGen.ring.i3;
 						}
@@ -5685,8 +4646,6 @@ function* poissonDiscSampler(width, height, radius, center){
 							posZ = ring4[ring4Current][1];
 							ring4Current++;
 						} else {
-							//Out of predefined positions, choose ran
-							//console.log('Out of Ring 4 Pos');
 							posX = (Math.random() * (multiGen.ring.o4*2) - multiGen.ring.o4) + multiGen.ring.i4;
 							posZ = (Math.random() * (multiGen.ring.o4*2) - multiGen.ring.o4) + multiGen.ring.i4;
 						}
@@ -5696,45 +4655,31 @@ function* poissonDiscSampler(width, height, radius, center){
 							posZ = ring5[ring5Current][1];
 							ring5Current++;
 						} else {
-							//Out of predefined positions, choose ran
-							//console.log('Out of Ring 5 Pos');
 							posX = (Math.random() * (multiGen.ring.o5*2) - multiGen.ring.o5) + multiGen.ring.i5;
 							posZ = (Math.random() * (multiGen.ring.o5*2) - multiGen.ring.o5) + multiGen.ring.i5;
 						}
 					} 
-
-
-
 					objData.position = new THREE.Vector3(posX, posY, posZ);
-					//console.log(objData.position);
 					//Add randomized Core to All
 					multiGen.assets[sizes[type]].push(auxl.Core(objData));
 				}
-
 			}
 		}
 	}
 	genCores();
+	//Spawn All Assets
 	const SpawnMultiAsset = () => {
-		//console.log(multiGen.assets)
-		//loop throusgh each size
 		for(let type in sizes){
-			//sizes[type]//tiny,small,med,large,huge
-			//let size = multiGen[sizes[type]];//multiGen.tiny object, multiGen.small object
 			let size = multiGen.assets[sizes[type]];
-			//console.log(size);
 			for(let each in size){
 				size[each].SpawnCore(false, false, true);
 			}
 		}
 	}
-
+	//Despawn All Assets
 	const DespawnMultiAsset = () => {
 		for(let type in sizes){
-			//sizes[type]//tiny,small,med,large,huge
-			//let size = multiGen[sizes[type]];//multiGen.tiny object, multiGen.small object
 			let size = multiGen.assets[sizes[type]];
-			//console.log(size);
 			for(let each in size){
 				size[each].DespawnCore(false, false, true);
 			}
@@ -5748,8 +4693,9 @@ function* poissonDiscSampler(width, height, radius, center){
 
 //
 //Teleport
+//Generate Teleport Points at Array of Locations
 this.Teleport = (id, locations) => {
-
+//Allow to select mutli-interactino circle, light beam and more.
 	let teleport = {};
 	teleport.id = id;
 	teleport.all = [];
@@ -5763,9 +4709,7 @@ this.Teleport = (id, locations) => {
 	let teleportChild1Id = '';
 	let spotColor;
 
-	//ToDo
-	//Add an additional style, a light beam cylinder
-
+	//Build Teleport Multi-Interaction Layer
 	for(let spot in locations){
 		spotColor = auxl.colorTheoryGen().base;
 		teleportParentId = 'teleport' + spot + 'Parent';
@@ -5789,13 +4733,13 @@ this.Teleport = (id, locations) => {
 		}
 		teleport.all[spot] = auxl.Layer('teleport'+spot, teleportLayerData);
 	}
-
+	//Spawn Teleports
 	const SpawnTeleport = () => {
 		for(let each in teleport.all){
 			teleport.all[each].SpawnLayer(true);
 		}
 	}
-
+	//Despawn Teleports
 	const DespawnTeleport = () => {
 		for(let each in teleport.all){
 			teleport.all[each].DespawnLayer(true);
@@ -5810,8 +4754,9 @@ this.Teleport = (id, locations) => {
 //
 //Memory Mini Game
 this.MemoryGame = (id, data) => {
-
-	//Game Objects
+//ToDo
+//Allow for importing of however many button objects to add complexity
+//Listen for first click to start the countdown timer based on how long current sequence is and a timer for in-between single clicks to timeout as well
 	let memory = {};
 	memory.id = id;
 	//Layered Object Generation
@@ -5865,18 +4810,19 @@ this.MemoryGame = (id, data) => {
 	let pauseClick = true;
 	let gameStarted = false;
 
+	//Add memoryClick() Listeners to all Memory Buttons
 	const AddSequenceListeners = () => {
 		for(let each in memoryCores){
 			memoryCores[each].GetEl().addEventListener('click', memoryClick);
 		}
 	}
-
+	//Remove memoryClick() Listeners from all Memory Buttons
 	const RemoveSequenceListeners = () => {
 		for(let each in memoryCores){
 			memoryCores[each].GetEl().removeEventListener('click', memoryClick);
 		}
 	}
-
+	//Spawn Memory Game
 	const SpawnMemGame = () => {
 		memory.layer.SpawnLayer(true);
 		memoryUI1.SpawnCore(false, false, true);
@@ -5884,7 +4830,7 @@ this.MemoryGame = (id, data) => {
 		AddSequenceListeners();
 		GameSpawnMenu();
 	}
-
+	//Despawn Memory Game
 	const DespawnMemGame = () => {
 		RemoveSequenceListeners();
 		memory.gameMenu.DespawnMenu()
@@ -5893,7 +4839,7 @@ this.MemoryGame = (id, data) => {
 		memoryUI2.DespawnCore(false, false, true);
 		RemoveFromTracker(memory.id);
 	}
-
+	//Start Memory Game
 	const StartGame = () => {
 		GenRanSequence();
 		gameStarted = true;
@@ -5901,22 +4847,21 @@ this.MemoryGame = (id, data) => {
 		memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
 		PlaySequence();
 	}
-
+	//Build Level Sequence
 	const GenRanSequence = () => {
 		for(let a = 0; a < sequenceChunk; a++){
 			allSequence.push(Math.floor(Math.random()*4))
 		}
-		console.log(allSequence);
+		//console.log(allSequence);
 	}
-
+	//Play Level Sequence
 	const PlaySequence = () => {
-		console.log('Playing Sequence');
+		//console.log('Playing Sequence');
 		pauseClick = true;
 		if(currMaxSequence >= allSequence.length){
 			GenRanSequence();
 		}
 		let current = 0;
-
 		playSequenceInterval = setInterval(function() {
 			memoryCores[allSequence[current]].EmitEvent('select');
 			current++;
@@ -5924,17 +4869,17 @@ this.MemoryGame = (id, data) => {
 				pauseClick = false;
 				clearInterval(playSequenceInterval);
 			}
-		}, 750); //Interval
+		}, 750);
 	}
-
+	//Check Level Sequence
 	const CheckSequence = () => {
-		console.log(allSequence);
-		console.log(playerSequence);
-		console.log(currInSequence);
-		console.log(playerSequence[currInSequence]);
-		console.log(allSequence[currInSequence]);
+		//console.log(allSequence);
+		//console.log(playerSequence);
+		//console.log(currInSequence);
+		//console.log(playerSequence[currInSequence]);
+		//console.log(allSequence[currInSequence]);
 		if(playerSequence[currInSequence] === allSequence[currInSequence]){
-			console.log('Match');
+			//console.log('Match');
 			currInSequence++;
 			//push selection to front of sequenceRef and remove the last item
 			sequenceTempArray.unshift('X');
@@ -5942,14 +4887,14 @@ this.MemoryGame = (id, data) => {
 			sequenceRef = sequenceTempArray.join("");
 			memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
 		} else {
-			console.log('Game Over');
+			//console.log('Game Over');
 			gameStarted = false;
 			if(currMaxSequence-1 > highScore){
 				highScore = currMaxSequence-1;
-				console.log('New High Score : ' + highScore);
+				//console.log('New High Score : ' + highScore);
 			} else {
 				//let currentScore = currMaxSequence-1;
-				console.log('Sequence Score : ' + currentScore);
+				//console.log('Sequence Score : ' + currentScore);
 			}
 			gameOverTimeout1 = setTimeout(function () {
 				gameOverAnim();
@@ -5958,10 +4903,9 @@ this.MemoryGame = (id, data) => {
 					clearTimeout(gameOverTimeout2);
 				}, 2000);
 			}, 250);
-
 		}
 		if(currInSequence >= currMaxSequence){
-			console.log('Correct Sequence');
+			//console.log('Correct Sequence');
 			currInSequence = 0;
 			currMaxSequence++;
 			currentScore++;
@@ -5981,11 +4925,9 @@ this.MemoryGame = (id, data) => {
 				}, 1500);
 				clearTimeout(roundCompleteTimeout1);
 			}, 250);
-
-
 		}
 	}
-
+	//Reset Game
 	const ResetGame = () => {
 		clearInterval(playSequenceInterval);
 		clearTimeout(roundCompleteTimeout1);
@@ -6000,12 +4942,11 @@ this.MemoryGame = (id, data) => {
 		gameStarted = false;
 		memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Game Over'}});
 	}
-
-	//listen for first click to start the countdown timer based on how long current sequence is and a timer for in-between single clicks to timeout as well
+	//Handle Memory Clicks & Check Sequence
 	function memoryClick(){
 		if(pauseClick){}else{
-			console.log('Memory Click')
-			console.log(this.id)
+			//console.log('Memory Click')
+			//console.log(this.id)
 			let selection;
 			if(this.id === 'memory0'){
 				selection = 0;
@@ -6020,21 +4961,20 @@ this.MemoryGame = (id, data) => {
 			CheckSequence();
 		}
 	}
-
+	//Play Round Complete Animation
 	function roundCompleteAnim(){
 		for(let each in memoryCores){
 			memoryCores[each].EmitEvent('roundComplete');
 		}
 	}
-
+	//Play Game Over Animation
 	function gameOverAnim(){
 		for(let each in memoryCores){
 			memoryCores[each].EmitEvent('gameOver');
 		}
 	}
-
+	//Spawn Game Menu
 	const GameSpawnMenu = () => {
-
 		memory.GameMenuData = {
 			id: 'memoryGameMenu',
 			prompt: 'Memory Game',
@@ -6053,7 +4993,7 @@ this.MemoryGame = (id, data) => {
 		memory.gameMenu = auxl.Menu(memory.GameMenuData);
 		memory.gameMenu.SpawnMenu();
 	}
-
+	//Handle Game Menu Click
 	const GameMenuClick = (el) => {
 		let result = el.getAttribute('result');
 		//console.log(result);
@@ -6074,17 +5014,16 @@ this.MemoryGame = (id, data) => {
 //
 //Image Swapper
 this.ImageSwapper = (id,mainData,buttonData,...materials) => {
-
+//ToDo
+//Add autoplay and pause on hovering
+//Controls either left/right or thumbnails for each
 	let imageSwapper = {};
 	imageSwapper.id = id;
 	let imageSwapperCore;
 	imageSwapper.thumbnailCores = [];
 	let thumbnailPos = new THREE.Vector3(0,-0.3,0.05);
-	//let startPos = (mainData.geometry.width/2)/materials.length;
-	//let movePos = mainData.geometry.width/materials.length;
-
-	//Layer
 	imageSwapper.layerData = {}
+	//Prep Layer Core Objects
 	for(let mat in materials){
 		if(mat === '0'){
 			mainData.material = materials[mat];
@@ -6119,7 +5058,6 @@ this.ImageSwapper = (id,mainData,buttonData,...materials) => {
 					thumbnailPos.x = 0.375;
 				}
 			}
-			//thumbnailPos;
 			buttonData.position = thumbnailPos;
 			imageSwapper.thumbnailCores[mat] = auxl.Core(buttonData);
 			imageSwapper.layerData['child'+mat] = {};
@@ -6127,558 +5065,513 @@ this.ImageSwapper = (id,mainData,buttonData,...materials) => {
 		}
 	}
 	imageSwapper.layer = auxl.Layer('imageSwapper',imageSwapper.layerData);
-
+	//Swap Material Sources with Parent
 	const Click = (el) => {
-		//Swap Material Sources with Parent
 		let selectedMat = el.getAttribute('material').src;
 		let replacedMat = JSON.parse(JSON.stringify(el.parentNode.getAttribute('material').src));
-
 		el.parentNode.setAttribute('material',{src: selectedMat})
 		el.setAttribute('material',{src: replacedMat})
 	}
-
+	//Spawn ImageSwapper
 	const SpawnImgSwap = () => {
 		imageSwapper.layer.SpawnLayer(true);
-		//AddToImageSwapperSceneTracker();
 	}
-
+	//Despawn ImageSwapper
 	const DespawnImgSwap = () => {
 		imageSwapper.layer.DespawnLayer(true);
 		RemoveFromTracker(imageSwapper.id);
 	}
 
-	//Add autoplay and pause on hovering
-	//Controls either left/right or thumbnails for each
 	return {imageSwapper, Click, SpawnImgSwap, DespawnImgSwap};
 }
 
 //
 //ImageCarousel
 this.ImageCarousel = (carouselData) => {
-//calculate the amount of framesPerPage to do display
+//ToDo
+//Allow the amount of frames to be adjusted
 //Add 180 view non-movement functions
-//get images to play through carousel.images pages
-
+//Bug
 //Changing between Forward & Reverse either way messes up which frames should be updated
-
-//Data
-let imageCarousel = Object.assign({}, carouselData);
-imageCarousel.frames = 8;//temp, will be imported
-let playInterval;
-let updateTimeout;
-let scaleTimeout;
-imageCarousel.framesPerPage = 8;
-currentImageForward = -1;
-currentImageBackward = imageCarousel.images.length - imageCarousel.framesPerPage;
-let frameRotationEach = 360/imageCarousel.framesPerPage;
-let frameRotation = 0;
-currentRotation = -1;
-
-//Prep Movement Flags
-let notMoving = true;
-let notPlaying = true;
-let autoRotate = 0;
-let loadingPage = false;
-let animating = false;
-let scale = 0;
-let info = false;
-
-//Frame Templates
-
-//Art Frame Parent
-let artFrameParentData = {
-data: 'artFrameParentData',
-id:'artFrameParent',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-//Art Frame
-let artFrameData = {
-data: 'artFrameData',
-id:'artFrame',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.01, width: 4.4, height: 2.55},
-material: {shader: "flat", color: "#55a5be", opacity: 1, alphaTest: 0.1},
-position: new THREE.Vector3(0,1.75,-6),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-scale0:{property: 'scale', from: '1 1 1', to: '2 2 2', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to0'},
-position0:{property: 'position', from: '0 1.75 -6', to: '0 3.5 -12', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to0'},
-scale1:{property: 'scale', from: '2 2 2', to: '1 1 1', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to1'},
-position1:{property: 'position', from: '0 3.5 -12', to: '0 1.75 -6', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to1'},
-},
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-//Art Frame
-let artFrameTextData = {
-data: 'artFrameTextData',
-id:'artFrameText',
-sources: false,
-text: {value:'Art Frame Text', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0, side: 'double'},
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,-1.5,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-//carousel Layer
-
-//All Frame Parent
-artFrameParentData.id = 'artFrameParentAll';
-artFrameParentData.rotation = new THREE.Vector3(0,1,0);
-let artFrameParentAll = auxl.Core(artFrameParentData);
-
-let artFrameAllLayerData = {
-	parent: {core: artFrameParentAll},
-};
-
-let parentId = 'artFrameParent';
-let parentFrameCores = [];
-let frameId = 'artFrame';
-let imageFrameCores = [];
-let textId = 'artFrameText';
-let textFrameCores = [];
-
-for(let a=0; a < imageCarousel.frames; a++){
-
-	//Temp
-	if(a === 0){
-		frameRotation = -45;
-	} else if(a === 1){
-		frameRotation = 0;
-	} else if(a === 2){
-		frameRotation = -315;
-	} else if(a === 3){
-		frameRotation = -270;
-	} else if(a === 4){
-		frameRotation = -225;
-	} else if(a === 5){
-		frameRotation = -180;
-	} else if(a === 6){
-		frameRotation = -135;
-	} else if(a === 7){
-		frameRotation = -90;
-	}
-
-	//Parent
-	parentId = 'artFrameParent' + a;
-	let parentRotation = new THREE.Vector3(0,0,0);
-	parentRotation.y = frameRotation;
-	artFrameParentData.id = parentId;
-	artFrameParentData.rotation = parentRotation;
-	parentFrameCores[a] = auxl.Core(artFrameParentData);
-	//Frame
-	frameId = 'artFrame' + a;
-	artFrameData.id = frameId;
-	imageFrameCores[a] = auxl.Core(artFrameData);
-	//Text
-	textId = 'artFrameText' + a;
-	artFrameTextData.id = textId;
-	textFrameCores[a] = auxl.Core(artFrameTextData);
-	//Layer
-	artFrameAllLayerData['child'+a] = {
-		parent: {core: parentFrameCores[a]}, 
-		child0: {
-			parent: {core: imageFrameCores[a]}, 
-			child0: {core: textFrameCores[a]}, 
-		},
+	let imageCarousel = Object.assign({}, carouselData);
+	imageCarousel.frames = 8;//temp
+	let playInterval;
+	let updateTimeout;
+	let scaleTimeout;
+	imageCarousel.framesPerPage = 8;
+	currentImageForward = -1;
+	currentImageBackward = imageCarousel.images.length - imageCarousel.framesPerPage;
+	let frameRotationEach = 360/imageCarousel.framesPerPage;
+	let frameRotation = 0;
+	currentRotation = -1;
+	//Prep Movement Flags
+	let notMoving = true;
+	let notPlaying = true;
+	let autoRotate = 0;
+	let loadingPage = false;
+	let animating = false;
+	let scale = 0;
+	let info = false;
+	//Frame Templates & Prep
+	let artFrameParentData = {
+	data: 'artFrameParentData',
+	id:'artFrameParent',
+	sources: false,
+	text: false,
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
 	};
-}
-let artFrameAllLayer = auxl.Layer('artFrameAllLayer',artFrameAllLayerData);
+	let artFrameData = {
+	data: 'artFrameData',
+	id:'artFrame',
+	sources: false,
+	text: false,
+	geometry: {primitive: 'box', depth: 0.01, width: 4.4, height: 2.55},
+	material: {shader: "flat", color: "#55a5be", opacity: 1, alphaTest: 0.1},
+	position: new THREE.Vector3(0,1.75,-6),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: {
+	scale0:{property: 'scale', from: '1 1 1', to: '2 2 2', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to0'},
+	position0:{property: 'position', from: '0 1.75 -6', to: '0 3.5 -12', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to0'},
+	scale1:{property: 'scale', from: '2 2 2', to: '1 1 1', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to1'},
+	position1:{property: 'position', from: '0 3.5 -12', to: '0 1.75 -6', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to1'},
+	},
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	let artFrameTextData = {
+	data: 'artFrameTextData',
+	id:'artFrameText',
+	sources: false,
+	text: {value:'Art Frame Text', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0, side: 'double'},
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0,-1.5,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	artFrameParentData.id = 'artFrameParentAll';
+	artFrameParentData.rotation = new THREE.Vector3(0,1,0);
+	let artFrameParentAll = auxl.Core(artFrameParentData);
+	let artFrameAllLayerData = {
+		parent: {core: artFrameParentAll},
+	};
+	let parentId = 'artFrameParent';
+	let parentFrameCores = [];
+	let frameId = 'artFrame';
+	let imageFrameCores = [];
+	let textId = 'artFrameText';
+	let textFrameCores = [];
+	//Build Cores
+	for(let a=0; a < imageCarousel.frames; a++){
 
-//Button Templates
+		//Temp
+		if(a === 0){
+			frameRotation = -45;
+		} else if(a === 1){
+			frameRotation = 0;
+		} else if(a === 2){
+			frameRotation = -315;
+		} else if(a === 3){
+			frameRotation = -270;
+		} else if(a === 4){
+			frameRotation = -225;
+		} else if(a === 5){
+			frameRotation = -180;
+		} else if(a === 6){
+			frameRotation = -135;
+		} else if(a === 7){
+			frameRotation = -90;
+		}
 
-let mainColor = auxl.colorTheoryGen('#6ab0db');
-
-//Button Parent
-let buttonParentData = {
-data: 'Button Parent',
-id:'buttonParent',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,80,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{
-scaleclick:{property: 'scale', from: '1 1 1', to: '1.05 1.05 1.05', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
-},
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-//Button Obj
-let buttonObjData = {
-data: 'Button Obj',
-id:'buttonObj',
-sources: false,
-text: false,
-geometry: false,
-material: {shader: "flat", color: mainColor.base, opacity: 1},
-position: new THREE.Vector3(0,0.4,-2.5),
-rotation: new THREE.Vector3(-30,0,0),
-scale: new THREE.Vector3(0.1,0.1,0.1),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-//Button Border
-let buttonBorderData = {
-data: 'Button Border',
-id:'buttonBorder',
-sources: false,
-text: false,
-geometry: false,
-material: {shader: "flat", color: mainColor.splitCompl[0], opacity: 1},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components: {
-['obj-model']:{obj: './assets/3d/buttons/border.obj'},
-//['model-loaded']:null,
-},
-};
-
-//Button Click Background
-let buttonClickData = {
-data: 'Button Click Background',
-id:'buttonClick',
-sources: false,
-text: false,
-geometry: {primitive: 'circle', radius: 2, segments: 12},
-material: {shader: "flat", color: mainColor.splitCompl[1], opacity: 0.5, side: 'double'},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-
-//Button Click Background
-let buttonTextData = {
-data: 'Button Text',
-id:'buttonText',
-sources: false,
-text: {value:'Button', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'},
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,-2.75,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-
-//Button Layers
-
-//Backward
-buttonParentData.id = 'buttonBackwardParent';
-buttonParentData.rotation = new THREE.Vector3(0,22.5,0);
-let buttonBackwardParent = auxl.Core(buttonParentData);
-buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/backward.obj'}};
-buttonObjData.id = 'buttonBackward';
-buttonBorderData.id = 'buttonBackwardBorder';
-buttonClickData.id = 'buttonBackwardClick';
-buttonTextData.id = 'buttonBackwardText';
-buttonTextData.text.value = 'Back';
-let buttonBackward = auxl.Core(buttonObjData);
-let buttonBackwardBorder = auxl.Core(buttonBorderData);
-let buttonBackwardClick = auxl.Core(buttonClickData);
-let buttonBackwardText = auxl.Core(buttonTextData);
-//Forward
-buttonParentData.id = 'buttonForwardParent';
-buttonParentData.rotation = new THREE.Vector3(0,-22.5,0);
-let buttonForwardParent = auxl.Core(buttonParentData);
-buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/forward.obj'}};
-buttonObjData.id = 'buttonForward';
-buttonBorderData.id = 'buttonForwardBorder';
-buttonClickData.id = 'buttonForwardClick';
-buttonTextData.id = 'buttonForwardText';
-buttonTextData.text.value = 'Forward';
-let buttonForward = auxl.Core(buttonObjData);
-let buttonForwardBorder = auxl.Core(buttonBorderData);
-let buttonForwardClick = auxl.Core(buttonClickData);
-let buttonForwardText = auxl.Core(buttonTextData);
-//Left Skip
-buttonParentData.id = 'buttonLeftSkipParent';
-buttonParentData.rotation = new THREE.Vector3(0,37.5,0);
-let buttonLeftSkipParent = auxl.Core(buttonParentData);
-buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/left_skip.obj'}};
-buttonObjData.id = 'buttonLeftSkip';
-buttonBorderData.id = 'buttonLeftSkipBorder';
-buttonClickData.id = 'buttonLeftSkipClick';
-buttonTextData.id = 'buttonLeftSkipText';
-buttonTextData.text.value = 'Back Page';
-let buttonLeftSkip = auxl.Core(buttonObjData);
-let buttonLeftSkipBorder = auxl.Core(buttonBorderData);
-let buttonLeftSkipClick = auxl.Core(buttonClickData);
-let buttonLeftSkipText = auxl.Core(buttonTextData);
-//Play
-buttonParentData.id = 'buttonPlayParent';
-buttonParentData.rotation = new THREE.Vector3(0,-7.5,0);
-let buttonPlayParent = auxl.Core(buttonParentData);
-buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/play.obj'}};
-buttonObjData.id = 'buttonPlay';
-buttonBorderData.id = 'buttonPlayBorder';
-buttonClickData.id = 'buttonPlayClick';
-buttonTextData.id = 'buttonPlayText';
-buttonTextData.text.value = 'Play';
-let buttonPlay = auxl.Core(buttonObjData);
-let buttonPlayBorder = auxl.Core(buttonBorderData);
-let buttonPlayClick = auxl.Core(buttonClickData);
-let buttonPlayText = auxl.Core(buttonTextData);
-//Right Skip
-buttonParentData.id = 'buttonRightSkipParent';
-buttonParentData.rotation = new THREE.Vector3(0,-37.5,0);
-let buttonRightSkipParent = auxl.Core(buttonParentData);
-buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/right_skip.obj'}};
-buttonObjData.id = 'buttonRightSkip';
-buttonBorderData.id = 'buttonRightSkipBorder';
-buttonClickData.id = 'buttonRightSkipClick';
-buttonTextData.id = 'buttonRightSkipText';
-buttonTextData.text.value = 'Next Page';
-let buttonRightSkip = auxl.Core(buttonObjData);
-let buttonRightSkipBorder = auxl.Core(buttonBorderData);
-let buttonRightSkipClick = auxl.Core(buttonClickData);
-let buttonRightSkipText = auxl.Core(buttonTextData);
-//Settings
-buttonParentData.id = 'buttonSettingsParent';
-buttonParentData.rotation = new THREE.Vector3(0,-52.5,0);
-let buttonSettingsParent = auxl.Core(buttonParentData);
-buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/settings.obj'}};
-buttonObjData.id = 'buttonSettings';
-buttonBorderData.id = 'buttonSettingsBorder';
-buttonClickData.id = 'buttonSettingsClick';
-buttonTextData.id = 'buttonSettingsText';
-buttonTextData.text.value = 'Scale';
-let buttonSettings = auxl.Core(buttonObjData);
-let buttonSettingsBorder = auxl.Core(buttonBorderData);
-let buttonSettingsClick = auxl.Core(buttonClickData);
-let buttonSettingsText = auxl.Core(buttonTextData);
-//Stop
-buttonParentData.id = 'buttonStopParent';
-buttonParentData.rotation = new THREE.Vector3(0,7.5,0);
-buttonStopParent = auxl.Core(buttonParentData);
-buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/stop.obj'}};
-buttonObjData.id = 'buttonStop';
-buttonBorderData.id = 'buttonStopBorder';
-buttonClickData.id = 'buttonStopClick';
-buttonTextData.id = 'buttonStopText';
-buttonTextData.text.value = 'Info';
-let buttonStop = auxl.Core(buttonObjData);
-let buttonStopBorder = auxl.Core(buttonBorderData);
-let buttonStopClick = auxl.Core(buttonClickData);
-let buttonStopText = auxl.Core(buttonTextData);
-//Hashtag
-buttonParentData.id = 'buttonHashtagParent';
-buttonParentData.rotation = new THREE.Vector3(0,52.5,0);
-let buttonHashtagParent = auxl.Core(buttonParentData);
-buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/hashtag.obj'}};
-buttonObjData.id = 'buttonHashtag';
-buttonBorderData.id = 'buttonHashtagBorder';
-buttonClickData.id = 'buttonHashtagClick';
-buttonTextData.id = 'buttonHashtagText';
-buttonTextData.text.value = 'Random Page';
-let buttonHashtag = auxl.Core(buttonObjData);
-let buttonHashtagBorder = auxl.Core(buttonBorderData);
-let buttonHashtagClick = auxl.Core(buttonClickData);
-let buttonHashtagText = auxl.Core(buttonTextData);
-
-//Button Backward Layer
-let buttonBackwardLayerData = {
-parent: {core: buttonBackwardParent}, 
-child0: {
-	parent: {core: buttonBackward}, 
-	child0: {core: buttonBackwardBorder},
-	child1: {core: buttonBackwardClick},
-	child2: {core: buttonBackwardText},
-},
-};
-let buttonBackwardLayer = auxl.Layer('buttonBackwardLayer',buttonBackwardLayerData);
-
-//Button Hashtag Layer
-let buttonHashtagLayerData = {
-parent: {core: buttonHashtagParent}, 
-child0: {
-	parent: {core: buttonHashtag}, 
-	child0: {core: buttonHashtagBorder},
-	child1: {core: buttonHashtagClick},
-	child2: {core: buttonHashtagText},
-},
-};
-let buttonHashtagLayer = auxl.Layer('buttonHashtagLayer',buttonHashtagLayerData);
-
-//Button Forward Layer
-let buttonForwardLayerData = {
-parent: {core: buttonForwardParent}, 
-child0: {
-	parent: {core: buttonForward}, 
-	child0: {core: buttonForwardBorder},
-	child1: {core: buttonForwardClick},
-	child2: {core: buttonForwardText},
-},
-};
-let buttonForwardLayer = auxl.Layer('buttonForwardLayer',buttonForwardLayerData);
-
-//Button Left Skip Layer
-let buttonLeftSkipLayerData = {
-parent: {core: buttonLeftSkipParent}, 
-child0: {
-	parent: {core: buttonLeftSkip}, 
-	child0: {core: buttonLeftSkipBorder},
-	child1: {core: buttonLeftSkipClick},
-	child2: {core: buttonLeftSkipText},
-},
-};
-let buttonLeftSkipLayer = auxl.Layer('buttonLeftSkipLayer',buttonLeftSkipLayerData);
-
-//Button Play Layer
-let buttonPlayLayerData = {
-parent: {core: buttonPlayParent}, 
-child0: {
-	parent: {core: buttonPlay}, 
-	child0: {core: buttonPlayBorder},
-	child1: {core: buttonPlayClick},
-	child2: {core: buttonPlayText},
-},
-};
-let buttonPlayLayer = auxl.Layer('buttonPlayLayer',buttonPlayLayerData);
-
-//Button Right Skip Layer
-let buttonRightSkipLayerData = {
-parent: {core: buttonRightSkipParent}, 
-child0: {
-	parent: {core: buttonRightSkip}, 
-	child0: {core: buttonRightSkipBorder},
-	child1: {core: buttonRightSkipClick},
-	child2: {core: buttonRightSkipText},
-},
-};
-let buttonRightSkipLayer = auxl.Layer('buttonRightSkipLayer',buttonRightSkipLayerData);
-
-//Button Settings Layer
-let buttonSettingsLayerData = {
-parent: {core: buttonSettingsParent}, 
-child0: {
-	parent: {core: buttonSettings}, 
-	child0: {core: buttonSettingsBorder},
-	child1: {core: buttonSettingsClick},
-	child2: {core: buttonSettingsText},
-},
-};
-let buttonSettingsLayer = auxl.Layer('buttonSettingsLayer',buttonSettingsLayerData);
-
-//Button Stop Layer
-let buttonStopLayerData = {
-parent: {core: buttonStopParent}, 
-child0: {
-	parent: {core: buttonStop}, 
-	child0: {core: buttonStopBorder},
-	child1: {core: buttonStopClick},
-	child2: {core: buttonStopText},
-},
-};
-let buttonStopLayer = auxl.Layer('buttonStopLayer',buttonStopLayerData);
-
-//Animations
-
-//Rotate 45
-let anim45Data = {
-	name: 'anim45',
-	property: 'object3D.rotation.y',
-	from: '0',
-	to: '45', 
-	dur: 1000, 
-	delay: 0, 
-	loop: 'false', 
-	dir: 'normal', 
-	easing: 'easeInOutSine', 
-	elasticity: 400, 
-	autoplay: true, 
-	enabled: true,
-};
-//Rotate 45 from Misc
-let anim45MiscData = {
-	name: 'anim45misc',
-	property: 'object3D.rotation.y',
-	from: '0',
-	to: '1', 
-	dur: 500, 
-	delay: 0, 
-	loop: 'false', 
-	dir: 'normal', 
-	easing: 'easeInOutSine', 
-	elasticity: 400, 
-	autoplay: true, 
-	enabled: true,
-};
-//Rotate 90
-let anim90Data = {
-	name: 'anim90',
-	property: 'object3D.rotation.y',
-	from: '0',
-	to: '90', 
-	dur: 2500,
-	delay: 0, 
-	loop: 'false', 
-	dir: 'normal', 
-	easing: 'easeInOutSine', 
-	elasticity: 400, 
-	autoplay: true, 
-	enabled: true,
-};
-//Rotate 360
-let anim360Data = {
-	name: 'anim360',
-	property: 'object3D.rotation.y',
-	from: '0',
-	to: '360', 
-	dur: 120000, 
-	delay: 0, 
-	loop: 'true', 
-	dir: 'normal', 
-	easing: 'linear', 
-	elasticity: 400, 
-	autoplay: false, 
-	enabled: true,
-	startEvents: 'play',
-	pauseEvents: 'pause',
-};
-
+		//Parent
+		parentId = 'artFrameParent' + a;
+		let parentRotation = new THREE.Vector3(0,0,0);
+		parentRotation.y = frameRotation;
+		artFrameParentData.id = parentId;
+		artFrameParentData.rotation = parentRotation;
+		parentFrameCores[a] = auxl.Core(artFrameParentData);
+		//Frame
+		frameId = 'artFrame' + a;
+		artFrameData.id = frameId;
+		imageFrameCores[a] = auxl.Core(artFrameData);
+		//Text
+		textId = 'artFrameText' + a;
+		artFrameTextData.id = textId;
+		textFrameCores[a] = auxl.Core(artFrameTextData);
+		//Layer
+		artFrameAllLayerData['child'+a] = {
+			parent: {core: parentFrameCores[a]}, 
+			child0: {
+				parent: {core: imageFrameCores[a]}, 
+				child0: {core: textFrameCores[a]}, 
+			},
+		};
+	}
+	let artFrameAllLayer = auxl.Layer('artFrameAllLayer',artFrameAllLayerData);
+	//Main Button Color
+	let mainColor = auxl.colorTheoryGen('#6ab0db');
+	//Button Templates
+	//Button Parent
+	let buttonParentData = {
+	data: 'Button Parent',
+	id:'buttonParent',
+	sources: false,
+	text: false,
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,80,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations:{
+	scaleclick:{property: 'scale', from: '1 1 1', to: '1.05 1.05 1.05', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+	},
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	//Button Obj
+	let buttonObjData = {
+	data: 'Button Obj',
+	id:'buttonObj',
+	sources: false,
+	text: false,
+	geometry: false,
+	material: {shader: "flat", color: mainColor.base, opacity: 1},
+	position: new THREE.Vector3(0,0.4,-2.5),
+	rotation: new THREE.Vector3(-30,0,0),
+	scale: new THREE.Vector3(0.1,0.1,0.1),
+	animations:false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	//Button Border
+	let buttonBorderData = {
+	data: 'Button Border',
+	id:'buttonBorder',
+	sources: false,
+	text: false,
+	geometry: false,
+	material: {shader: "flat", color: mainColor.splitCompl[0], opacity: 1},
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations:false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: {
+	['obj-model']:{obj: './assets/3d/buttons/border.obj'},
+	//['model-loaded']:null,
+	},
+	};
+	//Button Click Background
+	let buttonClickData = {
+	data: 'Button Click Background',
+	id:'buttonClick',
+	sources: false,
+	text: false,
+	geometry: {primitive: 'circle', radius: 2, segments: 12},
+	material: {shader: "flat", color: mainColor.splitCompl[1], opacity: 0.5, side: 'double'},
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations:false,
+	mixins: false,
+	classes: ['clickable','a-ent'],
+	components: false,
+	};
+	//Button Click Background
+	let buttonTextData = {
+	data: 'Button Text',
+	id:'buttonText',
+	sources: false,
+	text: {value:'Button', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'},
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0,-2.75,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations:false,
+	mixins: false,
+	classes: ['clickable','a-ent'],
+	components: false,
+	};
+	//Button Layers
+	//Backward
+	buttonParentData.id = 'buttonBackwardParent';
+	buttonParentData.rotation = new THREE.Vector3(0,22.5,0);
+	let buttonBackwardParent = auxl.Core(buttonParentData);
+	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/backward.obj'}};
+	buttonObjData.id = 'buttonBackward';
+	buttonBorderData.id = 'buttonBackwardBorder';
+	buttonClickData.id = 'buttonBackwardClick';
+	buttonTextData.id = 'buttonBackwardText';
+	buttonTextData.text.value = 'Back';
+	let buttonBackward = auxl.Core(buttonObjData);
+	let buttonBackwardBorder = auxl.Core(buttonBorderData);
+	let buttonBackwardClick = auxl.Core(buttonClickData);
+	let buttonBackwardText = auxl.Core(buttonTextData);
+	let buttonBackwardLayerData = {
+	parent: {core: buttonBackwardParent}, 
+	child0: {
+		parent: {core: buttonBackward}, 
+		child0: {core: buttonBackwardBorder},
+		child1: {core: buttonBackwardClick},
+		child2: {core: buttonBackwardText},
+	},
+	};
+	let buttonBackwardLayer = auxl.Layer('buttonBackwardLayer',buttonBackwardLayerData);
+	//Forward
+	buttonParentData.id = 'buttonForwardParent';
+	buttonParentData.rotation = new THREE.Vector3(0,-22.5,0);
+	let buttonForwardParent = auxl.Core(buttonParentData);
+	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/forward.obj'}};
+	buttonObjData.id = 'buttonForward';
+	buttonBorderData.id = 'buttonForwardBorder';
+	buttonClickData.id = 'buttonForwardClick';
+	buttonTextData.id = 'buttonForwardText';
+	buttonTextData.text.value = 'Forward';
+	let buttonForward = auxl.Core(buttonObjData);
+	let buttonForwardBorder = auxl.Core(buttonBorderData);
+	let buttonForwardClick = auxl.Core(buttonClickData);
+	let buttonForwardText = auxl.Core(buttonTextData);
+	let buttonForwardLayerData = {
+	parent: {core: buttonForwardParent}, 
+	child0: {
+		parent: {core: buttonForward}, 
+		child0: {core: buttonForwardBorder},
+		child1: {core: buttonForwardClick},
+		child2: {core: buttonForwardText},
+	},
+	};
+	let buttonForwardLayer = auxl.Layer('buttonForwardLayer',buttonForwardLayerData);
+	//Left Skip
+	buttonParentData.id = 'buttonLeftSkipParent';
+	buttonParentData.rotation = new THREE.Vector3(0,37.5,0);
+	let buttonLeftSkipParent = auxl.Core(buttonParentData);
+	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/left_skip.obj'}};
+	buttonObjData.id = 'buttonLeftSkip';
+	buttonBorderData.id = 'buttonLeftSkipBorder';
+	buttonClickData.id = 'buttonLeftSkipClick';
+	buttonTextData.id = 'buttonLeftSkipText';
+	buttonTextData.text.value = 'Back Page';
+	let buttonLeftSkip = auxl.Core(buttonObjData);
+	let buttonLeftSkipBorder = auxl.Core(buttonBorderData);
+	let buttonLeftSkipClick = auxl.Core(buttonClickData);
+	let buttonLeftSkipText = auxl.Core(buttonTextData);
+	let buttonLeftSkipLayerData = {
+	parent: {core: buttonLeftSkipParent}, 
+	child0: {
+		parent: {core: buttonLeftSkip}, 
+		child0: {core: buttonLeftSkipBorder},
+		child1: {core: buttonLeftSkipClick},
+		child2: {core: buttonLeftSkipText},
+	},
+	};
+	let buttonLeftSkipLayer = auxl.Layer('buttonLeftSkipLayer',buttonLeftSkipLayerData);
+	//Play
+	buttonParentData.id = 'buttonPlayParent';
+	buttonParentData.rotation = new THREE.Vector3(0,-7.5,0);
+	let buttonPlayParent = auxl.Core(buttonParentData);
+	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/play.obj'}};
+	buttonObjData.id = 'buttonPlay';
+	buttonBorderData.id = 'buttonPlayBorder';
+	buttonClickData.id = 'buttonPlayClick';
+	buttonTextData.id = 'buttonPlayText';
+	buttonTextData.text.value = 'Play';
+	let buttonPlay = auxl.Core(buttonObjData);
+	let buttonPlayBorder = auxl.Core(buttonBorderData);
+	let buttonPlayClick = auxl.Core(buttonClickData);
+	let buttonPlayText = auxl.Core(buttonTextData);
+	let buttonPlayLayerData = {
+	parent: {core: buttonPlayParent}, 
+	child0: {
+		parent: {core: buttonPlay}, 
+		child0: {core: buttonPlayBorder},
+		child1: {core: buttonPlayClick},
+		child2: {core: buttonPlayText},
+	},
+	};
+	let buttonPlayLayer = auxl.Layer('buttonPlayLayer',buttonPlayLayerData);
+	//Right Skip
+	buttonParentData.id = 'buttonRightSkipParent';
+	buttonParentData.rotation = new THREE.Vector3(0,-37.5,0);
+	let buttonRightSkipParent = auxl.Core(buttonParentData);
+	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/right_skip.obj'}};
+	buttonObjData.id = 'buttonRightSkip';
+	buttonBorderData.id = 'buttonRightSkipBorder';
+	buttonClickData.id = 'buttonRightSkipClick';
+	buttonTextData.id = 'buttonRightSkipText';
+	buttonTextData.text.value = 'Next Page';
+	let buttonRightSkip = auxl.Core(buttonObjData);
+	let buttonRightSkipBorder = auxl.Core(buttonBorderData);
+	let buttonRightSkipClick = auxl.Core(buttonClickData);
+	let buttonRightSkipText = auxl.Core(buttonTextData);
+	let buttonRightSkipLayerData = {
+	parent: {core: buttonRightSkipParent}, 
+	child0: {
+		parent: {core: buttonRightSkip}, 
+		child0: {core: buttonRightSkipBorder},
+		child1: {core: buttonRightSkipClick},
+		child2: {core: buttonRightSkipText},
+	},
+	};
+	let buttonRightSkipLayer = auxl.Layer('buttonRightSkipLayer',buttonRightSkipLayerData);
+	//Settings
+	buttonParentData.id = 'buttonSettingsParent';
+	buttonParentData.rotation = new THREE.Vector3(0,-52.5,0);
+	let buttonSettingsParent = auxl.Core(buttonParentData);
+	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/settings.obj'}};
+	buttonObjData.id = 'buttonSettings';
+	buttonBorderData.id = 'buttonSettingsBorder';
+	buttonClickData.id = 'buttonSettingsClick';
+	buttonTextData.id = 'buttonSettingsText';
+	buttonTextData.text.value = 'Scale';
+	let buttonSettings = auxl.Core(buttonObjData);
+	let buttonSettingsBorder = auxl.Core(buttonBorderData);
+	let buttonSettingsClick = auxl.Core(buttonClickData);
+	let buttonSettingsText = auxl.Core(buttonTextData);
+	let buttonSettingsLayerData = {
+	parent: {core: buttonSettingsParent}, 
+	child0: {
+		parent: {core: buttonSettings}, 
+		child0: {core: buttonSettingsBorder},
+		child1: {core: buttonSettingsClick},
+		child2: {core: buttonSettingsText},
+	},
+	};
+	let buttonSettingsLayer = auxl.Layer('buttonSettingsLayer',buttonSettingsLayerData);
+	//Stop
+	buttonParentData.id = 'buttonStopParent';
+	buttonParentData.rotation = new THREE.Vector3(0,7.5,0);
+	buttonStopParent = auxl.Core(buttonParentData);
+	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/stop.obj'}};
+	buttonObjData.id = 'buttonStop';
+	buttonBorderData.id = 'buttonStopBorder';
+	buttonClickData.id = 'buttonStopClick';
+	buttonTextData.id = 'buttonStopText';
+	buttonTextData.text.value = 'Info';
+	let buttonStop = auxl.Core(buttonObjData);
+	let buttonStopBorder = auxl.Core(buttonBorderData);
+	let buttonStopClick = auxl.Core(buttonClickData);
+	let buttonStopText = auxl.Core(buttonTextData);
+	let buttonStopLayerData = {
+	parent: {core: buttonStopParent}, 
+	child0: {
+		parent: {core: buttonStop}, 
+		child0: {core: buttonStopBorder},
+		child1: {core: buttonStopClick},
+		child2: {core: buttonStopText},
+	},
+	};
+	let buttonStopLayer = auxl.Layer('buttonStopLayer',buttonStopLayerData);
+	//Hashtag
+	buttonParentData.id = 'buttonHashtagParent';
+	buttonParentData.rotation = new THREE.Vector3(0,52.5,0);
+	let buttonHashtagParent = auxl.Core(buttonParentData);
+	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/hashtag.obj'}};
+	buttonObjData.id = 'buttonHashtag';
+	buttonBorderData.id = 'buttonHashtagBorder';
+	buttonClickData.id = 'buttonHashtagClick';
+	buttonTextData.id = 'buttonHashtagText';
+	buttonTextData.text.value = 'Random Page';
+	let buttonHashtag = auxl.Core(buttonObjData);
+	let buttonHashtagBorder = auxl.Core(buttonBorderData);
+	let buttonHashtagClick = auxl.Core(buttonClickData);
+	let buttonHashtagText = auxl.Core(buttonTextData);
+	let buttonHashtagLayerData = {
+	parent: {core: buttonHashtagParent}, 
+	child0: {
+		parent: {core: buttonHashtag}, 
+		child0: {core: buttonHashtagBorder},
+		child1: {core: buttonHashtagClick},
+		child2: {core: buttonHashtagText},
+	},
+	};
+	let buttonHashtagLayer = auxl.Layer('buttonHashtagLayer',buttonHashtagLayerData);
+	//Animations
+	//Rotate 45
+	let anim45Data = {
+		name: 'anim45',
+		property: 'object3D.rotation.y',
+		from: '0',
+		to: '45', 
+		dur: 1000, 
+		delay: 0, 
+		loop: 'false', 
+		dir: 'normal', 
+		easing: 'easeInOutSine', 
+		elasticity: 400, 
+		autoplay: true, 
+		enabled: true,
+	};
+	//Rotate 45 from Misc
+	let anim45MiscData = {
+		name: 'anim45misc',
+		property: 'object3D.rotation.y',
+		from: '0',
+		to: '1', 
+		dur: 500, 
+		delay: 0, 
+		loop: 'false', 
+		dir: 'normal', 
+		easing: 'easeInOutSine', 
+		elasticity: 400, 
+		autoplay: true, 
+		enabled: true,
+	};
+	//Rotate 90
+	let anim90Data = {
+		name: 'anim90',
+		property: 'object3D.rotation.y',
+		from: '0',
+		to: '90', 
+		dur: 2500,
+		delay: 0, 
+		loop: 'false', 
+		dir: 'normal', 
+		easing: 'easeInOutSine', 
+		elasticity: 400, 
+		autoplay: true, 
+		enabled: true,
+	};
+	//Rotate 360
+	let anim360Data = {
+		name: 'anim360',
+		property: 'object3D.rotation.y',
+		from: '0',
+		to: '360', 
+		dur: 120000, 
+		delay: 0, 
+		loop: 'true', 
+		dir: 'normal', 
+		easing: 'linear', 
+		elasticity: 400, 
+		autoplay: false, 
+		enabled: true,
+		startEvents: 'play',
+		pauseEvents: 'pause',
+	};
+	//Update Frame's Image & Text Description
 	const UpdateFrame = (frame, textValue, imgSrc) => {
 		artFrameAllLayerData[frame].child0.parent.core.ChangeSelf({property: 'material', value:{src: imgSrc,shader: "flat", color: "#FFFFFF", opacity: 1}});
 		artFrameAllLayerData[frame].child0.child0.core.ChangeSelf({property: 'text', value:{value: textValue, width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0, side: 'double'}})
 	}
-
+	//Update Frame from Direction
 	const Update = (frame, direction) => {
 		if(direction === 'forward'){
 			currentImageForward++;
@@ -6689,9 +5582,6 @@ let anim360Data = {
 			if(currentImageBackward >= imageCarousel.images.length){
 				currentImageBackward = 0
 			}
-			//console.log(direction);
-			//console.log(currentImageForward);
-			//console.log(currentImageBackward);
 			UpdateFrame('child'+frame, imageCarousel.images[currentImageForward].text, imageCarousel.images[currentImageForward].image);
 		} else if(direction === 'backward'){
 			currentImageBackward--;
@@ -6702,23 +5592,18 @@ let anim360Data = {
 			if(currentImageForward < 0){
 				currentImageForward = imageCarousel.images.length-1;
 			}
-			//console.log(direction);
-			//console.log(currentImageForward);
-			//console.log(currentImageBackward);
 			UpdateFrame('child'+frame, imageCarousel.images[currentImageBackward].text, imageCarousel.images[currentImageBackward].image);
 		}
 	}
-
+	//Update All Frames
 	const UpdateAll = (direction) => {
 		for(let a = 0; a < imageCarousel.frames; a++){
 			Update(a,direction);
 		}
 		loadingPage = false;
 	}
-
+	//Update Back 2 Frames
 	const UpdateBackTwo = (direction) => {
-		//console.log('Current Rotation')
-		//console.log(currentRotation);
 		let update2 = [];
 		let num;
 		if(direction === 'forward'){
@@ -6743,13 +5628,12 @@ let anim360Data = {
 			}
 			update2.reverse();
 		}
-		//console.log(update2);
 		for(let each in update2){
 			num = update2[each];
 			Update(num,direction);
 		}
 	}
-
+	//Update Back Frame
 	const UpdateBack = (direction) => {
 		let current = autoRotate;
 		let num;
@@ -6772,7 +5656,7 @@ let anim360Data = {
 		}
 		Update(num,direction);
 	}
-
+	//Spawn Image Carousel
 	const SpawnImgCarousel = () => {
 		artFrameAllLayer.SpawnLayer(true);
 		buttonBackwardLayer.SpawnLayer(true);
@@ -6790,13 +5674,12 @@ let anim360Data = {
 		buttonPlayClick.GetEl().addEventListener('click', PlayPause);
 		buttonRightSkipClick.GetEl().addEventListener('click', NextPage);
 		buttonSettingsClick.GetEl().addEventListener('click', Scale);
-		buttonStopClick.GetEl().addEventListener('click', Stop);
+		//buttonStopClick.GetEl().addEventListener('click', Stop);
 		buttonHashtagClick.GetEl().addEventListener('click', RandomPage);
 
 		Init();
-		//AddToImageCarouselSceneTracker();
 	}
-
+	//Despawn Image Carousel
 	const DespawnImgCarousel = () => {
 		buttonBackwardClick.GetEl().removeEventListener('click', Backward);
 		buttonForwardClick.GetEl().removeEventListener('click', Forward);
@@ -6804,7 +5687,7 @@ let anim360Data = {
 		buttonPlayClick.GetEl().removeEventListener('click', PlayPause);
 		buttonRightSkipClick.GetEl().removeEventListener('click', NextPage);
 		buttonSettingsClick.GetEl().removeEventListener('click', Scale);
-		buttonStopClick.GetEl().removeEventListener('click', Stop);
+		//buttonStopClick.GetEl().removeEventListener('click', Stop);
 		buttonHashtagClick.GetEl().removeEventListener('click', RandomPage);
 
 		artFrameAllLayer.DespawnLayer(true);
@@ -6819,11 +5702,10 @@ let anim360Data = {
 
 		RemoveFromTracker(imageCarousel.id);
 	}
-
+	//Move Frames Forward 90 Degrees
 	const Forward = () => {
 		if(notMoving){
 			notMoving = false;
-			//Get current artFrameAllLayer rotation
 			let rotY = artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
 			anim90Data.from = rotY;
 			anim90Data.to = rotY - 90;
@@ -6836,14 +5718,13 @@ let anim360Data = {
 				UpdateBackTwo('forward');
 				notMoving = true;
 				clearTimeout(updateTimeout);
-			}, anim90Data.dur+10); //Delay
+			}, anim90Data.dur+10);
 		}
 	}
-
+	//Move Frames Backward 90 Degrees
 	const Backward = () => {
 		if(notMoving){
 			notMoving = false;
-			//Get current artFrameAllLayer rotation
 			let rotY = artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
 			anim90Data.from = rotY;
 			anim90Data.to = rotY + 90;
@@ -6857,26 +5738,23 @@ let anim360Data = {
 				UpdateBackTwo('backward');
 				notMoving = true;
 				clearTimeout(updateTimeout);
-			}, anim90Data.dur+10); //Delay
+			}, anim90Data.dur+10);
 		}
 	}
-
+	//Toggle Rotating View Animation
 	const PlayPause = () => {
 		if(notPlaying){
 			notPlaying = false;
 			notMoving = false;
-				//currentPage++;
 				playInterval = setInterval(() => {
 					UpdateBack();
 					currentRotation = autoRotate;
 					if(currentRotation === 7){
 						currentRotation = 0;
-						//currentPage++;
 					} else {
 						currentRotation++;
 					}
-				}, anim360Data.dur/8); //Interval
-			//Get current artFrameAllLayer rotation
+				}, anim360Data.dur/8);
 			let rotY = artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
 			anim360Data.from = rotY;
 			anim360Data.to = rotY - 360;
@@ -6889,42 +5767,38 @@ let anim360Data = {
 			notPlaying = true;
 			notMoving = true;
 			clearInterval(playInterval);
-			//Stop current animation
 			artFrameAllLayer.layer.all.parent.core.EmitEvent('pause');
 			buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/play.obj'} })
 			buttonPlayText.ChangeSelf({property: 'text', value: {value:'Play', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'} })
 		}
 	}
-
+	//Stops View Animation & Resets - Disabled
 	const Stop = () => {
 		if(notPlaying){} else {
-			//Stop current animation
-			//artFrameAllLayer.layer.all.parent.core.EmitEvent('pause');
 			let rotY = artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
 			anim45MiscData.from = rotY;
 			anim45MiscData.to = 1;
 			artFrameAllLayer.AnimateParent(anim45MiscData);
-
 			buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/play.obj'} });
 			notPlaying = true;
 			notMoving = true;
 		}
 	}
-
+	//Load Next Page of Images
 	const NextPage = () => {
 		if(loadingPage){} else {
 			loadingPage = true;
 			UpdateAll('forward');
 		}
 	}
-
+	//Load Previous Page of Images
 	const PrevPage = () => {
 		if(loadingPage){} else {
 			loadingPage = true;
 			UpdateAll('backward');
 		}
 	}
-
+	//Load Randomized Page of Images
 	const RandomPage = () => {
 		if(loadingPage){} else {
 			loadingPage = true;
@@ -6932,7 +5806,7 @@ let anim360Data = {
 			UpdateAll('forward');
 		}
 	}
-
+	//Adjust Frame Scale w/ Animation
 	const Scale = () => {
 		//limit effects to the amount of spawned frames
 		if(animating){} else {
@@ -6940,7 +5814,7 @@ let anim360Data = {
 			scaleTimeout = setTimeout(() => {
 				animating = false;
 				clearTimeout(scaleTimeout);
-			}, 2050); //Delay
+			}, 2050);
 			if(scale === 0){
 				scale = 1;
 				artFrameAllLayerData.child0.child0.parent.core.EmitEvent('to0');
@@ -6964,7 +5838,7 @@ let anim360Data = {
 			}
 		}
 	}
-
+	//Toggle Display of Detail Info
 	const Info = () => {
 		if(info){
 			info = false;
@@ -6972,7 +5846,7 @@ let anim360Data = {
 			info = true;
 		}
 	}
-
+	//Prep Images and Detail Info after Spawn
 	const Init = () => {
 		buttonStopClick.EnableDetail({text: imageCarousel.description, position: new THREE.Vector3(0,1.5,-2)});
 		UpdateAll('forward');
@@ -6983,10 +5857,8 @@ let anim360Data = {
 
 
 },
+//Delay Player Load in Animation until Scene is Ready
 checkSceneLoad: function (time, timeDelta) {
-
-	//console.log('loading...');
-	//console.log(this.loadingObjects);
 	if(this.loadingObjects.size <= 0){
 		let sceneTimeout;
 		if(this.player.layer.transition === 'blink'){
@@ -7023,34 +5895,26 @@ checkSceneLoad: function (time, timeDelta) {
 			this.player.layer.teleporting = false;
 			this.player.EnableClick();
 		}
-		//console.log('loading done');
-		//console.log(this.loadingObjects);
 	}
-
 },
+//AUXL Tick - Running Throttled checkSceneLoad()
 tick: function (time, timeDelta) {
-	//Do something on every scene tick or frame.
-	//Throttle
 	if(this.loadingScene){
+		//Run Throttled checkSceneLoad()
 		this.checkSceneLoadThrottled();
 	}
-
 },
 
 });
 
-
 //auxl-library
 //AUXL Library : List of Materials, Geometries, Sounds, Animations, Data, Cores, Layers & Objects
 AFRAME.registerComponent('auxl-library', {
-	dependencies: ['auxl'],
-    //schema: {
-        //clickObj: {type: 'string', default: 'auxlObj'}
-    //},
-    init: function () {
-		//console.log('AUXL Library INIT');
-		//AUXL System
-		const auxl = document.querySelector('a-scene').systems.auxl;
+dependencies: ['auxl'],
+
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
 
 //Colors
 //
@@ -8317,7 +7181,6 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-//Not used just yet
 
 //skyBox0
 auxl.skyBox0Data = {
@@ -8341,140 +7204,7 @@ auxl.moonLayer,
 auxl.skyBox0 = auxl.SkyBox(auxl.skyBox0Data);
 
 //
-//Testing Objects
-
-//Testing Object for Interactions and Events
-auxl.eventTestingData = {
-data:'Event Testing',
-id:'eventTesting',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(-0.75,1.25,-0.75),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
-};
-auxl.eventTesting = auxl.Core(auxl.eventTestingData);
-auxl.eventTesting2Data = {
-data:'Event Testing 2',
-id:'eventTesting2',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#3999a5", emissive: '#3999a5', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0.75,1.25,-0.75),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
-};
-auxl.eventTesting2 = auxl.Core(auxl.eventTesting2Data);
-auxl.eventTesting3Data = {
-data:'Event Testing 3',
-id:'eventTesting3',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern22, repeat: '1 1', color: "#ad482a", emissive: '#ad482a', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,1.25,-0.75),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
-};
-auxl.eventTesting3 = auxl.Core(auxl.eventTesting3Data);
-auxl.eventTesting4Data = {
-data:'Event Testing 4',
-id:'eventTesting4',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern27, repeat: '1 1', color: "#d2e025", emissive: '#d2e025', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,2,-0.75),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
-};
-auxl.eventTesting4 = auxl.Core(auxl.eventTesting4Data);
-auxl.eventTesting5Data = {
-data:'Event Testing 5',
-id:'eventTesting5',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern33, repeat: '1 1', color: "#25e074", emissive: '#25e074', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,1.5,-0.75),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
-};
-auxl.eventTesting5 = auxl.Core(auxl.eventTesting5Data);
-
-auxl.spawnTestingData = {
-data:'spawnTestingData',
-id:'spawnTesting',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern69, repeat: '1 1', color: "#25e074", emissive: '#25e074', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,0.5,-0.5),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1.5,1.5,1.5),
-animations:false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
-};
-auxl.spawnTesting = auxl.Core(auxl.spawnTestingData);
-
-//Sound Testing
-auxl.soundTestingData = {
-data:'Sound Testing',
-id:'soundTesting',
-sources: false,
-sound: {src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['sound','a-ent'],
-components: false,
-};
-auxl.soundTesting = auxl.Core(auxl.soundTestingData);
-
-//
-//ImageSwapper
+//ImageSwapper Testing
 
 //ImageSwapper Main View
 auxl.imageSwapperViewData = {
@@ -8512,9 +7242,7 @@ components: {clickfunc: {clickObj: 'imageSwapper1'}},
 auxl.imageSwapper1 = auxl.ImageSwapper('imageSwapper1',auxl.imageSwapperViewData, auxl.imageSwapperButtonData, auxl.mat0, auxl.mat1, auxl.mat2, auxl.mat3, auxl.mat4);
 
 //
-//ImageCarousel
-
-//Testing
+//ImageCarousel Testing
 auxl.carouselTestingData = {
 id: 'carouselTesting',
 //mode: 360,
@@ -8550,8 +7278,7 @@ images: [
 auxl.carouselTesting = auxl.ImageCarousel(auxl.carouselTestingData);
 
 //
-//Memory Game
-
+//Memory Game Testing
 //Memory 0
 auxl.memory0Data = {
 data:'0',
@@ -8659,145 +7386,138 @@ components: false,
 //Memory Example
 auxl.memory = auxl.MemoryGame('memory',[auxl.memory0Data,auxl.memory1Data,auxl.memory2Data,auxl.memory3Data]);
 
-
 //
-//Horizon
-//mountains,hills,buildings,cylinderWall,squareWall
-//omit texture to use ThreeGradientShader
-//low,normal,high
+//Testing Objects
 
-//Mountains 1
-//Forest Mountains
-auxl.horizonMountains1Data = {
-id: 'horizonMountains1',
-type: 'mountains',
-texture: false,
-baseColor: false,
-baseColorFamily: 'maroon',
-radius: 200,
-density: 'normal',
-height: 'normal',
-width: 'normal',
+//Testing Object for Interactions and Events
+auxl.eventTestingData = {
+data:'Event Testing',
+id:'eventTesting',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(-0.75,1.25,-0.75),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
 };
-auxl.horizonMountains1 = auxl.Horizon(auxl.horizonMountains1Data);
-//Mountains 2
-//Snow Mountains
-auxl.horizonMountains2Data = {
-id: 'horizonMountains2',
-type: 'mountains',
-texture: false,
-baseColor: '#e0d7ca',
-baseColorFamily: false,
-radius: 200,
-density: 'normal',
-height: 'high',
-width: 'normal',
+auxl.eventTesting = auxl.Core(auxl.eventTestingData);
+auxl.eventTesting2Data = {
+data:'Event Testing 2',
+id:'eventTesting2',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#3999a5", emissive: '#3999a5', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0.75,1.25,-0.75),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
 };
-auxl.horizonMountains2 = auxl.Horizon(auxl.horizonMountains2Data);
-//Hills
-//Graveyard Hills
-auxl.horizonHills1Data = {
-id: 'horizonHills1',
-type: 'hills',
-texture: false,
-baseColor: false,
-baseColorFamily: 'olive',
-radius: 200,
-density: 'normal',
-height: 'normal',
-width: 'normal',
+auxl.eventTesting2 = auxl.Core(auxl.eventTesting2Data);
+auxl.eventTesting3Data = {
+data:'Event Testing 3',
+id:'eventTesting3',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern22, repeat: '1 1', color: "#ad482a", emissive: '#ad482a', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,1.25,-0.75),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
 };
-auxl.horizonHills1 = auxl.Horizon(auxl.horizonHills1Data);
-//Wall 1 - Cylinder
-//Desert Wall
-auxl.horizonWalls1Data = {
-id: 'horizonWalls1',
-type: 'cylinderWall',
-texture: false,
-baseColor: false,
-baseColorFamily: 'orange',
-radius: 200,
-density: 'normal',
-height: 'low',
-width: 'normal',
+auxl.eventTesting3 = auxl.Core(auxl.eventTesting3Data);
+auxl.eventTesting4Data = {
+data:'Event Testing 4',
+id:'eventTesting4',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern27, repeat: '1 1', color: "#d2e025", emissive: '#d2e025', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,2,-0.75),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
 };
-auxl.horizonWalls1 = auxl.Horizon(auxl.horizonWalls1Data);
-//Wall2 - Square
-//Underwater
-auxl.horizonWalls2Data = {
-id: 'horizonWalls2',
-type: 'squareWall',
-texture: {src: auxl.pattern55, repeat: '6 4', emissive: true,},
-baseColor: '#275876',
-baseColorFamily: false,
-radius: 100,
-density: 'normal',
-height: 'normal',
-width: 'normal',
+auxl.eventTesting4 = auxl.Core(auxl.eventTesting4Data);
+auxl.eventTesting5Data = {
+data:'Event Testing 5',
+id:'eventTesting5',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern33, repeat: '1 1', color: "#25e074", emissive: '#25e074', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,1.5,-0.75),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
 };
-auxl.horizonWalls2 = auxl.Horizon(auxl.horizonWalls2Data);
-//Wall3 - Square
-//Indoor Room
-auxl.horizonWalls3Data = {
-id: 'horizonWalls3',
-type: 'squareWall',
-texture: {src: auxl.pattern18, repeat: '4 4', emissive: true,},
-baseColor: '#80401f',
-baseColorFamily: false,
-radius: 10,
-density: 'low',
-height: 'low',
-width: 'low',
+auxl.eventTesting5 = auxl.Core(auxl.eventTesting5Data);
+//Spawn Tester
+auxl.spawnTestingData = {
+data:'spawnTestingData',
+id:'spawnTesting',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern69, repeat: '1 1', color: "#25e074", emissive: '#25e074', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.5,-0.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1.5,1.5,1.5),
+animations:false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+//['look-at']:'#camera', 
+},
 };
-auxl.horizonWalls3 = auxl.Horizon(auxl.horizonWalls3Data);
-//Wall4 - Square
-//Cave
-auxl.horizonWalls4Data = {
-id: 'horizonWalls4',
-type: 'squareWall',
-texture: {src: auxl.pattern81, repeat: '4 4', emissive: true,},
-baseColor: '#bc8fa0',
-baseColorFamily: false,
-radius: 10,
-density: 'low',
-height: 'low',
-width: 'low',
+auxl.spawnTesting = auxl.Core(auxl.spawnTestingData);
+//Sound Testing
+auxl.soundTestingData = {
+data:'Sound Testing',
+id:'soundTesting',
+sources: false,
+sound: {src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['sound','a-ent'],
+components: false,
 };
-auxl.horizonWalls4 = auxl.Horizon(auxl.horizonWalls4Data);
-//Buildings
-//Beach Pillars
-auxl.horizonBuildings1Data = {
-id: 'horizonBuildings1',
-type: 'buildings',
-texture: {src: auxl.pattern74, repeat: '1 1'},
-baseColor: false,
-baseColorFamily: 'yellow',
-radius: 200,
-density: 'normal',
-height: 'normal',
-width: 'normal',
-};
-auxl.horizonBuildings1 = auxl.Horizon(auxl.horizonBuildings1Data);
-//Random Buildings
-//Starting Island Misc
-auxl.horizonBuildings2Data = {
-id: 'horizonBuildings2',
-type: 'buildings',
-texture: {src: auxl.patterns, repeat: '2 2', opacity: 1, metalness: 0.4, roughness: 0.6, emissive: true, emissiveIntensity: 0.3,},
-baseColor: false,
-baseColorFamily: false,
-radius: 200,
-density: 'high',
-height: 'high',
-width: 'normal',
-};
-auxl.horizonBuildings2 = auxl.Horizon(auxl.horizonBuildings2Data);
-
-
-//
-//Testing GLTF Material Modification
-
-//modify materials testing
+auxl.soundTesting = auxl.Core(auxl.soundTestingData);
+//GLTF Material Modification Testing
 auxl.testingData = {
 data:'testingData',
 id:'testing',
@@ -8819,7 +7539,7 @@ components:{
 };
 auxl.testing = auxl.Core(auxl.testingData);
 
-    },
+},
 });
 
 //Testing
@@ -8896,10 +7616,8 @@ AFRAME.registerComponent('attach', {
         position: {type: 'vec3'},
     },
     init: function () {
-        //Do something when component first attached.
         //Thing To Attach
         this.attachee = document.getElementById(this.data.idname);
-        //Empty Pos Vec3
         this.offset = new THREE.Vector3();
 		if(this.data.position){
 			this.offset.copy(this.data.position);
@@ -8908,23 +7626,8 @@ AFRAME.registerComponent('attach', {
 		}
         this.newPosVec3 = new THREE.Vector3();
     },
-
-    update: function () {
-        //Do something when component's data is updated.
-    },
-
-    remove: function () {
-        //Do something the component or its entity is detached.
-    },
-
-    tick: function (time, timeDelta) {
-        //Do something on every scene tick or frame.
-        this.attached();
-    },
     attached: function () {
-        //attached
         //Clone current the entity this component is attached to's position
-		//console.log(this.el.object3D.position);
         this.newPosVec3.copy(this.el.object3D.position);
         //Offsets
         this.newPosVec3.x += this.offset.x;
@@ -8932,7 +7635,9 @@ AFRAME.registerComponent('attach', {
         this.newPosVec3.z += this.offset.z;
         //Set position for UI at 3js level for speed!
         this.attachee.object3D.position.copy(this.newPosVec3);
-		//console.log(this.newPosVec3);
+    },
+    tick: function (time, timeDelta) {
+        this.attached();
     },
 });
 
@@ -8954,15 +7659,9 @@ AFRAME.registerComponent('look-at-xyz', {
 		this.matchRotation = new THREE.Euler();
 		this.lookAtXYZThrottled = AFRAME.utils.throttle(this.lookAtXYZ, 30, this);
     },
-    remove: function () {
-        //Do something the component or its entity is detached.
-    },
-    tick: function (time, timeDelta) {
-        //Do something on every scene tick or frame.
-        this.lookAtXYZThrottled();
-    },
     lookAtXYZ: function () {
 		this.matchRotation.copy(this.matchView.object3D.rotation);
+		//Sync X,Y and/or Z
 		if(this.data.x){
 			this.rotation.x = this.matchRotation.x;
 		}
@@ -8972,198 +7671,156 @@ AFRAME.registerComponent('look-at-xyz', {
 		if(this.data.z){
 			this.rotation.z = this.matchRotation.z;
 		}
-        //Set rotation for UI at 3js level for speed!
 		this.el.object3D.rotation.copy(this.rotation);
     },
+    tick: function (time, timeDelta) {
+        this.lookAtXYZThrottled();
+    },
 });
 
 //
-//Click event listener for obj.Click(el) within auxl system
+//Event Listener Components to run Auxl.Object.Methods()
+
+//Attach to run Object's .Click() method on click
 AFRAME.registerComponent('clickfunc', {
-//el.setAttribute('clickfunc',{clickObj: 'auxlObj'})
-//auxlObj is a string exact name for a this.auxlObj named object which has it's Click() func ran
-	dependencies: ['auxl'],
-    schema: {
-        clickObj: {type: 'string', default: 'auxlObj'}
-    },
-    init: function () {
-        //Do something when component first attached.
-		this.auxl = document.querySelector('a-scene').systems.auxl;
-    },//End initialization Function
-	events: {
-		click: function (evt) {
-			//console.log('Clicked on ' + evt.target.id);
-			//console.log(evt.target);
-			//console.log(this.data.clickObj);//zone0?auxlObj
-			this.auxl[this.data.clickObj].Click(evt.target);
-		}
+dependencies: ['auxl'],
+schema: {
+	clickObj: {type: 'string', default: 'auxlObj'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+events: {
+	click: function (evt) {
+		this.auxl[this.data.clickObj].Click(evt.target);
 	}
+},
 });
-//
+//Attach to run specified method from Object on click event
 AFRAME.registerComponent('clickrun', {
-	dependencies: ['auxl'],
-    schema: {
-        cursorObj: {type: 'string', default: 'auxlObj'},
-        method: {type: 'string', default: 'Click'},
-        params: {type: 'string', default: 'null'}
-    },
-    init: function () {
-        //Do something when component first attached.
-		//console.log('clickrun attached');
-		this.auxl = document.querySelector('a-scene').systems.auxl;
-    },//End initialization Function
-	events: {
-		click: function (evt) {
-			//console.log('Clicked on ' + evt.target.id);
-			//console.log(evt.target);
-			//console.log(this.data.cursorObj);
-			//console.log(this.data.method);
-			//console.log(this.data.params);
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				this.auxl[this.data.cursorObj][this.data.method](evt.target);
-			}
-
+dependencies: ['auxl'],
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+events: {
+	click: function (evt) {
+		if(this.auxl[this.data.cursorObj][this.data.method]){
+			this.auxl[this.data.cursorObj][this.data.method](evt.target);
 		}
 	}
+},
 });
-//
+//Attach to run specified method from Object on fusing event
 AFRAME.registerComponent('fusingrun', {
-	dependencies: ['auxl'],
-    schema: {
-        cursorObj: {type: 'string', default: 'auxlObj'},
-        method: {type: 'string', default: 'methodName'},
-        params: {type: 'string', default: 'null'}
-    },
-    init: function () {
-        //Do something when component first attached.
-		//console.log('clickrun attached');
-		this.auxl = document.querySelector('a-scene').systems.auxl;
-    },//End initialization Function
-	events: {
-		fusing: function (evt) {
-			//console.log('Fused on ' + evt.target.id);
-			//console.log(evt.target);
-			//console.log(this.data.cursorObj);
-			//console.log(this.data.method);
-			//console.log(this.data.params);
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				this.auxl[this.data.cursorObj][this.data.method](evt.target);
-			}
-
+dependencies: ['auxl'],
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+events: {
+	fusing: function (evt) {
+		if(this.auxl[this.data.cursorObj][this.data.method]){
+			this.auxl[this.data.cursorObj][this.data.method](evt.target);
 		}
 	}
+},
 });
-//
+//Attach to run specified method from Object on mousedown event
 AFRAME.registerComponent('mousedownrun', {
-	dependencies: ['auxl'],
-    schema: {
-        cursorObj: {type: 'string', default: 'auxlObj'},
-        method: {type: 'string', default: 'methodName'},
-        params: {type: 'string', default: 'null'}
-    },
-    init: function () {
-        //Do something when component first attached.
-		//console.log('clickrun attached');
-		this.auxl = document.querySelector('a-scene').systems.auxl;
-    },//End initialization Function
-	events: {
-		mousedown: function (evt) {
-			//console.log('Cursor down on ' + evt.target.id);
-			//console.log(evt.target);
-			//console.log(this.data.cursorObj);
-			//console.log(this.data.method);
-			//console.log(this.data.params);
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				this.auxl[this.data.cursorObj][this.data.method](evt.target);
-			}
-
+dependencies: ['auxl'],
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+events: {
+	mousedown: function (evt) {
+		if(this.auxl[this.data.cursorObj][this.data.method]){
+			this.auxl[this.data.cursorObj][this.data.method](evt.target);
 		}
 	}
+},
 });
-//
+//Attach to run specified method from Object on mouseenter event
 AFRAME.registerComponent('mouseenterrun', {
-	dependencies: ['auxl'],
-    schema: {
-        cursorObj: {type: 'string', default: 'auxlObj'},
-        method: {type: 'string', default: 'methodName'},
-        params: {type: 'string', default: 'null'}
-    },
-    init: function () {
-        //Do something when component first attached.
-		//console.log('clickrun attached');
-		this.auxl = document.querySelector('a-scene').systems.auxl;
-    },//End initialization Function
-	events: {
-		mouseenter: function (evt) {
-			//console.log('Cursor entered on ' + evt.target.id);
-			//console.log(evt.target);
-			//console.log(this.data.cursorObj);
-			//console.log(this.data.method);
-			//console.log(this.data.params);
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				this.auxl[this.data.cursorObj][this.data.method](evt.target);
-			}
-
+dependencies: ['auxl'],
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+events: {
+	mouseenter: function (evt) {
+		if(this.auxl[this.data.cursorObj][this.data.method]){
+			this.auxl[this.data.cursorObj][this.data.method](evt.target);
 		}
 	}
+},
 });
-//
+//Attach to run specified method from Object on mouseleave event
 AFRAME.registerComponent('mouseleaverun', {
-	dependencies: ['auxl'],
-    schema: {
-        cursorObj: {type: 'string', default: 'auxlObj'},
-        method: {type: 'string', default: 'methodName'},
-        params: {type: 'string', default: 'null'}
-    },
-    init: function () {
-        //Do something when component first attached.
-		//console.log('clickrun attached');
-		this.auxl = document.querySelector('a-scene').systems.auxl;
-    },//End initialization Function
-	events: {
-		mouseleave: function (evt) {
-			//console.log('Cursor left from ' + evt.target.id);
-			//console.log(evt.target);
-			//console.log(this.data.cursorObj);
-			//console.log(this.data.method);
-			//console.log(this.data.params);
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				this.auxl[this.data.cursorObj][this.data.method](evt.target);
-			}
-
+dependencies: ['auxl'],
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+events: {
+	mouseleave: function (evt) {
+		if(this.auxl[this.data.cursorObj][this.data.method]){
+			this.auxl[this.data.cursorObj][this.data.method](evt.target);
 		}
 	}
+},
 });
-//
+//Attach to run specified method from Object on mouseup event
 AFRAME.registerComponent('mouseuprun', {
-	dependencies: ['auxl'],
-    schema: {
-        cursorObj: {type: 'string', default: 'auxlObj'},
-        method: {type: 'string', default: 'methodName'},
-        params: {type: 'string', default: 'null'}
-    },
-    init: function () {
-        //Do something when component first attached.
-		//console.log('clickrun attached');
-		this.auxl = document.querySelector('a-scene').systems.auxl;
-    },//End initialization Function
-	events: {
-		mouseup: function (evt) {
-			//console.log('Cursor up from' + evt.target.id);
-			//console.log(evt.target);
-			//console.log(this.data.cursorObj);
-			//console.log(this.data.method);
-			//console.log(this.data.params);
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				this.auxl[this.data.cursorObj][this.data.method](evt.target);
-			}
-
+dependencies: ['auxl'],
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+events: {
+	mouseup: function (evt) {
+		if(this.auxl[this.data.cursorObj][this.data.method]){
+			this.auxl[this.data.cursorObj][this.data.method](evt.target);
 		}
 	}
+},
 });
 
 //
 //Locomotion
+//Walk or Run Player in Camera Direction from Selection
 AFRAME.registerComponent('locomotion', {
 dependencies: ['auxl'],
 schema: {
@@ -9171,10 +7828,9 @@ schema: {
 	courserid: {type: 'string', default: 'mouseCursor'},
 	movetype: {type: 'string', default: 'vr'},
 },
-
 init: function () {
+	//AUXL System Connection
 	const auxl = document.querySelector('a-scene').systems.auxl;
-	// Set up the tick throttling.
 	this.everySomeThrottled = AFRAME.utils.throttle(this.everySome, 30, this);
 
 	//Schema Imoprt
@@ -9208,7 +7864,6 @@ init: function () {
 	this.quaternion = new THREE.Quaternion();
 	this.vector;
 	this.angle;
-	//this.theta;
 
 	//Attach to Player Support
 	this.elPosVec3New = new THREE.Vector3();
@@ -9225,7 +7880,7 @@ init: function () {
 	this.newZ;
 
 	//Locomotion Support
-	//Brake Engaged by Default
+	//Brake Engaged by Default aka Slow Speed
 	this.moveTo = false;
 	this.moveBack = false;
 	this.moveRight = false;
@@ -9295,11 +7950,8 @@ clearMovement: function (){
 },
 //Toggle Speed Change
 toggleSpeed: function (){
-	//console.log('Toggling Speed');
-	//Brake is disabled for 1.5 seconds after engaging
 	if(this.brakeReady){
 		if(this.brakeToggle){
-			//console.log('Break On');
 			//Set reset switch toggle
 			this.brakeToggle = false;
 			//Set reset timer switch toggle
@@ -9307,7 +7959,6 @@ toggleSpeed: function (){
 			//Brake On
 			this.moveBrake = true;
 		} else {
-			//console.log('Break Off');
 			//Set reset switch toggle
 			this.brakeToggle = true;
 			//Set reset timer switch toggle
@@ -9319,36 +7970,32 @@ toggleSpeed: function (){
 			//Set reset switch toggle
 			this.brakeReady = true;
 			clearTimeout(this.brakeReset);
-		}, 250); //Delay
+		}, 250);
 	}
 },
-//Buffer for Toggling Speed Change Long
+//Long Buffer for Toggling Speed Change
 brakeReadBufferLong: function (){
 	//This will start the reset timer to allow the brake to be re-engadged
-	//Brake Reset Timeout
 	this.brakeReset = setTimeout(() => {
-		//Set reset switch toggle
 		this.brakeReady = true;
 		clearTimeout(this.brakeReset);
-	}, 2250); //Delay
+	}, 2250);
 },
-
+//Hover Interaction on Belt UI
 hoverLocomotion: function (e) {
-	//Brake is disabled for 1.5 seconds after engaging
 	if(this.brakeReady){
 		if(this.brakeToggle){
 			//Set reset switch toggle
 			this.brakeToggle = false;
 			//Set reset timer switch toggle
 			this.brakeReady = false;
-			//Brake On
 			this.moveBrake = true;
-			//set brake color to red
+			//Set brake color to red
 			this.directionBrake1.setAttribute('material', {color: 'red'});
 			this.directionBrake2.setAttribute('material', {color: 'red'});
 			this.directionBrake3.setAttribute('material', {color: 'red'});
 			this.directionBrake4.setAttribute('material', {color: 'red'});
-			//anim positition for forward/reverse bar and brakes
+			//Anim positition for forward/reverse bar and brakes
 			this.directionForward.emit('brakeOn',{});
 			this.directionReverse.emit('brakeOn',{});
 			this.directionBrake1.emit('brakeOn',{});
@@ -9360,14 +8007,13 @@ hoverLocomotion: function (e) {
 			this.brakeToggle = true;
 			//Set reset timer switch toggle
 			this.brakeReady = false;
-			//Brake Off
 			this.moveBrake = false;
-			//set brake color to default
+			//Set brake color to default
 			this.directionBrake1.setAttribute('material', {color: 'black'});
 			this.directionBrake2.setAttribute('material', {color: 'black'});
 			this.directionBrake3.setAttribute('material', {color: 'black'});
 			this.directionBrake4.setAttribute('material', {color: 'black'});
-			//anim positition for forward/reverse bar back to default
+			//Anim positition for forward/reverse bar back to default
 			this.directionForward.emit('brakeOff',{});
 			this.directionReverse.emit('brakeOff',{});
 			this.directionBrake1.emit('brakeOff',{});
@@ -9377,7 +8023,6 @@ hoverLocomotion: function (e) {
 		}
 	}
 },
-
 update: function () {
 	//Locomotion Support
 	//Brake Engaged by Default
@@ -9405,8 +8050,11 @@ update: function () {
 
 	//Keyboard Controller Event Listeners
 	if(this.movetype === 'desktop'){
+		//Controlled by Universal Controls
 	} else if(this.movetype === 'mobile'){
+		//Controlled by Universal Controls
 	} else if(this.movetype === 'vr'){
+		//Controlled by Universal Controls
 	} else if(this.movetype === 'vrHover'){
 		//this.vrController1 = document.getElementById('vrController1');
 		this.directionForward = document.getElementById('locomotionForwardUI');
@@ -9428,42 +8076,33 @@ update: function () {
 		document.querySelectorAll('.directionBrake').forEach(item => {
 			item.addEventListener('mouseenter', event => this.hoverLocomotionEvent)
 		});
-
 		document.querySelectorAll('.directionBrake').forEach(item => {
 			item.addEventListener('mouseleave', event => this.brakeReadBufferLong)
 		});
 	}
 },
-
 remove: function () {
-	//Keyboard Controller Event Listeners
 	if(this.movetype === 'desktop'){
+		//Controlled by Universal Controls
 	} else if(this.movetype === 'mobile'){
+		//Controlled by Universal Controls
 	} else if(this.movetype === 'vr'){
+		//Controlled by Universal Controls
 	} else if(this.movetype === 'vrHover'){
-		//directionForward
 		this.directionForward.removeEventListener('mouseenter', this.movingForward);
 		this.directionForward.removeEventListener('mouseleave', this.cancelForward);
-		//directionReverse
 		this.directionReverse.removeEventListener('mouseenter', this.movingReverse);
 		this.directionReverse.removeEventListener('mouseleave', this.cancelReverse);
-
 		document.querySelectorAll('.directionBrake').forEach(item => {
 			item.removeEventListener('mouseenter', event => this.hoverLocomotionEvent)
 		});
-
 		document.querySelectorAll('.directionBrake').forEach(item => {
 			item.removeEventListener('mouseleave', event => this.brakeReadBufferLong)
 		});
-
 	}
-
 },
-
+//Listen for Directions
 everySome: function (time, timeDelta) {
-	//Do something on every scene tick or frame.
-	//console.log('everysome running');
-	//console.log(move);
 	if(this.moveBrake){
 		if(this.moveTo && this.moveRight) {
 			this.walk('forwardRight', this.moveSpeedSlow);
@@ -9502,279 +8141,205 @@ everySome: function (time, timeDelta) {
 		}
 	}
 },
-
 tick: function (time, timeDelta) {
-	//Do something on every scene tick or frame.
-	//Throttle
 	this.everySomeThrottled();
-
-	//Run uiSync Function
+	//Sync Belt
 	if(this.movetype === 'vrHover'){
 		this.uiSync();
 	}
-
 },
-
 //Function to calculate distance between two points
 distance: function(x1, y1, x2,  y2) {
     //Calculating distance
     return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) * 1.0);
 },
-
+//Sync Belt UI
 uiSync: function () {
-	//uiSync
-	//Clone current the entity this component is attached to's position
 	this.elPosVec3New.copy(this.el.object3D.position);
 	//No Offsets as UI Parent is at 0 0 0
-	//Set position for UI at 3js level for speed!
 	this.ui.object3D.position.copy(this.elPosVec3New);
 },
-
+//Walk in Direction of Camera
 walk: function (action, speed) {
-//console.log('walking');
-
-this.cameraVector = new THREE.Vector3();
-this.positionNew = new THREE.Vector3();
-
-this.velocity = speed;
-//Get Camera Vec3
-this.camera.object3D.getWorldDirection(this.cameraVector);
-this.positionPlayer.copy(this.player.object3D.position);
-//Math out the Angle
-//Degrees from -180 to 0 to 180
-//this.angleDeg = Math.atan2(this.cameraVector.x,this.cameraVector.z) * 180 / Math.PI;
-//console.log(this.angleDeg)
-//Radians
-this.angle = Math.atan2(this.cameraVector.x,this.cameraVector.z);
-// 0 < θ < π/2
-//Quadrants
-//1 - Front Left
-//2 - Front Right
-//3 - Back Left
-//4 - Back Right
-if(action === 'forwardRight'){
-	//check which quadrant the vector is in
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		//console.log('1');
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		this.angle += Math.PI;
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		//console.log('2');
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		//console.log('3');
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		this.angle += (Math.PI * 2);
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		//console.log('4');
-	} else {
-		this.positionNew.x = this.positionPlayer.x + this.velocity;
-		this.positionNew.z = this.positionPlayer.z - this.velocity;
-		//console.log('0 Angle');
+	this.velocity = speed;
+	this.cameraVector = new THREE.Vector3();
+	this.camera.object3D.getWorldDirection(this.cameraVector);
+	this.positionNew = new THREE.Vector3();
+	this.positionPlayer.copy(this.player.object3D.position);
+	//Math out the Angle of Camera
+	this.angle = Math.atan2(this.cameraVector.x,this.cameraVector.z);
+	//Quadrant 1 : -x, -z
+	//Quadrant 2 : +x, -z
+	//Quadrant 3 : -x, +z
+	//Quadrant 4 : +x, +z
+	if(action === 'forwardRight'){
+		//Check Camera Angle Quadrant
+		if(this.angle > 0 && this.angle < Math.PI/2) {
+			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+			this.angle += Math.PI;
+			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+			this.angle += (Math.PI * 2);
+			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		} else {
+			this.positionNew.x = this.positionPlayer.x + this.velocity;
+			this.positionNew.z = this.positionPlayer.z - this.velocity;
+		}
+	} else if(action === 'forwardLeft'){
+		//Check Camera Angle Quadrant
+		if(this.angle > 0 && this.angle < Math.PI/2) {
+			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+			this.angle += Math.PI;
+			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+			this.angle += (Math.PI * 2);
+			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		} else {
+			this.positionNew.x = this.positionPlayer.x - this.velocity;
+			this.positionNew.z = this.positionPlayer.z - this.velocity;
+		}
+	} else if(action === 'reverseRight'){
+		//Check Camera Angle Quadrant
+		if(this.angle > 0 && this.angle < Math.PI/2) {
+			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+			this.angle += Math.PI;
+			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+			this.angle += (Math.PI * 2);
+			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		} else {
+			this.positionNew.x = this.positionPlayer.x + this.velocity;
+			this.positionNew.z = this.positionPlayer.z + this.velocity;
+		}
+	} else if(action === 'reverseLeft'){
+		//Check Camera Angle Quadrant
+		if(this.angle > 0 && this.angle < Math.PI/2) {
+			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+			this.angle += Math.PI;
+			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+			this.angle += (Math.PI * 2);
+			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
+		} else {
+			this.positionNew.x = this.positionPlayer.x - this.velocity;
+			this.positionNew.z = this.positionPlayer.z + this.velocity;
+		}
+	} else if(action === 'forward'){
+		//Check Camera Angle Quadrant
+		if(this.angle > 0 && this.angle < Math.PI/2) {
+			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
+		} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+			this.angle += Math.PI;
+			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
+		} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
+		} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+			this.angle += (Math.PI * 2);
+			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
+		} else {
+			this.positionNew.x = this.positionPlayer.x;
+			this.positionNew.z = this.positionPlayer.z - this.velocity;
+		}
+	} else if(action === 'reverse'){
+		//Check Camera Angle Quadrant
+		if(this.angle > 0 && this.angle < Math.PI/2) {
+			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
+		} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+			this.angle += Math.PI;
+			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
+		} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
+		} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+			this.angle += (Math.PI * 2);
+			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
+		} else {
+			this.positionNew.x = this.positionPlayer.x;
+			this.positionNew.z = this.positionPlayer.z + this.velocity;
+		}
+	} else if(action === 'right'){
+		//Check Camera Angle Quadrant
+		if(this.angle > 0 && this.angle < Math.PI/2) {
+			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+			this.angle += Math.PI;
+			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+			this.angle += (Math.PI * 2);
+			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
+		} else {
+			this.positionNew.x = this.positionPlayer.x + this.velocity;
+			this.positionNew.z = this.positionPlayer.z;
+		}
+	} else if(action === 'left'){
+		//Check Camera Angle Quadrant
+		if(this.angle > 0 && this.angle < Math.PI/2) {
+			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle < 0 && this.angle > -Math.PI/2) {
+			this.angle += Math.PI;
+			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
+			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
+		} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
+			this.angle += (Math.PI * 2);
+			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
+			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
+		} else {
+			this.positionNew.x = this.positionPlayer.x - this.velocity;
+			this.positionNew.z = this.positionPlayer.z;
+		}
 	}
-} else if(action === 'forwardLeft'){
-	//check which quadrant the vector is in
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		//console.log('1');
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		this.angle += Math.PI;
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		//console.log('2');
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		//console.log('3');
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		this.angle += (Math.PI * 2);
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		//console.log('4');
-	} else {
-		this.positionNew.x = this.positionPlayer.x - this.velocity;
-		this.positionNew.z = this.positionPlayer.z - this.velocity;
-		//console.log('0 Angle');
-	}
-} else if(action === 'reverseRight'){
-	//check which quadrant the vector is in
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		//console.log('1');
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		this.angle += Math.PI;
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		//console.log('2');
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		//console.log('3');
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		this.angle += (Math.PI * 2);
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		//console.log('4');
-	} else {
-		this.positionNew.x = this.positionPlayer.x + this.velocity;
-		this.positionNew.z = this.positionPlayer.z + this.velocity;
-		//console.log('0 Angle');
-	}
-} else if(action === 'reverseLeft'){
-	//check which quadrant the vector is in
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		//console.log('1');
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		this.angle += Math.PI;
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		//console.log('2');
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		//console.log('3');
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		this.angle += (Math.PI * 2);
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		//console.log('4');
-	} else {
-		this.positionNew.x = this.positionPlayer.x - this.velocity;
-		this.positionNew.z = this.positionPlayer.z + this.velocity;
-		//console.log('0 Angle');
-	}
-} else if(action === 'forward'){
-	//check which quadrant the vector is in
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		//console.log('1');
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		this.angle += Math.PI;
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		//console.log('2');
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		//console.log('3');
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		this.angle += (Math.PI * 2);
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		//console.log('4');
-	} else {
-		this.positionNew.x = this.positionPlayer.x;
-		this.positionNew.z = this.positionPlayer.z - this.velocity;
-		//console.log('0 Angle');
-	}
-} else if(action === 'reverse'){
-	//check which quadrant the vector is in
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		//console.log('1');
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		this.angle += Math.PI;
-		this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		//console.log('2');
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		//console.log('3');
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		this.angle += (Math.PI * 2);
-		this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		//console.log('4');
-	} else {
-		this.positionNew.x = this.positionPlayer.x;
-		this.positionNew.z = this.positionPlayer.z + this.velocity;
-		//console.log('0 Angle');
-	}
-} else if(action === 'right'){
-	//check which quadrant the vector is in
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		//console.log('1');
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		this.angle += Math.PI;
-		this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		//console.log('2');
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		//console.log('3');
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		this.angle += (Math.PI * 2);
-		this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		//console.log('4');
-	} else {
-		this.positionNew.x = this.positionPlayer.x + this.velocity;
-		this.positionNew.z = this.positionPlayer.z;
-		//console.log('0 Angle');
-	}
-
-} else if(action === 'left'){
-	//check which quadrant the vector is in
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		//console.log('1');
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		this.angle += Math.PI;
-		this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		//console.log('2');
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		//console.log('3');
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		this.angle += (Math.PI * 2);
-		this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-		this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		//console.log('4');
-	} else {
-		this.positionNew.x = this.positionPlayer.x - this.velocity;
-		this.positionNew.z = this.positionPlayer.z;
-		//console.log('0 Angle');
-	}
-}
-
-this.positionNew.y = this.positionPlayer.y;
-
-//No Offsets as UI Parent is at 0 0 0
-//Set position for UI at 3js level for speed!
-this.player.object3D.position.copy(this.positionNew);
-//console.log(this.angle);
-//console.log(this.positionNew);
-
+	this.positionNew.y = this.positionPlayer.y;
+	this.player.object3D.position.copy(this.positionNew);
 },
-
-//spawnwithuser support
+//Camera Direction to Spawn Assets In - Unused Currently
 userDirection: function (){
-	//Get User's current XZ position
 	this.userPos = this.player.getAttribute('position');
-	//Check current User Rotation view
-	//let userRot = user.getAttribute('rotation');
 	this.userRot = this.camera.getAttribute('rotation');
-
-	//Could use userTravel and userView to determine a shorter distance in which a particle is flagged for respawn. Think as soon as something is out of the users view like they just walked past it.
-
 	//Check which direction the user is traveling
 	if((this.userPreviousPos.x + this.userPos.x < 0) && (this.userPreviousPos.z + this.userPos.z < 0)){
 		//northWest -x-z
@@ -9798,9 +8363,6 @@ userDirection: function (){
 	//If POV Rotation is more then 360 or -360, divide it by sets of 360 to obtain 0-360 degrees to assign from
 	if( this.userRot.y > 360) {
 		let radials = this.userRot.y / 360;
-		//Test Logging
-		//console.log(radials);
-		//console.log(Math.floor(radials));
 		this.userPov = ((Math.floor(radials)) * 360 ) - this.userRot.y;
 		this.userPov *= -1;
 	} else if(this.userRot.y < -360) {
@@ -9810,7 +8372,6 @@ userDirection: function (){
 	} else {
 		this.userPov = this.userRot.y;
 	}
-
 	//Check which direciton the User is facing
 	if ((this.userPov > 0 && this.userPov < 15) || (this.userPov > 345 && this.userPov < 360)) {
 			//North
@@ -9863,11 +8424,6 @@ userDirection: function (){
 		} else {
 			this.userView = 'north';
 		}
-
-	//Test Logging
-	console.log("User Direction: " + this.userView);
-
-
 	//Depending on the User's facing direction, spawn in that quadrant
 	if(this.userView === "northWest"){// -x -z
 		this.positionTemp.x = (this.velocity + this.positionPlayer.x) * -1;
@@ -9905,19 +8461,21 @@ userDirection: function (){
 
 //
 //Teleportation
+//Component for Teleportation Points Object
 AFRAME.registerComponent('teleportation',{
 dependencies: ['auxl'],
+//Uses Player's Scene Transition Type to Teleport
+//Locomotion Teleportation also supported 
 init: function(){
-	//Prepare
-	if (this.el.classList.contains('teleport')) {
-		//Set parent wrapper's active status
+	//Prepare Teleport Controls
+	if(this.el.classList.contains('teleport')){
 		this.el.parentNode.setAttribute('active', 'false');
-	} else if (this.el.classList.contains('cancel')) {
+	} else if(this.el.classList.contains('cancel')){
 		this.el.classList.toggle('clickable', false);
-		//Set parent wrapper's active status
 		this.el.parentNode.setAttribute('active', 'false');
 	}
 },
+//Instantly Reset All Teleportation Points
 resetTeleCircles: function () {
 	this.allTeleportors = document.querySelectorAll('.teleporter');
 	for (let i= 0; i < this.allTeleportors.length; i++){
@@ -9927,26 +8485,25 @@ resetTeleCircles: function () {
 		}
 	}
 },
+//Reset of Teleportation Point
 resetInstantEvent: function () {
-	if (this.classList.contains('teleport')) {
-		//Reset parent wrapper's active status
+	if(this.classList.contains('teleport')) {
 		this.parentNode.setAttribute('active', 'false');
 	} else if(this.classList.contains('cancel')) {
 		this.classList.toggle('clickable', false);
-		//Reset parent wrapper's active status
 		this.parentNode.setAttribute('active', 'false');
 	}
 },
+//Regular Reset of Teleportation Point
 resetEvent: function () {
-	if (this.classList.contains('teleport')) {
-		//Reset parent wrapper's active status
+	if(this.classList.contains('teleport')){
 		this.parentNode.setAttribute('active', 'false');
-	} else if(this.classList.contains('cancel')) {
+	} else if(this.classList.contains('cancel')){
 		this.classList.toggle('clickable', false);
-		//Reset parent wrapper's active status
 		this.parentNode.setAttribute('active', 'false');
 	}
 },
+//Dynamically Teleport to Point Selected
 clickToTeleport: function () {
 	let element = this;
 	let user = document.getElementById('playerRig');
@@ -9959,7 +8516,8 @@ clickToTeleport: function () {
 	let allTeleportors = document.querySelectorAll('.teleporter');
 	let posTimeout;
 	let animTimeout;
-
+	//Player Transition Animation
+	//Replace with integrated Player Method
 	function playerTeleportAnim(){
 		if(auxl.player.layer.teleporting){} else {
 			auxl.player.layer.teleporting = true;
@@ -9967,8 +8525,8 @@ clickToTeleport: function () {
 				auxl.player.TempDisableClick();
 				auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
 				auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.blink1Screen.EmitEvent('blinkPort');
-				auxl.blink2Screen.EmitEvent('blinkPort');
+				auxl.blink1Screen.EmitEvent('blink');
+				auxl.blink2Screen.EmitEvent('blink');
 				animTimeout = setTimeout(function () {
 					auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
 					auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
@@ -9978,7 +8536,7 @@ clickToTeleport: function () {
 			} else if (auxl.player.layer.transition === 'fade'){
 				auxl.player.TempDisableClick();
 				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.fadeScreen.EmitEvent('fadePort');
+				auxl.fadeScreen.EmitEvent('fade');
 				animTimeout = setTimeout(function () {
 					auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
 					auxl.player.layer.teleporting = false;
@@ -9987,7 +8545,7 @@ clickToTeleport: function () {
 			} else if (auxl.player.layer.transition === 'sphere'){
 				auxl.player.TempDisableClick();
 				auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.sphereScreen.EmitEvent('spherePort');
+				auxl.sphereScreen.EmitEvent('sphere');
 				animTimeout = setTimeout(function () {
 					auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
 					auxl.player.layer.teleporting = false;
@@ -10001,19 +8559,20 @@ clickToTeleport: function () {
 			}
 		}
 	}
-
+	//Prepare Player Movement
 	function prepMove(element, newPos, telePos){
 		//Do an reset on element to not interfer with anim
-		element.emit('reset',{});//select circle
-		element.nextSibling.emit('reset',{});//cancel circle
+		//Selected Circle
+		element.emit('reset',{});
+		//Cancel Circle
+		element.nextSibling.emit('reset',{});
 		//Clone current entity's position User
 		newPos.copy(telePos);
 		//Reset User's Y back to 0 - Flat Mode
 		newPos.y = 0;
 	}
-
+	//Instantly Reset All Teleportation Points
 	function resetTeleCircles(){
-		//this.allTeleportors = document.querySelectorAll('.teleporter');
 		for(let i= 0; i < allTeleportors.length; i++){
 			if(allTeleportors[i].parentNode.getAttribute('active') === 'true') {
 				allTeleportors[i].emit('resetInstant',{});
@@ -10021,13 +8580,11 @@ clickToTeleport: function () {
 			}
 		}
 	}
-
+	//Teleport Control
 	if(element.parentNode.getAttribute('active') === 'false') {
-		//default state
 		//Allow cancel circle to be viewable and clickable
 		element.nextSibling.classList.toggle('clickable', true);
 		element.nextSibling.emit('click1',{});
-		//Set rotation anim for select circle
 		element.userPov = userView.getAttribute('rotation');
 		element.rotationParams = {
 			property: 'object3D.rotation.y',
@@ -10042,13 +8599,11 @@ clickToTeleport: function () {
 			enabled: 'true',
 			};
 		element.parentNode.setAttribute('animation__rotateToUser', element.rotationParams);
-		//if clicked once and activated, setAttribute that be checked for reset
 		element.parentNode.setAttribute('active', 'true');
 	} else {
-
-		//circle1 and circle2 are ready to be clicked
-		//if circle1 was selected, teleport user and reset properties
-		//if circle2 was selcted, reset properties
+		//Confirm and Cancel circle are ready to be clicked
+		//if Confirm was selected, teleport user and reset properties
+		//if Cancel was selcted, reset properties
 		if(element.classList.contains('teleport')) {
 			//Teleportation Type
 			if(teleportType === 'instant') {
@@ -10112,7 +8667,6 @@ update: function () {
 	this.el.addEventListener('click', this.clickToTeleport);
 },
 remove: function () {
-	//Do something the component or its entity is detached.
 	this.el.removeEventListener('reset', this.resetEvent);
 	this.el.removeEventListener('resetInstant', this.resetInstantEvent);
 	this.el.removeEventListener('click', this.clickToTeleport);
@@ -10121,7 +8675,10 @@ remove: function () {
 
 //
 //Raycast Teleportation
+//Add to Clickable Object to Teleport to Raycast Intersection Position
 AFRAME.registerComponent('raycast-teleportation', {
+//Uses Player's Scene Transition Type to Teleport
+//Locomotion Teleportation also supported 
 init: function () {},
 clickToTeleport: function (event) {
 	let user = document.getElementById('playerRig');
@@ -10135,6 +8692,8 @@ clickToTeleport: function (event) {
 	let posTimeout;
 	let animTimeout;
 
+	//Player Transition Animation
+	//Replace with integrated Player Method
 	function playerTeleportAnim(){
 		if(auxl.player.layer.teleporting){} else {
 			auxl.player.layer.teleporting = true;
@@ -10176,7 +8735,7 @@ clickToTeleport: function (event) {
 			}
 		}
 	}
-
+	//Prepare Movement
 	function prepMove(newPos, telePos){
 		//Clone current entity's position User
 		newPos.copy(telePos);
@@ -10184,7 +8743,7 @@ clickToTeleport: function (event) {
 		newPos.y = 0;
 	}
 
-	//Teleportation Type
+	//Teleportation Based on Player Transition Type
 	if(teleportType === 'instant') {
 		prepMove(newPosition, teleportPos);
 		posTimeout = setTimeout(function () {
@@ -10243,6 +8802,7 @@ remove: function () {
 
 //
 //Universal Controls
+//Customizable Controls and Methods, Defaults for Locomotion and Snap Turning
 AFRAME.registerComponent('universal-controls', {
 dependencies: ['auxl'],
 schema: {
@@ -10683,7 +9243,7 @@ this.snapRightHit = (e) => {
 }
 
     },
-//DEV
+//Dev Input Display
 updateInput: function (input){
 	//Display Inputs - DEV Testing
 	const displayInput = document.querySelector('#displayInput');
@@ -10922,7 +9482,7 @@ action6: function (e){
 		}
 	}
 },
-
+//Keyboard Controls
 keyboardDown: function (e){
 	if(this.controls.directionForwardKeys.includes(e.key)) {
 		//Direction : Forward
@@ -11119,12 +9679,11 @@ questJoystickOther: function (e){
 		this.updateInput('Rotation|Duck Clear');
 	}
 },
-
+//Temp Blank
 blank: function (e){
 	console.log(e);
 	this.updateInput('Blank Button');
 },
-
 update: function () {
 
 	//Universal Events
@@ -11242,10 +9801,6 @@ let initTimeout = setTimeout(() => {
 	this.mobileE.addEventListener('touchend', this.action5Up);
 	this.mobileF.addEventListener('touchstart', this.action6Down);
 	this.mobileF.addEventListener('touchend', this.action6Up);
-	//touchstart
-	//touchend
-	//touchcancel
-	//touchmove
 
 	//document.addEventListener('mousedown', this.mainClickDown);
 	//document.addEventListener('mouseup', this.mainClickUp);
