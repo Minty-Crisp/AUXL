@@ -6,8 +6,9 @@ Built specifically for use with [A-Frame](https://github.com/aframevr/). Essenti
 
 [View Demo Example Scenario](https://minty-crisp.github.io/AUXL/)
 
-# AUXL is still an in progress build!
-While ready to be tested and played with, various in-progress improvements for v0.2 will solidify the base version more complete in what I had in mind. Allowing for updates after that point to focus more on adding unique features as well as being ready to for an accompanying Wiki, Tutorials & sets of Examples to showcase features.
+# Remaining Goals for v0.2
+- HTML/JS Starter Kit
+- Wiki, Individual Examples & Tutorials
 
 # v0.2 In-Progress Update Notes :
 - Dedicated MapZone data to control objects with start, delay, interval, event, interaction, exit & map with it's own tracker. 
@@ -44,15 +45,11 @@ While ready to be tested and played with, various in-progress improvements for v
 - - ToggleSittingMode & ToggleCrouch methods
 - - Added more controller options to swap Locomotion and Snap Turning + Action 5/6 joystick controls
 - - Desktop controls are adjustable via universal-controls component controls object
-
-# Remaining Goals for v0.2
-- Updated Menu ObjGen
-- Updated Hamburger Menu
-- Enhanced MultiGen Asset Spawner
-- Mobile CSS Improvement
-- Basic Inventory System
-- Readable Notes JS & Minified JS
-- Wiki, Individual Examples & Tutorials
+- Menu Vertical and Horizontal layouts supported
+- Separated System components into auxl-v02-system.js and the User Library(auxl-scene-library) and User Scene(auxl-scenes) components into auxl-v02-scenes.js
+- Added Player methods PlayerSceneAnim, PlayerTeleportAnim, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen & Notification.
+- Added basic inventory screen system to Ham Companion Menu and attached Ham to playerRig with Toggle Hide/Show via click of playerFloor.
+- Various Mobile CSS Updates
 
 # v0.1 Summary :
 - Datas, Cores & Layers for in-scene object entities with Details Prompt
