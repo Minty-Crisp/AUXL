@@ -1673,6 +1673,78 @@ this.Player = (layer) => {
 	vrController2 = document.getElementById('vrController2');
 	vrController2UI = document.getElementById('vrController2UI');
 
+	//Scene Load Animation Support
+	const PlayerSceneAnim = () => {
+		//Minimum Anim Delay if assets don't need loading
+		let animTimeout0 = setTimeout(function () {
+			if(auxl.loadingScene){} else {
+				auxl.loadingScene = true;
+			}
+			clearTimeout(animTimeout0);
+		}, 800);
+		if(auxl.player.layer.teleporting){} else {
+			auxl.player.layer.teleporting = true;
+			if(auxl.player.layer.transition === 'blink'){
+				auxl.player.DisableClick();
+				auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.blink1Screen.EmitEvent('blinkScene1');
+				auxl.blink2Screen.EmitEvent('blinkScene1');
+			} else if(auxl.player.layer.transition === 'fade'){
+				auxl.player.DisableClick();
+				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.fadeScreen.EmitEvent('fadeScene1');
+			} else if(auxl.player.layer.transition === 'sphere'){
+				auxl.player.DisableClick();
+				auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.sphereScreen.EmitEvent('sphereScene1');
+			} else if(auxl.player.layer.transition === 'instant'){
+				auxl.player.DisableClick();
+			}
+		}
+	}
+	//Player Transition Animation
+	const PlayerTeleportAnim = () => {
+		if(auxl.player.layer.teleporting){} else {
+			auxl.player.layer.teleporting = true;
+			if(auxl.player.layer.transition === 'blink'){
+				auxl.player.TempDisableClick();
+				auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.blink1Screen.EmitEvent('blink');
+				auxl.blink2Screen.EmitEvent('blink');
+				animTimeout = setTimeout(function () {
+					auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
+					auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
+					auxl.player.layer.teleporting = false;
+					clearTimeout(animTimeout);
+				}, 1200);
+			} else if (auxl.player.layer.transition === 'fade'){
+				auxl.player.TempDisableClick();
+				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.fadeScreen.EmitEvent('fade');
+				animTimeout = setTimeout(function () {
+					auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
+					auxl.player.layer.teleporting = false;
+					clearTimeout(animTimeout);
+				}, 1200);
+			} else if (auxl.player.layer.transition === 'sphere'){
+				auxl.player.TempDisableClick();
+				auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
+				auxl.sphereScreen.EmitEvent('sphere');
+				animTimeout = setTimeout(function () {
+					auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
+					auxl.player.layer.teleporting = false;
+					clearTimeout(animTimeout);
+				}, 1200);
+			} else if (auxl.player.layer.transition === 'instant'){
+				animTimeout = setTimeout(function () {
+					auxl.player.layer.teleporting = false;
+					clearTimeout(animTimeout);
+				}, 500);
+			}
+		}
+	}
 	//Display Camera UI Notification
 	const Notification = (message, time) => {
 		displayTime = time || 3750;
@@ -1965,37 +2037,7 @@ this.Player = (layer) => {
 		}
 	}
 
-	return {layer, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft}
-}
-//Scene Load Animation Support
-function playerSceneAnim(){
-	//Minimum Anim Delay if assets don't need loading
-	let animTimeout0 = setTimeout(function () {
-		if(auxl.loadingScene){} else {
-			auxl.loadingScene = true;
-		}
-		clearTimeout(animTimeout0);
-	}, 800);
-	if(auxl.player.layer.teleporting){} else {
-		auxl.player.layer.teleporting = true;
-		if(auxl.player.layer.transition === 'blink'){
-			auxl.player.DisableClick();
-			auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
-			auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
-			auxl.blink1Screen.EmitEvent('blinkScene1');
-			auxl.blink2Screen.EmitEvent('blinkScene1');
-		} else if(auxl.player.layer.transition === 'fade'){
-			auxl.player.DisableClick();
-			auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
-			auxl.fadeScreen.EmitEvent('fadeScene1');
-		} else if(auxl.player.layer.transition === 'sphere'){
-			auxl.player.DisableClick();
-			auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
-			auxl.sphereScreen.EmitEvent('sphereScene1');
-		} else if(auxl.player.layer.transition === 'instant'){
-			auxl.player.DisableClick();
-		}
-	}
+	return {layer, PlayerSceneAnim, PlayerTeleportAnim, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft}
 }
 
 //
@@ -2795,7 +2837,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 					}
 				clearTimeout(timeout);
 			}, 425);
-			playerSceneAnim();
+			auxl.player.PlayerSceneAnim();
 		}
 	}
 	//Clear Zone on Move
@@ -3108,7 +3150,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 	//Start Scenario
 	const StartScenario = () => {
 		if(core.scenarioLoaded){} else {
-			playerSceneAnim();
+			auxl.player.PlayerSceneAnim();
 			//Get Universal Controls component
 			auxl.universalControls = document.getElementById('playerRig').components['universal-controls'];
 			//Start scene mid Player anim
@@ -5907,6 +5949,7 @@ tick: function (time, timeDelta) {
 
 });
 
+
 //auxl-library
 //AUXL Library : List of Materials, Geometries, Sounds, Animations, Data, Cores, Layers & Objects
 AFRAME.registerComponent('auxl-library', {
@@ -8516,49 +8559,6 @@ clickToTeleport: function () {
 	let allTeleportors = document.querySelectorAll('.teleporter');
 	let posTimeout;
 	let animTimeout;
-	//Player Transition Animation
-	//Replace with integrated Player Method
-	function playerTeleportAnim(){
-		if(auxl.player.layer.teleporting){} else {
-			auxl.player.layer.teleporting = true;
-			if(auxl.player.layer.transition === 'blink'){
-				auxl.player.TempDisableClick();
-				auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.blink1Screen.EmitEvent('blink');
-				auxl.blink2Screen.EmitEvent('blink');
-				animTimeout = setTimeout(function () {
-					auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.player.layer.teleporting = false;
-					clearTimeout(animTimeout);
-				}, 1200);
-			} else if (auxl.player.layer.transition === 'fade'){
-				auxl.player.TempDisableClick();
-				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.fadeScreen.EmitEvent('fade');
-				animTimeout = setTimeout(function () {
-					auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.player.layer.teleporting = false;
-					clearTimeout(animTimeout);
-				}, 1200);
-			} else if (auxl.player.layer.transition === 'sphere'){
-				auxl.player.TempDisableClick();
-				auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.sphereScreen.EmitEvent('sphere');
-				animTimeout = setTimeout(function () {
-					auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.player.layer.teleporting = false;
-					clearTimeout(animTimeout);
-				}, 1200);
-			} else if (auxl.player.layer.transition === 'instant'){
-				animTimeout = setTimeout(function () {
-					auxl.player.layer.teleporting = false;
-					clearTimeout(animTimeout);
-				}, 500);
-			}
-		}
-	}
 	//Prepare Player Movement
 	function prepMove(element, newPos, telePos){
 		//Do an reset on element to not interfer with anim
@@ -8612,15 +8612,15 @@ clickToTeleport: function () {
 				posTimeout = setTimeout(function () {
 					user.object3D.position.copy(newPosition);
 					clearTimeout(posTimeout);
-				}, 150);
+				}, 250);
 			} else if(teleportType === 'fade') {
-				playerTeleportAnim();
+				auxl.player.PlayerTeleportAnim();
 				prepMove(element, newPosition, teleportPos);
 				posTimeout = setTimeout(function () {
 					resetTeleCircles();
 					user.object3D.position.copy(newPosition);
 					clearTimeout(posTimeout);
-				}, 1050);
+				}, 600);
 			} else if(teleportType === 'locomotion') {
 				//Create locomotion animation based on teleported Pos
 				let travelParams = {
@@ -8640,21 +8640,21 @@ clickToTeleport: function () {
 				element.nextSibling.emit('reset',{});//cancel circle
 				resetTeleCircles();
 			} else if(teleportType === 'sphere') {
-				playerTeleportAnim();
+				auxl.player.PlayerTeleportAnim();
 				prepMove(element, newPosition, teleportPos);
 				posTimeout = setTimeout(function () {
 					resetTeleCircles();
 					user.object3D.position.copy(newPosition);
 					clearTimeout(posTimeout);
-				}, 1000);
+				}, 600);
 			} else if(teleportType === 'blink') {
-				playerTeleportAnim();
+				auxl.player.PlayerTeleportAnim();
 				prepMove(element, newPosition, teleportPos);
 				posTimeout = setTimeout(function () {
 					resetTeleCircles();
 					user.object3D.position.copy(newPosition);
 					clearTimeout(posTimeout);
-				}, 800);
+				}, 600);
 			}
 		} else if (element.classList.contains('cancel')) {
 			element.emit('reset',{});
@@ -8692,49 +8692,6 @@ clickToTeleport: function (event) {
 	let posTimeout;
 	let animTimeout;
 
-	//Player Transition Animation
-	//Replace with integrated Player Method
-	function playerTeleportAnim(){
-		if(auxl.player.layer.teleporting){} else {
-			auxl.player.layer.teleporting = true;
-			if(auxl.player.layer.transition === 'blink'){
-				auxl.player.TempDisableClick();
-				auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.blink1Screen.EmitEvent('blink');
-				auxl.blink2Screen.EmitEvent('blink');
-				animTimeout = setTimeout(function () {
-					auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.player.layer.teleporting = false;
-					clearTimeout(animTimeout);
-				}, 1200);
-			} else if (auxl.player.layer.transition === 'fade'){
-				auxl.player.TempDisableClick();
-				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.fadeScreen.EmitEvent('fade');
-				animTimeout = setTimeout(function () {
-					auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.player.layer.teleporting = false;
-					clearTimeout(animTimeout);
-				}, 1200);
-			} else if (auxl.player.layer.transition === 'sphere'){
-				auxl.player.TempDisableClick();
-				auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.sphereScreen.EmitEvent('sphere');
-				animTimeout = setTimeout(function () {
-					auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.player.layer.teleporting = false;
-					clearTimeout(animTimeout);
-				}, 1200);
-			} else if (auxl.player.layer.transition === 'instant'){
-				animTimeout = setTimeout(function () {
-					auxl.player.layer.teleporting = false;
-					clearTimeout(animTimeout);
-				}, 500);
-			}
-		}
-	}
 	//Prepare Movement
 	function prepMove(newPos, telePos){
 		//Clone current entity's position User
@@ -8749,14 +8706,14 @@ clickToTeleport: function (event) {
 		posTimeout = setTimeout(function () {
 			user.object3D.position.copy(newPosition);
 			clearTimeout(posTimeout);
-		}, 150);
+		}, 250);
 	} else if(teleportType === 'fade') {
-		playerTeleportAnim();
+		auxl.player.PlayerTeleportAnim();
 		prepMove(newPosition, teleportPos);
 		posTimeout = setTimeout(function () {
 			user.object3D.position.copy(newPosition);
 			clearTimeout(posTimeout);
-		}, 1050);
+		}, 600);
 	} else if(teleportType === 'locomotion') {
 		//Create locomotion animation based on teleported Pos
 		let travelParams = {
@@ -8774,19 +8731,19 @@ clickToTeleport: function (event) {
 			};
 		user.setAttribute('animation__locomotion', travelParams);
 	} else if(teleportType === 'sphere') {
-		playerTeleportAnim();
+		auxl.player.PlayerTeleportAnim();
 		prepMove(newPosition, teleportPos);
 		posTimeout = setTimeout(function () {
 			user.object3D.position.copy(newPosition);
 			clearTimeout(posTimeout);
-		}, 1000);
+		}, 600);
 	} else if(teleportType === 'blink') {
-		playerTeleportAnim();
+		auxl.player.PlayerTeleportAnim();
 		prepMove(newPosition, teleportPos);
 		posTimeout = setTimeout(function () {
 			user.object3D.position.copy(newPosition);
 			clearTimeout(posTimeout);
-		}, 800);
+		}, 600);
 	}
 },
 update: function () {
