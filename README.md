@@ -5,6 +5,7 @@
 Built specifically for use with [A-Frame](https://github.com/aframevr/). Essentially, AUXL provides a variety of critical object, scene and scenario building tools at the javascript level that allows for a more streamlined creation process. It's basically a scripting system and JSON structured data library with various UX add-ons built for the A-Frame XR renderer in addition to unifying the 3D/VR/AR controls to all devices. It is being released under the MIT license for all to use and hopefully will help with the adoption of the Web XR ecosystem.
 
 [View Demo Example Scenario](https://minty-crisp.github.io/AUXL/)
+[View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
 # Remaining Goals for v0.2
 - HTML/JS Starter Kit

@@ -932,9 +932,8 @@ this.Core = (data) => {
 		return core.el;
 	}
 	//Spawn Entity Object
-	const SpawnCore = (parent, layer, other) => {
+	const SpawnCore = (parent) => {
 		let needParent = parent || false;
-		let fromLayer = layer || false;
 		//Generate Entity Element
 		Generate();
 		//Loading should only apply to gltf, obj and material textures
@@ -959,7 +958,7 @@ this.Core = (data) => {
 		}
 	}
 	//Despawn Entity Object
-	const DespawnCore = (parent, layer, other) => {
+	const DespawnCore = (parent, layer) => {
 		//Loaded Events
 		if(load3D){
 			core.el.removeEventListener('model-loaded', loaded);
@@ -983,7 +982,7 @@ this.Core = (data) => {
 			sceneEl.removeChild(core.el);
 		}
 		//Scene Tracking Support
-		if(fromLayer || other){} else {
+		if(fromLayer){} else {
 			RemoveFromTracker(core.id);
 		}
 	}
@@ -8774,18 +8773,21 @@ init: function () {
 //VR Basic : Single 3DoF Button Controller - Need to Finish
 //VR Mobile : Headset Only - Need to Add
 //Hand Tracking : Dual Hand Movements - Need to Add
+//Game Controller - Need To Add
 
 //Control Actions :
-//Main Click
-//Alt Click
-//Directional Movement
-//Rotational Movement
+//Main Click - Triggers, Mouse Click, Screen Tap
+//Alt Click - Grip, Mouse Right Click, HTML Alt
+//Directional Movement - Locomotion Joystick, Key WASD/Arrows, HTML Direction Buttons
+//Rotational Movement - Headset, Mouse, Gyro
 //Action 1 - Button X, Key Q, HTML A
 //Action 2 - Button Y, Key E, HTML B
 //Action 3 - Button A, Key R, HTML C
 //Action 4 - Button B, Key C, HTML D
-//Action 5 - Right Joystick Down, Key V, HTML E
-//Action 6 - Right Joystick Up, Key B, HTML F
+//Action 5 - Other Joystick Down, Key V, HTML E
+//Action 6 - Other Joystick Up, Key B, HTML F
+//Snap Left - Other Joystick Left, Key Z, HTML <-
+//Snap Right - Other Joystick Right, Key X, HTML ->
 
 this.aScene = document.querySelector('a-scene');
 this.auxl = document.querySelector('a-scene').systems.auxl;

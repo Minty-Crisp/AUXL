@@ -167,9 +167,7 @@ nightcolor2:{property: 'material.color', from: '#613381', to: '#99154E', dur: 90
 },
 mixins: false,
 classes: ['a-ent', 'clickable'],
-components: {
-//['src-loaded']:null,
-},
+components: false,
 };
 auxl.nodeFloor = auxl.Core(auxl.nodeFloorData);
 
