@@ -1,4 +1,4 @@
-# AUXL : A-Frame UX Library :palm_tree:
+# AUXL : A-Frame UX Library :palm_tree: v0.2
 
 ## Web XR Scenario, Object Generator Engine & Universal Controller System
 
