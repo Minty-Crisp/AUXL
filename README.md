@@ -31,7 +31,7 @@ Control Configurations :
 
 [Read more about the controls in the Wiki](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
 
-A few cool features of v0.2 to highlight
+A few cool features of AUXL to highlight
 ---
 - Reusable & remixable data to build more with less.
 - Generate various types of in-scene entities all with an abundant amount of customizations and controls.
