@@ -6,11 +6,13 @@
 
 [Demo Scenario](https://minty-crisp.github.io/AUXL/)
 
-[Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html)
+Learn how to build your first AUXL Scenario with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
 
+AUXL Summary : :star2:
+---
 AUXL is a javascript engine built to streamline and unify the creation of Web XR experiences based on [A-Frame](https://github.com/aframevr/) & [Three.js](https://threejs.org/). It provides a variety of critical system, object, scene and scenario building tools that allows the user to create XR experiences as if they were making classic 2D HTML websites or game worlds. The types of website styles that can be built with are as endless as the web itself. Anything like a portfolio, gallery, blog, virtual tour, visual novel, video game and more. I envision the system to be a combination of tools like Wordpress and Unity with a long term plan to create 2D/3D admin panel like generation tools to open access to all users in creating their own personal XR content. It is being released under the GPL 3.0 license for all to use and hopefully will help with the adoption of the Web XR ecosystem.
 
-AUXL is built to accomplish 3 main goals
+AUXL is built to accomplish 3 main goals : :hearts:
 ---
 - Scenarios : A Scenario that encompasses multiple maps of scenes that combine into 1 navigatable experience. 
 - Object Generators : All of the various basic and special objects that you would use, view & interact with inside the 3D environment.
@@ -18,7 +20,7 @@ AUXL is built to accomplish 3 main goals
 
 [Read more about the System Overview in the Wiki](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
 
-Control Configurations :
+Control Configurations : :eyes:
 ---
 - Desktop : Mouse & Keyboard (Complete)
 - Mobile : Touchscreen (Complete)
@@ -31,7 +33,7 @@ Control Configurations :
 
 [Read more about the controls in the Wiki](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
 
-A few cool features of AUXL to highlight
+A few cool features of AUXL to highlight : :first_quarter_moon_with_face:
 ---
 - Reusable & remixable data to build more with less.
 - Generate various types of in-scene entities all with an abundant amount of customizations and controls.
@@ -50,7 +52,7 @@ A few cool features of AUXL to highlight
 Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki) to Learn More!!!
 ---
 
-# v0.3+ Roadmap :
+# v0.3+ Roadmap : :cherries:
 - v0.2 Function, Component & ObjGen Updates
 - Scenario, Zone, Scene & Object built via DOM components
 - 1st Person to 3rd Person Mode Swapping
@@ -69,9 +71,9 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Mob Generator
 - Support for building with [Banter](bantervr.com)
 
-If you have made it this far, let me just say Thank You! AUXL has been a dream of mine and a labor of love. I still have so much more to accomplish and it will far easier if I can get others to test, play with, contribute, donate or just offer words of encouragement to keep going. This all wouldn't be possible without the open source work of so many others as well especially the teams that have made A-Frame and Three.js! If you are interested in discussing AUXL further, have any questions or even interested in collaborating with me please reach out to me. You can find all my contact info on my [website](https://mintycrisp.com) or even my Github profile here. Thank You ^_^
-
 # Minty Crisp ^-^ :watermelon: 
+
+If you have made it this far, let me just say Thank You! AUXL has been a dream of mine and a labor of love. I still have so much more to accomplish and it will far easier if I can get others to test, play with, contribute, donate or just offer words of encouragement to keep going. This all wouldn't be possible without the open source work of so many others as well especially the teams that have made A-Frame and Three.js! If you are interested in discussing AUXL further, have any questions or even interested in collaborating with me please reach out to me. You can find all my contact info on my [website](https://mintycrisp.com) or even my Github profile here. Thank You ^_^
 
 - If you want to see more work of mine playing with A-Frame, check out my site [mintycrisp.com](https://mintycrisp.com).
 - You can also check me out on a few other places like [dev.to](https://dev.to/mintycrisp) or where I spend most of my free time [reddit](https://www.reddit.com/user/Minty-Crisp/).
