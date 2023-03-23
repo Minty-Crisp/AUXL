@@ -1,0 +1,164 @@
+AUXL Engine v0.2 : Web XR Scenario, Object Generator Engine & Universal Controller System 
+---
+Wiki Sections
+
+- [Home](https://github.com/Minty-Crisp/AUXL/wiki)
+
+- [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
+
+- Quick Start Guide
+
+- [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
+
+Building AUXL Scenarios, Zones and Scenes
+- [Instructions](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Instructions)
+- [Scenario](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scenario)
+- [Zone](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Zone)
+- [Scene](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scene)
+
+Building Basic AUXL Objects
+- [Core](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Core)
+- [Layer](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Layer)
+- [ObjsGenRing](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ObjsGenRing)
+- [MultiAssetGen](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-MultiAssetGen)
+- Horizon (Here)
+- [SkyBox](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-SkyBox)
+- [Teleport](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Teleport)
+- [ImageSwapper](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageSwapper)
+- [ImageCarousel](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageCarousel)
+
+Building Advanced AUXL Objects
+- [NPC w/ Book](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-NPC-w--Book)
+- [Menu](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-Menu)
+- [MemoryGame](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-MemoryGame)
+
+Using Special AUXL Objects
+- [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
+- [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
+
+---
+Building Basic AUXL Objects : Horizon
+---
+Create a surrounding Horizon barrier at a set radius to populate a series of slightly randomized objects in various styles such as Mountains, Hills, Buildings, Cylinder Wall or Square Wall.
+---
+Defining a Horizon Data & Horizon Object :
+---
+Horizons objects come in a variety of styles as well as customizations. Every Horizon object automatically adds slight randomizations to ensure that each individual object generated is not exactly the same whether that be the height, width or color shade. When using a Wall object however, size randomizations are not applied. You configure the circular radius at which they will all be spawned from the center and the objects fill in the styles based on the selected density.
+
+	auxl.horizonHills1Data = {
+		id: 'horizonHills1',
+		type: 'hills',
+		texture: false,
+		baseColor: false,
+		baseColorFamily: 'olive',
+		radius: 200,
+		density: 'normal',
+		height: 'normal',
+		width: 'normal',
+	};
+	auxl.horizonHills1 = auxl.Horizon(auxl.horizonHills1Data);
+
+The above example generates a Hill like Horizon at 200 meters from the center with default/normal sizing and a base family color of olive. Each hill generated will be a shade of the color olive with slightly different heights and widths.
+
+You may choose from the following styles :
+
+- mountains : Generates 5, 10 or 20 cone objects.
+
+- hills : Generates 5, 10 or 20 half sphere objects.
+
+- buildings : Generates 5, 10 or 20 plane objects.
+
+- cylinderWall : Generates a single open ended cylinder.
+
+- squareWall : Generates 4 planes at 90 degrees connected to each other.
+
+Each Size paramter description :
+
+- id : Name must match named Horizon object generated.
+
+- type: Style of objects such as mountains, hills, buildings, cylinderWall or squareWall.
+
+- texture: An object that accepts all material key/values as well as an array or images for the src to randomly choose from
+
+- baseColor: A hex color code for base color to pick from
+
+- baseColorFamily: A named color family working from the colorTheoryGen support function. Color names provided below.
+
+- radius: The circular radius for the surrounding spawn area.
+
+- density: Accepts low, normal or high for object customizations.
+
+- height: Accepts low, normal or high for object customizations.
+
+- width: Accepts low, normal or high for object customizations.
+
+baseColorFamily Names :
+
+	baseColorFamily: 'red'
+	baseColorFamily: 'orange'
+	baseColorFamily: 'yellow'
+	baseColorFamily: 'lime'
+	baseColorFamily: 'blue'
+	baseColorFamily: 'cyan'
+	baseColorFamily: 'magenta'
+	baseColorFamily: 'maroon'
+	baseColorFamily: 'olive'
+	baseColorFamily: 'green'
+	baseColorFamily: 'purple'
+	baseColorFamily: 'teal'
+	baseColorFamily: 'navy'
+	baseColorFamily: 'silver'
+	baseColorFamily: 'grey'
+	baseColorFamily: 'black'
+	baseColorFamily: 'white'
+
+There are a few special configurations when it comes to generating randomizations of a Horizon object.
+
+If you omit a 'texture' value, then each Horizon object will use the ThreeGradShader Gradient with either the provided exact baseColor as the main shade or within the baseColorFamily you provided. Because the ThreeGradShader does not support textures, you cannot combine that feature together.
+
+If you omit a 'baseColor' and 'baseColorFamily', then a completely random color will be choosen for each object whether you add a texture or not.
+
+Additionally, the 'texture' accepts all material paramters, but the source image has a special exception that can also take in an array of images. If an array is provided, an image will be randomly choosen from that array for each object generated such as
+
+	auxl.images = ['./asset/img/image1.png, './asset/img/image2.png, './asset/img/image3.png];
+
+	auxl.horizonBuildings1Data = {
+		id: 'horizonBuildings1',
+		type: 'buildings',
+		texture: {src: auxl.images, repeat: '2 2', opacity: 1, metalness: 0.4, roughness: 0.6, emissive: true, emissiveIntensity: 0.3,},
+		baseColor: false,
+		baseColorFamily: false,
+		radius: 200,
+		density: 'high',
+		height: 'high',
+		width: 'normal',
+	};
+	auxl.horizonBuildings1 = auxl.Horizon(auxl.horizonBuildings1Data);
+
+The above example will generate a 20 surrounding buildings at 200 meter radius, extra tall with a totally random color and any 1 of the 3 image source provided.
+
+---
+Horizon Methods :
+---
+
+SpawnHorizon
+---
+- Spawns the Horizon into the environment. When spawning via a Scenario, Zone, Scene or Book it is added to that respective instruction tracker.
+
+It does not accept any parameters.
+
+SpawnHorizon()
+
+	horizonHills1:{SpawnHorizon:null},
+- - -
+
+DespawnHorizon
+---
+- Despawns the Horizon from the environment. When removing via a Scenario, Zone, Scene or Book it is also removed from that respective instruction tracker.
+
+It does not accept any parameters.
+
+DespawnHorizon()
+
+	horizonHills1:{DespawnHorizon:null},
+- - -

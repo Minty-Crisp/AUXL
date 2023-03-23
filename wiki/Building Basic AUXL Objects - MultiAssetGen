@@ -1,0 +1,270 @@
+AUXL Engine v0.2 : Web XR Scenario, Object Generator Engine & Universal Controller System 
+---
+Wiki Sections
+
+- [Home](https://github.com/Minty-Crisp/AUXL/wiki)
+
+- [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
+
+- Quick Start Guide
+
+- [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
+
+Building AUXL Scenarios, Zones and Scenes
+- [Instructions](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Instructions)
+- [Scenario](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scenario)
+- [Zone](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Zone)
+- [Scene](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scene)
+
+Building Basic AUXL Objects
+- [Core](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Core)
+- [Layer](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Layer)
+- [ObjsGenRing](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ObjsGenRing)
+- MultiAssetGen (Here)
+- [Horizon](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Horizon)
+- [SkyBox](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-SkyBox)
+- [Teleport](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Teleport)
+- [ImageSwapper](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageSwapper)
+- [ImageCarousel](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageCarousel)
+
+Building Advanced AUXL Objects
+- [NPC w/ Book](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-NPC-w--Book)
+- [Menu](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-Menu)
+- [MemoryGame](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-MemoryGame)
+
+Using Special AUXL Objects
+- [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
+- [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
+
+---
+Building Basic AUXL Objects : MultiAssetGen
+---
+Create a biome for an entire scene area by defining multiple Core Datas for 5 sizes (Tiny, Small, Medium, Large and Huge) that each allow you to customize each category's ring area they spawn in as well as a set of randomizations that generate multiple versions of every object. Works as a more complex combined version of ObjsGenRing.
+---
+Defining a MultiAssetGen Data & MultiAssetGen Object :
+---
+A MultiAssetGen is made up of a 5 Size Data objects for each Tiny, Small, Medium, Large and Huge category. Each Size Data is built with customizations just like a ObjsGenRing, but additionally they support an array of Core Data to choose from, a minimum and maximum amount of objects to spawn within that category as well as the average radius for that size to use in spawn collision detection. The minimum and maximum parameters allow the system to drop unneeded objects that would be otherwise overlap or be hidden.
+
+Rings are currently set to predefined sizes that match up well with each of the 5 Size categories which overlap each other and start/spread out further and further as the objects get bigger. Ring 1 for Tiny, Ring 2 for Small, Ring 3 for Medium, Ring 4 for Large and Ring 5 for Huge. Future updates will allow you manually adjust each ring size. The system starts with the largest items and continues spawning until no room is left, then proceeds to the next smallest category and repeats until all defined free space or maximum amount of objects are exhausted.
+
+	auxl.tinyData = {
+		data: 'tinyData',
+		id: 'tiny',
+		type: 'tiny',
+		radius: 0.1,
+		min: 12,
+		max: 30,
+		rings: 1,
+		objs:[
+			auxl.flower_redAData,
+			auxl.mushroom_redGroupData,
+			auxl.mushroom_redTallData,
+			auxl.crop_melonData,
+		],
+		ranYPos: false,
+		yPosFlex: 1,
+		ranScaleX: false,
+		ranScaleY: true,
+		ranScaleZ: false,
+		scaleFlex: 0.25,
+		ranRotX: false,
+		ranRotY: true,
+		ranRotZ: false,
+		ranColor: false,
+		ranTexture: false,
+		ranAnim: false,
+	};
+
+	auxl.smallData = {
+		data: 'smallData',
+		id: 'small',
+		type: 'small',
+		radius: 0.25,
+		min: 30,
+		max: 50,
+		rings: 2,
+		objs:[
+			auxl.grass_largeData,
+		],
+		ranYPos: false,
+		yPosFlex: 6,
+		ranScaleX: true,
+		ranScaleY: false,
+		ranScaleZ: true,
+		scaleFlex: 6,
+		ranRotX: false,
+		ranRotY: true,
+		ranRotZ: false,
+		ranColor: false,
+		ranTexture: false,
+		ranAnim: false,
+	};
+
+	auxl.mediumData = {
+		data: 'mediumData',
+		id: 'medium',
+		type: 'med',
+		radius: 1,
+		min: 25,
+		max: 50,
+		rings: 3,
+		objs:[
+			auxl.plant_bushData,
+			auxl.tree_simpleData,
+			auxl.tree_smallData,
+			auxl.tree_thinData,
+		],
+		ranYPos: false,
+		yPosFlex: 1,
+		ranScaleX: false,
+		ranScaleY: true,
+		ranScaleZ: false,
+		scaleFlex: 2,
+		ranRotX: false,
+		ranRotY: true,
+		ranRotZ: false,
+		ranColor: false,
+		ranTexture: false,
+		ranAnim: false,
+	};
+
+	auxl.largeData = {
+		data: 'largeData',
+		id: 'large',
+		type: 'large',
+		radius: 2,
+		min: 25,
+		max: 50,
+		rings: 4,
+		objs:[
+			auxl.tree_plateauData,
+			auxl.tree_tallData,
+			auxl.tree_coneData,
+			auxl.tree_defaultData,
+		],
+		ranYPos: false,
+		yPosFlex: 2,
+		ranScaleX: false,
+		ranScaleY: true,
+		ranScaleZ: false,
+		scaleFlex: 3,
+		ranRotX: false,
+		ranRotY: true,
+		ranRotZ: false,
+		ranColor: false,
+		ranTexture: false,
+		ranAnim: false,
+	};
+
+	auxl.hugeData = {
+		data: 'hugeData',
+		id: 'huge',
+		type: 'huge',
+		radius: 4,
+		min: 25,
+		max: 50,
+		rings: 5,
+		objs:[
+			auxl.tree_fatData,
+			auxl.tree_oakData,
+			auxl.rock_tallAData,
+		],
+		ranYPos: false,
+		yPosFlex: 1,
+		ranScaleX: true,
+		ranScaleY: true,
+		ranScaleZ: true,
+		scaleFlex: 4,
+		ranRotX: false,
+		ranRotY: true,
+		ranRotZ: false,
+		ranColor: false,
+		ranTexture: false,
+		ranAnim: false,
+	};
+
+	auxl.biomeExampleData = {
+		data:'biomeExampleData',
+		id:'biomeExample',
+		tiny: auxl.tinyData,
+		small: auxl.smallData,
+		med: auxl.mediumData,
+		large: auxl.largeData,
+		huge: auxl.hugeData,
+	};
+	auxl.biomeExample = auxl.MultiAssetGen(auxl.biomeExampleData);
+
+The example above generates a forest like biome utlizing the 5 categories, spawning each Size's array of objects with the various selected customizations inside predefined sized ringed radius that encompass a scene.
+
+Each Size paramter description :
+
+- data : Name of the original data used for reference.
+- id : Does not affect system, but still a name should be added
+
+- type : Size category.
+- radius : Average size for objects of this category.
+
+- min : Amount of object allowed to be spawned.
+- max : Amount of object allowed to be spawned.
+
+- rings : Which ring this Size belongs to.
+
+- objs : Array of Core Data (not a Cores themselves)
+
+- ranYPos : Allow Y position randomizations?
+- yPosFlex : The amount of Y position that can be adjusted between.
+
+- ranScaleX : Allow X scale randomizations?
+- ranScaleY : Allow Y scale randomizations?
+- ranScaleZ : Allow Z scale randomizations?
+- scaleFlex : The amount of enabled X, Y and/or Z scale that can be adjusted between.
+
+- ranRotX : Allow X rotation randomizations?
+- ranRotY : Allow Y rotation randomizations?
+- ranRotZ : Allow Z rotation randomizations?
+
+- ranColor : Allow material color randomizations?
+- ranTexture : Allow material source randomizations?
+
+Each MultiAssetGen paramter description :
+
+- data : Name of the original data used for reference.
+
+- id : Name must match named MultiAssetGen object generated.
+
+- tiny : Size Data object that holds this category.
+
+- small : Size Data object that holds this category.
+
+- med : Size Data object that holds this category.
+
+- large : Size Data object that holds this category.
+
+- huge : Size Data object that holds this category.
+
+
+---
+MultiAssetGen Methods :
+---
+
+SpawnMultiAsset
+---
+- Spawns the MultiAssetGen into the environment. When spawning via a Scenario, Zone, Scene or Book it is added to that respective instruction tracker.
+
+It does not accept any parameters.
+
+SpawnMultiAsset()
+
+	biomeExample:{SpawnMultiAsset:null},
+- - -
+
+DespawnMultiAsset
+---
+- Despawns the MultiAssetGen from the environment. When removing via a Scenario, Zone, Scene or Book it is also removed from that respective instruction tracker.
+
+It does not accept any parameters.
+
+DespawnMultiAsset()
+
+	biomeExample:{DespawnMultiAsset:null},
+- - -

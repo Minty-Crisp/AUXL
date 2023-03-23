@@ -1,0 +1,80 @@
+AUXL Engine v0.2 : Web XR Scenario, Object Generator Engine & Universal Controller System 
+---
+Wiki Sections
+
+- [Home](https://github.com/Minty-Crisp/AUXL/wiki)
+
+- System Overview (Here)
+
+- Quick Start Guide
+
+- [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
+
+Building AUXL Scenarios, Zones and Scenes
+- [Instructions](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Instructions)
+- [Scenario](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scenario)
+- [Zone](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Zone)
+- [Scene](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scene)
+
+Building Basic AUXL Objects
+- [Core](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Core)
+- [Layer](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Layer)
+- [ObjsGenRing](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ObjsGenRing)
+- [MultiAssetGen](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-MultiAssetGen)
+- [Horizon](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Horizon)
+- [SkyBox](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-SkyBox)
+- [Teleport](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Teleport)
+- [ImageSwapper](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageSwapper)
+- [ImageCarousel](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageCarousel)
+
+Building Advanced AUXL Objects
+- [NPC w/ Book](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-NPC-w--Book)
+- [Menu](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-Menu)
+- [MemoryGame](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-MemoryGame)
+
+Using Special AUXL Objects
+- [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
+- [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
+
+---
+System Overview
+---
+The A-Frame UX Library (AUXL) engine is made up of 3 main building blocks.
+- Scenarios : A Scenario that encompasses multiple maps of scenes that combine into 1 navigatable experience. 
+- Object Generators : All of the various basic and special objects that you would use, view & interact with inside the 3D environment.
+- Universal Controls : The unified hardware input controls for interacting with the 3D content that a browser can communicate with.
+
+---
+Scenario Overview
+---
+AUXL is a dynamic XR engine that keeps the user on a single browser page session while traversing through various scenes of 3D content. Instead of loading an entire new page as well as reloading any of the same content again, AUXL dynamically interchanges the 3D environment and downloads only new assets to showcase the new scene. This is extra important especially when the user is in VR to avoid all the additional steps required to start a VR experience and the downtime in-between page visits. Scenarios allows you to build a navigatable XR experience as if it was a classic 2D HTML website or even a game world that you would traverse.
+
+Scenarios are made up of Zones and Zones are made up of Scenes. This allows you to control the lexical scope of the experience. As in everything you define within a Scenario stays persistent within all Zones in that Scenario, everything you define within a Zone stays persistent within all Scenes in that Zone and finally everything you define with a Scene stays persistent within that scene only. So if you add an object to a Scene and swap to a new Scene, that object is removed from view. Same happens when swapping Zones or Scenarios. There are many ways one can interpret a Scenario, Zone and Scene to build their experience.
+
+Each Scenario, Zone and Scene's are built up of a set of instructions that allow you to add vital information, add controls, do something at start, on delay, over interval, at event, at interaction or on exit. You can also define instructions based on If/Else conditionals as well.
+
+---
+Object Generator Engine Overview
+---
+AUXL allows you to generate, control and manipulate various objects within the 3D environment handled via Scenario, Zone and Scene instructions. AUXL objects make up the vast majority of the engine's complexity ranging from a basic cube on screen to an entire carousel gallery along with access to vital methods for that specific type of object.
+
+The most basic object is a Core, which is basically a single HTML entity element. For example a cube with a material, position, rotation, text, components, and more as well as any other A-Frame or DOM information. Within your site's user library (auxl-scene-library component), you define the data that makes up that exact cube and build a named Core object from that data. Now within a Scenario, Zone or Scene instructions, you have total control of what you do with that named Core object. Whether you add it, remove it, change it, animate it, emit event, set a flag, check a flag, etc... Even with just this single type of object, you could build full 3D experiences.
+
+Core objects are the main building blocks of basically every other object type. From basic Cores, you can build a Layer which is a set of Core's combined into a multi-Parent/Child structure along with methods that allow you to access basic Core methods with the Layer in mind. Allowing you to manipulate the Parent, a Child or All items within that Layer.
+
+You could also take a single Core Data object and generate an ObjsGenRing object which multiplies that Core with various randomizations and places them within a ringed radius. You could use multiple Cores Data to build a biome with a MultiAssetGen object that allows you to define which objects with specified randomizations that spawn in which ring starting from the center outwards to encompass the entire scene. Similar other objects you can build are a SkyBox, Horizon, Teleport Points, ImageSwapper & ImageCarousel.
+
+There are a handful of special objects as well like the Player object which handles the single player rig, camera, ui, universal controls and more, the Menu which allows you to generate selectable options to run a method, HamMenu which is a hamburger menu like companion allowing you access to scene settings and important info and a fun little mini game MemoryGame for a simon says like gameplay.
+
+And finally 1 extra special object which is the NPC object consisting of the Book object and SpeechSystem object. You can build a NPC from a Core object in combination with a Book made up of Pages of instructions which has it's speech text viewed via the SpeechSystem that all plays out through the NPC's interaction. It allows you to generate a dialogue system for NPC communication as well as access to the same object methods you would find in Scenario/Zone/Scene instructions within a Book's Pages. The Pages read from Timeline 0 to end #, having the NPC speak through it's dialogue with additional support for jumping to Timeline/Page, conditionals to Jump or run methods all while spawned objects are being tracked within the NPC's Book. You can think of the NPC's Book object to be a roaming set of scene instructions since you can add the NPC object to any lexical Scenario, Zone or Scene. Similar to Scenario, Zone and Scene object tracking, when you remove a NPC, all of the objects spawned within the Book are removed as well.
+
+---
+Universal Controller Overview
+---
+As Web XR is ran within the most ubiquitous app there is, a browser, it comes with a vast amount of hardware inputs that allow interaction. The most common inputs are Keyboard with Mouse and Touchscreen, but with a focus on allowing any and all users to utilize, we must take into consideration every type of device.
+
+The input configurations currently completed are Desktop (Mouse/Keyboard), Mobile (Touchscreen/Gyro/HTML), VR Advanced Dual (Dual 6DoF Controllers) & VR Advanced Single (Single 6DoF Controller). Additional inputs in progress to be incorporated are VR Basic Single (Single 3DoF 1 Button Controller), VR Fuse (Headset Only), Game Controller (Single Multi-Button w/ Joystick Controller) and Hands (Hand Tracking). Additionally, the support of assistive technologies as well as alternative ways to use existing inputs are planned to be supported too.
+
+AUXL attempts to unify all of these hardware inputs to allow any user with access to a compatible browser to interact with it's 3D environment. You can currently toggle through various input configurations to dynamically change how you interact with the experience as you deem fit. The experience creator has access to updating the control actions via the Scenario, Zone and Scene instructions as well (Book support soon). Full Remapping of the controls is also planned as it is important for user comfort. While not completely supported just yet, various workarounds are in place so far. 
+
+By default, the actions automatically added are view rotation, click selection, locomotion movement, snap turning, sit/stand mode and crouching/standing controls. You can additionally add/remove/change 5 more actions dynamically assigned to VR Controller buttons & grip, Mobile HTML buttons and customized Keyboard keys.

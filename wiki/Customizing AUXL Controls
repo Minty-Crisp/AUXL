@@ -1,0 +1,208 @@
+AUXL Engine v0.2 : Web XR Scenario, Object Generator Engine & Universal Controller System 
+---
+Wiki Sections
+
+- [Home](https://github.com/Minty-Crisp/AUXL/wiki)
+
+- [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
+
+- Quick Start Guide
+
+- Customizing AUXL Controls (Here)
+
+Building AUXL Scenarios, Zones and Scenes
+- [Instructions](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Instructions)
+- [Scenario](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scenario)
+- [Zone](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Zone)
+- [Scene](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scene)
+
+Building Basic AUXL Objects
+- [Core](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Core)
+- [Layer](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Layer)
+- [ObjsGenRing](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ObjsGenRing)
+- [MultiAssetGen](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-MultiAssetGen)
+- [Horizon](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Horizon)
+- [SkyBox](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-SkyBox)
+- [Teleport](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Teleport)
+- [ImageSwapper](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageSwapper)
+- [ImageCarousel](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageCarousel)
+
+Building Advanced AUXL Objects
+- [NPC w/ Book](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-NPC-w--Book)
+- [Menu](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-Menu)
+- [MemoryGame](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-MemoryGame)
+
+Using Special AUXL Objects
+- [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
+- [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
+
+---
+Customizing AUXL Controls
+---
+One of the main goals of AUXL is to unify all types of hardware inputs into a set of common and customizable Actions for the User/Player to utilize in interacting with the 3D environment and objects. Currently only a few modes are completed, but many more are being developed. Currently you can use Desktop Keyboard w/Mouse, Mobile Touchscreen w/Gyro and Dual VR Advanced Controllers as well as a VR Basic Controller.
+---
+Controls Summary :
+---
+Unviersal Controls is a component built specifically for AUXL and the Player object. It is being developed to support the following input devices...
+
+Hardware Inputs :
+- Desktop : Mouse & Keyboard (Complete)
+- Mobile : Touchscreen (Complete)
+- VR Advanced : Dual 6DoF Controllers (Complete)
+- VR Basic : Single 3DoF Button Controller (In-Progress)
+- VR Mobile : Headset Only (Soon)
+- Game Controller (Soon)
+- Hand Tracking : Dual Hand Movements (Soon)
+- Assitive Technology and Alternative Use of Above Hardware (Designing)
+
+The above Hardware is being configured to match the following set of actions with a brief summary of how they are configured so far...
+
+Control Actions :
+- Main Click - Triggers, Mouse Click, Screen Tap
+- Alt Click - Grip, Mouse Right Click, HTML Alt
+- Directional Rig Movement - Locomotion Joystick, Key WASD/Arrows, HTML Direction Buttons
+- Rotational View Movement - Headset, Mouse, Gyro
+- Snap Left - Other Joystick Left, Key Z, HTML <-
+- Snap Right - Other Joystick Right, Key X, HTML ->
+- Action 1 - Button X, Key Q, HTML A
+- Action 2 - Button Y, Key E, HTML B
+- Action 3 - Button A, Key R, HTML C
+- Action 4 - Button B, Key C, HTML D
+- Action 5 - Other Joystick Down, Key V, HTML E
+- Action 6 - Other Joystick Up, Key B, HTML F
+
+---
+Actions :
+---
+Lets go through each action to define what they are generally controlling...
+
+View Direction :
+- The Camera movement.
+
+Snap Left Turn :
+- Quick Left 45 Degree Player Turning.
+
+Snap Right Turn :
+- Quick Right 45 Degree Player Turning.
+
+Locomotion Direction :
+- The Player Rig movement.
+
+Main Click :
+- Select Object at Raycast Intersection.
+
+Alternative Click :
+- An Alternative Select Input.
+
+Action 1 - 6 :
+- Any AUXL Object Method or AUXL Object Component Method configurable within a Scenario, Zone or Scene.
+
+Only the Actions and Alt Click are currently customizable as all others are controlled by the AUXL system.
+
+---
+Current Configurations :
+---
+When you load the AUXL library, you are prompted by a HTML menu that allows you to start the Scenario and provides a few important settings to change. For the Controls, we have these configuration settings.
+
+Desktop Mode :
+- Use a Keyboard and Mouse to control the player. Mouse controls the Camera view while providing the main click selection with the Left Click Mouse and an alternative click with the Right Click Mouse. On Keyboard by default the Locomotion is setup for WASD/Arrow keys as well as the Actions 1-6 which are configured for QERCVB in addition to Snap Turning Left/Right with ZX. These keys can be altered within the Universal Controls component inside the object controls that hold each key as an array tied to each action.
+
+Mobile Mode :
+- Use Touchscreen HTML Buttons and Gryo to control the player. Gyro controls the Camera view and the any non-button Touchscreen area is the main click. When in Mobile mode, the HTML controller displays access to Buttons assigned to all other Actions including 8 cardinal directions for Locomotion, an Alt click, 6 Actions Buttons and A Start/Select (not configured just yet).
+
+VR Mode :
+- Currently only Dual Advanced Controllers support has access to every Action function including Locomotion and Snap Turning, but the Universal Controls are continually being updated to support every possible setup and workaround the lack of physical buttons keep all interactions possible.
+
+Dual Advance(6DoF) Controllers : (Access to All)
+
+2 Hands : Right Ray | Left Move :
+- Right controller racyaster with Joystick configured for Snap Turning Left/Right and Up/Down tied to Action 5/6 along with the Left controller with Joystick configured for Locomotion. Use either Trigger to emit main click or either grip to emit alt click.
+
+2 Hands : Left Ray | Right Move :
+- Left controller racyaster with Joystick configured for Snap Turning Left/Right and Up/Down tied to Action 5/6 along with the Right controller with Joystick configured for Locomotion. Use either Trigger to emit main click or either grip to emit alt click.
+
+2 Hands : Dual Ray | Left Move
+- Both controllers have racyaster. Right has Joystick configured for Snap Turning Left/Right and Up/Down tied to Action 5/6 along with the Left controller with Joystick configured for Locomotion. Use either Trigger to emit main click or either grip to emit alt click.
+
+2 Hands : Dual Ray | Right Move
+- Both controllers have racyaster. Left has Joystick configured for Snap Turning Left/Right and Up/Down tied to Action 5/6 along with the Right controller with Joystick configured for Locomotion. Use either Trigger to emit main click or either grip to emit alt click.
+
+Single Basic(3DoF) Controllers : (Click & Locomotion Only)
+
+1 Hand : Right Ray | Belt Move
+- Right handed controller raycaster with in-scene Locomotion Hover based belt UI. Hover over top belt to move forward in camera direction, bottom belt to move reverse in camera direction and use the brake toggles to adjust walk speed.
+
+1 Hand : Left Ray | Belt Move
+- Left handed controller raycaster with in-scene Locomotion Hover based belt UI. Hover over top belt to move forward in camera direction, bottom belt to move reverse in camera direction and use the brake toggles to adjust walk speed.
+
+---
+Customizing Actions :
+---
+The main action of Click is configured normally, but in addition there are 7 more 'Buttons' that you can customize. Each of those inputs has 2 seperate events that fire (Down and Up event), so you can technically customize 14 additional actions. You can attach an AUXL object Method or an AUXL object's component Method to any 1 of the 14 actions that will persist within the scope they were declared in such as Scenario, Zone and Scene. Here is a brief example of declaring new action controls that is used within the main AUXL demo configured to the entire Scenario.
+
+	controls:{
+		action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
+		action5Down:{auxlObj: 'player', component: false, func: 'ToggleCrouch'},
+		action6Down:{auxlObj: 'player', component: false, func: 'ToggleSittingMode'},
+	},
+
+The above instructions add the Walk Speed toggleSpeed function inside our Locomotion component attached to the Player to Action1 which would be Desktop Key Q, Mobile HTML Button A and VR Left Controller Button X. It adds the Player method ToggleCrouch to Action5 which would be Desktop Key V, Mobile HTML Button E and VR Other Joystick Down. And finally adds the Player method ToggleSittingMode to Action6 which would be Desktop Key B, Mobile HTML Button F and VR Other Joystick Up.
+
+Each paramter description :
+
+- auxlObj: the id name of the AUXL object generated.
+
+- component: The name of the component attached to the auxlObj that has the function to be ran. false if it is an object method.
+
+- func: The name of the method itself to be ran.
+
+Currently you can only attach Methods that do not need any arguments, but that is planned to be updated soon. 
+
+Each 'Button' has a 'down' and an 'up' event, so you may configure those are you require. Here is a list of each action that you may attach functions to.
+- altDown
+- altUp
+- action1Down
+- action1Up
+- action2Down
+- action2Up
+- action3Down
+- action3Up
+- action4Down
+- action4Up
+- action5Down
+- action5Up
+- action6Down
+- action6Up
+
+Currently, you can attach either an AUXL object Method or an AUXL object's component Method to any one of those actions. Lets go through each type to better understand how to use them.
+
+AUXL Object Method :
+- Every AUXL object has public methods that can be used outside of the object. Currently only methods that do not need any parameters are only supported, but will be updated soon. If you create a custom AUXL object, then any method you return with the object itself can be used as well.
+
+Lets take a look at one of the above examples and break down what is going on.
+
+	action5Down:{auxlObj: 'player', component: false, func: 'ToggleCrouch'},
+
+Here we are assigning a method to the Action5 Down event that on firing, runs the method ToggleCrouch() attached to the AUXL object named 'player' which is our main Player object.
+
+Lets see another example of the same style, but with another object.
+
+	action5Down:{auxlObj: 'carouselTesting', component: false, func: 'Forward'},
+	action6Down:{auxlObj: 'carouselTesting', component: false, func: 'Backward'},
+
+Here we are assigning the ImageCarousel method Forward() from the ImageCarousel object named carouselTesting to the Action5 Down event. We are also assiging the ImageCarousel method Backward() from that same named object to the Action 6 Down event. So on clicking the Action5 button down the ImageCarousel object moves forward a few images and clicking the Action6 button down moves it backward a few images.
+
+AUXL Object Component Method :
+- You can also assign a component's method which was defined as either this.function or in the same way init, update, tick functions are declared. Components will only work when attached to an entity and thus we must also declare the AUXL object for which the component is attached to.
+
+Lets take a look at one of the above examples and break down what is going on.
+
+	action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
+
+Here we are assigning a method to the Action1 Down event that on firing, runs the method toggleSpeed() built within the component named 'locomotion' which is attached to the AUXL object named 'playerRig'.
+
+Lets see another example of the same style, but with another object.
+
+	action1Up:{auxlObj: 'coreTest', component: 'test-component', func: 'testFunction'},
+
+Here we are assigning a method to the Action1 Up event that on firing, runs the method testFunction() built within the component named 'test-component' which is attached to the AUXL object named 'coreTest'.

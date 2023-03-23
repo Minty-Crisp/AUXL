@@ -1,0 +1,411 @@
+AUXL Engine v0.2 : Web XR Scenario, Object Generator Engine & Universal Controller System 
+---
+Wiki Sections
+
+- [Home](https://github.com/Minty-Crisp/AUXL/wiki)
+
+- [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
+
+- Quick Start Guide
+
+- [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
+
+Building AUXL Scenarios, Zones and Scenes
+- [Instructions](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Instructions)
+- [Scenario](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scenario)
+- [Zone](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Zone)
+- [Scene](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scene)
+
+Building Basic AUXL Objects
+- [Core](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Core)
+- [Layer](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Layer)
+- [ObjsGenRing](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ObjsGenRing)
+- [MultiAssetGen](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-MultiAssetGen)
+- [Horizon](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Horizon)
+- [SkyBox](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-SkyBox)
+- [Teleport](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Teleport)
+- [ImageSwapper](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageSwapper)
+- [ImageCarousel](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageCarousel)
+
+Building Advanced AUXL Objects
+- NPC w/ Book (Here)
+- [Menu](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-Menu)
+- [MemoryGame](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-MemoryGame)
+
+Using Special AUXL Objects
+- [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
+- [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
+
+---
+Building Advanced AUXL Objects : NPC w/ Book
+---
+NPCs are Non-Player Characters that have an in-scene Core Body and an in-scene Core Text Bubble along with Book Data that has a list of Page Data which themselves act as the NPC's Instructions. You advance through the Pages in a linear order on NPC interaction. The Book acts like a Scenario, Zone and Scene Instructions allowing you to run AUXL object methods in addition to the NPC's methods. You can have the NPC speak through a Text Bubble, Ask Questions and use Conditionals to determine where to Jump to within the Timelines just like many Visual Novel scripting languages. 
+---
+Building an NPC :
+---
+NPC's require 4 items to be generated. They require a Body Core object, a Text Bubble Core, a Book Data and the associated Pages Data within that Book.
+
+- NPC Body Core
+- Text Bubble Core
+- Book Data
+- Pages Data
+
+Lets go through each 1 of the 4 below to build a test NPC object.
+
+---
+Defining a NPC Body Data & NPC Body Object :
+---
+Let's start with the NPC's body. It requires a standard Core object, but the Core has 1 different aspect to it then has been otherwise repeated in this Wiki. Normally you want the Core Data's id to match the Core object generated, but with NPC's you want it to match the NPC object name. I know this is slightly confusing and will be tweaked in future updates to avoid confusion.
+
+	auxl.npcBodyData = {
+		data:'npcBodyData',
+		id:'npcName',
+		position: new THREE.Vector3(0,1,-1),
+		classes: ['clickable','a-ent'],
+		components: {
+			['gltf-model']:'#npcModel', 
+			['look-at']:'#camera', 
+		},
+	};
+	auxl.npcBody = auxl.Core(auxl.npcBodyData);
+
+The above example generates our NPC named 'npcName' 's body from a gltf model added in a-scene's a-assets. It also utilizes the look-at component to ensure they are always facing the player. We also added the 'clickable' class to ensure player interaction is possible. You can of course use any geometry, material and other Core settings here, but for simplicity we will stick with this.
+
+---
+Defining a NPC Text Bubble Data & NPC Text Bubble Object :
+---
+Next is the Text Bubble used to display the NPC's speech. A vital part of this object is defining the text value to ensure at it's current geometry and material that the text is legible as only the text value will be updated automatically. We can hoverever change this Core on the fly with Core methods like ChangeSelf() if need be.
+
+	auxl.npcTextBubbleData = {
+		data:'npcTextBubbleData',
+		id:'npcTextBubble',
+		text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.45, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+		geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.15},
+		material: {shader: "flat", color: "#4bb8c1", opacity: 0.75},
+		position: new THREE.Vector3(0.25,0.25,-0.05),
+		classes: ['clickable','a-ent'],
+		components: {
+			['look-at']:'#camera',
+		},
+	};
+	auxl.npcTextBubble = auxl.Core(auxl.npcTextBubbleData);
+
+The above example generates our NPC's Text Bubble as a 3D, but flat-ish rectangle Box positioned slightly up and to the right of the NPC parent object. The text is configured to position itself to the left of the geometry at a readable size with a Z offset enough to show up on the 3D object dimensions. We also add the class 'clickable' to ensure player interaction is possible.
+
+---
+Defining a NPC Book Data & Page Data :
+---
+Books are built for specific NPC objects to run. A Books only purpose currently is to hold all Pages that will be read by a specific NPC. The info keys here have no affect at the moment including id, but they will be vital in the coming updates for additional control, organization and customization though. Same for the Page's info key, the id is the only currently one required.
+
+	auxl.npcTestPage0 = {
+		info:{
+			id:'npcTestPage0',
+			description:'A basic example of a NPC with Speech.',
+			tags:'npc',
+			nextPage: null,
+			prevPage: null,
+			timeline:'linear',
+		},
+		timeline0:{
+			npcName:{Speak:{role: 'NPC Name', speech:'Speech text 0.'}},
+		},
+		timeline1:{
+			npcName:{Speak:{role: 'NPC Name', speech:'Speech text 1.'}},
+			spawnTesting:{SpawnCore:null},
+		},
+		timeline2:{
+			npcName:{Speak:{role: 'NPC Name', speech:'Speech text 2.'}},
+		},
+		timeline3:{
+			npcName: {ResetBook: true},
+		},
+	};
+
+	auxl.npcTestBookData = {
+		info:{
+			id:'npcTestBook',
+			description:'A basic example of a NPC Book.',
+			tags:'npc',
+			timeline: 'linear',
+		},
+		pages:{
+			page0: auxl.npcTestPage0,
+		},
+	};
+
+The above example is a single Book Data with a single Page Data. As you can see we did not generate any Book or Page objects, because the NPC object will do that. The NPC object will take in the Book Data as 1 of it's paramters and use the associated Pages to run it's timeline.
+
+Inside the Book data, we have a Pages key which lists out the attached Page Data in order they are read starting from page0 upwards. Future updates will allow greater control over Pages instead of just in a linear order with Jump support.
+
+In this Page example when used inside the NPC object named 'npcName', it will loop through timeline0, timeline1, timeline2 and on timeline3 hit will restart back to the beginning. Each of those timelines are using the NPC method Speak() which will display the provided text inside the NPC's Text Bubble slowly revealing the entire text as if they were talking. That process can be skipped to the end on NPC interaction and on additional NPC interaction it will move to the next timeline. Otherwise, when the speaking is complete, NPC interaction will move to the next timeline.
+
+Additionally, within the timeline we also generated the Core object spawnTesting just like we would in other Instructions. That object will persist until the Book is Reset, the NPC is Despawned or it is specifically Despawned from within the Book.
+
+---
+Generating the NPC object :
+---
+With a Core Body generated, a Core Text Bubble generated and a Book Data with Pages Data defined we can now build the NPC. Such as...
+
+	auxl.npcName = auxl.NPC(auxl.npcBody, auxl.npcTestBookData, auxl.npcTextBubble);
+
+Now within a Scenario, Zone or Scene we can spawn that NPC with all of our attached objects like so
+
+	npcName:{SpawnNPC:null},
+
+The cool part with having used generated Core objects for the Body and Text Bubble is that we can still access all of the Core methods from those objects, Of course we don't want to run Spawn or Despawn as that will mess everything up, but all other methods should work without issue.
+
+	npcBody:{CoreMethod:null},
+	npcTextBubble:{CoreMethod:null},
+
+Also, it is possible to spawn NPC's within other NPC's book. You could envision a NPC that has a pet which after a interacting with for a time they would introduce their pet aka another NPC and you can interact with that NPC while their owner is still spawned.
+
+---
+Additional Page Example :
+---
+As stated before, the NPC's Book Pages act similar to a Visual Novel scripting language and I wanted to provide an additional example of that now that you have gone through that huge NPC introduction. A few key methods that can be used within a Page to provide vital functionality as such are Speak(), ResetBook(), Jump(), SelectJump(), SetFlag() all with support of If/Else conditionals just like the Scenario, Zone and Scene Instructions. These items combined give you extensive control over the NPC's communications.
+
+	auxl.npcPageAdvancedData = {
+		info:{
+		id:'npcPageAdvanced',
+		description:'An advanced example of a NPC Page instructions.',
+		tags:'npc',
+		nextPage: null,
+		prevPage: null,
+		timeline:'linear',
+		},
+		timeline0:{
+			npcName:{
+				Speak:{role: 'Name', speech:'The very first speech text displayed.'},
+				SetFlag:{flag: 'testSpeechVar', value: true},
+			},
+		},
+		timeline1:{
+			npcName:{IfElse: {npcName:{cond: 'testSpeechVar',
+			ifTrue: {
+				npcName:{Speak:{role: 'Name', speech:'Is True'}},},
+			ifFalse: {
+				npcName:{Speak:{role: 'Name', speech:'Is False'}},},}}},
+		},
+		timeline2:{
+			npcName:{
+				Speak:{role: 'Name', speech:'Jump to Text section.'},
+				SelectJump:[['Answer 1','timeline3'], ['Answer 2','timeline4'], ['Answer 3','timeline5'],],
+			},
+		},
+		timeline3:{
+			npcName:{
+				Speak:{role: 'Name', speech:'Jumped to the Answer 1 section.'},
+				Jump: {timeline: 'timeline6'},
+			},
+		},
+		timeline4:{
+			npcName:{
+			Speak:{role: 'Name', speech:'Jumped to the Answer 2 section.'}, 
+			Jump: {timeline: 'timeline6'},
+			},
+		},
+		timeline5:{
+			npcName:{
+				Speak:{role: 'Name', speech:'Jumped to the Answer 3 section.'},
+			},
+		},
+		timeline6:{
+			npcName:{
+				Speak:{role: 'Name', speech:'Second to last speech text.'},
+				SetFlag:{flag: 'testSpeechVar', value: false},
+			},
+		},
+		timeline7:{
+			npcName:{IfElse: {npcName:{cond: 'testSpeechVar',
+			ifTrue: {
+				npcName:{Speak:{role: 'Name', speech:'Is True'}},},
+			ifFalse: {
+				npcName:{Speak:{role: 'Name', speech:'Is False'}},},}}},
+		},
+		timeline8:{
+			npcName:{
+				Speak:{role: 'Name', speech:'End and restart speech.'},
+			},
+		},
+		timeline9:{
+			npcName: {ResetBook: true},
+		},
+	};
+
+The above example uses all of the previously mentioned items to control this NPC's instructions. Let go through each Timeline to explain what is going on.
+
+timeline0 :
+
+The very beginning of the instructions starts out with the NPC speaking the phrase 'The very first speech text displayed.' as well as setting a flag on the NPC named 'testSpeechVar' as true. Continue to timeline1 normally.
+
+timeline1 :
+
+Now we run an If/Else conditional checking the exact flag we have just setup in the previous timeline. Since the value of that flag exists and is true, the NPC speaks the phrase 'Is True'. Continue to timeline2 normally.
+
+timeline2 :
+
+The NPC speaks the phrase 'Jump to Text section.' and then prompts the player with a Menu selection of 3 options. An 'Answer 1' which will Jump the instructions to the next timeline aka 'timeline3', an 'Answer 2' which will Jump over timeline 3 to the instructions at 'timeline4' or an 'Answer 3' which will Jump over timeline 3 & 4 to the instructions at 'timeline5'. Upon player selection of an option, the timeline will be moved and skip over other timelines as required.
+
+timeline3 :
+
+If the player selected 'Answer 1' the NPC will speak the phrase 'Jumped to the Answer 1 section.' and instead of moving onto the next timeline aka timeline4, we will automatically Jump to 'timeline6' skipping timeline 4 & 5 as they are assoicated with Answer 2 & 3.
+
+timeline4 :
+
+If the player selected 'Answer 2' the NPC will speak the phrase 'Jumped to the Answer 2 section.' and instead of moving onto the next timeline aka timeline5, we will automatically Jump to 'timeline6' skipping timeline 5 as they are assoicated with Answer 3.
+
+timeline5 :
+
+If the player selected 'Answer 3' the NPC will speak the phrase 'Jumped to the Answer 3 section.'. Continue to timeline6 normally.
+
+timeline6 :
+
+Here the NPC speaks the phrase 'Second to last speech text.' and adjusts the flag 'testSpeechVar' we had evaluated to true earlier in the Book now to false. Continue to timeline7 normally.
+
+timeline7 :
+
+Now we run another If/Else conditional checking the exact flag we have been toggling. Since the value of that flag exists and is false, the NPC speaks the phrase 'Is False'. Continue to timeline8 normally.
+
+timeline8 :
+
+The NPC speaks one last time before the final timeline saying the phrase 'End and restart speech.'. Continue to timeline9 normally.
+
+timeline9 :
+
+As soon as timeline9 is hit, we reset the entire book back to the very beginning and timeline0 starts right away. Any objects that have been spawned will be unspawned, but any changes we have made or flags set will not be reset back to original states. While possible to track that with future updates, simply adding those reversion changes before the book reset command is ran works as well.
+
+---
+Instruction Scope :
+---
+As with the other Instruction objects, anything you define here will persist while in this scope only. So all objects spawned here will persist until you despawn the NPC wherever they may be withinin a Scenario, Zone or Scene.
+
+---
+NPC Methods :
+---
+
+SpawnNPC
+---
+- Spawns the NPC into the environment. When spawning via a Scenario, Zone, Scene or Book it is added to that respective instruction tracker.
+
+It does not accept any parameters.
+
+SpawnNPC()
+
+	npcName:{SpawnNPC:null},
+- - -
+
+DespawnNPC
+---
+- Despawns the NPC from the environment. When removing via a Scenario, Zone, Scene or Book it is also removed from that respective instruction tracker.
+
+It does not accept any parameters.
+
+DespawnNPC()
+
+	npcName:{DespawnNPC:null},
+- - -
+
+EnableSpeech
+---
+- NPC speech is enabled by default, but if you disable it then you can re-enable it with this method. It will restart the Book from the beginning.
+
+It does not accept any parameters.
+
+EnableSpeech()
+
+	npcName:{EnableSpeech:null},
+- - -
+
+DisableSpeech
+---
+- Disable the NPC's speech and stop any additional timeline movement or interaction.
+
+It does not accept any parameters.
+
+EnableSpeech()
+
+	npcName:{EnableSpeech:null},
+- - -
+
+Speak
+---
+- Provide the NPC with text to speak via it's Text Bubble. Provide text to prefix the speech text usually the NPC's name, but can be any string as needed as well as the actual text they will be using to speak.
+
+It accepts a single object with 2 key values as a parameter.
+
+Speak({role,speech})
+
+'role' is the text prefix that will be displayed before the speech text.
+
+'speech' is the text that will slowly reveal itself, but will be skipped to show all on interaction.
+
+	npcName:{Speak:{role:'Name', speech:'Speaking Text'}},
+- - -
+
+ResetBook
+---
+- Prompt the Book to restart from the very beginning. Any objects spawned will be unspawned, but all changes and flags need to be manually reset if required before the command is ran.
+
+It accepts a single bool parameter.
+
+ResetBook(force)
+
+'force' is a true/false bool and is required if you reset the Book before it is completed. If you run it on the last timeline, then the timeline does not finish, so it is required to add true to force reset it.
+
+	npcName:{ResetBook:true},
+- - -
+
+Jump
+---
+- Automatically jump to a new Timeline and/or Page upon current timeline completion.
+
+It accepts a single object with 2 key values as a parameter.
+
+Speak({timeline, page})
+
+'timeline' is the string name of the timeline# to jump to
+
+'page' is a string name of the Page Data that the timeline exists on. If omited, it will jump to the current Page's timeline#.
+
+	npcName:{Speak:{timeline:'timeline4'}},
+	npcName:{Speak:{timeline:'timeline4', page:'npcTestPage2'}},
+- - -
+
+SelectJump
+---
+- Generate a Menu of options for the player to select from each with their associated timeline to land on. Currently only same Page jumps are supported, but will update to allow Page selection as well.
+
+It accepts an array of arrays
+
+SelectJump(jumpOptions)
+
+'jumpOptions' is an array of arrays. Each array within the outer array hold the option display name in a string followed by the timeline# in a string as well. 
+
+	npcName:{SelectJump:[['Answer 1','timeline3'], ['Answer 2','timeline4'], ['Answer 3','timeline5'],]},
+- - -
+
+SetFlag
+---
+- Add or change a variable with value attached to a NPC. Flag and value persist throughout the page session. Used mainly with instruction conditionals.
+
+It accepts a single or an array of objects.
+
+SetFlag(flagValue)
+
+'flagValue' is an object that defines the flag name and flag value such as {flag:'flagName', value:'flagValue'}
+
+	npcName:{SetFlag:{flag:'name', value:true}},
+- - -
+
+GetFlag
+---
+- Retrieve a flag value attached to a NPC. Used mainly with instruction conditionals.
+
+It accepts a string or an array of strings to check for. If a flag does not exist then false will be returned.
+
+GetFlag(flag)
+
+'flag' is a string or array of strings and returns a value or array of values respectively.
+
+	npcName:{GetFlag:'flagName'},
+- - -

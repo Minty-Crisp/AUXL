@@ -1,0 +1,96 @@
+AUXL Engine v0.2 : Web XR Scenario, Object Generator Engine & Universal Controller System 
+---
+Wiki Sections
+
+- [Home](https://github.com/Minty-Crisp/AUXL/wiki)
+
+- [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
+
+- Quick Start Guide
+
+- [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
+
+Building AUXL Scenarios, Zones and Scenes
+- [Instructions](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Instructions)
+- [Scenario](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scenario)
+- [Zone](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Zone)
+- [Scene](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scene)
+
+Building Basic AUXL Objects
+- [Core](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Core)
+- [Layer](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Layer)
+- [ObjsGenRing](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ObjsGenRing)
+- [MultiAssetGen](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-MultiAssetGen)
+- [Horizon](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Horizon)
+- [SkyBox](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-SkyBox)
+- [Teleport](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Teleport)
+- [ImageSwapper](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageSwapper)
+- [ImageCarousel](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageCarousel)
+
+Building Advanced AUXL Objects
+- [NPC w/ Book](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-NPC-w--Book)
+- [Menu](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-Menu)
+- [MemoryGame](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-MemoryGame)
+
+Using Special AUXL Objects
+- [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
+- HamMenu (Here)
+
+---
+Using Special AUXL Objects : HamMenu
+---
+HamMenu is an important AUXL object that acts as a 3D in-scene inventory, companion and settings menu. The object's goal is to recreate the classic HTML Hamburger Menu syncing any and all HTML button and information allowing you the same controls in 3D as you have in 2D. Additionally, it will be the Player's guide and allow them to access all site/gameplay related settings such as an Inventory. All this is wrapped in the theme of being your Companion, accompanying you wherever you are within the 3D environment.
+---
+Using HamMenu :
+---
+HamMenu attaches to the Player Rig on spawning and is currently toggle-able via clicking on the Player Floor. You may manually spawn or despawn via it's methods, but you cannot disable it completely.
+- Select the Player Floor to toggle HamMenu View/Hide.
+- Select a Menu option to traverse the internal Menu and adjust settings.
+- View your Player Inventory attached to the HamMenu.
+
+---
+Transitions Types :
+---
+The HamMenu is currently configured to allow the Player to adjust the type of transition animation used in Scene swapping or Teleportation.
+
+- Instant : No view obstruction animations play.
+- Blink In/Out : 2 planes acting as an eye move from top to mid and bottom to mid then back out acting as a blink.
+- Fade In/Out : A plane obstructing the Player view fades in and out.
+- Sphere Close/Open : A sphere surrounding the Player camera close around and opens back up. Think Pac-Man eating the Player temporarily.
+- Locomotion : Move to the point with easeInOutSine easing. Teleportation only and not yet available via HamMenu
+
+---
+Inventory :
+---
+HamMenu also has the Player inventory attached to it which displays all 'items' that been added via the Player method AddToInventory(). This is especially useful with determining if the Player has the correct Key needed to access an area. This will be expanded to allow the user to store/remove objects and display additional in-scene information as well.
+
+---
+Hamburger Menu :
+---
+Currently only Player Transition settings are enabled, but recreating the HTML menu you see in 2D is currently in progress that will allow the user to change controls, toggle audio, view Scenario instructions and more.
+
+---
+HamMenu Methods :
+---
+
+SpawnHam
+---
+- Spawns the HamMenu into the environment. When spawning via a Scenario, Zone, Scene or Book it is added to that respective instruction tracker. It is always available to respawn however by selecting the Player Floor object.
+
+It does not accept any parameters.
+
+SpawnHam()
+
+	ham:{SpawnHam:null},
+- - -
+
+DespawnHam
+---
+- Despawns the HamMenu from the environment. When removing via a Scenario, Zone, Scene or Book it is also removed from that respective instruction tracker. It is always available to respawn however by selecting the Player Floor object.
+
+It does not accept any parameters.
+
+DespawnHam()
+
+	ham:{DespawnHam:null},
+- - -

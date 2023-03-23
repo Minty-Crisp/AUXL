@@ -1,0 +1,116 @@
+AUXL Engine v0.2 : Web XR Scenario, Object Generator Engine & Universal Controller System 
+---
+Wiki Sections
+
+- [Home](https://github.com/Minty-Crisp/AUXL/wiki)
+
+- [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
+
+- Quick Start Guide
+
+- [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
+
+Building AUXL Scenarios, Zones and Scenes
+- [Instructions](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Instructions)
+- [Scenario](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scenario)
+- [Zone](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Zone)
+- Scene (Here)
+
+Building Basic AUXL Objects
+- [Core](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Core)
+- [Layer](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Layer)
+- [ObjsGenRing](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ObjsGenRing)
+- [MultiAssetGen](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-MultiAssetGen)
+- [Horizon](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Horizon)
+- [SkyBox](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-SkyBox)
+- [Teleport](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Teleport)
+- [ImageSwapper](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageSwapper)
+- [ImageCarousel](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageCarousel)
+
+Building Advanced AUXL Objects
+- [NPC w/ Book](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-NPC-w--Book)
+- [Menu](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-Menu)
+- [MemoryGame](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-MemoryGame)
+
+Using Special AUXL Objects
+- [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
+- [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
+
+---
+Building AUXL Scenarios, Zones and Scenes : Scene
+---
+Scenes define a set of Intructions for a single area. Whether that area be small like a room or large like a town center. Multiple Scene's make up a Zone, so you can build various themed areas. You can also think of a Scene as an individual HTML page such as your Home page, About Me page or Gallery page, etc...
+---
+Defining a Scene Data & Scene Object :
+---
+Scene's only have a few special properties other than the standard set of Instructions you've seen in Scenario and Zones. You can configure a Scene name and Scene description which are displayed in a Scene Text Bubble when enabled via sceneText. Allows you to provide important information to the user on what this scene entails. You also need to connect it to the Zone defined map you built in it's Zone Data. Remember you cannot generate a Zone until all Scenes are generated, so you need to attach the map data to the Zone Data here.
+
+	auxl.zone0Scene0Data = {
+		info:{
+			id:'zone0Scene0',
+			name: 'Default Scene',
+			description: 'The very first scene that is loading when Zone0 loads as the Scenario default.',
+			sceneText: true,
+		},
+		controls:{},
+		start:{},
+		delay:{},
+		interval:{},
+		event:{},
+		interaction:{},
+		exit:{},
+		map:{
+			data: auxl.zone0Data.zone0Scene0,
+		},
+	};
+	auxl.zone0Scene0 = auxl.SceneNode(auxl.zone0Scene0Data);
+
+
+Info key descriptions :
+
+- id: Name must match named Scene object generated.
+
+- name: Title of the Scene. Will be used as a prefix to the description if sceneText is enabled.
+
+- description: Text description about the scene itself. Postfix to the Title if sceneText is enabled.
+
+- sceneText: true/false if you want to display a Scene Text Bubble with Name : Description
+
+Map key descriptions :
+
+- data: Name must match named Zone Data's Scene map object.
+
+---
+Instruction Scope :
+---
+As with the other Instruction objects, anything you define here will persist while in this scope only. So all controls, start, delay, interval, event & interactions object/method/params defined here will persist until you move to any other Scene. When you move to any other Scene, they will all be removed and cleared as well as the exit section will run.
+
+---
+Scene Methods :
+---
+
+StartScene
+---
+- Spawns the Scene into the environment along with the default Scene or the Scene selected on map travel. While you can run this manually, if so it will not load the Zone it belongs to. So it is best to run the Zone method instead.
+
+It accepts a single parameter.
+
+StartScene(nodeName)
+
+'nodeName' is the name of the Scene to load. If blank, will load the default Scene defined in the Scene.
+
+	auxl.zone0.StartScene()
+
+- - -
+
+ClearScene
+---
+- Despawns the Scene from the environment along with the Scene currently loaded.
+
+It does not accept any parameters.
+
+ClearScene()
+
+	auxl.zone0.ClearScene()
+
+- - -

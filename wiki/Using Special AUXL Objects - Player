@@ -1,0 +1,341 @@
+AUXL Engine v0.2 : Web XR Scenario, Object Generator Engine & Universal Controller System 
+---
+Wiki Sections
+
+- [Home](https://github.com/Minty-Crisp/AUXL/wiki)
+
+- [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
+
+- Quick Start Guide
+
+- [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
+
+Building AUXL Scenarios, Zones and Scenes
+- [Instructions](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Instructions)
+- [Scenario](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scenario)
+- [Zone](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Zone)
+- [Scene](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scene)
+
+Building Basic AUXL Objects
+- [Core](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Core)
+- [Layer](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Layer)
+- [ObjsGenRing](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ObjsGenRing)
+- [MultiAssetGen](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-MultiAssetGen)
+- [Horizon](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Horizon)
+- [SkyBox](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-SkyBox)
+- [Teleport](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Teleport)
+- [ImageSwapper](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageSwapper)
+- [ImageCarousel](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageCarousel)
+
+Building Advanced AUXL Objects
+- [NPC w/ Book](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-NPC-w--Book)
+- [Menu](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-Menu)
+- [MemoryGame](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-MemoryGame)
+
+Using Special AUXL Objects
+- Player (Here)
+- [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
+
+---
+Using Special AUXL Objects : Player
+---
+Player is a vital AUXL object that handles how the user interacts with the 3D environment. It is automatically added when the page is loaded and takes over the default A-Frame injected Camera as well as builds a complex Rig of important interconnected entities. These objects are accessed by the system and Player methods to utilize the Universal Controls and many other important features.
+---
+Player Structure :
+---
+The Player object is built from 14 total objects currently that all provide important features for the user. These objects are all predefined within auxl-library. The Player consists of a playerRig, camera, mouseController, cameraUI, fadeScreen, sphereScreen, blink1Screen, blink2Screen, playerPointLight, playerFloor, vrController1, vrController1UI, vrController2 & vrController2UI. Let's go over what each one of these generally do.
+
+
+playerRig:
+
+The parent entity that holds all of the Player objects. This is where the Universal Controls and Locomotion component attaches to as well as handles a few action animations such as toggling between sitting/standing mode and toggling between crouch/standing. 
+
+camera:
+
+The actual camera which displays our scene. This object is either controlled by the VR Headset or set to a default height of 1.6 meters and controlled by other inputs such as Mouse or Gyro.
+
+cameraUI:
+
+This is basically the HUD for the camera. By default nothing is always showing on the HUD as it can be annoying for VR users, but it is configured to display Notification messages upon Player methods.
+
+fadeScreen:
+
+The object used in the Fade transition animation. The object's visibily and animation is toggled when enabled on Scene Swap or Teleportation action.
+
+sphereScreen:
+
+The object used in the Sphere transition animation. The object's visibily and animation is toggled when enabled on Scene Swap or Teleportation action.
+
+blink1Screen:
+
+The top object used in the Blink transition animation. The object's visibily and animation is toggled when enabled on Scene Swap or Teleportation action.
+
+blink2Screen:
+
+The bottom object used in the Blink transition animation. The object's visibily and animation is toggled when enabled on Scene Swap or Teleportation action.
+
+playerPointLight:
+
+A very low intensity point light that helps illuminate the player's most immediate surroundings.
+
+playerFloor:
+
+A small circle plane to help illustrate where the user is standing and acts as a toggle for the HamMenu. A workaround for now as no Avatar body is currently being used.
+
+mouseController:
+
+Enabled and configured by the system to act as the main cursor on Desktop and Mobile configurations.
+
+vrController1:
+
+Enabled and configured by the system to act as the the left controller used for VR.
+
+vrController1UI:
+
+Enabled and configured by the system to act as the the left controller UI used for VR.
+
+vrController2:
+
+Enabled and configured by the system to act as the the right controller used for VR.
+
+vrController2UI:
+
+Enabled and configured by the system to act as the the right controller UI used for VR.
+
+Currently not much customization is allowed for the Player other than UI, Player Floor and the Player Light Data. You can change the style of the UI and Player Floor and adjust the Player Light intensity within the Core Data in auxl-library. Avatar bodies and advanced customizations are planned in future updates.
+
+---
+Player Controls :
+---
+A key part of AUXL, is the Universal Controls that adapts to any input configuration. These various sets of inputs all tie into a unified set of actions which are generalized below.
+
+View Direction :
+- The Camera movement.
+
+Snap Left Turn :
+- Quick Left 45 Degree Player Turning.
+
+Snap Right Turn :
+- Quick Right 45 Degree Player Turning.
+
+Locomotion Direction :
+- The Player Rig movement.
+
+Main Click :
+- Select Object at Raycast Intersection.
+
+Alternative Click :
+- An Alternative Select Input.
+
+Action 1 - 6 :
+- Any AUXL Object Method or AUXL Object Component Method configurable within a Scenario, Zone or Scene.
+
+Only the Actions and Alt Click are currently customizable as all others are controlled by the AUXL system.You can find out more on how to change the Actions in the Customizing AUXL Controls wiki page.
+
+---
+Control Configurations :
+---
+When you load the AUXL library, you are prompted by a HTML menu that allows you to start the Scenario and provides a few important settings to change. For the Player object, we have the Controls Configuration settings.
+
+Desktop Mode :
+- Use a Keyboard and Mouse to control the player. Mouse controls the Camera view while providing the main click selection with the Left Click Mouse and an alternative click with the Right Click Mouse. On Keyboard by default the Locomotion is setup for WASD/Arrow keys as well as the Actions 1-6 which are configured for QERCVB in addition to Snap Turning Left/Right with ZX. These keys can be altered within the Universal Controls component inside the object controls that hold each key as an array tied to each action.
+
+Mobile Mode :
+- Use Touchscreen HTML Buttons and Gryo to control the player. Gyro controls the Camera view and the any non-button Touchscreen area is the main click. When in Mobile mode, the HTML controller displays provided Button access to all other Actions including 8 cardinal directions for Locomotion, an Alt click, 6 Actions Buttons and A Start/Select (not configured just yet).
+
+VR Mode :
+- Currently only Dual Advanced Controllers support access to every Action function including Locomotion and Snap Turning, but Universal Controls are continually being updated to support every possible setup and workaround the lack of physical buttons keep all interactions possible.
+
+Dual Advance(6DoF) Controllers : (Access to All)
+
+2 Hands : Right Ray | Left Move :
+- Right controller racyaster with Joystick configured for Snap Turning Left/Right and Up/Down tied to Action 5/6 along with the Left controller with Joystick configured for Locomotion. Use either Trigger to emit main click or either grip to emit alt click.
+
+2 Hands : Left Ray | Right Move :
+- Left controller racyaster with Joystick configured for Snap Turning Left/Right and Up/Down tied to Action 5/6 along with the Right controller with Joystick configured for Locomotion. Use either Trigger to emit main click or either grip to emit alt click.
+
+2 Hands : Dual Ray | Left Move
+- Both controllers have racyaster. Right has Joystick configured for Snap Turning Left/Right and Up/Down tied to Action 5/6 along with the Left controller with Joystick configured for Locomotion. Use either Trigger to emit main click or either grip to emit alt click.
+
+2 Hands : Dual Ray | Right Move
+- Both controllers have racyaster. Left has Joystick configured for Snap Turning Left/Right and Up/Down tied to Action 5/6 along with the Right controller with Joystick configured for Locomotion. Use either Trigger to emit main click or either grip to emit alt click.
+
+Single Basic(3DoF) Controllers : (Click & Locomotion Only)
+
+1 Hand : Right Ray | Belt Move
+- Right handed controller raycaster with in-scene Locomotion Hover based belt UI. Hover over top belt to move forward in camera direction, bottom belt to move reverse in camera direction and use the brake toggles to adjust walk speed.
+
+1 Hand : Left Ray | Belt Move
+- Left handed controller raycaster with in-scene Locomotion Hover based belt UI. Hover over top belt to move forward in camera direction, bottom belt to move reverse in camera direction and use the brake toggles to adjust walk speed.
+
+---
+Player Actions :
+---
+You can currently add any of these 3 Player Actions to any Action 1 - 6 from the Scenario, Zone or Scene instruction section 'controls'. The 3 actions available are toggling walk speed between normal and fast, toggling between sitting and standing mode and toggling between crouch and upright mode. The Sitting/Standing mode will eventually be a HamMenu setting, but in the mean time you can configure it within the custom controls.
+
+These exact controls are used within the main AUXL demo configured to the entire Scenario.
+
+	controls:{
+		action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
+		action5Down:{auxlObj: 'player', component: false, func: 'ToggleCrouch'},
+		action6Down:{auxlObj: 'player', component: false, func: 'ToggleSittingMode'},
+	},
+
+The above instructions add the Walk Speed toggleSpeed function inside our Locomotion component attached to the Player to Action1 which would be Desktop Key Q, Mobile HTML Button A and VR Left Controller Button X. It adds the Player method ToggleCrouch to Action5 which would be Desktop Key V, Mobile HTML Button E and VR Other Joystick Down. And finally adds the Player method ToggleSittingMode to Action6 which would be Desktop Key B, Mobile HTML Button F and VR Other Joystick Up.
+
+Learn more about customizing the controls section in the Customizing AUXL Controls wiki page.
+
+---
+Player Methods :
+---
+Most of the Player methods are better used inside custom objects rather than within Instructions, but a few to point out with a brief description that work well for Instructions are...
+
+- UpdateTransitionColor : Adjust the transition color used. Black is set by default.
+
+- SetFlag : Set a flag to be checked in If/Else conditionals.
+
+- AddToInventory : Add item flags to a viewable HamMenu inventory screen that also work with If/Else conditionals.
+
+- RemoveFromInventory : Remove item flags from a viewable HamMenu inventory screen that also work with If/Else conditionals.
+
+More details for these and more below.
+
+
+PlayerTeleportAnim
+---
+- Plays the enabled transition animation. Used in Teleportating the player to help alleviate VR sickness. Options are Instant(no animation), Blink In/Out, Fade In/Out and Sphere Close/Open.
+
+It does not accept any parameters.
+
+PlayerTeleportAnim()
+
+	player:{PlayerTeleportAnim:null},
+- - -
+
+UpdateTransitionColor
+---
+- Updates the transition color used in Scene/Teleport animations.
+
+It accepts a single string paramter
+
+UpdateTransitionColor(color)
+
+'color' is any A-Frame color such as name or Hex code.
+
+	player:{UpdateTransitionColor:'#5f2038'},
+- - -
+
+Notification
+---
+- Plays a notification message through the cameraUI object attached to the Camera.
+
+It accepts an object with up to 2 key values
+
+Notification({message, time})
+
+'message' is a text string that is displayed in the Notification window.
+
+'time' is how long to display the message for. If omitted, it will display for a little over 3 seconds.
+
+	player:{Notification:{message:'Test Notification', time:5000}},
+- - -
+
+AddToInventory
+---
+- Add an item to a viewable inventory. Items added here will work with If/Else conditionals evaluating to true if they are in the Player inventory. Items persist throughout the page session.
+
+It accepts a single or an array of strings.
+
+AddToInventory(item)
+
+'item' is string or array of strings containing the named values of the items to add.
+
+	player:{AddToInventory:'item1'},
+- - -
+
+RemoveFromInventory
+---
+- Remove an item from a viewable inventory. Items removed here will work with If/Else conditionals evaluating to false if they are no longer in the Player inventory.
+
+It accepts a single or an array of strings.
+
+RemoveFromInventory(item)
+
+'item' is string or array of strings containing the named values of the items to add.
+
+	player:{RemoveFromInventory:'item1'},
+- - -
+
+CheckInventory
+---
+- Returns if an item is in the Player inventory. Used mainly as a support in other functions, can be utilized manually however.
+
+It accepts a single or an array of strings and returns the same.
+
+CheckInventory(item)
+
+'item' is string or array of strings containing the named values of the items to add.
+
+	player:{CheckInventory:'item1'},
+- - -
+
+SetFlag
+---
+- Add or change a variable with value attached to the Player. Flag and value persist throughout the page session. Used mainly with instruction conditionals.
+
+It accepts a single or an array of objects.
+
+SetFlag(flagValue)
+
+'flagValue' is an object that defines the flag name and flag value such as {flag:'flagName', value:'flagValue'}
+
+	player:{SetFlag:{flag:'name', value:true}},
+- - -
+
+GetFlag
+---
+- Retrieve a flag value attached to the Player. Used mainly with instruction conditionals.
+
+It accepts a string or an array of strings to check for. If a flag does not exist then false will be returned.
+
+GetFlag(flag)
+
+'flag' is a string or array of strings and returns a value or array of values respectively.
+
+	player:{GetFlag:'flagName'},
+- - -
+
+TempDisableClick
+---
+- Temporarily disable the Player's ability to click all clickable objects via main click. Lasts for the time provided or for about 1 second if omitted.
+
+It accepts a single paramter.
+
+TempDisableClick(time)
+
+'time' - The amount of time in milliseconds to disable clicking for, defaults to about 1 second. 10000 is 10 seconds.
+
+	player:{TempDisableClick:'10000'},
+- - -
+
+DisableClick
+---
+- Disable the Player's ability to click all clickable objects via main click.
+
+It does not accept any parameters.
+
+DisableClick()
+
+	player:{DisableClick:null},
+- - -
+
+EnableClick
+---
+- Enable the Player's ability to click any clickable object via main click.
+
+It does not accept any parameters.
+
+EnableClick()
+
+	player:{EnableClick:null},
+- - -

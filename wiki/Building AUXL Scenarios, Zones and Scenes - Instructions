@@ -1,0 +1,201 @@
+AUXL Engine v0.2 : Web XR Scenario, Object Generator Engine & Universal Controller System 
+---
+Wiki Sections
+
+- [Home](https://github.com/Minty-Crisp/AUXL/wiki)
+
+- [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
+
+- Quick Start Guide
+
+- [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
+
+Building AUXL Scenarios, Zones and Scenes
+- Instructions (Here)
+- [Scenario](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scenario)
+- [Zone](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Zone)
+- [Scene](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scene)
+
+Building Basic AUXL Objects
+- [Core](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Core)
+- [Layer](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Layer)
+- [ObjsGenRing](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ObjsGenRing)
+- [MultiAssetGen](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-MultiAssetGen)
+- [Horizon](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Horizon)
+- [SkyBox](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-SkyBox)
+- [Teleport](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Teleport)
+- [ImageSwapper](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageSwapper)
+- [ImageCarousel](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageCarousel)
+
+Building Advanced AUXL Objects
+- [NPC w/ Book](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-NPC-w--Book)
+- [Menu](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-Menu)
+- [MemoryGame](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-MemoryGame)
+
+Using Special AUXL Objects
+- [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
+- [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
+
+---
+Building AUXL Scenarios, Zones and Scenes : Instructions
+---
+Scenario, Zone and Scenes all share the same Instructions format. They only differ within their info key as well as the scope for which the Instructions take place in. Otherwise they all share the same Instruction keys such as Controls, Start, Delay, Interval, Event, Interaction & Exit.
+---
+Defining a Instruction Data :
+---
+Instructions allow you to run AUXL object methods at various points in logic of running a Scenario, Zone or Scene. You may also use If/Else conditionals to dynamically control what the logic will do. Here is a empty example of common instruction data.
+
+	auxl.instructionExampleData = {
+		controls:{},
+		start:{},
+		delay:{},
+		interval:{},
+		event:{},
+		interaction:{},
+		exit:{},
+	};
+
+Each key explained :
+
+- controls: add auxl method or component method to an available action which maps to all input configurations.
+
+- start: run auxl method when this scope is first loaded.
+
+- delay: run auxl method after X amount of time when this scope is first loaded.
+
+- interval: run auxl method on X interval for Y amount of times. Y can be infinite.
+
+- event: connect an auxl method with specific parameters to a custom named event. These events can be trigged by auxl methods such as a core.EmitEvent()
+
+- interaction: connect an auxl method with specific parameters to a specific predefined type. These are used for web/a-frame prebuilt events such as click, mousedown, intersect, etc...
+
+- exit: run auxl method when this scope is being unloaded. This is best used to manipulate outer scope objects or set object flags.
+
+Example :
+
+	auxl.instructionExampleData = {
+		controls:{
+			action1Down:{auxlObj: 'eventTesting', component: 'test-component', func: 'testMethod'},
+		},
+		start:{
+			eventTesting:{SpawnCore: null},
+		},
+		delay:{
+			10000:{
+				eventTesting:{ChangeSelf:{property: 'material', value: {color: 'green',},}},
+			},
+		},
+		interval:{
+			6000: {
+				run: {eventTesting:{EmitEvent: 'testintervalevent'},}, loop: 'infinite'
+			},
+		},
+		event:{
+			customevent1: {
+				eventTesting: {ChangeSelf: {property: 'material', value: {color: 'orange'}}},
+			},
+			customevent2: {
+				eventTesting: {ChangeSelf: {property: 'material', value: {color: 'blue'}}},
+			},
+			testintervalevent: {
+				eventTesting:{IfElse: {eventTesting:{cond: 'testInteractionVar',
+				ifTrue: {
+					eventTesting:{EmitEvent: 'customevent1',SetFlag:{flag: 'testInteractionVar', value: false},},
+				},ifFalse: {
+					eventTesting:{EmitEvent: 'customevent2',SetFlag:{flag: 'testInteractionVar', value: true},},
+				},}}},
+			},
+		},
+		interaction:{
+			click: {
+				eventTesting:{IfElse: {eventTesting:{cond: 'testInteractionVar',
+				ifTrue: {
+					eventTesting:{EmitEvent: 'customevent1',SetFlag:{flag: 'testInteractionVar', value: false},},
+				},ifFalse: {
+					eventTesting:{EmitEvent: 'customevent2',SetFlag:{flag: 'testInteractionVar', value: true},},
+				},}}},
+			},
+		},
+		exit:{
+			player:{SetFlag:{flag: 'visitedScope', value: true},},
+		},
+	};
+
+The above example is doing a handful of things mostly revolving around a single local scope Core named 'eventTesting'. 
+
+Controls :
+
+We've configured a special control action attached to Action1 of the Universal Controls which are Controller Button X, Keyboard Key Q or Mobile HTML Button A. It will connect to the component named 'test-component' attached to the 'eventTesting' entity and run the method 'testMethod' on hit.
+
+Start :
+
+As soon as this scope is loaded, we spawn our 'eventTesting' Core with it's default render settings.
+
+Delay :
+
+After 10 seconds since the the scope has loaded, no matter what has happened we will update the 'eventTesting' entity material color to green.
+
+Interval :
+
+As long as this scope is still running, every 6 seconds we will have 'eventTesting' entity fire an event named 'testintervalevent'. This interval is ran infinitely, but could have a number instead to run only that many amount of times.
+
+Event :
+
+We have defined 3 custom events here attached to the scope each with their own method/parameters or chain of method/parameters. We created the event named 'customevent1' that when fired will change the 'eventTesting' entity material color to orange. Another similar event named 'customevent2' that does the same thing except with the color blue. And finally an event that uses If/Else conditionals and method chaining to fire 1 of the above 2 events alternatively basically toggling between the 2. This last event is what our Interval is emitting every 6 seconds which then toggles between the 1st 2 events.
+
+Interaction :
+
+We added an If/Else conditional check and method chaining to toggle between 1 of 2 events attached to the standard click event. This will only work as long as the entity 'eventTesting' has the class 'clickable' attached.
+
+Exit :
+
+When we unload this scope, we will update the global player object with a flag that it has visited this area. This flag could be used to dynamically adjust scenery or other objects based on that fact.
+
+---
+Method Chaining
+---
+When using instructions, you may chain multiple methods of an AUXL object to run in sequence. Due to the JSON format style used however, you can not run the same method mulitple times within a single AUXL object line. Methods that you would normally want to use more then once generally accept an array of parameters to workaround this limitation such as ChangeSelf() or EmitEvent().
+
+	auxl.instructionExampleData = {
+		start:{
+			eventTesting:{ChangeSelf:{property: 'material', value: {color: 'green',},}, EmitEvent: ['event1', 'event2'],},
+		},
+	};
+
+The example above runs the ChangeSelf method and right after the EmitEvent method fires twice for each array string.
+
+	auxl.instructionExampleData = {
+		start:{
+			eventTesting:{
+				ChangeSelf:{property: 'material', value: {color: 'green',},}, 
+				EmitEvent: [
+					'event1',
+					'event2
+				],
+			},
+		},
+	};
+
+This example is the exact same, but formatted in a way that has better readability for clarity of the idea.
+
+---
+If/Else Conditionals
+---
+When using instructions, you may dynamically choose which methods with paramters are ran depending on AUXL object flags true/false values. A few things to note as the previous examples of If/Else have the same AUXL object name used multiple times which may be confusing. When using If/Else, what would normally be the AUXL object name can be any unique identifier and does not need to be related to the object that hold the flags nor the object that runs the methods. Additionally the object that holds the flag used for checking does not need to be the same object running the methods within, but is possible if you want a toggle like logic. You can chain multiple objects together and mutliple methods within those objects together as well.
+
+	auxl.instructionExampleData = {
+		start:{
+			anyUniqueName:{IfElse: {flagCheckObject:{cond: 'testVar',
+			ifTrue: {
+				eventTesting:{EmitEvent: 'customevent1'},
+				eventTesting2:{EmitEvent: 'customevent1'},
+				flagCheckObject:{EmitEvent: 'customevent1', SetFlag:{flag: 'testVar', value: false},},
+			},ifFalse: {
+				eventTesting:{EmitEvent: 'customevent1'},
+				eventTesting2:{EmitEvent: 'customevent1'},
+				flagCheckObject:{EmitEvent: 'customevent1', SetFlag:{flag: 'testVar', value: true},},
+			},}}},
+		},
+	};
+
+

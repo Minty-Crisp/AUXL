@@ -1,0 +1,78 @@
+AUXL Engine v0.2 : Web XR Scenario, Object Generator Engine & Universal Controller System 
+---
+Wiki Sections
+
+- [Home](https://github.com/Minty-Crisp/AUXL/wiki)
+
+- [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
+
+- Quick Start Guide
+
+- [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
+
+Building AUXL Scenarios, Zones and Scenes
+- [Instructions](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Instructions)
+- [Scenario](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scenario)
+- [Zone](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Zone)
+- [Scene](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scene)
+
+Building Basic AUXL Objects
+- [Core](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Core)
+- [Layer](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Layer)
+- [ObjsGenRing](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ObjsGenRing)
+- [MultiAssetGen](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-MultiAssetGen)
+- [Horizon](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Horizon)
+- [SkyBox](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-SkyBox)
+- [Teleport](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Teleport)
+- ImageSwapper (Here)
+- [ImageCarousel](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageCarousel)
+
+Building Advanced AUXL Objects
+- [NPC w/ Book](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-NPC-w--Book)
+- [Menu](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-Menu)
+- [MemoryGame](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-MemoryGame)
+
+Using Special AUXL Objects
+- [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
+- [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
+
+---
+Building Basic AUXL Objects : ImageSwapper
+---
+Provide 5 images to generate an object that display the current selection on the main frame with thumbnail previews of the other images.
+---
+Defining a ImageSwapper Data & ImageSwapper Object :
+---
+Currently ImageSwapper is limited in it's overall shape, but future updates will allow additional styles and customizations. You must use the current main frame and thumbnail frame auxl object and provide exactly 5 images to utilize.
+
+	auxl.imageSwap0 = auxl.ImageSwapper('imageSwap0',auxl.imageSwapperViewData, auxl.imageSwapperButtonData, auxl.mat0, auxl.mat1, auxl.mat2, auxl.mat3, auxl.mat4);
+
+The above example use the default main frame and thumbnail frame (required) along with any 5 images provided. Updates to allow an object with frame customizations and array of images to be implemented soon.
+
+The ImageSwapper generator takes in 8 parameters, an ID, the main frame, thumbnail frame and 5 total images. As usual, the ID must match the ImageSwapper object.
+
+---
+ImageSwapper Methods :
+---
+
+SpawnImgSwap
+---
+- Spawns the ImageSwapper into the environment. When spawning via a Scenario, Zone, Scene or Book it is added to that respective instruction tracker.
+
+It does not accept any parameters.
+
+SpawnImgSwap()
+
+	imageSwap0:{SpawnImgSwap:null},
+- - -
+
+DespawnImgSwap
+---
+- Despawns the ImageSwapper from the environment. When removing via a Scenario, Zone, Scene or Book it is also removed from that respective instruction tracker.
+
+It does not accept any parameters.
+
+DespawnImgSwap()
+
+	imageSwap0:{DespawnImgSwap:null},
+- - -

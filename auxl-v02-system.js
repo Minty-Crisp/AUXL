@@ -32,6 +32,7 @@ const controllerBlock = document.getElementById('controllerBlock');
 let playerRig;
 let camera;
 let cameraUI;
+let playerPointLight;
 let playerFloor;
 let mouseController;
 let vrController1;
@@ -1234,7 +1235,7 @@ this.Layer = (id, all) => {
 	layer.secondParents = [];
 	layer.thirdParents = [];
 	//Spawn Multi Entity Object
-	const SpawnLayer = (other) => {
+	const SpawnLayer = () => {
 		for(let each in all){
 			if(each === 'parent'){
 				all[each].core.SpawnCore(false, true);
@@ -1341,7 +1342,7 @@ this.Layer = (id, all) => {
 		}
 	}
 	//Emit Event from All Entity Elements - Single or Array
-	const EmitAll = (eventName) => {
+	const EmitEventAll = (eventName) => {
 		if(Array.isArray(eventName)){
 			for(let each in eventName){
 				for(let section of accessOrder){
@@ -1578,6 +1579,22 @@ this.Layer = (id, all) => {
 			}
 		}
 	}
+	//Disable Details for Parent Object
+	const DisableDetailParent = () => {
+		all.parent.core.DisableDetail();
+	}
+	//Disable Details for Child Object
+	const DisableDetailChild = (child) => {
+		GetChild(child).DisableDetail();
+	}
+	//Disable Details for All Objects
+	const DisableDetailAll = () => {
+		for(let section of accessOrder){
+			for(let indv of section){
+				indv.DisableDetail();
+			}
+		}
+	}
 	//Support by returning child core object from name
 	const GetChild = (childName) => {
 		let result = [];
@@ -1609,7 +1626,8 @@ this.Layer = (id, all) => {
 		}
 	}
 
-	return {layer, SpawnLayer, DespawnLayer, GetParentEl, EmitEventParent, EmitEventChild, EmitAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, GetChild};
+	return {layer, SpawnLayer, DespawnLayer, GetParentEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
+
 }
 
 //
@@ -1665,6 +1683,7 @@ this.Player = (layer) => {
 	playerRig = document.getElementById('playerRig');
 	camera = document.getElementById('camera');
 	cameraUI = document.getElementById('cameraUI');
+	playerPointLight = document.getElementById('playerPointLight');
 	playerFloor = document.getElementById('playerFloor');
 	mouseController = document.getElementById('mouseController');
 	vrController1 = document.getElementById('vrController1');
@@ -1745,10 +1764,10 @@ this.Player = (layer) => {
 		}
 	}
 	//Display Camera UI Notification
-	const Notification = (message, time) => {
-		displayTime = time || 3750;
+	const Notification = (notificationInfo) => {
+		displayTime = notificationInfo.time || 3750;
 		TempDisableClick(displayTime);
-		auxl.cameraUI.ChangeSelf({property: 'text', value: {value: message, width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold", side: 'double', opacity: 0},});
+		auxl.cameraUI.ChangeSelf({property: 'text', value: {value: notificationInfo.message, width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold", side: 'double', opacity: 0},});
 		auxl.cameraUI.ChangeSelf({property: 'visible', value: 'true'});
 		auxl.cameraUI.EmitEvent('cameraMsg');
 		notificationTimeout = setTimeout(function () {
@@ -1799,12 +1818,12 @@ this.Player = (layer) => {
 				let delay = 3800;
 				delay *= each;
 				inventoryTimeouts[each] = setTimeout(function () {
-					Notification('Acquired : ' + item[each]);
+					Notification({message:'Acquired : ' + item[each]});
 					clearTimeout(inventoryTimeouts[each]);
 				}, delay);
 			}
 		} else {
-			Notification('Acquired : ' + item);
+			Notification({message:'Acquired : ' + item});
 		}
 	}
 	//Remove Item/Key to Player Inventory - Single or Array
@@ -1828,12 +1847,12 @@ this.Player = (layer) => {
 				let delay = 3800;
 				delay *= each;
 				inventoryTimeouts[each] = setTimeout(function () {
-					Notification('Removed : ' + item[each]);
+					Notification({message:'Removed : ' + item[each]});
 					clearTimeout(inventoryTimeouts[each]);
 				}, delay);
 			}
 		} else {
-			Notification('Removed : ' + item);
+			Notification({message:'Removed : ' + item});
 		}
 	}
 	//Check if Item/Key is in Player Inventory - Single or Array
@@ -2121,12 +2140,6 @@ this.Menu = (menuData) => {
 	const DespawnMenu = () => {
 		menu.layer.DespawnLayer(true);
 	}
-	//Enable Clicking on Options
-	const ToggleOptionClicking = () => {
-		for(let options in menuOptions){
-			menuOptions[options].GetEl().classList.toggle('clickable');
-		}
-	}
 	//Attach Menu to Tracker matching object generator 
 	const AddToParentSpawnTracker = (obj, parent) => {
 		if(auxl.scenarioSpawned[parent.id]){
@@ -2152,7 +2165,7 @@ this.Menu = (menuData) => {
 		}
 	}
 
-	return {menu, SpawnMenu, DespawnMenu, ToggleOptionClicking, AddToParentSpawnTracker, RemoveMenuFromSceneTracker};
+	return {menu, SpawnMenu, DespawnMenu, AddToParentSpawnTracker, RemoveMenuFromSceneTracker};
 }
 
 //
@@ -2457,7 +2470,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		}
 	}
 
-	return {core, IfElse, ClearScene, auxlObjMethod, Info, Start, Delay, Interval, Event, Interaction, Exit, Map, StartScene}
+	return {core, ClearScene, StartScene}
 }
 
 //
@@ -2818,7 +2831,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		//Check for Lock & Keys
 		if(newNode.locked && !auxl.player.GetFlag(newNode.key)){
 			clearTimeout(timeout2);
-			auxl.player.Notification('Requires : ' + newNode.key);
+			auxl.player.Notification({message:'Requires : ' + newNode.key});
 		} else {
 			if(newNode.locked && auxl.player.GetFlag(newNode.key) && !newNode.keepKey){
 				auxl.player.SetFlag({flag: newNode.key, value: false})
@@ -2847,7 +2860,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		clearSpawned(auxl.zoneSpawned);
 	}
 
-	return {core, ReadMapData, StartScene, MoveSpawnMenu, MenuMoveClick, Move, ClearZone};
+	return {core, StartScene, MoveSpawnMenu, MenuMoveClick, Move, ClearZone};
 }
 
 //
@@ -4129,7 +4142,6 @@ this.HamMenu = (id, core) => {
 	//Ham System Menu Click
 	const SystemMenuClick = (el) => {
 		let result = el.getAttribute('result');
-		ham.systemMenu.ToggleOptionClicking();
 		systemMenuTimeout = setTimeout(function () {
 			if(result === 'travelSettings'){
 				travelSettingsSpawnMenu();
@@ -4174,7 +4186,6 @@ this.HamMenu = (id, core) => {
 	//Handle Travel Menu Click
 	const TravelSettingsMenuClick = (el) => {
 		let result = el.getAttribute('result');
-		ham.travelSettingsMenu.ToggleOptionClicking();
 		auxl.player.layer.transition = result;
 		travelMenuTimeout = setTimeout(function () {
 			closeTravelSettingsMenu();
@@ -4813,7 +4824,6 @@ this.MemoryGame = (id, data) => {
 	for(let each in data){
 		memoryObjData = data[each];
 		memoryObjData.id = 'memory' + each;
-		//memoryObjData.material = materials[each];
 		memoryCores[each] = auxl.Core(memoryObjData);
 		layerData['child'+each] = {};
 		layerData['child'+each].core = memoryCores[each];
@@ -5893,7 +5903,7 @@ this.ImageCarousel = (carouselData) => {
 		UpdateAll('forward');
 	}
 
-	return {imageCarousel, SpawnImgCarousel, DespawnImgCarousel, PlayPause};
+	return {imageCarousel, SpawnImgCarousel, DespawnImgCarousel, PlayPause, Forward, Backward, NextPage, PrevPage, RandomPage, Scale, Info};
 }
 
 
@@ -7287,8 +7297,6 @@ auxl.imageSwapper1 = auxl.ImageSwapper('imageSwapper1',auxl.imageSwapperViewData
 //ImageCarousel Testing
 auxl.carouselTestingData = {
 id: 'carouselTesting',
-//mode: 360,
-//frames: 8,
 description: 'Browse through an example carousel. Control the image frames with a handful of buttons to jump to a random page, go back a page, go back a few images, view info, play the slideshow, go forward a few images, go to the next page and switch between 2 frame sizings.',
 images: [
 	{image: auxl.pattern01, text: 'Example1'},
@@ -9204,11 +9212,15 @@ this.snapRightHit = (e) => {
     },
 //Dev Input Display
 updateInput: function (input){
+	//console.log(input)
+	//Enable A-Frame Entity to use below
 	//Display Inputs - DEV Testing
+	/*
 	const displayInput = document.querySelector('#displayInput');
 	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
 	displayInputText.value = input;
 	displayInput.setAttribute('text',displayInputText);
+	*/
 },
 //Change Action function
 updateAction: function (actionObj){

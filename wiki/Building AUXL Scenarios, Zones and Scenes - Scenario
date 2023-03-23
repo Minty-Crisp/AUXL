@@ -1,0 +1,115 @@
+AUXL Engine v0.2 : Web XR Scenario, Object Generator Engine & Universal Controller System 
+---
+Wiki Sections
+
+- [Home](https://github.com/Minty-Crisp/AUXL/wiki)
+
+- [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
+
+- Quick Start Guide
+
+- [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
+
+Building AUXL Scenarios, Zones and Scenes
+- [Instructions](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Instructions)
+- Scenario (Here)
+- [Zone](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Zone)
+- [Scene](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scene)
+
+Building Basic AUXL Objects
+- [Core](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Core)
+- [Layer](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Layer)
+- [ObjsGenRing](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ObjsGenRing)
+- [MultiAssetGen](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-MultiAssetGen)
+- [Horizon](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Horizon)
+- [SkyBox](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-SkyBox)
+- [Teleport](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Teleport)
+- [ImageSwapper](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageSwapper)
+- [ImageCarousel](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageCarousel)
+
+Building Advanced AUXL Objects
+- [NPC w/ Book](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-NPC-w--Book)
+- [Menu](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-Menu)
+- [MemoryGame](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-MemoryGame)
+
+Using Special AUXL Objects
+- [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
+- [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
+
+---
+Building AUXL Scenarios, Zones and Scenes : Scenario
+---
+Scenario's define global Instructions for all Zones and all Scenes that spawn while under their scope. Scenario's can be utilized in many different way depending on your experience goal. They could hold your entire site whether that be a portfolio, blog, business page. They could be thought of as a Chapter within a larger story or even a Game world during a specific time of events.
+---
+Defining a Scenario Data & Scenario Object :
+---
+Scenarios encapsulate a set of Zones which in turn encapsulate a set of Scenes. At minimum for the Scenario to function, you must have at least 1 Zone which must have at least 1 Scene. You define your starting Zone which in turn has it's defined starting Scene, provide it a title and instructions. The title and instructions are used by the system to update various areas such as the HTML menu and title bar.
+
+	auxl.scenarioDemoData = {
+		info:{
+			id: 'scenarioDemo',
+			name: 'Example Demo',
+			scenarioNum: 0,
+			default: true,
+			startZone: 'zone0',
+			instructions: 'A demo scenario of traversing a variety of different areas and showcasing the core features and functionality of the A-Frame UX Library engine v0.2.',
+		},
+		controls:{},
+		start:{},
+		delay:{},
+		interval:{},
+		event:{},
+		interaction:{},
+		exit:{},
+	};
+	auxl.scenarioDemo = auxl.Scenario(auxl.scenarioDemoData);
+
+
+Each key description :
+
+- id: Name must match named Scenario object generated.
+
+- name: Title of the Scenario being used, such as Minty's Blog or Epic Story Chapter 4.
+
+- scenarioNum: Not yet utilized, but will aid in the progression system for multiple scenario as if they were chapters in a book.
+
+- default: true/false and only 1 Scenario can be default that starts on site load.
+
+- startZone: The starting Zone to spawn on Scenario loading.
+
+- instructions: Additional text information describing what the overall Scenario is about and how to use it.
+
+Scenarios swapping is not yet supported, but will be very soon. As with Zone and Scene swapping is controlled via the system, you still can handle that manually however.
+
+---
+Instruction Scope :
+---
+As with the other Instruction objects, anything you define here will persist while in this scope only. When Scenario swapping is natively supported just as Zone and Node swapping are, when you move to another Scenario then objects you spawn here will be removed, events you create will be delisted, intervals you set up will be cleared, controls you configure will be reset, etc...
+
+---
+Scenario Methods :
+---
+
+StartScenario
+---
+- Spawns the Scenario into the environment along with the default Zone and that Zone's default Scene Spawn as well.
+
+It does not accept any parameters.
+
+StartScenario()
+
+	auxl.scenarioName.StartScenario()
+
+- - -
+
+ClearScenario
+---
+- Despawns the Scenario from the environment along with the current Zone and current Scene being displayed.
+
+It does not accept any parameters.
+
+ClearScenario()
+
+	auxl.scenarioName.ClearScenario()
+
+- - -

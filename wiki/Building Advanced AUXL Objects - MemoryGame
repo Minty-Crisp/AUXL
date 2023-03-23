@@ -1,0 +1,103 @@
+AUXL Engine v0.2 : Web XR Scenario, Object Generator Engine & Universal Controller System 
+---
+Wiki Sections
+
+- [Home](https://github.com/Minty-Crisp/AUXL/wiki)
+
+- [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
+
+- Quick Start Guide
+
+- [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
+
+Building AUXL Scenarios, Zones and Scenes
+- [Instructions](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Instructions)
+- [Scenario](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scenario)
+- [Zone](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Zone)
+- [Scene](https://github.com/Minty-Crisp/AUXL/wiki/Building-AUXL-Scenarios,-Zones-and-Scenes-:-Scene)
+
+Building Basic AUXL Objects
+- [Core](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Core)
+- [Layer](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Layer)
+- [ObjsGenRing](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ObjsGenRing)
+- [MultiAssetGen](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-MultiAssetGen)
+- [Horizon](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Horizon)
+- [SkyBox](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-SkyBox)
+- [Teleport](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-Teleport)
+- [ImageSwapper](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageSwapper)
+- [ImageCarousel](https://github.com/Minty-Crisp/AUXL/wiki/Building-Basic-AUXL-Objects-:-ImageCarousel)
+
+Building Advanced AUXL Objects
+- [NPC w/ Book](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-NPC-w--Book)
+- [Menu](https://github.com/Minty-Crisp/AUXL/wiki/Building-Advanced-AUXL-Objects-:-Menu)
+- MemoryGame (Here)
+
+Using Special AUXL Objects
+- [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
+- [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
+
+---
+Building Advanced AUXL Objects : MemoryGame
+---
+MemoryGame is an object that includes interaction and game logic mimicking the gameplay of Simon Says. AUXL has a default object prebuilt for you to use as auxl.memory or you can copy the each memory object Data and build a new style with a new object. MemoryGame includes 2 UI windows for that display current game state, score, high score and sequence amount with position. It also has a menu that allows you to Start/Reset the game.
+---
+Defining MemoryGame Data & a MemoryGame Object :
+---
+MemoryGame takes in 4 Core Data objects that it uses to build the game objects the player will select from. The default MemoryGame object is configured with a Square plane, Triangle plance, Circle plane and a half X plane. The prebuilt MemoryGame object to spawn without any additional customizations can be found within auxl-library named...
+
+	auxl.memory
+
+Ideally you will copy each of those 4 Core Data objects, rename and customize. The original ones include animations set up that aid in game reactivity and positioned within a XY grid. Using those newly defined Core Datas, you will build a new MemoryGame. Each of those objects have predefined Animation Data you will see exampled below, so any new Data you define should also include these as well.
+
+	click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+
+	click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
+
+	roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
+
+	gameover1: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
+
+	gameover2: {property: 'material.emissiveIntensity', from: '0.8', to: '0.2', dur: 250, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
+
+Also be sure to include the class 'clickable' with each object as well!
+
+The default MemoryGame objects that you can use to copy from which include the animations above are located within auxl-library and named...
+
+	auxl.memory0Data
+	auxl.memory1Data
+	auxl.memory2Data
+	auxl.memory3Data
+
+The text UI is built from another object which is automatically imported, so if you customize that then it will affect all MemoryGame objects. Future updates will allow better dynamic customizations for the layout, objects and even the amount of gameplay objects as well. The UI Data is also within auxl-library as...
+
+	auxl.memoryUIData
+
+Once you have defined new Core Data, you can build the MemoryGame object itself. The generator function takes in the MemoryGame ID which as usual needs to match the name you give the object itself and an array of the 4 Core Datas.
+
+	auxl.memoryNew = auxl.MemoryGame('memoryNew',[auxl.memory0NewData,auxl.memory1NewData,auxl.memory2NewData,auxl.memory3NewData]);
+
+---
+MemoryGame Methods :
+---
+
+SpawnMemGame
+---
+- Spawns the MemoryGame into the environment. When spawning via a Scenario, Zone, Scene or Book it is added to that respective instruction tracker.
+
+It does not accept any parameters.
+
+SpawnMemGame()
+
+	memoryNew:{SpawnMemGame:null},
+- - -
+
+DespawnMemGame
+---
+- Despawns the MemoryGame from the environment. When removing via a Scenario, Zone, Scene or Book it is also removed from that respective instruction tracker.
+
+It does not accept any parameters.
+
+DespawnMemGame()
+
+	memoryNew:{DespawnMemGame:null},
+- - -
