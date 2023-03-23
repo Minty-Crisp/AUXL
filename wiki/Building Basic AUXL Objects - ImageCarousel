@@ -6,7 +6,7 @@ Wiki Sections
 
 - [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
 
-- Quick Start Guide
+- [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL)
 
 - [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
 
@@ -35,6 +35,10 @@ Building Advanced AUXL Objects
 Using Special AUXL Objects
 - [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
 - [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
+
+Demo & Examples
+- [Demo](https://minty-crisp.github.io/AUXL/)
+- [Starter](https://minty-crisp.github.io/AUXL/starter.html)
 
 ---
 Building Basic AUXL Objects : ImageCarousel

@@ -601,11 +601,11 @@ auxl.zone0Data = {
 	},
 	interval:{
 		6000: {
-			run: {cubeCore:{EmitEvent: 'customevent0'},}, loop: 'infinite'
+			run: {cubeCore:{EmitEvent: 'swapEvent'},}, loop: 'infinite'
 		},
 	},
 	event:{
-		customevent0: {
+		swapEvent: {
 			cubeCore:{IfElse: {cubeCore:{cond: 'testVar',
 			ifTrue: {
 				cubeCore:{EmitEvent: 'customevent1',SetFlag:{flag: 'testVar', value: false},},
@@ -622,12 +622,7 @@ auxl.zone0Data = {
 	},
 	interaction:{
 		click: {
-			cubeCore:{IfElse: {cubeCore:{cond: 'testVar',
-			ifTrue: {
-				cubeCore:{EmitEvent: 'customevent1',SetFlag:{flag: 'testVar', value: false},},
-			},ifFalse: {
-				cubeCore:{EmitEvent: 'customevent2',SetFlag:{flag: 'testVar', value: true},},
-			},}}},
+			cubeCore:{EmitEvent:'swapEvent'},
 		},
 	},
 	exit:{

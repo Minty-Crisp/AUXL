@@ -6,7 +6,7 @@ Wiki Sections
 
 - [System Overview](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
 
-- Quick Start Guide
+- [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL)
 
 - [Customizing AUXL Controls](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
 
@@ -36,7 +36,16 @@ Using Special AUXL Objects
 - [Player](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-Player)
 - [HamMenu](https://github.com/Minty-Crisp/AUXL/wiki/Using-Special-AUXL-Objects-:-HamMenu)
 
+Demo & Examples
+- [Demo](https://minty-crisp.github.io/AUXL/)
+- [Starter](https://minty-crisp.github.io/AUXL/starter.html)
+
 ---
 Welcome to the A-Frame UX Library (AUXL) wiki!
 ---
 AUXL is a javascript engine built to streamline and unify the creation of Web XR experiences based on A-Frame & Three.js. It provides a variety of critical system, object, scene and scenario building tools that allows the user to create XR experiences as if they were making classic 2D HTML websites or game worlds. The types of website styles that can be built with are as endless as the web itself. Anything like a portfolio, gallery, blog, virtual tour, visual novel, video game and more. I envision the system to be a combination of tools like Wordpress and Unity with a long term plan to create 2D/3D admin panel like generation tools to open access to all users in creating their own personal XR content. It is being released under the GPL 3.0 license for all to use and hopefully will help with the adoption of the Web XR ecosystem.
+
+Interested!? Browse through the Wiki to Learn More!!!
+---
+
+If you have made it this far, let me just say Thank You! AUXL has been a dream of mine and a labor of love. I still have so much more to accomplish and it will far easier if I can get others to test, play with, contribute, donate or just offer words of encouragement to keep going. This all wouldn't be possible without the open source work of so many others as well especially the teams that have made A-Frame and Three.js! If you are interested in discussing AUXL further, have any questions or even interested in collaborating with me please reach out to me. You can find all my contact info on my [website](https://mintycrisp.com) or even my Github profile here. Thank You ^_^
