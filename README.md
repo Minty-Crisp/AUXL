@@ -4,9 +4,11 @@
 
 [View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
-[Demo Scenario](https://minty-crisp.github.io/AUXL/)
+[v02 Demo Scenario](https://minty-crisp.github.io/AUXL/)
 
 Learn how to build your first AUXL Scenario with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
+
+[v03 Beta Scenario](https://minty-crisp.github.io/AUXL/v03.html)
 
 AUXL Summary : :star2:
 ---

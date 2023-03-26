@@ -67,7 +67,7 @@ Each key explained :
 
 - delay: run auxl method after X amount of time when this scope is first loaded.
 
-- interval: run auxl method on X interval for Y amount of times. Y can be infinite. Only works with Core's currently, but in process of being upgraded to run with any AUXL object.
+- interval: run auxl method on X interval for Y amount of times. Y can be infinite.
 
 - event: connect an auxl method with specific parameters to a custom named event. These events can be trigged by auxl methods such as a core.EmitEvent()
 
@@ -185,7 +185,7 @@ This example is the exact same, but formatted in a way that has better readabili
 ---
 If/Else Conditionals
 ---
-When using instructions, you may dynamically choose which methods with paramters are ran depending on AUXL object flags true/false values. A few things to note as the previous examples of If/Else have the same AUXL object name used multiple times which may be confusing. When using If/Else, what would normally be the AUXL object name can be any unique identifier and does not need to be related to the object that hold the flags nor the object that runs the methods. Additionally the object that holds the flag used for checking does not need to be the same object running the methods within, but is possible if you want a toggle like logic. You can chain multiple objects together and mutliple methods within those objects together as well.
+When using instructions, you may dynamically choose which methods with paramters are ran depending on AUXL object flags true/false values. A few things to note as the previous examples of If/Else have the same AUXL object name used multiple times which may be confusing. When using If/Else, what would normally be the AUXL object name can be any unique identifier and does not need to be related to the object that hold the flags nor the object that runs the methods. Additionally the object that holds the flag used for checking does not need to be the same object running the methods within, but is possible if you want a toggle like logic. You can chain multiple objects together and mutliple methods within those objects together as well. As of v0.2, If/Else only works with Cores. With v0.3 beta, Layers are now supported and all other ObjGen's are in the process of support being added.
 
 	auxl.instructionExampleData = {
 		start:{
