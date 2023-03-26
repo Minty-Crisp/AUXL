@@ -56,7 +56,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
 # v0.3 Beta Updates : :fire:
 - Added Layer support to If/Else Instructions.
-- Custom Object Generators can now be added to Scenario, Zone, Node and Book Trackers.
+- Custom Object Generators can now be added dynamically to Scenario, Zone, Node and Book Trackers.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
