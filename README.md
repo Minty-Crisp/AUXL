@@ -14,7 +14,7 @@ AUXL is a javascript engine built to streamline and unify the creation of Web XR
 
 AUXL is built to accomplish 3 main goals : :hearts:
 ---
-- Scenarios : A Scenario that encompasses multiple maps of scenes that combine into 1 navigatable experience. 
+- Dynamic Experiences : Swap through experiences in a single browser session that each have their own set of Scenario defined builds and navigatable maps.
 - Object Generators : All of the various basic and special objects that you would use, view & interact with inside the 3D environment.
 - Universal Controls : The unified hardware input controls for interacting with the 3D content that a browser can communicate with.
 

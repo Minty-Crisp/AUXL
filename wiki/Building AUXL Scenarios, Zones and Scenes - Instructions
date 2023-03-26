@@ -67,7 +67,7 @@ Each key explained :
 
 - delay: run auxl method after X amount of time when this scope is first loaded.
 
-- interval: run auxl method on X interval for Y amount of times. Y can be infinite.
+- interval: run auxl method on X interval for Y amount of times. Y can be infinite. Only works with Core's currently, but in process of being upgraded to run with any AUXL object.
 
 - event: connect an auxl method with specific parameters to a custom named event. These events can be trigged by auxl methods such as a core.EmitEvent()
 
@@ -201,5 +201,3 @@ When using instructions, you may dynamically choose which methods with paramters
 			},}}},
 		},
 	};
-
-
