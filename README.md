@@ -4,11 +4,11 @@
 
 [View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
-[v02 Demo Scenario](https://minty-crisp.github.io/AUXL/)
+[v0.2 Demo Scenario](https://minty-crisp.github.io/AUXL/)
 
 Learn how to build your first AUXL Scenario with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
 
-[v03 Beta Scenario](https://minty-crisp.github.io/AUXL/v03.html)
+[v0.3 Beta Scenario](https://minty-crisp.github.io/AUXL/v03.html)
 
 AUXL Summary : :star2:
 ---
@@ -16,7 +16,7 @@ AUXL is a javascript engine built to streamline and unify the creation of Web XR
 
 AUXL is built to accomplish 3 main goals : :hearts:
 ---
-- Dynamic Experiences : Swap through experiences in a single browser session that each have their own set of Scenario defined builds and navigatable maps.
+- Dynamic Experiences : Swap through experiences in a single browser session that each have their own set of Scenario defined builds and navigatable Zone maps of Scenes.
 - Object Generators : All of the various basic and special objects that you would use, view & interact with inside the 3D environment.
 - Universal Controls : The unified hardware input controls for interacting with the 3D content that a browser can communicate with.
 
@@ -54,24 +54,37 @@ A few cool features of AUXL to highlight : :first_quarter_moon_with_face:
 Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki) to Learn More!!!
 ---
 
-# v0.3+ Roadmap : :cherries:
-- v0.2 Function, Component & ObjGen Updates
-- Scenario, Zone, Scene & Object built via DOM components
-- 1st Person to 3rd Person Mode Swapping
-- VRM Asset Support for Reaction Animations
-- Physics Support
-- 3D Object Inspection
-- More Object/Image Gallery Layouts
-- AR Background & GPS Support
-- Enhanced Horizon, Foley & Weather Spawns
-- Venue|Stage|Forum
-- Question, Polls & Feedback
+# v0.3 Beta Updates : :fire:
+- Added Layer support to If/Else Instructions.
+- Custom Object Generators can now be added to Scenario, Zone, Node and Book Trackers.
+
+# Features Roadmap : :cherries:
+- System Function, Component & ObjGen Updates
+- Additional Control Configurations and Enhancements
+- Home Area, Widgets & Themes
+- RSS Support for Browsing Experiences, Rooms and Components
+- Load & Save Functions to Local, Cloud or Key
+- New AUXL ObjGen's Emulating Traditional Web & Game Objects
+- Scenario, Zone, Scene & Object builds via DOM components
+- 3rd Person Mode and 1st <-> 3rd POV Swapping
+- Custom and VRM Avatar Support
+- VRM Asset Support for NPC's with Animations & Reactions
+- Companion Improvements & Customizations
 - Inventory & Item System
-- Quest System
-- Magic System
-- Spell Casting
-- Mob Generator
-- Support for building with [Banter](bantervr.com)
+- Variety of Gallery Asset Designs
+- 3D Object Inspection
+- Object Notifications & Alerts
+- Scene Layouts : Venue, Stage, Forum, Class, Meeting, Museum, Bubbles, etc...
+- Endless Scene Asset Spawning
+- Quiz, Question, Polls & Feedback Form Submissions
+- Enhanced Scenary : Horizon, Foley, Weather, SkyBox, etc...
+- Quest System & Tracking
+- Fantasy Gameplay Support for Magic, Spells & Mobs
+- Integrate Physics System
+- AR Background & GPS Support
+- Multiplayer, Chat, Friend, Post & Forum System
+- 2D/3D Creation & Editing Tools
+- Support for use with other Systems such as [Banter](bantervr.com)
 
 # Minty Crisp ^-^ :watermelon: 
 
