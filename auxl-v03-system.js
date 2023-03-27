@@ -5,7 +5,7 @@
 //
 //Created by Minty-Crisp (mintycrisp.com)
 
-//AUXL v0.3 - System
+//AUXL v0.3 Beta - System
 
 //auxl
 //AUXL System : System, ObjGens & Support Functions
@@ -32,7 +32,6 @@ const controllerBlock = document.getElementById('controllerBlock');
 let playerRig;
 let camera;
 let cameraUI;
-let playerPointLight;
 let playerFloor;
 let mouseController;
 let vrController1;
@@ -694,6 +693,7 @@ return {base, light, dark, compl, splitCompl, triadic, tetradic, analog};
 //Entity Core
 this.Core = (data) => {
 	let core = JSON.parse(JSON.stringify(data));
+	core.inScene = false;
 	core.el = {};
 	core.parent = false;
 	let details = false;
@@ -868,56 +868,71 @@ this.Core = (data) => {
 	//Spawn Entity Object
 	const SpawnCore = (parent) => {
 		let needParent = parent || false;
-		//Generate Entity Element
-		Generate();
-		//Loading should only apply to gltf, obj and material textures
-		if(load3D || loadMat){
-			loading();
-		}
-		//Add to Scene or Parent
-		if(core.entity === 'preAdded'){} else {
-			if(needParent){
-				core.parent = needParent;
-				needParent.appendChild(core.el);
-			} else {
-				sceneEl.appendChild(core.el);
+		if(core.inScene){}else{
+			//Generate Entity Element
+			Generate();
+			//Loading should only apply to gltf, obj and material textures
+			if(load3D || loadMat){
+				loading();
 			}
-		}
-		//Loaded Events
-		if(load3D){
-			core.el.addEventListener('model-loaded', loaded);
-		}
-		if(loadMat){
-			core.el.addEventListener('loaded', loaded);
+			//Add to Scene or Parent
+			if(core.entity === 'preAdded'){} else {
+				if(needParent){
+					core.parent = needParent;
+					needParent.appendChild(core.el);
+				} else {
+					sceneEl.appendChild(core.el);
+				}
+			}
+			//Loaded Events
+			if(load3D){
+				core.el.addEventListener('model-loaded', loaded);
+			}
+			if(loadMat){
+				core.el.addEventListener('loaded', loaded);
+			}
+			core.inScene = true;
 		}
 	}
 	//Despawn Entity Object
 	const DespawnCore = (parent, layer) => {
-		//Loaded Events
-		if(load3D){
-			core.el.removeEventListener('model-loaded', loaded);
-		}
-		if(loadMat || loadNewMat){
-			core.el.removeEventListener('loaded', loaded);
-		}
-		//Remove all core.components to remove all event listeners before clearing from scene
-		let componentKeys = Object.keys(core.components);
-		for (let key in componentKeys) {
-			if(key === 0){} else {
-				GetEl().removeAttribute(componentKeys[key])
+		if(core.inScene){
+			//Loaded Events
+			if(load3D){
+				core.el.removeEventListener('model-loaded', loaded);
 			}
+			if(loadMat || loadNewMat){
+				core.el.removeEventListener('loaded', loaded);
+			}
+			//Remove all core.components to remove all event listeners before clearing from scene
+			let componentKeys = Object.keys(core.components);
+			for (let key in componentKeys) {
+				if(key === 0){} else {
+					GetEl().removeAttribute(componentKeys[key])
+				}
+			}
+			let needParent = parent || false;
+			let fromLayer = layer || false;
+			//Remove from Scene or Parent
+			if(needParent){
+				needParent.removeChild(core.el);
+			} else {
+				sceneEl.removeChild(core.el);
+			}
+			//Scene Tracking Support
+			if(fromLayer){} else {
+				RemoveFromTracker(core.id);
+			}
+			core.inScene = false;
 		}
+	}
+	//Toggle Spawn
+	const ToggleSpawn = (parent) => {
 		let needParent = parent || false;
-		let fromLayer = layer || false;
-		//Remove from Scene or Parent
-		if(needParent){
-			needParent.removeChild(core.el);
+		if(core.inScene){
+			DespawnCore(needParent);
 		} else {
-			sceneEl.removeChild(core.el);
-		}
-		//Scene Tracking Support
-		if(fromLayer){} else {
-			RemoveFromTracker(core.id);
+			SpawnCore(needParent);
 		}
 	}
 	//Change Element - Single or Array
@@ -1157,48 +1172,51 @@ this.Core = (data) => {
 		GetEl().removeEventListener('click', openClose);
 	}
 
-	return {core, Generate, SpawnCore, DespawnCore, RemoveComponent, ChangeSelf, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
+	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, RemoveComponent, ChangeSelf, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
 }
 
 //
 //layered Cores
 this.Layer = (id, all) => {
 	let layer = {id, all};
+	layer.inScene = false;
 	layer.children = {};
 	layer.secondParents = [];
 	layer.thirdParents = [];
 	//Spawn Multi Entity Object
 	const SpawnLayer = () => {
-		for(let each in all){
-			if(each === 'parent'){
-				all[each].core.SpawnCore(false, true);
-			} else {
-				for(let a in all[each]){
-					if(a === 'core'){
-						layer.children[all[each].core.core.id] = {obj: all[each][a], parent: all.parent.core.core.el};
-						all[each][a].SpawnCore(all.parent.core.core.el, true);
-					} else {
-						if(a === 'parent'){
-							layer.children[all[each][a].core.core.id] = {obj: all[each][a].core, parent: all.parent.core.core.el};
-							layer.secondParents.push(all[each][a].core);
-							all[each][a].core.SpawnCore(all.parent.core.core.el, true);
+		if(layer.inScene){}else{
+			for(let each in all){
+				if(each === 'parent'){
+					all[each].core.SpawnCore(false, true);
+				} else {
+					for(let a in all[each]){
+						if(a === 'core'){
+							layer.children[all[each].core.core.id] = {obj: all[each][a], parent: all.parent.core.core.el};
+							all[each][a].SpawnCore(all.parent.core.core.el, true);
 						} else {
-							for(let b in all[each][a]){
-								if(b === 'core'){
-									layer.children[all[each][a].core.core.id] = {obj: all[each][a][b], parent: all[each].parent.core.core.el};
-									all[each][a][b].SpawnCore(all[each].parent.core.core.el, true);
-								} else {
-									if(b === 'parent'){
-										layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b].core, parent: all[each].parent.core.core.el};
-										layer.thirdParents.push(all[each][a][b].core);
-										all[each][a][b].core.SpawnCore(all[each].parent.core.core.el, true);
+							if(a === 'parent'){
+								layer.children[all[each][a].core.core.id] = {obj: all[each][a].core, parent: all.parent.core.core.el};
+								layer.secondParents.push(all[each][a].core);
+								all[each][a].core.SpawnCore(all.parent.core.core.el, true);
+							} else {
+								for(let b in all[each][a]){
+									if(b === 'core'){
+										layer.children[all[each][a].core.core.id] = {obj: all[each][a][b], parent: all[each].parent.core.core.el};
+										all[each][a][b].SpawnCore(all[each].parent.core.core.el, true);
 									} else {
-										for(let c in all[each][a][b]){
-											if(c === 'parent'){
-												console.log('Add support for more layers')
-											} else {
-												layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b][c], parent: all[each][a].parent.core.core.el};
-												all[each][a][b][c].SpawnCore(all[each][a].parent.core.core.el, true);
+										if(b === 'parent'){
+											layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b].core, parent: all[each].parent.core.core.el};
+											layer.thirdParents.push(all[each][a][b].core);
+											all[each][a][b].core.SpawnCore(all[each].parent.core.core.el, true);
+										} else {
+											for(let c in all[each][a][b]){
+												if(c === 'parent'){
+													console.log('Add support for more layers')
+												} else {
+													layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b][c], parent: all[each][a].parent.core.core.el};
+													all[each][a][b][c].SpawnCore(all[each][a].parent.core.core.el, true);
+												}
 											}
 										}
 									}
@@ -1208,6 +1226,7 @@ this.Layer = (id, all) => {
 					}
 				}
 			}
+			layer.inScene = true;
 		}
 	}
 	//Order of Despawning
@@ -1233,19 +1252,30 @@ this.Layer = (id, all) => {
 	let accessOrder = layerOrder(layer.all);
 	//Despawn Multi Entity Object
 	const DespawnLayer = (other) => {
-		let removeOrder = layerOrder(layer.all).reverse();
-		for(let layer of removeOrder){
-			for(let each of layer){
-				if(each.core.parent){
-					each.DespawnCore(each.core.parent, true);
-				} else {
-					each.DespawnCore(false, true);
+		if(layer.inScene){
+			let removeOrder = layerOrder(layer.all).reverse();
+			for(let layer of removeOrder){
+				for(let each of layer){
+					if(each.core.parent){
+						each.DespawnCore(each.core.parent, true);
+					} else {
+						each.DespawnCore(false, true);
+					}
 				}
 			}
+			//Scene Tracking Support
+			if(other){} else {
+				RemoveFromTracker(layer.id);
+			}
+			layer.inScene = false;
 		}
-		//Scene Tracking Support
-		if(other){} else {
-			RemoveFromTracker(layer.id);
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(layer.inScene){
+			DespawnLayer();
+		} else {
+			SpawnLayer();
 		}
 	}
 	//Return Parent Element in Scene
@@ -1559,8 +1589,7 @@ this.Layer = (id, all) => {
 		}
 	}
 
-	return {layer, SpawnLayer, DespawnLayer, GetParentEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
-
+	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, GetParentEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
 }
 
 //
@@ -1607,7 +1636,8 @@ this.Player = (layer) => {
 	layer.inventory = [];
 	layer.inventoryPreText = 'Inventory :\n';
 	layer.inventoryText = layer.inventoryPreText + 'Empty';
-
+	//Flashlight
+	layer.flashlight = false;
 	//Spawn Player
 	layer.SpawnLayer(true);
 	//Currently not tracking Player object as it should not be removed
@@ -1616,7 +1646,6 @@ this.Player = (layer) => {
 	playerRig = document.getElementById('playerRig');
 	camera = document.getElementById('camera');
 	cameraUI = document.getElementById('cameraUI');
-	playerPointLight = document.getElementById('playerPointLight');
 	playerFloor = document.getElementById('playerFloor');
 	mouseController = document.getElementById('mouseController');
 	vrController1 = document.getElementById('vrController1');
@@ -1987,14 +2016,46 @@ this.Player = (layer) => {
 			}, anim45Data.dur+10);
 		}
 	}
+	//Flashlight
+	const ToggleFlashlight = () => {
+		if(layer.flashlight){
+			if(auxl.controls === 'Desktop' || auxl.controls === 'Mobile'){
+				auxl.camera.RemoveComponent('light');
+			} else if(auxl.controls === 'VR'){
+				if(auxl.vrHand === 'bothRight' || auxl.vrHand === 'bothRightLoco' || auxl.vrHand === 'right'){
+					auxl.vrController2.RemoveComponent('light');
+				} else {
+					auxl.vrController1.RemoveComponent('light');
+				}
+			}
+			layer.flashlight = false;
+		} else {
+			if(auxl.controls === 'Desktop' || auxl.controls === 'Mobile'){
+				auxl.camera.ChangeSelf({property: 'light', value:{type: 'spot', intensity: 0.5, distance: 15, decay: 0.3, penumbra: 0.15, angle: 25,}});
+			} else if(auxl.controls === 'VR'){
+				if(auxl.vrHand === 'bothRight' || auxl.vrHand === 'bothRightLoco' || auxl.vrHand === 'right'){
+					auxl.vrController2.ChangeSelf({property: 'light', value:{type: 'spot', intensity: 0.5, distance: 15, decay: 0.3, penumbra: 0.15, angle: 25,}});
+				} else {
+					auxl.vrController1.ChangeSelf({property: 'light', value:{type: 'spot', intensity: 0.5, distance: 15, decay: 0.3, penumbra: 0.15, angle: 25,}});
+				}
+			}
+			layer.flashlight = true;
+		}
+	}
 
-	return {layer, PlayerSceneAnim, PlayerTeleportAnim, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft}
+	//Testing Function
+	const TestFunc = (params) => {
+		console.log(params);
+	}
+
+	return {layer, PlayerSceneAnim, PlayerTeleportAnim, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, UpdateTransitionColor, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft, ToggleFlashlight, TestFunc}
 }
 
 //
 //Menu
 this.Menu = (menuData) => {
 	let menu = {};
+	menu.inScene = false;
 	menu.data = Object.assign({}, menuData.data);
 	menu.id = menuData.id || 'menu';
 	menu.prompt = menuData.prompt;
@@ -2021,57 +2082,85 @@ this.Menu = (menuData) => {
 
 	//Generate & Spawn Menu
 	const SpawnMenu = () => {
-		menuNum=0;
-		menuOptions = [];
-		menuOption = {};
-		//Layer Parent Prompt
-		menu.data.id = menu.id + 'prompt';
-		menu.data.text.value = menu.prompt;
-		menu.data.material.color, menu.data.material.emissive = auxl.colorTheoryGen().base;
-		prompt = auxl.Core(menu.data);
-		menu.layers = {
-		parent: {core: prompt},}
-		menu.data.position.x = menu.data.geometry.width * 1.15;
-		menu.data.position.z = 0;
-		if(menuLength === 1 || menu.layout === 'horizontal'){
-			menu.data.position.y = 0;
-		} else {
-			menu.data.position.y = (menu.data.geometry.height*0.75) * menuLength/2;
-		}
-		//Reset component data
-		menu.data.sources = {};
-		menu.data.components = {};
-		menu.data.components.clickrun = {};
-		menu.data.components.clickrun.cursorObj = menu.clickrun.cursorObj ;
-		menu.data.components.clickrun.method = menu.clickrun.method;
-		menu.data.components.clickrun.params = menu.clickrun.params;
-		//Layer Children Options
-		for(let menuItem in menu.options){
-			if(menuLength === 1 || menuNum === 0){} else {
-				if(menu.layout === 'vertical'){
-					menu.data.position.y -= (menu.data.geometry.height*1.15);
-				} else if(menu.layout === 'horizontal'){
-					menu.data.position.x += (menu.data.geometry.width*1.15);
-				} else {
-					//backup for legacy, classic vertical mode
-					menu.data.position.y -= (menu.data.geometry.height*1.15);
-				}
-			}
+		if(menu.inScene){}else{
+			menuNum=0;
+			menuOptions = [];
+			menuOption = {};
+			//Layer Parent Prompt
+			menu.data.id = menu.id + 'prompt';
+			menu.data.text.value = menu.prompt;
 			menu.data.material.color, menu.data.material.emissive = auxl.colorTheoryGen().base;
-			menu.data.text.value = menu.options[menuItem];
-			menu.data.id = menu.id + 'option' + menuNum;
-			menu.data.components.result = menu.actions['action'+menuNum];
-			menuOption = auxl.Core(menu.data);
-			menuOptions.push(menuOption);
-			menu.layers['child'+menuNum] = {core: menuOptions[menuNum]}
-			menuNum++;
+			prompt = auxl.Core(menu.data);
+			menu.layers = {
+			parent: {core: prompt},}
+			menu.data.position.x = menu.data.geometry.width * 1.15;
+			menu.data.position.z = 0;
+			if(menuLength === 1 || menu.layout === 'horizontal'){
+				menu.data.position.y = 0;
+			} else {
+				menu.data.position.y = (menu.data.geometry.height*0.75) * menuLength/2;
+			}
+			//Reset component data
+			menu.data.sources = {};
+			menu.data.components = {};
+			menu.data.components.clickrun = {};
+			menu.data.components.clickrun.cursorObj = menu.clickrun.cursorObj ;
+			menu.data.components.clickrun.method = menu.clickrun.method;
+			menu.data.components.clickrun.params = menu.clickrun.params;
+			//Layer Children Options
+			for(let menuItem in menu.options){
+				if(menuLength === 1 || menuNum === 0){} else {
+					if(menu.layout === 'vertical'){
+						menu.data.position.y -= (menu.data.geometry.height*1.15);
+					} else if(menu.layout === 'horizontal'){
+						menu.data.position.x += (menu.data.geometry.width*1.15);
+					} else {
+						//backup for legacy, classic vertical mode
+						menu.data.position.y -= (menu.data.geometry.height*1.15);
+					}
+				}
+				menu.data.material.color, menu.data.material.emissive = auxl.colorTheoryGen().base;
+				menu.data.text.value = menu.options[menuItem];
+				menu.data.id = menu.id + 'option' + menuNum;
+				menu.data.components.result = menu.actions['action'+menuNum];
+				menuOption = auxl.Core(menu.data);
+				menuOptions.push(menuOption);
+				menu.layers['child'+menuNum] = {core: menuOptions[menuNum]}
+				menuNum++;
+			}
+			menu.layer = auxl.Layer(menu.id, menu.layers);
+			menu.layer.SpawnLayer(true);
+			menu.inScene = true;
 		}
-		menu.layer = auxl.Layer(menu.id, menu.layers);
-		menu.layer.SpawnLayer(true);
 	}
 	//Despawn Menu
 	const DespawnMenu = () => {
-		menu.layer.DespawnLayer(true);
+		if(menu.inScene){
+			menu.layer.DespawnLayer(true);
+			menu.inScene = false;
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			menu[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			menu[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(menu(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return menu[flag];
+		}
 	}
 	//Attach Menu to Tracker matching object generator 
 	const AddToParentSpawnTracker = (obj, parent) => {
@@ -2098,7 +2187,7 @@ this.Menu = (menuData) => {
 		}
 	}
 
-	return {menu, SpawnMenu, DespawnMenu, AddToParentSpawnTracker, RemoveMenuFromSceneTracker};
+	return {menu, SpawnMenu, DespawnMenu, SetFlag, GetFlag, AddToParentSpawnTracker, RemoveMenuFromSceneTracker};
 }
 
 //
@@ -3187,6 +3276,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 //Lights, Sky, Space
 this.SkyBox = (skyBoxData) => {
 	let skyBox = Object.assign({}, skyBoxData);
+	skyBox.inScene = false;
 	let dayNightTimeout;
 	let dayNightInterval;
 	//Spawn All Light Core/Layers
@@ -3269,18 +3359,54 @@ this.SkyBox = (skyBoxData) => {
 	}
 	//Spawn SkyBox
 	const SpawnSkyBox = () => {
-		SpawnLights();
-		SpawnSky();
-		SpawnSpace();
+		if(skyBox.inScene){}else{
+			SpawnLights();
+			SpawnSky();
+			SpawnSpace();
+			skyBox.inScene = true;
+		}
 	}
 	//Despawn SkyBox
 	const DespawnSkyBox = () => {
-		clearTimeout(dayNightTimeout);
-		clearInterval(dayNightInterval);
-		DespawnLights();
-		DespawnSky();
-		DespawnSpace();
-		RemoveFromTracker(skyBox.id);
+		if(skyBox.inScene){
+			clearTimeout(dayNightTimeout);
+			clearInterval(dayNightInterval);
+			DespawnLights();
+			DespawnSky();
+			DespawnSpace();
+			RemoveFromTracker(skyBox.id);
+			skyBox.inScene = false;
+		}
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(skyBox.inScene){
+			DespawnSkyBox();
+		} else {
+			SpawnSkyBox();
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			skyBox[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			skyBox[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(skyBox(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return skyBox[flag];
+		}
 	}
 	//Sunrise Animation Event
 	const Sunrise = () => {
@@ -3348,7 +3474,7 @@ this.SkyBox = (skyBoxData) => {
 		DayNightCycle(dayLength);
 	}
 
-	return {skyBox, SpawnSkyBox, DespawnSkyBox, DayNightCycle, PauseDayNight, ResumeDayNight, RestartDayNight};
+	return {skyBox, SpawnSkyBox, DespawnSkyBox, ToggleSpawn, SetFlag, GetFlag, DayNightCycle, PauseDayNight, ResumeDayNight, RestartDayNight};
 }
 
 //
@@ -3356,6 +3482,7 @@ this.SkyBox = (skyBoxData) => {
 //Mountains, Hills, Buildings, Cylinder/Square Wall
 this.Horizon = (horizonData) => {
 	let horizon = Object.assign({}, horizonData);
+	horizon.inScene = false;
 
 	//Prep Material
 	let top;
@@ -3568,15 +3695,51 @@ this.Horizon = (horizonData) => {
 	let horizonLayer = auxl.Layer('horizonLayer',horizonLayerData);
 	//Spawn Horizon
 	const SpawnHorizon = () => {
-		horizonLayer.SpawnLayer(true);
+		if(horizon.inScene){}else{
+			horizonLayer.SpawnLayer(true);
+			horizon.inScene = true;
+		}
 	}
 	//Despawn Horizon
 	const DespawnHorizon = () => {
-		horizonLayer.DespawnLayer(true);
-		RemoveFromTracker(horizon.id);
+		if(horizon.inScene){
+			horizonLayer.DespawnLayer(true);
+			RemoveFromTracker(horizon.id);
+			horizon.inScene = false;
+		}
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(horizon.inScene){
+			DespawnHorizon();
+		} else {
+			SpawnHorizon();
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			horizon[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			horizon[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(horizon(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return horizon[flag];
+		}
 	}
 
-	return {horizon, SpawnHorizon, DespawnHorizon};
+	return {horizon, SpawnHorizon, DespawnHorizon, ToggleSpawn, SetFlag, GetFlag};
 }
 
 //
@@ -3825,6 +3988,7 @@ this.SpeechSystem = (core) => {
 this.NPC = (core, bookData, textDisplay) => {
 	let npc = Object.assign({}, core);
 	npc.id = npc.core.id;
+	npc.inScene = false;
 	let bubble = Object.assign({}, textDisplay);
 	let book;
 	let text = auxl.SpeechSystem(bubble);
@@ -3832,17 +3996,31 @@ this.NPC = (core, bookData, textDisplay) => {
 
 	//Spawn NPC, Reset Book & Start Speaking
 	const SpawnNPC = () => {
-		//Reset book on each spawn
-		book = auxl.Book(bookData, npc);
-		npc.SpawnCore(false,false,true);
-		EnableSpeech();
+		if(npc.inScene){}else{
+			//Reset book on each spawn
+			book = auxl.Book(bookData, npc);
+			npc.SpawnCore(false,false,true);
+			EnableSpeech();
+			npc.inScene = true;
+		}
 	}
 	//Despawn NPC
 	const DespawnNPC = () => {
-		ClearBookSpawn();
-		DisableSpeech();
-		npc.DespawnCore(false,false,true);
-		RemoveFromTracker(npc.id);
+		if(npc.inScene){
+			ClearBookSpawn();
+			DisableSpeech();
+			npc.DespawnCore(false,false,true);
+			RemoveFromTracker(npc.id);
+			npc.inScene = false;
+		}
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(npc.inScene){
+			DespawnNPC();
+		} else {
+			SpawnNPC();
+		}
 	}
 	//Clear Book Spawned Objects
 	const ClearBookSpawn = () => {
@@ -3951,7 +4129,6 @@ this.NPC = (core, bookData, textDisplay) => {
 			}
 		}
 	}
-
 	//Set Flag & Value to Object - Single or Array
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
@@ -3975,7 +4152,7 @@ this.NPC = (core, bookData, textDisplay) => {
 		}
 	}
 
-return {npc, SpawnNPC, DespawnNPC, EnableSpeech, DisableSpeech, Speak, NextPage, ResetBook, Click, Jump, SelectJump, auxlObjMethod, IfElse, SetFlag, GetFlag}
+return {npc, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, Speak, NextPage, ResetBook, Click, Jump, SelectJump, auxlObjMethod, IfElse, SetFlag, GetFlag}
 }
 
 //
@@ -3984,6 +4161,7 @@ return {npc, SpawnNPC, DespawnNPC, EnableSpeech, DisableSpeech, Speak, NextPage,
 this.HamMenu = (id, core) => {
 	let ham = Object.assign({}, core);
 	ham.id = id;
+	ham.inScene = false;
 	ham.systemOpen = false;
 	ham.travelSettingsOpen = false;
 	ham.sceneSettingsOpen = false;
@@ -4069,22 +4247,50 @@ this.HamMenu = (id, core) => {
 	playerFloor.addEventListener('click',ToggleHam);
 	//Spawn & Start Ham
 	const SpawnHam = () => {
-		ham.SpawnCore(auxl.playerRig.GetEl(), false, true);
-		ShowInventory();
-		ham.show = true;
-		autoScriptEmoticon();
-		ham.GetEl().addEventListener('click', openCloseMenu);
+		if(ham.inScene){}else{
+			ham.SpawnCore(auxl.playerRig.GetEl(), false, true);
+			ShowInventory();
+			ham.show = true;
+			autoScriptEmoticon();
+			ham.GetEl().addEventListener('click', openCloseMenu);
+			ham.inScene = true;
+		}
 	}
 	//Despawn & Stop Ham
 	const DespawnHam = () => {
-		clearInterval(speechTimeoutB);
-		clearInterval(speechIntervalB);
-		HideInventory();
-		ham.GetEl().removeEventListener('click', openCloseMenu);
-		ham.DespawnCore(auxl.playerRig.GetEl(), false, true);
-		ham.show = false;
-		ham.systemOpen = false;
-		RemoveFromTracker(ham.id);
+		if(ham.inScene){
+			clearInterval(speechTimeoutB);
+			clearInterval(speechIntervalB);
+			HideInventory();
+			ham.GetEl().removeEventListener('click', openCloseMenu);
+			ham.DespawnCore(auxl.playerRig.GetEl(), false, true);
+			ham.show = false;
+			ham.systemOpen = false;
+			RemoveFromTracker(ham.id);
+			ham.inScene = false;
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			ham[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			ham[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(ham(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return ham[flag];
+		}
 	}
 	//Display Inventory Screen attached to Ham
 	const ShowInventory = () => {
@@ -4205,7 +4411,7 @@ this.HamMenu = (id, core) => {
 		}, 250);
 	}
 
-	return{ham, SpawnHam, DespawnHam, SystemMenuClick, TravelSettingsMenuClick};
+	return{ham, SpawnHam, DespawnHam, SetFlag, GetFlag, SystemMenuClick, TravelSettingsMenuClick};
 }
 
 //
@@ -4213,6 +4419,7 @@ this.HamMenu = (id, core) => {
 //Randomize Set of Objects from Single in a Ring Radius
 this.ObjsGenRing = (data) => {
 	let singleGen = Object.assign({}, data);
+	singleGen.inScene = false;
 	let ogData = Object.assign({}, data.objData);
 	let objData = JSON.parse(JSON.stringify(data.objData));
 	singleGen.all = [];
@@ -4320,20 +4527,56 @@ this.ObjsGenRing = (data) => {
 	}
 	//Spawn all Randomized Cores
 	const SpawnObjRing = () => {
-		genCores();
-		for(let a = 0; a < singleGen.total; a++){
-			singleGen.all[a].SpawnCore(false, false, true);
+		if(singleGen.inScene){}else{
+			genCores();
+			for(let a = 0; a < singleGen.total; a++){
+				singleGen.all[a].SpawnCore(false, false, true);
+			}
+			singleGen.inScene = true;
 		}
 	}
 	//Despawn all Randomized Cores
 	const DespawnObjRing = () => {
-		for(let a = 0; a < singleGen.total; a++){
-			singleGen.all[a].DespawnCore(false, false, true);
+		if(singleGen.inScene){
+			for(let a = 0; a < singleGen.total; a++){
+				singleGen.all[a].DespawnCore(false, false, true);
+			}
+			RemoveFromTracker(singleGen.id);
+			singleGen.inScene = false;
 		}
-		RemoveFromTracker(singleGen.id);
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(singleGen.inScene){
+			DespawnObjRing();
+		} else {
+			SpawnObjRing();
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			singleGen[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			singleGen[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(singleGen(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return singleGen[flag];
+		}
 	}
 
-	return {singleGen, SpawnObjRing, DespawnObjRing};
+	return {singleGen, SpawnObjRing, DespawnObjRing, ToggleSpawn, SetFlag, GetFlag};
 }
 
 //
@@ -4343,6 +4586,7 @@ this.MultiAssetGen = (multiGenData) =>{
 //Add the ability to read an array of different objects for same size
 //Need to better optimize each size's radius
 	let multiGen = Object.assign({}, multiGenData);
+	multiGen.inScene = false;
 	multiGen.assets = {}
 	multiGen.assets.tiny = [];
 	multiGen.assets.small = [];
@@ -4730,28 +4974,64 @@ if(a === 0){
 			}
 		}
 	}
-	genCores();
 	//Spawn All Assets
 	const SpawnMultiAsset = () => {
-		for(let type in sizes){
-			let size = multiGen.assets[sizes[type]];
-			for(let each in size){
-				size[each].SpawnCore(false, false, true);
+		if(multiGen.inScene){}else{
+			genCores();
+			for(let type in sizes){
+				let size = multiGen.assets[sizes[type]];
+				for(let each in size){
+					size[each].SpawnCore(false, false, true);
+				}
 			}
+			multiGen.inScene = true;
 		}
 	}
 	//Despawn All Assets
 	const DespawnMultiAsset = () => {
-		for(let type in sizes){
-			let size = multiGen.assets[sizes[type]];
-			for(let each in size){
-				size[each].DespawnCore(false, false, true);
+		if(multiGen.inScene){
+			for(let type in sizes){
+				let size = multiGen.assets[sizes[type]];
+				for(let each in size){
+					size[each].DespawnCore(false, false, true);
+				}
 			}
+			RemoveFromTracker(multiGen.id);
+			multiGen.inScene = false;
 		}
-		RemoveFromTracker(multiGen.id);
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(multiGen.inScene){
+			DespawnMultiAsset();
+		} else {
+			SpawnMultiAsset();
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			multiGen[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			multiGen[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(multiGen(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return multiGen[flag];
+		}
 	}
 
-	return {multiGen, SpawnMultiAsset, DespawnMultiAsset,}
+	return {multiGen, SpawnMultiAsset, DespawnMultiAsset, ToggleSpawn, SetFlag, GetFlag}
 
 }
 
@@ -4762,6 +5042,7 @@ this.Teleport = (id, locations) => {
 //Allow to select mutli-interactino circle, light beam and more.
 	let teleport = {};
 	teleport.id = id;
+	teleport.inScene = false;
 	teleport.all = [];
 	let teleportLayer;
 	let teleportLayerData;
@@ -4799,19 +5080,55 @@ this.Teleport = (id, locations) => {
 	}
 	//Spawn Teleports
 	const SpawnTeleport = () => {
-		for(let each in teleport.all){
-			teleport.all[each].SpawnLayer(true);
+		if(teleport.inScene){}else{
+			for(let each in teleport.all){
+				teleport.all[each].SpawnLayer(true);
+			}
+			teleport.inScene = true;
 		}
 	}
 	//Despawn Teleports
 	const DespawnTeleport = () => {
-		for(let each in teleport.all){
-			teleport.all[each].DespawnLayer(true);
+		if(teleport.inScene){
+			for(let each in teleport.all){
+				teleport.all[each].DespawnLayer(true);
+			}
+			RemoveFromTracker(teleport.id);
+			teleport.inScene = false;
 		}
-		RemoveFromTracker(teleport.id);
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(teleport.inScene){
+			DespawnTeleport();
+		} else {
+			SpawnTeleport();
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			teleport[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			teleport[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(teleport(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return teleport[flag];
+		}
 	}
 
-	return {teleport, SpawnTeleport, DespawnTeleport};
+	return {teleport, SpawnTeleport, DespawnTeleport, ToggleSpawn, SetFlag, GetFlag,};
 }
 
 
@@ -4823,6 +5140,7 @@ this.MemoryGame = (id, data) => {
 //Listen for first click to start the countdown timer based on how long current sequence is and a timer for in-between single clicks to timeout as well
 	let memory = {};
 	memory.id = id;
+	memory.inScene = false;
 	//Layered Object Generation
 	let layerData = {}
 	let memoryNullParentData = JSON.parse(JSON.stringify(auxl.nullParentData));
@@ -4887,20 +5205,56 @@ this.MemoryGame = (id, data) => {
 	}
 	//Spawn Memory Game
 	const SpawnMemGame = () => {
-		memory.layer.SpawnLayer(true);
-		memoryUI1.SpawnCore(false, false, true);
-		memoryUI2.SpawnCore(false, false, true);
-		AddSequenceListeners();
-		GameSpawnMenu();
+		if(memory.inScene){}else{
+			memory.layer.SpawnLayer(true);
+			memoryUI1.SpawnCore(false, false, true);
+			memoryUI2.SpawnCore(false, false, true);
+			AddSequenceListeners();
+			GameSpawnMenu();
+			memory.inScene = true;
+		}
 	}
 	//Despawn Memory Game
 	const DespawnMemGame = () => {
-		RemoveSequenceListeners();
-		memory.gameMenu.DespawnMenu()
-		memory.layer.DespawnLayer(true);
-		memoryUI1.DespawnCore(false, false, true);
-		memoryUI2.DespawnCore(false, false, true);
-		RemoveFromTracker(memory.id);
+		if(memory.inScene){
+			RemoveSequenceListeners();
+			memory.gameMenu.DespawnMenu()
+			memory.layer.DespawnLayer(true);
+			memoryUI1.DespawnCore(false, false, true);
+			memoryUI2.DespawnCore(false, false, true);
+			RemoveFromTracker(memory.id);
+			memory.inScene = false;
+		}
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(memory.inScene){
+			DespawnMemGame();
+		} else {
+			SpawnMemGame();
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			memory[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			memory[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(memory(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return memory[flag];
+		}
 	}
 	//Start Memory Game
 	const StartGame = () => {
@@ -5071,7 +5425,7 @@ this.MemoryGame = (id, data) => {
 		}
 	}
 
-	return{memory, SpawnMemGame, DespawnMemGame, GameMenuClick};
+	return{memory, SpawnMemGame, DespawnMemGame, ToggleSpawn, GameMenuClick, SetFlag, GetFlag};
 }
 
 //
@@ -5082,6 +5436,7 @@ this.ImageSwapper = (id,mainData,buttonData,...materials) => {
 //Controls either left/right or thumbnails for each
 	let imageSwapper = {};
 	imageSwapper.id = id;
+	imageSwapper.inScene = false;
 	let imageSwapperCore;
 	imageSwapper.thumbnailCores = [];
 	let thumbnailPos = new THREE.Vector3(0,-0.3,0.05);
@@ -5137,15 +5492,51 @@ this.ImageSwapper = (id,mainData,buttonData,...materials) => {
 	}
 	//Spawn ImageSwapper
 	const SpawnImgSwap = () => {
-		imageSwapper.layer.SpawnLayer(true);
+		if(imageSwapper.inScene){}else{
+			imageSwapper.layer.SpawnLayer(true);
+			imageSwapper.inScene = true;
+		}
 	}
 	//Despawn ImageSwapper
 	const DespawnImgSwap = () => {
-		imageSwapper.layer.DespawnLayer(true);
-		RemoveFromTracker(imageSwapper.id);
+		if(imageSwapper.inScene){
+			imageSwapper.layer.DespawnLayer(true);
+			RemoveFromTracker(imageSwapper.id);
+			imageSwapper.inScene = false;
+		}
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(imageSwapper.inScene){
+			DespawnImgSwap();
+		} else {
+			SpawnImgSwap();
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			imageSwapper[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			imageSwapper[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(imageSwapper(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return imageSwapper[flag];
+		}
 	}
 
-	return {imageSwapper, Click, SpawnImgSwap, DespawnImgSwap};
+	return {imageSwapper, Click, SpawnImgSwap, DespawnImgSwap, ToggleSpawn, SetFlag, GetFlag};
 }
 
 //
@@ -5157,6 +5548,7 @@ this.ImageCarousel = (carouselData) => {
 //Bug
 //Changing between Forward & Reverse either way messes up which frames should be updated
 	let imageCarousel = Object.assign({}, carouselData);
+	imageCarousel.inScene = false;
 	imageCarousel.frames = 8;//temp
 	let playInterval;
 	let updateTimeout;
@@ -5721,49 +6113,81 @@ this.ImageCarousel = (carouselData) => {
 	}
 	//Spawn Image Carousel
 	const SpawnImgCarousel = () => {
-		artFrameAllLayer.SpawnLayer(true);
-		buttonBackwardLayer.SpawnLayer(true);
-		buttonHashtagLayer.SpawnLayer(true);
-		buttonForwardLayer.SpawnLayer(true);
-		buttonLeftSkipLayer.SpawnLayer(true);
-		buttonPlayLayer.SpawnLayer(true);
-		buttonRightSkipLayer.SpawnLayer(true);
-		buttonSettingsLayer.SpawnLayer(true);
-		buttonStopLayer.SpawnLayer(true);
-
-		buttonBackwardClick.GetEl().addEventListener('click', Backward);
-		buttonForwardClick.GetEl().addEventListener('click', Forward);
-		buttonLeftSkipClick.GetEl().addEventListener('click', PrevPage);
-		buttonPlayClick.GetEl().addEventListener('click', PlayPause);
-		buttonRightSkipClick.GetEl().addEventListener('click', NextPage);
-		buttonSettingsClick.GetEl().addEventListener('click', Scale);
-		//buttonStopClick.GetEl().addEventListener('click', Stop);
-		buttonHashtagClick.GetEl().addEventListener('click', RandomPage);
-
-		Init();
+		if(imageCarousel.inScene){}else{
+			artFrameAllLayer.SpawnLayer(true);
+			buttonBackwardLayer.SpawnLayer(true);
+			buttonHashtagLayer.SpawnLayer(true);
+			buttonForwardLayer.SpawnLayer(true);
+			buttonLeftSkipLayer.SpawnLayer(true);
+			buttonPlayLayer.SpawnLayer(true);
+			buttonRightSkipLayer.SpawnLayer(true);
+			buttonSettingsLayer.SpawnLayer(true);
+			buttonStopLayer.SpawnLayer(true);
+			buttonBackwardClick.GetEl().addEventListener('click', Backward);
+			buttonForwardClick.GetEl().addEventListener('click', Forward);
+			buttonLeftSkipClick.GetEl().addEventListener('click', PrevPage);
+			buttonPlayClick.GetEl().addEventListener('click', PlayPause);
+			buttonRightSkipClick.GetEl().addEventListener('click', NextPage);
+			buttonSettingsClick.GetEl().addEventListener('click', Scale);
+			//buttonStopClick.GetEl().addEventListener('click', Stop);
+			buttonHashtagClick.GetEl().addEventListener('click', RandomPage);
+			Init();
+			imageCarousel.inScene = true;
+		}
 	}
 	//Despawn Image Carousel
 	const DespawnImgCarousel = () => {
-		buttonBackwardClick.GetEl().removeEventListener('click', Backward);
-		buttonForwardClick.GetEl().removeEventListener('click', Forward);
-		buttonLeftSkipClick.GetEl().removeEventListener('click', PrevPage);
-		buttonPlayClick.GetEl().removeEventListener('click', PlayPause);
-		buttonRightSkipClick.GetEl().removeEventListener('click', NextPage);
-		buttonSettingsClick.GetEl().removeEventListener('click', Scale);
-		//buttonStopClick.GetEl().removeEventListener('click', Stop);
-		buttonHashtagClick.GetEl().removeEventListener('click', RandomPage);
-
-		artFrameAllLayer.DespawnLayer(true);
-		buttonBackwardLayer.DespawnLayer(true);
-		buttonHashtagLayer.DespawnLayer(true);
-		buttonForwardLayer.DespawnLayer(true);
-		buttonLeftSkipLayer.DespawnLayer(true);
-		buttonPlayLayer.DespawnLayer(true);
-		buttonRightSkipLayer.DespawnLayer(true);
-		buttonSettingsLayer.DespawnLayer(true);
-		buttonStopLayer.DespawnLayer(true);
-
-		RemoveFromTracker(imageCarousel.id);
+		if(imageCarousel.inScene){
+			buttonBackwardClick.GetEl().removeEventListener('click', Backward);
+			buttonForwardClick.GetEl().removeEventListener('click', Forward);
+			buttonLeftSkipClick.GetEl().removeEventListener('click', PrevPage);
+			buttonPlayClick.GetEl().removeEventListener('click', PlayPause);
+			buttonRightSkipClick.GetEl().removeEventListener('click', NextPage);
+			buttonSettingsClick.GetEl().removeEventListener('click', Scale);
+			//buttonStopClick.GetEl().removeEventListener('click', Stop);
+			buttonHashtagClick.GetEl().removeEventListener('click', RandomPage);
+			artFrameAllLayer.DespawnLayer(true);
+			buttonBackwardLayer.DespawnLayer(true);
+			buttonHashtagLayer.DespawnLayer(true);
+			buttonForwardLayer.DespawnLayer(true);
+			buttonLeftSkipLayer.DespawnLayer(true);
+			buttonPlayLayer.DespawnLayer(true);
+			buttonRightSkipLayer.DespawnLayer(true);
+			buttonSettingsLayer.DespawnLayer(true);
+			buttonStopLayer.DespawnLayer(true);
+			RemoveFromTracker(imageCarousel.id);
+			imageCarousel.inScene = false;
+		}
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(imageCarousel.inScene){
+			DespawnImgCarousel();
+		} else {
+			SpawnImgCarousel();
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			imageCarousel[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			imageCarousel[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(imageCarousel(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return imageCarousel[flag];
+		}
 	}
 	//Move Frames Forward 90 Degrees
 	const Forward = () => {
@@ -5915,7 +6339,7 @@ this.ImageCarousel = (carouselData) => {
 		UpdateAll('forward');
 	}
 
-	return {imageCarousel, SpawnImgCarousel, DespawnImgCarousel, PlayPause, Forward, Backward, NextPage, PrevPage, RandomPage, Scale, Info};
+	return {imageCarousel, SpawnImgCarousel, DespawnImgCarousel, ToggleSpawn, SetFlag, GetFlag, PlayPause, Forward, Backward, NextPage, PrevPage, RandomPage, Scale, Info};
 }
 
 
@@ -6271,9 +6695,7 @@ classes: ['a-ent','player'],
 components: {
 ['universal-controls']:null,
 ['locomotion']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
-//['vr-input-test']:null,
-//['desktop-inputs']:null,
-//['mobile-inputs']:null,
+light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
 },};
 auxl.playerRig = auxl.Core(auxl.playerRigData);
 //Camera
@@ -6559,25 +6981,6 @@ classes: ['a-ent','player'],
 components: {visible: false},
 };
 auxl.blink2Screen = auxl.Core(auxl.blink2ScreenData);
-//Player Light
-auxl.playerPointLightData = {
-data:'playerPointLight',
-id:'playerPointLight',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: {
-light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
-},
-};
-auxl.playerPointLight = auxl.Core(auxl.playerPointLightData);
 //Player Layer
 auxl.playerAll = {
 parent: {core: auxl.playerRig},
@@ -6589,7 +6992,6 @@ child0: {
 	child3: {core: auxl.sphereScreen},
 	child4: {core: auxl.blink1Screen},
 	child5: {core: auxl.blink2Screen},
-	child6: {core: auxl.playerPointLight},
 },
 child1: {
 	parent: {core: auxl.vrController1},
@@ -8903,19 +9305,33 @@ this.mobileF = document.getElementById('f');
 
 //Customizable Action Controls
 this.altDownFunc = false;
+this.altDownParams = false;
 this.altUpFunc = false;
+this.altUpParams = false;
 this.action1DownFunc = false;
+this.action1DownParams = false;
 this.action1UpFunc = false;
+this.action1UpParams = false;
 this.action2DownFunc = false;
+this.action2DownParams = false;
 this.action2UpFunc = false;
+this.action2UpParams = false;
 this.action3DownFunc = false;
+this.action3DownParams = false;
 this.action3UpFunc = false;
+this.action3UpParams = false;
 this.action4DownFunc = false;
+this.action4DownParams = false;
 this.action4UpFunc = false;
+this.action4UpParams = false;
 this.action5DownFunc = false;
+this.action5DownParams = false;
 this.action5UpFunc = false;
+this.action5UpParams = false;
 this.action6DownFunc = false;
+this.action6DownParams = false;
 this.action6UpFunc = false;
+this.action6UpParams = false;
 
 //
 //Control Events
@@ -9286,45 +9702,67 @@ updateAction: function (actionObj){
 	//console.log(actionObj);
 	for(let action in actionObj){
 		//console.log(action);//actionName
-		//console.log(actionObj[action]);//params
+		//console.log(actionObj[action]);//object
 		let actionFunc;
+		let actionParams;
 		if(action === 'altDown'){
 			actionFunc = 'altDownFunc';
+			actionParams = 'altDownParams';
 		} else if(action === 'altUp'){
 			actionFunc = 'altUpFunc';
+			actionParams = 'altUpParams';
 		} else if(action === 'action1Down'){
 			actionFunc = 'action1DownFunc';
+			actionParams = 'action1DownParams';
 		} else if(action === 'action1Up'){
 			actionFunc = 'action1UpFunc';
+			actionParams = 'action1UpParams';
 		} else if(action === 'action2Down'){
 			actionFunc = 'action2DownFunc';
+			actionParams = 'action2DownParams';
 		} else if(action === 'action2Up'){
 			actionFunc = 'action2UpFunc';
+			actionParams = 'action2UpParams';
 		} else if(action === 'action3Down'){
 			actionFunc = 'action3DownFunc';
+			actionParams = 'action3DownParams';
 		} else if(action === 'action3Up'){
 			actionFunc = 'action3UpFunc';
+			actionParams = 'action3UpParams';
 		} else if(action === 'action4Down'){
 			actionFunc = 'action4DownFunc';
+			actionParams = 'action4DownParams';
 		} else if(action === 'action4Up'){
 			actionFunc = 'action4UpFunc';
+			actionParams = 'action4UpParams';
 		} else if(action === 'action5Down'){
 			actionFunc = 'action5DownFunc';
+			actionParams = 'action5DownParams';
 		} else if(action === 'action5Up'){
 			actionFunc = 'action5UpFunc';
+			actionParams = 'action5UpParams';
 		} else if(action === 'action6Down'){
 			actionFunc = 'action6DownFunc';
+			actionParams = 'action6DownParams';
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
+			actionParams = 'action6UpParams';
 		} else {
 			console.log('Failed to identify action')
 			return;
 		}
-
 		if(actionObj[action]){
 			let auxlObj = actionObj[action].auxlObj;
-			let component = actionObj[action].component;
+			let component = false;
+			if(actionObj[action].component){
+				component = actionObj[action].component;
+			}
 			let func = actionObj[action].func;
+			//Assign Parameters if Required
+			this[actionParams] = false;
+			if(actionObj[action].params){
+				this[actionParams] = actionObj[action].params;
+			}
 			if(component){
 				//if component is not auxl, then the object is a dom entity and the component is attached to that object and the func is in that component
 				//if component is true, then
@@ -9337,6 +9775,7 @@ this[actionFunc] = document.getElementById(auxlObj).components[component][func].
 			}
 		} else {
 			this[actionFunc] = false;
+			this[actionParams] = false;
 		}
 	}
 },
@@ -9347,64 +9786,88 @@ disableAction: function (actionObj){
 		//console.log(action);//actionName
 		//console.log(actionObj[action]);//params
 		let actionFunc;
+		let actionParams;
 		if(action === 'altDown'){
 			actionFunc = 'altDownFunc';
+			actionParams = 'altDownParams';
 		} else if(action === 'altUp'){
 			actionFunc = 'altUpFunc';
+			actionParams = 'altUpParams';
 		} else if(action === 'action1Down'){
 			actionFunc = 'action1DownFunc';
+			actionParams = 'action1DownParams';
 		} else if(action === 'action1Up'){
 			actionFunc = 'action1UpFunc';
+			actionParams = 'action1UpParams';
 		} else if(action === 'action2Down'){
 			actionFunc = 'action2DownFunc';
+			actionParams = 'action2DownParams';
 		} else if(action === 'action2Up'){
 			actionFunc = 'action2UpFunc';
+			actionParams = 'action2UpParams';
 		} else if(action === 'action3Down'){
 			actionFunc = 'action3DownFunc';
+			actionParams = 'action3DownParams';
 		} else if(action === 'action3Up'){
 			actionFunc = 'action3UpFunc';
+			actionParams = 'action3UpParams';
 		} else if(action === 'action4Down'){
 			actionFunc = 'action4DownFunc';
+			actionParams = 'action4DownParams';
 		} else if(action === 'action4Up'){
 			actionFunc = 'action4UpFunc';
+			actionParams = 'action4UpParams';
 		} else if(action === 'action5Down'){
 			actionFunc = 'action5DownFunc';
+			actionParams = 'action5DownParams';
 		} else if(action === 'action5Up'){
 			actionFunc = 'action5UpFunc';
+			actionParams = 'action5UpParams';
 		} else if(action === 'action6Down'){
 			actionFunc = 'action6DownFunc';
+			actionParams = 'action6DownParams';
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
+			actionParams = 'action6UpParams';
 		} else {
 			console.log('Failed to identify action')
 			return;
 		}
 		this[actionFunc] = false;
+		this[actionParams] = false;
 	}
 },
 //Main Click
 mainClick: function (e){
 	//console.log(e.detail);
-	this.updateInput(e.detail.info);
+	//this.updateInput(e.detail.info);
 },
 //Alt Click
 altClick: function (e){
 	//console.log(e.detail);
-	this.updateInput(e.detail.info);
+	//this.updateInput(e.detail.info);
 	if(e.detail.action === 'altClickHit'){
 		if(this.altDownFunc){
-			this.altDownFunc();
+			if(this.altDownParams){
+				this.altDownFunc(this.altDownParams);
+			} else {
+				this.altDownFunc();
+			}
 		}
 	} else if(e.detail.action === 'altClickRelease'){
 		if(this.altUpFunc){
-			this.altUpFunc();
+			if(this.altUpParams){
+				this.altUpFunc(this.altUpParams);
+			} else {
+				this.altUpFunc();
+			}
 		}
 	}
 },
 //Directional Movement
 direction: function (e){
 	//console.log(e.detail);
-	this.updateInput(e.detail.info);
+	//this.updateInput(e.detail.info);
 	if(e.detail.direction === 'forwardHit'){
 		this.locomotion.movingForward();
 	} else if(e.detail.direction === 'forwardRelease'){
@@ -9426,89 +9889,137 @@ direction: function (e){
 //Rotational Movement
 rotation: function (e){
 	//console.log(e.detail);
-	this.updateInput(e.detail.info);
+	//this.updateInput(e.detail.info);
 },
 //Action 1
 action1: function (e){
 	//console.log(e.detail);
-	this.updateInput(e.detail.info);
+	//this.updateInput(e.detail.info);
 	if(e.detail.action === 'action1Hit'){
 		if(this.action1DownFunc){
-			this.action1DownFunc();
+			if(this.action1DownParams){
+				this.action1DownFunc(this.action1DownParams);
+			} else {
+				this.action1DownFunc();
+			}
 		}
 	} else if(e.detail.action === 'action1Release'){
 		if(this.action1UpFunc){
-			this.action1UpFunc();
+			if(this.action1UpParams){
+				this.action1UpFunc(this.action1UpParams);
+			} else {
+				this.action1UpFunc();
+			}
 		}
 	}
 },
 //Action 2
 action2: function (e){
 	//console.log(e.detail);
-	this.updateInput(e.detail.info);
+	//this.updateInput(e.detail.info);
 	if(e.detail.action === 'action2Hit'){
 		if(this.action2DownFunc){
-			this.action2DownFunc();
+			if(this.action2DownParams){
+				this.action2DownFunc(this.action2DownParams);
+			} else {
+				this.action2DownFunc();
+			}
 		}
 	} else if(e.detail.action === 'action2Release'){
 		if(this.action2UpFunc){
-			this.action2UpFunc();
+			if(this.action2UpParams){
+				this.action2UpFunc(this.action2UpParams);
+			} else {
+				this.action2UpFunc();
+			}
 		}
 	}
 },
 //Action 3
 action3: function (e){
 	//console.log(e.detail);
-	this.updateInput(e.detail.info);
+	//this.updateInput(e.detail.info);
 	if(e.detail.action === 'action3Hit'){
 		if(this.action3DownFunc){
-			this.action3DownFunc();
+			if(this.action3DownParams){
+				this.action3DownFunc(this.action3DownParams);
+			} else {
+				this.action3DownFunc();
+			}
 		}
 	} else if(e.detail.action === 'action3Release'){
 		if(this.action3UpFunc){
-			this.action3UpFunc();
+			if(this.action3UpParams){
+				this.action3UpFunc(this.action3UpParams);
+			} else {
+				this.action3UpFunc();
+			}
 		}
 	}
 },
 //Action 4
 action4: function (e){
 	//console.log(e.detail);
-	this.updateInput(e.detail.info);
+	//this.updateInput(e.detail.info);
 	if(e.detail.action === 'action4Hit'){
 		if(this.action4DownFunc){
-			this.action4DownFunc();
+			if(this.action4DownParams){
+				this.action4DownFunc(this.action4DownParams);
+			} else {
+				this.action4DownFunc();
+			}
 		}
 	} else if(e.detail.action === 'action4Release'){
 		if(this.action4UpFunc){
-			this.action4UpFunc();
+			if(this.action4UpParams){
+				this.action4UpFunc(this.action4UpParams);
+			} else {
+				this.action4UpFunc();
+			}
 		}
 	}
 },
 //Action 5
 action5: function (e){
 	//console.log(e.detail);
-	this.updateInput(e.detail.info);
+	//this.updateInput(e.detail.info);
 	if(e.detail.action === 'action5Hit'){
 		if(this.action5DownFunc){
-			this.action5DownFunc();
+			if(this.action5DownParams){
+				this.action5DownFunc(this.action5DownParams);
+			} else {
+				this.action5DownFunc();
+			}
 		}
 	} else if(e.detail.action === 'action5Release'){
 		if(this.action5UpFunc){
-			this.action5UpFunc();
+			if(this.action5UpParams){
+				this.action5UpFunc(this.action5UpParams);
+			} else {
+				this.action5UpFunc();
+			}
 		}
 	}
 },
 //Action 6
 action6: function (e){
 	//console.log(e.detail);
-	this.updateInput(e.detail.info);
+	//this.updateInput(e.detail.info);
 	if(e.detail.action === 'action6Hit'){
 		if(this.action6DownFunc){
-			this.action6DownFunc();
+			if(this.action6DownParams){
+				this.action6DownFunc(this.action6DownParams);
+			} else {
+				this.action6DownFunc();
+			}
 		}
 	} else if(e.detail.action === 'action6Release'){
 		if(this.action6UpFunc){
-			this.action6UpFunc();
+			if(this.action6UpParams){
+				this.action6UpFunc(this.action6UpParams);
+			} else {
+				this.action6UpFunc();
+			}
 		}
 	}
 },
@@ -9712,7 +10223,7 @@ questJoystickOther: function (e){
 //Temp Blank
 blank: function (e){
 	console.log(e);
-	this.updateInput('Blank Button');
+	//this.updateInput('Blank Button');
 },
 update: function () {
 

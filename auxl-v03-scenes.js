@@ -5,7 +5,7 @@
 //
 //Created by Minty-Crisp (mintycrisp.com)
 
-//AUXL v0.3 - Scenes
+//AUXL v0.3 Beta - Scenes
 
 //auxl-scene-library
 //User Library : User added Library items
@@ -286,6 +286,24 @@ auxl.test = auxl.TestObj('test');
 
 //
 //Cores
+
+//Toggle Test
+auxl.testCubeCoreData = {
+data:'testCubeCoreData',
+id:'testCubeCore',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: auxl.pattern17, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,1.5,-1.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.testCubeCore = auxl.Core(auxl.testCubeCoreData);
 
 //Cube
 auxl.cubeCoreData = {
@@ -813,9 +831,12 @@ auxl.v03ScenesData = {
 		instructions: 'A scenario testing the new features and functionality of the A-Frame UX Library engine v0.3.',
 	},
 	controls:{
-		action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
-		action5Down:{auxlObj: 'player', component: false, func: 'ToggleCrouch'},
-		action6Down:{auxlObj: 'player', component: false, func: 'ToggleSittingMode'},
+		action1Down:{auxlObj: 'player', func: 'TestFunc', params: {test1: 1, test2: 2}},
+		action2Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
+		action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn',},
+		action4Down:{auxlObj: 'player', func: 'ToggleSittingMode'},
+		action5Down:{auxlObj: 'player', func: 'ToggleCrouch'},
+		action6Down:{auxlObj: 'player', func: 'ToggleSittingMode'},
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
@@ -914,6 +935,7 @@ auxl.zone0Scene0Data = {
 		sceneText: true,
 	},
 	controls:{
+
 	},
 	start:{
 		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#1e7e5d", emissive: "#1e7e5d",},}},
