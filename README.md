@@ -59,7 +59,10 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Updated all ObjGen's to support SetFlag & GetFlag methods, so now If/Else Instructions support all AUXL object.
 - Updated ObjGen's to track if they are already spawned to avoid duplicates and added ToggleSpawn method for use ideally with action controls. Objects added this way are not added to any tracker currently.
 - Updated instruction action controls to support adding parameters to object or component methods. Component and Params can be omitted if not needed.
-- Added ToggleFlashlight method to Player which spawns a flashlight on Camera or dominant VR hand
+- Added ToggleFlashlight method to Player which spawns a flashlight on Camera or dominant VR hand.
+- New AUXL Object : MultiMenu. Generates a navigatable menu from a core button with multiple generations of parent/child sub menus all containing actions to jump to a specific menu, run an AUXL Object Method w/Parameters or an AUXL Object Component Method w/Parameters. Button description texts are toggled on hover.
+- Added support component : menurun as well as updated clickrun, fusingrun, mousedownrun, mouseenterrun, mouseleaverun and mouseuprun to be able to run component attached methods.
+- Added GetChildEl() to layer.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
