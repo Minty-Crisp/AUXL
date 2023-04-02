@@ -74,6 +74,7 @@ this.objGenTracking = {
 core:{type:'core', spawn: 'SpawnCore', despawn: 'DespawnCore'},
 layer:{type:'layer', spawn: 'SpawnLayer', despawn: 'DespawnLayer'},
 menu:{type:'menu', spawn: 'SpawnMenu', despawn: 'DespawnMenu'},
+multiMenu:{type:'multiMenu', spawn: 'SpawnMultiMenu', despawn: 'DespawnMultiMenu'},
 singleGen:{type:'singleGen', spawn: 'SpawnObjRing', despawn: 'DespawnObjRing'},
 multiGen:{type:'multiGen', spawn: 'SpawnMultiAsset', despawn: 'DespawnMultiAsset'},
 ham:{type:'ham', spawn: 'SpawnHam', despawn: 'DespawnHam'},
@@ -1282,6 +1283,11 @@ this.Layer = (id, all) => {
 	const GetParentEl = () => {
 		return layer.all.parent.core.GetEl();
 	}
+	//Return Child Element in Scene
+	const GetChildEl = (child) => {
+		let childCore = GetChild(child);
+		return childCore.GetEl();
+	}
 	//Emit Event from Parent Entity Element - Single or Array
 	const EmitEventParent = (eventName) => {
 		if(Array.isArray(eventName)){
@@ -1589,7 +1595,7 @@ this.Layer = (id, all) => {
 		}
 	}
 
-	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, GetParentEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
+	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, GetParentEl, GetChildEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
 }
 
 //
@@ -2053,6 +2059,7 @@ this.Player = (layer) => {
 
 //
 //Menu
+//Single Menu | Vertical/Horizontal
 this.Menu = (menuData) => {
 	let menu = {};
 	menu.inScene = false;
@@ -2188,6 +2195,322 @@ this.Menu = (menuData) => {
 	}
 
 	return {menu, SpawnMenu, DespawnMenu, SetFlag, GetFlag, AddToParentSpawnTracker, RemoveMenuFromSceneTracker};
+}
+
+//
+//MultiMenu
+this.MultiMenu = (multiMenuData) => {
+	let multiMenu = {};
+	multiMenu.data = Object.assign({}, multiMenuData);
+	multiMenu.inScene = false;
+	multiMenu.menuOpen = false;
+	multiMenu.descriptionOpen = false;
+	multiMenu.buttonHover = '';
+	multiMenu.currentMenu = 'menu0';
+	multiMenu.menuPath = ['menu0'];
+	multiMenu.switching = false;
+	multiMenu.switchingTimeout;
+	multiMenu.id = multiMenuData.info.id || 'multiMenu';
+	multiMenu.layout = multiMenuData.info.layout || 'circle';
+	multiMenu.offset = multiMenuData.info.offset || -1;
+	//circle
+	//vertical
+	//horizontal
+	let circleRot = -45;
+	let maxNulls = 0;
+	let switchDelay = 250;
+
+	multiMenu.buttonData = JSON.parse(JSON.stringify(multiMenu.data.info.buttonData));
+
+	multiMenu.hoverData = JSON.parse(JSON.stringify(multiMenu.data.info.hoverData));
+
+	multiMenu.nullParentData = {
+		data:'nullParentData',
+		id:'nullParent',
+		sources:false,
+		text: false,
+		geometry: false,
+		material: false,
+		position: new THREE.Vector3(0,0,0),
+		rotation: new THREE.Vector3(0,0,0),
+		scale: new THREE.Vector3(1,1,1),
+		animations: false,
+		mixins: false,
+		classes: ['a-ent'],
+		components: false,
+		//components: {['look-at']:'#camera',},
+		//components: {['look-at-xyz']:{match: 'camera', y:true},},
+	};
+
+	multiMenu.cores = {};
+	multiMenu.cores.hover = {};
+	//Main Menu Null
+	multiMenu.nullParentData.id = multiMenu.id;
+	multiMenu.nullParentData.position = multiMenu.data.info.position;
+	multiMenu.cores.parent = auxl.Core(multiMenu.nullParentData);
+	//Reset Null Parent
+	multiMenu.nullParentData.position = new THREE.Vector3(0,0,0);
+	multiMenu.nullParentData.components = {};
+	//Main Button Parent Core
+	multiMenu.buttonData.id = multiMenu.data.info.id + 'menu';
+				//Layout
+if(multiMenu.layout === 'circle'){
+	multiMenu.buttonData.position.x = multiMenu.offset;
+}
+	multiMenu.cores.main = auxl.Core(multiMenu.buttonData);
+	//Sub Button Cores
+
+	//Init each main menu array storage
+	for(let menu in multiMenu.data){
+		//console.log(menu)
+		//console.log(multiMenu.data[menu])
+		if(menu === 'info'){}else{
+			multiMenu.cores[menu] = [];
+			multiMenu.cores.hover[menu] = [];
+			let buttonTotal = 0;
+			for(let button in multiMenu.data[menu]){
+				buttonTotal++;
+				//Generate Button Core
+				multiMenu.buttonData.id = multiMenu.data[menu][button].id;
+				multiMenu.buttonData.text.value = multiMenu.data[menu][button].title;
+				//Layout
+				if(multiMenu.layout === 'circle'){
+					multiMenu.buttonData.rotation.z = (circleRot*buttonTotal)*-1;
+				} else if(multiMenu.layout === 'vertical'){
+					multiMenu.buttonData.position.y = buttonTotal*multiMenu.offset;
+				} else if(multiMenu.layout === 'horizontal'){
+					multiMenu.buttonData.position.x = buttonTotal*multiMenu.offset;
+				}
+				//Add Button Actions
+				if(multiMenu.buttonData.components){} else {
+					multiMenu.buttonData.components = {};
+				}
+				if(multiMenu.data[menu][button].action){
+					multiMenu.buttonData.components.clickrun = {};
+					multiMenu.buttonData.components.clickrun.cursorObj = multiMenu.data[menu][button].action.auxlObj;
+					multiMenu.buttonData.components.clickrun.method = multiMenu.data[menu][button].action.method;
+					if(multiMenu.data[menu][button].action.component){
+						multiMenu.buttonData.components.clickrun.component = multiMenu.data[menu][button].action.component;
+					}
+					if(multiMenu.data[menu][button].action.params){
+						multiMenu.buttonData.components.clickrun.params = multiMenu.data[menu][button].action.params;
+					}
+					multiMenu.buttonData.components.menurun = {};
+					multiMenu.buttonData.components.menurun.cursorObj = multiMenu.id;
+					multiMenu.buttonData.components.menurun.method = 'ResetMenu';
+				} else {
+					multiMenu.buttonData.components.menurun = {};
+					multiMenu.buttonData.components.menurun.cursorObj = multiMenu.id;
+					multiMenu.buttonData.components.menurun.method = 'SubMenu';
+					multiMenu.buttonData.components.menurun.params = multiMenu.data[menu][button].subMenu;
+				}
+
+				//Gen Hover
+				multiMenu.buttonData.components.mouseenterrun = {};
+				multiMenu.buttonData.components.mouseenterrun.cursorObj = multiMenu.id;
+				multiMenu.buttonData.components.mouseenterrun.method = 'SpawnDescription';
+				multiMenu.buttonData.components.mouseenterrun.params = button;
+
+				multiMenu.buttonData.components.mouseleaverun = {};
+				multiMenu.buttonData.components.mouseleaverun.cursorObj = multiMenu.id;
+				multiMenu.buttonData.components.mouseleaverun.method = 'DespawnDescription';
+				multiMenu.buttonData.components.mouseleaverun.params = button;
+
+				multiMenu.hoverData.id = multiMenu.data[menu][button].id + 'hover';
+				multiMenu.hoverData.text.value = multiMenu.data[menu][button].description;
+				multiMenu.cores.hover[menu][button] = auxl.Core(multiMenu.hoverData);
+
+				//Gen Button
+				multiMenu.cores[menu][button] = auxl.Core(multiMenu.buttonData);
+
+			}
+			if(buttonTotal > maxNulls){
+				maxNulls = buttonTotal;
+			}
+		}
+	}
+
+	//Circle Rotation Degree
+	//let circleRot = (360/maxNulls+1)*-1;
+	//Generate a null parent for the maximum amount of buttons and main button
+	multiMenu.cores.nulls = [];
+	for(let a = 0; a <= maxNulls+1; a++){
+		multiMenu.nullParentData.id = 'null' + a;
+		if(multiMenu.layout === 'circle'){
+			multiMenu.nullParentData.rotation.z = circleRot*a;
+		}
+		multiMenu.cores.nulls.push(auxl.Core(multiMenu.nullParentData));
+	}
+	//console.log(multiMenu.cores.nulls);
+	//Init Layer
+	multiMenu.menuLayerData = {
+		parent: {core: multiMenu.cores.parent},
+		child0: {
+			parent: {core: multiMenu.cores.nulls[0]},
+			child0: {core: multiMenu.cores.main},
+		},
+	}
+	//Init Null Children
+	for(let a = 1; a < multiMenu.cores.nulls.length; a++){
+		multiMenu.menuLayerData['child'+a] = {};
+		multiMenu.menuLayerData['child'+a].core = multiMenu.cores.nulls[a];
+	}
+	//console.log(multiMenu.menuLayerData);
+	//Init Layer
+	multiMenu.menuLayer = auxl.Layer('menuLayer', multiMenu.menuLayerData);
+
+	const SpawnMultiMenu = (open) => {
+		if(multiMenu.inScene){}else{
+			multiMenu.menuLayer.SpawnLayer();
+			multiMenu.menuLayer.GetChildEl('null0').addEventListener('click',ToggleMenu);
+			multiMenu.cores.main.ChangeSelf({property: 'text', value:{value:'Open'}});
+			if(open){
+				ToggleMenu();
+			}
+			multiMenu.inScene = true;
+		}
+	}
+
+	const SpawnMenu = () => {
+			if(multiMenu.menuPath.length > 1){
+				multiMenu.cores.main.ChangeSelf({property: 'text', value:{value:'Back'}});
+			} else {
+				multiMenu.cores.main.ChangeSelf({property: 'text', value:{value:'Close'}});
+			}
+		multiMenu.menuOpen = true;
+		multiMenu.switching = true;
+		let currentMenu = multiMenu.currentMenu;
+		let nullNum = 1;
+		let spawnParent;
+		let spawnTime = 50;
+		let spawnTimeout = setTimeout(() => {
+			for(let button in multiMenu.cores[currentMenu]){
+				spawnParent = multiMenu.menuLayer.GetChildEl('null'+nullNum);
+				multiMenu.cores[currentMenu][button].SpawnCore(spawnParent);
+				nullNum++;
+			}
+			clearTimeout(spawnTimeout);
+		}, switchDelay);
+		multiMenu.switchingTimeout = setTimeout(() => {
+			multiMenu.switching = false;
+			clearTimeout(multiMenu.switchingTimeout);
+		}, switchDelay*2);
+	}
+
+	const DespawnMenu = (instant) => {
+		multiMenu.menuOpen = false;
+		multiMenu.switching = true;
+		let currentMenu = multiMenu.currentMenu;
+		let despawnTime = 550;
+		let nullNum = 1;
+		let spawnParents = {};
+		let despawnDelay;
+		if(instant){
+			despawnDelay = 25;
+		} else {
+			despawnDelay = switchDelay;
+		}
+		if(multiMenu.descriptionOpen){
+			DespawnDescription(multiMenu.buttonHover);
+		}
+		let despawnTimeout = setTimeout(() => {
+			for(let button in multiMenu.cores[currentMenu]){
+				spawnParents[button] = multiMenu.menuLayer.GetChildEl('null'+nullNum);
+				multiMenu.cores[currentMenu][button].DespawnCore(spawnParents[button]);
+				nullNum++;
+			}
+			clearTimeout(despawnTimeout);
+		}, despawnDelay);
+		multiMenu.switchingTimeout = setTimeout(() => {
+			multiMenu.switching = false;
+			clearTimeout(multiMenu.switchingTimeout);
+		}, despawnDelay*2);
+	}
+
+	const ToggleMenu = () => {
+		if(multiMenu.switching){}else{
+			if(multiMenu.menuOpen){
+				if(multiMenu.menuPath.length > 1){
+					SubMenu(multiMenu.menuPath[multiMenu.menuPath.length-2]);
+				} else {
+					ResetMenu();
+				}
+			} else {
+				SpawnMenu();
+			}
+		}
+	}
+
+	const DefaultMenu = () => {
+		multiMenu.currentMenu = 'menu0';
+		multiMenu.menuPath = ['menu0'];
+		multiMenu.menuOpen = false;
+	}
+
+	const ResetMenu = (instant) => {
+		multiMenu.cores.main.ChangeSelf({property: 'text', value:{value:'Open'}});
+		let despawnDelay;
+		if(instant){
+			despawnDelay = 0;
+		} else {
+			despawnDelay = switchDelay;
+		}
+		if(multiMenu.switching){}else{
+			if(multiMenu.menuOpen){
+				let resetTimeout = setTimeout(() => {
+					DespawnMenu(instant);
+					DefaultMenu();
+					clearTimeout(resetTimeout);
+				}, despawnDelay);
+			}
+		}
+	}
+
+	const SubMenu = (newMenu) => {
+		if(multiMenu.switching){}else{
+			DespawnMenu();
+			multiMenu.currentMenu = newMenu;
+			if(multiMenu.menuPath.includes(multiMenu.currentMenu)){
+				multiMenu.menuPath.pop();
+			} else {
+				multiMenu.menuPath.push(multiMenu.currentMenu);
+			}
+			SpawnMenu();
+		}
+	}
+
+	const DespawnMultiMenu = () => {
+		if(multiMenu.inScene){
+			ResetMenu(true);
+			let resetTimeout = setTimeout(() => {
+				multiMenu.menuLayer.GetChildEl('null0').removeEventListener('click',ToggleMenu);
+				multiMenu.menuLayer.DespawnLayer();
+				multiMenu.inScene = false;
+				clearTimeout(resetTimeout);
+			}, switchDelay);
+		}
+	}
+
+	const SpawnDescription = (button) => {
+		if(multiMenu.descriptionOpen){}else{
+			multiMenu.buttonHover = button;
+			let spawnParent = multiMenu.cores[multiMenu.currentMenu][button].GetEl();
+
+			multiMenu.cores.hover[multiMenu.currentMenu][button].SpawnCore(spawnParent);
+			multiMenu.descriptionOpen = true;
+		}
+	}
+
+	const DespawnDescription = (button) => {
+		if(multiMenu.descriptionOpen){
+			let spawnParent = multiMenu.cores[multiMenu.currentMenu][button].GetEl();
+			multiMenu.cores.hover[multiMenu.currentMenu][button].DespawnCore(spawnParent);
+			multiMenu.buttonHover = '';
+			multiMenu.descriptionOpen = false;
+		}
+	}
+
+	return {multiMenu, SpawnMultiMenu, DespawnMultiMenu, SubMenu, ResetMenu, SpawnDescription, DespawnDescription};
 }
 
 //
@@ -6404,53 +6727,6 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
-//Make a new ObjGen for Multi-Menu that will handle multiple levels of the menu. And instead of returning an option on click to then logic, could instead attach a method to it directly.
-
-//Should I bother syncing the 2 or have the menu load connectd to camera when not in VR mode
-
-//
-//A-Frame <-> HTML Menu Sync Test
-/*
-let allMenu = {
-	menuSceneSwap:{
-		title,
-		options,
-	},
-	menuTeleport:{
-		title,
-		options,
-	},
-	menuMain:{
-		title,
-		options:{
-			start:{
-				id,
-				class,
-				innerHTML,
-				auxlObj,
-				component,
-				method,
-				params,
-			},
-			mode,
-			vrHand,
-			audioToggle,
-			viewInfo,
-		},
-	},
-};
-*/
-/* Main menu
-<div id="beginDiv">
-<span class="flexCol"><h4 id="scenarioMenuTitle"></h4></span>
-<li><button class="menu" id="startButton">Start</button></li>
-<li><button id="menuModeButton" class="flexCol">Mode : Desktop</button></li>
-<li><button id="vrHandButton" class="flexCol">2 Hands : Right Ray | Left Move</button></li>
-<li><button id="audioButton" class="flexCol">Sound : Disabled</button></li>
-<li><button id="viewInfo" class="flexCol">View Instructions</button></li>
-</div>
-*/
-
 //Colors
 //
 
@@ -8193,6 +8469,7 @@ AFRAME.registerComponent('look-at-xyz', {
 //Event Listener Components to run Auxl.Object.Methods()
 
 //Attach to run Object's .Click() method on click
+//Legacy | Will be replaced by clickrun
 AFRAME.registerComponent('clickfunc', {
 dependencies: ['auxl'],
 schema: {
@@ -8208,9 +8485,242 @@ events: {
 	}
 },
 });
-//Attach to run specified method from Object on click event
+//Attach to run specified method from Object on click event or method from component if in scene
 AFRAME.registerComponent('clickrun', {
 dependencies: ['auxl'],
+//multiple: true,
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+},
+events: {
+	click: function (evt) {
+		if(this.data.component === 'null'){
+			if(this.auxl[this.data.cursorObj][this.data.method]){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.data.cursorObj)){
+				this.domEnt = document.getElementById(this.data.cursorObj);
+				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else {
+					this.domEnt.components[this.data.component][this.data.method](this.data.params);
+				}
+			}
+		}
+	}
+},
+});
+
+//Attach to run specified method from Object on fusing event
+AFRAME.registerComponent('fusingrun', {
+dependencies: ['auxl'],
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+},
+events: {
+	fusing: function (evt) {
+		if(this.data.component === 'null'){
+			if(this.auxl[this.data.cursorObj][this.data.method]){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.data.cursorObj)){
+				this.domEnt = document.getElementById(this.data.cursorObj);
+				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else {
+					this.domEnt.components[this.data.component][this.data.method](this.data.params);
+				}
+			}
+		}
+	}
+},
+});
+//Attach to run specified method from Object on mousedown event
+AFRAME.registerComponent('mousedownrun', {
+dependencies: ['auxl'],
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+},
+events: {
+	mousedown: function (evt) {
+		if(this.data.component === 'null'){
+			if(this.auxl[this.data.cursorObj][this.data.method]){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.data.cursorObj)){
+				this.domEnt = document.getElementById(this.data.cursorObj);
+				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else {
+					this.domEnt.components[this.data.component][this.data.method](this.data.params);
+				}
+			}
+		}
+	}
+},
+});
+//Attach to run specified method from Object on mouseenter event
+AFRAME.registerComponent('mouseenterrun', {
+dependencies: ['auxl'],
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+},
+events: {
+	mouseenter: function (evt) {
+		if(this.data.component === 'null'){
+			if(this.auxl[this.data.cursorObj][this.data.method]){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.data.cursorObj)){
+				this.domEnt = document.getElementById(this.data.cursorObj);
+				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else {
+					this.domEnt.components[this.data.component][this.data.method](this.data.params);
+				}
+			}
+		}
+	}
+},
+});
+//Attach to run specified method from Object on mouseleave event
+AFRAME.registerComponent('mouseleaverun', {
+dependencies: ['auxl'],
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+},
+events: {
+	mouseleave: function (evt) {
+		if(this.data.component === 'null'){
+			if(this.auxl[this.data.cursorObj][this.data.method]){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.data.cursorObj)){
+				this.domEnt = document.getElementById(this.data.cursorObj);
+				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else {
+					this.domEnt.components[this.data.component][this.data.method](this.data.params);
+				}
+			}
+		}
+	}
+},
+});
+//Attach to run specified method from Object on mouseup event
+AFRAME.registerComponent('mouseuprun', {
+dependencies: ['auxl'],
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+},
+events: {
+	mouseup: function (evt) {
+		if(this.data.component === 'null'){
+			if(this.auxl[this.data.cursorObj][this.data.method]){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.data.cursorObj)){
+				this.domEnt = document.getElementById(this.data.cursorObj);
+				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else {
+					this.domEnt.components[this.data.component][this.data.method](this.data.params);
+				}
+			}
+		}
+	}
+},
+});
+
+//MultiMenu Suppot
+//Attach to run specified method from Object on click event
+AFRAME.registerComponent('menurun', {
+dependencies: ['auxl'],
+//multiple: true,
 schema: {
 	cursorObj: {type: 'string', default: 'auxlObj'},
 	method: {type: 'string', default: 'Click'},
@@ -8223,107 +8733,11 @@ init: function () {
 events: {
 	click: function (evt) {
 		if(this.auxl[this.data.cursorObj][this.data.method]){
-			this.auxl[this.data.cursorObj][this.data.method](evt.target);
-		}
-	}
-},
-});
-//Attach to run specified method from Object on fusing event
-AFRAME.registerComponent('fusingrun', {
-dependencies: ['auxl'],
-schema: {
-	cursorObj: {type: 'string', default: 'auxlObj'},
-	method: {type: 'string', default: 'methodName'},
-	params: {type: 'string', default: 'null'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-},
-events: {
-	fusing: function (evt) {
-		if(this.auxl[this.data.cursorObj][this.data.method]){
-			this.auxl[this.data.cursorObj][this.data.method](evt.target);
-		}
-	}
-},
-});
-//Attach to run specified method from Object on mousedown event
-AFRAME.registerComponent('mousedownrun', {
-dependencies: ['auxl'],
-schema: {
-	cursorObj: {type: 'string', default: 'auxlObj'},
-	method: {type: 'string', default: 'methodName'},
-	params: {type: 'string', default: 'null'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-},
-events: {
-	mousedown: function (evt) {
-		if(this.auxl[this.data.cursorObj][this.data.method]){
-			this.auxl[this.data.cursorObj][this.data.method](evt.target);
-		}
-	}
-},
-});
-//Attach to run specified method from Object on mouseenter event
-AFRAME.registerComponent('mouseenterrun', {
-dependencies: ['auxl'],
-schema: {
-	cursorObj: {type: 'string', default: 'auxlObj'},
-	method: {type: 'string', default: 'methodName'},
-	params: {type: 'string', default: 'null'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-},
-events: {
-	mouseenter: function (evt) {
-		if(this.auxl[this.data.cursorObj][this.data.method]){
-			this.auxl[this.data.cursorObj][this.data.method](evt.target);
-		}
-	}
-},
-});
-//Attach to run specified method from Object on mouseleave event
-AFRAME.registerComponent('mouseleaverun', {
-dependencies: ['auxl'],
-schema: {
-	cursorObj: {type: 'string', default: 'auxlObj'},
-	method: {type: 'string', default: 'methodName'},
-	params: {type: 'string', default: 'null'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-},
-events: {
-	mouseleave: function (evt) {
-		if(this.auxl[this.data.cursorObj][this.data.method]){
-			this.auxl[this.data.cursorObj][this.data.method](evt.target);
-		}
-	}
-},
-});
-//Attach to run specified method from Object on mouseup event
-AFRAME.registerComponent('mouseuprun', {
-dependencies: ['auxl'],
-schema: {
-	cursorObj: {type: 'string', default: 'auxlObj'},
-	method: {type: 'string', default: 'methodName'},
-	params: {type: 'string', default: 'null'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-},
-events: {
-	mouseup: function (evt) {
-		if(this.auxl[this.data.cursorObj][this.data.method]){
-			this.auxl[this.data.cursorObj][this.data.method](evt.target);
+			if(this.data.params === 'null'){
+				this.auxl[this.data.cursorObj][this.data.method](evt.target);
+			} else {
+				this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+			}
 		}
 	}
 },

@@ -15,6 +15,539 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
+//
+//Testing Object
+auxl.TestObj = (id) => {
+
+	let testObj = {};
+	testObj.id = id;
+	//Cube
+	testObj.testData = {
+	data:'testData',
+	id:'test',
+	sources: false,
+	text: false,
+	geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+	material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 1},
+	position: new THREE.Vector3(-1.5,2.5,-1.5),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable','a-ent'],
+	components: false,
+	};
+	testObj.test = auxl.Core(testObj.testData);
+
+	const SpawnTest = () => {
+		testObj.test.SpawnCore();
+	}
+
+	const DespawnTest = () => {
+		testObj.test.DespawnCore();
+	}
+
+	const TestMethod = (params) => {
+		console.log(params);
+	}
+
+	return {testObj, SpawnTest, DespawnTest, TestMethod};
+}
+auxl.AddObjGenToTracker('testObj', 'SpawnTest', 'DespawnTest');
+
+auxl.test = auxl.TestObj('test');
+
+//
+//Multi Menu Button Base Template
+auxl.menuCylinderData = {
+data:'menuCylinderData',
+id:'menuCylinder',
+sources:false,
+text: {value:'Menu', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+geometry: {primitive: 'circle', radius: 0.25, segments: 32, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#c1664b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#c1664b", emissiveIntensity: 0.6, side: 'double'},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{
+click1:{property: 'scale', from: '1 1 1', to: '1.05 1.05 1.05', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+//Multi-Menu Hover Text Display
+auxl.menuHoverData = {
+data:'menuHoverData',
+id:'menuHover',
+sources:false,
+text: {value:'Menu', wrapCount: 40, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,-0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+//
+//MultiMenu test
+
+auxl.multiMenuTestData = {
+info:{
+	id: 'multiMenuTest',
+	buttonData: auxl.menuCylinderData,
+	hoverData: auxl.menuHoverData,
+	title: 'Multi-Menu Test Menu',
+	description: 'A test menu that contains multiple sub menus to go between.',
+	layout:'circle',
+	//layout:'vertical',
+	//layout:'horizontal',
+	offset: -1,
+	//offset: 0.5,
+	//offset: 0.75,
+	parent: false,
+	position: new THREE.Vector3(0.25,1.5,-1.5),
+},
+menu0:{
+	button0:{
+		id: 'subMenu1',
+		style: false,
+		title: 'Sub Menu 1 Test',
+		description: 'A test sub menu.',
+		subMenu: 'menu1',
+		action: false,
+	},
+	button1:{
+		id: 'subMenu2',
+		style: false,
+		title: 'Sub Menu 2 Test',
+		description: 'A test sub menu.',
+		subMenu: 'menu2',
+		action: false,
+	},
+	button2:{
+		id: 'subMenu3',
+		style: false,
+		title: 'Sub Menu 3 Test',
+		description: 'A test sub menu.',
+		subMenu: 'menu3',
+		action: false,
+	},
+},
+menu1:{
+	button0:{
+		id: 'subMenu4',
+		style: false,
+		title: 'Sub Menu 4 Test',
+		description: 'A test sub menu.',
+		subMenu: 'menu4',
+		action: false,
+	},
+	button1:{
+		id: 'subMenu5',
+		style: false,
+		title: 'Sub Menu 5 Test',
+		description: 'A test sub menu.',
+		subMenu: 'menu5',
+		action: false,
+	},
+},
+menu2:{
+	button0:{
+		id: 'action1',
+		style: false,
+		title: 'Sub Menu 2 Action 1 Test',
+		description: 'A test sub menu action.',
+		subMenu: false,
+		action: {
+			auxlObj: 'test',
+			component: false,
+			method: 'TestMethod',
+			params: 'Sub Menu 2 Action 1',
+		},
+	},
+	button1:{
+		id: 'action2',
+		style: false,
+		title: 'Sub Menu 2 Action 2 Test',
+		description: 'A test sub menu action.',
+		subMenu: false,
+		action: {
+			auxlObj: 'test',
+			component: false,
+			method: 'TestMethod',
+			params: 'Sub Menu 2 Action 2',
+		},
+	},
+},
+menu3:{
+	button0:{
+		id: 'action1',
+		style: false,
+		title: 'Sub Menu 3 Action 1 Test',
+		description: 'A test sub menu action.',
+		subMenu: false,
+		action: {
+			auxlObj: 'test',
+			component: false,
+			method: 'TestMethod',
+			params: 'Sub Menu 3 Action 1',
+		},
+	},
+	button1:{
+		id: 'action2',
+		style: false,
+		title: 'Sub Menu 3 Action 2 Test',
+		description: 'A test sub menu action.',
+		subMenu: false,
+		action: {
+			auxlObj: 'test',
+			component: false,
+			method: 'TestMethod',
+			params: 'Sub Menu 3 Action 2',
+		},
+	},
+},
+menu4:{
+	button0:{
+		id: 'action1',
+		style: false,
+		title: 'Sub Menu 4 Action 1 Test',
+		description: 'A test sub menu action.',
+		subMenu: false,
+		action: {
+			auxlObj: 'test',
+			component: false,
+			method: 'TestMethod',
+			params: 'Sub Menu 4 Action 1',
+		},
+	},
+	button1:{
+		id: 'action2',
+		style: false,
+		title: 'Sub Menu 4 Action 2 Test',
+		description: 'A test sub menu action.',
+		subMenu: false,
+		action: {
+			auxlObj: 'test',
+			component: false,
+			method: 'TestMethod',
+			params: 'Sub Menu 4 Action 2',
+		},
+	},
+},
+menu5:{
+	button0:{
+		id: 'action1',
+		style: false,
+		title: 'Sub Menu 5 Action 1 Test',
+		description: 'A test sub menu action.',
+		subMenu: false,
+		action: {
+			auxlObj: 'test',
+			component: false,
+			method: 'TestMethod',
+			params: 'Sub Menu 5 Action 1',
+		},
+	},
+	button1:{
+		id: 'action2',
+		style: false,
+		title: 'Sub Menu 5 Action 2 Test',
+		description: 'A test sub menu action.',
+		subMenu: false,
+		action: {
+			auxlObj: 'playerRig',
+			component: 'locomotion',
+			method: 'toggleSpeed',
+			params: false,
+		},
+	},
+},
+
+};
+
+auxl.multiMenuTest = auxl.MultiMenu(auxl.multiMenuTestData);
+
+
+
+//
+//Pet
+auxl.Pet = (petData) => {
+
+let pet = Object.assign({}, petData);
+
+const natures = ['nature1','nature2','nature3'];
+const abilities = ['ability1', 'ability2', 'ability3'];
+const moods = ['sad', 'happy'];
+const energy = ['famished', 'hungry', 'content', 'full',];
+const full = 4;
+const maxStamina = 10;
+const xpLevels = [0, 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600]
+
+//Nature
+pet.nature = natures[Math.floor(Math.random()*natures.length)];
+//Ability
+pet.ability = natures[Math.floor(Math.random()*abilities.length)];
+//Mana
+pet.mana = Math.floor(Math.random()*5)+5;
+//Mood
+pet.mood = moods[0];
+pet.mind = 0;
+//Hunger
+pet.currHunger = 0;
+pet.hunger = energy[pet.currHunger];
+//Stamina
+pet.stamina = 2;
+//Health
+pet.clean = true;
+pet.maxHealth = 6;
+pet.currHealth = 4;
+//Level
+pet.level = 0;
+//XP
+pet.xp = 0;
+//Age
+pet.age = 0;
+//Currency
+pet.tokens = 0;
+pet.currency = 0;
+//Sleep
+pet.awake = true;
+pet.sleepCycle = false;
+//Menu
+pet.menu = 0;
+//0 : Hidden
+//1 : Main Menu
+//2 : Sub Menu
+//3 : Action
+
+
+
+const DevDisplay = (message, xIs) => {
+	if(xIs){
+		console.log(message + ' ' + pet.name + '.');
+	} else {
+		console.log(pet.name + ' ' + message + '.');
+	}
+}
+
+const SpawnPet = () => {
+	pet.core.SpawnCore();
+
+}
+
+const DespawnPet = () => {
+	pet.core.DespawnCore();
+
+}
+
+const Pet = () => {
+	DevDisplay('Petting', true);
+	pet.mind++;
+	pet.mood = moods[pet.mind];
+	DevDisplay('is ' + pet.mood, false);
+}
+
+const Feed = () => {
+	pet.currHunger++;
+	pet.hunger = energy[pet.currHunger];
+	DevDisplay( 'is ' + pet.hunger, false);
+}
+
+const Groom = () => {
+	if(pet.clean){} else {
+		pet.clean = true;
+		DevDisplay( 'is clean.', false);
+	}
+}
+
+const Play = () => {
+	if(pet.stamina > 0){
+		DevDisplay('Playing with', true);
+		pet.stamina--;
+		pet.mind++;
+	}
+}
+
+const Heal = () => {
+	if(pet.currHealth < pet.maxHealth){
+		pet.currHealth+=2;
+		DevDisplay('Healing', true);
+		if(pet.currHealth > pet.maxHealth){
+			pet.currHealth = pet.maxHealth;
+		}
+	}
+}
+
+const Quest = () => {
+	if(pet.stamina > 0){
+		DevDisplay('Questing with', false);
+		pet.stamina-=2;
+		if(Math.random()*100-pet.mana>=69){
+			DevDisplay('Completed a quest with ', true);
+			GainXP(10);
+		} else {
+			DevDisplay('Failed a quest with', true);
+		}
+	}
+}
+
+const GainXP = (xp) => {
+	pet.xp+=xp;
+	if(pet.xp >= xpLevels[pet.level]){
+		DevDisplay(' gained a level!', false);
+	}
+}
+
+const Gamble = () => {
+	if(pet.tokens > 0){
+		DevDisplay('Gambling with', false);
+		pet.tokens--;
+		if(Math.random()*100>=50){
+			pet.currency++;
+			DevDisplay(' is a winner', false);
+		}
+	}
+}
+
+const ToggleSleep = () => {
+	if(pet.awake){
+		pet.awake = false;
+		DevDisplay(' is asleep', false);
+	} else {
+		pet.awake = true;
+		DevDisplay(' is awake', false);
+	}
+}
+
+const Stats = () => {
+console.log(pet);
+}
+
+const Settings = () => {
+//Save
+//Load
+//Reset
+
+}
+
+const spawnPetMainMenu = () => {
+	
+	pet.pos = pet.core.GetEl().getAttribute('position');
+	pet.systemMenuData = {
+		id: 'systemMenu',
+		prompt: 'X - Pet Menu',
+		options: {option0: '0'},
+		actions: {action0: '0'},
+		layout: 'vertical',
+		data: auxl.menuBaseData,
+		cursorObj: pet.id,
+		method: 'mainMenuClick',
+		pos: new THREE.Vector3(pet.pos.x+1,1.5,pet.pos.z-1),
+	}
+	/*
+	let currNum = 0;
+	for(let options in systemMenuButtons){
+		pet.systemMenuData.options['option'+currNum] = systemMenuButtons[options];
+		pet.systemMenuData.actions['action'+currNum] = options;
+		currNum++;
+	}
+	*/
+	pet.systemMenu = auxl.Menu(pet.systemMenuData);
+	pet.systemMenu.SpawnMenu();
+	pet.systemMenu.AddToParentSpawnTracker(pet.systemMenu, pet);
+
+}
+
+const mainMenuClick = (el) => {
+	let result = el.getAttribute('result');
+	console.log(result);
+}
+
+return {pet, SpawnPet, DespawnPet, Pet, Feed, Groom, Play, Heal, Quest, Gamble, ToggleSleep, Stats, Settings, spawnPetMainMenu, mainMenuClick}
+
+}
+//Pet Core
+auxl.petCoreData = {
+data:'petCoreData',
+id:'petCore',
+sources: false,
+text: false,
+geometry: {primitive: 'sphere', radius: 0.5},
+material: {shader: "standard", src: auxl.pattern30, repeat: '1 1', color: "#3EB489", emissive: '#3EB489', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,1,-0.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.petCore = auxl.Core(auxl.petCoreData);
+
+auxl.pet0Data = {
+id: 'pet0',
+name: 'Minty Pet',
+core: auxl.petCore,
+};
+
+let pet0 = auxl.Pet(auxl.pet0Data);
+
+//pet0.SpawnPet();
+//pet0.Pet();
+//pet0.Feed();
+//pet0.Groom();
+//pet0.Play();
+//pet0.Heal();
+//pet0.Quest();
+//pet0.Gamble();
+//pet0.ToggleSleep();
+//pet0.Stats();
+//pet0.spawnPetMainMenu();
+/*
+Show/Hide/Back
+- Pet
+- Feed
+- - Meal
+- - Snack
+- Groom
+- Play
+- - Catch
+- - Dodge
+- - Jump
+- - Fight
+- Heal
+- Quest
+- - Adventure
+- - Battle
+- Gamble/Casino
+- - RNG 1
+- - RNG 2
+- Stats
+- - Nature
+- - Ability
+- - Mood
+- - Hunger
+- - Stamina
+- - Mana
+- - Level / XP
+- - Age
+- Settings
+- - Save
+- - Load
+- - Reset
+
+Main Button
+- Hidden : Click to show main menu
+- Display Main Menu : Click to hide menu
+- Display Sub Menu : Click to go back to main menu
+- Exit Mode : Close mode and display main menu
+*/
 
 //
 //Ghost
@@ -247,42 +780,177 @@ auxl.ghostLayerData = {
 auxl.ghost = auxl.Layer('ghost',auxl.ghostLayerData);
 
 
-
-auxl.TestObj = (id) => {
-
-	let testObj = {};
-	testObj.id = id;
-	//Cube
-	testObj.testData = {
-	data:'testData',
-	id:'test',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-	material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 1},
-	position: new THREE.Vector3(-0.5,2,-1.5),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['clickable','a-ent'],
-	components: false,
-	};
-	testObj.test = auxl.Core(testObj.testData);
-
-	const SpawnTest = () => {
-		testObj.test.SpawnCore();
-	}
-
-	const DespawnTest = () => {
-		testObj.test.DespawnCore();
-	}
-
-	return {testObj, SpawnTest, DespawnTest};
+//
+//Companion
+/*
+//Parent
+auxl.ghostParentData = {
+data:'ghostParentData',
+id:'ghostParent',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,1,-2),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0.9,0.9,0.9),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera',
+},
+};
+auxl.ghostParent = auxl.Core(auxl.ghostParentData);
+//EyeSocket
+auxl.eyeSocketData = {
+data:'eyeSocketData',
+id:'eye1Socket',
+sources: false,
+text: false,
+geometry: {primitive: 'cylinder', radius: 0.175, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#fcfafd", emissive: '#fcfafd', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(-0.15,0.1,0.4),
+rotation: new THREE.Vector3(90,0,0),
+scale: new THREE.Vector3(0.75,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Eye1Socket
+auxl.eye1Socket = auxl.Core(auxl.eyeSocketData);
+//Eye2Socket
+auxl.eyeSocketData.id = 'eye2Socket';
+auxl.eyeSocketData.position = new THREE.Vector3(0.15,0.1,0.4);
+auxl.eye2Socket = auxl.Core(auxl.eyeSocketData);
+//EyePupil
+auxl.eyePupilData = {
+data:'eyePupilData',
+id:'eye1Pupil',
+sources: false,
+text: false,
+geometry: {primitive: 'cylinder', radius: 0.1, height: 0.025, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#1500fa", emissive: '#1500fa', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0.01,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1.25,1,1),
+animations: {
+lookdown: {property: 'position', to: new THREE.Vector3(0,0.01,0.07), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookDown'},
+lookup: {property: 'position', to: new THREE.Vector3(0,0.01,-0.07), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookUp'},
+lookright: {property: 'position', to: new THREE.Vector3(0.05,0.01,0), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookRight'},
+lookleft: {property: 'position', to: new THREE.Vector3(-0.05,0.01,0), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookLeft'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Eye1Pupil
+auxl.eye1Pupil = auxl.Core(auxl.eyePupilData);
+//Eye2Pupil
+auxl.eyePupilData.id = 'eye2Pupil';
+auxl.eye2Pupil = auxl.Core(auxl.eyePupilData);
+//Mouth
+auxl.mouthData = {
+data:'mouthData',
+id:'mouth',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+visible: false,
+line:{start: new THREE.Vector3(-0.3,-0.2,0.41), end: new THREE.Vector3(-0.2,-0.15,0.41), color: 'white'},
+['line__2']:{start: new THREE.Vector3(-0.2,-0.15,0.41), end: new THREE.Vector3(-0.1,-0.2,0.41), color: 'white'},
+['line__3']:{start: new THREE.Vector3(-0.1,-0.2,0.41), end: new THREE.Vector3(0,-0.15,0.41), color: 'white'},
+['line__4']:{start: new THREE.Vector3(0,-0.15,0.41), end: new THREE.Vector3(0.1,-0.2,0.41), color: 'white'},
+['line__5']:{start: new THREE.Vector3(0.1,-0.2,0.41), end: new THREE.Vector3(0.2,-0.15,0.41), color: 'white'},
+['line__6']:{start: new THREE.Vector3(0.2,-0.15,0.41), end: new THREE.Vector3(0.3,-0.2,0.41), color: 'white'},
+},
+};
+auxl.mouth = auxl.Core(auxl.mouthData);
+//Head
+auxl.headData = {
+data:'headData',
+id:'head',
+sources: false,
+text: false,
+geometry: {primitive: 'sphere', radius: 0.4, phiStart: 0, phiLength: 180, segmentsWidth: 16, segmentsHeight: 16, thetaStart: 0, thetaLength: 180},
+material: {shader: "standard", color: "#C14B76", emissive: '#C14B76', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0.15,0),
+rotation: new THREE.Vector3(-90,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.head = auxl.Core(auxl.headData);
+//Body
+auxl.bodyData = {
+data:'bodyData',
+id:'body',
+sources: false,
+text: false,
+geometry: {primitive: 'cylinder', radius: 0.4, height: 0.3, openEnded: false, segmentsHeight: 2, segmentsRadial: 32, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#C14B76", emissive: '#C14B76', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.body = auxl.Core(auxl.bodyData);
+//Ghost Layer
+auxl.ghostLayerData = {
+	parent: {core: auxl.ghostParent}, 
+	child0: {
+		parent: {core: auxl.eye1Socket}, 
+		child0: {core: auxl.eye1Pupil}, 
+	}, 
+	child1: {
+		parent: {core: auxl.eye2Socket}, 
+		child0: {core: auxl.eye2Pupil}, 
+	}, 
+	child2: {core: auxl.mouth},
+	child3: {
+		parent: {core: auxl.spin}, 
+		child0: {core: auxl.head}, 
+		child1: {core: auxl.body}, 
+		child2: {core: auxl.leg1}, 
+		child3: {core: auxl.leg2}, 
+		child4: {core: auxl.leg3}, 
+		child5: {core: auxl.leg4}, 
+	}, 
 }
-auxl.AddObjGenToTracker('testObj', 'SpawnTest', 'DespawnTest');
+auxl.ghost = auxl.Layer('ghost',auxl.ghostLayerData);
+*/
 
-auxl.test = auxl.TestObj('test');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //
 //Cores
@@ -885,8 +1553,8 @@ auxl.zone0Data = {
 		cubeCore:{SpawnCore:null},
 	},
 	delay:{
-		15000:{
-			player:{Notification: {message:'15 seconds'}},
+		60000:{
+			player:{Notification: {message:'1 Minute'}},
 		},
 	},
 	interval:{
@@ -944,6 +1612,7 @@ auxl.zone0Scene0Data = {
 		teleport:{SpawnTeleport:null},
 		test:{SpawnTest:null},
 		ghost:{SpawnLayer:null},
+		multiMenuTest:{SpawnMultiMenu:null},
 	},
 	delay:{
 	},
