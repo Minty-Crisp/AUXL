@@ -8744,6 +8744,28 @@ events: {
 });
 
 //
+//Map Travel Support
+//Move to Node
+AFRAME.registerComponent('doorway', {
+	dependencies: ['auxl'],
+schema: {
+	zone: {type: 'string', default: 'zone0'},
+	to: {type: 'string', default: 'connect0'},
+},
+    init: function () {
+		this.auxl = document.querySelector('a-scene').systems.auxl;
+		this.zone = this.data.zone;
+		this.to = this.data.to;
+    },
+events: {
+	click: function (evt) {
+		this.auxl[this.zone].Move(this.to);
+	}
+},
+});
+
+
+//
 //Locomotion
 //Walk or Run Player in Camera Direction from Selection
 AFRAME.registerComponent('locomotion', {

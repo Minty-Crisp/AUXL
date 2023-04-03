@@ -35,7 +35,9 @@ auxl.TestObj = (id) => {
 	animations: false,
 	mixins: false,
 	classes: ['clickable','a-ent'],
-	components: false,
+	components: {
+		doorway:{zone: 'zone0', to: 'connect0'},
+	},
 	};
 	testObj.test = auxl.Core(testObj.testData);
 

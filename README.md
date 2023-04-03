@@ -63,6 +63,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - New AUXL Object : MultiMenu. Generates a navigatable menu from a core button with multiple generations of parent/child sub menus all containing actions to jump to a specific menu, run an AUXL Object Method w/Parameters or an AUXL Object Component Method w/Parameters. Button description texts are toggled on hover.
 - Added support component : menurun as well as updated clickrun, fusingrun, mousedownrun, mouseenterrun, mouseleaverun and mouseuprun to be able to run component attached methods.
 - Added GetChildEl() to layer.
+- Added doorway component that can be assigned a zone's scene connection travel point activated upon click.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
