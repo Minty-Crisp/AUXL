@@ -68,30 +68,21 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
 - Additional Control Configurations and Enhancements
-- Home Area, Widgets & Themes
-- RSS Support for Browsing Experiences, Rooms and Components
-- Load & Save Functions to Local, Cloud or Key
-- New AUXL ObjGen's Emulating Traditional Web & Game Objects
-- Scenario, Zone, Scene & Object builds via DOM components
-- 3rd Person Mode and 1st <-> 3rd POV Swapping
-- Custom and VRM Avatar Support
-- VRM Asset Support for NPC's with Animations & Reactions
 - Companion Improvements & Customizations
-- Inventory & Item System
+- Scenario, Zone, Scene & Object builds via DOM components
+- New AUXL ObjGen's Emulating Traditional Web Objects
+- Scene Layouts : Venue, Stage, Forum, Class, Meeting, Museum, Bubbles, etc...
 - Variety of Gallery Asset Designs
 - 3D Object Inspection
-- Object Notifications & Alerts
-- Scene Layouts : Venue, Stage, Forum, Class, Meeting, Museum, Bubbles, etc...
 - Endless Scene Asset Spawning
-- Quiz, Question, Polls & Feedback Form Submissions
 - Enhanced Scenary : Horizon, Foley, Weather, SkyBox, etc...
-- Quest System & Tracking
-- Fantasy Gameplay Support for Magic, Spells & Mobs
-- Integrate Physics System
-- AR Background & GPS Support
-- Multiplayer, Chat, Friend, Post & Forum System
+- VRM Asset Support for NPC's with Animations & Reactions
+- Quiz, Question, Polls & Feedback Form Submissions
+- Object Notifications & Alerts
+- Home Area, Widgets & Themes
+- RSS Support for Browsing Experiences, Rooms and Components
 - 2D/3D Creation & Editing Tools
-- Support for use with other Systems such as [Banter](bantervr.com)
+- AR Background & GPS Support
 
 # Minty Crisp ^-^ :watermelon: 
 
