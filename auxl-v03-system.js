@@ -178,6 +178,8 @@ this.events = {};
 //Environmental Settings
 //Day|Night Time Length
 this.timeInDay = 360000;
+//Collision
+this.collision = false;
 
 //
 //HTML Menu
@@ -4740,11 +4742,11 @@ this.HamMenu = (id, core) => {
 //
 //Ring of Objects
 //Randomize Set of Objects from Single in a Ring Radius
-this.ObjsGenRing = (data) => {
-	let singleGen = Object.assign({}, data);
+this.ObjsGenRing = (objRingData) => {
+	let singleGen = Object.assign({}, objRingData);
 	singleGen.inScene = false;
-	let ogData = Object.assign({}, data.objData);
-	let objData = JSON.parse(JSON.stringify(data.objData));
+	let ogData = Object.assign({}, objRingData.objData);
+	let objData = JSON.parse(JSON.stringify(objRingData.objData));
 	singleGen.all = [];
 	let posX;
 	let posY;
@@ -5357,6 +5359,879 @@ if(a === 0){
 	return {multiGen, SpawnMultiAsset, DespawnMultiAsset, ToggleSpawn, SetFlag, GetFlag}
 
 }
+
+//
+//GridAssetGen
+//Build a scene from a dual array grid of asset related ids
+this.GridAssetGen = (gridGenData) => {
+	let gridGen = Object.assign({}, gridGenData);
+	gridGen.inScene = false;
+
+	//Generate Grid Cores
+	const genCores = () => {
+
+	}
+	//Spawn all Grid Cores
+	const SpawnGrid = () => {
+		if(gridGen.inScene){}else{
+			genCores();
+			for(let a = 0; a < gridGen.total; a++){
+				gridGen.all[a].SpawnCore(false, false, true);
+			}
+			gridGen.inScene = true;
+		}
+	}
+	//Despawn all Grid Cores
+	const DespawnGrid = () => {
+		if(gridGen.inScene){
+			for(let a = 0; a < gridGen.total; a++){
+				gridGen.all[a].DespawnCore(false, false, true);
+			}
+			RemoveFromTracker(gridGen.id);
+			gridGen.inScene = false;
+		}
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(gridGen.inScene){
+			DespawnGrid();
+		} else {
+			SpawnGrid();
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			gridGen[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			gridGen[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(gridGen(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return gridGen[flag];
+		}
+	}
+
+	return {gridGen, SpawnGrid, DespawnGrid, ToggleSpawn, SetFlag, GetFlag};
+}
+
+//In-Progress
+//Blocks completed, Walls not yet
+//
+//Collision
+//Build a collision map of 0.5 meter sections 
+//Allow or Deny moving outside of collision map
+this.Collision = (gridData) => {
+	let grid = Object.assign({}, gridData);
+	grid.inScene = false;
+	//grid.id
+	//grid.mapSize
+	//grid.edgeCollide
+	//grid.spawn
+
+	grid.mapTopLeft = [];
+	grid.mapTopRight = [];
+	grid.mapBottomLeft = [];
+	grid.mapBottomRight = [];
+	grid.mapAll = [
+		grid.mapTopLeft,
+		grid.mapTopRight,
+		grid.mapBottomLeft,
+		grid.mapBottomRight,
+	];
+
+
+//Maps
+//
+//-X requires .reverse() on each inner one
+//-Z requires .reverse() on the outer set
+
+//Top Left
+//Loop 1 : -Z
+//Loop 2 : -X
+//[1,1,1,1,1,1,1,1,1,1].reverse(),
+let mapTopLeft = [ 
+[1,0,0,0,0,0,1,0,0,0].reverse(),
+[1,0,0,0,0,0,1,0,0,0].reverse(),
+[1,0,0,0,0,0,1,0,0,0].reverse(),
+[1,0,0,1,0,0,0,0,0,0].reverse(),
+[1,0,0,0,1,0,0,0,0,0].reverse(),
+[1,0,1,0,1,0,0,0,0,0].reverse(),
+[1,0,1,0,0,0,0,0,1,0].reverse(),
+[1,0,1,0,0,0,0,0,0,0].reverse(),
+[1,0,1,0,0,0,1,0,0,0].reverse(),
+[1,0,0,0,0,0,0,0,0,0].reverse()
+];
+
+//Top Right
+//Loop 1 : -Z
+//Loop 2 : +X
+let mapTopRight = [ 
+[0,0,0,0,1,0,0,0,0,1],
+[0,0,0,0,1,0,0,0,0,1],
+[0,0,1,0,0,0,1,0,0,1],
+[0,0,0,0,0,0,1,0,0,1],
+[0,0,0,0,0,0,1,0,0,1],
+[0,0,1,0,1,0,0,0,0,1],
+[0,0,1,0,0,0,0,0,1,1],
+[0,0,1,0,0,0,0,0,0,1],
+[0,0,0,1,0,0,0,0,0,1],
+[0,0,0,0,0,0,0,0,0,1]
+];
+
+//Bottom Left
+//Loop 1 : +Z
+//Loop 2 : -X
+let mapBottomLeft = [ 
+[1,0,0,0,0,0,0,0,0,0].reverse(),
+[1,0,0,0,1,0,0,0,0,0].reverse(),
+[1,0,1,0,1,0,0,0,0,0].reverse(),
+[1,0,1,0,0,0,0,0,1,0].reverse(),
+[1,0,1,0,0,0,0,0,0,0].reverse(),
+[1,0,1,0,0,0,1,0,0,0].reverse(),
+[1,0,0,0,0,0,1,0,0,0].reverse(),
+[1,0,0,0,0,0,1,0,0,0].reverse(),
+[1,0,0,1,0,0,0,0,0,0].reverse(),
+[1,1,1,1,1,1,1,1,1,1].reverse()
+];
+
+//Bottom Right
+//Loop 1 : +Z
+//Loop 2 : +X
+let mapBottomRight = [ 
+[0,0,0,0,0,0,0,0,0,1],
+[0,0,1,0,0,0,1,0,0,1],
+[0,0,0,0,0,0,1,0,0,1],
+[0,0,0,0,0,0,1,0,0,1],
+[1,0,0,1,0,0,0,0,0,1],
+[0,0,0,0,1,0,0,0,0,1],
+[1,0,1,0,1,0,0,0,0,1],
+[0,0,1,0,0,0,0,0,1,1],
+[1,0,1,0,0,0,0,0,0,1],
+[1,1,1,1,1,1,1,1,1,1]
+];
+
+//Combined Map Array
+let mapAll = [
+mapTopLeft.reverse(),
+mapTopRight.reverse(),
+mapBottomLeft,
+mapBottomRight
+];
+
+
+//
+//Basic Block Spawner
+function basicBlockSpawner(map,parentEl,quadrant) {
+
+//Loop through Z array set
+for (let i = 0; i < map.length; i++) {
+
+	//Loop through X array set
+	for (let j = 0; j < map[i].length; j++) {
+
+		//Check for non-interactable obstacles (1)
+		//Spawn Basic Blocks
+		if(map[i][j] === 1){
+			//Create block Entity
+			let block = document.createElement('a-entity');
+			//Set primitive shape
+			block.setAttribute('geometry', {primitive: 'box', width: 0.5, height: 1, depth: 0.5});
+			//Set Material
+			block.setAttribute('material', {shader: "standard", color: "#91502d", opacity: "1",});
+
+			//Add basic block class
+			block.classList.add("block");
+
+			//Set position
+			let posX;
+			let posY = 0.5;//half the height of object
+			let posZ;
+
+			if(quadrant === 'topLeft'){
+				posX = j * -1;
+				posZ = i * -1;
+			} else if(quadrant === 'topRight'){
+				posX = j;
+				posZ = i * -1;
+			} else if(quadrant === 'bottomLeft'){
+				posX = j * -1;
+				posZ = i;
+			} else if(quadrant === 'bottomRight'){
+				posX = j;
+				posZ = i;
+			}
+
+			posX /= 2;
+			posZ /= 2;
+
+			//Set Position
+			let positionVec3 = new THREE.Vector3(posX, posY, posZ);
+			block.setAttribute('position', positionVec3);
+
+			//Attach to parent entity
+			parentEl.appendChild(block);
+		   }//End Basic Block Detection
+
+	}//End X array Loop
+}//End Z array Loop
+
+}//End Basic Block Spawner
+
+//
+//Map Spawner
+function mapSpawner(map) {
+
+//Create parent identity w/ id
+let blockParent = document.createElement('a-entity');
+blockParent.setAttribute('id','blockParent');
+//Append parent entity to scene
+sceneEl.appendChild(blockParent);
+
+//Loop through mega array set
+for (let h = 0; h < map.length; h++) {
+
+	if (h === 0){
+		//Spawn Basic Blocks
+		basicBlockSpawner(map[h],blockParent,'topLeft');
+
+	} else if (h === 1){
+		//Spawn Basic Blocks
+		basicBlockSpawner(map[h],blockParent,'topRight');
+
+	} else if (h === 2){
+		//Spawn Basic Blocks
+		basicBlockSpawner(map[h],blockParent,'bottomLeft');
+
+	} else if (h === 3){
+		//Spawn Basic Blocks
+		basicBlockSpawner(map[h],blockParent,'bottomRight');
+
+	}//End if Checks
+
+}//End Multi-Map array Loop
+
+}//End Map Spawner Function
+
+//
+//Testing mapSpawner function
+mapSpawner(mapAll);
+
+	//Init blank map
+	const BuildBlankMap = () => {
+		for(let map in grid.mapAll){
+			for(let a = 0; a < grid.mapSize/2; a++){
+				grid.mapAll[map].push([]);
+				for(let b = 0; b < grid.mapSize/2; b++){
+					grid.mapAll[map][a].push(1);
+				}
+			}
+		}
+	}
+	//Reset to blank map
+	const ResetMap = () => {
+		for(let map in grid.mapAll){
+			grid.mapAll[map].fill(0,0,grid.mapSize/2);
+		}
+	}
+
+	//Update Map
+	const UpdateMap = (pos, mapKey) => {
+
+		//0.5 meter to integer grid adjustment
+		pos.x *= 2;
+		pos.z *= 2;
+
+		if(pos.x < 0 && pos.z < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			mapAll[0][pos.z * -1][pos.x * -1] = mapKey;
+		} else if(pos.x >= 0 && pos.z < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			mapAll[1][pos.z * -1][pos.x] = mapKey
+		} else if(pos.x < 0 && pos.z >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			mapAll[2][pos.z][pos.x * -1] = mapKey;
+		} else if(pos.x >= 0 && pos.z >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			mapAll[3][pos.z][pos.x] = mapKey;
+		} else {
+			console.log('Update out of bounds')
+		}
+
+	}
+
+	//Check for Map Obstacles 0.5 Meter
+	//Corners need 3 squares in L shape to completely block travel
+	const checkMapObstacles = (newPos) => {
+
+		newPos.x *= 2;
+		newPos.z *= 2;
+
+		if(newPos.x < 0 && newPos.z < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			if(mapAll[0].length > newPos.z * -1){
+				if(mapAll[0][newPos.z * -1].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(mapAll[0][newPos.z * -1][newPos.x * -1] === 0){
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			if(mapAll[1].length > newPos.z * -1){
+				if(mapAll[1][newPos.z * -1].length > newPos.x){
+					//console.log('Within Map');
+					if(mapAll[1][newPos.z * -1][newPos.x] === 0){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x < 0 && newPos.z >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			if(mapAll[2].length > newPos.z){
+				if(mapAll[2][newPos.z].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(mapAll[2][newPos.z][newPos.x * -1] === 0){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			if(mapAll[3].length > newPos.z){
+				if(mapAll[3][newPos.z].length > newPos.x){
+					if(mapAll[3][newPos.z][newPos.x] === 0){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else {
+			return false;
+		}
+	}
+
+	//Check for Map Obstacles 0.5 Meter
+	//Attempting to fix L required corners, only requiring 2 instead of 3
+	const checkMapObstaclesDiagonal = (newPos, pos) => {
+
+		newPos.x *= 2;
+		newPos.z *= 2;
+
+		pos.x *= 2;
+		pos.z *= 2;
+
+		//World direction of movement
+		if(newPos.x === pos.x && newPos.z === pos.z){
+			//console.log('Same Square')
+			travelDirection = 'same';
+		} else {
+			if(newPos.x === pos.x || newPos.z === pos.z){
+				if(newPos.x === pos.x){
+					//console.log('Forward|Backward');
+					travelDirection = 'z';
+				} else if(newPos.z === pos.z){
+					//console.log('Side to Side');
+					travelDirection = 'x';
+				}
+			} else {
+				console.log('Diagonal');
+				if(newPos.x > pos.x){
+					//Right
+					if(newPos.z > pos.z){
+						//Backward
+						travelDirection = 'reverseRight';
+					} else {
+						//Forward
+						travelDirection = 'forwardRight';
+					}
+				} else {
+					//Left
+					if(newPos.z > pos.z){
+						//Backward
+						travelDirection = 'reverseLeft';
+					} else {
+						//Forward
+						travelDirection = 'forwardLeft';
+					}
+				}
+			}
+		}
+
+
+		if(newPos.x < 0 && newPos.z < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			if(mapAll[0].length > newPos.z * -1){
+				if(mapAll[0][newPos.z * -1].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(mapAll[0][newPos.z * -1][newPos.x * -1] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)+1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			if(mapAll[1].length > newPos.z * -1){
+				if(mapAll[1][newPos.z * -1].length > newPos.x){
+					//console.log('Within Map');
+					if(mapAll[1][newPos.z * -1][newPos.x] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)+1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x < 0 && newPos.z >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			if(mapAll[2].length > newPos.z){
+				if(mapAll[2][newPos.z].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(mapAll[2][newPos.z][newPos.x * -1] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(mapAll[0][(newPos.z)+1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			if(mapAll[3].length > newPos.z){
+				if(mapAll[3][newPos.z].length > newPos.x){
+					if(mapAll[3][newPos.z][newPos.x] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(mapAll[0][newPos.z+1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//-Z
+							//+X
+							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else {
+			return false;
+		}
+	}
+
+	//Enable Collision Checks for Locomotion
+	const EnableCollision = () => {
+		auxl.collision = true;
+	}
+	//Disable Collision Checks for Locomotion
+	const DisableCollision = () => {
+		auxl.collision = false;
+	}
+
+	//Spawn Edge Collision Object
+	const SpawnEdge = () => {
+
+	}
+
+	//Despawn Edge Collision Object
+	const DespawnEdge = () => {
+
+	}
+
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			grid[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			grid[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(grid(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return grid[flag];
+		}
+	}
+
+	return {grid, BuildBlankMap, ResetMap, UpdateMap, EnableCollision, DisableCollision, checkMapObstacles, SpawnEdge, DespawnEdge, SetFlag, GetFlag};
+}
+
+//
+//Collision Map
+//Currently using a single object as a shared map that will be built, reset, rebuilt through each. But wont work well with flags, should each scene have it's own collision map or should I have an object of scenes within the map collision that flags will be saved to and read from.
+this.mapCollisionData = {
+	data: 'mapCollisionData',
+	id: 'mapCollision',
+	mapSize: 20,
+	edgeCollide: false,
+
+};
+this.mapCollision = auxl.Collision(auxl.mapCollisionData);
+this.mapCollision.BuildBlankMap();
+this.mapCollision.EnableCollision();
+
+//AUXL Object Methods
+//
+//Spawn Object w/ Collision & add to Grid Map Square or Squares
+//Spawn at center of 0.5 coords - Block : Can't move into from any squares
+//Spawn at edge of 0.5 coords - Wall/s : Can't move between connected square/s
+//Spawn off center of 0.5 coords - Wall : Can't move between connected square
+//Despawn Object w/ Collision & add to Grid Map Square or Squares
+//
+//Object moves. Update map to block space they will be moving into and once moved, clear out previous space
+//Object is interactable when user is in surrounding or specific grid square
+//Object is auto picked up when user is in specific grid square
+
+//
+//Premade Object Spawning Map
+auxl.testCoreData = {
+data:'testCore',
+id:'test',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(-1.5,2.5,-1.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+auxl.gridObjTest11Data = {
+auxlObj: auxl.objTest11Data,
+mapKeyId: 101,
+size: 1,
+single: true,
+collision: true,
+interactable: false,
+moveable: false,
+walls: false,
+offset: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+
+};
+
+this.mapSpawnData = {
+	data: 'mapSpawnData',
+	id: 'mapCollision',
+	mapSize: 20,
+	edgeCollide: false,
+	spawn: '6 6',//xz coords
+	map:[
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	],
+
+};
 
 //
 //Teleport
@@ -8768,17 +9643,22 @@ events: {
 //
 //Locomotion
 //Walk or Run Player in Camera Direction from Selection
+//Free or Grid Movement w/ Collision Support
 AFRAME.registerComponent('locomotion', {
 dependencies: ['auxl'],
 schema: {
 	uiid: {type: 'string', default: 'ui'},
 	courserid: {type: 'string', default: 'mouseCursor'},
 	movetype: {type: 'string', default: 'vr'},
+	style: {type: 'string', default: 'free'},
 },
 init: function () {
 	//AUXL System Connection
-	const auxl = document.querySelector('a-scene').systems.auxl;
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	//Free Locomotion
 	this.everySomeThrottled = AFRAME.utils.throttle(this.everySome, 30, this);
+	//Grid Locomotion
+	this.everyStepThrottled = AFRAME.utils.throttle(this.everyStep, 400, this);
 
 	//Schema Imoprt
 	//
@@ -8790,6 +9670,10 @@ init: function () {
 	}
 	//Movement Type
 	this.movetype = this.data.movetype;
+
+	//Free or Grid Locomotion Style
+	this.style = this.data.style;
+
 
 	//
 	//Band Controller Support
@@ -8811,6 +9695,11 @@ init: function () {
 	this.quaternion = new THREE.Quaternion();
 	this.vector;
 	this.angle;
+	//Collision
+	this.posRound = new THREE.Vector3();
+	this.newPosRound = new THREE.Vector3();
+	this.mapX;
+	this.mapZ;
 
 	//Attach to Player Support
 	this.elPosVec3New = new THREE.Vector3();
@@ -8836,12 +9725,29 @@ init: function () {
 	this.brakeReady = true;
 	this.brakeToggle = false;
 	this.brakeReset; //Delay
-	this.moveSpeedDefault = 0.075;
-	this.moveSpeedSlow = 0.03;
+
+	//Free Locomotion Support
+	this.moveSpeedDefault;
+	this.moveSpeedSlow;
+
+	//Grid Locomotion Support
+	this.gridForwardTimeout;
+	this.gridReverseTimeout;
+	this.gridLeftTimeout;
+	this.gridRightTimeout;
+	this.gridMove = false;
+	//Movement is always 1 meter, so speed is in ms
+	this.gridSpeed = 400;
+
 
 },
 //Move Forward
+roundHalf: function (num){
+    return Math.round(num*2)/2;
+},
+//Move Forward
 movingForward: function (){
+	clearTimeout(this.gridForwardTimeout);
 	if(this.moveTo){}else{
 		this.moveTo = true;
 	}
@@ -8849,11 +9755,22 @@ movingForward: function (){
 //Cancel Forward
 cancelForward: function (){
 	if(this.moveTo){
-		this.moveTo = false;
+		if(this.style === 'grid'){
+			if(this.gridMove){
+				this.moveTo = false;
+			} else {
+				this.gridForwardTimeout = setTimeout(() => {
+					this.moveTo = false;
+				}, this.gridSpeed/1.25);
+			}
+		} else {
+			this.moveTo = false;
+		}
 	}
 },
 //Move Reverse
 movingReverse: function (){
+	clearTimeout(this.gridReverseTimeout);
 	if(this.moveBack){}else{
 		this.moveBack = true;
 	}
@@ -8861,11 +9778,22 @@ movingReverse: function (){
 //Cancel Reverse
 cancelReverse: function (){
 	if(this.moveBack){
-		this.moveBack = false;
+		if(this.style === 'grid'){
+			if(this.gridMove){
+				this.moveBack = false;
+			} else {
+				this.gridReverseTimeout = setTimeout(() => {
+					this.moveBack = false;
+				}, this.gridSpeed/1.25);
+			}
+		} else {
+			this.moveBack = false;
+		}
 	}
 },
 //Move Left
 movingLeft: function (){
+	clearTimeout(this.gridLeftTimeout);
 	if(this.moveLeft){}else{
 		this.moveLeft = true;
 	}
@@ -8873,11 +9801,22 @@ movingLeft: function (){
 //Cancel Left
 cancelLeft: function (){
 	if(this.moveLeft){
-		this.moveLeft = false;
+		if(this.style === 'grid'){
+			if(this.gridMove){
+				this.moveLeft = false;
+			} else {
+				this.gridLeftTimeout = setTimeout(() => {
+					this.moveLeft = false;
+				}, this.gridSpeed/1.25);
+			}
+		} else {
+			this.moveLeft = false;
+		}
 	}
 },
 //Move Right
 movingRight: function (){
+	clearTimeout(this.gridRightTimeout);
 	if(this.moveRight){}else{
 		this.moveRight = true;
 	}
@@ -8885,7 +9824,17 @@ movingRight: function (){
 //Cancel Right
 cancelRight: function (){
 	if(this.moveRight){
-		this.moveRight = false;
+		if(this.style === 'grid'){
+			if(this.gridMove){
+				this.moveRight = false;
+			} else {
+				this.gridRightTimeout = setTimeout(() => {
+					this.moveRight = false;
+				}, this.gridSpeed/1.25);
+			}
+		} else {
+			this.moveRight = false;
+		}
 	}
 },
 //Clear All Movement
@@ -8894,6 +9843,17 @@ clearMovement: function (){
 	this.cancelReverse();
 	this.cancelLeft();
 	this.cancelRight();
+},
+//Clear All Grid Movement
+clearGridMovement: function (){
+	this.moveTo = false;
+	this.moveBack = false;
+	this.moveLeft = false;
+	this.moveRight = false;
+	clearTimeout(this.gridForwardTimeout);
+	clearTimeout(this.gridReverseTimeout);
+	clearTimeout(this.gridLeftTimeout);
+	clearTimeout(this.gridRightTimeout);
 },
 //Toggle Speed Change
 toggleSpeed: function (){
@@ -8905,6 +9865,9 @@ toggleSpeed: function (){
 			this.brakeReady = false;
 			//Brake On
 			this.moveBrake = true;
+			//Slower Grid Move
+			this.gridSpeed = 400;
+			this.everyStepThrottled = AFRAME.utils.throttle(this.everyStep, this.gridSpeed, this);
 		} else {
 			//Set reset switch toggle
 			this.brakeToggle = true;
@@ -8912,6 +9875,9 @@ toggleSpeed: function (){
 			this.brakeReady = false;
 			//Brake Off
 			this.moveBrake = false;
+			//Faster Grid Move
+			this.gridSpeed = 200;
+			this.everyStepThrottled = AFRAME.utils.throttle(this.everyStep, this.gridSpeed, this);
 		}
 		this.brakeReset = setTimeout(() => {
 			//Set reset switch toggle
@@ -8970,6 +9936,7 @@ hoverLocomotion: function (e) {
 		}
 	}
 },
+//Update
 update: function () {
 	//Locomotion Support
 	//Brake Engaged by Default
@@ -8981,8 +9948,17 @@ update: function () {
 	this.brakeReady = true;
 	this.brakeToggle = false;
 	this.brakeReset; //Delay
-	this.moveSpeedDefault = 0.075;
-	this.moveSpeedSlow = 0.03;
+	this.moveSpeedDefault = 0.15;
+	this.moveSpeedSlow = 0.075;
+
+	//Grid Locomotion Support
+	this.gridForwardTimeout;
+	this.gridReverseTimeout;
+	this.gridLeftTimeout;
+	this.gridRightTimeout;
+	this.gridMove = false;
+	//Movement is always 1 meter, so speed is in ms
+	this.gridSpeed = 500;
 
 	//Schema Imoprt
 	//
@@ -9028,6 +10004,7 @@ update: function () {
 		});
 	}
 },
+//Remove
 remove: function () {
 	if(this.movetype === 'desktop'){
 		//Controlled by Universal Controls
@@ -9048,7 +10025,7 @@ remove: function () {
 		});
 	}
 },
-//Listen for Directions
+//Free Locomotion Tick
 everySome: function (time, timeDelta) {
 	if(this.moveBrake){
 		if(this.moveTo && this.moveRight) {
@@ -9088,8 +10065,42 @@ everySome: function (time, timeDelta) {
 		}
 	}
 },
+//Grid Locomotion Tick
+everyStep: function (time, timeDelta) {
+	if(this.moveTo || this.moveBack || this.moveRight || this.moveLeft){
+		if(this.gridMove){} else {
+			this.gridMove = true;
+		}
+	} else {
+		this.gridMove = false;
+	}
+	if(this.moveTo && this.moveRight) {
+		this.walk('forwardRight', 0.5);
+	} else if(this.moveTo && this.moveLeft) {
+		this.walk('forwardLeft', 0.5);
+	} else if(this.moveBack && this.moveRight) {
+		this.walk('reverseRight', 0.5);
+	} else if(this.moveBack && this.moveLeft) {
+		this.walk('reverseLeft', 0.5);
+	} else if(this.moveTo) {
+		this.walk('forward', 0.5);
+	} else if(this.moveBack) {
+		this.walk('reverse', 0.5);
+	} else if(this.moveRight) {
+		this.walk('right', 0.5);
+	} else if(this.moveLeft) {
+		this.walk('left', 0.5);
+	}
+
+},
 tick: function (time, timeDelta) {
-	this.everySomeThrottled();
+	//Locomotion Type
+	if(this.style === 'free'){
+		this.everySomeThrottled();
+	} else if(this.style === 'grid'){
+		this.everyStepThrottled();
+	}
+
 	//Sync Belt
 	if(this.movetype === 'vrHover'){
 		this.uiSync();
@@ -9106,7 +10117,7 @@ uiSync: function () {
 	//No Offsets as UI Parent is at 0 0 0
 	this.ui.object3D.position.copy(this.elPosVec3New);
 },
-//Walk in Direction of Camera
+//Free Walk in Direction of Camera
 walk: function (action, speed) {
 	this.velocity = speed;
 	this.cameraVector = new THREE.Vector3();
@@ -9281,7 +10292,23 @@ walk: function (action, speed) {
 		}
 	}
 	this.positionNew.y = this.positionPlayer.y;
-	this.player.object3D.position.copy(this.positionNew);
+
+	//Collision Enabled or Not
+	if(this.auxl.collision){
+		//Locomotion with Collision every 0.5 meter
+		this.newPosRound.x = this.roundHalf(this.positionNew.x);
+		this.newPosRound.z = this.roundHalf(this.positionNew.z);
+		this.posRound.x = this.roundHalf(this.positionPlayer.x);
+		this.posRound.z = this.roundHalf(this.positionPlayer.z);
+
+		//Check for Obstacles
+		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
+			this.player.object3D.position.copy(this.positionNew);
+		}
+	} else {
+		//Free Locomotion No Collision
+		this.player.object3D.position.copy(this.positionNew);
+	}
 },
 //Camera Direction to Spawn Assets In - Unused Currently
 userDirection: function (){

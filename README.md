@@ -64,6 +64,8 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Added support component : menurun as well as updated clickrun, fusingrun, mousedownrun, mouseenterrun, mouseleaverun and mouseuprun to be able to run component attached methods.
 - Added GetChildEl() to layer.
 - Added doorway component that can be assigned a zone's scene connection travel point activated upon click.
+- Added grid movement support to Locomotion component
+- Premade & Dynamic Collision Map Spawning in Progress
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
