@@ -52,13 +52,18 @@ this.jsAll = {
 ['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',
 //threeGradShader: 'https://unpkg.com/@tlaukkan/aframe-three-color-gradient-shader@0.0.1/index.js',//Shaders needs it's own checker
 };
+//Controls
+this.universalControls;
+this.controls = 'Desktop';
+this.vrHand = 'bothRight';
+//Joystick Movement Configurations : 1,4,8
+this.joystickLoco = 8;
+
+
 //Menu
 this.menuOpen = true;
 this.infoOpen = false;
 this.audioEnabled = false;
-this.universalControls;
-this.controls = 'Desktop';
-this.vrHand = 'bothRight';
 this.mobilePermissionGranted = false;
 //Object Tracking
 this.spawned = {};
@@ -9673,6 +9678,11 @@ init: function () {
 
 	//Free or Grid Locomotion Style
 	this.style = this.data.style;
+	//XZFree
+	//XZGrid
+	//XYFree
+	//XYGrid
+	//Sphere
 
 
 	//
@@ -10715,11 +10725,11 @@ init: function () {
 //Action 1 - Button X, Key Q, HTML A
 //Action 2 - Button Y, Key E, HTML B
 //Action 3 - Button A, Key R, HTML C
-//Action 4 - Button B, Key C, HTML D
-//Action 5 - Other Joystick Down, Key V, HTML E
-//Action 6 - Other Joystick Up, Key B, HTML F
-//Snap Left - Other Joystick Left, Key Z, HTML <-
-//Snap Right - Other Joystick Right, Key X, HTML ->
+//Action 4 - Button B, Key T, HTML D
+//Action 5 - Other Joystick Down, Key C, HTML E
+//Action 6 - Other Joystick Up, Key V, HTML F
+//Action 7 - Other Joystick Left, Key Z, HTML <-
+//Action 8 - Other Joystick Right, Key X, HTML ->
 
 this.aScene = document.querySelector('a-scene');
 this.auxl = document.querySelector('a-scene').systems.auxl;
@@ -10729,7 +10739,7 @@ this.locomotion;
 this.vrController1;
 this.vrController2;
 
-//Remappable Controls
+//Remappable Desktop Controls
 this.controls = {
 directionForwardKeys: ['w','W','ArrowUp'],
 directionLeftKeys: ['a','A','ArrowLeft'],
@@ -10738,11 +10748,11 @@ directionRightKeys: ['d','D','ArrowRight'],
 action1Keys: ['q','Q'],
 action2Keys: ['e','E'],
 action3Keys: ['r','R'],
-action4Keys: ['c','C'],
-action5Keys: ['v','V'],
-action6Keys: ['b','B'],
-snapLeftKeys: ['z','Z'],
-snapRightKeys: ['x','X'],
+action4Keys: ['t','T'],
+action5Keys: ['c','C'],
+action6Keys: ['v','V'],
+action7Keys: ['z','Z'],
+action8Keys: ['x','X'],
 };
 
 //Mobile HTML Buttons
@@ -10757,14 +10767,14 @@ this.mobileDown = document.getElementById('down');
 this.mobileDownRight = document.getElementById('downRight');
 this.mobileSelect = document.getElementById('select');
 this.mobileStart = document.getElementById('start');
-this.mobileSnapLeft = document.getElementById('snapLeft');
-this.mobileSnapRight = document.getElementById('snapRight');
 this.mobileA = document.getElementById('a');
 this.mobileB = document.getElementById('b');
 this.mobileC = document.getElementById('c');
 this.mobileD = document.getElementById('d');
 this.mobileE = document.getElementById('e');
 this.mobileF = document.getElementById('f');
+this.mobileL = document.getElementById('l');
+this.mobileR = document.getElementById('r');
 
 //Customizable Action Controls
 this.altDownFunc = false;
@@ -10795,6 +10805,14 @@ this.action6DownFunc = false;
 this.action6DownParams = false;
 this.action6UpFunc = false;
 this.action6UpParams = false;
+this.action7DownFunc = false;
+this.action7DownParams = false;
+this.action7UpFunc = false;
+this.action7UpParams = false;
+this.action8DownFunc = false;
+this.action8DownParams = false;
+this.action8UpFunc = false;
+this.action8UpParams = false;
 
 //
 //Control Events
@@ -10868,6 +10886,20 @@ this.action6Event = new CustomEvent('action6', {
 	bubbles: false,
 	cancelable: true,
 	detail: this.action6EventDetail,
+});
+//Action 7
+this.action7EventDetail = {info: 'Action 7', action: null};
+this.action7Event = new CustomEvent('action7', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action7EventDetail,
+});
+//Action 8
+this.action8EventDetail = {info: 'Action 8', action: null};
+this.action8Event = new CustomEvent('action8', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action8EventDetail,
 });
 
 //Main Click
@@ -11060,6 +11092,30 @@ this.action6Up = () => {
 	this.action6EventDetail.action = 'action6Release';
 	document.dispatchEvent(this.action6Event);
 }
+//Action 7
+this.action7Hit = (e) => {
+	this.action7(e);
+}
+this.action7Down = () => {
+	this.action7EventDetail.action = 'action7Hit';
+	document.dispatchEvent(this.action7Event);
+}
+this.action7Up = () => {
+	this.action7EventDetail.action = 'action7Release';
+	document.dispatchEvent(this.action7Event);
+}
+//Action 8
+this.action8Hit = (e) => {
+	this.action8(e);
+}
+this.action8Down = () => {
+	this.action8EventDetail.action = 'action8Hit';
+	document.dispatchEvent(this.action8Event);
+}
+this.action8Up = () => {
+	this.action8EventDetail.action = 'action8Release';
+	document.dispatchEvent(this.action8Event);
+}
 
 //
 //Keyboard Events
@@ -11100,7 +11156,13 @@ this.questLeftAltClickUp = () => {
 }
 //Joystick
 this.questJoystickLocomotionEvent = (e) => {
-	this.questJoystickLocomotion(e);
+	if(auxl.joystickOther === 1){
+		//this.questJoystick1Locomotion(e);
+	} else if(auxl.joystickOther === 4){
+		this.questJoystick4Locomotion(e);
+	} else if(auxl.joystickOther === 8){
+		this.questJoystick8Locomotion(e);
+	}
 }
 //Locomotion Joystick
 this.deadzoneLoco = 0.1;
@@ -11130,7 +11192,7 @@ this.questRightAltClickUp = () => {
 }
 //Joystick
 this.questJoystickOtherEvent = (e) => {
-	this.questJoystickOther(e);
+	this.questJoystick4Other(e);
 }
 //Other Joystick
 this.deadzoneOther = 0.1;
@@ -11138,14 +11200,6 @@ this.xNumOther = 0;
 this.yNumOther = 0;
 this.angleOther = 0;
 this.angleDegOther = 0;
-
-//Snap Turning
-this.snapLeftHit = (e) => {
-	this.snapLeft();
-}
-this.snapRightHit = (e) => {
-	this.snapRight();
-}
 
     },
 //Dev Input Display
@@ -11210,6 +11264,18 @@ updateAction: function (actionObj){
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
 			actionParams = 'action6UpParams';
+		} else if(action === 'action7Down'){
+			actionFunc = 'action7DownFunc';
+			actionParams = 'action7DownParams';
+		} else if(action === 'action7Up'){
+			actionFunc = 'action7UpFunc';
+			actionParams = 'action7UpParams';
+		} else if(action === 'action8Down'){
+			actionFunc = 'action8DownFunc';
+			actionParams = 'action8DownParams';
+		} else if(action === 'action8Up'){
+			actionFunc = 'action8UpFunc';
+			actionParams = 'action8UpParams';
 		} else {
 			console.log('Failed to identify action')
 			return;
@@ -11292,6 +11358,12 @@ disableAction: function (actionObj){
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
 			actionParams = 'action6UpParams';
+		} else if(action === 'action7Up'){
+			actionFunc = 'action7UpFunc';
+			actionParams = 'action7UpParams';
+		} else if(action === 'action8Up'){
+			actionFunc = 'action8UpFunc';
+			actionParams = 'action8UpParams';
 		} else {
 			console.log('Failed to identify action')
 			return;
@@ -11486,6 +11558,50 @@ action6: function (e){
 		}
 	}
 },
+//Action 7
+action7: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	if(e.detail.action === 'action7Hit'){
+		if(this.action7DownFunc){
+			if(this.action7DownParams){
+				this.action7DownFunc(this.action7DownParams);
+			} else {
+				this.action7DownFunc();
+			}
+		}
+	} else if(e.detail.action === 'action7Release'){
+		if(this.action7UpFunc){
+			if(this.action7UpParams){
+				this.action7UpFunc(this.action7UpParams);
+			} else {
+				this.action7UpFunc();
+			}
+		}
+	}
+},
+//Action 8
+action8: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	if(e.detail.action === 'action8Hit'){
+		if(this.action8DownFunc){
+			if(this.action8DownParams){
+				this.action8DownFunc(this.action8DownParams);
+			} else {
+				this.action8DownFunc();
+			}
+		}
+	} else if(e.detail.action === 'action8Release'){
+		if(this.action8UpFunc){
+			if(this.action8UpParams){
+				this.action8UpFunc(this.action8UpParams);
+			} else {
+				this.action8UpFunc();
+			}
+		}
+	}
+},
 //Keyboard Controls
 keyboardDown: function (e){
 	if(this.controls.directionForwardKeys.includes(e.key)) {
@@ -11518,12 +11634,12 @@ keyboardDown: function (e){
 	} else if(this.controls.action6Keys.includes(e.key)){
 		//Action 6
 		this.action6Down();
-	} else if(this.controls.snapLeftKeys.includes(e.key)){
-		//Snap Left
-		this.snapLeftHit();
-	} else if(this.controls.snapRightKeys.includes(e.key)){
-		//Snap Right
-		this.snapRightHit();
+	} else if(this.controls.action7Keys.includes(e.key)){
+		//Action 7
+		this.action7Down();
+	} else if(this.controls.action8Keys.includes(e.key)){
+		//Action 8
+		this.action8Down();
 	}
 
 },
@@ -11558,10 +11674,57 @@ keyboardUp: function (e){
 	} else if(this.controls.action6Keys.includes(e.key)){
 		//Action 6
 		this.action6Up();
+	} else if(this.controls.action7Keys.includes(e.key)){
+		//Action 7
+		this.action7Up();
+	} else if(this.controls.action8Keys.includes(e.key)){
+		//Action 8
+		this.action8Up();
 	}
 },
-//Joystick Locomotion
-questJoystickLocomotion: function (e){
+//Joystick 4 Locomotion
+questJoystick4Locomotion: function (e){
+	//Update this.locomotion.func into this.directionEvent
+	this.xNumLoco = e.detail.x;
+	this.yNumLoco = e.detail.y;
+	this.angleLoco = Math.atan2(this.xNumLoco,this.yNumLoco);
+	function radToDeg(rad) {
+	  return rad / (Math.PI / 180);
+	}
+	this.angleDegLoco = radToDeg(this.angleLoco);
+
+	if(this.yNumLoco < this.deadzoneLoco && this.yNumLoco > this.deadzoneLoco*-1 && this.xNumLoco > this.deadzoneLoco*-1 && this.xNumLoco < this.deadzoneLoco){
+		this.locomotion.clearMovement();
+		this.updateInput('Locomotion Clear');
+	} else if(this.yNumLoco > this.deadzoneLoco || this.yNumLoco < this.deadzoneLoco*-1 || this.xNumLoco < this.deadzoneLoco*-1 || this.xNumLoco > this.deadzoneLoco) {
+		if(this.angleDegLoco > -45 && this.angleDegLoco < 45){
+			//Backward : -45 -> 45
+			this.locomotion.clearMovement();
+			this.locomotion.movingReverse();
+			//this.updateInput('Backward');
+		} else if(this.angleDegLoco > 45 && this.angleDegLoco < 135){
+			//Right : 45 -> 135
+			this.locomotion.clearMovement();
+			this.locomotion.movingRight();
+			//this.updateInput('Right');
+		} else if(this.angleDegLoco > 135 || this.angleDegLoco < -135){
+			//Forward : 135 -> 180 or -135 -> -180
+			this.locomotion.clearMovement();
+			this.locomotion.movingForward();
+			//this.updateInput('Forward');
+		} else if(this.angleDegLoco < -45 && this.angleDegLoco > -135){
+			//Left : -45 -> -135
+			this.locomotion.clearMovement();
+			this.locomotion.movingLeft();
+			//this.updateInput('Left');
+		}
+	} else {
+		this.locomotion.clearMovement();
+		//this.updateInput('Locomotion Clear');
+	}
+},
+//Joystick 8 Locomotion
+questJoystick8Locomotion: function (e){
 	//Update this.locomotion.func into this.directionEvent
 	this.xNumLoco = e.detail.x;
 	this.yNumLoco = e.detail.y;
@@ -11579,62 +11742,54 @@ questJoystickLocomotion: function (e){
 			//Backward : -22.5 -> 22.5
 			this.locomotion.clearMovement();
 			this.locomotion.movingReverse();
-			this.updateInput('Backward');
+			//this.updateInput('Backward');
 		} else if(this.angleDegLoco > 22.5 && this.angleDegLoco < 67.5){
 			//BackwardRight : 22.5 -> 67.5
 			this.locomotion.clearMovement();
 			this.locomotion.movingReverse();
 			this.locomotion.movingRight();
-			this.updateInput('Backward Right');
+			//this.updateInput('Backward Right');
 		} else if(this.angleDegLoco > 67.5 && this.angleDegLoco < 112.5){
 			//Right : 67.5 -> 112.5
 			this.locomotion.clearMovement();
 			this.locomotion.movingRight();
-			this.updateInput('Right');
+			//this.updateInput('Right');
 		} else if(this.angleDegLoco > 112.5 && this.angleDegLoco < 157.5){
 			//ForwardRight : 112.5 -> 157.5
 			this.locomotion.clearMovement();
 			this.locomotion.movingForward();
 			this.locomotion.movingRight();
-			this.updateInput('Forward Right');
+			//this.updateInput('Forward Right');
 		} else if(this.angleDegLoco > 157.5 || this.angleDegLoco < -157.5){
 			//Forward : 157.5 -> 180 or -157.5 -> -180
 			this.locomotion.clearMovement();
 			this.locomotion.movingForward();
-			this.updateInput('Forward');
+			//this.updateInput('Forward');
 		} else if(this.angleDegLoco < -112.5 && this.angleDegLoco > -157.5){
 			//ForwardLeft: -112.5 -> -157.5
 			this.locomotion.clearMovement();
 			this.locomotion.movingForward();
 			this.locomotion.movingLeft();
-			this.updateInput('Forward Left');
+			//this.updateInput('Forward Left');
 		} else if(this.angleDegLoco < -67.5 && this.angleDegLoco > -112.5){
 			//Left : -67.5 -> -112.5
 			this.locomotion.clearMovement();
 			this.locomotion.movingLeft();
-			this.updateInput('Left');
+			//this.updateInput('Left');
 		} else if(this.angleDegLoco < -22.5 && this.angleDegLoco > -67.5){
 			//BackwardLeft: -22.5 -> -67.5 
 			this.locomotion.clearMovement();
 			this.locomotion.movingReverse();
 			this.locomotion.movingLeft();
-			this.updateInput('Backward Left');
+			//this.updateInput('Backward Left');
 		}
 	} else {
 		this.locomotion.clearMovement();
-		this.updateInput('Locomotion Clear');
+		//this.updateInput('Locomotion Clear');
 	}
 },
-//Snap Turning Left
-snapLeft: function (){
-	this.auxl.player.SnapLeft();
-},
-//Snap Turning Right
-snapRight: function (){
-	this.auxl.player.SnapRight();
-},
-//Joystick Other
-questJoystickOther: function (e){
+//Joystick 4 Other
+questJoystick4Other: function (e){
 	this.xNumOther = e.detail.x;
 	this.yNumOther = e.detail.y;
 	this.angleOther = Math.atan2(this.xNumOther,this.yNumOther);
@@ -11646,41 +11801,27 @@ questJoystickOther: function (e){
 	if(this.yNumOther < this.deadzoneOther && this.yNumOther > this.deadzone*-1 && this.xNumOther > this.deadzoneOther*-1 && this.xNumOther < this.deadzoneOther){
 		this.updateInput('Rotation|Duck Clear');
 	} else if(this.yNumOther > this.deadzoneOther || this.yNumOther < this.deadzoneOther*-1 || this.xNumOther < this.deadzoneOther*-1 || this.xNumOther > this.deadzoneOther) {
-		if(this.angleDegOther > -22.5 && this.angleDegOther < 22.5){
-			//Backward : -22.5 -> 22.5
-			this.updateInput('Duck');
+		if(this.angleDegOther > -45 && this.angleDegOther < 45){
+			//Backward : -45 -> 45
+			//this.updateInput('Duck');
 			this.action5Down();
-		} else if(this.angleDegOther > 22.5 && this.angleDegOther < 67.5){
-			//BackwardRight : 22.5 -> 67.5
-			this.updateInput('Rotate Right');
-			this.snapRightHit();
-		} else if(this.angleDegOther > 67.5 && this.angleDegOther < 112.5){
-			//Right : 67.5 -> 112.5
-			this.updateInput('Rotate Right');
-			this.snapRightHit();
-		} else if(this.angleDegOther > 112.5 && this.angleDegOther < 157.5){
-			//ForwardRight : 112.5 -> 157.5
-			this.updateInput('Rotate Right');
-			this.snapRightHit();
-		} else if(this.angleDegOther > 157.5 || this.angleDegOther < -157.5){
-			//Forward : 157.5 -> 180 or -157.5 -> -180
-			this.updateInput('Stand');
+		} else if(this.angleDegOther > 45 && this.angleDegOther < 135){
+			//Right : 45 -> 135
+			//this.updateInput('Rotate Right');
+			//this.snapRightHit();
+			this.action7Down();
+		} else if(this.angleDegOther > 135 || this.angleDegOther < -135){
+			//Forward : 135 -> 180 or -135 -> -180
+			//this.updateInput('Stand');
 			this.action6Down();
-		} else if(this.angleDegOther < -112.5 && this.angleDegOther > -157.5){
-			//ForwardLeft: -112.5 -> -157.5
-			this.updateInput('Rotate Left');
-			this.snapLeftHit();
-		} else if(this.angleDegOther < -67.5 && this.angleDegOther > -112.5){
-			//Left : -67.5 -> -112.5
-			this.updateInput('Rotate Left');
-			this.snapLeftHit();
-		} else if(this.angleDegOther < -22.5 && this.angleDegOther > -67.5){
-			//BackwardLeft: -22.5 -> -67.5 
-			this.updateInput('Rotate Left');
-			this.snapLeftHit();
+		} else if(this.angleDegOther < -45 && this.angleDegOther > -135){
+			//Left : -45 -> -135
+			//this.updateInput('Rotate Left');
+			//this.snapLeftHit();
+			this.action8Down();
 		}
 	} else {
-		this.updateInput('Rotation|Duck Clear');
+		//this.updateInput('Rotation|Duck Clear');
 	}
 },
 //Temp Blank
@@ -11701,12 +11842,25 @@ update: function () {
 	document.addEventListener('action4', this.action4Hit);
 	document.addEventListener('action5', this.action5Hit);
 	document.addEventListener('action6', this.action6Hit);
+	document.addEventListener('action7', this.action7Hit);
+	document.addEventListener('action8', this.action8Hit);
 
 	//Desktop
 	document.addEventListener('click', this.mainClickE);
 	document.addEventListener('contextmenu', this.dispatchAlt);
 	document.addEventListener('keydown', this.keyboardDownHit);
 	document.addEventListener('keyup', this.keyboardUpHit);
+
+	//Joystick
+	this.questJoystickLocomotionEvent = (e) => {
+		if(auxl.joystickOther === 1){
+			//this.questJoystick1Locomotion(e);
+		} else if(auxl.joystickOther === 4){
+			this.questJoystick4Locomotion(e);
+		} else if(auxl.joystickOther === 8){
+			this.questJoystick8Locomotion(e);
+		}
+	}
 
 //Allow elements to spawn before grabbing/assigning
 let initTimeout = setTimeout(() => {
@@ -11789,10 +11943,6 @@ let initTimeout = setTimeout(() => {
 	//this.mobileSelect.addEventListener('touchend', this.blankHit);
 	this.mobileStart.addEventListener('touchstart', this.blankHit);
 	//this.mobileStart.addEventListener('touchend', this.blankHit);
-	this.mobileSnapLeft.addEventListener('touchstart', this.snapLeftHit);
-	//this.mobileSnapLeft.addEventListener('touchend', this.blankHit);
-	this.mobileSnapRight.addEventListener('touchstart', this.snapRightHit);
-	//this.mobileSnapRight.addEventListener('touchend', this.blankHit);
 	this.mobileA.addEventListener('touchstart', this.action1Down);
 	this.mobileA.addEventListener('touchend', this.action1Up);
 	this.mobileB.addEventListener('touchstart', this.action2Down);
@@ -11805,6 +11955,11 @@ let initTimeout = setTimeout(() => {
 	this.mobileE.addEventListener('touchend', this.action5Up);
 	this.mobileF.addEventListener('touchstart', this.action6Down);
 	this.mobileF.addEventListener('touchend', this.action6Up);
+	this.mobileL.addEventListener('touchstart', this.action7Down);
+	this.mobileL.addEventListener('touchend', this.action7Up);
+	this.mobileR.addEventListener('touchstart', this.action8Down);
+	this.mobileR.addEventListener('touchend', this.action8Up);
+
 
 	//document.addEventListener('mousedown', this.mainClickDown);
 	//document.addEventListener('mouseup', this.mainClickUp);
@@ -11836,7 +11991,8 @@ remove: function () {
 	document.removeEventListener('action4', this.action4Hit);
 	document.removeEventListener('action5', this.action5Hit);
 	document.removeEventListener('action6', this.action6Hit);
-
+	document.removeEventListener('action7', this.action7Hit);
+	document.removeEventListener('action8', this.action8Hit);
 	//Desktop
 	document.removeEventListener('click', this.mainClickE);
 	document.removeEventListener('contextmenu', this.dispatchAlt);
@@ -11897,10 +12053,6 @@ remove: function () {
 	//this.mobileSelect.removeEventListener('mouseup', this.blankHit);
 	this.mobileStart.removeEventListener('mousedown', this.blankHit);
 	//this.mobileStart.removeEventListener('mouseup', this.blankHit);
-	this.mobileSnapLeft.removeEventListener('mousedown', this.snapLeftHit);
-	//this.mobileSnapLeft.removeEventListener('mouseup', this.blankHit);
-	this.mobileSnapRight.removeEventListener('mousedown', this.snapRightHit);
-	//this.mobileSnapRight.removeEventListener('mouseup', this.blankHit);
 	this.mobileA.removeEventListener('mousedown', this.action1Down);
 	this.mobileA.removeEventListener('mouseup', this.action1Up);
 	this.mobileB.removeEventListener('mousedown', this.action2Down);
@@ -11913,7 +12065,10 @@ remove: function () {
 	this.mobileE.removeEventListener('mouseup', this.action5Up);
 	this.mobileF.removeEventListener('mousedown', this.action6Down);
 	this.mobileF.removeEventListener('mouseup', this.action6Up);
-
+	this.mobileL.removeEventListener('touchstart', this.action7Down);
+	this.mobileL.removeEventListener('touchend', this.action7Up);
+	this.mobileR.removeEventListener('touchstart', this.action8Down);
+	this.mobileR.removeEventListener('touchend', this.action8Up);
 },
 });
 

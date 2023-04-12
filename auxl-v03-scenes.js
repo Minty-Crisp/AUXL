@@ -1507,6 +1507,8 @@ auxl.v03ScenesData = {
 		action4Down:{auxlObj: 'player', func: 'ToggleSittingMode'},
 		action5Down:{auxlObj: 'player', func: 'ToggleCrouch'},
 		action6Down:{auxlObj: 'player', func: 'ToggleSittingMode'},
+		action7Down:{auxlObj: 'player', func: 'SnapLeft'},
+		action8Down:{auxlObj: 'player', func: 'SnapRight'},
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
