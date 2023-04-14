@@ -1477,6 +1477,28 @@ auxl.npcKeyPage1Data = {
 		self: {ResetBook: true},
 	},
 };
+auxl.npcKeyIdleData = {
+	info:{
+		id:'npcKeyIdleData',
+		description:'A basic example of a NPC Idle Speech.',
+		tags:'npc',
+		nextPage: null,
+		prevPage: null,
+		timeline:'linear',
+	},
+	timeline0:{
+		self:{Speak:{speech:'Yo ho ho ho and a bottle of rum for me...'}},
+	},
+	timeline1:{
+		self:{Speak:{speech:'Ooh a piece of candy!'}},
+	},
+	timeline1:{
+		self:{Speak:{speech:'Nom nom nom nom.....'}},
+	},
+	timeline3:{
+		self: {IdleReset: true},
+	},
+};
 auxl.npcKeyBookData = {
 	info:{
 		id:'npcKeyGiver',
@@ -1484,9 +1506,14 @@ auxl.npcKeyBookData = {
 		description:'A basic example of a NPC giving a Key.',
 		tags:'npc',
 		timeline: 'linear',
+		idleDelay: 7000,
+		idleInterval: 10000,
 	},
 	pages:{
 		page0: auxl.npcKeyPage1Data,
+	},
+	idle:{
+		page0: auxl.npcKeyIdleData,
 	},
 };
 auxl.npcKeyBody = auxl.Core(auxl.npcKeyBodyData);

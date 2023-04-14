@@ -72,6 +72,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - NPC's Book now accepts new Info key 'name' to be displayed with Speak() method if the 'role' key is omitted or labeled as 'self'.
 - Reduced Notification TempDisableClick time.
 - Added a minimum load time to scene instruction reading to ensure that all items that require downloading are added in complete to the auxl.loadingObjects object before logic checks.
+- NPC now spawns Book's SpeechBubble on initial mouseover unless Idle Speech is configured. Added Idle Speech autoplay support with customizable delay, interval and IdlePage instructions. Idle Speech is swapped out for regular Pages on interaction.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates

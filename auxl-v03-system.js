@@ -4170,6 +4170,79 @@ this.Book = (core, npc) => {
 	};
 	//Init Yield Gen Book
 	let book = bookReader(core);
+	//Yield Timeline
+	function* idleLineReader(book,time){
+		for(let line in time){
+			//Ignore Page Data
+			if(line === 'id' || line === 'description' ||line === 'tags' ||line === 'nextPage' ||line === 'prevPage' ||line === 'timeline'){
+				//page data only
+			} else if(line === 'pureFunction'){
+				//pure functions
+				//not object generated methods
+				//Need a good check condition for this.func() and not this.obj.func()
+				auxl[line](time[line])
+			} else {
+				for(let a in time[line]){
+					auxlObjMethod(line,a,time[line][a]);
+				}
+			}
+		}
+		yield;
+	}
+	//Yield Time
+	function* idleTimeReader(book,page){
+		for(let time in page){
+			book.currentTimeline = time;
+			book.timelineQue.push([time,page[time]]);
+			//Skip|Ignore Data til timeline# reach if jumping
+			if(time === core.jumpTo){
+				core.jumping = false;
+			}
+			if(core.jumping){}else{
+				yield* idleLineReader(book, page[time]);
+			}
+		}
+	}
+	//Yield Page
+	function* idlePageReader(book){
+		for(let page in book.idle){
+			book.currentPage = page;
+			book.pageQue.push([page,book.idle[page]]);
+			yield* idleTimeReader(book, book.idle[page]);
+		}
+	}
+	//Yield Book
+	function* idleBookReader(book){
+		book.currentPage = 0;
+		book.currentTimeline = 0;
+		book.currentEntry = 0;
+		book.currentDialog = 0;
+		book.pageQue = [];
+		book.timelineQue = [];
+		book.entryQue = [];
+		book.textBubbleQue = [];
+		book.speaker = '';
+		book.speaking = false;
+		book.jumping = false;
+		book.jumpTo;
+		book.selectJumpMenu;
+		//Book Info & Contents
+		//for(let setting in book.info){
+			//console.log(setting);
+			//console.log(book.info[setting]);
+			//Book Info
+			//id
+			//description
+			//tags
+		//};
+
+		//Start reading Pages
+		yield* idlePageReader(book);
+	};
+	let idle;
+	if(core.idle){
+		idle = idleBookReader(core);
+	}
 	//Read Book Timeline
 	function readTimeline({page,time}){
 		for(let line in core.pages[page][time]){
@@ -4188,6 +4261,15 @@ this.Book = (core, npc) => {
 	const Next = () => {
 		book.done = book.next().done;
 		if(book.done){
+			//console.log('All Done!');
+		} else {
+			//console.log('Continue...')
+		}
+	}
+	//Next Idle Yield
+	const IdleNext = () => {
+		idle.done = idle.next().done;
+		if(idle.done){
 			//console.log('All Done!');
 		} else {
 			//console.log('Continue...')
@@ -4225,7 +4307,7 @@ this.Book = (core, npc) => {
 		npc.GetEl().classList.toggle('clickable', false);
 	}
 
-	return {core, book, Next, Jump, SelectJump, readTimeline};
+	return {core, book, Next, IdleNext, Jump, SelectJump, readTimeline};
 }
 
 //
@@ -4331,6 +4413,9 @@ this.NPC = (core, bookData, textDisplay) => {
 	let npc = Object.assign({}, core);
 	npc.id = npc.core.id;
 	npc.inScene = false;
+	npc.speaking = false;
+	npc.idle = false;
+	npc.idleSpeech = false;
 	if(bookData.info.name){
 		npc.name = bookData.info.name;
 	} else {
@@ -4339,7 +4424,17 @@ this.NPC = (core, bookData, textDisplay) => {
 	let bubble = Object.assign({}, textDisplay);
 	let book;
 	let text = auxl.SpeechSystem(bubble);
+
+	//Idle
+	if(bookData.idle){
+		npc.idleSpeech = true;
+	}
+	let idleTimeout;
+	let idleDelayTime = bookData.info.idleDelay || 7000;
+	let idleInterval;
+	let idleIntervalTime = bookData.info.idleInterval || 10000;
 	let menuTimeout;
+
 
 	//Spawn NPC, Reset Book & Start Speaking
 	const SpawnNPC = () => {
@@ -4347,13 +4442,25 @@ this.NPC = (core, bookData, textDisplay) => {
 			//Reset book on each spawn
 			book = auxl.Book(bookData, npc);
 			npc.SpawnCore(false,false,true);
-			EnableSpeech();
+			npc.GetEl().addEventListener('mouseenter', EnableSpeech);
+			if(npc.idleSpeech){
+				idleTimeout = setTimeout(() => {
+					EnableIdleSpeech()
+					clearTimeout(idleTimeout);
+				}, idleDelayTime);
+			}
 			npc.inScene = true;
 		}
 	}
 	//Despawn NPC
 	const DespawnNPC = () => {
 		if(npc.inScene){
+			if(npc.speaking){
+				npc.GetEl().removeEventListener('mouseenter', NextPage);
+				npc.GetEl().removeEventListener('click', ResetBook);
+			} else {
+				npc.GetEl().removeEventListener('mouseenter', EnableSpeech);
+			}
 			ClearBookSpawn();
 			DisableSpeech();
 			npc.DespawnCore(false,false,true);
@@ -4376,6 +4483,12 @@ this.NPC = (core, bookData, textDisplay) => {
 	}
 	//Prep & Start NPC Speaking
 	const EnableSpeech = () => {
+		if(npc.idle){
+			DisableIdleSpeech();
+		}
+		clearTimeout(idleTimeout);
+		npc.speaking = true;
+		npc.GetEl().removeEventListener('mouseenter', EnableSpeech);
 		text.Start();
 		npc.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}})
 		//Jump over Info to Timeline0
@@ -4389,6 +4502,23 @@ this.NPC = (core, bookData, textDisplay) => {
 		text.KillStop();
 		npc.GetEl().removeEventListener('mouseenter', NextPage);
 		npc.GetEl().removeEventListener('click', ResetBook);
+	}
+	//Prep & Start NPC Speaking
+	const EnableIdleSpeech = () => {
+		npc.idle = true;
+		text.Start();
+		npc.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}})
+		//Jump over Info to Timeline0
+		IdleNext();
+		IdleNext();
+		idleInterval = setInterval(() => {
+			IdleNext();
+		}, idleIntervalTime);
+	}
+	//Disable NPC Speaking
+	const DisableIdleSpeech = () => {
+		clearInterval(idleInterval);
+		npc.idle = false;
 	}
 	//NPC Speaking
 	const Speak = ({role,speech}) => {
@@ -4419,6 +4549,26 @@ this.NPC = (core, bookData, textDisplay) => {
 			book = auxl.Book(bookData, npc);
 			NextPage();
 			NextPage();
+		}
+	}
+	//NPC Book Next Item
+	const IdleNext = () => {
+		//Prevent pushing next speech until current is over or skipped to end
+		if(text.core.on){
+			if(text.core.speaking){} else {
+				book.IdleNext()
+			}
+		} else {
+			book.IdleNext()
+		}
+	}
+	//Reset NPC Book
+	const IdleReset = (force) => {
+		if(book.book.done || force){
+			ClearBookSpawn();
+			book = auxl.Book(bookData, npc);
+			IdleNext();
+			IdleNext();
 		}
 	}
 	//NPC Book Jump Menu Click
@@ -4512,7 +4662,7 @@ this.NPC = (core, bookData, textDisplay) => {
 		}
 	}
 
-return {npc, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, Speak, NextPage, ResetBook, Click, Jump, SelectJump, auxlObjMethod, IfElse, SetFlag, GetFlag}
+return {npc, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextPage, ResetBook, IdleNext, IdleReset, Click, Jump, SelectJump, auxlObjMethod, IfElse, SetFlag, GetFlag}
 }
 
 //
