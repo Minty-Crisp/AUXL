@@ -1011,6 +1011,25 @@ auxl.floorData = {
 };
 auxl.floor = auxl.Core(auxl.floorData);
 
+auxl.floor1Data = {
+	data:'floor1Data',
+	id:'floor1',
+	sources:false,
+	text: false,
+	geometry: false,
+	material: {shader: "standard", color: "#1caed1", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#1caed1", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '150 150'},
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent', 'clickable'],
+	components: {
+	['obj-model']:{obj: './assets/3d/land/floor1.obj'},
+	},
+};
+auxl.floor1 = auxl.Core(auxl.floor1Data);
+
 //Ceiling
 auxl.indoorCeilingData = {
 	data:'indoorCeilingData',
@@ -1441,26 +1460,27 @@ auxl.npcKeyPage1Data = {
 		timeline:'linear',
 	},
 	timeline0:{
-		npcKeyGiver:{IfElse: {npcKeyGiver:{cond: 'zone1Key',
+		self:{IfElse: {self:{cond: 'zone1Key',
 		ifTrue: {
-			npcKeyGiver:{Speak:{role: 'Ham', speech:'Did you find where the Key goes?'}, Jump: {timeline: 'timeline2'},},
+			self:{Speak:{speech:'Did you find where the Key goes?'}, Jump: {timeline: 'timeline2'},},
 		},ifFalse: {
-			npcKeyGiver:{Speak:{role: 'Ham', speech:'I found this key, but I don\'t know what it is used for. Would you like it?'}},},}}},
+			self:{Speak:{role: '???', speech:'I found this key, but I don\'t know what it is used for. Would you like it?'}},},}}},
 	},
 	timeline1:{
-		npcKeyGiver:{Speak:{role: 'Ham', speech:'Here you go!'}, SetFlag: {flag: 'zone1Key', value: true}},
+		self:{Speak:{speech:'Here you go!'}, SetFlag: {flag: 'zone1Key', value: true}},
 		player:{AddToInventory: 'zone1Key'},
 	},
 	timeline2:{
-		npcKeyGiver:{Speak:{role: 'Ham', speech:'Good luck finding where it goes!'}},
+		self:{Speak:{speech:'Good luck finding where it goes!'}},
 	},
 	timeline3:{
-		npcKeyGiver: {ResetBook: true},
+		self: {ResetBook: true},
 	},
 };
 auxl.npcKeyBookData = {
 	info:{
-		id:'npcKeyBook',
+		id:'npcKeyGiver',
+		name: 'Key Giver',
 		description:'A basic example of a NPC giving a Key.',
 		tags:'npc',
 		timeline: 'linear',
@@ -1501,9 +1521,13 @@ auxl.v03ScenesData = {
 		instructions: 'A scenario testing the new features and functionality of the A-Frame UX Library engine v0.3.',
 	},
 	controls:{
-		action1Down:{auxlObj: 'player', func: 'TestFunc', params: {test1: 1, test2: 2}},
-		action2Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
-		action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn',},
+		//action1Down:{auxlObj: 'player', func: 'TestFunc', params: {test1: 1, test2: 2}},
+		action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'movingUp'},
+		action1Up:{auxlObj: 'playerRig', component: 'locomotion', func: 'cancelUp'},
+		action2Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'movingDown'},
+		action2Up:{auxlObj: 'playerRig', component: 'locomotion', func: 'cancelDown'},
+		action3Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
+		//action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn',},
 		action4Down:{auxlObj: 'player', func: 'ToggleSittingMode'},
 		action5Down:{auxlObj: 'player', func: 'ToggleCrouch'},
 		action6Down:{auxlObj: 'player', func: 'ToggleSittingMode'},

@@ -64,8 +64,12 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Added support component : menurun as well as updated clickrun, fusingrun, mousedownrun, mouseenterrun, mouseleaverun and mouseuprun to be able to run component attached methods.
 - Added GetChildEl() to layer.
 - Added doorway component that can be assigned a zone's scene connection travel point activated upon click.
+- Added new customizable Action 7 and Action 8 to Joystick Other Left/Right, Desktop Keys Z/X and Mobile Buttons Left/Right.
 - Added grid movement support to Locomotion component
+- Additional Locomotion Types in Progress
 - Premade & Dynamic Collision Map Spawning in Progress
+- NPC's Page instructions now accept the keyword 'self' which will run said instructions on the NPC reading it.
+- NPC's Book now accepts new Info key 'name' to be displayed with Speak() method if the 'role' key is omitted or labeled as 'self'.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
