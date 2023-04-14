@@ -44,6 +44,7 @@ this.expStarted = false;
 this.defaultScenario;
 //Throttled Scene Loading Function
 this.checkSceneLoadThrottled = AFRAME.utils.throttle(this.checkSceneLoad, 30, this);
+this.sceneReading = false;
 this.loadingScene = false;
 this.loadingObjects = new Map();
 this.jsLoaded = {};
@@ -1740,7 +1741,7 @@ this.Player = (layer) => {
 	}
 	//Display Camera UI Notification
 	const Notification = (notificationInfo) => {
-		displayTime = notificationInfo.time || 3750;
+		displayTime = notificationInfo.time || 2750;
 		TempDisableClick(displayTime);
 		auxl.cameraUI.ChangeSelf({property: 'text', value: {value: notificationInfo.message, width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold", side: 'double', opacity: 0},});
 		auxl.cameraUI.ChangeSelf({property: 'visible', value: 'true'});
@@ -2528,6 +2529,9 @@ this.SceneNode = (sceneData) => {
 	//Scene Text Support
 	let textBubble = auxl.Core(this.sceneTextData);
 	let sceneText = auxl.SpeechSystem(textBubble);
+	//Minimum Scene Loading Timeout
+	let loadTimeout;
+	let minLoadTime = 400;
 	//If/Else support to run auxlObjMethod()
 	const IfElse = (objRef, condObj,{cond, ifTrue, ifFalse}) => {
 		if(auxl[condObj].GetFlag){
@@ -2822,6 +2826,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 	}
 	//NodeScene Start
 	const StartScene = () => {
+		auxl.sceneReading = true;
 		Start();
 		Delay();
 		Interval();
@@ -2829,6 +2834,11 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		Interaction();
 		AddControls();
 		sceneTextDisplay();
+		loadTimeout = setTimeout(() => {
+			auxl.sceneReading = false;
+			clearTimeout(loadTimeout);
+		}, minLoadTime);
+
 	}
 	//Scene Text Support
 	const sceneTextDisplay = () => {
@@ -7610,9 +7620,12 @@ checkSceneLoad: function (time, timeDelta) {
 //AUXL Tick - Running Throttled checkSceneLoad()
 tick: function (time, timeDelta) {
 	if(this.loadingScene){
-		//Run Throttled checkSceneLoad()
-		this.checkSceneLoadThrottled();
+		//Run Throttled checkSceneLoad() after scene was read
+		if(this.sceneReading){} else {
+			this.checkSceneLoadThrottled();
+		}
 	}
+
 },
 
 });

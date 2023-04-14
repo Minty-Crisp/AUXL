@@ -1143,7 +1143,7 @@ auxl.basicRingData = {
 	ranRotY: true,
 	ranRotZ: true,
 	ranColor: true,
-	ranTexture: false,
+	ranTexture: true,
 };
 auxl.basicRing = auxl.ObjsGenRing(auxl.basicRingData);
 

@@ -70,6 +70,8 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Premade & Dynamic Collision Map Spawning in Progress
 - NPC's Page instructions now accept the keyword 'self' which will run said instructions on the NPC reading it.
 - NPC's Book now accepts new Info key 'name' to be displayed with Speak() method if the 'role' key is omitted or labeled as 'self'.
+- Reduced Notification TempDisableClick time.
+- Added a minimum load time to scene instruction reading to ensure that all items that require downloading are added in complete to the auxl.loadingObjects object before logic checks.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
