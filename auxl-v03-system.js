@@ -4086,6 +4086,7 @@ this.Horizon = (horizonData) => {
 //Story Book
 //Linear, Tree, Quests, Jump, Menu, Conditionals, Flags...
 this.Book = (core, npc) => {
+	let progress = 0;
 	//Run Object Generator Function within Book w/Scene Tracking
 	const auxlObjMethod = (object, func, params) => {
 		if(object === 'self'){
@@ -4115,6 +4116,10 @@ this.Book = (core, npc) => {
 					auxlObjMethod(line,a,time[line][a]);
 				}
 			}
+		}
+		progress++;
+		if(progress >= Object.keys(book.pages.page0).length-1){
+			npc.bookEnd = true;
 		}
 		yield;
 	}
@@ -4155,6 +4160,8 @@ this.Book = (core, npc) => {
 		book.jumping = false;
 		book.jumpTo;
 		book.selectJumpMenu;
+		progress = 0;
+		npc.bookEnd = false;
 		//Book Info & Contents
 		//for(let setting in book.info){
 			//console.log(setting);
@@ -4313,9 +4320,12 @@ this.Book = (core, npc) => {
 //
 //Speech System
 //Speaking Textbubble
-this.SpeechSystem = (core) => {
+this.SpeechSystem = (core, npc) => {
 	core.on = false;
 	core.speaking = false;
+	core.blinking = false;
+	core.blinkText0 = '';
+	core.blinkText1 = '';
 	core.textDisplayInterval;
 	//Start Textbubble
 	const Start = () => {
@@ -4339,9 +4349,16 @@ this.SpeechSystem = (core) => {
 		clearInterval(auxl.intervals[core.core.id]);
 		delete auxl.intervals[core.core.id];
 	}
+	//Kill Blink
+	const KillBlink = () => {
+		core.blinking = false;
+		clearInterval(auxl.intervals[core.core.id+'blink']);
+		delete auxl.intervals[core.core.id+'blink'];
+	}
 	//Kill Speech & Stop Textbuble
 	const KillStop = () => {
 		Kill();
+		KillBlink();
 		Stop();
 	}
 	//Change Textbubble - Single or Array
@@ -4356,6 +4373,7 @@ this.SpeechSystem = (core) => {
 	}
 	//Speaking Controls
 	const DisplaySpeech = ({role,speech}) => {
+		KillBlink();
 		let startText = role + ' : ';
 		let currText = startText;
 		let currChar = 0;
@@ -4366,12 +4384,23 @@ this.SpeechSystem = (core) => {
 			core.GetEl().setAttribute('text',{value: startText + speech});
 			core.speaking = false;
 			Kill();
+			if(core.blink){
+				core.blinkText0 = startText + speech;
+				core.blinkText1 = startText + speech;
+				if(npc.bookEnd){
+					core.blinkNextText = ' X';
+				} else {
+					core.blinkNextText = ' ->';
+				}
+				core.blinkText1 += core.blinkNextText;
+				Blink();
+			}
 			core.GetEl().removeEventListener('skip',skipText);
 		}
 		core.GetEl().addEventListener('skip', skipText);
 
 		AddToTimeIntEvtTracker({name: 'textDisplayInterval', type: 'interval', id: core.core.id});
-		auxl.intervals[core.core.id] = setInterval(function() {
+		auxl.intervals[core.core.id] = setInterval(() => {
 			//Interval Functions
 			if(currChar < speech.length){
 				currText += speech[currChar];
@@ -4379,13 +4408,37 @@ this.SpeechSystem = (core) => {
 			}
 			if(currChar >= speech.length){
 				core.speaking = false;
-				Kill();
 				core.GetEl().removeEventListener('skip',skipText);
+				Kill();
+				if(core.blink){
+					core.blinkText0 = currText;
+					core.blinkText1 = currText;
+					if(npc.bookEnd){
+						core.blinkNextText = ' X';
+					} else {
+						core.blinkNextText = ' ->';
+					}
+					core.blinkText1 += core.blinkNextText;
+					Blink();
+				}
 			}
 			if(core.on){
 				core.GetEl().setAttribute('text',{value: currText});
 			}
 		}, 20);
+	}
+	//Blink
+	const Blink = () => {
+		AddToTimeIntEvtTracker({name: 'blinkDisplayInterval', type: 'interval', id: core.core.id});
+		auxl.intervals[core.core.id+'blink'] = setInterval(() => {
+			if(core.blinking){
+				core.GetEl().setAttribute('text',{value: core.blinkText1});
+				core.blinking = false;
+			} else {
+				core.GetEl().setAttribute('text',{value: core.blinkText0});
+				core.blinking = true;
+			}
+		}, 1000);
 	}
 	//Add Textbubble Timeout, Interval, Interaction & Events to Tracker
 	const AddToTimeIntEvtTracker = ({name,type,id,method,params}) => {
@@ -4414,6 +4467,7 @@ this.NPC = (core, bookData, textDisplay) => {
 	npc.id = npc.core.id;
 	npc.inScene = false;
 	npc.speaking = false;
+	npc.bookEnd = false;
 	npc.idle = false;
 	npc.idleSpeech = false;
 	if(bookData.info.name){
@@ -4422,8 +4476,9 @@ this.NPC = (core, bookData, textDisplay) => {
 		npc.name = npc.id;
 	}
 	let bubble = Object.assign({}, textDisplay);
+	bubble.blink = true;
 	let book;
-	let text = auxl.SpeechSystem(bubble);
+	let text = auxl.SpeechSystem(bubble, npc);
 
 	//Idle
 	if(bookData.idle){

@@ -1462,7 +1462,7 @@ auxl.npcKeyPage1Data = {
 	timeline0:{
 		self:{IfElse: {self:{cond: 'zone1Key',
 		ifTrue: {
-			self:{Speak:{speech:'Did you find where the Key goes?'}, Jump: {timeline: 'timeline2'},},
+			self:{Speak:{speech:'Did you find where the Key goes?'}, Jump: {timeline: 'timeline3'},},
 		},ifFalse: {
 			self:{Speak:{role: '???', speech:'I found this key, but I don\'t know what it is used for. Would you like it?'}},},}}},
 	},

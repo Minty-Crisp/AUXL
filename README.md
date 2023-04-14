@@ -73,6 +73,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Reduced Notification TempDisableClick time.
 - Added a minimum load time to scene instruction reading to ensure that all items that require downloading are added in complete to the auxl.loadingObjects object before logic checks.
 - NPC now spawns Book's SpeechBubble on initial mouseover unless Idle Speech is configured. Added Idle Speech autoplay support with customizable delay, interval and IdlePage instructions. Idle Speech is swapped out for regular Pages on interaction.
+- NPC speech now displays a blinking indicator to prompt additional interaction for next slide or to restart book.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
