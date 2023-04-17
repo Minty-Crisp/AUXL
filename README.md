@@ -74,6 +74,15 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Added a minimum load time to scene instruction reading to ensure that all items that require downloading are added in complete to the auxl.loadingObjects object before logic checks.
 - NPC now spawns Book's SpeechBubble on initial mouseover unless Idle Speech is configured. Added Idle Speech autoplay support with customizable delay, interval and IdlePage instructions. Idle Speech is swapped out for regular Pages on interaction.
 - NPC speech now displays a blinking indicator to prompt additional interaction for next slide or to restart book.
+- Companion now uses a mutli-menu Main Menu with settings such as Travel to Scenes, Toggle FlashLight, Toggle Sit/Stand Mode, Change Scene Transition Type, Change Teleport Transition Type and Change Transition Color.
+- Zone's can now define if the basic Travel menu will display. Travel menu will always update in Companion Menu and other objects aka Doorways can be configured for Travel as well.
+- Updated Spawn/DespawnCore and Spawn/DespawnLayer. Layer's can now be attached to a Parent entity via AUXL.object, entity or element ID.
+- Multi-Menu Updates
+- - Fixed an issue with how actions were being added.
+- - Dynamically update a subMenu with UpdateSubMenu() method.
+- - Parent can now be dynamically updated via the method UpdateParent().
+- - Actions can now control how the menu reacts on click whether to stay open, goBack a menu or close.
+- - Can now be configured to 'stare' at an object with look-at-xyz component providing the id and which axis x,y and/or z angles.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
