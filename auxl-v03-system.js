@@ -5346,6 +5346,26 @@ this.HamMenu = (id, core) => {
 	- Sound Settings *
 	*/
 
+	//Emotions
+
+	//Normal
+	//Talking
+	//Happy
+	//Sad
+	//Suprised
+	//Angry
+	//Annoyed
+	//Confused
+	//Smug
+	//Sleepy
+	//Blushing
+	//Anticipation
+	//Guilty
+	//Winking
+	//Sigh
+
+	//Blinking
+
 
 	//Emoti Prep
 	let speechIntervalB;
@@ -7466,15 +7486,21 @@ text: false,
 geometry: {primitive: 'sphere', radius: 0.4},
 material: {shader: "standard", color: "#c1664b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#c1664b", emissiveIntensity: 0.6},
 position: new THREE.Vector3(0,2,-2),
-rotation: new THREE.Vector3(0,90,0),
+rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent'],
-components: false,
+classes: ['a-ent', 'clickable'],
+components: {
+hovertext:{
+value: 'Testing testing testing',
+offset: 1,
+},
+},
 };
 auxl.testAttach = auxl.Core(auxl.testAttachData);
 auxl.testAttach.SpawnCore();
+
 
 auxl.testParentData = {
 data:'testParentData',
@@ -7491,7 +7517,7 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-auxl.testParent = auxl.Core(auxl.testParentData);
+//auxl.testParent = auxl.Core(auxl.testParentData);
 
 auxl.testChildData = {
 data:'testChildData',
@@ -7505,8 +7531,13 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent'],
-components: false,
+classes: ['a-ent','clickable'],
+components: {
+hovertext:{
+value: 'CHILD CHILD CHILD',
+offset: 1,
+},
+},
 };
 auxl.testChild = auxl.Core(auxl.testChildData);
 
@@ -7516,23 +7547,7 @@ auxl.testLayerData = {
 }
 auxl.testLayer = auxl.Layer('testLayer', auxl.testLayerData);
 
-//auxl.testLayer.SpawnLayer(auxl.testAttach.GetEl());
-//auxl.testLayer.SpawnLayer('testAttach');
-//auxl.testLayer.SpawnLayer(testAttach);
-auxl.testLayer.SpawnLayer(auxl.testAttach);
-//auxl.testLayer.SpawnLayer();
-
-//console.log(testAttach);//entity
-//console.log(testAttach.id);//entity
-//console.log(auxl.testAttach.GetEl());//entity
-//console.log('testAttach');//string
-//console.log(auxl.testAttach);//core
-
-
-//pass in entity
-//pass in core
-//pass in id string
-
+//auxl.testLayer.SpawnLayer(auxl.testAttach);
 
 
 //
@@ -9634,6 +9649,22 @@ components: false,
 };
 
 //
+//Hover Text Template
+auxl.hoverTextData = {
+data:'hoverTextData',
+id:'hoverText',
+text: {value:'Text', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+position: new THREE.Vector3(0,0,0.1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.hoverText = auxl.Core(auxl.hoverTextData);
+
+//
 //Hamburger Menu Companion
 auxl.hamCompData = {
 data:'HAM',
@@ -11103,6 +11134,41 @@ events: {
 },
 });
 
+//
+//Display Text Description on Hover
+//Could make each core have the ability to configure a hover text just like detail text and then use mouseenterrun/mouseleaverun
+//Otherwise need to fix despawning on multiple objects
+AFRAME.registerComponent('hovertext', {
+	dependencies: ['auxl'],
+schema: {
+	value: {type: 'string', default: 'TEXT'},
+	offset: {type: 'number', default: 1},
+	x: {type: 'bool', default: false},
+	y: {type: 'bool', default: true},
+	z: {type: 'bool', default: false},
+},
+    init: function () {
+		this.auxl = document.querySelector('a-scene').systems.auxl;
+		this.value = this.data.value;
+		this.offset = this.data.offset;
+		this.x = this.data.x;
+		this.y = this.data.y;
+		this.z = this.data.z;
+    },
+events: {
+	mouseenter: function (evt) {
+		this.auxl.hoverText.core.text.value = this.value;
+		this.auxl.hoverText.core.position = new THREE.Vector3(0,0,this.offset);
+		this.auxl.hoverText.core.components = {};
+		this.auxl.hoverText.core.components['look-at-xyz'] = {match: 'camera', x:this.x, y:this.y, z:this.z};
+
+		this.auxl.hoverText.SpawnCore(this.el)
+	},
+	mouseleave: function (evt) {
+		this.auxl.hoverText.DespawnCore()
+	},
+},
+});
 
 //
 //Locomotion
