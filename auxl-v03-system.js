@@ -2806,7 +2806,6 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 				spawnTracker(object, 'node');
 			}
 		}
-		console.log(object)
 		auxl[object][func](params);
 	}
 	//Read NodeScene Data Timeline
