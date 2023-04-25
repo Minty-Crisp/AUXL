@@ -7,8 +7,9 @@
 
 //AUXL v0.3 Beta - System
 
-//auxl
-//AUXL System : System, ObjGens & Support Functions
+//
+//AUXL System
+//Main System, ObjGens & Support Functions
 AFRAME.registerSystem('auxl', {
 init: function () {
 // System
@@ -39,7 +40,7 @@ let vrController1UI;
 let vrController2;
 let vrController2UI;
 //System
-let auxl = this;
+const auxl = this;
 this.expStarted = false;
 this.defaultScenario;
 //Throttled Scene Loading Function
@@ -2131,7 +2132,6 @@ this.Player = (layer) => {
 	return {layer, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft, ToggleFlashlight, TestFunc}
 }
 
-
 //
 //Menu
 //Single Menu | Vertical/Horizontal
@@ -2713,6 +2713,514 @@ if(multiMenu.layout === 'circle'){
 	}
 
 	return {multiMenu, SpawnMultiMenu, DespawnMultiMenu, ToggleMenu, UpdateParent, UpdateSubMenu, SubMenu, ResetMenu, SpawnDescription, DespawnDescription};
+}
+
+//
+//Ham Companion
+//System Menu & Inventory
+this.HamMenu = (id, core) => {
+	let ham = Object.assign({}, core);
+	ham.id = id;
+	ham.inScene = false;
+	ham.systemOpen = false;
+	ham.travelSettingsOpen = false;
+	ham.sceneSettingsOpen = false;
+	ham.show = false;
+	ham.pos = auxl.playerRig.GetEl().getAttribute('position');
+	//
+	//Main Menu
+	ham.mainMenuData = {
+	info:{
+		id: 'mainMenu',
+		buttonData: auxl.menuCylinderData,
+		hoverData: auxl.menuHoverData,
+		title: 'Main Menu',
+		description: 'Main menu for travel, system and settings.',
+		layout:'circle',
+		offset: -1,
+		parent: ham.id,
+		stare: false,
+	},
+	menu0:{
+		button0:{
+			id: 'subMenu1',
+			style: false,
+			title: 'Travel to',
+			description: 'Select your next travel destination.',
+			subMenu: 'menu1',
+			action: false,
+		},
+		button1:{
+			id: 'subMenu2',
+			style: false,
+			title: 'Tools',
+			description: 'Enable/Disable player tools.',
+			subMenu: 'menu2',
+			action: false,
+		},
+		button2:{
+			id: 'subMenu3',
+			style: false,
+			title: 'Settings',
+			description: 'Configure system settings.',
+			subMenu: 'menu3',
+			action: false,
+		},
+	},
+	menu1:{
+		button0:{
+			id: 'subMenu4',
+			style: false,
+			title: 'Sub Menu 4 Test',
+			description: 'A test sub menu.',
+			subMenu: 'menu4',
+			action: false,
+		},
+		button1:{
+			id: 'subMenu5',
+			style: false,
+			title: 'Sub Menu 5 Test',
+			description: 'A test sub menu.',
+			subMenu: 'menu5',
+			action: false,
+		},
+	},
+	menu2:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Toggle Flashlight',
+			description: 'Turn On/Off your flashlight.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'ToggleFlashlight',
+				params: null,
+				menu: 'close',
+			},
+		},
+	},
+	menu3:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Sit/Stand Toggle',
+			description: 'Toggle between sitting or standing mode.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'ToggleSittingMode',
+				params: null,
+				menu: 'stay',
+			},
+		},
+		button1:{
+			id: 'subMenu4',
+			style: false,
+			title: 'Scene Transition Type',
+			description: 'Change the scene transition animation style.',
+			subMenu: 'menu4',
+			action: false,
+		},
+		button2:{
+			id: 'subMenu5',
+			style: false,
+			title: 'Teleport Transition Type',
+			description: 'Change the teleport transition animation style.',
+			subMenu: 'menu5',
+			action: false,
+		},
+		button3:{
+			id: 'subMenu6',
+			style: false,
+			title: 'Transition Color',
+			description: 'Change the transition animation color.',
+			subMenu: 'menu6',
+			action: false,
+		},
+	},
+	menu4:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Instant',
+			description: 'Disable animation.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateSceneTransitionStyle',
+				params: 'instant',
+				menu: 'goBack',
+			},
+		},
+		button1:{
+			id: 'action2',
+			style: false,
+			title: 'Blink',
+			description: 'Blink in and out in between scenes.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateSceneTransitionStyle',
+				params: 'blink',
+				menu: 'goBack',
+			},
+		},
+		button2:{
+			id: 'action3',
+			style: false,
+			title: 'Fade',
+			description: 'Fade in and out in between scenes.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateSceneTransitionStyle',
+				params: 'fade',
+				menu: 'goBack',
+			},
+		},
+		button3:{
+			id: 'action4',
+			style: false,
+			title: 'Sphere',
+			description: 'Close and open a sphere in between scenes.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateSceneTransitionStyle',
+				params: 'sphere',
+				menu: 'goBack',
+			},
+		},
+	},
+	menu5:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Instant',
+			description: 'Disable animation.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateTeleportTransitionStyle',
+				params: 'instant',
+				menu: 'goBack',
+			},
+		},
+		button1:{
+			id: 'action2',
+			style: false,
+			title: 'Locomotion',
+			description: 'Slide to teleport position.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateTeleportTransitionStyle',
+				params: 'locomotion',
+				menu: 'goBack',
+			},
+		},
+		button2:{
+			id: 'action3',
+			style: false,
+			title: 'Blink',
+			description: 'Blink in and out in between teleports.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateTeleportTransitionStyle',
+				params: 'blink',
+				menu: 'goBack',
+			},
+		},
+		button3:{
+			id: 'action4',
+			style: false,
+			title: 'Fade',
+			description: 'Fade in and out in between teleports.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateTeleportTransitionStyle',
+				params: 'fade',
+				menu: 'goBack',
+			},
+		},
+		button4:{
+			id: 'action5',
+			style: false,
+			title: 'Sphere',
+			description: 'Close and open a sphere in between teleports.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateTeleportTransitionStyle',
+				params: 'sphere',
+				menu: 'goBack',
+			},
+		},
+	},
+	menu6:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Black',
+			description: 'Change transition color.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateTransitionColor',
+				params: 'black',
+				menu: 'goBack',
+			},
+		},
+		button1:{
+			id: 'action2',
+			style: false,
+			title: 'Grey',
+			description: 'Change transition color.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateTransitionColor',
+				params: 'grey',
+				menu: 'goBack',
+			},
+		},
+		button2:{
+			id: 'action3',
+			style: false,
+			title: 'White',
+			description: 'Change transition color.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateTransitionColor',
+				params: 'white',
+				menu: 'goBack',
+			},
+		},
+		button3:{
+			id: 'action4',
+			style: false,
+			title: 'Red',
+			description: 'Change transition color.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateTransitionColor',
+				params: 'red',
+				menu: 'goBack',
+			},
+		},
+		button4:{
+			id: 'action5',
+			style: false,
+			title: 'Green',
+			description: 'Change transition color.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateTransitionColor',
+				params: 'green',
+				menu: 'goBack',
+			},
+		},
+		button5:{
+			id: 'action6',
+			style: false,
+			title: 'Blue',
+			description: 'Change transition color.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'UpdateTransitionColor',
+				params: 'blue',
+				menu: 'goBack',
+			},
+		},
+	},
+	};
+	auxl.mainMenu = auxl.MultiMenu(ham.mainMenuData);
+	/*
+	Main Menu
+
+	Travel
+	- Scenes
+
+	Tools
+	- Toggle Flashlight
+	- Toggle Click to Teleport *
+
+	Settings
+	- Sit/Stand Mode Toggle
+	- Scene Transition Type :
+	- - Instant, Blink, Fade, Sphere
+	- Teleport Transition Type : 
+	- - Locomotion, Instant, Blink, Fade, Sphere
+	- Transition Color :
+	- - Colors
+	- Theme Color *
+	- Companion Style *
+	- Toggle 1st <-> 3rd POV *
+	- Control Configurations (VR) *
+	- Scene Instructions *
+	- Sound Settings *
+	*/
+
+	//Emotions
+
+	//Normal
+	//Talking
+	//Happy
+	//Sad
+	//Suprised
+	//Angry
+	//Annoyed
+	//Confused
+	//Smug
+	//Sleepy
+	//Blushing
+	//Anticipation
+	//Guilty
+	//Winking
+	//Sigh
+
+	//Blinking
+
+
+	//Emoti Prep
+	let speechIntervalB;
+	let speechTimeoutB;
+	//Emoticon Loop Display
+	const autoScriptEmoticon = () => {
+		//Emoticons
+		function* emotiSpeech() {
+			yield '-_-';
+			yield 'O_O';
+			yield 'o_o';
+			yield 'o_O';
+			yield 'O_o';
+			yield 'O_^';
+			yield '^_o';
+			yield '^_^';
+			yield 'o_^';
+			yield '^_O';
+			yield '<_<';
+			yield '>_>';
+			yield '>_<';
+			yield 'X_X';
+			yield '*_*';
+			yield '+_+';
+			yield '0_0';
+		}
+		let emotiSpeechArray = [];
+		for (speech of emotiSpeech()) {
+			emotiSpeechArray.push(speech);
+		}
+		let buddy;
+		let buddyFaceMaterial = {value:'^_^', color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double',}
+		let b;
+		speechTimeoutB = setTimeout(function () {
+			b = 0;
+			buddy = ham.GetEl();
+			speechIntervalB = setInterval(function() {
+				buddyFaceMaterial.value = emotiSpeechArray[b];
+				buddy.setAttribute('text', buddyFaceMaterial);
+				if(b === emotiSpeechArray.length){b = 0}else{b++}
+			}, 2700);
+		}, 250);
+	}
+	//Toggle Ham Display
+	const ToggleHam = () => {
+		if(ham.show){
+			DespawnHam();
+		} else {
+			SpawnHam();
+		}
+	}
+	//Attach Toggle to playerFloor
+	playerFloor.addEventListener('click',ToggleHam);
+	//Spawn & Start Ham
+	const SpawnHam = () => {
+		if(ham.inScene){}else{
+			ham.SpawnCore(auxl.playerRig.GetEl());
+			ShowInventory();
+			ham.show = true;
+			autoScriptEmoticon();
+			auxl.mainMenu.SpawnMultiMenu();
+			ham.inScene = true;
+		}
+	}
+	//Despawn & Stop Ham
+	const DespawnHam = () => {
+		if(ham.inScene){
+			clearInterval(speechTimeoutB);
+			clearInterval(speechIntervalB);
+			auxl.mainMenu.DespawnMultiMenu();
+			//Delay to let multi-menu complete it's despawn seq
+			let despawnTimeout = setTimeout(() => {
+				HideInventory();
+				ham.DespawnCore();
+				ham.show = false;
+				ham.systemOpen = false;
+				RemoveFromTracker(ham.id);
+				ham.inScene = false;
+				clearTimeout(despawnTimeout);
+			}, 300);
+
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			ham[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			ham[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(ham(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return ham[flag];
+		}
+	}
+	//Display Inventory Screen attached to Ham
+	const ShowInventory = () => {
+		auxl.inventoryScreen.SpawnCore(ham.GetEl());
+		auxl.player.UpdateInventoryScreen();
+	}
+	//Remove Inventory Screen
+	const HideInventory = () => {
+		auxl.inventoryScreen.DespawnCore();
+	}
+
+	return{ham, SpawnHam, DespawnHam, SetFlag, GetFlag,};
 }
 
 //
@@ -3864,477 +4372,6 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 }
 
 //
-//SkyBox
-//Lights, Sky, Space
-this.SkyBox = (skyBoxData) => {
-	let skyBox = Object.assign({}, skyBoxData);
-	skyBox.inScene = false;
-	let dayNightTimeout;
-	let dayNightInterval;
-	//Spawn All Light Core/Layers
-	const SpawnLights = () => {
-		for(let each in skyBox.lights){
-			if(skyBox.lights[each].SpawnCore){
-				skyBox.lights[each].SpawnCore();
-			} else if(skyBox.lights[each].SpawnLayer){
-				skyBox.lights[each].SpawnLayer();
-			} else {
-				console.log('Failed to spawn object');
-				console.log(skyBox.lights[each]);
-			}
-		}
-	}
-	//Despawn All Light Core/Layers
-	const DespawnLights = () => {
-		for(let each in skyBox.lights){
-			if(skyBox.lights[each].DespawnCore){
-				skyBox.lights[each].DespawnCore();
-			} else if(skyBox.lights[each].DespawnLayer){
-				skyBox.lights[each].DespawnLayer();
-			} else {
-				console.log('Failed to spawn object');
-				console.log(skyBox.lights[each]);
-			}
-		}
-	}
-	//Spawn All Sky Core/Layers
-	const SpawnSky = () => {
-		for(let each in skyBox.sky){
-			if(skyBox.sky[each].SpawnCore){
-				skyBox.sky[each].SpawnCore();
-			} else if(skyBox.sky[each].SpawnLayer){
-				skyBox.sky[each].SpawnLayer();
-			} else {
-				console.log('Failed to spawn object');
-				console.log(skyBox.sky[each]);
-			}
-		}
-	}
-	//Despawn All Sky Core/Layers
-	const DespawnSky = () => {
-		for(let each in skyBox.sky){
-			if(skyBox.sky[each].DespawnCore){
-				skyBox.sky[each].DespawnCore();
-			} else if(skyBox.sky[each].DespawnLayer){
-				skyBox.sky[each].DespawnLayer();
-			} else {
-				console.log('Failed to spawn object');
-				console.log(skyBox.sky[each]);
-			}
-		}
-	}
-	//Spawn All Sky Core/Layers
-	const SpawnSpace = () => {
-		for(let each in skyBox.space){
-			if(skyBox.space[each].SpawnCore){
-				skyBox.space[each].SpawnCore();
-			} else if(skyBox.space[each].SpawnLayer){
-				skyBox.space[each].SpawnLayer();
-			} else {
-				console.log('Failed to spawn object');
-				console.log(skyBox.space[each]);
-			}
-		}
-	}
-	//Despawn All Sky Core/Layers
-	const DespawnSpace = () => {
-		for(let each in skyBox.space){
-			if(skyBox.space[each].DespawnCore){
-				skyBox.space[each].DespawnCore();
-			} else if(skyBox.space[each].DespawnLayer){
-				skyBox.space[each].DespawnLayer();
-			} else {
-				console.log('Failed to spawn object');
-				console.log(skyBox.space[each]);
-			}
-		}
-	}
-	//Spawn SkyBox
-	const SpawnSkyBox = () => {
-		if(skyBox.inScene){}else{
-			SpawnLights();
-			SpawnSky();
-			SpawnSpace();
-			skyBox.inScene = true;
-		}
-	}
-	//Despawn SkyBox
-	const DespawnSkyBox = () => {
-		if(skyBox.inScene){
-			clearTimeout(dayNightTimeout);
-			clearInterval(dayNightInterval);
-			DespawnLights();
-			DespawnSky();
-			DespawnSpace();
-			RemoveFromTracker(skyBox.id);
-			skyBox.inScene = false;
-		}
-	}
-	//Toggle Spawn
-	const ToggleSpawn = () => {
-		if(skyBox.inScene){
-			DespawnSkyBox();
-		} else {
-			SpawnSkyBox();
-		}
-	}
-	//Set Flag & Value to Object - Single or Array
-	const SetFlag = (flagValue) => {
-		if(Array.isArray(flagValue)){
-			for(let each in flagValue){
-			skyBox[flagValue[each].flag] = flagValue[each].value;
-			}
-		} else {
-			skyBox[flagValue.flag] = flagValue.value;
-		}
-	}
-	//Retreive Flag Value from Object - Single or Array
-	const GetFlag = (flag) => {
-		if(Array.isArray(flag)){
-			let flagArray = [];
-			for(let each in flag){
-				flagArray.push(skyBox(flag[each]));
-			}
-			return flagArray;
-		} else {
-			return skyBox[flag];
-		}
-	}
-	//Sunrise Animation Event
-	const Sunrise = () => {
-		auxl.directionalLight.EmitEvent('sunrise');
-		auxl.directionalLight2.EmitEvent('sunrise');
-		auxl.directionalLight3.EmitEvent('sunrise');
-		auxl.ambientLight.EmitEvent('sunrise');
-		auxl.skyGrad.EmitEvent('sunrise');
-		auxl.sunLayer.EmitEventParent('sunrise');
-		auxl.moonLayer.EmitEventParent('sunrise');
-	}
-	//Suspend Day/Night Animation
-	const PauseDayNight = () => {
-		auxl.directionalLight.EmitEvent('pauseDayNight');
-		auxl.directionalLight2.EmitEvent('pauseDayNight');
-		auxl.directionalLight3.EmitEvent('pauseDayNight');
-		auxl.ambientLight.EmitEvent('pauseDayNight');
-		auxl.skyGrad.EmitEvent('pauseDayNight');
-		auxl.sunLayer.EmitEventParent('pauseDayNight');
-		auxl.moonLayer.EmitEventParent('pauseDayNight');
-	}
-	//Resume Day/Night Animation
-	const ResumeDayNight = () => {
-		auxl.directionalLight.EmitEvent('resumeDayNight');
-		auxl.directionalLight2.EmitEvent('resumeDayNight');
-		auxl.directionalLight3.EmitEvent('resumeDayNight');
-		auxl.ambientLight.EmitEvent('resumeDayNight');
-		auxl.skyGrad.EmitEvent('resumeDayNight');
-		auxl.sunLayer.EmitEventParent('resumeDayNight');
-		auxl.moonLayer.EmitEventParent('resumeDayNight');
-	}
-	//Looping Day/Night Cycle
-	const DayNightCycle = (dayLength) => {
-		if(dayLength){
-			if(typeof dayLength === 'number'){
-				//shortest day allowed 24 seconds
-				if(dayLength >= 24000){
-					auxl.timeInDay = dayLength;
-				}
-			}
-		}
-
-		Sunrise();
-		auxl.skyGrad.SetFlag({flag:'day', value: true});
-		dayNightTimeout = setTimeout(function () {
-			auxl.skyGrad.SetFlag({flag:'day', value: false});
-			auxl.skyGrad.EmitEvent('sunset');
-			dayNightInterval = setInterval(function() {
-				if(auxl.skyGrad.GetFlag('day')){
-					auxl.skyGrad.SetFlag({flag:'day', value: false});
-					auxl.skyGrad.EmitEvent('sunset');
-				}else{
-					auxl.skyGrad.SetFlag({flag:'day', value: true});
-					auxl.skyGrad.EmitEvent('sunrise');
-				}
-
-			}, auxl.timeInDay/2);
-		}, auxl.timeInDay/2 - auxl.timeInDay/24);
-	}
-	//Restart Day/Night Animation
-	const RestartDayNight = (dayLength) => {
-		PauseDayNight();
-		Despawn();
-		Spawn();
-		DayNightCycle(dayLength);
-	}
-
-	return {skyBox, SpawnSkyBox, DespawnSkyBox, ToggleSpawn, SetFlag, GetFlag, DayNightCycle, PauseDayNight, ResumeDayNight, RestartDayNight};
-}
-
-//
-//Horizon
-//Mountains, Hills, Buildings, Cylinder/Square Wall
-this.Horizon = (horizonData) => {
-	let horizon = Object.assign({}, horizonData);
-	horizon.inScene = false;
-
-	//Prep Material
-	let top;
-	let mid;
-	let bottom;
-	let colorPick;
-
-	//Prep Density
-	let spawnAmount;
-	if(horizon.density === 'low'){
-		spawnAmount = 5;
-	} else if(horizon.density === 'normal'){
-		spawnAmount = 10;
-	} else if(horizon.density === 'high'){
-		spawnAmount = 20;
-	}
-
-	//Prep Height
-	let spawnHeight;
-	if(horizon.height === 'low'){
-		spawnHeight = 0.5;
-	} else if(horizon.height === 'normal'){
-		spawnHeight = 1;
-	} else if(horizon.height === 'high'){
-		spawnHeight = 1.5;
-	}
-
-	//Prep Width
-	let spawnWidth;
-	if(horizon.width === 'low'){
-		spawnWidth = 0.5;
-	} else if(horizon.width === 'normal'){
-		spawnWidth = 1;
-	} else if(horizon.width === 'high'){
-		spawnWidth = 1.5;
-	}
-
-	//Prep Type
-	let geometry;
-	let position = new THREE.Vector3(0,0,horizon.radius*-1);
-	let scale = new THREE.Vector3(1,1,1);
-	let height;
-	if(horizon.type === 'mountains'){
-		height = 100*spawnHeight;
-		geometry = {primitive: 'cone', height: height, radiusBottom: 50, radiusTop: 0, openEnded: true, segmentsHeight: 1, segmentsRadial: 9, thetaLength: 180, thetaStart: 90},
-		scale.x = 1.5*spawnWidth;
-	} else if(horizon.type === 'hills'){
-		height = 50*spawnHeight;
-		geometry = {primitive: 'circle', radius: height, thetaStart: 0, thetaLength: 180};
-		scale.x = 1.5*spawnWidth;
-	} else if(horizon.type === 'buildings'){
-		height = 100*spawnHeight;
-		geometry = {primitive: 'plane', width: 40*spawnWidth, height: height};
-	} else if(horizon.type === 'cylinderWall'){
-		height = 50*spawnHeight;
-		geometry = {primitive: 'cylinder', openEnded: true, radius: horizon.radius, height: height, segmentsHeight: 9, segmentsRadial: 32, thetaStart: 0, thetaLength: 360 };
-		position.z = 0;
-		spawnAmount = 1;
-	} else if(horizon.type === 'squareWall'){
-		height = 40*spawnHeight;
-		geometry = {primitive: 'plane', width: horizon.radius*2, height: height};
-		spawnAmount = 4;
-	}
-	//Horizon Layer
-	let horizonAllData = {
-	data:'horizonAllData',
-	id:'horizonParent',
-	sources:false,
-	text: false,
-	geometry: false,
-	material: false,
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent'],
-	components: false,
-	};
-	let horizonAll = auxl.Core(horizonAllData);
-	let horizonLayerData = {
-		parent: {core: horizonAll},
-	};
-	//Horizon Parent
-	let horizonParentData = {
-	data:'horizonParentData',
-	id:'horizonParent',
-	sources:false,
-	text: false,
-	geometry: false,
-	material: false,
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent'],
-	components: false,
-	};
-	let horizonParentId = 'horizonParent';
-	let horizonParentCores = [];
-	//Horizon Child
-	let horizonChildData = {
-	data:'horizonChildData',
-	id:'horizonChild',
-	sources:false,
-	text: false,
-	geometry: geometry,
-	material: false,
-	position: position,
-	rotation: new THREE.Vector3(0,0,0),
-	scale: scale,
-	animations: false,
-	mixins: false,
-	classes: ['a-ent'],
-	components: false,
-	};
-	let horizonChildId = 'horizonChild';
-	let horizonChildCores = [];
-	//Build Layer
-	for(let a=0; a < spawnAmount; a++){
-		//Parent
-		horizonParentId = 'horizonParent' + a;
-		let parentRotation = new THREE.Vector3(0,0,0);
-		parentRotation.y = 360/spawnAmount*a;
-		horizonParentData.id = horizonParentId;
-		horizonParentData.rotation = parentRotation;
-		horizonParentCores[a] = auxl.Core(horizonParentData);
-		//Child
-		horizonChildId = 'horizonChild' + a;
-		horizonChildData.id = horizonChildId;
-		if(horizon.type === 'squareWall'){}else{
-			horizonChildData.scale.x = (1.5*spawnWidth) +(Math.random()*0.1-0.2);
-			horizonChildData.scale.y = 1 + (Math.random()*0.2-0.4);
-		}
-		if(horizon.type === 'mountains' || horizon.type === 'buildings' || horizon.type === 'cylinderWall' || horizon.type === 'squareWall'){
-			horizonChildData.position.y = ((horizonChildData.scale.y*height)/2)-1;
-		} else if(horizon.type === 'hills'){
-			horizonChildData.position.y = -1;
-		}
-		//Material
-		let material;
-		let textureSrc;
-		if(horizon.texture){
-			if(horizon.baseColor){
-				colorPick = auxl.colorTheoryGen(horizon.baseColor);
-			} else if(horizon.baseColorFamily){
-				colorPick = auxl.colorTheoryGen(false, horizon.baseColorFamily);
-			} else {
-				colorPick = auxl.colorTheoryGen();
-			}
-			colorPickBase = colorPick.base;
-			material = {shader: "standard", side: 'double', color: colorPickBase};
-
-			if(horizon.texture.src){
-				if(Array.isArray(horizon.texture.src)){
-					textureSrc = horizon.texture.src[Math.floor(Math.random()*horizon.texture.src.length)];
-				} else {
-					textureSrc = horizon.texture.src;
-				}
-				material.src = textureSrc;
-			}
-			if(horizon.texture.repeat){
-				material.repeat = horizon.texture.repeat;
-			}
-			if(horizon.texture.opacity){
-				material.opacity = horizon.texture.opacity;
-			}
-			if(horizon.texture.metalness){
-				material.metalness = horizon.texture.metalness;
-			}
-			if(horizon.texture.roughness){
-				material.roughness = horizon.texture.roughness;
-			}
-			if(horizon.texture.emissive){
-				material.emissive = colorPickBase;
-			}
-			if(horizon.texture.emissiveIntensity){
-				material.emissiveIntensity = horizon.texture.emissiveIntensity;
-			}
-
-		} else if(horizon.baseColor){
-			colorPick = auxl.colorTheoryGen(horizon.baseColor);
-			mid = colorPick.base;
-			top = colorPick.tetradic[0];
-			bottom = colorPick.tetradic[1];
-			material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
-		} else if(horizon.baseColorFamily){
-			colorPick = auxl.colorTheoryGen(false, horizon.baseColorFamily);
-			mid = colorPick.base;
-			top = colorPick.tetradic[0];
-			bottom = colorPick.tetradic[1];
-			material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
-		} else {
-			colorPick = auxl.colorTheoryGen();
-			mid = colorPick.base;
-			top = colorPick.tetradic[0];
-			bottom = colorPick.tetradic[1];
-			material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
-		}
-		horizonChildData.material = material;
-		//Core
-		horizonChildCores[a] = auxl.Core(horizonChildData);
-		//Layer
-		horizonLayerData['child'+a] = {
-			parent: {core: horizonParentCores[a]}, 
-			child0: {core: horizonChildCores[a]},
-		};
-	}
-	let horizonLayer = auxl.Layer('horizonLayer',horizonLayerData);
-	//Spawn Horizon
-	const SpawnHorizon = () => {
-		if(horizon.inScene){}else{
-			horizonLayer.SpawnLayer();
-			horizon.inScene = true;
-		}
-	}
-	//Despawn Horizon
-	const DespawnHorizon = () => {
-		if(horizon.inScene){
-			horizonLayer.DespawnLayer();
-			RemoveFromTracker(horizon.id);
-			horizon.inScene = false;
-		}
-	}
-	//Toggle Spawn
-	const ToggleSpawn = () => {
-		if(horizon.inScene){
-			DespawnHorizon();
-		} else {
-			SpawnHorizon();
-		}
-	}
-	//Set Flag & Value to Object - Single or Array
-	const SetFlag = (flagValue) => {
-		if(Array.isArray(flagValue)){
-			for(let each in flagValue){
-			horizon[flagValue[each].flag] = flagValue[each].value;
-			}
-		} else {
-			horizon[flagValue.flag] = flagValue.value;
-		}
-	}
-	//Retreive Flag Value from Object - Single or Array
-	const GetFlag = (flag) => {
-		if(Array.isArray(flag)){
-			let flagArray = [];
-			for(let each in flag){
-				flagArray.push(horizon(flag[each]));
-			}
-			return flagArray;
-		} else {
-			return horizon[flag];
-		}
-	}
-
-	return {horizon, SpawnHorizon, DespawnHorizon, ToggleSpawn, SetFlag, GetFlag};
-}
-
-//
 //Story Book
 //Linear, Tree, Quests, Jump, Menu, Conditionals, Flags...
 this.Book = (core, npc) => {
@@ -4977,486 +5014,128 @@ return {npc, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, Ena
 }
 
 //
-//Ham Companion
-//System Menu & Inventory
-this.HamMenu = (id, core) => {
-	let ham = Object.assign({}, core);
-	ham.id = id;
-	ham.inScene = false;
-	ham.systemOpen = false;
-	ham.travelSettingsOpen = false;
-	ham.sceneSettingsOpen = false;
-	ham.show = false;
-	ham.pos = auxl.playerRig.GetEl().getAttribute('position');
-	//
-	//Main Menu
-	ham.mainMenuData = {
-	info:{
-		id: 'mainMenu',
-		buttonData: auxl.menuCylinderData,
-		hoverData: auxl.menuHoverData,
-		title: 'Main Menu',
-		description: 'Main menu for travel, system and settings.',
-		layout:'circle',
-		offset: -1,
-		parent: ham.id,
-		stare: false,
-	},
-	menu0:{
-		button0:{
-			id: 'subMenu1',
-			style: false,
-			title: 'Travel to',
-			description: 'Select your next travel destination.',
-			subMenu: 'menu1',
-			action: false,
-		},
-		button1:{
-			id: 'subMenu2',
-			style: false,
-			title: 'Tools',
-			description: 'Enable/Disable player tools.',
-			subMenu: 'menu2',
-			action: false,
-		},
-		button2:{
-			id: 'subMenu3',
-			style: false,
-			title: 'Settings',
-			description: 'Configure system settings.',
-			subMenu: 'menu3',
-			action: false,
-		},
-	},
-	menu1:{
-		button0:{
-			id: 'subMenu4',
-			style: false,
-			title: 'Sub Menu 4 Test',
-			description: 'A test sub menu.',
-			subMenu: 'menu4',
-			action: false,
-		},
-		button1:{
-			id: 'subMenu5',
-			style: false,
-			title: 'Sub Menu 5 Test',
-			description: 'A test sub menu.',
-			subMenu: 'menu5',
-			action: false,
-		},
-	},
-	menu2:{
-		button0:{
-			id: 'action1',
-			style: false,
-			title: 'Toggle Flashlight',
-			description: 'Turn On/Off your flashlight.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'ToggleFlashlight',
-				params: null,
-				menu: 'close',
-			},
-		},
-	},
-	menu3:{
-		button0:{
-			id: 'action1',
-			style: false,
-			title: 'Sit/Stand Toggle',
-			description: 'Toggle between sitting or standing mode.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'ToggleSittingMode',
-				params: null,
-				menu: 'stay',
-			},
-		},
-		button1:{
-			id: 'subMenu4',
-			style: false,
-			title: 'Scene Transition Type',
-			description: 'Change the scene transition animation style.',
-			subMenu: 'menu4',
-			action: false,
-		},
-		button2:{
-			id: 'subMenu5',
-			style: false,
-			title: 'Teleport Transition Type',
-			description: 'Change the teleport transition animation style.',
-			subMenu: 'menu5',
-			action: false,
-		},
-		button3:{
-			id: 'subMenu6',
-			style: false,
-			title: 'Transition Color',
-			description: 'Change the transition animation color.',
-			subMenu: 'menu6',
-			action: false,
-		},
-	},
-	menu4:{
-		button0:{
-			id: 'action1',
-			style: false,
-			title: 'Instant',
-			description: 'Disable animation.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateSceneTransitionStyle',
-				params: 'instant',
-				menu: 'goBack',
-			},
-		},
-		button1:{
-			id: 'action2',
-			style: false,
-			title: 'Blink',
-			description: 'Blink in and out in between scenes.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateSceneTransitionStyle',
-				params: 'blink',
-				menu: 'goBack',
-			},
-		},
-		button2:{
-			id: 'action3',
-			style: false,
-			title: 'Fade',
-			description: 'Fade in and out in between scenes.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateSceneTransitionStyle',
-				params: 'fade',
-				menu: 'goBack',
-			},
-		},
-		button3:{
-			id: 'action4',
-			style: false,
-			title: 'Sphere',
-			description: 'Close and open a sphere in between scenes.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateSceneTransitionStyle',
-				params: 'sphere',
-				menu: 'goBack',
-			},
-		},
-	},
-	menu5:{
-		button0:{
-			id: 'action1',
-			style: false,
-			title: 'Instant',
-			description: 'Disable animation.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateTeleportTransitionStyle',
-				params: 'instant',
-				menu: 'goBack',
-			},
-		},
-		button1:{
-			id: 'action2',
-			style: false,
-			title: 'Locomotion',
-			description: 'Slide to teleport position.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateTeleportTransitionStyle',
-				params: 'locomotion',
-				menu: 'goBack',
-			},
-		},
-		button2:{
-			id: 'action3',
-			style: false,
-			title: 'Blink',
-			description: 'Blink in and out in between teleports.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateTeleportTransitionStyle',
-				params: 'blink',
-				menu: 'goBack',
-			},
-		},
-		button3:{
-			id: 'action4',
-			style: false,
-			title: 'Fade',
-			description: 'Fade in and out in between teleports.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateTeleportTransitionStyle',
-				params: 'fade',
-				menu: 'goBack',
-			},
-		},
-		button4:{
-			id: 'action5',
-			style: false,
-			title: 'Sphere',
-			description: 'Close and open a sphere in between teleports.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateTeleportTransitionStyle',
-				params: 'sphere',
-				menu: 'goBack',
-			},
-		},
-	},
-	menu6:{
-		button0:{
-			id: 'action1',
-			style: false,
-			title: 'Black',
-			description: 'Change transition color.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateTransitionColor',
-				params: 'black',
-				menu: 'goBack',
-			},
-		},
-		button1:{
-			id: 'action2',
-			style: false,
-			title: 'Grey',
-			description: 'Change transition color.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateTransitionColor',
-				params: 'grey',
-				menu: 'goBack',
-			},
-		},
-		button2:{
-			id: 'action3',
-			style: false,
-			title: 'White',
-			description: 'Change transition color.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateTransitionColor',
-				params: 'white',
-				menu: 'goBack',
-			},
-		},
-		button3:{
-			id: 'action4',
-			style: false,
-			title: 'Red',
-			description: 'Change transition color.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateTransitionColor',
-				params: 'red',
-				menu: 'goBack',
-			},
-		},
-		button4:{
-			id: 'action5',
-			style: false,
-			title: 'Green',
-			description: 'Change transition color.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateTransitionColor',
-				params: 'green',
-				menu: 'goBack',
-			},
-		},
-		button5:{
-			id: 'action6',
-			style: false,
-			title: 'Blue',
-			description: 'Change transition color.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'UpdateTransitionColor',
-				params: 'blue',
-				menu: 'goBack',
-			},
-		},
-	},
-	};
-	auxl.mainMenu = auxl.MultiMenu(ham.mainMenuData);
-	/*
-	Main Menu
-
-	Travel
-	- Scenes
-
-	Tools
-	- Toggle Flashlight
-	- Toggle Click to Teleport *
-
-	Settings
-	- Sit/Stand Mode Toggle
-	- Scene Transition Type :
-	- - Instant, Blink, Fade, Sphere
-	- Teleport Transition Type : 
-	- - Locomotion, Instant, Blink, Fade, Sphere
-	- Transition Color :
-	- - Colors
-	- Theme Color *
-	- Companion Style *
-	- Toggle 1st <-> 3rd POV *
-	- Control Configurations (VR) *
-	- Scene Instructions *
-	- Sound Settings *
-	*/
-
-	//Emotions
-
-	//Normal
-	//Talking
-	//Happy
-	//Sad
-	//Suprised
-	//Angry
-	//Annoyed
-	//Confused
-	//Smug
-	//Sleepy
-	//Blushing
-	//Anticipation
-	//Guilty
-	//Winking
-	//Sigh
-
-	//Blinking
-
-
-	//Emoti Prep
-	let speechIntervalB;
-	let speechTimeoutB;
-	//Emoticon Loop Display
-	const autoScriptEmoticon = () => {
-		//Emoticons
-		function* emotiSpeech() {
-			yield '-_-';
-			yield 'O_O';
-			yield 'o_o';
-			yield 'o_O';
-			yield 'O_o';
-			yield 'O_^';
-			yield '^_o';
-			yield '^_^';
-			yield 'o_^';
-			yield '^_O';
-			yield '<_<';
-			yield '>_>';
-			yield '>_<';
-			yield 'X_X';
-			yield '*_*';
-			yield '+_+';
-			yield '0_0';
+//SkyBox
+//Lights, Sky, Space
+this.SkyBox = (skyBoxData) => {
+	let skyBox = Object.assign({}, skyBoxData);
+	skyBox.inScene = false;
+	let dayNightTimeout;
+	let dayNightInterval;
+	//Spawn All Light Core/Layers
+	const SpawnLights = () => {
+		for(let each in skyBox.lights){
+			if(skyBox.lights[each].SpawnCore){
+				skyBox.lights[each].SpawnCore();
+			} else if(skyBox.lights[each].SpawnLayer){
+				skyBox.lights[each].SpawnLayer();
+			} else {
+				console.log('Failed to spawn object');
+				console.log(skyBox.lights[each]);
+			}
 		}
-		let emotiSpeechArray = [];
-		for (speech of emotiSpeech()) {
-			emotiSpeechArray.push(speech);
-		}
-		let buddy;
-		let buddyFaceMaterial = {value:'^_^', color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double',}
-		let b;
-		speechTimeoutB = setTimeout(function () {
-			b = 0;
-			buddy = ham.GetEl();
-			speechIntervalB = setInterval(function() {
-				buddyFaceMaterial.value = emotiSpeechArray[b];
-				buddy.setAttribute('text', buddyFaceMaterial);
-				if(b === emotiSpeechArray.length){b = 0}else{b++}
-			}, 2700);
-		}, 250);
 	}
-	//Toggle Ham Display
-	const ToggleHam = () => {
-		if(ham.show){
-			DespawnHam();
+	//Despawn All Light Core/Layers
+	const DespawnLights = () => {
+		for(let each in skyBox.lights){
+			if(skyBox.lights[each].DespawnCore){
+				skyBox.lights[each].DespawnCore();
+			} else if(skyBox.lights[each].DespawnLayer){
+				skyBox.lights[each].DespawnLayer();
+			} else {
+				console.log('Failed to spawn object');
+				console.log(skyBox.lights[each]);
+			}
+		}
+	}
+	//Spawn All Sky Core/Layers
+	const SpawnSky = () => {
+		for(let each in skyBox.sky){
+			if(skyBox.sky[each].SpawnCore){
+				skyBox.sky[each].SpawnCore();
+			} else if(skyBox.sky[each].SpawnLayer){
+				skyBox.sky[each].SpawnLayer();
+			} else {
+				console.log('Failed to spawn object');
+				console.log(skyBox.sky[each]);
+			}
+		}
+	}
+	//Despawn All Sky Core/Layers
+	const DespawnSky = () => {
+		for(let each in skyBox.sky){
+			if(skyBox.sky[each].DespawnCore){
+				skyBox.sky[each].DespawnCore();
+			} else if(skyBox.sky[each].DespawnLayer){
+				skyBox.sky[each].DespawnLayer();
+			} else {
+				console.log('Failed to spawn object');
+				console.log(skyBox.sky[each]);
+			}
+		}
+	}
+	//Spawn All Sky Core/Layers
+	const SpawnSpace = () => {
+		for(let each in skyBox.space){
+			if(skyBox.space[each].SpawnCore){
+				skyBox.space[each].SpawnCore();
+			} else if(skyBox.space[each].SpawnLayer){
+				skyBox.space[each].SpawnLayer();
+			} else {
+				console.log('Failed to spawn object');
+				console.log(skyBox.space[each]);
+			}
+		}
+	}
+	//Despawn All Sky Core/Layers
+	const DespawnSpace = () => {
+		for(let each in skyBox.space){
+			if(skyBox.space[each].DespawnCore){
+				skyBox.space[each].DespawnCore();
+			} else if(skyBox.space[each].DespawnLayer){
+				skyBox.space[each].DespawnLayer();
+			} else {
+				console.log('Failed to spawn object');
+				console.log(skyBox.space[each]);
+			}
+		}
+	}
+	//Spawn SkyBox
+	const SpawnSkyBox = () => {
+		if(skyBox.inScene){}else{
+			SpawnLights();
+			SpawnSky();
+			SpawnSpace();
+			skyBox.inScene = true;
+		}
+	}
+	//Despawn SkyBox
+	const DespawnSkyBox = () => {
+		if(skyBox.inScene){
+			clearTimeout(dayNightTimeout);
+			clearInterval(dayNightInterval);
+			DespawnLights();
+			DespawnSky();
+			DespawnSpace();
+			RemoveFromTracker(skyBox.id);
+			skyBox.inScene = false;
+		}
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(skyBox.inScene){
+			DespawnSkyBox();
 		} else {
-			SpawnHam();
-		}
-	}
-	//Attach Toggle to playerFloor
-	playerFloor.addEventListener('click',ToggleHam);
-	//Spawn & Start Ham
-	const SpawnHam = () => {
-		if(ham.inScene){}else{
-			ham.SpawnCore(auxl.playerRig.GetEl());
-			ShowInventory();
-			ham.show = true;
-			autoScriptEmoticon();
-			auxl.mainMenu.SpawnMultiMenu();
-			ham.inScene = true;
-		}
-	}
-	//Despawn & Stop Ham
-	const DespawnHam = () => {
-		if(ham.inScene){
-			clearInterval(speechTimeoutB);
-			clearInterval(speechIntervalB);
-			auxl.mainMenu.DespawnMultiMenu();
-			//Delay to let multi-menu complete it's despawn seq
-			let despawnTimeout = setTimeout(() => {
-				HideInventory();
-				ham.DespawnCore();
-				ham.show = false;
-				ham.systemOpen = false;
-				RemoveFromTracker(ham.id);
-				ham.inScene = false;
-				clearTimeout(despawnTimeout);
-			}, 300);
-
+			SpawnSkyBox();
 		}
 	}
 	//Set Flag & Value to Object - Single or Array
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			ham[flagValue[each].flag] = flagValue[each].value;
+			skyBox[flagValue[each].flag] = flagValue[each].value;
 			}
 		} else {
-			ham[flagValue.flag] = flagValue.value;
+			skyBox[flagValue.flag] = flagValue.value;
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -5464,24 +5143,345 @@ this.HamMenu = (id, core) => {
 		if(Array.isArray(flag)){
 			let flagArray = [];
 			for(let each in flag){
-				flagArray.push(ham(flag[each]));
+				flagArray.push(skyBox(flag[each]));
 			}
 			return flagArray;
 		} else {
-			return ham[flag];
+			return skyBox[flag];
 		}
 	}
-	//Display Inventory Screen attached to Ham
-	const ShowInventory = () => {
-		auxl.inventoryScreen.SpawnCore(ham.GetEl());
-		auxl.player.UpdateInventoryScreen();
+	//Sunrise Animation Event
+	const Sunrise = () => {
+		auxl.directionalLight.EmitEvent('sunrise');
+		auxl.directionalLight2.EmitEvent('sunrise');
+		auxl.directionalLight3.EmitEvent('sunrise');
+		auxl.ambientLight.EmitEvent('sunrise');
+		auxl.skyGrad.EmitEvent('sunrise');
+		auxl.sunLayer.EmitEventParent('sunrise');
+		auxl.moonLayer.EmitEventParent('sunrise');
 	}
-	//Remove Inventory Screen
-	const HideInventory = () => {
-		auxl.inventoryScreen.DespawnCore();
+	//Suspend Day/Night Animation
+	const PauseDayNight = () => {
+		auxl.directionalLight.EmitEvent('pauseDayNight');
+		auxl.directionalLight2.EmitEvent('pauseDayNight');
+		auxl.directionalLight3.EmitEvent('pauseDayNight');
+		auxl.ambientLight.EmitEvent('pauseDayNight');
+		auxl.skyGrad.EmitEvent('pauseDayNight');
+		auxl.sunLayer.EmitEventParent('pauseDayNight');
+		auxl.moonLayer.EmitEventParent('pauseDayNight');
+	}
+	//Resume Day/Night Animation
+	const ResumeDayNight = () => {
+		auxl.directionalLight.EmitEvent('resumeDayNight');
+		auxl.directionalLight2.EmitEvent('resumeDayNight');
+		auxl.directionalLight3.EmitEvent('resumeDayNight');
+		auxl.ambientLight.EmitEvent('resumeDayNight');
+		auxl.skyGrad.EmitEvent('resumeDayNight');
+		auxl.sunLayer.EmitEventParent('resumeDayNight');
+		auxl.moonLayer.EmitEventParent('resumeDayNight');
+	}
+	//Looping Day/Night Cycle
+	const DayNightCycle = (dayLength) => {
+		if(dayLength){
+			if(typeof dayLength === 'number'){
+				//shortest day allowed 24 seconds
+				if(dayLength >= 24000){
+					auxl.timeInDay = dayLength;
+				}
+			}
+		}
+
+		Sunrise();
+		auxl.skyGrad.SetFlag({flag:'day', value: true});
+		dayNightTimeout = setTimeout(function () {
+			auxl.skyGrad.SetFlag({flag:'day', value: false});
+			auxl.skyGrad.EmitEvent('sunset');
+			dayNightInterval = setInterval(function() {
+				if(auxl.skyGrad.GetFlag('day')){
+					auxl.skyGrad.SetFlag({flag:'day', value: false});
+					auxl.skyGrad.EmitEvent('sunset');
+				}else{
+					auxl.skyGrad.SetFlag({flag:'day', value: true});
+					auxl.skyGrad.EmitEvent('sunrise');
+				}
+
+			}, auxl.timeInDay/2);
+		}, auxl.timeInDay/2 - auxl.timeInDay/24);
+	}
+	//Restart Day/Night Animation
+	const RestartDayNight = (dayLength) => {
+		PauseDayNight();
+		Despawn();
+		Spawn();
+		DayNightCycle(dayLength);
 	}
 
-	return{ham, SpawnHam, DespawnHam, SetFlag, GetFlag,};
+	return {skyBox, SpawnSkyBox, DespawnSkyBox, ToggleSpawn, SetFlag, GetFlag, DayNightCycle, PauseDayNight, ResumeDayNight, RestartDayNight};
+}
+
+//
+//Horizon
+//Mountains, Hills, Buildings, Cylinder/Square Wall
+this.Horizon = (horizonData) => {
+	let horizon = Object.assign({}, horizonData);
+	horizon.inScene = false;
+
+	//Prep Material
+	let top;
+	let mid;
+	let bottom;
+	let colorPick;
+
+	//Prep Density
+	let spawnAmount;
+	if(horizon.density === 'low'){
+		spawnAmount = 5;
+	} else if(horizon.density === 'normal'){
+		spawnAmount = 10;
+	} else if(horizon.density === 'high'){
+		spawnAmount = 20;
+	}
+
+	//Prep Height
+	let spawnHeight;
+	if(horizon.height === 'low'){
+		spawnHeight = 0.5;
+	} else if(horizon.height === 'normal'){
+		spawnHeight = 1;
+	} else if(horizon.height === 'high'){
+		spawnHeight = 1.5;
+	}
+
+	//Prep Width
+	let spawnWidth;
+	if(horizon.width === 'low'){
+		spawnWidth = 0.5;
+	} else if(horizon.width === 'normal'){
+		spawnWidth = 1;
+	} else if(horizon.width === 'high'){
+		spawnWidth = 1.5;
+	}
+
+	//Prep Type
+	let geometry;
+	let position = new THREE.Vector3(0,0,horizon.radius*-1);
+	let scale = new THREE.Vector3(1,1,1);
+	let height;
+	if(horizon.type === 'mountains'){
+		height = 100*spawnHeight;
+		geometry = {primitive: 'cone', height: height, radiusBottom: 50, radiusTop: 0, openEnded: true, segmentsHeight: 1, segmentsRadial: 9, thetaLength: 180, thetaStart: 90},
+		scale.x = 1.5*spawnWidth;
+	} else if(horizon.type === 'hills'){
+		height = 50*spawnHeight;
+		geometry = {primitive: 'circle', radius: height, thetaStart: 0, thetaLength: 180};
+		scale.x = 1.5*spawnWidth;
+	} else if(horizon.type === 'buildings'){
+		height = 100*spawnHeight;
+		geometry = {primitive: 'plane', width: 40*spawnWidth, height: height};
+	} else if(horizon.type === 'cylinderWall'){
+		height = 50*spawnHeight;
+		geometry = {primitive: 'cylinder', openEnded: true, radius: horizon.radius, height: height, segmentsHeight: 9, segmentsRadial: 32, thetaStart: 0, thetaLength: 360 };
+		position.z = 0;
+		spawnAmount = 1;
+	} else if(horizon.type === 'squareWall'){
+		height = 40*spawnHeight;
+		geometry = {primitive: 'plane', width: horizon.radius*2, height: height};
+		spawnAmount = 4;
+	}
+	//Horizon Layer
+	let horizonAllData = {
+	data:'horizonAllData',
+	id:'horizonParent',
+	sources:false,
+	text: false,
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	let horizonAll = auxl.Core(horizonAllData);
+	let horizonLayerData = {
+		parent: {core: horizonAll},
+	};
+	//Horizon Parent
+	let horizonParentData = {
+	data:'horizonParentData',
+	id:'horizonParent',
+	sources:false,
+	text: false,
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	let horizonParentId = 'horizonParent';
+	let horizonParentCores = [];
+	//Horizon Child
+	let horizonChildData = {
+	data:'horizonChildData',
+	id:'horizonChild',
+	sources:false,
+	text: false,
+	geometry: geometry,
+	material: false,
+	position: position,
+	rotation: new THREE.Vector3(0,0,0),
+	scale: scale,
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	let horizonChildId = 'horizonChild';
+	let horizonChildCores = [];
+	//Build Layer
+	for(let a=0; a < spawnAmount; a++){
+		//Parent
+		horizonParentId = 'horizonParent' + a;
+		let parentRotation = new THREE.Vector3(0,0,0);
+		parentRotation.y = 360/spawnAmount*a;
+		horizonParentData.id = horizonParentId;
+		horizonParentData.rotation = parentRotation;
+		horizonParentCores[a] = auxl.Core(horizonParentData);
+		//Child
+		horizonChildId = 'horizonChild' + a;
+		horizonChildData.id = horizonChildId;
+		if(horizon.type === 'squareWall'){}else{
+			horizonChildData.scale.x = (1.5*spawnWidth) +(Math.random()*0.1-0.2);
+			horizonChildData.scale.y = 1 + (Math.random()*0.2-0.4);
+		}
+		if(horizon.type === 'mountains' || horizon.type === 'buildings' || horizon.type === 'cylinderWall' || horizon.type === 'squareWall'){
+			horizonChildData.position.y = ((horizonChildData.scale.y*height)/2)-1;
+		} else if(horizon.type === 'hills'){
+			horizonChildData.position.y = -1;
+		}
+		//Material
+		let material;
+		let textureSrc;
+		if(horizon.texture){
+			if(horizon.baseColor){
+				colorPick = auxl.colorTheoryGen(horizon.baseColor);
+			} else if(horizon.baseColorFamily){
+				colorPick = auxl.colorTheoryGen(false, horizon.baseColorFamily);
+			} else {
+				colorPick = auxl.colorTheoryGen();
+			}
+			colorPickBase = colorPick.base;
+			material = {shader: "standard", side: 'double', color: colorPickBase};
+
+			if(horizon.texture.src){
+				if(Array.isArray(horizon.texture.src)){
+					textureSrc = horizon.texture.src[Math.floor(Math.random()*horizon.texture.src.length)];
+				} else {
+					textureSrc = horizon.texture.src;
+				}
+				material.src = textureSrc;
+			}
+			if(horizon.texture.repeat){
+				material.repeat = horizon.texture.repeat;
+			}
+			if(horizon.texture.opacity){
+				material.opacity = horizon.texture.opacity;
+			}
+			if(horizon.texture.metalness){
+				material.metalness = horizon.texture.metalness;
+			}
+			if(horizon.texture.roughness){
+				material.roughness = horizon.texture.roughness;
+			}
+			if(horizon.texture.emissive){
+				material.emissive = colorPickBase;
+			}
+			if(horizon.texture.emissiveIntensity){
+				material.emissiveIntensity = horizon.texture.emissiveIntensity;
+			}
+
+		} else if(horizon.baseColor){
+			colorPick = auxl.colorTheoryGen(horizon.baseColor);
+			mid = colorPick.base;
+			top = colorPick.tetradic[0];
+			bottom = colorPick.tetradic[1];
+			material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
+		} else if(horizon.baseColorFamily){
+			colorPick = auxl.colorTheoryGen(false, horizon.baseColorFamily);
+			mid = colorPick.base;
+			top = colorPick.tetradic[0];
+			bottom = colorPick.tetradic[1];
+			material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
+		} else {
+			colorPick = auxl.colorTheoryGen();
+			mid = colorPick.base;
+			top = colorPick.tetradic[0];
+			bottom = colorPick.tetradic[1];
+			material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
+		}
+		horizonChildData.material = material;
+		//Core
+		horizonChildCores[a] = auxl.Core(horizonChildData);
+		//Layer
+		horizonLayerData['child'+a] = {
+			parent: {core: horizonParentCores[a]}, 
+			child0: {core: horizonChildCores[a]},
+		};
+	}
+	let horizonLayer = auxl.Layer('horizonLayer',horizonLayerData);
+	//Spawn Horizon
+	const SpawnHorizon = () => {
+		if(horizon.inScene){}else{
+			horizonLayer.SpawnLayer();
+			horizon.inScene = true;
+		}
+	}
+	//Despawn Horizon
+	const DespawnHorizon = () => {
+		if(horizon.inScene){
+			horizonLayer.DespawnLayer();
+			RemoveFromTracker(horizon.id);
+			horizon.inScene = false;
+		}
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(horizon.inScene){
+			DespawnHorizon();
+		} else {
+			SpawnHorizon();
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			horizon[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			horizon[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(horizon(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return horizon[flag];
+		}
+	}
+
+	return {horizon, SpawnHorizon, DespawnHorizon, ToggleSpawn, SetFlag, GetFlag};
 }
 
 //
@@ -6203,115 +6203,55 @@ this.Teleport = (id, locations) => {
 
 
 //
-//Memory Mini Game
-this.MemoryGame = (id, data) => {
-//ToDo
-//Allow for importing of however many button objects to add complexity
-//Listen for first click to start the countdown timer based on how long current sequence is and a timer for in-between single clicks to timeout as well
-	let memory = {};
-	memory.id = id;
-	memory.inScene = false;
-	//Layered Object Generation
-	let layerData = {}
-	let memoryNullParentData = JSON.parse(JSON.stringify(auxl.nullParentData));
-	memoryNullParentData.id = 'memoryParent';
-	memoryNullParentData.position = new THREE.Vector3(0,1,-2);
-	let memoryNullParent = auxl.Core(memoryNullParentData);
-	layerData['parent'] = {};
-	layerData['parent'].core = memoryNullParent;
-	let memoryObjData = {};
-	let memoryCores = {};
-	for(let each in data){
-		memoryObjData = data[each];
-		memoryObjData.id = 'memory' + each;
-		memoryCores[each] = auxl.Core(memoryObjData);
-		layerData['child'+each] = {};
-		layerData['child'+each].core = memoryCores[each];
+//NEW
+
+//
+//GridAssetGen
+//Build a scene from a dual array grid of asset related ids
+this.GridAssetGen = (gridGenData) => {
+	let gridGen = Object.assign({}, gridGenData);
+	gridGen.inScene = false;
+
+	//Generate Grid Cores
+	const genCores = () => {
+
 	}
-	memory.layer = auxl.Layer('memory',layerData);
-
-	//UI
-	//Game Status
-	auxl.memoryUIData.text = {value:'High Score : 0 | Game Ready', wrapCount: 45, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'};
-	auxl.memoryUIData.position = new THREE.Vector3(0,2.6,-2);
-	auxl.memoryUIData.id = 'memoryUI1';
-	let memoryUI1 =  auxl.Core(auxl.memoryUIData);
-
-	//Sequence Status
-	auxl.memoryUIData.text = {value:'Sequence : *', wrapCount: 45, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'};
-	auxl.memoryUIData.position = new THREE.Vector3(0,0.35,-2);
-	auxl.memoryUIData.id = 'memoryUI2';
-	let memoryUI2 =  auxl.Core(auxl.memoryUIData);
-
-	//Game Support
-	let playSequenceInterval;
-	let roundCompleteTimeout1;
-	let roundCompleteTimeout2;
-	let gameOverTimeout1;
-	let gameOverTimeout2;
-	let allSequence = [];
-	let playerSequence = [];
-	let currInSequence = 0;
-	let currMaxSequence = 1;
-	let sequenceRef = '*';
-	let sequenceTempArray = [];
-	let currentScore = 0;
-	let highScore = 0;
-	let sequenceChunk = 5;
-	let pauseClick = true;
-	let gameStarted = false;
-
-	//Add memoryClick() Listeners to all Memory Buttons
-	const AddSequenceListeners = () => {
-		for(let each in memoryCores){
-			memoryCores[each].GetEl().addEventListener('click', memoryClick);
+	//Spawn all Grid Cores
+	const SpawnGrid = () => {
+		if(gridGen.inScene){}else{
+			genCores();
+			for(let a = 0; a < gridGen.total; a++){
+				gridGen.all[a].SpawnCore();
+			}
+			gridGen.inScene = true;
 		}
 	}
-	//Remove memoryClick() Listeners from all Memory Buttons
-	const RemoveSequenceListeners = () => {
-		for(let each in memoryCores){
-			memoryCores[each].GetEl().removeEventListener('click', memoryClick);
-		}
-	}
-	//Spawn Memory Game
-	const SpawnMemGame = () => {
-		if(memory.inScene){}else{
-			memory.layer.SpawnLayer();
-			memoryUI1.SpawnCore();
-			memoryUI2.SpawnCore();
-			AddSequenceListeners();
-			GameSpawnMenu();
-			memory.inScene = true;
-		}
-	}
-	//Despawn Memory Game
-	const DespawnMemGame = () => {
-		if(memory.inScene){
-			RemoveSequenceListeners();
-			memory.gameMenu.DespawnMenu()
-			memory.layer.DespawnLayer();
-			memoryUI1.DespawnCore();
-			memoryUI2.DespawnCore();
-			RemoveFromTracker(memory.id);
-			memory.inScene = false;
+	//Despawn all Grid Cores
+	const DespawnGrid = () => {
+		if(gridGen.inScene){
+			for(let a = 0; a < gridGen.total; a++){
+				gridGen.all[a].DespawnCore();
+			}
+			RemoveFromTracker(gridGen.id);
+			gridGen.inScene = false;
 		}
 	}
 	//Toggle Spawn
 	const ToggleSpawn = () => {
-		if(memory.inScene){
-			DespawnMemGame();
+		if(gridGen.inScene){
+			DespawnGrid();
 		} else {
-			SpawnMemGame();
+			SpawnGrid();
 		}
 	}
 	//Set Flag & Value to Object - Single or Array
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			memory[flagValue[each].flag] = flagValue[each].value;
+			gridGen[flagValue[each].flag] = flagValue[each].value;
 			}
 		} else {
-			memory[flagValue.flag] = flagValue.value;
+			gridGen[flagValue.flag] = flagValue.value;
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -6319,188 +6259,895 @@ this.MemoryGame = (id, data) => {
 		if(Array.isArray(flag)){
 			let flagArray = [];
 			for(let each in flag){
-				flagArray.push(memory(flag[each]));
+				flagArray.push(gridGen(flag[each]));
 			}
 			return flagArray;
 		} else {
-			return memory[flag];
+			return gridGen[flag];
 		}
 	}
-	//Start Memory Game
-	const StartGame = () => {
-		GenRanSequence();
-		gameStarted = true;
-		memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Game Started'}});
-		memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
-		PlaySequence();
-	}
-	//Build Level Sequence
-	const GenRanSequence = () => {
-		for(let a = 0; a < sequenceChunk; a++){
-			allSequence.push(Math.floor(Math.random()*4))
-		}
-		//console.log(allSequence);
-	}
-	//Play Level Sequence
-	const PlaySequence = () => {
-		//console.log('Playing Sequence');
-		pauseClick = true;
-		if(currMaxSequence >= allSequence.length){
-			GenRanSequence();
-		}
-		let current = 0;
-		playSequenceInterval = setInterval(function() {
-			memoryCores[allSequence[current]].EmitEvent('select');
-			current++;
-			if(current >= currMaxSequence){
-				pauseClick = false;
-				clearInterval(playSequenceInterval);
+
+	return {gridGen, SpawnGrid, DespawnGrid, ToggleSpawn, SetFlag, GetFlag};
+}
+
+//In-Progress
+//Blocks completed, Walls not yet
+//
+//Collision
+//Build a collision map of 0.5 meter sections 
+//Allow or Deny moving outside of collision map
+this.Collision = (gridData) => {
+	let grid = Object.assign({}, gridData);
+	grid.inScene = false;
+	//grid.id
+	//grid.mapSize
+	//grid.edgeCollide
+	//grid.spawn
+
+	grid.mapTopLeft = [];
+	grid.mapTopRight = [];
+	grid.mapBottomLeft = [];
+	grid.mapBottomRight = [];
+	grid.mapAll = [
+		grid.mapTopLeft,
+		grid.mapTopRight,
+		grid.mapBottomLeft,
+		grid.mapBottomRight,
+	];
+
+	//Currently using a single object as a shared map that will be built, reset, rebuilt through each. But wont work well with flags, should each scene have it's own collision map or should I have an object of scenes within the map collision that flags will be saved to and read from.
+
+	//Spawn Object w/ Collision & add to Grid Map Square or Squares
+	//Spawn at center of 0.5 coords - Block : Can't move into from any squares
+	//Spawn at edge of 0.5 coords - Wall/s : Can't move between connected square/s
+	//Spawn off center of 0.5 coords - Wall : Can't move between connected square
+	//Despawn Object w/ Collision & add to Grid Map Square or Squares
+	//
+	//Object moves. Update map to block space they will be moving into and once moved, clear out previous space
+	//Object is interactable when user is in surrounding or specific grid square
+	//Object is auto picked up when user is in specific grid square
+
+
+	//Maps
+	//
+	//-X requires .reverse() on each inner one
+	//-Z requires .reverse() on the outer set
+
+	//Top Left
+	//Loop 1 : -Z
+	//Loop 2 : -X
+	//[1,1,1,1,1,1,1,1,1,1].reverse(),
+	let mapTopLeft = [ 
+	[1,0,0,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,1,0,0,0,0,0,0].reverse(),
+	[1,0,0,0,1,0,0,0,0,0].reverse(),
+	[1,0,1,0,1,0,0,0,0,0].reverse(),
+	[1,0,1,0,0,0,0,0,1,0].reverse(),
+	[1,0,1,0,0,0,0,0,0,0].reverse(),
+	[1,0,1,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,0,0,0,0,0,0,0].reverse()
+	];
+
+	//Top Right
+	//Loop 1 : -Z
+	//Loop 2 : +X
+	let mapTopRight = [ 
+	[0,0,0,0,1,0,0,0,0,1],
+	[0,0,0,0,1,0,0,0,0,1],
+	[0,0,1,0,0,0,1,0,0,1],
+	[0,0,0,0,0,0,1,0,0,1],
+	[0,0,0,0,0,0,1,0,0,1],
+	[0,0,1,0,1,0,0,0,0,1],
+	[0,0,1,0,0,0,0,0,1,1],
+	[0,0,1,0,0,0,0,0,0,1],
+	[0,0,0,1,0,0,0,0,0,1],
+	[0,0,0,0,0,0,0,0,0,1]
+	];
+
+	//Bottom Left
+	//Loop 1 : +Z
+	//Loop 2 : -X
+	let mapBottomLeft = [ 
+	[1,0,0,0,0,0,0,0,0,0].reverse(),
+	[1,0,0,0,1,0,0,0,0,0].reverse(),
+	[1,0,1,0,1,0,0,0,0,0].reverse(),
+	[1,0,1,0,0,0,0,0,1,0].reverse(),
+	[1,0,1,0,0,0,0,0,0,0].reverse(),
+	[1,0,1,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,1,0,0,0,0,0,0].reverse(),
+	[1,1,1,1,1,1,1,1,1,1].reverse()
+	];
+
+	//Bottom Right
+	//Loop 1 : +Z
+	//Loop 2 : +X
+	let mapBottomRight = [ 
+	[0,0,0,0,0,0,0,0,0,1],
+	[0,0,1,0,0,0,1,0,0,1],
+	[0,0,0,0,0,0,1,0,0,1],
+	[0,0,0,0,0,0,1,0,0,1],
+	[1,0,0,1,0,0,0,0,0,1],
+	[0,0,0,0,1,0,0,0,0,1],
+	[1,0,1,0,1,0,0,0,0,1],
+	[0,0,1,0,0,0,0,0,1,1],
+	[1,0,1,0,0,0,0,0,0,1],
+	[1,1,1,1,1,1,1,1,1,1]
+	];
+
+	//Combined Map Array
+	let mapAll = [
+	mapTopLeft.reverse(),
+	mapTopRight.reverse(),
+	mapBottomLeft,
+	mapBottomRight
+	];
+
+
+	//
+	//Basic Block Spawner
+	function basicBlockSpawner(map,parentEl,quadrant) {
+
+	//Loop through Z array set
+	for (let i = 0; i < map.length; i++) {
+
+		//Loop through X array set
+		for (let j = 0; j < map[i].length; j++) {
+
+			//Check for non-interactable obstacles (1)
+			//Spawn Basic Blocks
+			if(map[i][j] === 1){
+				//Create block Entity
+				let block = document.createElement('a-entity');
+				//Set primitive shape
+				block.setAttribute('geometry', {primitive: 'box', width: 0.5, height: 1, depth: 0.5});
+				//Set Material
+				block.setAttribute('material', {shader: "standard", color: "#91502d", opacity: "1",});
+
+				//Add basic block class
+				block.classList.add("block");
+
+				//Set position
+				let posX;
+				let posY = 0.5;//half the height of object
+				let posZ;
+
+				if(quadrant === 'topLeft'){
+					posX = j * -1;
+					posZ = i * -1;
+				} else if(quadrant === 'topRight'){
+					posX = j;
+					posZ = i * -1;
+				} else if(quadrant === 'bottomLeft'){
+					posX = j * -1;
+					posZ = i;
+				} else if(quadrant === 'bottomRight'){
+					posX = j;
+					posZ = i;
+				}
+
+				posX /= 2;
+				posZ /= 2;
+
+				//Set Position
+				let positionVec3 = new THREE.Vector3(posX, posY, posZ);
+				block.setAttribute('position', positionVec3);
+
+				//Attach to parent entity
+				parentEl.appendChild(block);
+			   }//End Basic Block Detection
+
+		}//End X array Loop
+	}//End Z array Loop
+
+	}//End Basic Block Spawner
+
+	//
+	//Map Spawner
+	function mapSpawner(map) {
+
+	//Create parent identity w/ id
+	let blockParent = document.createElement('a-entity');
+	blockParent.setAttribute('id','blockParent');
+	//Append parent entity to scene
+	sceneEl.appendChild(blockParent);
+
+	//Loop through mega array set
+	for (let h = 0; h < map.length; h++) {
+
+		if (h === 0){
+			//Spawn Basic Blocks
+			basicBlockSpawner(map[h],blockParent,'topLeft');
+
+		} else if (h === 1){
+			//Spawn Basic Blocks
+			basicBlockSpawner(map[h],blockParent,'topRight');
+
+		} else if (h === 2){
+			//Spawn Basic Blocks
+			basicBlockSpawner(map[h],blockParent,'bottomLeft');
+
+		} else if (h === 3){
+			//Spawn Basic Blocks
+			basicBlockSpawner(map[h],blockParent,'bottomRight');
+
+		}//End if Checks
+
+	}//End Multi-Map array Loop
+
+	}//End Map Spawner Function
+
+	//
+	//Testing mapSpawner function
+	mapSpawner(mapAll);
+
+	//Init blank map
+	const BuildBlankMap = () => {
+		for(let map in grid.mapAll){
+			for(let a = 0; a < grid.mapSize/2; a++){
+				grid.mapAll[map].push([]);
+				for(let b = 0; b < grid.mapSize/2; b++){
+					grid.mapAll[map][a].push(1);
+				}
 			}
-		}, 750);
+		}
 	}
-	//Check Level Sequence
-	const CheckSequence = () => {
-		//console.log(allSequence);
-		//console.log(playerSequence);
-		//console.log(currInSequence);
-		//console.log(playerSequence[currInSequence]);
-		//console.log(allSequence[currInSequence]);
-		if(playerSequence[currInSequence] === allSequence[currInSequence]){
-			//console.log('Match');
-			currInSequence++;
-			//push selection to front of sequenceRef and remove the last item
-			sequenceTempArray.unshift('X');
-			sequenceTempArray.pop();
-			sequenceRef = sequenceTempArray.join("");
-			memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
+	//Reset to blank map
+	const ResetMap = () => {
+		for(let map in grid.mapAll){
+			grid.mapAll[map].fill(0,0,grid.mapSize/2);
+		}
+	}
+
+	//Update Map
+	const UpdateMap = (pos, mapKey) => {
+
+		//0.5 meter to integer grid adjustment
+		pos.x *= 2;
+		pos.z *= 2;
+
+		if(pos.x < 0 && pos.z < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			mapAll[0][pos.z * -1][pos.x * -1] = mapKey;
+		} else if(pos.x >= 0 && pos.z < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			mapAll[1][pos.z * -1][pos.x] = mapKey
+		} else if(pos.x < 0 && pos.z >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			mapAll[2][pos.z][pos.x * -1] = mapKey;
+		} else if(pos.x >= 0 && pos.z >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			mapAll[3][pos.z][pos.x] = mapKey;
 		} else {
-			//console.log('Game Over');
-			gameStarted = false;
-			if(currMaxSequence-1 > highScore){
-				highScore = currMaxSequence-1;
-				//console.log('New High Score : ' + highScore);
+			console.log('Update out of bounds')
+		}
+
+	}
+
+	//Check for Map Obstacles 0.5 Meter
+	//Corners need 3 squares in L shape to completely block travel
+	const checkMapObstacles = (newPos) => {
+
+		newPos.x *= 2;
+		newPos.z *= 2;
+
+		if(newPos.x < 0 && newPos.z < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			if(mapAll[0].length > newPos.z * -1){
+				if(mapAll[0][newPos.z * -1].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(mapAll[0][newPos.z * -1][newPos.x * -1] === 0){
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
 			} else {
-				//let currentScore = currMaxSequence-1;
-				//console.log('Sequence Score : ' + currentScore);
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
 			}
-			gameOverTimeout1 = setTimeout(function () {
-				gameOverAnim();
-				gameOverTimeout2 = setTimeout(function () {
-					ResetGame();
-					clearTimeout(gameOverTimeout2);
-				}, 2000);
-			}, 250);
-		}
-		if(currInSequence >= currMaxSequence){
-			//console.log('Correct Sequence');
-			currInSequence = 0;
-			currMaxSequence++;
-			currentScore++;
-			memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Current : ' + currentScore}});
-			sequenceTempArray = [];
-			for(let a = 1; a <= currMaxSequence; a++){
-				sequenceTempArray.push('*');
+		} else if(newPos.x >= 0 && newPos.z < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			if(mapAll[1].length > newPos.z * -1){
+				if(mapAll[1][newPos.z * -1].length > newPos.x){
+					//console.log('Within Map');
+					if(mapAll[1][newPos.z * -1][newPos.x] === 0){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
 			}
-			sequenceRef = sequenceTempArray.join("");
-			memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
-			playerSequence = [];
-			roundCompleteTimeout1 = setTimeout(function () {
-				roundCompleteAnim();
-				roundCompleteTimeout2 = setTimeout(function () {
-					PlaySequence();
-					clearTimeout(roundCompleteTimeout2);
-				}, 1500);
-				clearTimeout(roundCompleteTimeout1);
-			}, 250);
-		}
-	}
-	//Reset Game
-	const ResetGame = () => {
-		clearInterval(playSequenceInterval);
-		clearTimeout(roundCompleteTimeout1);
-		clearTimeout(roundCompleteTimeout2);
-		currentScore = 0;
-		currInSequence = 0;
-		currMaxSequence = 1;
-		allSequence = [];
-		playerSequence = [];
-		sequenceTempArray = [];
-		pauseClick = true;
-		gameStarted = false;
-		memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Game Over'}});
-	}
-	//Handle Memory Clicks & Check Sequence
-	function memoryClick(){
-		if(pauseClick){}else{
-			//console.log('Memory Click')
-			//console.log(this.id)
-			let selection;
-			if(this.id === 'memory0'){
-				selection = 0;
-			} else if(this.id === 'memory1'){
-				selection = 1;
-			} else if(this.id === 'memory2'){
-				selection = 2;
-			} else if(this.id === 'memory3'){
-				selection = 3;
+		} else if(newPos.x < 0 && newPos.z >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			if(mapAll[2].length > newPos.z){
+				if(mapAll[2][newPos.z].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(mapAll[2][newPos.z][newPos.x * -1] === 0){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
 			}
-			playerSequence.push(selection);
-			CheckSequence();
-		}
-	}
-	//Play Round Complete Animation
-	function roundCompleteAnim(){
-		for(let each in memoryCores){
-			memoryCores[each].EmitEvent('roundComplete');
-		}
-	}
-	//Play Game Over Animation
-	function gameOverAnim(){
-		for(let each in memoryCores){
-			memoryCores[each].EmitEvent('gameOver');
-		}
-	}
-	//Spawn Game Menu
-	const GameSpawnMenu = () => {
-		memory.GameMenuData = {
-			id: 'memoryGameMenu',
-			prompt: 'Memory Game',
-			options: {option0: '0'},
-			actions: {action0: '0'},
-			data: auxl.menuBaseData,
-			cursorObj: 'memory',
-			method: 'GameMenuClick',
-			pos: new THREE.Vector3(0.75,1.55,-2),
-		}
-		memory.GameMenuData.options['option'+0] = 'Play Game';
-		memory.GameMenuData.actions['action'+0] = 'playGame';
-		memory.GameMenuData.options['option'+1] = 'Reset Game';
-		memory.GameMenuData.actions['action'+1] = 'resetGame';
-
-		memory.gameMenu = auxl.Menu(memory.GameMenuData);
-		memory.gameMenu.SpawnMenu();
-	}
-	//Handle Game Menu Click
-	const GameMenuClick = (el) => {
-		let result = el.getAttribute('result');
-		//console.log(result);
-		if(result === 'playGame'){
-			if(gameStarted){}else{
-				StartGame();
+		} else if(newPos.x >= 0 && newPos.z >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			if(mapAll[3].length > newPos.z){
+				if(mapAll[3][newPos.z].length > newPos.x){
+					if(mapAll[3][newPos.z][newPos.x] === 0){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
 			}
-		} else if(result === 'resetGame'){
-			if(gameStarted){
-				ResetGame();
-			}
+		} else {
+			return false;
 		}
 	}
 
-	return{memory, SpawnMemGame, DespawnMemGame, ToggleSpawn, GameMenuClick, SetFlag, GetFlag};
+	//Check for Map Obstacles 0.5 Meter
+	//Attempting to fix L required corners, only requiring 2 instead of 3
+	const checkMapObstaclesDiagonal = (newPos, pos) => {
+
+		newPos.x *= 2;
+		newPos.z *= 2;
+
+		pos.x *= 2;
+		pos.z *= 2;
+
+		//World direction of movement
+		if(newPos.x === pos.x && newPos.z === pos.z){
+			//console.log('Same Square')
+			travelDirection = 'same';
+		} else {
+			if(newPos.x === pos.x || newPos.z === pos.z){
+				if(newPos.x === pos.x){
+					//console.log('Forward|Backward');
+					travelDirection = 'z';
+				} else if(newPos.z === pos.z){
+					//console.log('Side to Side');
+					travelDirection = 'x';
+				}
+			} else {
+				console.log('Diagonal');
+				if(newPos.x > pos.x){
+					//Right
+					if(newPos.z > pos.z){
+						//Backward
+						travelDirection = 'reverseRight';
+					} else {
+						//Forward
+						travelDirection = 'forwardRight';
+					}
+				} else {
+					//Left
+					if(newPos.z > pos.z){
+						//Backward
+						travelDirection = 'reverseLeft';
+					} else {
+						//Forward
+						travelDirection = 'forwardLeft';
+					}
+				}
+			}
+		}
+
+
+		if(newPos.x < 0 && newPos.z < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			if(mapAll[0].length > newPos.z * -1){
+				if(mapAll[0][newPos.z * -1].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(mapAll[0][newPos.z * -1][newPos.x * -1] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)+1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			if(mapAll[1].length > newPos.z * -1){
+				if(mapAll[1][newPos.z * -1].length > newPos.x){
+					//console.log('Within Map');
+					if(mapAll[1][newPos.z * -1][newPos.x] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)+1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x < 0 && newPos.z >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			if(mapAll[2].length > newPos.z){
+				if(mapAll[2][newPos.z].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(mapAll[2][newPos.z][newPos.x * -1] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(mapAll[0][(newPos.z)+1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			if(mapAll[3].length > newPos.z){
+				if(mapAll[3][newPos.z].length > newPos.x){
+					if(mapAll[3][newPos.z][newPos.x] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(mapAll[0][newPos.z+1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//-Z
+							//+X
+							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else {
+			return false;
+		}
+	}
+
+	//Enable Collision Checks for Locomotion
+	const EnableCollision = () => {
+		auxl.collision = true;
+	}
+	//Disable Collision Checks for Locomotion
+	const DisableCollision = () => {
+		auxl.collision = false;
+	}
+
+	//Spawn Edge Collision Object
+	const SpawnEdge = () => {
+
+	}
+
+	//Despawn Edge Collision Object
+	const DespawnEdge = () => {
+
+	}
+
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			grid[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			grid[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(grid(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return grid[flag];
+		}
+	}
+
+	return {grid, BuildBlankMap, ResetMap, UpdateMap, EnableCollision, DisableCollision, checkMapObstacles, SpawnEdge, DespawnEdge, SetFlag, GetFlag};
 }
 
 //
+//Collision Map
+
+this.mapCollisionData = {
+	data: 'mapCollisionData',
+	id: 'mapCollision',
+	mapSize: 20,
+	edgeCollide: false,
+
+};
+//this.mapCollision = auxl.Collision(auxl.mapCollisionData);
+//this.mapCollision.BuildBlankMap();
+//this.mapCollision.EnableCollision();
+
+//
+//Premade Object Spawning Map Brainstorming
+this.testCoreData = {
+data:'testCore',
+id:'test',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(-1.5,2.5,-1.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
+this.gridObjTest11Data = {
+auxlObj: auxl.objTest11Data,
+mapKeyId: 101,
+size: 1,
+single: true,
+collision: true,
+interactable: false,
+moveable: false,
+walls: false,
+offset: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+
+};
+
+this.mapSpawnData = {
+	data: 'mapSpawnData',
+	id: 'mapCollision',
+	mapSize: 20,
+	edgeCollide: false,
+	spawn: '6 6',//xz coords
+	map:[
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0],
+	],
+
+};
+
+
+
+},
+//Delay Player Load in Animation until Scene is Ready
+checkSceneLoad: function (time, timeDelta) {
+	if(this.loadingObjects.size <= 0){
+		let sceneTimeout;
+		if(this.player.layer.transition.scene === 'blink'){
+			this.blink1Screen.EmitEvent('blinkScene2');
+			this.blink2Screen.EmitEvent('blinkScene2');
+			this.loadingScene = false;
+			sceneTimeout = setTimeout(() => {
+				this.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
+				this.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
+				this.player.layer.teleporting = false;
+				this.player.EnableClick();
+				clearTimeout(sceneTimeout);
+			}, 800);
+		} else if (this.player.layer.transition.scene === 'fade'){
+			this.fadeScreen.EmitEvent('fadeScene2');
+			this.loadingScene = false;
+			sceneTimeout = setTimeout(() => {
+				this.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
+				this.player.layer.teleporting = false;
+				this.player.EnableClick();
+				clearTimeout(sceneTimeout);
+			}, 800);
+		} else if (this.player.layer.transition.scene === 'sphere'){
+			this.sphereScreen.EmitEvent('sphereScene2');
+			this.loadingScene = false;
+			sceneTimeout = setTimeout(() => {
+				this.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
+				this.player.layer.teleporting = false;
+				this.player.EnableClick();
+				clearTimeout(sceneTimeout);
+			}, 800);
+		} else if (this.player.layer.transition.scene === 'instant'){
+			this.loadingScene = false;
+			this.player.layer.teleporting = false;
+			this.player.EnableClick();
+		}
+	}
+},
+//AUXL Tick - Running Throttled checkSceneLoad()
+tick: function (time, timeDelta) {
+	if(this.loadingScene){
+		//Run Throttled checkSceneLoad() after scene was read
+		if(this.sceneReading){} else {
+			this.checkSceneLoadThrottled();
+		}
+	}
+
+},
+
+});
+
+
+//
+//AUXL Blog
+//2D site like blog style ObjGens
+AFRAME.registerComponent('auxl-blog', {
+dependencies: ['auxl'],
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
+
+
+//
 //Image Swapper
-this.ImageSwapper = (id,mainData,buttonData,...materials) => {
+auxl.ImageSwapper = (id,mainData,buttonData,...materials) => {
 //ToDo
 //Add autoplay and pause on hovering
 //Controls either left/right or thumbnails for each
@@ -6611,7 +7258,7 @@ this.ImageSwapper = (id,mainData,buttonData,...materials) => {
 
 //
 //ImageCarousel
-this.ImageCarousel = (carouselData) => {
+auxl.ImageCarousel = (carouselData) => {
 //ToDo
 //Allow the amount of frames to be adjusted
 //Add 180 view non-movement functions
@@ -7412,383 +8059,510 @@ this.ImageCarousel = (carouselData) => {
 	return {imageCarousel, SpawnImgCarousel, DespawnImgCarousel, ToggleSpawn, SetFlag, GetFlag, PlayPause, Forward, Backward, NextPage, PrevPage, RandomPage, Scale, Info};
 }
 
-
 },
-//Delay Player Load in Animation until Scene is Ready
-checkSceneLoad: function (time, timeDelta) {
-	if(this.loadingObjects.size <= 0){
-		let sceneTimeout;
-		if(this.player.layer.transition.scene === 'blink'){
-			this.blink1Screen.EmitEvent('blinkScene2');
-			this.blink2Screen.EmitEvent('blinkScene2');
-			this.loadingScene = false;
-			sceneTimeout = setTimeout(() => {
-				this.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
-				this.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
-				this.player.layer.teleporting = false;
-				this.player.EnableClick();
-				clearTimeout(sceneTimeout);
-			}, 800);
-		} else if (this.player.layer.transition.scene === 'fade'){
-			this.fadeScreen.EmitEvent('fadeScene2');
-			this.loadingScene = false;
-			sceneTimeout = setTimeout(() => {
-				this.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
-				this.player.layer.teleporting = false;
-				this.player.EnableClick();
-				clearTimeout(sceneTimeout);
-			}, 800);
-		} else if (this.player.layer.transition.scene === 'sphere'){
-			this.sphereScreen.EmitEvent('sphereScene2');
-			this.loadingScene = false;
-			sceneTimeout = setTimeout(() => {
-				this.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
-				this.player.layer.teleporting = false;
-				this.player.EnableClick();
-				clearTimeout(sceneTimeout);
-			}, 800);
-		} else if (this.player.layer.transition.scene === 'instant'){
-			this.loadingScene = false;
-			this.player.layer.teleporting = false;
-			this.player.EnableClick();
-		}
-	}
-},
-//AUXL Tick - Running Throttled checkSceneLoad()
-tick: function (time, timeDelta) {
-	if(this.loadingScene){
-		//Run Throttled checkSceneLoad() after scene was read
-		if(this.sceneReading){} else {
-			this.checkSceneLoadThrottled();
-		}
-	}
-
-},
-
 });
 
-
 //
-//New AUXL ObjGen's in Progress
-AFRAME.registerComponent('auxl-objgen-testing', {
+//AUXL Mini Game
+//Unique Game system ObjGens
+AFRAME.registerComponent('auxl-mini-games', {
 dependencies: ['auxl'],
 init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
 //
-//Testing Layer add to parent
-auxl.testAttachData = {
-data:'testAttachData',
-id:'testAttach',
-sources:false,
-text: false,
-geometry: {primitive: 'sphere', radius: 0.4},
-material: {shader: "standard", color: "#c1664b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#c1664b", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,2,-2),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent', 'clickable'],
-components: {
-hovertext:{
-value: 'Testing testing testing',
-offset: 1,
-},
-},
-};
-auxl.testAttach = auxl.Core(auxl.testAttachData);
-auxl.testAttach.SpawnCore();
+//Memory Mini Game
+auxl.MemoryGame = (id, data) => {
+//ToDo
+//Allow for importing of however many button objects to add complexity
+//Listen for first click to start the countdown timer based on how long current sequence is and a timer for in-between single clicks to timeout as well
+	let memory = {};
+	memory.id = id;
+	memory.inScene = false;
+	//Layered Object Generation
+	let layerData = {}
+	let memoryNullParentData = JSON.parse(JSON.stringify(auxl.nullParentData));
+	memoryNullParentData.id = 'memoryParent';
+	memoryNullParentData.position = new THREE.Vector3(0,1,-2);
+	let memoryNullParent = auxl.Core(memoryNullParentData);
+	layerData['parent'] = {};
+	layerData['parent'].core = memoryNullParent;
+	let memoryObjData = {};
+	let memoryCores = {};
+	for(let each in data){
+		memoryObjData = data[each];
+		memoryObjData.id = 'memory' + each;
+		memoryCores[each] = auxl.Core(memoryObjData);
+		layerData['child'+each] = {};
+		layerData['child'+each].core = memoryCores[each];
+	}
+	memory.layer = auxl.Layer('memory',layerData);
 
+	//UI
+	//Game Status
+	auxl.memoryUIData.text = {value:'High Score : 0 | Game Ready', wrapCount: 45, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'};
+	auxl.memoryUIData.position = new THREE.Vector3(0,2.6,-2);
+	auxl.memoryUIData.id = 'memoryUI1';
+	let memoryUI1 =  auxl.Core(auxl.memoryUIData);
 
-auxl.testParentData = {
-data:'testParentData',
-id:'testParent',
-sources:false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-//auxl.testParent = auxl.Core(auxl.testParentData);
+	//Sequence Status
+	auxl.memoryUIData.text = {value:'Sequence : *', wrapCount: 45, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'};
+	auxl.memoryUIData.position = new THREE.Vector3(0,0.35,-2);
+	auxl.memoryUIData.id = 'memoryUI2';
+	let memoryUI2 =  auxl.Core(auxl.memoryUIData);
 
-auxl.testChildData = {
-data:'testChildData',
-id:'testChild',
-sources:false,
-text: false,
-geometry: {primitive: 'box', depth: 0.45, width: 0.45, height: 0.15},
-material: {shader: "standard", color: "#4bb3c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb3c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,2,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent','clickable'],
-components: {
-hovertext:{
-value: 'CHILD CHILD CHILD',
-offset: 1,
-},
-},
-};
-auxl.testChild = auxl.Core(auxl.testChildData);
+	//Game Support
+	let playSequenceInterval;
+	let roundCompleteTimeout1;
+	let roundCompleteTimeout2;
+	let gameOverTimeout1;
+	let gameOverTimeout2;
+	let allSequence = [];
+	let playerSequence = [];
+	let currInSequence = 0;
+	let currMaxSequence = 1;
+	let sequenceRef = '*';
+	let sequenceTempArray = [];
+	let currentScore = 0;
+	let highScore = 0;
+	let sequenceChunk = 5;
+	let pauseClick = true;
+	let gameStarted = false;
 
-auxl.testLayerData = {
-	parent: {core: auxl.testParent},
-	child0: {core: auxl.testChild},
+	//Add memoryClick() Listeners to all Memory Buttons
+	const AddSequenceListeners = () => {
+		for(let each in memoryCores){
+			memoryCores[each].GetEl().addEventListener('click', memoryClick);
+		}
+	}
+	//Remove memoryClick() Listeners from all Memory Buttons
+	const RemoveSequenceListeners = () => {
+		for(let each in memoryCores){
+			memoryCores[each].GetEl().removeEventListener('click', memoryClick);
+		}
+	}
+	//Spawn Memory Game
+	const SpawnMemGame = () => {
+		if(memory.inScene){}else{
+			memory.layer.SpawnLayer();
+			memoryUI1.SpawnCore();
+			memoryUI2.SpawnCore();
+			AddSequenceListeners();
+			GameSpawnMenu();
+			memory.inScene = true;
+		}
+	}
+	//Despawn Memory Game
+	const DespawnMemGame = () => {
+		if(memory.inScene){
+			RemoveSequenceListeners();
+			memory.gameMenu.DespawnMenu()
+			memory.layer.DespawnLayer();
+			memoryUI1.DespawnCore();
+			memoryUI2.DespawnCore();
+			RemoveFromTracker(memory.id);
+			memory.inScene = false;
+		}
+	}
+	//Toggle Spawn
+	const ToggleSpawn = () => {
+		if(memory.inScene){
+			DespawnMemGame();
+		} else {
+			SpawnMemGame();
+		}
+	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+			memory[flagValue[each].flag] = flagValue[each].value;
+			}
+		} else {
+			memory[flagValue.flag] = flagValue.value;
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(memory(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return memory[flag];
+		}
+	}
+	//Start Memory Game
+	const StartGame = () => {
+		GenRanSequence();
+		gameStarted = true;
+		memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Game Started'}});
+		memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
+		PlaySequence();
+	}
+	//Build Level Sequence
+	const GenRanSequence = () => {
+		for(let a = 0; a < sequenceChunk; a++){
+			allSequence.push(Math.floor(Math.random()*4))
+		}
+		//console.log(allSequence);
+	}
+	//Play Level Sequence
+	const PlaySequence = () => {
+		//console.log('Playing Sequence');
+		pauseClick = true;
+		if(currMaxSequence >= allSequence.length){
+			GenRanSequence();
+		}
+		let current = 0;
+		playSequenceInterval = setInterval(function() {
+			memoryCores[allSequence[current]].EmitEvent('select');
+			current++;
+			if(current >= currMaxSequence){
+				pauseClick = false;
+				clearInterval(playSequenceInterval);
+			}
+		}, 750);
+	}
+	//Check Level Sequence
+	const CheckSequence = () => {
+		//console.log(allSequence);
+		//console.log(playerSequence);
+		//console.log(currInSequence);
+		//console.log(playerSequence[currInSequence]);
+		//console.log(allSequence[currInSequence]);
+		if(playerSequence[currInSequence] === allSequence[currInSequence]){
+			//console.log('Match');
+			currInSequence++;
+			//push selection to front of sequenceRef and remove the last item
+			sequenceTempArray.unshift('X');
+			sequenceTempArray.pop();
+			sequenceRef = sequenceTempArray.join("");
+			memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
+		} else {
+			//console.log('Game Over');
+			gameStarted = false;
+			if(currMaxSequence-1 > highScore){
+				highScore = currMaxSequence-1;
+				//console.log('New High Score : ' + highScore);
+			} else {
+				//let currentScore = currMaxSequence-1;
+				//console.log('Sequence Score : ' + currentScore);
+			}
+			gameOverTimeout1 = setTimeout(function () {
+				gameOverAnim();
+				gameOverTimeout2 = setTimeout(function () {
+					ResetGame();
+					clearTimeout(gameOverTimeout2);
+				}, 2000);
+			}, 250);
+		}
+		if(currInSequence >= currMaxSequence){
+			//console.log('Correct Sequence');
+			currInSequence = 0;
+			currMaxSequence++;
+			currentScore++;
+			memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Current : ' + currentScore}});
+			sequenceTempArray = [];
+			for(let a = 1; a <= currMaxSequence; a++){
+				sequenceTempArray.push('*');
+			}
+			sequenceRef = sequenceTempArray.join("");
+			memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
+			playerSequence = [];
+			roundCompleteTimeout1 = setTimeout(function () {
+				roundCompleteAnim();
+				roundCompleteTimeout2 = setTimeout(function () {
+					PlaySequence();
+					clearTimeout(roundCompleteTimeout2);
+				}, 1500);
+				clearTimeout(roundCompleteTimeout1);
+			}, 250);
+		}
+	}
+	//Reset Game
+	const ResetGame = () => {
+		clearInterval(playSequenceInterval);
+		clearTimeout(roundCompleteTimeout1);
+		clearTimeout(roundCompleteTimeout2);
+		currentScore = 0;
+		currInSequence = 0;
+		currMaxSequence = 1;
+		allSequence = [];
+		playerSequence = [];
+		sequenceTempArray = [];
+		pauseClick = true;
+		gameStarted = false;
+		memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Game Over'}});
+	}
+	//Handle Memory Clicks & Check Sequence
+	function memoryClick(){
+		if(pauseClick){}else{
+			//console.log('Memory Click')
+			//console.log(this.id)
+			let selection;
+			if(this.id === 'memory0'){
+				selection = 0;
+			} else if(this.id === 'memory1'){
+				selection = 1;
+			} else if(this.id === 'memory2'){
+				selection = 2;
+			} else if(this.id === 'memory3'){
+				selection = 3;
+			}
+			playerSequence.push(selection);
+			CheckSequence();
+		}
+	}
+	//Play Round Complete Animation
+	function roundCompleteAnim(){
+		for(let each in memoryCores){
+			memoryCores[each].EmitEvent('roundComplete');
+		}
+	}
+	//Play Game Over Animation
+	function gameOverAnim(){
+		for(let each in memoryCores){
+			memoryCores[each].EmitEvent('gameOver');
+		}
+	}
+	//Spawn Game Menu
+	const GameSpawnMenu = () => {
+		memory.GameMenuData = {
+			id: 'memoryGameMenu',
+			prompt: 'Memory Game',
+			options: {option0: '0'},
+			actions: {action0: '0'},
+			data: auxl.menuBaseData,
+			cursorObj: 'memory',
+			method: 'GameMenuClick',
+			pos: new THREE.Vector3(0.75,1.55,-2),
+		}
+		memory.GameMenuData.options['option'+0] = 'Play Game';
+		memory.GameMenuData.actions['action'+0] = 'playGame';
+		memory.GameMenuData.options['option'+1] = 'Reset Game';
+		memory.GameMenuData.actions['action'+1] = 'resetGame';
+
+		memory.gameMenu = auxl.Menu(memory.GameMenuData);
+		memory.gameMenu.SpawnMenu();
+	}
+	//Handle Game Menu Click
+	const GameMenuClick = (el) => {
+		let result = el.getAttribute('result');
+		//console.log(result);
+		if(result === 'playGame'){
+			if(gameStarted){}else{
+				StartGame();
+			}
+		} else if(result === 'resetGame'){
+			if(gameStarted){
+				ResetGame();
+			}
+		}
+	}
+
+	return{memory, SpawnMemGame, DespawnMemGame, ToggleSpawn, GameMenuClick, SetFlag, GetFlag};
 }
-auxl.testLayer = auxl.Layer('testLayer', auxl.testLayerData);
-
-//auxl.testLayer.SpawnLayer(auxl.testAttach);
-
-
-//
-//Testing Object
-auxl.TestObj = (id) => {
-
-	let testObj = {};
-	testObj.id = id;
-	//Cube
-	testObj.testData = {
-	data:'testData',
-	id:'test',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-	material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 1},
-	position: new THREE.Vector3(-1.5,2.5,-1.5),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['clickable','a-ent'],
-	components: {
-		doorway:{zone: 'zone0', to: 'connect0'},
-	},
-	};
-	testObj.test = auxl.Core(testObj.testData);
-
-	const SpawnTest = () => {
-		testObj.test.SpawnCore();
-	}
-
-	const DespawnTest = () => {
-		testObj.test.DespawnCore();
-	}
-
-	const TestMethod = (params) => {
-		console.log(params);
-	}
-
-	return {testObj, SpawnTest, DespawnTest, TestMethod};
-}
-auxl.AddObjGenToTracker('testObj', 'SpawnTest', 'DespawnTest');
-auxl.test = auxl.TestObj('test');
 
 
 //
 //Pet
 auxl.Pet = (petData) => {
 
-let pet = Object.assign({}, petData);
+	let pet = Object.assign({}, petData);
 
-const natures = ['nature1','nature2','nature3'];
-const abilities = ['ability1', 'ability2', 'ability3'];
-const moods = ['sad', 'happy'];
-const energy = ['famished', 'hungry', 'content', 'full',];
-const full = 4;
-const maxStamina = 10;
-const xpLevels = [0, 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600]
+	const natures = ['nature1','nature2','nature3'];
+	const abilities = ['ability1', 'ability2', 'ability3'];
+	const moods = ['sad', 'happy'];
+	const energy = ['famished', 'hungry', 'content', 'full',];
+	const full = 4;
+	const maxStamina = 10;
+	const xpLevels = [0, 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600]
 
-//Nature
-pet.nature = natures[Math.floor(Math.random()*natures.length)];
-//Ability
-pet.ability = natures[Math.floor(Math.random()*abilities.length)];
-//Mana
-pet.mana = Math.floor(Math.random()*5)+5;
-//Mood
-pet.mood = moods[0];
-pet.mind = 0;
-//Hunger
-pet.currHunger = 0;
-pet.hunger = energy[pet.currHunger];
-//Stamina
-pet.stamina = 2;
-//Health
-pet.clean = true;
-pet.maxHealth = 6;
-pet.currHealth = 4;
-//Level
-pet.level = 0;
-//XP
-pet.xp = 0;
-//Age
-pet.age = 0;
-//Currency
-pet.tokens = 0;
-pet.currency = 0;
-//Sleep
-pet.awake = true;
-pet.sleepCycle = false;
-//Menu
-pet.menu = 0;
-//0 : Hidden
-//1 : Main Menu
-//2 : Sub Menu
-//3 : Action
-
-
-
-const DevDisplay = (message, xIs) => {
-	if(xIs){
-		console.log(message + ' ' + pet.name + '.');
-	} else {
-		console.log(pet.name + ' ' + message + '.');
-	}
-}
-
-const SpawnPet = () => {
-	pet.core.SpawnCore();
-
-}
-
-const DespawnPet = () => {
-	pet.core.DespawnCore();
-
-}
-
-const Pet = () => {
-	DevDisplay('Petting', true);
-	pet.mind++;
-	pet.mood = moods[pet.mind];
-	DevDisplay('is ' + pet.mood, false);
-}
-
-const Feed = () => {
-	pet.currHunger++;
+	//Nature
+	pet.nature = natures[Math.floor(Math.random()*natures.length)];
+	//Ability
+	pet.ability = natures[Math.floor(Math.random()*abilities.length)];
+	//Mana
+	pet.mana = Math.floor(Math.random()*5)+5;
+	//Mood
+	pet.mood = moods[0];
+	pet.mind = 0;
+	//Hunger
+	pet.currHunger = 0;
 	pet.hunger = energy[pet.currHunger];
-	DevDisplay( 'is ' + pet.hunger, false);
-}
+	//Stamina
+	pet.stamina = 2;
+	//Health
+	pet.clean = true;
+	pet.maxHealth = 6;
+	pet.currHealth = 4;
+	//Level
+	pet.level = 0;
+	//XP
+	pet.xp = 0;
+	//Age
+	pet.age = 0;
+	//Currency
+	pet.tokens = 0;
+	pet.currency = 0;
+	//Sleep
+	pet.awake = true;
+	pet.sleepCycle = false;
+	//Menu
+	pet.menu = 0;
+	//0 : Hidden
+	//1 : Main Menu
+	//2 : Sub Menu
+	//3 : Action
 
-const Groom = () => {
-	if(pet.clean){} else {
-		pet.clean = true;
-		DevDisplay( 'is clean.', false);
-	}
-}
 
-const Play = () => {
-	if(pet.stamina > 0){
-		DevDisplay('Playing with', true);
-		pet.stamina--;
-		pet.mind++;
-	}
-}
 
-const Heal = () => {
-	if(pet.currHealth < pet.maxHealth){
-		pet.currHealth+=2;
-		DevDisplay('Healing', true);
-		if(pet.currHealth > pet.maxHealth){
-			pet.currHealth = pet.maxHealth;
-		}
-	}
-}
-
-const Quest = () => {
-	if(pet.stamina > 0){
-		DevDisplay('Questing with', false);
-		pet.stamina-=2;
-		if(Math.random()*100-pet.mana>=69){
-			DevDisplay('Completed a quest with ', true);
-			GainXP(10);
+	const DevDisplay = (message, xIs) => {
+		if(xIs){
+			console.log(message + ' ' + pet.name + '.');
 		} else {
-			DevDisplay('Failed a quest with', true);
+			console.log(pet.name + ' ' + message + '.');
 		}
 	}
-}
 
-const GainXP = (xp) => {
-	pet.xp+=xp;
-	if(pet.xp >= xpLevels[pet.level]){
-		DevDisplay(' gained a level!', false);
+	const SpawnPet = () => {
+		pet.core.SpawnCore();
+
 	}
-}
 
-const Gamble = () => {
-	if(pet.tokens > 0){
-		DevDisplay('Gambling with', false);
-		pet.tokens--;
-		if(Math.random()*100>=50){
-			pet.currency++;
-			DevDisplay(' is a winner', false);
+	const DespawnPet = () => {
+		pet.core.DespawnCore();
+
+	}
+
+	const Pet = () => {
+		DevDisplay('Petting', true);
+		pet.mind++;
+		pet.mood = moods[pet.mind];
+		DevDisplay('is ' + pet.mood, false);
+	}
+
+	const Feed = () => {
+		pet.currHunger++;
+		pet.hunger = energy[pet.currHunger];
+		DevDisplay( 'is ' + pet.hunger, false);
+	}
+
+	const Groom = () => {
+		if(pet.clean){} else {
+			pet.clean = true;
+			DevDisplay( 'is clean.', false);
 		}
 	}
-}
 
-const ToggleSleep = () => {
-	if(pet.awake){
-		pet.awake = false;
-		DevDisplay(' is asleep', false);
-	} else {
-		pet.awake = true;
-		DevDisplay(' is awake', false);
+	const Play = () => {
+		if(pet.stamina > 0){
+			DevDisplay('Playing with', true);
+			pet.stamina--;
+			pet.mind++;
+		}
 	}
-}
 
-const Stats = () => {
-console.log(pet);
-}
-
-const Settings = () => {
-//Save
-//Load
-//Reset
-
-}
-
-const spawnPetMainMenu = () => {
-	
-	pet.pos = pet.core.GetEl().getAttribute('position');
-	pet.systemMenuData = {
-		id: 'systemMenu',
-		prompt: 'X - Pet Menu',
-		options: {option0: '0'},
-		actions: {action0: '0'},
-		layout: 'vertical',
-		data: auxl.menuBaseData,
-		cursorObj: pet.id,
-		method: 'mainMenuClick',
-		pos: new THREE.Vector3(pet.pos.x+1,1.5,pet.pos.z-1),
+	const Heal = () => {
+		if(pet.currHealth < pet.maxHealth){
+			pet.currHealth+=2;
+			DevDisplay('Healing', true);
+			if(pet.currHealth > pet.maxHealth){
+				pet.currHealth = pet.maxHealth;
+			}
+		}
 	}
-	/*
-	let currNum = 0;
-	for(let options in systemMenuButtons){
-		pet.systemMenuData.options['option'+currNum] = systemMenuButtons[options];
-		pet.systemMenuData.actions['action'+currNum] = options;
-		currNum++;
+
+	const Quest = () => {
+		if(pet.stamina > 0){
+			DevDisplay('Questing with', false);
+			pet.stamina-=2;
+			if(Math.random()*100-pet.mana>=69){
+				DevDisplay('Completed a quest with ', true);
+				GainXP(10);
+			} else {
+				DevDisplay('Failed a quest with', true);
+			}
+		}
 	}
-	*/
-	pet.systemMenu = auxl.Menu(pet.systemMenuData);
-	pet.systemMenu.SpawnMenu();
-	pet.systemMenu.AddToParentSpawnTracker(pet.systemMenu, pet);
 
-}
+	const GainXP = (xp) => {
+		pet.xp+=xp;
+		if(pet.xp >= xpLevels[pet.level]){
+			DevDisplay(' gained a level!', false);
+		}
+	}
 
-const mainMenuClick = (el) => {
-	let result = el.getAttribute('result');
-	console.log(result);
-}
+	const Gamble = () => {
+		if(pet.tokens > 0){
+			DevDisplay('Gambling with', false);
+			pet.tokens--;
+			if(Math.random()*100>=50){
+				pet.currency++;
+				DevDisplay(' is a winner', false);
+			}
+		}
+	}
 
-return {pet, SpawnPet, DespawnPet, Pet, Feed, Groom, Play, Heal, Quest, Gamble, ToggleSleep, Stats, Settings, spawnPetMainMenu, mainMenuClick}
+	const ToggleSleep = () => {
+		if(pet.awake){
+			pet.awake = false;
+			DevDisplay(' is asleep', false);
+		} else {
+			pet.awake = true;
+			DevDisplay(' is awake', false);
+		}
+	}
+
+	const Stats = () => {
+	console.log(pet);
+	}
+
+	const Settings = () => {
+	//Save
+	//Load
+	//Reset
+
+	}
+
+	const spawnPetMainMenu = () => {
+
+		pet.pos = pet.core.GetEl().getAttribute('position');
+		pet.systemMenuData = {
+			id: 'systemMenu',
+			prompt: 'X - Pet Menu',
+			options: {option0: '0'},
+			actions: {action0: '0'},
+			layout: 'vertical',
+			data: auxl.menuBaseData,
+			cursorObj: pet.id,
+			method: 'mainMenuClick',
+			pos: new THREE.Vector3(pet.pos.x+1,1.5,pet.pos.z-1),
+		}
+		/*
+		let currNum = 0;
+		for(let options in systemMenuButtons){
+			pet.systemMenuData.options['option'+currNum] = systemMenuButtons[options];
+			pet.systemMenuData.actions['action'+currNum] = options;
+			currNum++;
+		}
+		*/
+		pet.systemMenu = auxl.Menu(pet.systemMenuData);
+		pet.systemMenu.SpawnMenu();
+		pet.systemMenu.AddToParentSpawnTracker(pet.systemMenu, pet);
+
+	}
+
+	const mainMenuClick = (el) => {
+		let result = el.getAttribute('result');
+		console.log(result);
+	}
+
+	return {pet, SpawnPet, DespawnPet, Pet, Feed, Groom, Play, Heal, Quest, Gamble, ToggleSleep, Stats, Settings, spawnPetMainMenu, mainMenuClick}
 
 }
 //Pet Core
@@ -7869,878 +8643,77 @@ Main Button
 */
 
 
+},
+});
+
+
 //
-//GridAssetGen
-//Build a scene from a dual array grid of asset related ids
-this.GridAssetGen = (gridGenData) => {
-	let gridGen = Object.assign({}, gridGenData);
-	gridGen.inScene = false;
+//AUXL RPG
+//Adventure game focused ObjGens
+AFRAME.registerComponent('auxl-rpg', {
+dependencies: ['auxl'],
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
 
-	//Generate Grid Cores
-	const genCores = () => {
 
-	}
-	//Spawn all Grid Cores
-	const SpawnGrid = () => {
-		if(gridGen.inScene){}else{
-			genCores();
-			for(let a = 0; a < gridGen.total; a++){
-				gridGen.all[a].SpawnCore();
-			}
-			gridGen.inScene = true;
-		}
-	}
-	//Despawn all Grid Cores
-	const DespawnGrid = () => {
-		if(gridGen.inScene){
-			for(let a = 0; a < gridGen.total; a++){
-				gridGen.all[a].DespawnCore();
-			}
-			RemoveFromTracker(gridGen.id);
-			gridGen.inScene = false;
-		}
-	}
-	//Toggle Spawn
-	const ToggleSpawn = () => {
-		if(gridGen.inScene){
-			DespawnGrid();
-		} else {
-			SpawnGrid();
-		}
-	}
-	//Set Flag & Value to Object - Single or Array
-	const SetFlag = (flagValue) => {
-		if(Array.isArray(flagValue)){
-			for(let each in flagValue){
-			gridGen[flagValue[each].flag] = flagValue[each].value;
-			}
-		} else {
-			gridGen[flagValue.flag] = flagValue.value;
-		}
-	}
-	//Retreive Flag Value from Object - Single or Array
-	const GetFlag = (flag) => {
-		if(Array.isArray(flag)){
-			let flagArray = [];
-			for(let each in flag){
-				flagArray.push(gridGen(flag[each]));
-			}
-			return flagArray;
-		} else {
-			return gridGen[flag];
-		}
+},
+});
+
+
+//
+//AUXL Third Party
+//Externally built ObjGen testing example
+AFRAME.registerComponent('auxl-third-party', {
+dependencies: ['auxl'],
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
+
+
+//
+//Testing Object Custom
+auxl.TestObj = (id) => {
+
+	let testObj = {};
+	testObj.id = id;
+	//Cube
+	testObj.testData = {
+	data:'testData',
+	id:'test',
+	sources: false,
+	text: false,
+	geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+	material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 1},
+	position: new THREE.Vector3(-1.5,2.5,-1.5),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable','a-ent'],
+	components: {
+		doorway:{zone: 'zone0', to: 'connect0'},
+	},
+	};
+	testObj.test = auxl.Core(testObj.testData);
+
+	const SpawnTest = () => {
+		testObj.test.SpawnCore();
 	}
 
-	return {gridGen, SpawnGrid, DespawnGrid, ToggleSpawn, SetFlag, GetFlag};
+	const DespawnTest = () => {
+		testObj.test.DespawnCore();
+	}
+
+	const TestMethod = (params) => {
+		console.log(params);
+	}
+
+	return {testObj, SpawnTest, DespawnTest, TestMethod};
 }
-
-//In-Progress
-//Blocks completed, Walls not yet
-//
-//Collision
-//Build a collision map of 0.5 meter sections 
-//Allow or Deny moving outside of collision map
-this.Collision = (gridData) => {
-	let grid = Object.assign({}, gridData);
-	grid.inScene = false;
-	//grid.id
-	//grid.mapSize
-	//grid.edgeCollide
-	//grid.spawn
-
-	grid.mapTopLeft = [];
-	grid.mapTopRight = [];
-	grid.mapBottomLeft = [];
-	grid.mapBottomRight = [];
-	grid.mapAll = [
-		grid.mapTopLeft,
-		grid.mapTopRight,
-		grid.mapBottomLeft,
-		grid.mapBottomRight,
-	];
-
-
-//Maps
-//
-//-X requires .reverse() on each inner one
-//-Z requires .reverse() on the outer set
-
-//Top Left
-//Loop 1 : -Z
-//Loop 2 : -X
-//[1,1,1,1,1,1,1,1,1,1].reverse(),
-let mapTopLeft = [ 
-[1,0,0,0,0,0,1,0,0,0].reverse(),
-[1,0,0,0,0,0,1,0,0,0].reverse(),
-[1,0,0,0,0,0,1,0,0,0].reverse(),
-[1,0,0,1,0,0,0,0,0,0].reverse(),
-[1,0,0,0,1,0,0,0,0,0].reverse(),
-[1,0,1,0,1,0,0,0,0,0].reverse(),
-[1,0,1,0,0,0,0,0,1,0].reverse(),
-[1,0,1,0,0,0,0,0,0,0].reverse(),
-[1,0,1,0,0,0,1,0,0,0].reverse(),
-[1,0,0,0,0,0,0,0,0,0].reverse()
-];
-
-//Top Right
-//Loop 1 : -Z
-//Loop 2 : +X
-let mapTopRight = [ 
-[0,0,0,0,1,0,0,0,0,1],
-[0,0,0,0,1,0,0,0,0,1],
-[0,0,1,0,0,0,1,0,0,1],
-[0,0,0,0,0,0,1,0,0,1],
-[0,0,0,0,0,0,1,0,0,1],
-[0,0,1,0,1,0,0,0,0,1],
-[0,0,1,0,0,0,0,0,1,1],
-[0,0,1,0,0,0,0,0,0,1],
-[0,0,0,1,0,0,0,0,0,1],
-[0,0,0,0,0,0,0,0,0,1]
-];
-
-//Bottom Left
-//Loop 1 : +Z
-//Loop 2 : -X
-let mapBottomLeft = [ 
-[1,0,0,0,0,0,0,0,0,0].reverse(),
-[1,0,0,0,1,0,0,0,0,0].reverse(),
-[1,0,1,0,1,0,0,0,0,0].reverse(),
-[1,0,1,0,0,0,0,0,1,0].reverse(),
-[1,0,1,0,0,0,0,0,0,0].reverse(),
-[1,0,1,0,0,0,1,0,0,0].reverse(),
-[1,0,0,0,0,0,1,0,0,0].reverse(),
-[1,0,0,0,0,0,1,0,0,0].reverse(),
-[1,0,0,1,0,0,0,0,0,0].reverse(),
-[1,1,1,1,1,1,1,1,1,1].reverse()
-];
-
-//Bottom Right
-//Loop 1 : +Z
-//Loop 2 : +X
-let mapBottomRight = [ 
-[0,0,0,0,0,0,0,0,0,1],
-[0,0,1,0,0,0,1,0,0,1],
-[0,0,0,0,0,0,1,0,0,1],
-[0,0,0,0,0,0,1,0,0,1],
-[1,0,0,1,0,0,0,0,0,1],
-[0,0,0,0,1,0,0,0,0,1],
-[1,0,1,0,1,0,0,0,0,1],
-[0,0,1,0,0,0,0,0,1,1],
-[1,0,1,0,0,0,0,0,0,1],
-[1,1,1,1,1,1,1,1,1,1]
-];
-
-//Combined Map Array
-let mapAll = [
-mapTopLeft.reverse(),
-mapTopRight.reverse(),
-mapBottomLeft,
-mapBottomRight
-];
-
-
-//
-//Basic Block Spawner
-function basicBlockSpawner(map,parentEl,quadrant) {
-
-//Loop through Z array set
-for (let i = 0; i < map.length; i++) {
-
-	//Loop through X array set
-	for (let j = 0; j < map[i].length; j++) {
-
-		//Check for non-interactable obstacles (1)
-		//Spawn Basic Blocks
-		if(map[i][j] === 1){
-			//Create block Entity
-			let block = document.createElement('a-entity');
-			//Set primitive shape
-			block.setAttribute('geometry', {primitive: 'box', width: 0.5, height: 1, depth: 0.5});
-			//Set Material
-			block.setAttribute('material', {shader: "standard", color: "#91502d", opacity: "1",});
-
-			//Add basic block class
-			block.classList.add("block");
-
-			//Set position
-			let posX;
-			let posY = 0.5;//half the height of object
-			let posZ;
-
-			if(quadrant === 'topLeft'){
-				posX = j * -1;
-				posZ = i * -1;
-			} else if(quadrant === 'topRight'){
-				posX = j;
-				posZ = i * -1;
-			} else if(quadrant === 'bottomLeft'){
-				posX = j * -1;
-				posZ = i;
-			} else if(quadrant === 'bottomRight'){
-				posX = j;
-				posZ = i;
-			}
-
-			posX /= 2;
-			posZ /= 2;
-
-			//Set Position
-			let positionVec3 = new THREE.Vector3(posX, posY, posZ);
-			block.setAttribute('position', positionVec3);
-
-			//Attach to parent entity
-			parentEl.appendChild(block);
-		   }//End Basic Block Detection
-
-	}//End X array Loop
-}//End Z array Loop
-
-}//End Basic Block Spawner
-
-//
-//Map Spawner
-function mapSpawner(map) {
-
-//Create parent identity w/ id
-let blockParent = document.createElement('a-entity');
-blockParent.setAttribute('id','blockParent');
-//Append parent entity to scene
-sceneEl.appendChild(blockParent);
-
-//Loop through mega array set
-for (let h = 0; h < map.length; h++) {
-
-	if (h === 0){
-		//Spawn Basic Blocks
-		basicBlockSpawner(map[h],blockParent,'topLeft');
-
-	} else if (h === 1){
-		//Spawn Basic Blocks
-		basicBlockSpawner(map[h],blockParent,'topRight');
-
-	} else if (h === 2){
-		//Spawn Basic Blocks
-		basicBlockSpawner(map[h],blockParent,'bottomLeft');
-
-	} else if (h === 3){
-		//Spawn Basic Blocks
-		basicBlockSpawner(map[h],blockParent,'bottomRight');
-
-	}//End if Checks
-
-}//End Multi-Map array Loop
-
-}//End Map Spawner Function
-
-//
-//Testing mapSpawner function
-mapSpawner(mapAll);
-
-	//Init blank map
-	const BuildBlankMap = () => {
-		for(let map in grid.mapAll){
-			for(let a = 0; a < grid.mapSize/2; a++){
-				grid.mapAll[map].push([]);
-				for(let b = 0; b < grid.mapSize/2; b++){
-					grid.mapAll[map][a].push(1);
-				}
-			}
-		}
-	}
-	//Reset to blank map
-	const ResetMap = () => {
-		for(let map in grid.mapAll){
-			grid.mapAll[map].fill(0,0,grid.mapSize/2);
-		}
-	}
-
-	//Update Map
-	const UpdateMap = (pos, mapKey) => {
-
-		//0.5 meter to integer grid adjustment
-		pos.x *= 2;
-		pos.z *= 2;
-
-		if(pos.x < 0 && pos.z < 0){
-			//Top Left - 0
-			//Loop 1 : -Z
-			//Loop 2 : -X
-			mapAll[0][pos.z * -1][pos.x * -1] = mapKey;
-		} else if(pos.x >= 0 && pos.z < 0){
-			//Top Right - 1
-			//Loop 1 : -Z
-			//Loop 2 : +X
-			mapAll[1][pos.z * -1][pos.x] = mapKey
-		} else if(pos.x < 0 && pos.z >= 0){
-			//Bottom Left - 2
-			//Loop 1 : +Z
-			//Loop 2 : -X
-			mapAll[2][pos.z][pos.x * -1] = mapKey;
-		} else if(pos.x >= 0 && pos.z >= 0){
-			//Bottom Right - 3
-			//Loop 1 : +Z
-			//Loop 2 : +X
-			mapAll[3][pos.z][pos.x] = mapKey;
-		} else {
-			console.log('Update out of bounds')
-		}
-
-	}
-
-	//Check for Map Obstacles 0.5 Meter
-	//Corners need 3 squares in L shape to completely block travel
-	const checkMapObstacles = (newPos) => {
-
-		newPos.x *= 2;
-		newPos.z *= 2;
-
-		if(newPos.x < 0 && newPos.z < 0){
-			//Top Left - 0
-			//Loop 1 : -Z
-			//Loop 2 : -X
-			if(mapAll[0].length > newPos.z * -1){
-				if(mapAll[0][newPos.z * -1].length > newPos.x * -1){
-					//console.log('Within Map');
-					if(mapAll[0][newPos.z * -1][newPos.x * -1] === 0){
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x >= 0 && newPos.z < 0){
-			//Top Right - 1
-			//Loop 1 : -Z
-			//Loop 2 : +X
-			if(mapAll[1].length > newPos.z * -1){
-				if(mapAll[1][newPos.z * -1].length > newPos.x){
-					//console.log('Within Map');
-					if(mapAll[1][newPos.z * -1][newPos.x] === 0){
-						//User can move
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x < 0 && newPos.z >= 0){
-			//Bottom Left - 2
-			//Loop 1 : +Z
-			//Loop 2 : -X
-			if(mapAll[2].length > newPos.z){
-				if(mapAll[2][newPos.z].length > newPos.x * -1){
-					//console.log('Within Map');
-					if(mapAll[2][newPos.z][newPos.x * -1] === 0){
-						//User can move
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x >= 0 && newPos.z >= 0){
-			//Bottom Right - 3
-			//Loop 1 : +Z
-			//Loop 2 : +X
-			if(mapAll[3].length > newPos.z){
-				if(mapAll[3][newPos.z].length > newPos.x){
-					if(mapAll[3][newPos.z][newPos.x] === 0){
-						//User can move
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else {
-			return false;
-		}
-	}
-
-	//Check for Map Obstacles 0.5 Meter
-	//Attempting to fix L required corners, only requiring 2 instead of 3
-	const checkMapObstaclesDiagonal = (newPos, pos) => {
-
-		newPos.x *= 2;
-		newPos.z *= 2;
-
-		pos.x *= 2;
-		pos.z *= 2;
-
-		//World direction of movement
-		if(newPos.x === pos.x && newPos.z === pos.z){
-			//console.log('Same Square')
-			travelDirection = 'same';
-		} else {
-			if(newPos.x === pos.x || newPos.z === pos.z){
-				if(newPos.x === pos.x){
-					//console.log('Forward|Backward');
-					travelDirection = 'z';
-				} else if(newPos.z === pos.z){
-					//console.log('Side to Side');
-					travelDirection = 'x';
-				}
-			} else {
-				console.log('Diagonal');
-				if(newPos.x > pos.x){
-					//Right
-					if(newPos.z > pos.z){
-						//Backward
-						travelDirection = 'reverseRight';
-					} else {
-						//Forward
-						travelDirection = 'forwardRight';
-					}
-				} else {
-					//Left
-					if(newPos.z > pos.z){
-						//Backward
-						travelDirection = 'reverseLeft';
-					} else {
-						//Forward
-						travelDirection = 'forwardLeft';
-					}
-				}
-			}
-		}
-
-
-		if(newPos.x < 0 && newPos.z < 0){
-			//Top Left - 0
-			//Loop 1 : -Z
-			//Loop 2 : -X
-			if(mapAll[0].length > newPos.z * -1){
-				if(mapAll[0][newPos.z * -1].length > newPos.x * -1){
-					//console.log('Within Map');
-					if(mapAll[0][newPos.z * -1][newPos.x * -1] === 0){
-						//Block diagonal movement if both adjacent squares are occupied
-						if(travelDirection === 'forwardRight'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'forwardLeft'){
-							//-Z
-							//-X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)-1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseRight'){
-							//+Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)+1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseLeft'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x >= 0 && newPos.z < 0){
-			//Top Right - 1
-			//Loop 1 : -Z
-			//Loop 2 : +X
-			if(mapAll[1].length > newPos.z * -1){
-				if(mapAll[1][newPos.z * -1].length > newPos.x){
-					//console.log('Within Map');
-					if(mapAll[1][newPos.z * -1][newPos.x] === 0){
-						//Block diagonal movement if both adjacent squares are occupied
-						if(travelDirection === 'forwardRight'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'forwardLeft'){
-							//-Z
-							//-X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)-1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseRight'){
-							//+Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)+1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseLeft'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x < 0 && newPos.z >= 0){
-			//Bottom Left - 2
-			//Loop 1 : +Z
-			//Loop 2 : -X
-			if(mapAll[2].length > newPos.z){
-				if(mapAll[2][newPos.z].length > newPos.x * -1){
-					//console.log('Within Map');
-					if(mapAll[2][newPos.z][newPos.x * -1] === 0){
-						//Block diagonal movement if both adjacent squares are occupied
-						if(travelDirection === 'forwardRight'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'forwardLeft'){
-							//-Z
-							//-X
-							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)-1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseRight'){
-							//+Z
-							//+X
-							if(mapAll[0][(newPos.z)+1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseLeft'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x >= 0 && newPos.z >= 0){
-			//Bottom Right - 3
-			//Loop 1 : +Z
-			//Loop 2 : +X
-			if(mapAll[3].length > newPos.z){
-				if(mapAll[3][newPos.z].length > newPos.x){
-					if(mapAll[3][newPos.z][newPos.x] === 0){
-						//Block diagonal movement if both adjacent squares are occupied
-						if(travelDirection === 'forwardRight'){
-							//-Z
-							//+X
-							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'forwardLeft'){
-							//-Z
-							//-X
-							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x-1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseRight'){
-							//+Z
-							//+X
-							if(mapAll[0][newPos.z+1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseLeft'){
-							//-Z
-							//+X
-							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else {
-			return false;
-		}
-	}
-
-	//Enable Collision Checks for Locomotion
-	const EnableCollision = () => {
-		auxl.collision = true;
-	}
-	//Disable Collision Checks for Locomotion
-	const DisableCollision = () => {
-		auxl.collision = false;
-	}
-
-	//Spawn Edge Collision Object
-	const SpawnEdge = () => {
-
-	}
-
-	//Despawn Edge Collision Object
-	const DespawnEdge = () => {
-
-	}
-
-	//Set Flag & Value to Object - Single or Array
-	const SetFlag = (flagValue) => {
-		if(Array.isArray(flagValue)){
-			for(let each in flagValue){
-			grid[flagValue[each].flag] = flagValue[each].value;
-			}
-		} else {
-			grid[flagValue.flag] = flagValue.value;
-		}
-	}
-	//Retreive Flag Value from Object - Single or Array
-	const GetFlag = (flag) => {
-		if(Array.isArray(flag)){
-			let flagArray = [];
-			for(let each in flag){
-				flagArray.push(grid(flag[each]));
-			}
-			return flagArray;
-		} else {
-			return grid[flag];
-		}
-	}
-
-	return {grid, BuildBlankMap, ResetMap, UpdateMap, EnableCollision, DisableCollision, checkMapObstacles, SpawnEdge, DespawnEdge, SetFlag, GetFlag};
-}
-
-//
-//Collision Map
-//Currently using a single object as a shared map that will be built, reset, rebuilt through each. But wont work well with flags, should each scene have it's own collision map or should I have an object of scenes within the map collision that flags will be saved to and read from.
-this.mapCollisionData = {
-	data: 'mapCollisionData',
-	id: 'mapCollision',
-	mapSize: 20,
-	edgeCollide: false,
-
-};
-//this.mapCollision = auxl.Collision(auxl.mapCollisionData);
-//this.mapCollision.BuildBlankMap();
-//this.mapCollision.EnableCollision();
-
-//AUXL Object Methods
-//
-//Spawn Object w/ Collision & add to Grid Map Square or Squares
-//Spawn at center of 0.5 coords - Block : Can't move into from any squares
-//Spawn at edge of 0.5 coords - Wall/s : Can't move between connected square/s
-//Spawn off center of 0.5 coords - Wall : Can't move between connected square
-//Despawn Object w/ Collision & add to Grid Map Square or Squares
-//
-//Object moves. Update map to block space they will be moving into and once moved, clear out previous space
-//Object is interactable when user is in surrounding or specific grid square
-//Object is auto picked up when user is in specific grid square
-
-//
-//Premade Object Spawning Map
-auxl.testCoreData = {
-data:'testCore',
-id:'test',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(-1.5,2.5,-1.5),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-auxl.gridObjTest11Data = {
-auxlObj: auxl.objTest11Data,
-mapKeyId: 101,
-size: 1,
-single: true,
-collision: true,
-interactable: false,
-moveable: false,
-walls: false,
-offset: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-
-};
-
-this.mapSpawnData = {
-	data: 'mapSpawnData',
-	id: 'mapCollision',
-	mapSize: 20,
-	edgeCollide: false,
-	spawn: '6 6',//xz coords
-	map:[
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	],
-
-};
+//Dynamically Add to Tracker
+auxl.AddObjGenToTracker('testObj', 'SpawnTest', 'DespawnTest');
+auxl.test = auxl.TestObj('test');
 
 
 },
