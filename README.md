@@ -55,6 +55,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 ---
 
 # v0.3 Beta Updates : :fire:
+# v0.3 Beta Updates : :fire:
 - Custom Object Generators can now be added dynamically to Scenario, Zone, Node and Book Trackers.
 - Updated all ObjGen's to support SetFlag & GetFlag methods, so now If/Else Instructions support all AUXL object.
 - Updated ObjGen's to track if they are already spawned to avoid duplicates and added ToggleSpawn method for use ideally with action controls. Objects added this way are not added to any tracker currently.
@@ -78,11 +79,23 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Zone's can now define if the basic Travel menu will display. Travel menu will always update in Companion Menu and other objects aka Doorways can be configured for Travel as well.
 - Updated Spawn/DespawnCore and Spawn/DespawnLayer. Layer's can now be attached to a Parent entity via AUXL.object, entity or element ID.
 - Multi-Menu Updates
+- - Supports Circle Up, Circle Down, Vertical and Horizontal Layouts
 - - Fixed an issue with how actions were being added.
 - - Dynamically update a subMenu with UpdateSubMenu() method.
 - - Parent can now be dynamically updated via the method UpdateParent().
 - - Actions can now control how the menu reacts on click whether to stay open, goBack a menu or close.
 - - Can now be configured to 'stare' at an object with look-at-xyz component providing the id and which axis x,y and/or z angles.
+- Added support to Multi-Menu for Circle Down Layout
+- Re-arranged all components into 4 javascript file categories : System, Support, Addons and Scenes.
+- User position is reset back to 0,0,0 on scene change
+- Added new hovertext support component which on mousehover will display configured text either on top or in front of the object and rotates to user view.
+- Ham Companion now accepts a Layer as an Avatar
+- Added raycast-teleportation-select that spawns a select button on click
+- Added in-progress Mini Games SwipeLaunchGame & GuessHitGame, DragDiffuse
+- Add in-progress Pet, Battler & BattleRef systems
+- Add in-progress gimbal controller of the player avatar 1st/3rd
+- Add Test shared portfolio basic structure and system. Test Load and Save of portfolio to localstorage. ApplySettings, ApplyColorScheme & ApplySystemText functions.
+- Add in-progress Gimbal controller
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
