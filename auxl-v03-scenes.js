@@ -15,235 +15,7 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
-//
-//Ghost
 
-//Parent
-auxl.ghostParentData = {
-data:'ghostParentData',
-id:'ghostParent',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,1,-2),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(0.9,0.9,0.9),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-['look-at']:'#camera',
-},
-};
-auxl.ghostParent = auxl.Core(auxl.ghostParentData);
-//EyeSocket
-auxl.eyeSocketData = {
-data:'eyeSocketData',
-id:'eye1Socket',
-sources: false,
-text: false,
-geometry: {primitive: 'cylinder', radius: 0.175, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360},
-material: {shader: "standard", color: "#fcfafd", emissive: '#fcfafd', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
-position: new THREE.Vector3(-0.15,0.1,0.4),
-rotation: new THREE.Vector3(90,0,0),
-scale: new THREE.Vector3(0.75,1,1),
-animations: {
-powerup1: {property: 'material.color', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
-powerup2: {property: 'material.emissive', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
-powerdown1: {property: 'material.color', to: '#fcfafd', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
-powerdown2: {property: 'material.emissive', to: '#fcfafd', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
-},
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-//Eye1Socket
-auxl.eye1Socket = auxl.Core(auxl.eyeSocketData);
-//Eye2Socket
-auxl.eyeSocketData.id = 'eye2Socket';
-auxl.eyeSocketData.position = new THREE.Vector3(0.15,0.1,0.4);
-auxl.eye2Socket = auxl.Core(auxl.eyeSocketData);
-//EyePupil
-auxl.eyePupilData = {
-data:'eyePupilData',
-id:'eye1Pupil',
-sources: false,
-text: false,
-geometry: {primitive: 'cylinder', radius: 0.1, height: 0.025, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360},
-material: {shader: "standard", color: "#1500fa", emissive: '#1500fa', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
-position: new THREE.Vector3(0,0.01,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1.25,1,1),
-animations: {
-lookdown: {property: 'position', to: new THREE.Vector3(0,0.01,0.07), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookDown'},
-lookup: {property: 'position', to: new THREE.Vector3(0,0.01,-0.07), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookUp'},
-lookright: {property: 'position', to: new THREE.Vector3(0.05,0.01,0), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookRight'},
-lookleft: {property: 'position', to: new THREE.Vector3(-0.05,0.01,0), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookLeft'},
-
-powerup1: {property: 'material.color', to: '#fcfafd', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
-powerup2: {property: 'material.emissive', to: '#fcfafd', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
-powerdown1: {property: 'material.color', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
-powerdown2: {property: 'material.emissive', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
-},
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-//Eye1Pupil
-auxl.eye1Pupil = auxl.Core(auxl.eyePupilData);
-//Eye2Pupil
-auxl.eyePupilData.id = 'eye2Pupil';
-auxl.eye2Pupil = auxl.Core(auxl.eyePupilData);
-//Mouth
-auxl.mouthData = {
-data:'mouthData',
-id:'mouth',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-powerup: {property: 'visible', to: true, dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
-powerdown: {property: 'visible', to: false, dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
-},
-mixins: false,
-classes: ['a-ent'],
-components: {
-visible: false,
-line:{start: new THREE.Vector3(-0.3,-0.2,0.41), end: new THREE.Vector3(-0.2,-0.15,0.41), color: 'white'},
-['line__2']:{start: new THREE.Vector3(-0.2,-0.15,0.41), end: new THREE.Vector3(-0.1,-0.2,0.41), color: 'white'},
-['line__3']:{start: new THREE.Vector3(-0.1,-0.2,0.41), end: new THREE.Vector3(0,-0.15,0.41), color: 'white'},
-['line__4']:{start: new THREE.Vector3(0,-0.15,0.41), end: new THREE.Vector3(0.1,-0.2,0.41), color: 'white'},
-['line__5']:{start: new THREE.Vector3(0.1,-0.2,0.41), end: new THREE.Vector3(0.2,-0.15,0.41), color: 'white'},
-['line__6']:{start: new THREE.Vector3(0.2,-0.15,0.41), end: new THREE.Vector3(0.3,-0.2,0.41), color: 'white'},
-},
-};
-auxl.mouth = auxl.Core(auxl.mouthData);
-//Spin
-auxl.spinData = {
-data:'spinData',
-id:'spin',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,-0.1,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-rotate: {property: 'object3D.rotation.y', from: 0, to: 360, dur: 1500, delay: 0, loop: true, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true},
-},
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-auxl.spin = auxl.Core(auxl.spinData);
-//Head
-auxl.headData = {
-data:'headData',
-id:'head',
-sources: false,
-text: false,
-geometry: {primitive: 'sphere', radius: 0.4, phiStart: 0, phiLength: 180, segmentsWidth: 16, segmentsHeight: 16, thetaStart: 0, thetaLength: 180},
-material: {shader: "standard", color: "#C14B76", emissive: '#C14B76', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
-position: new THREE.Vector3(0,0.15,0),
-rotation: new THREE.Vector3(-90,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-powerup1: {property: 'material.color', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
-powerup2: {property: 'material.emissive', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
-powerdown1: {property: 'material.color', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
-powerdown2: {property: 'material.emissive', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
-},
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-auxl.head = auxl.Core(auxl.headData);
-//Body
-auxl.bodyData = {
-data:'bodyData',
-id:'body',
-sources: false,
-text: false,
-geometry: {primitive: 'cylinder', radius: 0.4, height: 0.3, openEnded: false, segmentsHeight: 2, segmentsRadial: 32, thetaStart: 0, thetaLength: 360},
-material: {shader: "standard", color: "#C14B76", emissive: '#C14B76', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-powerup1: {property: 'material.color', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
-powerup2: {property: 'material.emissive', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
-powerdown1: {property: 'material.color', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
-powerdown2: {property: 'material.emissive', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
-},
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-auxl.body = auxl.Core(auxl.bodyData);
-//Legs
-auxl.legData = {
-data:'legData',
-id:'leg1',
-sources: false,
-text: false,
-geometry: {primitive: 'cone', radiusBottom: 0, radiusTop: 0.15, height: 0.2, openEnded: false, segmentsHeight: 4, segmentsRadial: 8, thetaStart: 0, thetaLength: 360},
-material: {shader: "standard", color: "#C14B76", emissive: '#C14B76', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
-position: new THREE.Vector3(-0.25,-0.25,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-powerup1: {property: 'material.color', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
-powerup2: {property: 'material.emissive', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
-powerdown1: {property: 'material.color', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
-powerdown2: {property: 'material.emissive', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
-},
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-//Leg 1
-auxl.leg1 = auxl.Core(auxl.legData);
-//Leg 2
-auxl.legData.id = 'leg2'
-auxl.legData.position = new THREE.Vector3(0.25,-0.25,0);
-auxl.leg2 = auxl.Core(auxl.legData);
-//Leg 3
-auxl.legData.id = 'leg3'
-auxl.legData.position = new THREE.Vector3(0,-0.25,-0.25);
-auxl.leg3 = auxl.Core(auxl.legData);
-//Leg 4
-auxl.legData.id = 'leg4'
-auxl.legData.position = new THREE.Vector3(0,-0.25,0.25);
-auxl.leg4 = auxl.Core(auxl.legData);
-//Ghost Layer
-auxl.ghostLayerData = {
-	parent: {core: auxl.ghostParent}, 
-	child0: {
-		parent: {core: auxl.eye1Socket}, 
-		child0: {core: auxl.eye1Pupil}, 
-	}, 
-	child1: {
-		parent: {core: auxl.eye2Socket}, 
-		child0: {core: auxl.eye2Pupil}, 
-	}, 
-	child2: {core: auxl.mouth},
-	child3: {
-		parent: {core: auxl.spin}, 
-		child0: {core: auxl.head}, 
-		child1: {core: auxl.body}, 
-		child2: {core: auxl.leg1}, 
-		child3: {core: auxl.leg2}, 
-		child4: {core: auxl.leg3}, 
-		child5: {core: auxl.leg4}, 
-	}, 
-}
-auxl.ghost = auxl.Layer('ghost',auxl.ghostLayerData);
 
 
 
@@ -814,6 +586,50 @@ auxl.npcKeyBody = auxl.Core(auxl.npcKeyBodyData);
 auxl.npcKeyBubble = auxl.Core(auxl.npcKeyBubbleData);
 auxl.npcKeyGiver = auxl.NPC(auxl.npcKeyBody, auxl.npcKeyBookData, auxl.npcKeyBubble);
 
+//
+//Doorways
+
+//Doorway1
+auxl.doorway1Data = {
+data:'doorway1Data',
+id:'doorway1',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.1, width: 1, height: 1.5},
+material: {shader: "standard", src: auxl.pattern16, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 0.75},
+position: new THREE.Vector3(-1.5,0.75,-1.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+	doorway:{zone: 'zone0', to: 'connect0'},
+	hovertext:{value: 'Doorway to Scene 1',  hover: 'front', offset: 0.5, x: false, y: true, z: false},
+},
+};
+auxl.doorway1 = auxl.Core(auxl.doorway1Data);
+
+//Doorway2
+auxl.doorway2Data = {
+data:'doorway2Data',
+id:'doorway2',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.1, width: 1, height: 1.5},
+material: {shader: "standard", src: auxl.pattern16, repeat: '1 1', color: "#9439a5", emissive: '#9439a5', emissiveIntensity: 0.25, opacity: 0.75},
+position: new THREE.Vector3(-2.75,0.75,-1.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+	doorway:{zone: 'zone0', to: 'connect1'},
+	hovertext:{value: 'Doorway to Scene 2', hover: 'top', offset: 1, x: true, y: true, z: true},
+},
+};
+auxl.doorway2 = auxl.Core(auxl.doorway2Data);
 
 },
 });
@@ -956,16 +772,20 @@ auxl.zone0Scene0Data = {
 	},
 	start:{
 		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#1e7e5d", emissive: "#1e7e5d",},}},
-		biome:{SpawnMultiAsset:null},
+		//biome:{SpawnMultiAsset:null},
 		hills:{SpawnHorizon:null},
-		teleport:{SpawnTeleport:null},
-		test:{SpawnTest:null},
-		ghost:{SpawnLayer:null},
+		//teleport:{SpawnTeleport:null},
+		//test:{SpawnTest:null},
+		//guessHitGame:{SpawnGHGame:null},
+		doorway1:{SpawnCore:null},
+		doorway2:{SpawnCore:null},
+		//ghost:{SpawnLayer:null},
 		//multiMenuTest:{SpawnMultiMenu:null},
 	},
 	delay:{
 	},
 	interval:{
+/*
 		5000: {
 			run: {ghost:{IfElse: {ghost: {cond: 'power',
 			ifTrue: {
@@ -976,6 +796,7 @@ auxl.zone0Scene0Data = {
 			},
 			},}},}, loop: 2
 		},
+*/
 	},
 	event:{
 	},
@@ -1068,8 +889,9 @@ auxl.zone1Scene0Data = {
 	controls:{
 	},
 	start:{
-		floor:{ChangeSelf:[{property: 'material', value: {src: auxl.pattern80, repeat: '150 150',color: "#21679a", emissive: "#21679a",},},{property: 'position', value: new THREE.Vector3(0,0,0),},{property: 'raycast-teleportation', value: null,}],},
+		floor:{ChangeSelf:[{property: 'material', value: {src: auxl.pattern80, repeat: '150 150',color: "#21679a", emissive: "#21679a",},},{property: 'position', value: new THREE.Vector3(0,0,0),},{property: 'raycast-teleportation-select', value: null,}],},
 		basicRing:{SpawnObjRing:null},
+		swipeLaunchGame:{SpawnSLGame:null},
 	},
 	delay:{
 	},
@@ -1090,6 +912,9 @@ auxl.zone1Scene0Data = {
 auxl.zone1Scene0 = auxl.SceneNode(auxl.zone1Scene0Data);
 //Map Zone 1
 auxl.zone1 = auxl.MapZone(auxl.zone1Data);
+
+
+auxl.systemLoaded();
 
     },
 });

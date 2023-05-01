@@ -26,14 +26,16 @@
 </head>
 <!-- A-Frame UX Library Engine v0.3 -->
 <script src="./auxl-v03-system.js"></script>
+<script src="./auxl-v03-support.js"></script>
+<script src="./auxl-v03-addons.js"></script>
 <script src="./auxl-v03-scenes.js"></script>
 
-<body>
+<body id="htmlBody">
 <!-- Sticky -->
 <div id="stickyBar" class="sticky flexRow">
 	<span class="flexRow flexStart">
 		<img id="stickyIcon" src="./assets/img/favicon/favicon-32x32.png" alt="site-icon" / class="flexCol">
-		<span id="stickyTitle" class="flexCol"><h3> A-Frame UX Library | v0.3</h3></span>
+		<span id="stickyTitle" class="flexCol"><h3 id='systemText'> A-Frame UX Library | v0.3</h3></span>
 	</span>
 	<span class="flexRow">
 		<span class="flexCol"><h4 id="scenarioHeaderTitle"></h4></span>
@@ -63,12 +65,12 @@
 </div>
 <main>
 <a-scene
-auxl
+auxl="id: '#000000'; color: #000000; shortname: 'minty'; longname: 'Minty Crisp'; onlineKey: 'systemPassCode' ;"; 
+auxl-library
 auxl-blog
 auxl-mini-games
 auxl-rpg
 auxl-third-party
-auxl-library
 auxl-scene-library
 auxl-scenes
 vr-mode-ui="enabled: true;"
@@ -85,7 +87,6 @@ renderer="antialias: true; colorManagement: true; sortObjects: true"
 <!-- - - - - - - - - - - Mixins - - - - - - - - - - -->
 
 </a-assets>
-<!-- - - - - - - - - - - Ghost1 - - - - - - - - - - -->
 
 <!-- - - - - - - - - - - Player Controls - - - - - - - - - - -->
 <a-entity id="playerRig" position="0 0 0.5"

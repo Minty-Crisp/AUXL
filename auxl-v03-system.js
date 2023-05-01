@@ -11,25 +11,24 @@
 //AUXL System
 //Main System, ObjGens & Support Functions
 AFRAME.registerSystem('auxl', {
+schema: {
+	id: {type: 'string', default:'#FFFFFF'},
+	color: {type: 'string', default: '#FFFFFF'},
+	shortname: {type: 'string', default: '#FFFFFF'},
+	longname: {type: 'string', default: '#FFFFFF'},
+	server: {type: 'string', default: 'localhost'},
+	onlineKey: {type: 'string', default: 'FFFFFF'},
+},
 init: function () {
-// System
+
 /*************************************************************/
-//
-//HTML Elements
-const sceneEl = document.querySelector('a-scene');
-const head = document.querySelector('head');
-const stickyMenu = document.getElementById('stickyMenu');
-const beginDiv = document.getElementById('beginDiv');
-const startButton = document.getElementById('startButton');
-const menuModeButton = document.getElementById('menuModeButton');
-const audioButton = document.getElementById('audioButton');
-const viewInfo = document.getElementById('viewInfo');
-const expInfo = document.getElementById('expInfo');
-const infoClose = document.getElementById('infoClose');
-const instructions = document.getElementById('instructions');
-const scenarioHeaderTitle = document.getElementById('scenarioHeaderTitle');
-const scenarioMenuTitle = document.getElementById('scenarioMenuTitle');
-const controllerBlock = document.getElementById('controllerBlock');
+//System
+const auxl = this;
+this.expStarted = false;
+this.defaultScenario;
+this.localProfile = {};
+
+//Controller
 let playerRig;
 let camera;
 let cameraUI;
@@ -39,10 +38,8 @@ let vrController1;
 let vrController1UI;
 let vrController2;
 let vrController2UI;
-//System
-const auxl = this;
-this.expStarted = false;
-this.defaultScenario;
+
+
 //Throttled Scene Loading Function
 this.checkSceneLoadThrottled = AFRAME.utils.throttle(this.checkSceneLoad, 30, this);
 this.sceneReading = false;
@@ -54,14 +51,178 @@ this.jsAll = {
 ['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',
 //threeGradShader: 'https://unpkg.com/@tlaukkan/aframe-three-color-gradient-shader@0.0.1/index.js',//Shaders needs it's own checker
 };
+
+/*************************************************************/
+//HTML Elements
+const sceneEl = document.querySelector('a-scene');
+const head = document.querySelector('head');
+const body = document.querySelector('body');
+const stickyMenu = document.getElementById('stickyMenu');
+const stickyTitle = document.getElementById('stickyTitle');
+const systemText = document.getElementById('systemText');
+const beginDiv = document.getElementById('beginDiv');
+const startButton = document.getElementById('startButton');
+const menuModeButton = document.getElementById('menuModeButton');
+const audioButton = document.getElementById('audioButton');
+const viewInfo = document.getElementById('viewInfo');
+const expInfo = document.getElementById('expInfo');
+const infoClose = document.getElementById('infoClose');
+const instructions = document.getElementById('instructions');
+const scenarioHeaderTitle = document.getElementById('scenarioHeaderTitle');
+const scenarioMenuTitle = document.getElementById('scenarioMenuTitle');
+const controllerBlock = document.getElementById('controllerBlock');
+const vrHandButton = document.getElementById('vrHandButton');
+//Mobile HTML Buttons
+const mobileUpLeft = document.getElementById('upLeft');
+const mobileUp = document.getElementById('up');
+const mobileUpRight = document.getElementById('upRight');
+const mobileLeft = document.getElementById('left');
+const mobileCenter = document.getElementById('center');
+const mobileRight = document.getElementById('right');
+const mobileDownLeft = document.getElementById('downLeft');
+const mobileDown = document.getElementById('down');
+const mobileDownRight = document.getElementById('downRight');
+const mobileSelect = document.getElementById('select');
+const mobileStart = document.getElementById('start');
+const mobileA = document.getElementById('a');
+const mobileB = document.getElementById('b');
+const mobileC = document.getElementById('c');
+const mobileD = document.getElementById('d');
+const mobileE = document.getElementById('e');
+const mobileF = document.getElementById('f');
+const mobileL = document.getElementById('l');
+const mobileR = document.getElementById('r');
+
+let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, viewInfo, expInfo, infoClose, instructions, scenarioMenuTitle, controllerBlock, vrHandButton];
+
+let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, controllerBlock, mobileUpLeft, mobileUp, mobileUpRight, mobileLeft, mobileCenter, mobileRight, mobileDownLeft, mobileDown, mobileDownRight, mobileSelect, mobileStart, mobileA, mobileB, mobileC, mobileD, mobileE, mobileF, mobileL, mobileR];
+
+
+// System Configure
+/*************************************************************/
+this.systemLoaded = () => {
+	//loadStorage();
+	newStorage();
+	let loadTimeout = setTimeout((e) => {
+		ApplySettings();
+		this.localProfile.systemText+= ' | DONE';
+	    console.log("System Loaded", e, Date(), this.localProfile.id, this.localProfile.shortname, this.localProfile.colorScheme.base, this.localProfile.systemText);
+		UpdateSystemText(this.localProfile.systemText);
+		clearTimeout(loadTimeout);
+	}, 100);
+}
+
+const Default = () => {
+	this.localProfile = {};
+	this.localProfile.id = this.data.id;
+	this.localProfile.color = this.data.color;
+	this.localProfile.colorScheme = auxl.colorTheoryGen(false, 'black');
+	this.localProfile.shortname = this.data.shortname;
+	this.localProfile.longname = this.data.longname;
+	this.localProfile.server = this.data.server;
+	this.localProfile.onlineKey = this.data.onlineKey;
+
+	this.localProfile.systemText = 'Welcome ' + this.localProfile.shortname + '! ID :'+ this.localProfile.id + '| AUXL Engine v0.3.3!\n ^-^!\n Starting...';
+	this.systemText = this.localProfile.systemText
+	
+}
+
+const ApplySettings = () => {
+	ApplyColorScheme();
+	ApplySystemText();
+	console.log('Settings Applied')
+}
+
+const ApplyColorScheme = () => {
+	//HTML
+	for(let element in htmlBackground){
+		htmlBackground[element].style.setProperty('background-color', this.localProfile.colorScheme.base);
+		htmlBackground[element].style.setProperty('color-text', this.localProfile.colorScheme.compl);
+	}
+	for(let element in htmlForeground){
+		htmlForeground[element].style.setProperty('background-color', 'transparent');
+		htmlForeground[element].style.setProperty('color-text', this.localProfile.colorScheme.compl);
+		htmlForeground[element].style.setProperty('border-color', this.localProfile.colorScheme.compl);
+	}
+	//Camera UI
+	auxl.cameraUI.ChangeSelf({property: 'material', value: {color: this.localProfile.colorScheme.base,}})
+	auxl.cameraUI.ChangeSelf({property: 'text', value: {color: this.localProfile.colorScheme.compl,}})
+	//Floor
+	auxl.playerFloor.ChangeSelf({property: 'material', value: {color: this.localProfile.colorScheme.base,}})
+	auxl.playerFloor.ChangeSelf({property: 'text', value: {color: this.localProfile.colorScheme.compl,}})
+	//Hands
+	//Floor
+	auxl.vrController1UI.ChangeSelf({property: 'material', value: {color: this.localProfile.colorScheme.base,}})
+	auxl.vrController1UI.ChangeSelf({property: 'text', value: {color: this.localProfile.colorScheme.compl,}})
+	auxl.vrController2UI.ChangeSelf({property: 'material', value: {color: this.localProfile.colorScheme.base,}})
+	auxl.vrController2UI.ChangeSelf({property: 'text', value: {color: this.localProfile.colorScheme.compl,}})
+
+	//console.log('Color Applied');
+}
+
+const ApplySystemText = () => {
+	//HTML
+	systemText.innerHTML = this.systemText;
+	//Camera UI
+	auxl.cameraUI.ChangeSelf({property: 'text', value: {value: this.systemText,}})
+	//Hands
+	auxl.vrController1UI.ChangeSelf({property: 'text', value: {value: this.systemText,}})
+	auxl.vrController2UI.ChangeSelf({property: 'text', value: {value: this.systemText,}})
+
+	//console.log('System Text Applied');
+}
+
+const UpdateSystemText = (text) => {
+	this.systemText = text;
+	ApplySystemText()
+}
+
+// Local Storage
+/*************************************************************/
+//If the value exists then we have already entered once, do not repeat link anims
+const newStorage = () => {
+	//Testing
+	//Fresh Session, Initiliaze Site Wide Settings
+	this.new = true;
+	//Assign Completion to Storage
+	window.localStorage.setItem('auxl', this.localProfile);
+	//
+	Default();
+	//Test Logging
+	console.log('New here. Loading default data.');
+
+}
+const localStorage = () => {
+	//Return Session, Load Site Wide Settings
+	//Test Logging
+	console.log('Loading...');
+	//Overwrite default profile
+	this.localProfile = window.localStorage.getItem('auxl');
+	this.new = false;
+	console.log('storage value : ' + this.localProfile);
+}
+
+function loadStorage(){
+	if(localStorage.getItem('auxl')){
+		localStorage();
+	} else {
+		newStorage();
+	}
+}
+
+
+
+
+/*************************************************************/
+
+
 //Controls
 this.universalControls;
 this.controls = 'Desktop';
 this.vrHand = 'bothRight';
 //Joystick Movement Configurations : 1,4,8
 this.joystickLoco = 8;
-
-
+this.joystickRot = 8;
 //Menu
 this.menuOpen = true;
 this.infoOpen = false;
@@ -77,6 +238,7 @@ this.bookSpawned = {};
 this.spawnedWaitingForJS = {};
 //Scenario, Zone, Node & Books use this to confirm before using spawnTracker
 //All Named Object Spawn Functions
+//Unique Spawn/Despawn methods required
 this.objGenTracking = {
 core:{type:'core', spawn: 'SpawnCore', despawn: 'DespawnCore'},
 layer:{type:'layer', spawn: 'SpawnLayer', despawn: 'DespawnLayer'},
@@ -94,6 +256,9 @@ skyBox:{type:'skyBox', spawn: 'SpawnSkyBox', despawn: 'DespawnSkyBox'},
 imageSwapper:{type:'imageSwapper', spawn: 'SpawnImgSwap', despawn: 'DespawnImgSwap'},
 imageCarousel:{type:'imageCarousel', spawn: 'SpawnImgCarousel', despawn: 'DespawnImgCarousel'},
 memory:{type:'memory', spawn: 'SpawnMemGame', despawn: 'DespawnMemGame'},
+swipeLaunch:{type:'swipeLaunch', spawn: 'SpawnSLGame', despawn: 'DespawnSLGame'},
+guessHit:{type:'guessHit', spawn: 'SpawnGHGame', despawn: 'DespawnGHGame'},
+dragDiffuse:{type:'dragDiffuse', spawn: 'SpawnDDGame', despawn: 'DespawnDDGame'},
 };
 //Add Custom Built Object to Tracker
 this.AddObjGenToTracker = (type, spawn, despawn) => {
@@ -437,6 +602,42 @@ infoClose.addEventListener('click', toggleInfo);
 
 //
 //Support
+
+//Date Testing
+const ms = Date.now();//ms
+const date = Date();//string
+const start = new Date();//ms
+const end = new Date();//ms
+const elapsed = end.getTime() - start.getTime();
+
+const birthday0 = new Date("1995-12-17T03:24:00"); // This is ISO-8601-compliant and will work reliably
+const birthday1 = new Date(1995, 11, 17); // the month is 0-indexed
+const birthday2 = new Date(1995, 11, 17, 3, 24, 0);
+
+const getFullYear = birthday0.getFullYear();
+const getMonth = birthday0.getMonth();
+const getDate = birthday0.getDate();
+const getDay = birthday0.getDay();
+const getHours = birthday0.getHours();
+const getMinutes = birthday0.getMinutes();
+const getSeconds = birthday0.getSeconds();
+
+
+
+/*
+localStorage.setItem("myCat", "Tom");
+const cat = localStorage.getItem("myCat");
+localStorage.removeItem("myCat");
+localStorage.clear();
+*/
+/*
+sessionStorage.setItem("myCat", "Tom");
+const cat = sessionStorage.getItem("myCat");
+sessionStorage.removeItem("myCat");
+sessionStorage.clear();
+*/
+
+
 
 //
 //Color Theory Generator
@@ -1228,6 +1429,13 @@ this.Layer = (id, all) => {
 				} else {
 					layer.parent = false;
 				}
+			} else if(parent.layer){
+				//console.log('Layer')
+				if(parent.layer.inScene){
+					layer.parent = parent.GetParentEl();
+				} else {
+					layer.parent = false;
+				}
 			} else if(parent.id){
 				//console.log('Entity')
 				layer.parent = parent;
@@ -1242,6 +1450,7 @@ this.Layer = (id, all) => {
 			if(!layer.parent){
 				console.log(id);
 				console.log(parent);
+				console.log(document.getElementById(parent));
 				console.log('Parent is not in scene!');
 			}
 		}
@@ -1660,8 +1869,12 @@ this.Layer = (id, all) => {
 //
 //Player
 //User Controller, Settings and Actions
-this.Player = (layer) => {
+this.Player = (layer, id) => {
 	//Build directly off of imported Layer and load right away as only single player is supported
+
+	//Player Name
+	layer.id = '000000';
+	layer.label = '#000000';
 
 	//Default Transition Type
 	//instant
@@ -1669,6 +1882,7 @@ this.Player = (layer) => {
 	//sphere
 	//blink
 	layer.transition = {};
+	layer.transition.id = '000000';
 	layer.transition.scene = 'fade';
 	layer.transition.teleport = 'fade';
 	layer.teleporting = false;
@@ -1706,11 +1920,17 @@ this.Player = (layer) => {
 	layer.inventoryText = layer.inventoryPreText + 'Empty';
 	//Flashlight
 	layer.flashlight = false;
+
+
+
+
 	//Spawn Player
 	layer.SpawnLayer();
 	//Currently not tracking Player object as it should not be removed
-
 	//Grab HTML Elements that have spawned
+	id = document.getElementById('playerSelf#000000');
+	playerSelf = document.getElementById('playerSelf#000000');
+	div = document.getElementById('div');
 	playerRig = document.getElementById('playerRig');
 	camera = document.getElementById('camera');
 	cameraUI = document.getElementById('cameraUI');
@@ -1720,6 +1940,12 @@ this.Player = (layer) => {
 	vrController1UI = document.getElementById('vrController1UI');
 	vrController2 = document.getElementById('vrController2');
 	vrController2UI = document.getElementById('vrController2UI');
+
+	let loadTimeout = setTimeout(function () {
+
+		clearTimeout(loadTimeout);
+	}, 1000);
+
 
 	//Scene Load Animation Support
 	const PlayerSceneAnim = () => {
@@ -2123,13 +2349,91 @@ this.Player = (layer) => {
 			layer.flashlight = true;
 		}
 	}
+	//Reset User Position/Rotation
+	const ResetUserPosRot = () => {
+		auxl.playerRig.ChangeSelf({property: 'position', value: new THREE.Vector3(0,0,1)});
+
+		//This technically works and sets it, but it doesn't actually change it. Look-Controls prevents this?
+		//auxl.camera.ChangeSelf({property: 'rotation', value: new THREE.Vector3(0,0,0)});
+
+		//For example
+		/*
+		let currentCameraRot = auxl.camera.GetEl().getAttribute('rotation');
+		console.log(currentCameraRot);
+
+		auxl.camera.ChangeSelf({property: 'rotation', value: new THREE.Vector3(0,0,0)});
+
+		currentCameraRot = auxl.camera.GetEl().getAttribute('rotation');
+		console.log(currentCameraRot);
+		*/
+
+		//Workaround could read current rotation and rotate playerRig to compensate
+
+	}
+
+	//Assign to each joystick, 
+	//Player Rotation
+	const UpdatePlayerRotation = (axisX,axisY,axisZ) => {
+
+		let div = new THREE.Vector3(0,0,0);
+		div.x = axisX;
+		div.y = axisY;
+		div.z = axisZ;
+
+		player.ChangeSelf({property: 'rotation', value: div});
+
+
+
+		//auxl.playerRig.ChangeSelf({property: 'rotation', value: new THREE.Vector3(0,0,0)});
+
+		//This technically works and sets it, but it doesn't actually change it. Look-Controls prevents this?
+		//auxl.camera.ChangeSelf({property: 'rotation', value: new THREE.Vector3(0,0,0)});
+
+		//For example
+		/*
+		let currentCameraRot = auxl.camera.GetEl().getAttribute('rotation');
+		console.log(currentCameraRot);
+
+		auxl.camera.ChangeSelf({property: 'rotation', value: new THREE.Vector3(0,0,0)});
+
+		currentCameraRot = auxl.camera.GetEl().getAttribute('rotation');
+		console.log(currentCameraRot);
+		*/
+
+		//Workaround could read current rotation and rotate playerRig to compensate
+
+
+
+
+	}
+	//Player Position
+	const UpdatePlayerPosition = (axisX,axisY,axisZ) => {
+		console.log(params);
+		let div = new THREE.Vector3(0,0,0);
+		div.x = axisX;
+		div.y = axisY;
+		div.z = axisZ;
+
+		player.ChangeSelf({property: 'position', value: div});
+
+	}
+	//Player Forward Position
+	//going forward will be a trigger / grip action
+	const Forward = (speed, div) => {
+		return div += layer.speed;
+	}
+
+	const Speed = (velocity) => {
+		layer.speed = velocity;
+
+	}
 
 	//Testing Function
 	const TestFunc = (params) => {
 		console.log(params);
 	}
 
-	return {layer, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft, ToggleFlashlight, TestFunc}
+	return {layer, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft, ToggleFlashlight, ResetUserPosRot, TestFunc}
 }
 
 //
@@ -2158,6 +2462,7 @@ this.Menu = (menuData) => {
 	//Menu Style
 	menu.layout = menuData.layout;
 	//Default Start Position
+	menu.data.position = new THREE.Vector3(0,0,0);
 	menu.data.position.x = menuData.pos.x;
 	menu.data.position.y = menuData.pos.y;
 	menu.data.position.z = menuData.pos.z;
@@ -2287,7 +2592,7 @@ this.MultiMenu = (multiMenuData) => {
 	multiMenu.switching = false;
 	multiMenu.switchingTimeout;
 	multiMenu.id = multiMenuData.info.id || 'multiMenu';
-	multiMenu.layout = multiMenuData.info.layout || 'circle';
+	multiMenu.layout = multiMenuData.info.layout || 'circleUp';
 	multiMenu.offset = multiMenuData.info.offset || -1;
 	multiMenu.parent = multiMenu.data.info.parent || false;
 	multiMenu.stare = multiMenu.data.info.stare || false;
@@ -2338,10 +2643,10 @@ this.MultiMenu = (multiMenuData) => {
 	multiMenu.nullParentData.components = {};
 	//Main Button Parent Core
 	multiMenu.buttonData.id = multiMenu.data.info.id + 'menu';
-				//Layout
-if(multiMenu.layout === 'circle'){
-	multiMenu.buttonData.position.x = multiMenu.offset;
-}
+	//Layout
+	if(multiMenu.layout === 'circleUp' || multiMenu.layout === 'circleDown' ){
+		multiMenu.buttonData.position.x = multiMenu.offset;
+	}
 	multiMenu.cores.main = auxl.Core(multiMenu.buttonData);
 	//Sub Button Cores
 
@@ -2359,8 +2664,10 @@ if(multiMenu.layout === 'circle'){
 				multiMenu.buttonData.id = multiMenu.data[menu][button].id;
 				multiMenu.buttonData.text.value = multiMenu.data[menu][button].title;
 				//Layout
-				if(multiMenu.layout === 'circle'){
+				if(multiMenu.layout === 'circleUp'){
 					multiMenu.buttonData.rotation.z = (circleRot*buttonTotal)*-1;
+				} else if(multiMenu.layout === 'circleDown'){
+					multiMenu.buttonData.rotation.z = circleRot*buttonTotal;
 				} else if(multiMenu.layout === 'vertical'){
 					multiMenu.buttonData.position.y = buttonTotal*multiMenu.offset;
 				} else if(multiMenu.layout === 'horizontal'){
@@ -2442,8 +2749,10 @@ if(multiMenu.layout === 'circle'){
 	multiMenu.cores.nulls = [];
 	for(let a = 0; a <= maxNulls+1; a++){
 		multiMenu.nullParentData.id = 'null' + a;
-		if(multiMenu.layout === 'circle'){
+		if(multiMenu.layout === 'circleUp'){
 			multiMenu.nullParentData.rotation.z = circleRot*a;
+		} else if(multiMenu.layout === 'circleDown'){
+			multiMenu.nullParentData.rotation.z = (circleRot*a)*-1;
 		}
 		multiMenu.cores.nulls.push(auxl.Core(multiMenu.nullParentData));
 	}
@@ -2463,7 +2772,7 @@ if(multiMenu.layout === 'circle'){
 	}
 	//console.log(multiMenu.menuLayerData);
 	//Init Layer
-	multiMenu.menuLayer = auxl.Layer('menuLayer', multiMenu.menuLayerData);
+	multiMenu.menuLayer = auxl.Layer(multiMenu.id, multiMenu.menuLayerData);
 
 	const SpawnMultiMenu = (open) => {
 		if(multiMenu.inScene){}else{
@@ -2496,8 +2805,10 @@ if(multiMenu.layout === 'circle'){
 				multiMenu.buttonData.id = buttons[button].id;
 				multiMenu.buttonData.text.value = buttons[button].title;
 				//Layout
-				if(multiMenu.layout === 'circle'){
+				if(multiMenu.layout === 'circleUp'){
 					multiMenu.buttonData.rotation.z = (circleRot*buttonTotal)*-1;
+				} else if(multiMenu.layout === 'circleDown'){
+					multiMenu.buttonData.rotation.z = circleRot*buttonTotal;
 				} else if(multiMenu.layout === 'vertical'){
 					multiMenu.buttonData.position.y = buttonTotal*multiMenu.offset;
 				} else if(multiMenu.layout === 'horizontal'){
@@ -2718,8 +3029,20 @@ if(multiMenu.layout === 'circle'){
 //
 //Ham Companion
 //System Menu & Inventory
-this.HamMenu = (id, core) => {
-	let ham = Object.assign({}, core);
+this.HamMenu = (id, object) => {
+	let ham = {};
+
+	ham.avatarType = '';
+	ham.menuParentId;
+	if(object.SpawnCore){
+		ham.avatarType = 'core';
+		ham.menuParentId = object.core.id;
+	} else if(object.SpawnLayer){
+		ham.avatarType = 'layer';
+		ham.menuParentId = object.layer.all.parent.core.core.id;
+	}
+	ham.avatar = Object.assign({}, object);
+
 	ham.id = id;
 	ham.inScene = false;
 	ham.systemOpen = false;
@@ -2727,6 +3050,7 @@ this.HamMenu = (id, core) => {
 	ham.sceneSettingsOpen = false;
 	ham.show = false;
 	ham.pos = auxl.playerRig.GetEl().getAttribute('position');
+
 	//
 	//Main Menu
 	ham.mainMenuData = {
@@ -2736,9 +3060,9 @@ this.HamMenu = (id, core) => {
 		hoverData: auxl.menuHoverData,
 		title: 'Main Menu',
 		description: 'Main menu for travel, system and settings.',
-		layout:'circle',
+		layout:'circleUp',
 		offset: -1,
-		parent: ham.id,
+		parent: ham.menuParentId,
 		stare: false,
 	},
 	menu0:{
@@ -3084,27 +3408,27 @@ this.HamMenu = (id, core) => {
 	- Scene Instructions *
 	- Sound Settings *
 	*/
+	/*
+		//Emotions
 
-	//Emotions
+		//Normal
+		//Talking
+		//Happy
+		//Sad
+		//Suprised
+		//Angry
+		//Annoyed
+		//Confused
+		//Smug
+		//Sleepy
+		//Blushing
+		//Anticipation
+		//Guilty
+		//Winking
+		//Sigh
 
-	//Normal
-	//Talking
-	//Happy
-	//Sad
-	//Suprised
-	//Angry
-	//Annoyed
-	//Confused
-	//Smug
-	//Sleepy
-	//Blushing
-	//Anticipation
-	//Guilty
-	//Winking
-	//Sigh
-
-	//Blinking
-
+		//Blinking
+	*/
 
 	//Emoti Prep
 	let speechIntervalB;
@@ -3140,7 +3464,11 @@ this.HamMenu = (id, core) => {
 		let b;
 		speechTimeoutB = setTimeout(function () {
 			b = 0;
-			buddy = ham.GetEl();
+			if(ham.avatarType === 'core'){
+				buddy = ham.avatar.GetEl();
+			} else {
+				buddy = ham.avatar.GetParentEl();
+			}
 			speechIntervalB = setInterval(function() {
 				buddyFaceMaterial.value = emotiSpeechArray[b];
 				buddy.setAttribute('text', buddyFaceMaterial);
@@ -3161,10 +3489,14 @@ this.HamMenu = (id, core) => {
 	//Spawn & Start Ham
 	const SpawnHam = () => {
 		if(ham.inScene){}else{
-			ham.SpawnCore(auxl.playerRig.GetEl());
+			if(ham.avatarType === 'core'){
+				ham.avatar.SpawnCore(auxl.playerRig.GetEl());
+			} else {
+				ham.avatar.SpawnLayer(auxl.playerRig.GetEl());
+			}
 			ShowInventory();
 			ham.show = true;
-			autoScriptEmoticon();
+			//autoScriptEmoticon();
 			auxl.mainMenu.SpawnMultiMenu();
 			ham.inScene = true;
 		}
@@ -3172,13 +3504,17 @@ this.HamMenu = (id, core) => {
 	//Despawn & Stop Ham
 	const DespawnHam = () => {
 		if(ham.inScene){
-			clearInterval(speechTimeoutB);
-			clearInterval(speechIntervalB);
+			//clearInterval(speechTimeoutB);
+			//clearInterval(speechIntervalB);
 			auxl.mainMenu.DespawnMultiMenu();
 			//Delay to let multi-menu complete it's despawn seq
 			let despawnTimeout = setTimeout(() => {
 				HideInventory();
-				ham.DespawnCore();
+				if(ham.avatarType === 'core'){
+					ham.avatar.DespawnCore(auxl.playerRig.GetEl());
+				} else {
+					ham.avatar.DespawnLayer(auxl.playerRig.GetEl());
+				}
 				ham.show = false;
 				ham.systemOpen = false;
 				RemoveFromTracker(ham.id);
@@ -3212,7 +3548,11 @@ this.HamMenu = (id, core) => {
 	}
 	//Display Inventory Screen attached to Ham
 	const ShowInventory = () => {
-		auxl.inventoryScreen.SpawnCore(ham.GetEl());
+		if(ham.avatarType === 'core'){
+			auxl.inventoryScreen.SpawnCore(ham.avatar.GetEl());
+		} else {
+			auxl.inventoryScreen.SpawnCore(ham.avatar.GetParentEl());
+		}
 		auxl.player.UpdateInventoryScreen();
 	}
 	//Remove Inventory Screen
@@ -3998,18 +4338,20 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 				auxl.player.SetFlag({flag: newNode.key, value: false})
 			}
 			//Move to NodeScene and/or MapZone
-			timeout = setTimeout(function () {
+			timeout = setTimeout(() => {
 				if(core.displayBasicTravelMenu){
 					core.mapMenu.DespawnMenu();
 				}
-					ClearScene();
-					if(core.nodes[newNode.node]){
-						StartScene(newNode.node);
-					} else {
-						ClearZone();
-						core.zoneLoaded = false;
-						auxl[newNode.inZone].StartScene(newNode.node)
-					}
+				ClearScene();
+				//Reset User Position/Rotation
+				auxl.player.ResetUserPosRot();
+				if(core.nodes[newNode.node]){
+					StartScene(newNode.node);
+				} else {
+					ClearZone();
+					core.zoneLoaded = false;
+					auxl[newNode.inZone].StartScene(newNode.node)
+				}
 				clearTimeout(timeout);
 			}, 425);
 			auxl.player.PlayerSceneAnim();
@@ -7080,6 +7422,7 @@ this.mapSpawnData = {
 
 
 
+
 },
 //Delay Player Load in Animation until Scene is Ready
 checkSceneLoad: function (time, timeDelta) {
@@ -7133,1592 +7476,6 @@ tick: function (time, timeDelta) {
 },
 
 });
-
-
-//
-//AUXL Blog
-//2D site like blog style ObjGens
-AFRAME.registerComponent('auxl-blog', {
-dependencies: ['auxl'],
-init: function () {
-//AUXL System Connection
-const auxl = document.querySelector('a-scene').systems.auxl;
-
-
-//
-//Image Swapper
-auxl.ImageSwapper = (id,mainData,buttonData,...materials) => {
-//ToDo
-//Add autoplay and pause on hovering
-//Controls either left/right or thumbnails for each
-	let imageSwapper = {};
-	imageSwapper.id = id;
-	imageSwapper.inScene = false;
-	let imageSwapperCore;
-	imageSwapper.thumbnailCores = [];
-	let thumbnailPos = new THREE.Vector3(0,-0.3,0.05);
-	imageSwapper.layerData = {}
-	//Prep Layer Core Objects
-	for(let mat in materials){
-		if(mat === '0'){
-			mainData.material = materials[mat];
-			imageSwapperCore = auxl.Core(mainData);
-			imageSwapper.layerData['parent'] = {};
-			imageSwapper.layerData['parent'].core = imageSwapperCore;
-		} else {
-			buttonData.id = 'thumbnail' + mat;
-			buttonData.material = materials[mat];
-			if(materials.length === 3){
-				if(mat === '1'){
-					thumbnailPos.x = -0.25;
-				} else if(mat === '2'){
-					thumbnailPos.x = 0.25;
-				}
-			} else if(materials.length === 4){
-				if(mat === '1'){
-					thumbnailPos.x = -0.33;
-				} else if(mat === '2'){
-					thumbnailPos.x = 0;
-				} else if(mat === '3'){
-					thumbnailPos.x = 0.33;
-				}
-			} else if(materials.length === 5){
-				if(mat === '1'){
-					thumbnailPos.x = -0.375;
-				} else if(mat === '2'){
-					thumbnailPos.x = -0.125;
-				} else if(mat === '3'){
-					thumbnailPos.x = 0.125;
-				} else if(mat === '4'){
-					thumbnailPos.x = 0.375;
-				}
-			}
-			buttonData.position = thumbnailPos;
-			imageSwapper.thumbnailCores[mat] = auxl.Core(buttonData);
-			imageSwapper.layerData['child'+mat] = {};
-			imageSwapper.layerData['child'+mat].core = imageSwapper.thumbnailCores[mat];
-		}
-	}
-	imageSwapper.layer = auxl.Layer('imageSwapper',imageSwapper.layerData);
-	//Swap Material Sources with Parent
-	const Click = (el) => {
-		let selectedMat = el.getAttribute('material').src;
-		let replacedMat = JSON.parse(JSON.stringify(el.parentNode.getAttribute('material').src));
-		el.parentNode.setAttribute('material',{src: selectedMat})
-		el.setAttribute('material',{src: replacedMat})
-	}
-	//Spawn ImageSwapper
-	const SpawnImgSwap = () => {
-		if(imageSwapper.inScene){}else{
-			imageSwapper.layer.SpawnLayer();
-			imageSwapper.inScene = true;
-		}
-	}
-	//Despawn ImageSwapper
-	const DespawnImgSwap = () => {
-		if(imageSwapper.inScene){
-			imageSwapper.layer.DespawnLayer();
-			RemoveFromTracker(imageSwapper.id);
-			imageSwapper.inScene = false;
-		}
-	}
-	//Toggle Spawn
-	const ToggleSpawn = () => {
-		if(imageSwapper.inScene){
-			DespawnImgSwap();
-		} else {
-			SpawnImgSwap();
-		}
-	}
-	//Set Flag & Value to Object - Single or Array
-	const SetFlag = (flagValue) => {
-		if(Array.isArray(flagValue)){
-			for(let each in flagValue){
-			imageSwapper[flagValue[each].flag] = flagValue[each].value;
-			}
-		} else {
-			imageSwapper[flagValue.flag] = flagValue.value;
-		}
-	}
-	//Retreive Flag Value from Object - Single or Array
-	const GetFlag = (flag) => {
-		if(Array.isArray(flag)){
-			let flagArray = [];
-			for(let each in flag){
-				flagArray.push(imageSwapper(flag[each]));
-			}
-			return flagArray;
-		} else {
-			return imageSwapper[flag];
-		}
-	}
-
-	return {imageSwapper, Click, SpawnImgSwap, DespawnImgSwap, ToggleSpawn, SetFlag, GetFlag};
-}
-
-//
-//ImageCarousel
-auxl.ImageCarousel = (carouselData) => {
-//ToDo
-//Allow the amount of frames to be adjusted
-//Add 180 view non-movement functions
-//Bug
-//Changing between Forward & Reverse either way messes up which frames should be updated
-	let imageCarousel = Object.assign({}, carouselData);
-	imageCarousel.inScene = false;
-	imageCarousel.frames = 8;//temp
-	let playInterval;
-	let updateTimeout;
-	let scaleTimeout;
-	imageCarousel.framesPerPage = 8;
-	currentImageForward = -1;
-	currentImageBackward = imageCarousel.images.length - imageCarousel.framesPerPage;
-	let frameRotationEach = 360/imageCarousel.framesPerPage;
-	let frameRotation = 0;
-	currentRotation = -1;
-	//Prep Movement Flags
-	let notMoving = true;
-	let notPlaying = true;
-	let autoRotate = 0;
-	let loadingPage = false;
-	let animating = false;
-	let scale = 0;
-	let info = false;
-	//Frame Templates & Prep
-	let artFrameParentData = {
-	data: 'artFrameParentData',
-	id:'artFrameParent',
-	sources: false,
-	text: false,
-	geometry: false,
-	material: false,
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent'],
-	components: false,
-	};
-	let artFrameData = {
-	data: 'artFrameData',
-	id:'artFrame',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'box', depth: 0.01, width: 4.4, height: 2.55},
-	material: {shader: "flat", color: "#55a5be", opacity: 1, alphaTest: 0.1},
-	position: new THREE.Vector3(0,1.75,-6),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: {
-	scale0:{property: 'scale', from: '1 1 1', to: '2 2 2', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to0'},
-	position0:{property: 'position', from: '0 1.75 -6', to: '0 3.5 -12', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to0'},
-	scale1:{property: 'scale', from: '2 2 2', to: '1 1 1', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to1'},
-	position1:{property: 'position', from: '0 3.5 -12', to: '0 1.75 -6', dur: 2000, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'to1'},
-	},
-	mixins: false,
-	classes: ['a-ent'],
-	components: false,
-	};
-	let artFrameTextData = {
-	data: 'artFrameTextData',
-	id:'artFrameText',
-	sources: false,
-	text: {value:'Art Frame Text', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0, side: 'double'},
-	geometry: false,
-	material: false,
-	position: new THREE.Vector3(0,-1.5,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent'],
-	components: false,
-	};
-	artFrameParentData.id = 'artFrameParentAll';
-	artFrameParentData.rotation = new THREE.Vector3(0,1,0);
-	let artFrameParentAll = auxl.Core(artFrameParentData);
-	let artFrameAllLayerData = {
-		parent: {core: artFrameParentAll},
-	};
-	let parentId = 'artFrameParent';
-	let parentFrameCores = [];
-	let frameId = 'artFrame';
-	let imageFrameCores = [];
-	let textId = 'artFrameText';
-	let textFrameCores = [];
-	//Build Cores
-	for(let a=0; a < imageCarousel.frames; a++){
-
-		//Temp
-		if(a === 0){
-			frameRotation = -45;
-		} else if(a === 1){
-			frameRotation = 0;
-		} else if(a === 2){
-			frameRotation = -315;
-		} else if(a === 3){
-			frameRotation = -270;
-		} else if(a === 4){
-			frameRotation = -225;
-		} else if(a === 5){
-			frameRotation = -180;
-		} else if(a === 6){
-			frameRotation = -135;
-		} else if(a === 7){
-			frameRotation = -90;
-		}
-
-		//Parent
-		parentId = 'artFrameParent' + a;
-		let parentRotation = new THREE.Vector3(0,0,0);
-		parentRotation.y = frameRotation;
-		artFrameParentData.id = parentId;
-		artFrameParentData.rotation = parentRotation;
-		parentFrameCores[a] = auxl.Core(artFrameParentData);
-		//Frame
-		frameId = 'artFrame' + a;
-		artFrameData.id = frameId;
-		imageFrameCores[a] = auxl.Core(artFrameData);
-		//Text
-		textId = 'artFrameText' + a;
-		artFrameTextData.id = textId;
-		textFrameCores[a] = auxl.Core(artFrameTextData);
-		//Layer
-		artFrameAllLayerData['child'+a] = {
-			parent: {core: parentFrameCores[a]}, 
-			child0: {
-				parent: {core: imageFrameCores[a]}, 
-				child0: {core: textFrameCores[a]}, 
-			},
-		};
-	}
-	let artFrameAllLayer = auxl.Layer('artFrameAllLayer',artFrameAllLayerData);
-	//Main Button Color
-	let mainColor = auxl.colorTheoryGen('#6ab0db');
-	//Button Templates
-	//Button Parent
-	let buttonParentData = {
-	data: 'Button Parent',
-	id:'buttonParent',
-	sources: false,
-	text: false,
-	geometry: false,
-	material: false,
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,80,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations:{
-	scaleclick:{property: 'scale', from: '1 1 1', to: '1.05 1.05 1.05', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
-	},
-	mixins: false,
-	classes: ['a-ent'],
-	components: false,
-	};
-	//Button Obj
-	let buttonObjData = {
-	data: 'Button Obj',
-	id:'buttonObj',
-	sources: false,
-	text: false,
-	geometry: false,
-	material: {shader: "flat", color: mainColor.base, opacity: 1},
-	position: new THREE.Vector3(0,0.4,-2.5),
-	rotation: new THREE.Vector3(-30,0,0),
-	scale: new THREE.Vector3(0.1,0.1,0.1),
-	animations:false,
-	mixins: false,
-	classes: ['a-ent'],
-	components: false,
-	};
-	//Button Border
-	let buttonBorderData = {
-	data: 'Button Border',
-	id:'buttonBorder',
-	sources: false,
-	text: false,
-	geometry: false,
-	material: {shader: "flat", color: mainColor.splitCompl[0], opacity: 1},
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations:false,
-	mixins: false,
-	classes: ['a-ent'],
-	components: {
-	['obj-model']:{obj: './assets/3d/buttons/border.obj'},
-	//['model-loaded']:null,
-	},
-	};
-	//Button Click Background
-	let buttonClickData = {
-	data: 'Button Click Background',
-	id:'buttonClick',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'circle', radius: 2, segments: 12},
-	material: {shader: "flat", color: mainColor.splitCompl[1], opacity: 0.5, side: 'double'},
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations:false,
-	mixins: false,
-	classes: ['clickable','a-ent'],
-	components: false,
-	};
-	//Button Click Background
-	let buttonTextData = {
-	data: 'Button Text',
-	id:'buttonText',
-	sources: false,
-	text: {value:'Button', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'},
-	geometry: false,
-	material: false,
-	position: new THREE.Vector3(0,-2.75,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations:false,
-	mixins: false,
-	classes: ['clickable','a-ent'],
-	components: false,
-	};
-	//Button Layers
-	//Backward
-	buttonParentData.id = 'buttonBackwardParent';
-	buttonParentData.rotation = new THREE.Vector3(0,22.5,0);
-	let buttonBackwardParent = auxl.Core(buttonParentData);
-	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/backward.obj'}};
-	buttonObjData.id = 'buttonBackward';
-	buttonBorderData.id = 'buttonBackwardBorder';
-	buttonClickData.id = 'buttonBackwardClick';
-	buttonTextData.id = 'buttonBackwardText';
-	buttonTextData.text.value = 'Back';
-	let buttonBackward = auxl.Core(buttonObjData);
-	let buttonBackwardBorder = auxl.Core(buttonBorderData);
-	let buttonBackwardClick = auxl.Core(buttonClickData);
-	let buttonBackwardText = auxl.Core(buttonTextData);
-	let buttonBackwardLayerData = {
-	parent: {core: buttonBackwardParent}, 
-	child0: {
-		parent: {core: buttonBackward}, 
-		child0: {core: buttonBackwardBorder},
-		child1: {core: buttonBackwardClick},
-		child2: {core: buttonBackwardText},
-	},
-	};
-	let buttonBackwardLayer = auxl.Layer('buttonBackwardLayer',buttonBackwardLayerData);
-	//Forward
-	buttonParentData.id = 'buttonForwardParent';
-	buttonParentData.rotation = new THREE.Vector3(0,-22.5,0);
-	let buttonForwardParent = auxl.Core(buttonParentData);
-	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/forward.obj'}};
-	buttonObjData.id = 'buttonForward';
-	buttonBorderData.id = 'buttonForwardBorder';
-	buttonClickData.id = 'buttonForwardClick';
-	buttonTextData.id = 'buttonForwardText';
-	buttonTextData.text.value = 'Forward';
-	let buttonForward = auxl.Core(buttonObjData);
-	let buttonForwardBorder = auxl.Core(buttonBorderData);
-	let buttonForwardClick = auxl.Core(buttonClickData);
-	let buttonForwardText = auxl.Core(buttonTextData);
-	let buttonForwardLayerData = {
-	parent: {core: buttonForwardParent}, 
-	child0: {
-		parent: {core: buttonForward}, 
-		child0: {core: buttonForwardBorder},
-		child1: {core: buttonForwardClick},
-		child2: {core: buttonForwardText},
-	},
-	};
-	let buttonForwardLayer = auxl.Layer('buttonForwardLayer',buttonForwardLayerData);
-	//Left Skip
-	buttonParentData.id = 'buttonLeftSkipParent';
-	buttonParentData.rotation = new THREE.Vector3(0,37.5,0);
-	let buttonLeftSkipParent = auxl.Core(buttonParentData);
-	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/left_skip.obj'}};
-	buttonObjData.id = 'buttonLeftSkip';
-	buttonBorderData.id = 'buttonLeftSkipBorder';
-	buttonClickData.id = 'buttonLeftSkipClick';
-	buttonTextData.id = 'buttonLeftSkipText';
-	buttonTextData.text.value = 'Back Page';
-	let buttonLeftSkip = auxl.Core(buttonObjData);
-	let buttonLeftSkipBorder = auxl.Core(buttonBorderData);
-	let buttonLeftSkipClick = auxl.Core(buttonClickData);
-	let buttonLeftSkipText = auxl.Core(buttonTextData);
-	let buttonLeftSkipLayerData = {
-	parent: {core: buttonLeftSkipParent}, 
-	child0: {
-		parent: {core: buttonLeftSkip}, 
-		child0: {core: buttonLeftSkipBorder},
-		child1: {core: buttonLeftSkipClick},
-		child2: {core: buttonLeftSkipText},
-	},
-	};
-	let buttonLeftSkipLayer = auxl.Layer('buttonLeftSkipLayer',buttonLeftSkipLayerData);
-	//Play
-	buttonParentData.id = 'buttonPlayParent';
-	buttonParentData.rotation = new THREE.Vector3(0,-7.5,0);
-	let buttonPlayParent = auxl.Core(buttonParentData);
-	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/play.obj'}};
-	buttonObjData.id = 'buttonPlay';
-	buttonBorderData.id = 'buttonPlayBorder';
-	buttonClickData.id = 'buttonPlayClick';
-	buttonTextData.id = 'buttonPlayText';
-	buttonTextData.text.value = 'Play';
-	let buttonPlay = auxl.Core(buttonObjData);
-	let buttonPlayBorder = auxl.Core(buttonBorderData);
-	let buttonPlayClick = auxl.Core(buttonClickData);
-	let buttonPlayText = auxl.Core(buttonTextData);
-	let buttonPlayLayerData = {
-	parent: {core: buttonPlayParent}, 
-	child0: {
-		parent: {core: buttonPlay}, 
-		child0: {core: buttonPlayBorder},
-		child1: {core: buttonPlayClick},
-		child2: {core: buttonPlayText},
-	},
-	};
-	let buttonPlayLayer = auxl.Layer('buttonPlayLayer',buttonPlayLayerData);
-	//Right Skip
-	buttonParentData.id = 'buttonRightSkipParent';
-	buttonParentData.rotation = new THREE.Vector3(0,-37.5,0);
-	let buttonRightSkipParent = auxl.Core(buttonParentData);
-	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/right_skip.obj'}};
-	buttonObjData.id = 'buttonRightSkip';
-	buttonBorderData.id = 'buttonRightSkipBorder';
-	buttonClickData.id = 'buttonRightSkipClick';
-	buttonTextData.id = 'buttonRightSkipText';
-	buttonTextData.text.value = 'Next Page';
-	let buttonRightSkip = auxl.Core(buttonObjData);
-	let buttonRightSkipBorder = auxl.Core(buttonBorderData);
-	let buttonRightSkipClick = auxl.Core(buttonClickData);
-	let buttonRightSkipText = auxl.Core(buttonTextData);
-	let buttonRightSkipLayerData = {
-	parent: {core: buttonRightSkipParent}, 
-	child0: {
-		parent: {core: buttonRightSkip}, 
-		child0: {core: buttonRightSkipBorder},
-		child1: {core: buttonRightSkipClick},
-		child2: {core: buttonRightSkipText},
-	},
-	};
-	let buttonRightSkipLayer = auxl.Layer('buttonRightSkipLayer',buttonRightSkipLayerData);
-	//Settings
-	buttonParentData.id = 'buttonSettingsParent';
-	buttonParentData.rotation = new THREE.Vector3(0,-52.5,0);
-	let buttonSettingsParent = auxl.Core(buttonParentData);
-	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/settings.obj'}};
-	buttonObjData.id = 'buttonSettings';
-	buttonBorderData.id = 'buttonSettingsBorder';
-	buttonClickData.id = 'buttonSettingsClick';
-	buttonTextData.id = 'buttonSettingsText';
-	buttonTextData.text.value = 'Scale';
-	let buttonSettings = auxl.Core(buttonObjData);
-	let buttonSettingsBorder = auxl.Core(buttonBorderData);
-	let buttonSettingsClick = auxl.Core(buttonClickData);
-	let buttonSettingsText = auxl.Core(buttonTextData);
-	let buttonSettingsLayerData = {
-	parent: {core: buttonSettingsParent}, 
-	child0: {
-		parent: {core: buttonSettings}, 
-		child0: {core: buttonSettingsBorder},
-		child1: {core: buttonSettingsClick},
-		child2: {core: buttonSettingsText},
-	},
-	};
-	let buttonSettingsLayer = auxl.Layer('buttonSettingsLayer',buttonSettingsLayerData);
-	//Stop
-	buttonParentData.id = 'buttonStopParent';
-	buttonParentData.rotation = new THREE.Vector3(0,7.5,0);
-	buttonStopParent = auxl.Core(buttonParentData);
-	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/stop.obj'}};
-	buttonObjData.id = 'buttonStop';
-	buttonBorderData.id = 'buttonStopBorder';
-	buttonClickData.id = 'buttonStopClick';
-	buttonTextData.id = 'buttonStopText';
-	buttonTextData.text.value = 'Info';
-	let buttonStop = auxl.Core(buttonObjData);
-	let buttonStopBorder = auxl.Core(buttonBorderData);
-	let buttonStopClick = auxl.Core(buttonClickData);
-	let buttonStopText = auxl.Core(buttonTextData);
-	let buttonStopLayerData = {
-	parent: {core: buttonStopParent}, 
-	child0: {
-		parent: {core: buttonStop}, 
-		child0: {core: buttonStopBorder},
-		child1: {core: buttonStopClick},
-		child2: {core: buttonStopText},
-	},
-	};
-	let buttonStopLayer = auxl.Layer('buttonStopLayer',buttonStopLayerData);
-	//Hashtag
-	buttonParentData.id = 'buttonHashtagParent';
-	buttonParentData.rotation = new THREE.Vector3(0,52.5,0);
-	let buttonHashtagParent = auxl.Core(buttonParentData);
-	buttonObjData.components = {['obj-model']:{obj: './assets/3d/buttons/hashtag.obj'}};
-	buttonObjData.id = 'buttonHashtag';
-	buttonBorderData.id = 'buttonHashtagBorder';
-	buttonClickData.id = 'buttonHashtagClick';
-	buttonTextData.id = 'buttonHashtagText';
-	buttonTextData.text.value = 'Random Page';
-	let buttonHashtag = auxl.Core(buttonObjData);
-	let buttonHashtagBorder = auxl.Core(buttonBorderData);
-	let buttonHashtagClick = auxl.Core(buttonClickData);
-	let buttonHashtagText = auxl.Core(buttonTextData);
-	let buttonHashtagLayerData = {
-	parent: {core: buttonHashtagParent}, 
-	child0: {
-		parent: {core: buttonHashtag}, 
-		child0: {core: buttonHashtagBorder},
-		child1: {core: buttonHashtagClick},
-		child2: {core: buttonHashtagText},
-	},
-	};
-	let buttonHashtagLayer = auxl.Layer('buttonHashtagLayer',buttonHashtagLayerData);
-	//Animations
-	//Rotate 45
-	let anim45Data = {
-		name: 'anim45',
-		property: 'object3D.rotation.y',
-		from: '0',
-		to: '45', 
-		dur: 1000, 
-		delay: 0, 
-		loop: 'false', 
-		dir: 'normal', 
-		easing: 'easeInOutSine', 
-		elasticity: 400, 
-		autoplay: true, 
-		enabled: true,
-	};
-	//Rotate 45 from Misc
-	let anim45MiscData = {
-		name: 'anim45misc',
-		property: 'object3D.rotation.y',
-		from: '0',
-		to: '1', 
-		dur: 500, 
-		delay: 0, 
-		loop: 'false', 
-		dir: 'normal', 
-		easing: 'easeInOutSine', 
-		elasticity: 400, 
-		autoplay: true, 
-		enabled: true,
-	};
-	//Rotate 90
-	let anim90Data = {
-		name: 'anim90',
-		property: 'object3D.rotation.y',
-		from: '0',
-		to: '90', 
-		dur: 2500,
-		delay: 0, 
-		loop: 'false', 
-		dir: 'normal', 
-		easing: 'easeInOutSine', 
-		elasticity: 400, 
-		autoplay: true, 
-		enabled: true,
-	};
-	//Rotate 360
-	let anim360Data = {
-		name: 'anim360',
-		property: 'object3D.rotation.y',
-		from: '0',
-		to: '360', 
-		dur: 120000, 
-		delay: 0, 
-		loop: 'true', 
-		dir: 'normal', 
-		easing: 'linear', 
-		elasticity: 400, 
-		autoplay: false, 
-		enabled: true,
-		startEvents: 'play',
-		pauseEvents: 'pause',
-	};
-	//Update Frame's Image & Text Description
-	const UpdateFrame = (frame, textValue, imgSrc) => {
-		artFrameAllLayerData[frame].child0.parent.core.ChangeSelf({property: 'material', value:{src: imgSrc,shader: "flat", color: "#FFFFFF", opacity: 1}});
-		artFrameAllLayerData[frame].child0.child0.core.ChangeSelf({property: 'text', value:{value: textValue, width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0, side: 'double'}})
-	}
-	//Update Frame from Direction
-	const Update = (frame, direction) => {
-		if(direction === 'forward'){
-			currentImageForward++;
-			currentImageBackward++;
-			if(currentImageForward >= imageCarousel.images.length){
-				currentImageForward = 0
-			}
-			if(currentImageBackward >= imageCarousel.images.length){
-				currentImageBackward = 0
-			}
-			UpdateFrame('child'+frame, imageCarousel.images[currentImageForward].text, imageCarousel.images[currentImageForward].image);
-		} else if(direction === 'backward'){
-			currentImageBackward--;
-			currentImageForward--;
-			if(currentImageBackward < 0){
-				currentImageBackward = imageCarousel.images.length-1;
-			}
-			if(currentImageForward < 0){
-				currentImageForward = imageCarousel.images.length-1;
-			}
-			UpdateFrame('child'+frame, imageCarousel.images[currentImageBackward].text, imageCarousel.images[currentImageBackward].image);
-		}
-	}
-	//Update All Frames
-	const UpdateAll = (direction) => {
-		for(let a = 0; a < imageCarousel.frames; a++){
-			Update(a,direction);
-		}
-		loadingPage = false;
-	}
-	//Update Back 2 Frames
-	const UpdateBackTwo = (direction) => {
-		let update2 = [];
-		let num;
-		if(direction === 'forward'){
-			if(currentRotation === 0){
-				update2 = [0,1];
-			} else if(currentRotation === 1){
-				update2 = [2,3];
-			} else if(currentRotation === 2){
-				update2 = [4,5];
-			} else if(currentRotation === 3){
-				update2 = [6,7];
-			}
-		} else if(direction === 'backward'){
-			if(currentRotation === 0){
-				update2 = [6,7];
-			} else if(currentRotation === 1){
-				update2 = [0,1];
-			} else if(currentRotation === 2){
-				update2 = [2,3];
-			} else if(currentRotation === 3){
-				update2 = [4,5];
-			}
-			update2.reverse();
-		}
-		for(let each in update2){
-			num = update2[each];
-			Update(num,direction);
-		}
-	}
-	//Update Back Frame
-	const UpdateBack = (direction) => {
-		let current = autoRotate;
-		let num;
-		if(current === 0){
-			num = 3;
-		} else if(current === 1){
-			num = 2;
-		} else if(current === 2){
-			num = 1;
-		} else if(current === 3){
-			num = 0;
-		} else if(current === 4){
-			num = 7;
-		} else if(current === 5){
-			num = 6;
-		} else if(current === 6){
-			num = 5;
-		} else if(current === 7){
-			num = 4;
-		}
-		Update(num,direction);
-	}
-	//Spawn Image Carousel
-	const SpawnImgCarousel = () => {
-		if(imageCarousel.inScene){}else{
-			artFrameAllLayer.SpawnLayer();
-			buttonBackwardLayer.SpawnLayer();
-			buttonHashtagLayer.SpawnLayer();
-			buttonForwardLayer.SpawnLayer();
-			buttonLeftSkipLayer.SpawnLayer();
-			buttonPlayLayer.SpawnLayer();
-			buttonRightSkipLayer.SpawnLayer();
-			buttonSettingsLayer.SpawnLayer();
-			buttonStopLayer.SpawnLayer();
-			buttonBackwardClick.GetEl().addEventListener('click', Backward);
-			buttonForwardClick.GetEl().addEventListener('click', Forward);
-			buttonLeftSkipClick.GetEl().addEventListener('click', PrevPage);
-			buttonPlayClick.GetEl().addEventListener('click', PlayPause);
-			buttonRightSkipClick.GetEl().addEventListener('click', NextPage);
-			buttonSettingsClick.GetEl().addEventListener('click', Scale);
-			//buttonStopClick.GetEl().addEventListener('click', Stop);
-			buttonHashtagClick.GetEl().addEventListener('click', RandomPage);
-			Init();
-			imageCarousel.inScene = true;
-		}
-	}
-	//Despawn Image Carousel
-	const DespawnImgCarousel = () => {
-		if(imageCarousel.inScene){
-			buttonBackwardClick.GetEl().removeEventListener('click', Backward);
-			buttonForwardClick.GetEl().removeEventListener('click', Forward);
-			buttonLeftSkipClick.GetEl().removeEventListener('click', PrevPage);
-			buttonPlayClick.GetEl().removeEventListener('click', PlayPause);
-			buttonRightSkipClick.GetEl().removeEventListener('click', NextPage);
-			buttonSettingsClick.GetEl().removeEventListener('click', Scale);
-			//buttonStopClick.GetEl().removeEventListener('click', Stop);
-			buttonHashtagClick.GetEl().removeEventListener('click', RandomPage);
-			artFrameAllLayer.DespawnLayer();
-			buttonBackwardLayer.DespawnLayer();
-			buttonHashtagLayer.DespawnLayer();
-			buttonForwardLayer.DespawnLayer();
-			buttonLeftSkipLayer.DespawnLayer();
-			buttonPlayLayer.DespawnLayer();
-			buttonRightSkipLayer.DespawnLayer();
-			buttonSettingsLayer.DespawnLayer();
-			buttonStopLayer.DespawnLayer();
-			RemoveFromTracker(imageCarousel.id);
-			imageCarousel.inScene = false;
-		}
-	}
-	//Toggle Spawn
-	const ToggleSpawn = () => {
-		if(imageCarousel.inScene){
-			DespawnImgCarousel();
-		} else {
-			SpawnImgCarousel();
-		}
-	}
-	//Set Flag & Value to Object - Single or Array
-	const SetFlag = (flagValue) => {
-		if(Array.isArray(flagValue)){
-			for(let each in flagValue){
-			imageCarousel[flagValue[each].flag] = flagValue[each].value;
-			}
-		} else {
-			imageCarousel[flagValue.flag] = flagValue.value;
-		}
-	}
-	//Retreive Flag Value from Object - Single or Array
-	const GetFlag = (flag) => {
-		if(Array.isArray(flag)){
-			let flagArray = [];
-			for(let each in flag){
-				flagArray.push(imageCarousel(flag[each]));
-			}
-			return flagArray;
-		} else {
-			return imageCarousel[flag];
-		}
-	}
-	//Move Frames Forward 90 Degrees
-	const Forward = () => {
-		if(notMoving){
-			notMoving = false;
-			let rotY = artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
-			anim90Data.from = rotY;
-			anim90Data.to = rotY - 90;
-			artFrameAllLayer.AnimateParent(anim90Data);
-			updateTimeout = setTimeout(() => {
-				currentRotation++;
-				if(currentRotation > 3){
-					currentRotation = 0;
-				}
-				UpdateBackTwo('forward');
-				notMoving = true;
-				clearTimeout(updateTimeout);
-			}, anim90Data.dur+10);
-		}
-	}
-	//Move Frames Backward 90 Degrees
-	const Backward = () => {
-		if(notMoving){
-			notMoving = false;
-			let rotY = artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
-			anim90Data.from = rotY;
-			anim90Data.to = rotY + 90;
-			artFrameAllLayer.AnimateParent(anim90Data);
-			updateTimeout = setTimeout(() => {
-				currentRotation--;
-				if(currentRotation < 0){
-					currentRotation = 3;
-				}
-				console.log(currentRotation);
-				UpdateBackTwo('backward');
-				notMoving = true;
-				clearTimeout(updateTimeout);
-			}, anim90Data.dur+10);
-		}
-	}
-	//Toggle Rotating View Animation
-	const PlayPause = () => {
-		if(notPlaying){
-			notPlaying = false;
-			notMoving = false;
-				playInterval = setInterval(() => {
-					UpdateBack();
-					currentRotation = autoRotate;
-					if(currentRotation === 7){
-						currentRotation = 0;
-					} else {
-						currentRotation++;
-					}
-				}, anim360Data.dur/8);
-			let rotY = artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
-			anim360Data.from = rotY;
-			anim360Data.to = rotY - 360;
-			artFrameAllLayer.AnimateParent(anim360Data);
-			artFrameAllLayer.layer.all.parent.core.EmitEvent('play');
-
-			buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/pause.obj'} });
-			buttonPlayText.ChangeSelf({property: 'text', value: {value:'Pause', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'} })
-		} else {
-			notPlaying = true;
-			notMoving = true;
-			clearInterval(playInterval);
-			artFrameAllLayer.layer.all.parent.core.EmitEvent('pause');
-			buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/play.obj'} })
-			buttonPlayText.ChangeSelf({property: 'text', value: {value:'Play', width: 20, color: mainColor.base, align: "center", font: "exo2bold", zOffset: 0, side: 'double'} })
-		}
-	}
-	//Stops View Animation & Resets - Disabled
-	const Stop = () => {
-		if(notPlaying){} else {
-			let rotY = artFrameAllLayer.GetParentEl().getAttribute('rotation').y;
-			anim45MiscData.from = rotY;
-			anim45MiscData.to = 1;
-			artFrameAllLayer.AnimateParent(anim45MiscData);
-			buttonPlay.ChangeSelf({property: 'obj-model', value:{obj: './assets/3d/buttons/play.obj'} });
-			notPlaying = true;
-			notMoving = true;
-		}
-	}
-	//Load Next Page of Images
-	const NextPage = () => {
-		if(loadingPage){} else {
-			loadingPage = true;
-			UpdateAll('forward');
-		}
-	}
-	//Load Previous Page of Images
-	const PrevPage = () => {
-		if(loadingPage){} else {
-			loadingPage = true;
-			UpdateAll('backward');
-		}
-	}
-	//Load Randomized Page of Images
-	const RandomPage = () => {
-		if(loadingPage){} else {
-			loadingPage = true;
-			currentImageForward = Math.floor(Math.random()*imageCarousel.images.length);
-			UpdateAll('forward');
-		}
-	}
-	//Adjust Frame Scale w/ Animation
-	const Scale = () => {
-		//limit effects to the amount of spawned frames
-		if(animating){} else {
-			animating = true;
-			scaleTimeout = setTimeout(() => {
-				animating = false;
-				clearTimeout(scaleTimeout);
-			}, 2050);
-			if(scale === 0){
-				scale = 1;
-				artFrameAllLayerData.child0.child0.parent.core.EmitEvent('to0');
-				artFrameAllLayerData.child1.child0.parent.core.EmitEvent('to0');
-				artFrameAllLayerData.child2.child0.parent.core.EmitEvent('to0');
-				artFrameAllLayerData.child3.child0.parent.core.EmitEvent('to0');
-				artFrameAllLayerData.child4.child0.parent.core.EmitEvent('to0');
-				artFrameAllLayerData.child5.child0.parent.core.EmitEvent('to0');
-				artFrameAllLayerData.child6.child0.parent.core.EmitEvent('to0');
-				artFrameAllLayerData.child7.child0.parent.core.EmitEvent('to0');
-			} else {
-				scale = 0;
-				artFrameAllLayerData.child0.child0.parent.core.EmitEvent('to1');
-				artFrameAllLayerData.child1.child0.parent.core.EmitEvent('to1');
-				artFrameAllLayerData.child2.child0.parent.core.EmitEvent('to1');
-				artFrameAllLayerData.child3.child0.parent.core.EmitEvent('to1');
-				artFrameAllLayerData.child4.child0.parent.core.EmitEvent('to1');
-				artFrameAllLayerData.child5.child0.parent.core.EmitEvent('to1');
-				artFrameAllLayerData.child6.child0.parent.core.EmitEvent('to1');
-				artFrameAllLayerData.child7.child0.parent.core.EmitEvent('to1');
-			}
-		}
-	}
-	//Toggle Display of Detail Info
-	const Info = () => {
-		if(info){
-			info = false;
-		} else {
-			info = true;
-		}
-	}
-	//Prep Images and Detail Info after Spawn
-	const Init = () => {
-		buttonStopClick.EnableDetail({text: imageCarousel.description, position: new THREE.Vector3(0,1.5,-2)});
-		UpdateAll('forward');
-	}
-
-	return {imageCarousel, SpawnImgCarousel, DespawnImgCarousel, ToggleSpawn, SetFlag, GetFlag, PlayPause, Forward, Backward, NextPage, PrevPage, RandomPage, Scale, Info};
-}
-
-},
-});
-
-//
-//AUXL Mini Game
-//Unique Game system ObjGens
-AFRAME.registerComponent('auxl-mini-games', {
-dependencies: ['auxl'],
-init: function () {
-//AUXL System Connection
-const auxl = document.querySelector('a-scene').systems.auxl;
-
-//
-//Memory Mini Game
-auxl.MemoryGame = (id, data) => {
-//ToDo
-//Allow for importing of however many button objects to add complexity
-//Listen for first click to start the countdown timer based on how long current sequence is and a timer for in-between single clicks to timeout as well
-	let memory = {};
-	memory.id = id;
-	memory.inScene = false;
-	//Layered Object Generation
-	let layerData = {}
-	let memoryNullParentData = JSON.parse(JSON.stringify(auxl.nullParentData));
-	memoryNullParentData.id = 'memoryParent';
-	memoryNullParentData.position = new THREE.Vector3(0,1,-2);
-	let memoryNullParent = auxl.Core(memoryNullParentData);
-	layerData['parent'] = {};
-	layerData['parent'].core = memoryNullParent;
-	let memoryObjData = {};
-	let memoryCores = {};
-	for(let each in data){
-		memoryObjData = data[each];
-		memoryObjData.id = 'memory' + each;
-		memoryCores[each] = auxl.Core(memoryObjData);
-		layerData['child'+each] = {};
-		layerData['child'+each].core = memoryCores[each];
-	}
-	memory.layer = auxl.Layer('memory',layerData);
-
-	//UI
-	//Game Status
-	auxl.memoryUIData.text = {value:'High Score : 0 | Game Ready', wrapCount: 45, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'};
-	auxl.memoryUIData.position = new THREE.Vector3(0,2.6,-2);
-	auxl.memoryUIData.id = 'memoryUI1';
-	let memoryUI1 =  auxl.Core(auxl.memoryUIData);
-
-	//Sequence Status
-	auxl.memoryUIData.text = {value:'Sequence : *', wrapCount: 45, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'};
-	auxl.memoryUIData.position = new THREE.Vector3(0,0.35,-2);
-	auxl.memoryUIData.id = 'memoryUI2';
-	let memoryUI2 =  auxl.Core(auxl.memoryUIData);
-
-	//Game Support
-	let playSequenceInterval;
-	let roundCompleteTimeout1;
-	let roundCompleteTimeout2;
-	let gameOverTimeout1;
-	let gameOverTimeout2;
-	let allSequence = [];
-	let playerSequence = [];
-	let currInSequence = 0;
-	let currMaxSequence = 1;
-	let sequenceRef = '*';
-	let sequenceTempArray = [];
-	let currentScore = 0;
-	let highScore = 0;
-	let sequenceChunk = 5;
-	let pauseClick = true;
-	let gameStarted = false;
-
-	//Add memoryClick() Listeners to all Memory Buttons
-	const AddSequenceListeners = () => {
-		for(let each in memoryCores){
-			memoryCores[each].GetEl().addEventListener('click', memoryClick);
-		}
-	}
-	//Remove memoryClick() Listeners from all Memory Buttons
-	const RemoveSequenceListeners = () => {
-		for(let each in memoryCores){
-			memoryCores[each].GetEl().removeEventListener('click', memoryClick);
-		}
-	}
-	//Spawn Memory Game
-	const SpawnMemGame = () => {
-		if(memory.inScene){}else{
-			memory.layer.SpawnLayer();
-			memoryUI1.SpawnCore();
-			memoryUI2.SpawnCore();
-			AddSequenceListeners();
-			GameSpawnMenu();
-			memory.inScene = true;
-		}
-	}
-	//Despawn Memory Game
-	const DespawnMemGame = () => {
-		if(memory.inScene){
-			RemoveSequenceListeners();
-			memory.gameMenu.DespawnMenu()
-			memory.layer.DespawnLayer();
-			memoryUI1.DespawnCore();
-			memoryUI2.DespawnCore();
-			RemoveFromTracker(memory.id);
-			memory.inScene = false;
-		}
-	}
-	//Toggle Spawn
-	const ToggleSpawn = () => {
-		if(memory.inScene){
-			DespawnMemGame();
-		} else {
-			SpawnMemGame();
-		}
-	}
-	//Set Flag & Value to Object - Single or Array
-	const SetFlag = (flagValue) => {
-		if(Array.isArray(flagValue)){
-			for(let each in flagValue){
-			memory[flagValue[each].flag] = flagValue[each].value;
-			}
-		} else {
-			memory[flagValue.flag] = flagValue.value;
-		}
-	}
-	//Retreive Flag Value from Object - Single or Array
-	const GetFlag = (flag) => {
-		if(Array.isArray(flag)){
-			let flagArray = [];
-			for(let each in flag){
-				flagArray.push(memory(flag[each]));
-			}
-			return flagArray;
-		} else {
-			return memory[flag];
-		}
-	}
-	//Start Memory Game
-	const StartGame = () => {
-		GenRanSequence();
-		gameStarted = true;
-		memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Game Started'}});
-		memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
-		PlaySequence();
-	}
-	//Build Level Sequence
-	const GenRanSequence = () => {
-		for(let a = 0; a < sequenceChunk; a++){
-			allSequence.push(Math.floor(Math.random()*4))
-		}
-		//console.log(allSequence);
-	}
-	//Play Level Sequence
-	const PlaySequence = () => {
-		//console.log('Playing Sequence');
-		pauseClick = true;
-		if(currMaxSequence >= allSequence.length){
-			GenRanSequence();
-		}
-		let current = 0;
-		playSequenceInterval = setInterval(function() {
-			memoryCores[allSequence[current]].EmitEvent('select');
-			current++;
-			if(current >= currMaxSequence){
-				pauseClick = false;
-				clearInterval(playSequenceInterval);
-			}
-		}, 750);
-	}
-	//Check Level Sequence
-	const CheckSequence = () => {
-		//console.log(allSequence);
-		//console.log(playerSequence);
-		//console.log(currInSequence);
-		//console.log(playerSequence[currInSequence]);
-		//console.log(allSequence[currInSequence]);
-		if(playerSequence[currInSequence] === allSequence[currInSequence]){
-			//console.log('Match');
-			currInSequence++;
-			//push selection to front of sequenceRef and remove the last item
-			sequenceTempArray.unshift('X');
-			sequenceTempArray.pop();
-			sequenceRef = sequenceTempArray.join("");
-			memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
-		} else {
-			//console.log('Game Over');
-			gameStarted = false;
-			if(currMaxSequence-1 > highScore){
-				highScore = currMaxSequence-1;
-				//console.log('New High Score : ' + highScore);
-			} else {
-				//let currentScore = currMaxSequence-1;
-				//console.log('Sequence Score : ' + currentScore);
-			}
-			gameOverTimeout1 = setTimeout(function () {
-				gameOverAnim();
-				gameOverTimeout2 = setTimeout(function () {
-					ResetGame();
-					clearTimeout(gameOverTimeout2);
-				}, 2000);
-			}, 250);
-		}
-		if(currInSequence >= currMaxSequence){
-			//console.log('Correct Sequence');
-			currInSequence = 0;
-			currMaxSequence++;
-			currentScore++;
-			memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Current : ' + currentScore}});
-			sequenceTempArray = [];
-			for(let a = 1; a <= currMaxSequence; a++){
-				sequenceTempArray.push('*');
-			}
-			sequenceRef = sequenceTempArray.join("");
-			memoryUI2.ChangeSelf({property: 'text', value: {value: 'Sequence : '+sequenceRef}});
-			playerSequence = [];
-			roundCompleteTimeout1 = setTimeout(function () {
-				roundCompleteAnim();
-				roundCompleteTimeout2 = setTimeout(function () {
-					PlaySequence();
-					clearTimeout(roundCompleteTimeout2);
-				}, 1500);
-				clearTimeout(roundCompleteTimeout1);
-			}, 250);
-		}
-	}
-	//Reset Game
-	const ResetGame = () => {
-		clearInterval(playSequenceInterval);
-		clearTimeout(roundCompleteTimeout1);
-		clearTimeout(roundCompleteTimeout2);
-		currentScore = 0;
-		currInSequence = 0;
-		currMaxSequence = 1;
-		allSequence = [];
-		playerSequence = [];
-		sequenceTempArray = [];
-		pauseClick = true;
-		gameStarted = false;
-		memoryUI1.ChangeSelf({property: 'text', value: {value: 'High Score : '+highScore+' | Game Over'}});
-	}
-	//Handle Memory Clicks & Check Sequence
-	function memoryClick(){
-		if(pauseClick){}else{
-			//console.log('Memory Click')
-			//console.log(this.id)
-			let selection;
-			if(this.id === 'memory0'){
-				selection = 0;
-			} else if(this.id === 'memory1'){
-				selection = 1;
-			} else if(this.id === 'memory2'){
-				selection = 2;
-			} else if(this.id === 'memory3'){
-				selection = 3;
-			}
-			playerSequence.push(selection);
-			CheckSequence();
-		}
-	}
-	//Play Round Complete Animation
-	function roundCompleteAnim(){
-		for(let each in memoryCores){
-			memoryCores[each].EmitEvent('roundComplete');
-		}
-	}
-	//Play Game Over Animation
-	function gameOverAnim(){
-		for(let each in memoryCores){
-			memoryCores[each].EmitEvent('gameOver');
-		}
-	}
-	//Spawn Game Menu
-	const GameSpawnMenu = () => {
-		memory.GameMenuData = {
-			id: 'memoryGameMenu',
-			prompt: 'Memory Game',
-			options: {option0: '0'},
-			actions: {action0: '0'},
-			data: auxl.menuBaseData,
-			cursorObj: 'memory',
-			method: 'GameMenuClick',
-			pos: new THREE.Vector3(0.75,1.55,-2),
-		}
-		memory.GameMenuData.options['option'+0] = 'Play Game';
-		memory.GameMenuData.actions['action'+0] = 'playGame';
-		memory.GameMenuData.options['option'+1] = 'Reset Game';
-		memory.GameMenuData.actions['action'+1] = 'resetGame';
-
-		memory.gameMenu = auxl.Menu(memory.GameMenuData);
-		memory.gameMenu.SpawnMenu();
-	}
-	//Handle Game Menu Click
-	const GameMenuClick = (el) => {
-		let result = el.getAttribute('result');
-		//console.log(result);
-		if(result === 'playGame'){
-			if(gameStarted){}else{
-				StartGame();
-			}
-		} else if(result === 'resetGame'){
-			if(gameStarted){
-				ResetGame();
-			}
-		}
-	}
-
-	return{memory, SpawnMemGame, DespawnMemGame, ToggleSpawn, GameMenuClick, SetFlag, GetFlag};
-}
-
-
-//
-//Pet
-auxl.Pet = (petData) => {
-
-	let pet = Object.assign({}, petData);
-
-	const natures = ['nature1','nature2','nature3'];
-	const abilities = ['ability1', 'ability2', 'ability3'];
-	const moods = ['sad', 'happy'];
-	const energy = ['famished', 'hungry', 'content', 'full',];
-	const full = 4;
-	const maxStamina = 10;
-	const xpLevels = [0, 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600]
-
-	//Nature
-	pet.nature = natures[Math.floor(Math.random()*natures.length)];
-	//Ability
-	pet.ability = natures[Math.floor(Math.random()*abilities.length)];
-	//Mana
-	pet.mana = Math.floor(Math.random()*5)+5;
-	//Mood
-	pet.mood = moods[0];
-	pet.mind = 0;
-	//Hunger
-	pet.currHunger = 0;
-	pet.hunger = energy[pet.currHunger];
-	//Stamina
-	pet.stamina = 2;
-	//Health
-	pet.clean = true;
-	pet.maxHealth = 6;
-	pet.currHealth = 4;
-	//Level
-	pet.level = 0;
-	//XP
-	pet.xp = 0;
-	//Age
-	pet.age = 0;
-	//Currency
-	pet.tokens = 0;
-	pet.currency = 0;
-	//Sleep
-	pet.awake = true;
-	pet.sleepCycle = false;
-	//Menu
-	pet.menu = 0;
-	//0 : Hidden
-	//1 : Main Menu
-	//2 : Sub Menu
-	//3 : Action
-
-
-
-	const DevDisplay = (message, xIs) => {
-		if(xIs){
-			console.log(message + ' ' + pet.name + '.');
-		} else {
-			console.log(pet.name + ' ' + message + '.');
-		}
-	}
-
-	const SpawnPet = () => {
-		pet.core.SpawnCore();
-
-	}
-
-	const DespawnPet = () => {
-		pet.core.DespawnCore();
-
-	}
-
-	const Pet = () => {
-		DevDisplay('Petting', true);
-		pet.mind++;
-		pet.mood = moods[pet.mind];
-		DevDisplay('is ' + pet.mood, false);
-	}
-
-	const Feed = () => {
-		pet.currHunger++;
-		pet.hunger = energy[pet.currHunger];
-		DevDisplay( 'is ' + pet.hunger, false);
-	}
-
-	const Groom = () => {
-		if(pet.clean){} else {
-			pet.clean = true;
-			DevDisplay( 'is clean.', false);
-		}
-	}
-
-	const Play = () => {
-		if(pet.stamina > 0){
-			DevDisplay('Playing with', true);
-			pet.stamina--;
-			pet.mind++;
-		}
-	}
-
-	const Heal = () => {
-		if(pet.currHealth < pet.maxHealth){
-			pet.currHealth+=2;
-			DevDisplay('Healing', true);
-			if(pet.currHealth > pet.maxHealth){
-				pet.currHealth = pet.maxHealth;
-			}
-		}
-	}
-
-	const Quest = () => {
-		if(pet.stamina > 0){
-			DevDisplay('Questing with', false);
-			pet.stamina-=2;
-			if(Math.random()*100-pet.mana>=69){
-				DevDisplay('Completed a quest with ', true);
-				GainXP(10);
-			} else {
-				DevDisplay('Failed a quest with', true);
-			}
-		}
-	}
-
-	const GainXP = (xp) => {
-		pet.xp+=xp;
-		if(pet.xp >= xpLevels[pet.level]){
-			DevDisplay(' gained a level!', false);
-		}
-	}
-
-	const Gamble = () => {
-		if(pet.tokens > 0){
-			DevDisplay('Gambling with', false);
-			pet.tokens--;
-			if(Math.random()*100>=50){
-				pet.currency++;
-				DevDisplay(' is a winner', false);
-			}
-		}
-	}
-
-	const ToggleSleep = () => {
-		if(pet.awake){
-			pet.awake = false;
-			DevDisplay(' is asleep', false);
-		} else {
-			pet.awake = true;
-			DevDisplay(' is awake', false);
-		}
-	}
-
-	const Stats = () => {
-	console.log(pet);
-	}
-
-	const Settings = () => {
-	//Save
-	//Load
-	//Reset
-
-	}
-
-	const spawnPetMainMenu = () => {
-
-		pet.pos = pet.core.GetEl().getAttribute('position');
-		pet.systemMenuData = {
-			id: 'systemMenu',
-			prompt: 'X - Pet Menu',
-			options: {option0: '0'},
-			actions: {action0: '0'},
-			layout: 'vertical',
-			data: auxl.menuBaseData,
-			cursorObj: pet.id,
-			method: 'mainMenuClick',
-			pos: new THREE.Vector3(pet.pos.x+1,1.5,pet.pos.z-1),
-		}
-		/*
-		let currNum = 0;
-		for(let options in systemMenuButtons){
-			pet.systemMenuData.options['option'+currNum] = systemMenuButtons[options];
-			pet.systemMenuData.actions['action'+currNum] = options;
-			currNum++;
-		}
-		*/
-		pet.systemMenu = auxl.Menu(pet.systemMenuData);
-		pet.systemMenu.SpawnMenu();
-		pet.systemMenu.AddToParentSpawnTracker(pet.systemMenu, pet);
-
-	}
-
-	const mainMenuClick = (el) => {
-		let result = el.getAttribute('result');
-		console.log(result);
-	}
-
-	return {pet, SpawnPet, DespawnPet, Pet, Feed, Groom, Play, Heal, Quest, Gamble, ToggleSleep, Stats, Settings, spawnPetMainMenu, mainMenuClick}
-
-}
-//Pet Core
-auxl.petCoreData = {
-data:'petCoreData',
-id:'petCore',
-sources: false,
-text: false,
-geometry: {primitive: 'sphere', radius: 0.5},
-material: {shader: "standard", src: auxl.pattern30, repeat: '1 1', color: "#3EB489", emissive: '#3EB489', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,1,-0.5),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-auxl.petCore = auxl.Core(auxl.petCoreData);
-
-auxl.pet0Data = {
-id: 'pet0',
-name: 'Minty Pet',
-core: auxl.petCore,
-};
-
-let pet0 = auxl.Pet(auxl.pet0Data);
-
-//pet0.SpawnPet();
-//pet0.Pet();
-//pet0.Feed();
-//pet0.Groom();
-//pet0.Play();
-//pet0.Heal();
-//pet0.Quest();
-//pet0.Gamble();
-//pet0.ToggleSleep();
-//pet0.Stats();
-//pet0.spawnPetMainMenu();
-/*
-Show/Hide/Back
-- Pet
-- Feed
-- - Meal
-- - Snack
-- Groom
-- Play
-- - Catch
-- - Dodge
-- - Jump
-- - Fight
-- Heal
-- Quest
-- - Adventure
-- - Battle
-- Gamble/Casino
-- - RNG 1
-- - RNG 2
-- Stats
-- - Nature
-- - Ability
-- - Mood
-- - Hunger
-- - Stamina
-- - Mana
-- - Level / XP
-- - Age
-- Settings
-- - Save
-- - Load
-- - Reset
-
-Main Button
-- Hidden : Click to show main menu
-- Display Main Menu : Click to hide menu
-- Display Sub Menu : Click to go back to main menu
-- Exit Mode : Close mode and display main menu
-*/
-
-
-},
-});
-
-
-//
-//AUXL RPG
-//Adventure game focused ObjGens
-AFRAME.registerComponent('auxl-rpg', {
-dependencies: ['auxl'],
-init: function () {
-//AUXL System Connection
-const auxl = document.querySelector('a-scene').systems.auxl;
-
-
-},
-});
-
-
-//
-//AUXL Third Party
-//Externally built ObjGen testing example
-AFRAME.registerComponent('auxl-third-party', {
-dependencies: ['auxl'],
-init: function () {
-//AUXL System Connection
-const auxl = document.querySelector('a-scene').systems.auxl;
-
-
-//
-//Testing Object Custom
-auxl.TestObj = (id) => {
-
-	let testObj = {};
-	testObj.id = id;
-	//Cube
-	testObj.testData = {
-	data:'testData',
-	id:'test',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-	material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 1},
-	position: new THREE.Vector3(-1.5,2.5,-1.5),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['clickable','a-ent'],
-	components: {
-		doorway:{zone: 'zone0', to: 'connect0'},
-	},
-	};
-	testObj.test = auxl.Core(testObj.testData);
-
-	const SpawnTest = () => {
-		testObj.test.SpawnCore();
-	}
-
-	const DespawnTest = () => {
-		testObj.test.DespawnCore();
-	}
-
-	const TestMethod = (params) => {
-		console.log(params);
-	}
-
-	return {testObj, SpawnTest, DespawnTest, TestMethod};
-}
-//Dynamically Add to Tracker
-auxl.AddObjGenToTracker('testObj', 'SpawnTest', 'DespawnTest');
-auxl.test = auxl.TestObj('test');
-
-
-},
-});
-
 
 //auxl-library
 //AUXL Library : List of Materials, Geometries, Sounds, Animations, Data, Cores, Layers & Objects
@@ -8973,6 +7730,7 @@ classes: ['a-ent','player'],
 components: {
 ['universal-controls']:null,
 ['locomotion']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
+['gimbal']:{uiid: false, courserid: 'mouseController', gimbal: 'desktop'},
 light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
 },};
 auxl.playerRig = auxl.Core(auxl.playerRigData);
@@ -9283,6 +8041,10 @@ child3: {core: auxl.playerFloor},
 }
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
 auxl.playerLayer = auxl.Layer('playerLayer', auxl.playerAll);
+
+
+
+
 //Player Obj
 auxl.player = auxl.Player(auxl.playerLayer);
 
@@ -9622,20 +8384,236 @@ components: false,
 };
 
 //
-//Hover Text Template
-auxl.hoverTextData = {
-data:'hoverTextData',
-id:'hoverText',
-text: {value:'Text', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
-position: new THREE.Vector3(0,0,0.1),
+//Ham Avatar
+//
+//Ghost
+
+//Parent
+auxl.ghostParentData = {
+data:'ghostParentData',
+id:'ghostParent',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(1.5,1,0),
 rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
+scale: new THREE.Vector3(0.9,0.9,0.9),
 animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera',
+},
+};
+auxl.ghostParent = auxl.Core(auxl.ghostParentData);
+//EyeSocket
+auxl.eyeSocketData = {
+data:'eyeSocketData',
+id:'eye1Socket',
+sources: false,
+text: false,
+geometry: {primitive: 'cylinder', radius: 0.175, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#fcfafd", emissive: '#fcfafd', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(-0.15,0.1,0.4),
+rotation: new THREE.Vector3(90,0,0),
+scale: new THREE.Vector3(0.75,1,1),
+animations: {
+powerup1: {property: 'material.color', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
+powerup2: {property: 'material.emissive', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
+powerdown1: {property: 'material.color', to: '#fcfafd', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
+powerdown2: {property: 'material.emissive', to: '#fcfafd', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
+},
 mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-auxl.hoverText = auxl.Core(auxl.hoverTextData);
+//Eye1Socket
+auxl.eye1Socket = auxl.Core(auxl.eyeSocketData);
+//Eye2Socket
+auxl.eyeSocketData.id = 'eye2Socket';
+auxl.eyeSocketData.position = new THREE.Vector3(0.15,0.1,0.4);
+auxl.eye2Socket = auxl.Core(auxl.eyeSocketData);
+//EyePupil
+auxl.eyePupilData = {
+data:'eyePupilData',
+id:'eye1Pupil',
+sources: false,
+text: false,
+geometry: {primitive: 'cylinder', radius: 0.1, height: 0.025, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#1500fa", emissive: '#1500fa', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0.01,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1.25,1,1),
+animations: {
+lookdown: {property: 'position', to: new THREE.Vector3(0,0.01,0.07), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookDown'},
+lookup: {property: 'position', to: new THREE.Vector3(0,0.01,-0.07), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookUp'},
+lookright: {property: 'position', to: new THREE.Vector3(0.05,0.01,0), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookRight'},
+lookleft: {property: 'position', to: new THREE.Vector3(-0.05,0.01,0), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookLeft'},
+
+powerup1: {property: 'material.color', to: '#fcfafd', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
+powerup2: {property: 'material.emissive', to: '#fcfafd', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
+powerdown1: {property: 'material.color', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
+powerdown2: {property: 'material.emissive', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Eye1Pupil
+auxl.eye1Pupil = auxl.Core(auxl.eyePupilData);
+//Eye2Pupil
+auxl.eyePupilData.id = 'eye2Pupil';
+auxl.eye2Pupil = auxl.Core(auxl.eyePupilData);
+//Mouth
+auxl.mouthData = {
+data:'mouthData',
+id:'mouth',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+powerup: {property: 'visible', to: true, dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
+powerdown: {property: 'visible', to: false, dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+visible: false,
+line:{start: new THREE.Vector3(-0.3,-0.2,0.41), end: new THREE.Vector3(-0.2,-0.15,0.41), color: 'white'},
+['line__2']:{start: new THREE.Vector3(-0.2,-0.15,0.41), end: new THREE.Vector3(-0.1,-0.2,0.41), color: 'white'},
+['line__3']:{start: new THREE.Vector3(-0.1,-0.2,0.41), end: new THREE.Vector3(0,-0.15,0.41), color: 'white'},
+['line__4']:{start: new THREE.Vector3(0,-0.15,0.41), end: new THREE.Vector3(0.1,-0.2,0.41), color: 'white'},
+['line__5']:{start: new THREE.Vector3(0.1,-0.2,0.41), end: new THREE.Vector3(0.2,-0.15,0.41), color: 'white'},
+['line__6']:{start: new THREE.Vector3(0.2,-0.15,0.41), end: new THREE.Vector3(0.3,-0.2,0.41), color: 'white'},
+},
+};
+auxl.mouth = auxl.Core(auxl.mouthData);
+//Spin
+auxl.spinData = {
+data:'spinData',
+id:'spin',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,-0.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+rotate: {property: 'object3D.rotation.y', from: 0, to: 360, dur: 1500, delay: 0, loop: true, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.spin = auxl.Core(auxl.spinData);
+//Head
+auxl.headData = {
+data:'headData',
+id:'head',
+sources: false,
+text: false,
+geometry: {primitive: 'sphere', radius: 0.4, phiStart: 0, phiLength: 180, segmentsWidth: 16, segmentsHeight: 16, thetaStart: 0, thetaLength: 180},
+material: {shader: "standard", color: "#C14B76", emissive: '#C14B76', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0.15,0),
+rotation: new THREE.Vector3(-90,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+powerup1: {property: 'material.color', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
+powerup2: {property: 'material.emissive', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
+powerdown1: {property: 'material.color', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
+powerdown2: {property: 'material.emissive', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.head = auxl.Core(auxl.headData);
+//Body
+auxl.bodyData = {
+data:'bodyData',
+id:'body',
+sources: false,
+text: false,
+geometry: {primitive: 'cylinder', radius: 0.4, height: 0.3, openEnded: false, segmentsHeight: 2, segmentsRadial: 32, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#C14B76", emissive: '#C14B76', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+powerup1: {property: 'material.color', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
+powerup2: {property: 'material.emissive', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
+powerdown1: {property: 'material.color', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
+powerdown2: {property: 'material.emissive', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.body = auxl.Core(auxl.bodyData);
+//Legs
+auxl.legData = {
+data:'legData',
+id:'leg1',
+sources: false,
+text: false,
+geometry: {primitive: 'cone', radiusBottom: 0, radiusTop: 0.15, height: 0.2, openEnded: false, segmentsHeight: 4, segmentsRadial: 8, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#C14B76", emissive: '#C14B76', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(-0.25,-0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+powerup1: {property: 'material.color', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
+powerup2: {property: 'material.emissive', to: '#1500fa', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
+powerdown1: {property: 'material.color', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
+powerdown2: {property: 'material.emissive', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//Leg 1
+auxl.leg1 = auxl.Core(auxl.legData);
+//Leg 2
+auxl.legData.id = 'leg2'
+auxl.legData.position = new THREE.Vector3(0.25,-0.25,0);
+auxl.leg2 = auxl.Core(auxl.legData);
+//Leg 3
+auxl.legData.id = 'leg3'
+auxl.legData.position = new THREE.Vector3(0,-0.25,-0.25);
+auxl.leg3 = auxl.Core(auxl.legData);
+//Leg 4
+auxl.legData.id = 'leg4'
+auxl.legData.position = new THREE.Vector3(0,-0.25,0.25);
+auxl.leg4 = auxl.Core(auxl.legData);
+//Ghost Layer
+auxl.ghostLayerData = {
+	parent: {core: auxl.ghostParent}, 
+	child0: {
+		parent: {core: auxl.eye1Socket}, 
+		child0: {core: auxl.eye1Pupil}, 
+	}, 
+	child1: {
+		parent: {core: auxl.eye2Socket}, 
+		child0: {core: auxl.eye2Pupil}, 
+	}, 
+	child2: {core: auxl.mouth},
+	child3: {
+		parent: {core: auxl.spin}, 
+		child0: {core: auxl.head}, 
+		child1: {core: auxl.body}, 
+		child2: {core: auxl.leg1}, 
+		child3: {core: auxl.leg2}, 
+		child4: {core: auxl.leg3}, 
+		child5: {core: auxl.leg4}, 
+	}, 
+}
+auxl.ghost = auxl.Layer('ghost',auxl.ghostLayerData);
 
 //
 //Hamburger Menu Companion
@@ -9667,16 +8645,18 @@ eventrun:{event: 'testEventHit',cursorObj: 'hamComp', method: 'FuseClickRun', pa
 },
 };
 auxl.hamComp = auxl.Core(auxl.hamCompData);
-auxl.ham = auxl.HamMenu('ham',auxl.hamComp);
+//auxl.ham = auxl.HamMenu('ham',auxl.hamComp);
+auxl.ham = auxl.HamMenu('ham',auxl.ghost);
 //Inventory Screen
 auxl.inventoryScreenData = {
 data:'inventoryScreenData',
 id:'inventoryScreen',
 sources:false,
 text: {value:'Inventory :\nEmpty', color: "#FFFFFF", align: "center", font: "exo2bold", width: 1.2, zOffset: 0.025, side: 'front', wrapCount: 35, baseline: 'bottom', anchor: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.75},
+geometry: {primitive: 'box', depth: 0.025, width: 0.75, height: 0.3},
 material: {shader: "standard", color: "#4bb8c1", opacity: 0.8, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,0.65,-1.25),
+//position: new THREE.Vector3(0,0.65,-1.25),
+position: new THREE.Vector3(0,0.7,-0.25),
 rotation: new THREE.Vector3(15,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -10154,187 +9134,6 @@ auxl.moonLayer,
 auxl.skyBox0 = auxl.SkyBox(auxl.skyBox0Data);
 
 //
-//ImageSwapper Testing
-
-//ImageSwapper Main View
-auxl.imageSwapperViewData = {
-data: 'imageSwapperViewData',
-id:'imageSwapperView',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.1, width: 1, height: 1},
-material: false,
-position: new THREE.Vector3(2,1.5,0.25),
-rotation: new THREE.Vector3(0,-90,0),
-scale: new THREE.Vector3(1,1,1),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-//ImageSwapper Thumbnail Button Previews
-auxl.imageSwapperButtonData = {
-data: 'imageSwapperButtonData',
-id:'imageSwapperButton',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.1, width: 0.2, height: 0.2},
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {clickfunc: {clickObj: 'imageSwapper1'}},
-};
-//ImageSwapper Example
-auxl.imageSwapper1 = auxl.ImageSwapper('imageSwapper1',auxl.imageSwapperViewData, auxl.imageSwapperButtonData, auxl.mat0, auxl.mat1, auxl.mat2, auxl.mat3, auxl.mat4);
-
-//
-//ImageCarousel Testing
-auxl.carouselTestingData = {
-id: 'carouselTesting',
-description: 'Browse through an example carousel. Control the image frames with a handful of buttons to jump to a random page, go back a page, go back a few images, view info, play the slideshow, go forward a few images, go to the next page and switch between 2 frame sizings.',
-images: [
-	{image: auxl.pattern01, text: 'Example1'},
-	{image: auxl.pattern02, text: 'Example2'},
-	{image: auxl.pattern03, text: 'Example3'},
-	{image: auxl.pattern04, text: 'Example4'},
-	{image: auxl.pattern05, text: 'Example5'},
-	{image: auxl.pattern06, text: 'Example6'},
-	{image: auxl.pattern07, text: 'Example7'},
-	{image: auxl.pattern08, text: 'Example8'},
-	{image: auxl.pattern09, text: 'Example9'},
-	{image: auxl.pattern10, text: 'Example10'},
-	{image: auxl.pattern11, text: 'Example11'},
-	{image: auxl.pattern12, text: 'Example12'},
-	{image: auxl.pattern13, text: 'Example13'},
-	{image: auxl.pattern14, text: 'Example14'},
-	{image: auxl.pattern15, text: 'Example15'},
-	{image: auxl.pattern16, text: 'Example16'},
-	{image: auxl.pattern17, text: 'Example17'},
-	{image: auxl.pattern18, text: 'Example18'},
-	{image: auxl.pattern19, text: 'Example19'},
-	{image: auxl.pattern20, text: 'Example20'},
-	{image: auxl.pattern21, text: 'Example21'},
-	{image: auxl.pattern22, text: 'Example22'},
-	{image: auxl.pattern23, text: 'Example23'},
-	{image: auxl.pattern24, text: 'Example24'},
-],
-};
-auxl.carouselTesting = auxl.ImageCarousel(auxl.carouselTestingData);
-
-//
-//Memory Game Testing
-//Memory 0
-auxl.memory0Data = {
-data:'0',
-id:'memory0',
-sources:false,
-text: false,
-geometry: {primitive: 'triangle', vertexA: '0 0.5 0', vertexB: '-0.5 -0.5 0', vertexC: '0.5 -0.5 0'},
-material: {shader: "standard", color: "#3EB489", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#3EB489", emissiveIntensity: 0.2, side: 'double'},
-position: new THREE.Vector3(-0.6,1,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
-click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
-roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
-gameover1: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
-gameover2: {property: 'material.emissiveIntensity', from: '0.8', to: '0.2', dur: 250, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
-},
-mixins: false,
-classes: ['clickable','memory','a-ent'],
-components: false,
-};
-//Memory 1
-auxl.memory1Data = {
-data:'1',
-id:'memory1',
-sources:false,
-text: false,
-geometry: {primitive: 'plane', width: 0.75, height: 0.75,},
-material: {shader: "standard", color: "#C14B76", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#C14B76", emissiveIntensity: 0.2, side: 'double'},
-position: new THREE.Vector3(0.6,1,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
-click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
-roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
-gameover1: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
-gameover2: {property: 'material.emissiveIntensity', from: '0.8', to: '0.2', dur: 250, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
-},
-mixins: false,
-classes: ['clickable','memory','a-ent'],
-components: false,
-};
-//Memory 2
-auxl.memory2Data = {
-data:'2',
-id:'memory2',
-sources:false,
-text: false,
-geometry: {primitive: 'plane', width: 0.15, height: 0.75,},
-material: {shader: "standard", color: "#ce782f", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#ce782f", emissiveIntensity: 0.2, side: 'double'},
-position: new THREE.Vector3(-0.6,0,0),
-rotation: new THREE.Vector3(0,0,45),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
-click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
-roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
-gameover1: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
-gameover2: {property: 'material.emissiveIntensity', from: '0.8', to: '0.2', dur: 250, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
-},
-mixins: false,
-classes: ['clickable','memory','a-ent'],
-components: false,
-};
-//Memory 3
-auxl.memory3Data = {
-data:'3',
-id:'memory3',
-sources:false,
-text: false,
-geometry: {primitive: 'circle', radius: 0.5, segments: 16, thetaStart: 0, thetaLength: 360},
-material: {shader: "standard", color: "#4b54c1", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#4b54c1", emissiveIntensity: 0.2, side: 'double'},
-position: new THREE.Vector3(0.6,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-click1: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
-click2: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click, select'},
-roundcomplete: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: '6', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'roundComplete'},
-gameover1: {property: 'material.emissiveIntensity', from: '0.2', to: '0.8', dur: 250, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
-gameover2: {property: 'material.emissiveIntensity', from: '0.8', to: '0.2', dur: 250, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'gameOver'},
-},
-mixins: false,
-classes: ['clickable','memory','a-ent'],
-components: false,
-};
-//Memory UI
-auxl.memoryUIData = {
-data:'memoryUIData',
-id:'memoryUI',
-sources:false,
-text: {value:'Memory Game UI', wrapCount: 45, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
-geometry: {primitive: 'plane', width: '2', height: '0.25'},
-material: {shader: "standard", color: "#3EB489", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#3EB489", emissiveIntensity: 0.2, side: 'double'},
-position: new THREE.Vector3(0,2.6,-2),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['memory','a-ent'],
-components: false,
-};
-//Memory Example
-auxl.memory = auxl.MemoryGame('memory',[auxl.memory0Data,auxl.memory1Data,auxl.memory2Data,auxl.memory3Data]);
-
-//
 //Testing Objects
 
 //Testing Object for Interactions and Events
@@ -10487,6 +9286,7 @@ components:{
 };
 auxl.testing = auxl.Core(auxl.testingData);
 
+/*
 //
 //MultiMenu test
 auxl.multiMenuTestData = {
@@ -10665,4279 +9465,7 @@ menu5:{
 
 };
 auxl.multiMenuTest = auxl.MultiMenu(auxl.multiMenuTestData);
-
-
-},
-});
-
-
-
-//Testing
-//Altering GLTF Materials & Toon Shader
-AFRAME.registerComponent('modify-materials', {
-dependencies: ['auxl'],
-	init: function () {
-		const auxl = document.querySelector('a-scene').systems.auxl;
-		// Wait for model to load. GLTF/OBJ Event
-		this.el.addEventListener('model-loaded', () => {
-			// Grab the mesh / scene.
-			const obj = this.el.getObject3D('mesh');
-			// Go over the submeshes and modify materials we want.
-			//const materialTest = {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
-			//mesh.material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
-			const materialTest = new THREE.MeshBasicMaterial( { color: 0xffffff } );
-
-const threeTone = new THREE.TextureLoader().load('./assets/img/gradient/threeTone.jpg')
-threeTone.minFilter = THREE.NearestFilter
-threeTone.magFilter = THREE.NearestFilter
-
-const fourTone = new THREE.TextureLoader().load('./assets/img/gradient/fourTone.jpg')
-fourTone.minFilter = THREE.NearestFilter
-fourTone.magFilter = THREE.NearestFilter
-
-const fiveTone = new THREE.TextureLoader().load('./assets/img/gradient/fiveTone.jpg')
-fiveTone.minFilter = THREE.NearestFilter
-fiveTone.magFilter = THREE.NearestFilter
-
-			//const diffuseColor = new THREE.Color().setHSL( alpha, 0.5, gamma * 0.5 + 0.1 ).multiplyScalar( 1 - beta * 0.2 );
-			const gradientMap = new THREE.DataTexture( 2, 1, 2, 3 );
-			gradientMap.needsUpdate = true;
-
-			const materialToon = new THREE.MeshToonMaterial( {
-				color: 'blue',
-				gradientMap: fiveTone
-			} );
-
-			obj.traverse(node => {
-				if(node.name.indexOf('Mesh_crop_melon') !== -1) {
-					node.material = materialToon;
-				}
-
-
-//testing
-//<empty string>
-//crop_melon
-//Mesh_crop_melon
-//Mesh_crop_melon_1
-//Mesh_crop_melon_2
-/*
-				console.log(node.name)
-				if(node.name.indexOf('Mesh_crop_melon') !== -1) {
-					node.material.color.set('red');
-				}
-				if(node.name.indexOf('Mesh_crop_melon_1') !== -1) {
-					node.material.color.set('blue');
-				}
-				if(node.name.indexOf('Mesh_crop_melon_2') !== -1) {
-					node.material.color.set('yellow');
-				}
 */
-			});
-		});
-	}
-});
 
-//
-//Attach
-AFRAME.registerComponent('attach', {
-	dependencies: ['auxl'],
-    schema: {
-        idname: {type: 'string', default: 'ui'},
-        position: {type: 'vec3'},
-    },
-    init: function () {
-        //Thing To Attach
-        this.attachee = document.getElementById(this.data.idname);
-        this.offset = new THREE.Vector3();
-		if(this.data.position){
-			this.offset.copy(this.data.position);
-		} else {
-        	this.offset.copy(this.attachee.object3D.position);
-		}
-        this.newPosVec3 = new THREE.Vector3();
-    },
-    attached: function () {
-        //Clone current the entity this component is attached to's position
-        this.newPosVec3.copy(this.el.object3D.position);
-        //Offsets
-        this.newPosVec3.x += this.offset.x;
-        this.newPosVec3.y += this.offset.y;
-        this.newPosVec3.z += this.offset.z;
-        //Set position for UI at 3js level for speed!
-        this.attachee.object3D.position.copy(this.newPosVec3);
-    },
-    tick: function (time, timeDelta) {
-        this.attached();
-    },
-});
-
-//
-//Look At XYZ
-AFRAME.registerComponent('look-at-xyz', {
-	dependencies: ['auxl'],
-	schema: {
-		match: {type: 'string', default:'camera'},
-		x: {type: 'boolean', default: false},
-		y: {type: 'boolean', default: false},
-		z: {type: 'boolean', default: false},
-	},
-    init: function () {
-    },
-    update: function () {
-		this.rotation = this.el.object3D.rotation;
-		this.matchView = document.getElementById(this.data.match);
-		this.matchRotation = new THREE.Euler();
-		this.lookAtXYZThrottled = AFRAME.utils.throttle(this.lookAtXYZ, 30, this);
-    },
-    lookAtXYZ: function () {
-		this.matchRotation.copy(this.matchView.object3D.rotation);
-		//Sync X,Y and/or Z
-		if(this.data.x){
-			this.rotation.x = this.matchRotation.x;
-		}
-		if(this.data.y){
-			this.rotation.y = this.matchRotation.y;
-		}
-		if(this.data.z){
-			this.rotation.z = this.matchRotation.z;
-		}
-		this.el.object3D.rotation.copy(this.rotation);
-    },
-    tick: function (time, timeDelta) {
-        this.lookAtXYZThrottled();
-    },
-});
-
-//
-//Event Listener Components to run Auxl.Object.Methods()
-
-//Attach to run Object's .Click() method on click
-//Legacy | Will be replaced by clickrun
-AFRAME.registerComponent('clickfunc', {
-dependencies: ['auxl'],
-schema: {
-	clickObj: {type: 'string', default: 'auxlObj'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-},
-events: {
-	click: function (evt) {
-		this.auxl[this.data.clickObj].Click(evt.target);
-	}
-},
-});
-//Attach to run specified method from Object on click event or method from component if in scene
-AFRAME.registerComponent('clickrun', {
-dependencies: ['auxl'],
-//multiple: true,
-schema: {
-	cursorObj: {type: 'string', default: 'auxlObj'},
-	component: {type: 'string', default: 'null'},
-	method: {type: 'string', default: 'Click'},
-	params: {type: 'string', default: 'null'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-	this.domEnt;
-},
-events: {
-	click: function (evt) {
-		if(this.data.component === 'null'){
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				if(this.data.params === 'null'){
-					this.auxl[this.data.cursorObj][this.data.method](evt.target);
-				} else {
-					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
-				}
-			}
-		} else {
-			//object is a dom entity and the component is attached to that object and the func is in that component
-			if(document.getElementById(this.data.cursorObj)){
-				this.domEnt = document.getElementById(this.data.cursorObj);
-				if(this.data.params === 'null'){
-					this.domEnt.components[this.data.component][this.data.method](evt.target);
-				} else {
-					this.domEnt.components[this.data.component][this.data.method](this.data.params);
-				}
-			}
-		}
-	}
-},
-});
-
-//Attach to run specified method from Object on fusing event
-AFRAME.registerComponent('fusingrun', {
-dependencies: ['auxl'],
-schema: {
-	cursorObj: {type: 'string', default: 'auxlObj'},
-	component: {type: 'string', default: 'null'},
-	method: {type: 'string', default: 'methodName'},
-	params: {type: 'string', default: 'null'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-	this.domEnt;
-},
-events: {
-	fusing: function (evt) {
-		if(this.data.component === 'null'){
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				if(this.data.params === 'null'){
-					this.auxl[this.data.cursorObj][this.data.method](evt.target);
-				} else {
-					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
-				}
-			}
-		} else {
-			//object is a dom entity and the component is attached to that object and the func is in that component
-			if(document.getElementById(this.data.cursorObj)){
-				this.domEnt = document.getElementById(this.data.cursorObj);
-				if(this.data.params === 'null'){
-					this.domEnt.components[this.data.component][this.data.method](evt.target);
-				} else {
-					this.domEnt.components[this.data.component][this.data.method](this.data.params);
-				}
-			}
-		}
-	}
-},
-});
-//Attach to run specified method from Object on mousedown event
-AFRAME.registerComponent('mousedownrun', {
-dependencies: ['auxl'],
-schema: {
-	cursorObj: {type: 'string', default: 'auxlObj'},
-	component: {type: 'string', default: 'null'},
-	method: {type: 'string', default: 'methodName'},
-	params: {type: 'string', default: 'null'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-	this.domEnt;
-},
-events: {
-	mousedown: function (evt) {
-		if(this.data.component === 'null'){
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				if(this.data.params === 'null'){
-					this.auxl[this.data.cursorObj][this.data.method](evt.target);
-				} else {
-					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
-				}
-			}
-		} else {
-			//object is a dom entity and the component is attached to that object and the func is in that component
-			if(document.getElementById(this.data.cursorObj)){
-				this.domEnt = document.getElementById(this.data.cursorObj);
-				if(this.data.params === 'null'){
-					this.domEnt.components[this.data.component][this.data.method](evt.target);
-				} else {
-					this.domEnt.components[this.data.component][this.data.method](this.data.params);
-				}
-			}
-		}
-	}
-},
-});
-//Attach to run specified method from Object on mouseenter event
-AFRAME.registerComponent('mouseenterrun', {
-dependencies: ['auxl'],
-schema: {
-	cursorObj: {type: 'string', default: 'auxlObj'},
-	component: {type: 'string', default: 'null'},
-	method: {type: 'string', default: 'methodName'},
-	params: {type: 'string', default: 'null'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-	this.domEnt;
-},
-events: {
-	mouseenter: function (evt) {
-		if(this.data.component === 'null'){
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				if(this.data.params === 'null'){
-					this.auxl[this.data.cursorObj][this.data.method](evt.target);
-				} else {
-					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
-				}
-			}
-		} else {
-			//object is a dom entity and the component is attached to that object and the func is in that component
-			if(document.getElementById(this.data.cursorObj)){
-				this.domEnt = document.getElementById(this.data.cursorObj);
-				if(this.data.params === 'null'){
-					this.domEnt.components[this.data.component][this.data.method](evt.target);
-				} else {
-					this.domEnt.components[this.data.component][this.data.method](this.data.params);
-				}
-			}
-		}
-	}
-},
-});
-//Attach to run specified method from Object on mouseleave event
-AFRAME.registerComponent('mouseleaverun', {
-dependencies: ['auxl'],
-schema: {
-	cursorObj: {type: 'string', default: 'auxlObj'},
-	component: {type: 'string', default: 'null'},
-	method: {type: 'string', default: 'methodName'},
-	params: {type: 'string', default: 'null'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-	this.domEnt;
-},
-events: {
-	mouseleave: function (evt) {
-		if(this.data.component === 'null'){
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				if(this.data.params === 'null'){
-					this.auxl[this.data.cursorObj][this.data.method](evt.target);
-				} else {
-					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
-				}
-			}
-		} else {
-			//object is a dom entity and the component is attached to that object and the func is in that component
-			if(document.getElementById(this.data.cursorObj)){
-				this.domEnt = document.getElementById(this.data.cursorObj);
-				if(this.data.params === 'null'){
-					this.domEnt.components[this.data.component][this.data.method](evt.target);
-				} else {
-					this.domEnt.components[this.data.component][this.data.method](this.data.params);
-				}
-			}
-		}
-	}
-},
-});
-//Attach to run specified method from Object on mouseup event
-AFRAME.registerComponent('mouseuprun', {
-dependencies: ['auxl'],
-schema: {
-	cursorObj: {type: 'string', default: 'auxlObj'},
-	component: {type: 'string', default: 'null'},
-	method: {type: 'string', default: 'methodName'},
-	params: {type: 'string', default: 'null'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-	this.domEnt;
-},
-events: {
-	mouseup: function (evt) {
-		if(this.data.component === 'null'){
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				if(this.data.params === 'null'){
-					this.auxl[this.data.cursorObj][this.data.method](evt.target);
-				} else {
-					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
-				}
-			}
-		} else {
-			//object is a dom entity and the component is attached to that object and the func is in that component
-			if(document.getElementById(this.data.cursorObj)){
-				this.domEnt = document.getElementById(this.data.cursorObj);
-				if(this.data.params === 'null'){
-					this.domEnt.components[this.data.component][this.data.method](evt.target);
-				} else {
-					this.domEnt.components[this.data.component][this.data.method](this.data.params);
-				}
-			}
-		}
-	}
-},
-});
-
-//MultiMenu Suppot
-//Attach to run specified method from Object on click event
-AFRAME.registerComponent('menurun', {
-dependencies: ['auxl'],
-//multiple: true,
-schema: {
-	cursorObj: {type: 'string', default: 'auxlObj'},
-	method: {type: 'string', default: 'Click'},
-	params: {type: 'string', default: 'null'}
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-},
-events: {
-	click: function (evt) {
-		if(this.auxl[this.data.cursorObj][this.data.method]){
-			if(this.data.params === 'null'){
-				this.auxl[this.data.cursorObj][this.data.method](evt.target);
-			} else {
-				this.auxl[this.data.cursorObj][this.data.method](this.data.params);
-			}
-		}
-	}
-},
-});
-
-//
-//Map Travel Support
-//Move to Node
-AFRAME.registerComponent('doorway', {
-	dependencies: ['auxl'],
-schema: {
-	zone: {type: 'string', default: 'zone0'},
-	to: {type: 'string', default: 'connect0'},
-},
-    init: function () {
-		this.auxl = document.querySelector('a-scene').systems.auxl;
-		this.zone = this.data.zone;
-		this.to = this.data.to;
-    },
-events: {
-	click: function (evt) {
-		this.auxl[this.zone].Move(this.to);
-	}
-},
-});
-
-//
-//Display Text Description on Hover
-//Could make each core have the ability to configure a hover text just like detail text and then use mouseenterrun/mouseleaverun
-//Otherwise need to fix despawning on multiple objects
-AFRAME.registerComponent('hovertext', {
-	dependencies: ['auxl'],
-schema: {
-	value: {type: 'string', default: 'TEXT'},
-	offset: {type: 'number', default: 1},
-	x: {type: 'bool', default: false},
-	y: {type: 'bool', default: true},
-	z: {type: 'bool', default: false},
-},
-    init: function () {
-		this.auxl = document.querySelector('a-scene').systems.auxl;
-		this.value = this.data.value;
-		this.offset = this.data.offset;
-		this.x = this.data.x;
-		this.y = this.data.y;
-		this.z = this.data.z;
-    },
-events: {
-	mouseenter: function (evt) {
-		this.auxl.hoverText.core.text.value = this.value;
-		this.auxl.hoverText.core.position = new THREE.Vector3(0,0,this.offset);
-		this.auxl.hoverText.core.components = {};
-		this.auxl.hoverText.core.components['look-at-xyz'] = {match: 'camera', x:this.x, y:this.y, z:this.z};
-
-		this.auxl.hoverText.SpawnCore(this.el)
-	},
-	mouseleave: function (evt) {
-		this.auxl.hoverText.DespawnCore()
-	},
-},
-});
-
-//
-//Locomotion
-//1st/3rd Walk|Run X,Y and/or Z w/ Collision Support
-AFRAME.registerComponent('locomotion', {
-dependencies: ['auxl'],
-schema: {
-	uiid: {type: 'string', default: 'ui'},
-	courserid: {type: 'string', default: 'mouseCursor'},
-	movetype: {type: 'string', default: 'vr'},
-	pov: {type: 'string', default: '1st'},
-	style: {type: 'string', default: 'free'},
-	axis: {type: 'string', default: 'posXZ'},
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-	//Free Locomotion
-	this.freeStepThrottled = AFRAME.utils.throttle(this.freeStep, 30, this);
-	//Grid Locomotion
-	this.gridStepThrottled = AFRAME.utils.throttle(this.gridStep, 400, this);
-
-	//Schema Imoprt
-	//
-	//Cursor Element
-	this.mouseCursor = document.getElementById(this.data.courserid);
-	//UI to attach
-	if(this.data.uuid){
-		this.ui = document.getElementById(this.data.uiid);
-	}
-//
-//posXZ
-//cameraXZ : 1st POV Walk along XZ Floor relative to Camera View
-//rigXZ : 3rd POV Walk along XZ Floor
-//
-//posXZY
-//cameraXZY : 1st POV Fly relative to Camera View
-//
-//posXY
-//cameraXY : 1st POV Walk along XY Wall relative to Camera View
-//rigXY : 3rd POV Walk along XY Wall
-//
-//posXYZ
-//cameraXYZ : 1st POV Walk along XZ Floor relative to Camera View w/ Up & Down Controls
-//rigXYZ : 3rd POV Walk along XZ Floor w/ Up & Down Controls
-//
-//posXYZWall
-//cameraXYZWall : 1st POV Walk along X, Y or Z Floor/Walls In or Out
-//rigXYZWall : 3rd POV Walk along X, Y or Z Floor/Walls In or Out
-//
-//angleXY
-//cameraAXY : 1st POV Orbit Rotate
-//rigAXY : 3rd POV Orbit Rotate
-//
-//angleXYZ
-//cameraAXYZ : 1st POV Orbit Rotate w/ Zoom In & Out
-//rigAXYZ : 3rd POV Orbit Rotate w/ Zoom In & Out
-
-	//Movement Type
-	this.movetype = this.data.movetype;
-	//vr
-	//vrHover
-	//desktop
-	//mobile
-
-	//Point of View
-	this.pov = this.data.pov;
-	//1st
-	//3rd
-
-	//Free or Grid Locomotion Style
-	this.style = this.data.style;
-	//free
-	//grid
-
-	//Movement Coords
-	this.axis = this.data.axis;
-	//Move XZ - floor movement
-	//Move XY - wall movement
-	//Move XYZ - fly movement
-	//Move Sphere Angle - orbit movement
-	//Move Sphere Angle & Z(In and Out) - orbit with zoom
-
-	//
-	//Band Controller Support
-	this.directionForward;
-	this.directionReverse;
-	this.directionBrake1;
-	this.directionBrake2;
-	this.directionBrake3;
-	this.directionBrake4;
-
-	//Camera Walk Support
-	this.camera = document.getElementById('camera');
-	this.player = document.getElementById('playerRig');
-	//this.playerSphere = document.getElementById('playerSphere');
-	this.avatar;
-	this.avatarSphere;
-	this.ui = document.getElementById('beltUIParent');
-    this.positionCam = new THREE.Vector3();
-    this.positionPlayer = new THREE.Vector3();
-    this.rotationPlayer = new THREE.Vector3();
-    this.positionAvatar = new THREE.Vector3();
-    this.rotationAvatar = new THREE.Vector3();
-    this.positionNew = new THREE.Vector3();
-    this.rotationNew = new THREE.Vector3();
-    this.positionTemp = new THREE.Vector3();
-	this.quaternion = new THREE.Quaternion();
-	this.vector;
-	this.angle;
-
-	//Collision
-	this.posRound = new THREE.Vector3();
-	this.newPosRound = new THREE.Vector3();
-	this.mapX;
-	this.mapZ;
-
-	//Attach to Player Support
-	this.elPosVec3New = new THREE.Vector3();
-
-	//User Direction Support
-	this.velocity;
-	this.userPreviousPos = this.player.getAttribute('position');
-	this.userPos;
-	this.userRot;
-	this.userPov;
-	this.userTravel;
-	this.userView;
-	this.newX;
-	this.newZ;
-
-	//Locomotion Support
-	//Brake Engaged by Default aka Slow Speed
-	this.moveTo = false;
-	this.moveBack = false;
-	this.moveRight = false;
-	this.moveLeft = false;
-	this.moveUp = false;
-	this.moveDown = false;
-	this.moveBrake = true;
-	this.brakeReady = true;
-	this.brakeToggle = false;
-	this.brakeReset; //Delay
-
-	//Free Locomotion Support
-	this.moveSpeedDefault;
-	this.moveSpeedSlow;
-
-	//Grid Locomotion Support
-	this.gridForwardTimeout;
-	this.gridReverseTimeout;
-	this.gridLeftTimeout;
-	this.gridRightTimeout;
-	this.gridUpTimeout;
-	this.gridDownTimeout;
-	this.gridMove = false;
-	//Movement is always 1 meter, so speed is in ms
-	this.gridSpeed = 400;
-
-	//3rd Person Config
-	let initDelay = setTimeout(()=> {
-		if(this.pov === '3rd'){
-			this.auxl.avatar.SpawnLayer(true);
-			this.player.object3D.position.copy(new THREE.Vector3(0,5,10));
-			let initDelay = setTimeout(()=> {
-				this.avatar = document.getElementById('avatarRig');
-				this.avatarSphere = document.getElementById('avatarSphere');
-				if(this.axis === 'angleXY'){
-					this.avatar.object3D.position.copy(new THREE.Vector3(0,0,-10));
-					this.player.object3D.position.copy(new THREE.Vector3(0,1.6,2));
-				}
-			},500)
-		}
-	},1000)
-},
-//0.5 Increments
-roundHalf: function (num){
-    return Math.round(num*2)/2;
-},
-//Move Forward
-movingForward: function (){
-	clearTimeout(this.gridForwardTimeout);
-	if(this.moveTo){}else{
-		this.moveTo = true;
-	}
-},
-//Cancel Forward
-cancelForward: function (){
-	if(this.moveTo){
-		if(this.style === 'grid'){
-			if(this.gridMove){
-				this.moveTo = false;
-			} else {
-				this.gridForwardTimeout = setTimeout(() => {
-					this.moveTo = false;
-				}, this.gridSpeed/1.25);
-			}
-		} else {
-			this.moveTo = false;
-		}
-	}
-},
-//Move Reverse
-movingReverse: function (){
-	clearTimeout(this.gridReverseTimeout);
-	if(this.moveBack){}else{
-		this.moveBack = true;
-	}
-},
-//Cancel Reverse
-cancelReverse: function (){
-	if(this.moveBack){
-		if(this.style === 'grid'){
-			if(this.gridMove){
-				this.moveBack = false;
-			} else {
-				this.gridReverseTimeout = setTimeout(() => {
-					this.moveBack = false;
-				}, this.gridSpeed/1.25);
-			}
-		} else {
-			this.moveBack = false;
-		}
-	}
-},
-//Move Left
-movingLeft: function (){
-	clearTimeout(this.gridLeftTimeout);
-	if(this.moveLeft){}else{
-		this.moveLeft = true;
-	}
-},
-//Cancel Left
-cancelLeft: function (){
-	if(this.moveLeft){
-		if(this.style === 'grid'){
-			if(this.gridMove){
-				this.moveLeft = false;
-			} else {
-				this.gridLeftTimeout = setTimeout(() => {
-					this.moveLeft = false;
-				}, this.gridSpeed/1.25);
-			}
-		} else {
-			this.moveLeft = false;
-		}
-	}
-},
-//Move Right
-movingRight: function (){
-	clearTimeout(this.gridRightTimeout);
-	if(this.moveRight){}else{
-		this.moveRight = true;
-	}
-},
-//Cancel Right
-cancelRight: function (){
-	if(this.moveRight){
-		if(this.style === 'grid'){
-			if(this.gridMove){
-				this.moveRight = false;
-			} else {
-				this.gridRightTimeout = setTimeout(() => {
-					this.moveRight = false;
-				}, this.gridSpeed/1.25);
-			}
-		} else {
-			this.moveRight = false;
-		}
-	}
-},
-//Move Up
-movingUp: function (){
-	clearTimeout(this.gridUpTimeout);
-	if(this.moveUp){}else{
-		this.moveUp = true;
-	}
-},
-//Cancel Up
-cancelUp: function (){
-	if(this.moveUp){
-		if(this.style === 'grid'){
-			if(this.gridMove){
-				this.moveUp = false;
-			} else {
-				this.gridUpTimeout = setTimeout(() => {
-					this.moveUp = false;
-				}, this.gridSpeed/1.25);
-			}
-		} else {
-			this.moveUp = false;
-		}
-	}
-},
-//Move Down
-movingDown: function (){
-	clearTimeout(this.gridDownTimeout);
-	if(this.moveDown){}else{
-		this.moveDown = true;
-	}
-},
-//Cancel Down
-cancelDown: function (){
-	if(this.moveDown){
-		if(this.style === 'grid'){
-			if(this.gridMove){
-				this.moveDown = false;
-			} else {
-				this.gridDownTimeout = setTimeout(() => {
-					this.moveDown = false;
-				}, this.gridSpeed/1.25);
-			}
-		} else {
-			this.moveDown = false;
-		}
-	}
-},
-//Clear All Movement
-clearMovement: function (){
-	this.cancelForward();
-	this.cancelReverse();
-	this.cancelLeft();
-	this.cancelRight();
-	this.cancelUp();
-	this.cancelDown();
-},
-//Clear All Grid Movement
-clearGridMovement: function (){
-	this.moveTo = false;
-	this.moveBack = false;
-	this.moveLeft = false;
-	this.moveRight = false;
-	clearTimeout(this.gridForwardTimeout);
-	clearTimeout(this.gridReverseTimeout);
-	clearTimeout(this.gridLeftTimeout);
-	clearTimeout(this.gridRightTimeout);
-},
-//Toggle Speed Change
-toggleSpeed: function (){
-	if(this.brakeReady){
-		if(this.brakeToggle){
-			//Set reset switch toggle
-			this.brakeToggle = false;
-			//Set reset timer switch toggle
-			this.brakeReady = false;
-			//Brake On
-			this.moveBrake = true;
-			//Slower Grid Move
-			this.gridSpeed = 400;
-			this.everyStepThrottled = AFRAME.utils.throttle(this.everyStep, this.gridSpeed, this);
-		} else {
-			//Set reset switch toggle
-			this.brakeToggle = true;
-			//Set reset timer switch toggle
-			this.brakeReady = false;
-			//Brake Off
-			this.moveBrake = false;
-			//Faster Grid Move
-			this.gridSpeed = 200;
-			this.everyStepThrottled = AFRAME.utils.throttle(this.everyStep, this.gridSpeed, this);
-		}
-		this.brakeReset = setTimeout(() => {
-			//Set reset switch toggle
-			this.brakeReady = true;
-			clearTimeout(this.brakeReset);
-		}, 250);
-	}
-},
-//Long Buffer for Toggling Speed Change
-brakeReadBufferLong: function (){
-	//This will start the reset timer to allow the brake to be re-engadged
-	this.brakeReset = setTimeout(() => {
-		this.brakeReady = true;
-		clearTimeout(this.brakeReset);
-	}, 2250);
-},
-//Hover Interaction on Belt UI
-hoverLocomotion: function (e) {
-	if(this.brakeReady){
-		if(this.brakeToggle){
-			//Set reset switch toggle
-			this.brakeToggle = false;
-			//Set reset timer switch toggle
-			this.brakeReady = false;
-			this.moveBrake = true;
-			//Set brake color to red
-			this.directionBrake1.setAttribute('material', {color: 'red'});
-			this.directionBrake2.setAttribute('material', {color: 'red'});
-			this.directionBrake3.setAttribute('material', {color: 'red'});
-			this.directionBrake4.setAttribute('material', {color: 'red'});
-			//Anim positition for forward/reverse bar and brakes
-			this.directionForward.emit('brakeOn',{});
-			this.directionReverse.emit('brakeOn',{});
-			this.directionBrake1.emit('brakeOn',{});
-			this.directionBrake2.emit('brakeOn',{});
-			this.directionBrake3.emit('brakeOn',{});
-			this.directionBrake4.emit('brakeOn',{});
-		} else {
-			//Set reset switch toggle
-			this.brakeToggle = true;
-			//Set reset timer switch toggle
-			this.brakeReady = false;
-			this.moveBrake = false;
-			//Set brake color to default
-			this.directionBrake1.setAttribute('material', {color: 'black'});
-			this.directionBrake2.setAttribute('material', {color: 'black'});
-			this.directionBrake3.setAttribute('material', {color: 'black'});
-			this.directionBrake4.setAttribute('material', {color: 'black'});
-			//Anim positition for forward/reverse bar back to default
-			this.directionForward.emit('brakeOff',{});
-			this.directionReverse.emit('brakeOff',{});
-			this.directionBrake1.emit('brakeOff',{});
-			this.directionBrake2.emit('brakeOff',{});
-			this.directionBrake3.emit('brakeOff',{});
-			this.directionBrake4.emit('brakeOff',{});
-		}
-	}
-},
-//Update
-update: function () {
-	//Locomotion Support
-	//Brake Engaged by Default
-	this.moveTo = false;
-	this.moveBack = false;
-	this.moveRight = false;
-	this.moveLeft = false;
-	this.moveBrake = true;
-	this.brakeReady = true;
-	this.brakeToggle = false;
-	this.brakeReset; //Delay
-	this.moveSpeedDefault = 0.15;
-	this.moveSpeedSlow = 0.075;
-
-	//Grid Locomotion Support
-	this.gridForwardTimeout;
-	this.gridReverseTimeout;
-	this.gridLeftTimeout;
-	this.gridRightTimeout;
-	this.gridMove = false;
-	//Movement is always 1 meter, so speed is in ms
-	this.gridSpeed = 500;
-
-	//Schema Imoprt
-	//
-	//Cursor Element
-	this.mouseCursor = document.getElementById(this.data.courserid);
-	//UI to attach
-	if(this.data.uiid){
-		this.ui = document.getElementById(this.data.uiid);
-	}
-	//Movement Type
-	this.movetype = this.data.movetype;
-
-	//Keyboard Controller Event Listeners
-	if(this.movetype === 'desktop'){
-		//Controlled by Universal Controls
-	} else if(this.movetype === 'mobile'){
-		//Controlled by Universal Controls
-	} else if(this.movetype === 'vr'){
-		//Controlled by Universal Controls
-	} else if(this.movetype === 'vrHover'){
-		//this.vrController1 = document.getElementById('vrController1');
-		this.directionForward = document.getElementById('locomotionForwardUI');
-		this.directionReverse = document.getElementById('locomotionReverseUI');
-		this.directionBrake1 = document.getElementById('locomotionBrake1UI');
-		this.directionBrake2 = document.getElementById('locomotionBrake2UI');
-		this.directionBrake3 = document.getElementById('locomotionBrake3UI');
-		this.directionBrake4 = document.getElementById('locomotionBrake4UI');
-		//directionForward
-		this.directionForward.addEventListener('mouseenter', this.movingForward);
-		this.directionForward.addEventListener('mouseleave', this.cancelForward);
-		//directionReverse
-		this.directionReverse.addEventListener('mouseenter', this.movingReverse);
-		this.directionReverse.addEventListener('mouseleave', this.cancelReverse);
-
-		this.hoverLocomotionEvent = (event) => {
-			this.hoverLocomotion(event);
-		}
-		document.querySelectorAll('.directionBrake').forEach(item => {
-			item.addEventListener('mouseenter', event => this.hoverLocomotionEvent)
-		});
-		document.querySelectorAll('.directionBrake').forEach(item => {
-			item.addEventListener('mouseleave', event => this.brakeReadBufferLong)
-		});
-	}
-},
-//Remove
-remove: function () {
-	if(this.movetype === 'desktop'){
-		//Controlled by Universal Controls
-	} else if(this.movetype === 'mobile'){
-		//Controlled by Universal Controls
-	} else if(this.movetype === 'vr'){
-		//Controlled by Universal Controls
-	} else if(this.movetype === 'vrHover'){
-		this.directionForward.removeEventListener('mouseenter', this.movingForward);
-		this.directionForward.removeEventListener('mouseleave', this.cancelForward);
-		this.directionReverse.removeEventListener('mouseenter', this.movingReverse);
-		this.directionReverse.removeEventListener('mouseleave', this.cancelReverse);
-		document.querySelectorAll('.directionBrake').forEach(item => {
-			item.removeEventListener('mouseenter', event => this.hoverLocomotionEvent)
-		});
-		document.querySelectorAll('.directionBrake').forEach(item => {
-			item.removeEventListener('mouseleave', event => this.brakeReadBufferLong)
-		});
-	}
-},
-//Tick
-tick: function (time, timeDelta) {
-	//Locomotion Type
-	if(this.style === 'free'){
-		this.freeStepThrottled();
-	} else if(this.style === 'grid'){
-		this.gridStepThrottled();
-	}
-
-	//Sync Belt
-	if(this.movetype === 'vrHover'){
-		this.uiSync();
-	}
-},
-//Free Locomotion Tick
-freeStep: function (time, timeDelta) {
-	if(this.moveBrake){
-		if(this.moveTo && this.moveRight) {
-			this.move('forwardRight', this.moveSpeedSlow);
-		} else if(this.moveTo && this.moveLeft) {
-			this.move('forwardLeft', this.moveSpeedSlow);
-		} else if(this.moveBack && this.moveRight) {
-			this.move('reverseRight', this.moveSpeedSlow);
-		} else if(this.moveBack && this.moveLeft) {
-			this.move('reverseLeft', this.moveSpeedSlow);
-		} else if(this.moveTo) {
-			this.move('forward', this.moveSpeedSlow);
-		} else if(this.moveBack) {
-			this.move('reverse', this.moveSpeedSlow);
-		} else if(this.moveRight) {
-			this.move('right', this.moveSpeedSlow);
-		} else if(this.moveLeft) {
-			this.move('left', this.moveSpeedSlow);
-		}
-	} else {
-		if(this.moveTo && this.moveRight) {
-			this.move('forwardRight', this.moveSpeedDefault);
-		} else if(this.moveTo && this.moveLeft) {
-			this.move('forwardLeft', this.moveSpeedDefault);
-		} else if(this.moveBack && this.moveRight) {
-			this.move('reverseRight', this.moveSpeedDefault);
-		} else if(this.moveBack && this.moveLeft) {
-			this.move('reverseLeft', this.moveSpeedDefault);
-		} else if(this.moveTo) {
-			this.move('forward', this.moveSpeedDefault);
-		} else if(this.moveBack) {
-			this.move('reverse', this.moveSpeedDefault);
-		} else if(this.moveRight) {
-			this.move('right', this.moveSpeedDefault);
-		} else if(this.moveLeft) {
-			this.move('left', this.moveSpeedDefault);
-		}
-	}
-},
-//Free Locomotion Tick
-freeStepPlus: function (time, timeDelta) {
-
-//Not Working
-//UpForwardLeft
-//UpReverseLeft
-//DownForwardRight
-//DownReverseRight
-	this.movement = '';
-	//Up|Down
-	if(this.moveUp && this.moveDown){} else {
-		if(this.moveUp){
-			this.movement += 'Up';
-		} else if(this.moveDown){
-			this.movement += 'Down';
-		}
-	}
-	//Forward|Reverse
-	if(this.moveTo && this.moveBack){} else {
-		if(this.moveTo){
-			this.movement += 'Forward';
-		} else if(this.moveBack){
-			this.movement += 'Reverse';
-		}
-	}
-	//Right|Left
-	if(this.moveRight && this.moveLeft){} else {
-		if(this.moveRight){
-			this.movement += 'Right';
-		} else if(this.moveLeft){
-			this.movement += 'Left';
-		}
-	}
-	console.log(this.movement)
-
-	//Speed
-	if(this.moveBrake){
-		this.moveFree(this.movement, this.moveSpeedSlow);
-	} else {
-		this.moveFree(this.movement, this.moveSpeedDefault);
-	}
-},
-//Grid Locomotion Tick
-gridStep: function (time, timeDelta) {
-	if(this.moveTo || this.moveBack || this.moveRight || this.moveLeft){
-		if(this.gridMove){} else {
-			this.gridMove = true;
-		}
-	} else {
-		this.gridMove = false;
-	}
-	if(this.moveTo && this.moveRight) {
-		this.move('forwardRight', 0.5);
-	} else if(this.moveTo && this.moveLeft) {
-		this.move('forwardLeft', 0.5);
-	} else if(this.moveBack && this.moveRight) {
-		this.move('reverseRight', 0.5);
-	} else if(this.moveBack && this.moveLeft) {
-		this.move('reverseLeft', 0.5);
-	} else if(this.moveTo) {
-		this.move('forward', 0.5);
-	} else if(this.moveBack) {
-		this.move('reverse', 0.5);
-	} else if(this.moveRight) {
-		this.move('right', 0.5);
-	} else if(this.moveLeft) {
-		this.move('left', 0.5);
-	}
-
-},
-//Function to calculate distance between two points
-distance: function(x1, y1, x2,  y2) {
-    //Calculating distance
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) * 1.0);
-},
-//Sync Belt UI
-uiSync: function () {
-	this.elPosVec3New.copy(this.el.object3D.position);
-	//No Offsets as UI Parent is at 0 0 0
-	this.ui.object3D.position.copy(this.elPosVec3New);
-},
-//Move
-move: function (direction, speed) {
-	if(this.pov === '1st'){
-		if(this.axis === 'posXZ'){
-			this.cameraXZ(direction, speed);
-		} else if(this.axis === 'posXZY'){
-			this.cameraXZY(direction, speed);
-		} else if(this.axis === 'posXY'){
-			this.cameraXY(direction, speed);
-		} else if(this.axis === 'posXYZ'){
-			this.cameraXYZ(direction, speed);
-		} else if(this.axis === 'posXYZWall'){
-			this.cameraXYZWall(direction, speed);
-		} else if(this.axis === 'angleXY'){
-			this.cameraAXY(direction, speed);
-		} else if(this.axis === 'angleXYZ'){
-			this.cameraAXYZ(direction, speed);
-		}
-	} else if(this.pov === '3rd'){
-		if(this.axis === 'posXZ'){
-			this.rigXZ(direction, speed);
-		} else if(this.axis === 'posXY'){
-			this.rigXY(direction, speed);
-		} else if(this.axis === 'posXYZ'){
-			this.rigXYZ(direction, speed);
-		} else if(this.axis === 'posXYZWall'){
-			this.rigXYZWall(direction, speed);
-		} else if(this.axis === 'angleXY'){
-			this.rigAXY(direction, speed);
-		} else if(this.axis === 'angleXYZ'){
-			this.rigAXYZ(direction, speed);
-		}
-	}
-},
-//1st POV Walk along XZ Floor relative to Camera View
-cameraXZ: function (action, speed) {
-	this.velocity = speed;
-	this.cameraVector = new THREE.Vector3();
-	this.camera.object3D.getWorldDirection(this.cameraVector);
-	this.positionNew = new THREE.Vector3();
-	this.positionPlayer.copy(this.player.object3D.position);
-	//Math out the Angle of Camera
-	this.angle = Math.atan2(this.cameraVector.x,this.cameraVector.z);
-	//Facing
-	this.face;
-	//Quadrant 1 : -x, -z
-	//Quadrant 2 : +x, -z
-	//Quadrant 3 : -x, +z
-	//Quadrant 4 : +x, +z
-	//Check Camera Angle Quadrant
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		//console.log('Forward Left');
-		this.face = 'frontLeft';
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		//console.log('Forward Right');
-		this.face = 'frontRight';
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		//console.log('Backward Left');
-		this.face = 'backLeft';
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		//console.log('Backward Right');
-		this.face = 'backRight';
-	} else {
-		//console.log('Level');
-		this.face = 'level';
-	}
-	if(action === 'forwardRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-	} else if(action === 'forwardLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-	} else if(action === 'reverseRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-	} else if(action === 'reverseLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-	} else if(action === 'forward'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-	} else if(action === 'reverse'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-	} else if(action === 'right'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z;
-		}
-	} else if(action === 'left'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z;
-		}
-	}
-
-	this.positionNew.y = this.positionPlayer.y;
-
-	//Collision Enabled or Not
-	if(this.auxl.collision){
-		//Locomotion with Collision every 0.5 meter
-		this.newPosRound.x = this.roundHalf(this.positionNew.x);
-		this.newPosRound.z = this.roundHalf(this.positionNew.z);
-		this.posRound.x = this.roundHalf(this.positionPlayer.x);
-		this.posRound.z = this.roundHalf(this.positionPlayer.z);
-
-		//Check for Obstacles
-		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
-			this.player.object3D.position.copy(this.positionNew);
-		}
-	} else {
-		//Free Locomotion No Collision
-		this.player.object3D.position.copy(this.positionNew);
-	}
-},
-//1st POV Fly relative to Camera View
-cameraXZY: function (action, speed) {
-	this.velocity = speed;
-	this.cameraVector = new THREE.Vector3();
-	this.camera.object3D.getWorldDirection(this.cameraVector);
-	this.positionNew = new THREE.Vector3();
-	this.positionPlayer.copy(this.player.object3D.position);
-	//Math out the Angle of Camera
-	this.angle = Math.atan2(this.cameraVector.x,this.cameraVector.z);
-	//Facing
-	this.face;
-	//Quadrant 1 : -x, -z
-	//Quadrant 2 : +x, -z
-	//Quadrant 3 : -x, +z
-	//Quadrant 4 : +x, +z
-	//Check Camera Angle Quadrant
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		//console.log('Forward Left');
-		this.face = 'frontLeft';
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		//console.log('Forward Right');
-		this.face = 'frontRight';
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		//console.log('Backward Left');
-		this.face = 'backLeft';
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		//console.log('Backward Right');
-		this.face = 'backRight';
-	} else {
-		//console.log('Level');
-		this.face = 'level';
-	}
-	if(action === 'UpForwardRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y + this.velocity;
-	} else if(action === 'DownForwardRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y - this.velocity;
-	} else if(action === 'ForwardRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y;
-	} else if(action === 'UpForwardLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y + this.velocity;
-	} else if(action === 'DownForwardLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y - this.velocity;
-	} else if(action === 'ForwardLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y;
-	} else if(action === 'UpReverseRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y + this.velocity;
-	} else if(action === 'DownReverseRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y - this.velocity;
-	} else if(action === 'ReverseRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y;
-	} else if(action === 'UpReverseLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y + this.velocity;
-	} else if(action === 'DownReverseLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y - this.velocity;
-	} else if(action === 'ReverseLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y;
-	} else if(action === 'UpForward'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y + this.velocity;
-	} else if(action === 'DownForward'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y - this.velocity;
-	} else if(action === 'Forward'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y;
-	} else if(action === 'UpReverse'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y + this.velocity;
-	} else if(action === 'DownReverse'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y - this.velocity;
-	} else if(action === 'Reverse'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y;
-	} else if(action === 'UpRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z;
-		}
-		this.positionNew.y = this.positionPlayer.y + this.velocity;
-	} else if(action === 'DownRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z;
-		}
-		this.positionNew.y = this.positionPlayer.y - this.velocity;
-	} else if(action === 'Right'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z;
-		}
-		this.positionNew.y = this.positionPlayer.y;
-	} else if(action === 'UpLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z;
-		}
-		this.positionNew.y = this.positionPlayer.y + this.velocity;
-	} else if(action === 'DownLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z;
-		}
-		this.positionNew.y = this.positionPlayer.y - this.velocity;
-	} else if(action === 'Left'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z;
-		}
-		this.positionNew.y = this.positionPlayer.y;
-	} else if(action === 'Up'){
-		this.positionNew.x = this.positionPlayer.x;
-		this.positionNew.z = this.positionPlayer.z;
-		this.positionNew.y = this.positionPlayer.y + this.velocity;
-	} else if(action === 'Down'){
-		this.positionNew.x = this.positionPlayer.x;
-		this.positionNew.z = this.positionPlayer.z;
-		this.positionNew.y = this.positionPlayer.y - this.velocity;
-	} else {
-		this.positionNew.x = this.positionPlayer.x;
-		this.positionNew.z = this.positionPlayer.z;
-		this.positionNew.y = this.positionPlayer.y;
-	}
-
-	//Collision Enabled or Not
-	if(this.auxl.collision){
-		//Locomotion with Collision every 0.5 meter
-		this.newPosRound.x = this.roundHalf(this.positionNew.x);
-		this.newPosRound.z = this.roundHalf(this.positionNew.z);
-		this.posRound.x = this.roundHalf(this.positionPlayer.x);
-		this.posRound.z = this.roundHalf(this.positionPlayer.z);
-
-		//Check for Obstacles
-		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
-			this.player.object3D.position.copy(this.positionNew);
-		}
-	} else {
-		//Free Locomotion No Collision
-		this.player.object3D.position.copy(this.positionNew);
-	}
-},
-//1st POV Walk along XY Wall relative to Camera View
-cameraXY: function (action, speed) {
-	this.velocity = speed;
-	this.cameraVector = new THREE.Vector3();
-	this.camera.object3D.getWorldDirection(this.cameraVector);
-	this.positionNew = new THREE.Vector3();
-	this.positionPlayer.copy(this.player.object3D.position);
-	//Math out the Angle of Camera
-	this.angle = Math.atan2(this.cameraVector.x,this.cameraVector.z);
-	//Facing
-	this.face;
-	//Quadrant 1 : -x, -z
-	//Quadrant 2 : +x, -z
-	//Quadrant 3 : -x, +z
-	//Quadrant 4 : +x, +z
-	//Check Camera Angle Quadrant
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		//console.log('Forward Left');
-		this.face = 'front';
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		//console.log('Forward Right');
-		this.face = 'front';
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		//console.log('Backward Left');
-		this.face = 'back';
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		//console.log('Backward Right');
-		this.face = 'back';
-	} else {
-		//console.log('Level');
-		this.face = 'front';
-	}
-
-	if(action === 'forwardRight'){
-		if(this.face === 'front'){
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y + this.velocity;
-	} else if(action === 'forwardLeft'){
-		if(this.face === 'front'){
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y + this.velocity;
-	} else if(action === 'reverseRight'){
-		if(this.face === 'front'){
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y - this.velocity;
-	} else if(action === 'reverseLeft'){
-		if(this.face === 'front'){
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-		}
-		this.positionNew.y = this.positionPlayer.y - this.velocity;
-	} else if(action === 'forward'){
-		this.positionNew.x = this.positionPlayer.x;
-		this.positionNew.y = this.positionPlayer.y + this.velocity;
-	} else if(action === 'reverse'){
-		this.positionNew.x = this.positionPlayer.x;
-		this.positionNew.y = this.positionPlayer.y - this.velocity;
-	} else if(action === 'right'){
-		this.positionNew.x = this.positionPlayer.x + this.velocity;
-		this.positionNew.y = this.positionPlayer.y;
-	} else if(action === 'left'){
-		this.positionNew.x = this.positionPlayer.x - this.velocity;
-		this.positionNew.y = this.positionPlayer.y;
-	}
-	this.positionNew.z = this.positionPlayer.z;
-
-	//Collision Enabled or Not
-	if(this.auxl.collision){
-		//Locomotion with Collision every 0.5 meter
-		this.newPosRound.x = this.roundHalf(this.positionNew.x);
-		this.newPosRound.y = this.roundHalf(this.positionNew.y);
-		this.posRound.x = this.roundHalf(this.positionPlayer.x);
-		this.posRound.y = this.roundHalf(this.positionPlayer.y);
-
-		//Check for Obstacles
-		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
-			this.player.object3D.position.copy(this.positionNew);
-		}
-	} else {
-		//Free Locomotion No Collision
-		this.player.object3D.position.copy(this.positionNew);
-	}
-},
-//1st POV Walk along XZ Floor relative to Camera View w/ Up & Down Controls
-cameraXYZ: function (action, speed) {
-	this.yDeadZone = 0.1;
-	this.velocity = speed;
-	this.cameraVector = new THREE.Vector3();
-	this.camera.object3D.getWorldDirection(this.cameraVector);
-	this.positionNew = new THREE.Vector3();
-	this.positionPlayer.copy(this.player.object3D.position);
-	//Math out the Angle of Camera
-	this.angle = Math.atan2(this.cameraVector.x,this.cameraVector.z);
-	//Facing
-	this.face;
-	//Quadrant 1 : -x, -z
-	//Quadrant 2 : +x, -z
-	//Quadrant 3 : -x, +z
-	//Quadrant 4 : +x, +z
-	//Check Camera Angle Quadrant
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		//console.log('Forward Left');
-		this.face = 'frontLeft';
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		//console.log('Forward Right');
-		this.face = 'frontRight';
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		//console.log('Backward Left');
-		this.face = 'backLeft';
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		//console.log('Backward Right');
-		this.face = 'backRight';
-	} else {
-		//console.log('Level');
-		this.face = 'level';
-	}
-	//Quadrant 1 : -x, -z
-	//Quadrant 2 : +x, -z
-	//Quadrant 3 : -x, +z
-	//Quadrant 4 : +x, +z
-	if(action === 'forwardRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-	} else if(action === 'forwardLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-	} else if(action === 'reverseRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-	} else if(action === 'reverseLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-	} else if(action === 'forward'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-	} else if(action === 'reverse'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-	} else if(action === 'right'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z;
-		}
-	} else if(action === 'left'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z;
-		}
-	}
-
-	//Up Down
-	if(this.cameraVector.y < this.yDeadZone){
-		this.positionNew.y = this.positionPlayer.y + ((this.cameraVector.y * -1) * this.velocity);
-	} else if(this.cameraVector.y > (this.yDeadZone*-1)){
-		this.positionNew.y = this.positionPlayer.y - (this.cameraVector.y * this.velocity);
-	} else {
-		this.positionNew.y = this.positionPlayer.y;
-	}
-
-	//Collision Enabled or Not
-	if(this.auxl.collision){
-		//Locomotion with Collision every 0.5 meter
-		this.newPosRound.x = this.roundHalf(this.positionNew.x);
-		this.newPosRound.z = this.roundHalf(this.positionNew.z);
-		this.posRound.x = this.roundHalf(this.positionPlayer.x);
-		this.posRound.z = this.roundHalf(this.positionPlayer.z);
-
-		//Check for Obstacles
-		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
-			this.player.object3D.position.copy(this.positionNew);
-		}
-	} else {
-		//Free Locomotion No Collision
-		this.player.object3D.position.copy(this.positionNew);
-	}
-},
-//1st POV Walk along X, Y or Z Floor/Walls
-cameraXYZWall: function (action, speed){},
-//1st POV Orbit Rotate
-cameraAXY: function (action, speed){},
-//1st POV Orbit Rotate w/ Zoom In & Out
-cameraAXYZ: function (action, speed){},
-//3rd POV Walk along XZ Floor
-rigXZ: function (action, speed) {
-	this.velocity = speed;
-	this.positionNew = new THREE.Vector3();
-	this.positionAvatar.copy(this.avatar.object3D.position);
-
-	if(action === 'forwardRight'){
-		this.positionNew.x = this.positionAvatar.x + this.velocity;
-		this.positionNew.z = this.positionAvatar.z - this.velocity;
-	} else if(action === 'forwardLeft'){
-		this.positionNew.x = this.positionAvatar.x - this.velocity;
-		this.positionNew.z = this.positionAvatar.z - this.velocity;
-	} else if(action === 'reverseRight'){
-		this.positionNew.x = this.positionAvatar.x + this.velocity;
-		this.positionNew.z = this.positionAvatar.z + this.velocity;
-	} else if(action === 'reverseLeft'){
-		this.positionNew.x = this.positionAvatar.x - this.velocity;
-		this.positionNew.z = this.positionAvatar.z + this.velocity;
-	} else if(action === 'forward'){
-		this.positionNew.x = this.positionAvatar.x;
-		this.positionNew.z = this.positionAvatar.z - this.velocity;
-	} else if(action === 'reverse'){
-		this.positionNew.x = this.positionAvatar.x;
-		this.positionNew.z = this.positionAvatar.z + this.velocity;
-	} else if(action === 'right'){
-		this.positionNew.x = this.positionAvatar.x + this.velocity;
-		this.positionNew.z = this.positionAvatar.z;
-	} else if(action === 'left'){
-		this.positionNew.x = this.positionAvatar.x - this.velocity;
-		this.positionNew.z = this.positionAvatar.z;
-	}
-	this.positionNew.y = this.positionAvatar.y;
-
-	//Collision Enabled or Not
-	if(this.auxl.collision){
-		//Locomotion with Collision every 0.5 meter
-		this.newPosRound.x = this.roundHalf(this.positionNew.x);
-		this.newPosRound.z = this.roundHalf(this.positionNew.z);
-		this.posRound.x = this.roundHalf(this.positionAvatar.x);
-		this.posRound.z = this.roundHalf(this.positionAvatar.z);
-
-		//Check for Obstacles
-		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
-			this.avatar.object3D.position.copy(this.positionNew);
-		}
-	} else {
-		//Free Locomotion No Collision
-		this.avatar.object3D.position.copy(this.positionNew);
-	}
-},
-//3rd POV Walk along XY Wall
-rigXY: function (action, speed) {
-	this.velocity = speed;
-	this.positionNew = new THREE.Vector3();
-	this.positionAvatar.copy(this.avatar.object3D.position);
-
-	if(action === 'forwardRight'){
-		this.positionNew.x = this.positionAvatar.x + this.velocity;
-		this.positionNew.y = this.positionAvatar.y + this.velocity;
-	} else if(action === 'forwardLeft'){
-		this.positionNew.x = this.positionAvatar.x - this.velocity;
-		this.positionNew.y = this.positionAvatar.y + this.velocity;
-	} else if(action === 'reverseRight'){
-		this.positionNew.x = this.positionAvatar.x + this.velocity;
-		this.positionNew.y = this.positionAvatar.y - this.velocity;
-	} else if(action === 'reverseLeft'){
-		this.positionNew.x = this.positionAvatar.x - this.velocity;
-		this.positionNew.y = this.positionAvatar.y - this.velocity;
-	} else if(action === 'forward'){
-		this.positionNew.x = this.positionAvatar.x;
-		this.positionNew.y = this.positionAvatar.y + this.velocity;
-	} else if(action === 'reverse'){
-		this.positionNew.x = this.positionAvatar.x;
-		this.positionNew.y = this.positionAvatar.y - this.velocity;
-	} else if(action === 'right'){
-		this.positionNew.x = this.positionAvatar.x + this.velocity;
-		this.positionNew.y = this.positionAvatar.y;
-	} else if(action === 'left'){
-		this.positionNew.x = this.positionAvatar.x - this.velocity;
-		this.positionNew.y = this.positionAvatar.y;
-	}
-	this.positionNew.z = this.positionAvatar.z;
-
-	//Collision Enabled or Not
-	if(this.auxl.collision){
-		//Locomotion with Collision every 0.5 meter
-		this.newPosRound.x = this.roundHalf(this.positionNew.x);
-		this.newPosRound.y = this.roundHalf(this.positionNew.y);
-		this.posRound.x = this.roundHalf(this.positionAvatar.x);
-		this.posRound.y = this.roundHalf(this.positionAvatar.y);
-
-		//Check for Obstacles
-		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
-			this.avatar.object3D.position.copy(this.positionNew);
-		}
-	} else {
-		//Free Locomotion No Collision
-		this.avatar.object3D.position.copy(this.positionNew);
-	}
-},
-//3rd POV Walk along XZ Floor w/ Up & Down Controls
-rigXYZ: function (action, speed){},
-//3rd POV Walk along X, Y or Z Floor/Walls
-rigXYZWall: function (action, speed){},
-//3rd POV Orbit Rotate
-rigAXY: function (action, speed) {
-	this.velocity = speed/10;
-	this.rotationNew = new THREE.Euler(0,0,0,'YXZ');
-	this.rotationAvatar.copy(this.avatarSphere.object3D.rotation);
-
-	if(action === 'forwardRight'){
-		this.rotationNew.x = this.rotationAvatar.x + this.velocity;
-		this.rotationNew.y = this.rotationAvatar.y - this.velocity;
-	} else if(action === 'forwardLeft'){
-		this.rotationNew.x = this.rotationAvatar.x + this.velocity;
-		this.rotationNew.y = this.rotationAvatar.y + this.velocity;
-	} else if(action === 'reverseRight'){
-		this.rotationNew.x = this.rotationAvatar.x - this.velocity;
-		this.rotationNew.y = this.rotationAvatar.y - this.velocity;
-	} else if(action === 'reverseLeft'){
-		this.rotationNew.x = this.rotationAvatar.x - this.velocity;
-		this.rotationNew.y = this.rotationAvatar.y + this.velocity;
-	} else if(action === 'forward'){
-		this.rotationNew.x = this.rotationAvatar.x + this.velocity;
-		this.rotationNew.y = this.rotationAvatar.y;
-	} else if(action === 'reverse'){
-		this.rotationNew.x = this.rotationAvatar.x - this.velocity;
-		this.rotationNew.y = this.rotationAvatar.y;
-	} else if(action === 'right'){
-		this.rotationNew.x = this.rotationAvatar.x;
-		this.rotationNew.y = this.rotationAvatar.y - this.velocity;
-	} else if(action === 'left'){
-		this.rotationNew.x = this.rotationAvatar.x;
-		this.rotationNew.y = this.rotationAvatar.y + this.velocity;
-	}
-	this.rotationNew.z = this.rotationAvatar.z;
-
-	//Free Locomotion No Collision
-	this.avatarSphere.object3D.rotation.copy(this.rotationNew);
-},
-//3rd POV Orbit Rotate w/ Zoom In & Out
-rigAXYZ: function (action, speed){},
-//Camera Direction to Spawn Assets In - Unused Currently
-userDirection: function (){
-	this.userPos = this.player.getAttribute('position');
-	this.userRot = this.camera.getAttribute('rotation');
-	//Check which direction the user is traveling
-	if((this.userPreviousPos.x + this.userPos.x < 0) && (this.userPreviousPos.z + this.userPos.z < 0)){
-		//northWest -x-z
-		this.userTravel = 'northWest';
-	} else if((this.userPreviousPos.x + this.userPos.x < 0) && (this.userPreviousPos.z + this.userPos.z > 0)){
-		//southWest -x +z
-		this.userTravel = 'southWest';
-	} else if((this.userPreviousPos.x + this.userPos.x > 0) && (this.userPreviousPos.z + this.userPos.z > 0)){
-		//southEast +x+z
-		this.userTravel = 'southEast';
-	} else if((this.userPreviousPos.x + this.userPos.x > 0) && (this.userPreviousPos.z + this.userPos.z < 0)){
-		//northEast +x-z
-		this.userTravel = 'northEast';
-	} else {
-		//Default
-		this.userTravel = 'northEast';
-	}
-	//After previous to current position check, update the previous position value to be compared against on the next run cycle
-	this.userPreviousPos = this.userPos;
-
-	//If POV Rotation is more then 360 or -360, divide it by sets of 360 to obtain 0-360 degrees to assign from
-	if( this.userRot.y > 360) {
-		let radials = this.userRot.y / 360;
-		this.userPov = ((Math.floor(radials)) * 360 ) - this.userRot.y;
-		this.userPov *= -1;
-	} else if(this.userRot.y < -360) {
-		let radials = this.userRot.y / 360;
-		this.userPov = ((Math.floor(radials)) * 360 ) - this.userRot.y;
-		this.userPov *= -1;
-	} else {
-		this.userPov = this.userRot.y;
-	}
-	//Check which direciton the User is facing
-	if ((this.userPov > 0 && this.userPov < 15) || (this.userPov > 345 && this.userPov < 360)) {
-			//North
-			this.userView = 'north';
-	   } else if (this.userPov > 255 && this.userPov > 285) {
-			//East
-			this.userView = 'east';
-		} else if (this.userPov > 75 && this.userPov < 105) {
-			//West
-			this.userView = 'west';
-		} else if (this.userPov > 165 && this.userPov < 195) {
-			//South
-			this.userView = 'south';
-		} else if ((this.userPov < 0 && this.userPov > -15) || (this.userPov < -345 && this.userPov > -360)) {
-			//North
-			this.userView = 'north';
-	   } else if (this.userPov < -255 && this.userPov > -285) {
-			//West
-			this.userView = 'west';
-		} else if (this.userPov < -75 && this.userPov > -105) {
-			//East
-			this.userView = 'east';
-		} else if (this.userPov < -165 && this.userPov > -195) {
-			//South
-			this.userView = 'south';
-		} else if (this.userPov > 15 && this.userPov < 75) {//
-			//North West
-			this.userView = 'northWest';
-	   } else if (this.userPov > 105 && this.userPov < 165) {//
-			//South West
-			this.userView = 'southWest';
-		} else if (this.userPov > 195 && this.userPov < 255) {//
-			//South East
-			this.userView = 'southEast';
-		} else if (this.userPov > 285 && this.userPov < 345) {//
-			//North East
-			this.userView = 'northEast';
-		} else if (this.userPov < -15 && this.userPov > -75 ) {//Negative direction
-			//North East
-			this.userView = 'northEast';
-	   } else if (this.userPov < -105 && this.userPov > -165) {
-			//South East
-			this.userView = 'southEast';
-		} else if (this.userPov < -195 && this.userPov > -255) {
-			//South West
-			this.userView = 'southWest';
-		} else if (this.userPov < -285 && this.userPov > -345) {
-			//North West
-			this.userView = 'northWest';
-		} else {
-			this.userView = 'north';
-		}
-	//Depending on the User's facing direction, spawn in that quadrant
-	if(this.userView === "northWest"){// -x -z
-		this.positionTemp.x = (this.velocity + this.positionPlayer.x) * -1;
-		this.positionTemp.z = (this.velocity + this.positionPlayer.z) * -1;
-		this.positionTemp.z += this.positionPlayer.z;
-	} else if(this.userView === "southWest"){// -x +z
-		this.positionTemp.x = (this.velocity + this.positionPlayer.x) * -1;
-		this.positionTemp.z =(this.velocity + this.positionPlayer.z);
-	} else if(this.userView === "southEast"){// +x +z
-		this.positionTemp.x = (this.velocity + this.positionPlayer.x);
-		this.positionTemp.z =(this.velocity + this.positionPlayer.z);
-	} else if(this.userView === "northEast"){// +x -z
-		this.positionTemp.x = (this.velocity + this.positionPlayer.x);
-		this.positionTemp.z =(this.velocity + this.positionPlayer.z) * -1;
-	} else if(this.userView === "north"){// +-x -z
-		this.positionTemp.x = (this.velocity + this.positionPlayer.x);
-		this.positionTemp.z =(this.velocity + this.positionPlayer.z) * -1;
-	} else if(this.userView === "west"){// -x +-z
-		this.positionTemp.x = (this.velocity + this.positionPlayer.x) * -1;
-		this.positionTemp.z =(this.velocity + this.positionPlayer.z);
-	} else if(this.userView === "east"){// +x +-z
-		this.positionTemp.x = (this.velocity + this.positionPlayer.x);
-		this.positionTemp.z =(this.velocity + this.positionPlayer.z);
-	} else if(this.userView === "south"){// +-x +z
-		this.positionTemp.x = (this.velocity + this.positionPlayer.x);
-		this.positionTemp.z =(this.velocity + this.positionPlayer.z);
-	} else {
-		this.positionTemp.x = 0;
-		this.positionTemp.z = 0;
-	}
-	this.positionNew = new THREE.Vector3(this.positionTemp.x, 0, this.positionTemp.z);
 },
-
-});
-
-//
-//Teleportation
-//Component for Teleportation Points Object
-AFRAME.registerComponent('teleportation',{
-dependencies: ['auxl'],
-//Uses Player's Scene Transition Type to Teleport
-//Locomotion Teleportation also supported 
-init: function(){
-	//Prepare Teleport Controls
-	if(this.el.classList.contains('teleport')){
-		this.el.parentNode.setAttribute('active', 'false');
-	} else if(this.el.classList.contains('cancel')){
-		this.el.classList.toggle('clickable', false);
-		this.el.parentNode.setAttribute('active', 'false');
-	}
-},
-//Instantly Reset All Teleportation Points
-resetTeleCircles: function () {
-	this.allTeleportors = document.querySelectorAll('.teleporter');
-	for (let i= 0; i < this.allTeleportors.length; i++){
-		if (this.allTeleportors[i].parentNode.getAttribute('active') === 'true') {
-			this.allTeleportors[i].emit('resetInstant',{});
-			this.allTeleportors[i].nextSibling.emit('resetInstant',{});
-		}
-	}
-},
-//Reset of Teleportation Point
-resetInstantEvent: function () {
-	if(this.classList.contains('teleport')) {
-		this.parentNode.setAttribute('active', 'false');
-	} else if(this.classList.contains('cancel')) {
-		this.classList.toggle('clickable', false);
-		this.parentNode.setAttribute('active', 'false');
-	}
-},
-//Regular Reset of Teleportation Point
-resetEvent: function () {
-	if(this.classList.contains('teleport')){
-		this.parentNode.setAttribute('active', 'false');
-	} else if(this.classList.contains('cancel')){
-		this.classList.toggle('clickable', false);
-		this.parentNode.setAttribute('active', 'false');
-	}
-},
-//Dynamically Teleport to Point Selected
-clickToTeleport: function () {
-	let element = this;
-	let user = document.getElementById('playerRig');
-	let userView = document.getElementById('camera');
-	let auxl = document.querySelector('a-scene').systems.auxl;
-	let userPos = user.getAttribute('position');
-	let teleportType = auxl.player.layer.transition.teleport;
-	let newPosition = new THREE.Vector3();
-	let teleportPos = this.parentNode.getAttribute('position');
-	let allTeleportors = document.querySelectorAll('.teleporter');
-	let posTimeout;
-	let animTimeout;
-	//Prepare Player Movement
-	function prepMove(element, newPos, telePos){
-		//Do an reset on element to not interfer with anim
-		//Selected Circle
-		element.emit('reset',{});
-		//Cancel Circle
-		element.nextSibling.emit('reset',{});
-		//Clone current entity's position User
-		newPos.copy(telePos);
-		//Reset User's Y back to 0 - Flat Mode
-		newPos.y = 0;
-	}
-	//Instantly Reset All Teleportation Points
-	function resetTeleCircles(){
-		for(let i= 0; i < allTeleportors.length; i++){
-			if(allTeleportors[i].parentNode.getAttribute('active') === 'true') {
-				allTeleportors[i].emit('resetInstant',{});
-				allTeleportors[i].nextSibling.emit('resetInstant',{});
-			}
-		}
-	}
-	//Teleport Control
-	if(element.parentNode.getAttribute('active') === 'false') {
-		//Allow cancel circle to be viewable and clickable
-		element.nextSibling.classList.toggle('clickable', true);
-		element.nextSibling.emit('click1',{});
-		element.userPov = userView.getAttribute('rotation');
-		element.rotationParams = {
-			property: 'object3D.rotation.y',
-			to: element.userPov.y,
-			dur: 500,
-			delay: 0,
-			loop: 'false',
-			dir: 'normal',
-			easing:'easeInOutSine',
-			elasticity: 400,
-			autoplay: 'true',
-			enabled: 'true',
-			};
-		element.parentNode.setAttribute('animation__rotateToUser', element.rotationParams);
-		element.parentNode.setAttribute('active', 'true');
-	} else {
-		//Confirm and Cancel circle are ready to be clicked
-		//if Confirm was selected, teleport user and reset properties
-		//if Cancel was selcted, reset properties
-		if(element.classList.contains('teleport')) {
-			//Teleportation Type
-			if(teleportType === 'instant') {
-				resetTeleCircles();
-				prepMove(element, newPosition, teleportPos);
-				posTimeout = setTimeout(function () {
-					user.object3D.position.copy(newPosition);
-					clearTimeout(posTimeout);
-				}, 250);
-			} else if(teleportType === 'fade') {
-				auxl.player.PlayerTeleportAnim();
-				prepMove(element, newPosition, teleportPos);
-				posTimeout = setTimeout(function () {
-					resetTeleCircles();
-					user.object3D.position.copy(newPosition);
-					clearTimeout(posTimeout);
-				}, 600);
-			} else if(teleportType === 'locomotion') {
-				//Create locomotion animation based on teleported Pos
-				let travelParams = {
-					property: 'position',
-					from: {x: userPos.x, y: 0, z: userPos.z},
-					to: {x: teleportPos.x, y: 0, z: teleportPos.z},
-					dur: 1000,
-					delay: 0,
-					loop: 'false',
-					dir: 'normal',
-					easing:'easeInOutSine',
-					elasticity: 400,
-					autoplay: 'true',
-					enabled: 'true',
-					};
-				user.setAttribute('animation__locomotion', travelParams);
-				element.nextSibling.emit('reset',{});//cancel circle
-				resetTeleCircles();
-			} else if(teleportType === 'sphere') {
-				auxl.player.PlayerTeleportAnim();
-				prepMove(element, newPosition, teleportPos);
-				posTimeout = setTimeout(function () {
-					resetTeleCircles();
-					user.object3D.position.copy(newPosition);
-					clearTimeout(posTimeout);
-				}, 600);
-			} else if(teleportType === 'blink') {
-				auxl.player.PlayerTeleportAnim();
-				prepMove(element, newPosition, teleportPos);
-				posTimeout = setTimeout(function () {
-					resetTeleCircles();
-					user.object3D.position.copy(newPosition);
-					clearTimeout(posTimeout);
-				}, 600);
-			}
-		} else if (element.classList.contains('cancel')) {
-			element.emit('reset',{});
-		}
-	}
-},
-update: function () {
-	this.el.addEventListener('reset', this.resetEvent);
-	this.el.addEventListener('resetInstant', this.resetInstantEvent);
-	this.el.addEventListener('click', this.clickToTeleport);
-},
-remove: function () {
-	this.el.removeEventListener('reset', this.resetEvent);
-	this.el.removeEventListener('resetInstant', this.resetInstantEvent);
-	this.el.removeEventListener('click', this.clickToTeleport);
-},
-});
-
-//
-//Raycast Teleportation
-//Add to Clickable Object to Teleport to Raycast Intersection Position
-AFRAME.registerComponent('raycast-teleportation', {
-//Uses Player's Scene Transition Type to Teleport
-//Locomotion Teleportation also supported 
-init: function () {},
-clickToTeleport: function (event) {
-	let user = document.getElementById('playerRig');
-	let userView = document.getElementById('camera');
-	let auxl = document.querySelector('a-scene').systems.auxl;
-	let userPos = user.getAttribute('position');
-	let teleportType = auxl.player.layer.transition.teleport;
-	let newPosition = new THREE.Vector3();
-	let teleportPos = event.detail.intersection.point;
-	let allTeleportors = document.querySelectorAll('.teleporter');
-	let posTimeout;
-	let animTimeout;
-
-	//Prepare Movement
-	function prepMove(newPos, telePos){
-		//Clone current entity's position User
-		newPos.copy(telePos);
-		//Reset User's Y back to 0 - Flat Mode
-		newPos.y = 0;
-	}
-
-	//Teleportation Based on Player Transition Type
-	if(teleportType === 'instant') {
-		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			user.object3D.position.copy(newPosition);
-			clearTimeout(posTimeout);
-		}, 250);
-	} else if(teleportType === 'fade') {
-		auxl.player.PlayerTeleportAnim();
-		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			user.object3D.position.copy(newPosition);
-			clearTimeout(posTimeout);
-		}, 600);
-	} else if(teleportType === 'locomotion') {
-		//Create locomotion animation based on teleported Pos
-		let travelParams = {
-			property: 'position',
-			from: {x: userPos.x, y: 0, z: userPos.z},
-			to: {x: teleportPos.x, y: 0, z: teleportPos.z},
-			dur: 1000,
-			delay: 0,
-			loop: 'false',
-			dir: 'normal',
-			easing:'easeInOutSine',
-			elasticity: 400,
-			autoplay: 'true',
-			enabled: 'true',
-			};
-		user.setAttribute('animation__locomotion', travelParams);
-	} else if(teleportType === 'sphere') {
-		auxl.player.PlayerTeleportAnim();
-		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			user.object3D.position.copy(newPosition);
-			clearTimeout(posTimeout);
-		}, 600);
-	} else if(teleportType === 'blink') {
-		auxl.player.PlayerTeleportAnim();
-		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			user.object3D.position.copy(newPosition);
-			clearTimeout(posTimeout);
-		}, 600);
-	}
-},
-update: function () {
-	this.raycastTeleport = (event) => {
-		this.clickToTeleport(event);
-	}
-	this.el.addEventListener('click', this.raycastTeleport);
-},
-remove: function () {
-	this.el.removeEventListener('click', this.raycastTeleport);
-},
-});
-
-//
-//Universal Controls
-//Customizable Controls and Methods, Defaults for Locomotion and Snap Turning
-AFRAME.registerComponent('universal-controls', {
-dependencies: ['auxl'],
-schema: {
-	update: {type: 'number', default: 0},
-},
-init: function () {
-
-//Controls to Configure for :
-//Desktop : Mouse & Keyboard
-//Mobile : Touchscreen
-//VR Advanced : Dual 6DoF Controllers
-//VR Basic : Single 3DoF Button Controller - Need to Finish
-//VR Mobile : Headset Only - Need to Add
-//Hand Tracking : Dual Hand Movements - Need to Add
-//Game Controller - Need To Add
-
-//Control Actions :
-//Main Click - Triggers, Mouse Click, Screen Tap
-//Alt Click - Grip, Mouse Right Click, HTML Alt
-//Directional Movement - Locomotion Joystick, Key WASD/Arrows, HTML Direction Buttons
-//Rotational Movement - Headset, Mouse, Gyro
-//Action 1 - Button X, Key Q, HTML A
-//Action 2 - Button Y, Key E, HTML B
-//Action 3 - Button A, Key R, HTML C
-//Action 4 - Button B, Key T, HTML D
-//Action 5 - Other Joystick Down, Key C, HTML E
-//Action 6 - Other Joystick Up, Key V, HTML F
-//Action 7 - Other Joystick Left, Key Z, HTML <-
-//Action 8 - Other Joystick Right, Key X, HTML ->
-
-this.aScene = document.querySelector('a-scene');
-this.auxl = document.querySelector('a-scene').systems.auxl;
-//Locomotion Component
-this.locomotion;
-//VR Controllers
-this.vrController1;
-this.vrController2;
-
-//Remappable Desktop Controls
-this.controls = {
-directionForwardKeys: ['w','W','ArrowUp'],
-directionLeftKeys: ['a','A','ArrowLeft'],
-directionBackwardKeys: ['s','S','ArrowDown'],
-directionRightKeys: ['d','D','ArrowRight'],
-action1Keys: ['q','Q'],
-action2Keys: ['e','E'],
-action3Keys: ['r','R'],
-action4Keys: ['t','T'],
-action5Keys: ['c','C'],
-action6Keys: ['v','V'],
-action7Keys: ['z','Z'],
-action8Keys: ['x','X'],
-};
-
-//Mobile HTML Buttons
-this.mobileUpLeft = document.getElementById('upLeft');
-this.mobileUp = document.getElementById('up');
-this.mobileUpRight = document.getElementById('upRight');
-this.mobileLeft = document.getElementById('left');
-this.mobileCenter = document.getElementById('center');
-this.mobileRight = document.getElementById('right');
-this.mobileDownLeft = document.getElementById('downLeft');
-this.mobileDown = document.getElementById('down');
-this.mobileDownRight = document.getElementById('downRight');
-this.mobileSelect = document.getElementById('select');
-this.mobileStart = document.getElementById('start');
-this.mobileA = document.getElementById('a');
-this.mobileB = document.getElementById('b');
-this.mobileC = document.getElementById('c');
-this.mobileD = document.getElementById('d');
-this.mobileE = document.getElementById('e');
-this.mobileF = document.getElementById('f');
-this.mobileL = document.getElementById('l');
-this.mobileR = document.getElementById('r');
-
-//Customizable Action Controls
-this.altDownFunc = false;
-this.altDownParams = false;
-this.altUpFunc = false;
-this.altUpParams = false;
-this.action1DownFunc = false;
-this.action1DownParams = false;
-this.action1UpFunc = false;
-this.action1UpParams = false;
-this.action2DownFunc = false;
-this.action2DownParams = false;
-this.action2UpFunc = false;
-this.action2UpParams = false;
-this.action3DownFunc = false;
-this.action3DownParams = false;
-this.action3UpFunc = false;
-this.action3UpParams = false;
-this.action4DownFunc = false;
-this.action4DownParams = false;
-this.action4UpFunc = false;
-this.action4UpParams = false;
-this.action5DownFunc = false;
-this.action5DownParams = false;
-this.action5UpFunc = false;
-this.action5UpParams = false;
-this.action6DownFunc = false;
-this.action6DownParams = false;
-this.action6UpFunc = false;
-this.action6UpParams = false;
-this.action7DownFunc = false;
-this.action7DownParams = false;
-this.action7UpFunc = false;
-this.action7UpParams = false;
-this.action8DownFunc = false;
-this.action8DownParams = false;
-this.action8UpFunc = false;
-this.action8UpParams = false;
-
-//
-//Control Events
-
-//Main Click
-this.mainClickDetail = {info: 'Main Click', click: null};
-this.mainClickEvent = new CustomEvent('mainClick', {
-	bubbles: false,
-	cancelable: true,
-	detail: this.mainClickDetail,
-});
-//Alt Click
-this.altClickDetail = {info: 'Alt Click', click: null};
-this.altClickEvent = new CustomEvent('altClick', {
-	bubbles: false,
-	cancelable: true,
-	detail: this.altClickDetail,
-});
-//Directional Movement
-this.directionEventDetail = {info: 'Direction', direction: null};
-this.directionEvent = new CustomEvent('direction', {
-	bubbles: false,
-	cancelable: true,
-	detail: this.directionEventDetail,
-});
-//Rotational Movement
-this.rotationEventDetail = {info: 'Rotation', rotation: null};
-this.rotationEvent = new CustomEvent('rotation', {
-	bubbles: false,
-	cancelable: true,
-	detail: this.rotationEventDetail,
-});
-//Action 1
-this.action1EventDetail = {info: 'Action 1', action: null};
-this.action1Event = new CustomEvent('action1', {
-	bubbles: false,
-	cancelable: true,
-	detail: this.action1EventDetail,
-});
-//Action 2
-this.action2EventDetail = {info: 'Action 2', action: null};
-this.action2Event = new CustomEvent('action2', {
-	bubbles: false,
-	cancelable: true,
-	detail: this.action2EventDetail,
-});
-//Action 3
-this.action3EventDetail = {info: 'Action 3', action: null};
-this.action3Event = new CustomEvent('action3', {
-	bubbles: false,
-	cancelable: true,
-	detail: this.action3EventDetail,
-});
-//Action 4
-this.action4EventDetail = {info: 'Action 4', action: null};
-this.action4Event = new CustomEvent('action4', {
-	bubbles: false,
-	cancelable: true,
-	detail: this.action4EventDetail,
-});
-//Action 5
-this.action5EventDetail = {info: 'Action 5', action: null};
-this.action5Event = new CustomEvent('action5', {
-	bubbles: false,
-	cancelable: true,
-	detail: this.action5EventDetail,
-});
-//Action 6
-this.action6EventDetail = {info: 'Action 6', action: null};
-this.action6Event = new CustomEvent('action6', {
-	bubbles: false,
-	cancelable: true,
-	detail: this.action6EventDetail,
-});
-//Action 7
-this.action7EventDetail = {info: 'Action 7', action: null};
-this.action7Event = new CustomEvent('action7', {
-	bubbles: false,
-	cancelable: true,
-	detail: this.action7EventDetail,
-});
-//Action 8
-this.action8EventDetail = {info: 'Action 8', action: null};
-this.action8Event = new CustomEvent('action8', {
-	bubbles: false,
-	cancelable: true,
-	detail: this.action8EventDetail,
-});
-
-//Main Click
-this.mainClickHit = (e) => {
-	this.mainClick(e);
-}
-this.mainClickE = () => {
-	this.mainClickDetail.click = 'click';
-	document.dispatchEvent(this.mainClickEvent);
-}
-this.mainClickDown = () => {
-	this.mainClickDetail.click = 'clickDown';
-	document.dispatchEvent(this.mainClickEvent);
-}
-this.mainClickUp = () => {
-	this.mainClickDetail.click = 'clickUp';
-	document.dispatchEvent(this.mainClickEvent);
-}
-
-//Alt Click
-this.altClickHit = (e) => {
-	this.altClick(e);
-}
-this.altClickDown = () => {
-	this.altClickDetail.click = 'altClickHit';
-	document.dispatchEvent(this.altClickEvent);
-}
-this.altClickUp = () => {
-	this.altClickDetail.click = 'altClickRelease';
-	document.dispatchEvent(this.altClickEvent);
-}
-this.dispatchAlt = () => {
-	document.dispatchEvent(this.altClickEvent);
-}
-
-//Directional Movement
-this.directionHit = (e) => {
-	this.direction(e);
-}
-//Forward Left
-this.directionForwardLeftDown = () => {
-	this.directionForwardDown();
-	this.directionLeftDown();
-}
-this.directionForwardLeftUp = () => {
-	this.directionForwardUp();
-	this.directionLeftUp();
-}
-//Forward
-this.directionForwardDown = () => {
-	this.directionEventDetail.direction = 'forwardHit';
-	document.dispatchEvent(this.directionEvent);
-}
-this.directionForwardUp = () => {
-	this.directionEventDetail.direction = 'forwardRelease';
-	document.dispatchEvent(this.directionEvent);
-}
-//Forward Right
-this.directionForwardRightDown = () => {
-	this.directionForwardDown();
-	this.directionRightDown();
-}
-this.directionForwardRightUp = () => {
-	this.directionForwardUp();
-	this.directionRightUp();
-}
-//Left
-this.directionLeftDown = () => {
-	this.directionEventDetail.direction = 'leftHit';
-	document.dispatchEvent(this.directionEvent);
-}
-this.directionLeftUp = () => {
-	this.directionEventDetail.direction = 'leftRelease';
-	document.dispatchEvent(this.directionEvent);
-}
-//Backward Left
-this.directionBackwardLeftDown = () => {
-	this.directionBackwardDown();
-	this.directionLeftDown();
-}
-this.directionBackwardLeftUp = () => {
-	this.directionBackwardUp();
-	this.directionLeftUp();
-}
-//Backward
-this.directionBackwardDown = () => {
-	this.directionEventDetail.direction = 'backwardHit';
-	document.dispatchEvent(this.directionEvent);
-}
-this.directionBackwardUp = () => {
-	this.directionEventDetail.direction = 'backwardRelease';
-	document.dispatchEvent(this.directionEvent);
-}
-//Backward Right
-this.directionBackwardRightDown = () => {
-	this.directionBackwardDown();
-	this.directionRightDown();
-}
-this.directionBackwardRightUp = () => {
-	this.directionBackwardUp();
-	this.directionRightUp();
-}
-//Right
-this.directionRightDown = () => {
-	this.directionEventDetail.direction = 'rightHit';
-	document.dispatchEvent(this.directionEvent);
-}
-this.directionRightUp = () => {
-	this.directionEventDetail.direction = 'rightRelease';
-	document.dispatchEvent(this.directionEvent);
-}
-
-//Rotational Movement
-this.rotationHit = (e) => {
-	this.rotation(e);
-}
-this.dispatchRotation = () => {
-	document.dispatchEvent(this.rotationEvent);
-}
-
-//Action 1
-this.action1Hit = (e) => {
-	this.action1(e);
-}
-this.action1Down = () => {
-	this.action1EventDetail.action = 'action1Hit';
-	document.dispatchEvent(this.action1Event);
-}
-this.action1Up = () => {
-	this.action1EventDetail.action = 'action1Release';
-	document.dispatchEvent(this.action1Event);
-}
-//Action 2
-this.action2Hit = (e) => {
-	this.action2(e);
-}
-this.action2Down = () => {
-	this.action2EventDetail.action = 'action2Hit';
-	document.dispatchEvent(this.action2Event);
-}
-this.action2Up = () => {
-	this.action2EventDetail.action = 'action2Release';
-	document.dispatchEvent(this.action2Event);
-}
-//Action 3
-this.action3Hit = (e) => {
-	this.action3(e);
-}
-this.action3Down = () => {
-	this.action3EventDetail.action = 'action3Hit';
-	document.dispatchEvent(this.action3Event);
-}
-this.action3Up = () => {
-	this.action3EventDetail.action = 'action3Release';
-	document.dispatchEvent(this.action3Event);
-}
-//Action 4
-this.action4Hit = (e) => {
-	this.action4(e);
-}
-this.action4Down = () => {
-	this.action4EventDetail.action = 'action4Hit';
-	document.dispatchEvent(this.action4Event);
-}
-this.action4Up = () => {
-	this.action4EventDetail.action = 'action4Release';
-	document.dispatchEvent(this.action4Event);
-}
-//Action 5
-this.action5Hit = (e) => {
-	this.action5(e);
-}
-this.action5Down = () => {
-	this.action5EventDetail.action = 'action5Hit';
-	document.dispatchEvent(this.action5Event);
-}
-this.action5Up = () => {
-	this.action5EventDetail.action = 'action5Release';
-	document.dispatchEvent(this.action5Event);
-}
-//Action 6
-this.action6Hit = (e) => {
-	this.action6(e);
-}
-this.action6Down = () => {
-	this.action6EventDetail.action = 'action6Hit';
-	document.dispatchEvent(this.action6Event);
-}
-this.action6Up = () => {
-	this.action6EventDetail.action = 'action6Release';
-	document.dispatchEvent(this.action6Event);
-}
-//Action 7
-this.action7Hit = (e) => {
-	this.action7(e);
-}
-this.action7Down = () => {
-	this.action7EventDetail.action = 'action7Hit';
-	document.dispatchEvent(this.action7Event);
-}
-this.action7Up = () => {
-	this.action7EventDetail.action = 'action7Release';
-	document.dispatchEvent(this.action7Event);
-}
-//Action 8
-this.action8Hit = (e) => {
-	this.action8(e);
-}
-this.action8Down = () => {
-	this.action8EventDetail.action = 'action8Hit';
-	document.dispatchEvent(this.action8Event);
-}
-this.action8Up = () => {
-	this.action8EventDetail.action = 'action8Release';
-	document.dispatchEvent(this.action8Event);
-}
-
-//
-//Keyboard Events
-this.keyboardDownHit = (e) => {
-	this.keyboardDown(e);
-}
-this.keyboardUpHit = (e) => {
-	this.keyboardUp(e);
-}
-
-//
-//Blank
-this.blankHit = (e) => {
-	this.blank(e);
-}
-
-//
-//Controller Events
-
-//Left
-//Main Trigger
-this.questLeftMainClickDown = () => {
-	this.mainClickDetail.click = 'leftClickDown';
-	document.dispatchEvent(this.mainClickEvent);
-}
-this.questLeftMainClickUp = () => {
-	this.mainClickDetail.click = 'leftClickUp';
-	document.dispatchEvent(this.mainClickEvent);
-}
-//Secondary Trigger
-this.questLeftAltClickDown = () => {
-	this.altClickDetail.click = 'leftAltClickDown';
-	document.dispatchEvent(this.altClickEvent);
-}
-this.questLeftAltClickUp = () => {
-	this.altClickDetail.click = 'leftAltClickUp';
-	document.dispatchEvent(this.altClickEvent);
-}
-//Joystick
-this.questJoystickLocomotionEvent = (e) => {
-	if(auxl.joystickOther === 1){
-		//this.questJoystick1Locomotion(e);
-	} else if(auxl.joystickOther === 4){
-		this.questJoystick4Locomotion(e);
-	} else if(auxl.joystickOther === 8){
-		this.questJoystick8Locomotion(e);
-	}
-}
-//Locomotion Joystick
-this.deadzoneLoco = 0.1;
-this.xNumLoco = 0;
-this.yNumLoco = 0;
-this.angleLoco = 0;
-this.angleDegLoco = 0;
-
-//Right
-//Main Trigger
-this.questRightMainClickDown = () => {
-	this.mainClickDetail.click = 'rightClickDown';
-	document.dispatchEvent(this.mainClickEvent);
-}
-this.questRightMainClickUp = () => {
-	this.mainClickDetail.click = 'rightClickUp';
-	document.dispatchEvent(this.mainClickEvent);
-}
-//Secondary Trigger
-this.questRightAltClickDown = () => {
-	this.altClickDetail.click = 'rightAltClickDown';
-	document.dispatchEvent(this.altClickEvent);
-}
-this.questRightAltClickUp = () => {
-	this.altClickDetail.click = 'rightAltClickUp';
-	document.dispatchEvent(this.altClickEvent);
-}
-//Joystick
-this.questJoystickOtherEvent = (e) => {
-	this.questJoystick4Other(e);
-}
-//Other Joystick
-this.deadzoneOther = 0.1;
-this.xNumOther = 0;
-this.yNumOther = 0;
-this.angleOther = 0;
-this.angleDegOther = 0;
-
-    },
-//Dev Input Display
-updateInput: function (input){
-	//console.log(input)
-	//Enable A-Frame Entity to use below
-	//Display Inputs - DEV Testing
-	/*
-	const displayInput = document.querySelector('#displayInput');
-	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-	displayInputText.value = input;
-	displayInput.setAttribute('text',displayInputText);
-	*/
-},
-//Change Action function
-updateAction: function (actionObj){
-	//console.log(actionObj);
-	for(let action in actionObj){
-		//console.log(action);//actionName
-		//console.log(actionObj[action]);//object
-		let actionFunc;
-		let actionParams;
-		if(action === 'altDown'){
-			actionFunc = 'altDownFunc';
-			actionParams = 'altDownParams';
-		} else if(action === 'altUp'){
-			actionFunc = 'altUpFunc';
-			actionParams = 'altUpParams';
-		} else if(action === 'action1Down'){
-			actionFunc = 'action1DownFunc';
-			actionParams = 'action1DownParams';
-		} else if(action === 'action1Up'){
-			actionFunc = 'action1UpFunc';
-			actionParams = 'action1UpParams';
-		} else if(action === 'action2Down'){
-			actionFunc = 'action2DownFunc';
-			actionParams = 'action2DownParams';
-		} else if(action === 'action2Up'){
-			actionFunc = 'action2UpFunc';
-			actionParams = 'action2UpParams';
-		} else if(action === 'action3Down'){
-			actionFunc = 'action3DownFunc';
-			actionParams = 'action3DownParams';
-		} else if(action === 'action3Up'){
-			actionFunc = 'action3UpFunc';
-			actionParams = 'action3UpParams';
-		} else if(action === 'action4Down'){
-			actionFunc = 'action4DownFunc';
-			actionParams = 'action4DownParams';
-		} else if(action === 'action4Up'){
-			actionFunc = 'action4UpFunc';
-			actionParams = 'action4UpParams';
-		} else if(action === 'action5Down'){
-			actionFunc = 'action5DownFunc';
-			actionParams = 'action5DownParams';
-		} else if(action === 'action5Up'){
-			actionFunc = 'action5UpFunc';
-			actionParams = 'action5UpParams';
-		} else if(action === 'action6Down'){
-			actionFunc = 'action6DownFunc';
-			actionParams = 'action6DownParams';
-		} else if(action === 'action6Up'){
-			actionFunc = 'action6UpFunc';
-			actionParams = 'action6UpParams';
-		} else if(action === 'action7Down'){
-			actionFunc = 'action7DownFunc';
-			actionParams = 'action7DownParams';
-		} else if(action === 'action7Up'){
-			actionFunc = 'action7UpFunc';
-			actionParams = 'action7UpParams';
-		} else if(action === 'action8Down'){
-			actionFunc = 'action8DownFunc';
-			actionParams = 'action8DownParams';
-		} else if(action === 'action8Up'){
-			actionFunc = 'action8UpFunc';
-			actionParams = 'action8UpParams';
-		} else {
-			console.log('Failed to identify action')
-			return;
-		}
-		if(actionObj[action]){
-			let auxlObj = actionObj[action].auxlObj;
-			let component = false;
-			if(actionObj[action].component){
-				component = actionObj[action].component;
-			}
-			let func = actionObj[action].func;
-			//Assign Parameters if Required
-			this[actionParams] = false;
-			if(actionObj[action].params){
-				this[actionParams] = actionObj[action].params;
-			}
-			if(component){
-				//if component is not auxl, then the object is a dom entity and the component is attached to that object and the func is in that component
-				//if component is true, then
-//Bind function to the component itself
-this[actionFunc] = document.getElementById(auxlObj).components[component][func].bind(document.getElementById(auxlObj).components[component]);
-			} else {
-				//if component is false, then
-				//this.auxl[auxlObj][func]
-				this[actionFunc] = this.auxl[auxlObj][func];
-			}
-		} else {
-			this[actionFunc] = false;
-			this[actionParams] = false;
-		}
-	}
-},
-//Disable Action function
-disableAction: function (actionObj){
-	//console.log(actionObj);
-	for(let action in actionObj){
-		//console.log(action);//actionName
-		//console.log(actionObj[action]);//params
-		let actionFunc;
-		let actionParams;
-		if(action === 'altDown'){
-			actionFunc = 'altDownFunc';
-			actionParams = 'altDownParams';
-		} else if(action === 'altUp'){
-			actionFunc = 'altUpFunc';
-			actionParams = 'altUpParams';
-		} else if(action === 'action1Down'){
-			actionFunc = 'action1DownFunc';
-			actionParams = 'action1DownParams';
-		} else if(action === 'action1Up'){
-			actionFunc = 'action1UpFunc';
-			actionParams = 'action1UpParams';
-		} else if(action === 'action2Down'){
-			actionFunc = 'action2DownFunc';
-			actionParams = 'action2DownParams';
-		} else if(action === 'action2Up'){
-			actionFunc = 'action2UpFunc';
-			actionParams = 'action2UpParams';
-		} else if(action === 'action3Down'){
-			actionFunc = 'action3DownFunc';
-			actionParams = 'action3DownParams';
-		} else if(action === 'action3Up'){
-			actionFunc = 'action3UpFunc';
-			actionParams = 'action3UpParams';
-		} else if(action === 'action4Down'){
-			actionFunc = 'action4DownFunc';
-			actionParams = 'action4DownParams';
-		} else if(action === 'action4Up'){
-			actionFunc = 'action4UpFunc';
-			actionParams = 'action4UpParams';
-		} else if(action === 'action5Down'){
-			actionFunc = 'action5DownFunc';
-			actionParams = 'action5DownParams';
-		} else if(action === 'action5Up'){
-			actionFunc = 'action5UpFunc';
-			actionParams = 'action5UpParams';
-		} else if(action === 'action6Down'){
-			actionFunc = 'action6DownFunc';
-			actionParams = 'action6DownParams';
-		} else if(action === 'action6Up'){
-			actionFunc = 'action6UpFunc';
-			actionParams = 'action6UpParams';
-		} else if(action === 'action7Up'){
-			actionFunc = 'action7UpFunc';
-			actionParams = 'action7UpParams';
-		} else if(action === 'action8Up'){
-			actionFunc = 'action8UpFunc';
-			actionParams = 'action8UpParams';
-		} else {
-			console.log('Failed to identify action')
-			return;
-		}
-		this[actionFunc] = false;
-		this[actionParams] = false;
-	}
-},
-//Main Click
-mainClick: function (e){
-	//console.log(e.detail);
-	//this.updateInput(e.detail.info);
-},
-//Alt Click
-altClick: function (e){
-	//console.log(e.detail);
-	//this.updateInput(e.detail.info);
-	if(e.detail.action === 'altClickHit'){
-		if(this.altDownFunc){
-			if(this.altDownParams){
-				this.altDownFunc(this.altDownParams);
-			} else {
-				this.altDownFunc();
-			}
-		}
-	} else if(e.detail.action === 'altClickRelease'){
-		if(this.altUpFunc){
-			if(this.altUpParams){
-				this.altUpFunc(this.altUpParams);
-			} else {
-				this.altUpFunc();
-			}
-		}
-	}
-},
-//Directional Movement
-direction: function (e){
-	//console.log(e.detail);
-	//this.updateInput(e.detail.info);
-	if(e.detail.direction === 'forwardHit'){
-		this.locomotion.movingForward();
-	} else if(e.detail.direction === 'forwardRelease'){
-		this.locomotion.cancelForward();
-	} else if(e.detail.direction === 'leftHit'){
-		this.locomotion.movingLeft();
-	} else if(e.detail.direction === 'leftRelease'){
-		this.locomotion.cancelLeft();
-	} else if(e.detail.direction === 'backwardHit'){
-		this.locomotion.movingReverse();
-	} else if(e.detail.direction === 'backwardRelease'){
-		this.locomotion.cancelReverse();
-	} else if(e.detail.direction === 'rightHit'){
-		this.locomotion.movingRight();
-	} else if(e.detail.direction === 'rightRelease'){
-		this.locomotion.cancelRight();
-	} 
-},
-//Rotational Movement
-rotation: function (e){
-	//console.log(e.detail);
-	//this.updateInput(e.detail.info);
-},
-//Action 1
-action1: function (e){
-	//console.log(e.detail);
-	//this.updateInput(e.detail.info);
-	if(e.detail.action === 'action1Hit'){
-		if(this.action1DownFunc){
-			if(this.action1DownParams){
-				this.action1DownFunc(this.action1DownParams);
-			} else {
-				this.action1DownFunc();
-			}
-		}
-	} else if(e.detail.action === 'action1Release'){
-		if(this.action1UpFunc){
-			if(this.action1UpParams){
-				this.action1UpFunc(this.action1UpParams);
-			} else {
-				this.action1UpFunc();
-			}
-		}
-	}
-},
-//Action 2
-action2: function (e){
-	//console.log(e.detail);
-	//this.updateInput(e.detail.info);
-	if(e.detail.action === 'action2Hit'){
-		if(this.action2DownFunc){
-			if(this.action2DownParams){
-				this.action2DownFunc(this.action2DownParams);
-			} else {
-				this.action2DownFunc();
-			}
-		}
-	} else if(e.detail.action === 'action2Release'){
-		if(this.action2UpFunc){
-			if(this.action2UpParams){
-				this.action2UpFunc(this.action2UpParams);
-			} else {
-				this.action2UpFunc();
-			}
-		}
-	}
-},
-//Action 3
-action3: function (e){
-	//console.log(e.detail);
-	//this.updateInput(e.detail.info);
-	if(e.detail.action === 'action3Hit'){
-		if(this.action3DownFunc){
-			if(this.action3DownParams){
-				this.action3DownFunc(this.action3DownParams);
-			} else {
-				this.action3DownFunc();
-			}
-		}
-	} else if(e.detail.action === 'action3Release'){
-		if(this.action3UpFunc){
-			if(this.action3UpParams){
-				this.action3UpFunc(this.action3UpParams);
-			} else {
-				this.action3UpFunc();
-			}
-		}
-	}
-},
-//Action 4
-action4: function (e){
-	//console.log(e.detail);
-	//this.updateInput(e.detail.info);
-	if(e.detail.action === 'action4Hit'){
-		if(this.action4DownFunc){
-			if(this.action4DownParams){
-				this.action4DownFunc(this.action4DownParams);
-			} else {
-				this.action4DownFunc();
-			}
-		}
-	} else if(e.detail.action === 'action4Release'){
-		if(this.action4UpFunc){
-			if(this.action4UpParams){
-				this.action4UpFunc(this.action4UpParams);
-			} else {
-				this.action4UpFunc();
-			}
-		}
-	}
-},
-//Action 5
-action5: function (e){
-	//console.log(e.detail);
-	//this.updateInput(e.detail.info);
-	if(e.detail.action === 'action5Hit'){
-		if(this.action5DownFunc){
-			if(this.action5DownParams){
-				this.action5DownFunc(this.action5DownParams);
-			} else {
-				this.action5DownFunc();
-			}
-		}
-	} else if(e.detail.action === 'action5Release'){
-		if(this.action5UpFunc){
-			if(this.action5UpParams){
-				this.action5UpFunc(this.action5UpParams);
-			} else {
-				this.action5UpFunc();
-			}
-		}
-	}
-},
-//Action 6
-action6: function (e){
-	//console.log(e.detail);
-	//this.updateInput(e.detail.info);
-	if(e.detail.action === 'action6Hit'){
-		if(this.action6DownFunc){
-			if(this.action6DownParams){
-				this.action6DownFunc(this.action6DownParams);
-			} else {
-				this.action6DownFunc();
-			}
-		}
-	} else if(e.detail.action === 'action6Release'){
-		if(this.action6UpFunc){
-			if(this.action6UpParams){
-				this.action6UpFunc(this.action6UpParams);
-			} else {
-				this.action6UpFunc();
-			}
-		}
-	}
-},
-//Action 7
-action7: function (e){
-	//console.log(e.detail);
-	//this.updateInput(e.detail.info);
-	if(e.detail.action === 'action7Hit'){
-		if(this.action7DownFunc){
-			if(this.action7DownParams){
-				this.action7DownFunc(this.action7DownParams);
-			} else {
-				this.action7DownFunc();
-			}
-		}
-	} else if(e.detail.action === 'action7Release'){
-		if(this.action7UpFunc){
-			if(this.action7UpParams){
-				this.action7UpFunc(this.action7UpParams);
-			} else {
-				this.action7UpFunc();
-			}
-		}
-	}
-},
-//Action 8
-action8: function (e){
-	//console.log(e.detail);
-	//this.updateInput(e.detail.info);
-	if(e.detail.action === 'action8Hit'){
-		if(this.action8DownFunc){
-			if(this.action8DownParams){
-				this.action8DownFunc(this.action8DownParams);
-			} else {
-				this.action8DownFunc();
-			}
-		}
-	} else if(e.detail.action === 'action8Release'){
-		if(this.action8UpFunc){
-			if(this.action8UpParams){
-				this.action8UpFunc(this.action8UpParams);
-			} else {
-				this.action8UpFunc();
-			}
-		}
-	}
-},
-//Keyboard Controls
-keyboardDown: function (e){
-	if(this.controls.directionForwardKeys.includes(e.key)) {
-		//Direction : Forward
-		this.directionForwardDown();
-	} else if(this.controls.directionLeftKeys.includes(e.key)){
-		//Direction : Left
-		this.directionLeftDown();
-	} else if(this.controls.directionBackwardKeys.includes(e.key)){
-		//Direction : Backward
-		this.directionBackwardDown();
-	} else if(this.controls.directionRightKeys.includes(e.key)){
-		//Direction : Right
-		this.directionRightDown();
-	} else if(this.controls.action1Keys.includes(e.key)){
-		//Action 1
-		this.action1Down();
-	} else if(this.controls.action2Keys.includes(e.key)){
-		//Action 2
-		this.action2Down();
-	} else if(this.controls.action3Keys.includes(e.key)){
-		//Action 3
-		this.action3Down();
-	} else if(this.controls.action4Keys.includes(e.key)){
-		//Action 4
-		this.action4Down();
-	} else if(this.controls.action5Keys.includes(e.key)){
-		//Action 5
-		this.action5Down();
-	} else if(this.controls.action6Keys.includes(e.key)){
-		//Action 6
-		this.action6Down();
-	} else if(this.controls.action7Keys.includes(e.key)){
-		//Action 7
-		this.action7Down();
-	} else if(this.controls.action8Keys.includes(e.key)){
-		//Action 8
-		this.action8Down();
-	}
-
-},
-keyboardUp: function (e){
-	if(this.controls.directionForwardKeys.includes(e.key)) {
-		//Direction : Forward
-		this.directionForwardUp();
-	} else if(this.controls.directionLeftKeys.includes(e.key)){
-		//Direction : Left
-		this.directionLeftUp();
-	} else if(this.controls.directionBackwardKeys.includes(e.key)){
-		//Direction : Backward
-		this.directionBackwardUp();
-	} else if(this.controls.directionRightKeys.includes(e.key)){
-		//Direction : Right
-		this.directionRightUp();
-	} else if(this.controls.action1Keys.includes(e.key)){
-		//Action 1
-		this.action1Up();
-	} else if(this.controls.action2Keys.includes(e.key)){
-		//Action 2
-		this.action2Up();
-	} else if(this.controls.action3Keys.includes(e.key)){
-		//Action 3
-		this.action3Up();
-	} else if(this.controls.action4Keys.includes(e.key)){
-		//Action 4
-		this.action4Up();
-	} else if(this.controls.action5Keys.includes(e.key)){
-		//Action 5
-		this.action5Up();
-	} else if(this.controls.action6Keys.includes(e.key)){
-		//Action 6
-		this.action6Up();
-	} else if(this.controls.action7Keys.includes(e.key)){
-		//Action 7
-		this.action7Up();
-	} else if(this.controls.action8Keys.includes(e.key)){
-		//Action 8
-		this.action8Up();
-	}
-},
-//Joystick 4 Locomotion
-questJoystick4Locomotion: function (e){
-	//Update this.locomotion.func into this.directionEvent
-	this.xNumLoco = e.detail.x;
-	this.yNumLoco = e.detail.y;
-	this.angleLoco = Math.atan2(this.xNumLoco,this.yNumLoco);
-	function radToDeg(rad) {
-	  return rad / (Math.PI / 180);
-	}
-	this.angleDegLoco = radToDeg(this.angleLoco);
-
-	if(this.yNumLoco < this.deadzoneLoco && this.yNumLoco > this.deadzoneLoco*-1 && this.xNumLoco > this.deadzoneLoco*-1 && this.xNumLoco < this.deadzoneLoco){
-		this.locomotion.clearMovement();
-		this.updateInput('Locomotion Clear');
-	} else if(this.yNumLoco > this.deadzoneLoco || this.yNumLoco < this.deadzoneLoco*-1 || this.xNumLoco < this.deadzoneLoco*-1 || this.xNumLoco > this.deadzoneLoco) {
-		if(this.angleDegLoco > -45 && this.angleDegLoco < 45){
-			//Backward : -45 -> 45
-			this.locomotion.clearMovement();
-			this.locomotion.movingReverse();
-			//this.updateInput('Backward');
-		} else if(this.angleDegLoco > 45 && this.angleDegLoco < 135){
-			//Right : 45 -> 135
-			this.locomotion.clearMovement();
-			this.locomotion.movingRight();
-			//this.updateInput('Right');
-		} else if(this.angleDegLoco > 135 || this.angleDegLoco < -135){
-			//Forward : 135 -> 180 or -135 -> -180
-			this.locomotion.clearMovement();
-			this.locomotion.movingForward();
-			//this.updateInput('Forward');
-		} else if(this.angleDegLoco < -45 && this.angleDegLoco > -135){
-			//Left : -45 -> -135
-			this.locomotion.clearMovement();
-			this.locomotion.movingLeft();
-			//this.updateInput('Left');
-		}
-	} else {
-		this.locomotion.clearMovement();
-		//this.updateInput('Locomotion Clear');
-	}
-},
-//Joystick 8 Locomotion
-questJoystick8Locomotion: function (e){
-	//Update this.locomotion.func into this.directionEvent
-	this.xNumLoco = e.detail.x;
-	this.yNumLoco = e.detail.y;
-	this.angleLoco = Math.atan2(this.xNumLoco,this.yNumLoco);
-	function radToDeg(rad) {
-	  return rad / (Math.PI / 180);
-	}
-	this.angleDegLoco = radToDeg(this.angleLoco);
-
-	if(this.yNumLoco < this.deadzoneLoco && this.yNumLoco > this.deadzoneLoco*-1 && this.xNumLoco > this.deadzoneLoco*-1 && this.xNumLoco < this.deadzoneLoco){
-		this.locomotion.clearMovement();
-		this.updateInput('Locomotion Clear');
-	} else if(this.yNumLoco > this.deadzoneLoco || this.yNumLoco < this.deadzoneLoco*-1 || this.xNumLoco < this.deadzoneLoco*-1 || this.xNumLoco > this.deadzoneLoco) {
-		if(this.angleDegLoco > -22.5 && this.angleDegLoco < 22.5){
-			//Backward : -22.5 -> 22.5
-			this.locomotion.clearMovement();
-			this.locomotion.movingReverse();
-			//this.updateInput('Backward');
-		} else if(this.angleDegLoco > 22.5 && this.angleDegLoco < 67.5){
-			//BackwardRight : 22.5 -> 67.5
-			this.locomotion.clearMovement();
-			this.locomotion.movingReverse();
-			this.locomotion.movingRight();
-			//this.updateInput('Backward Right');
-		} else if(this.angleDegLoco > 67.5 && this.angleDegLoco < 112.5){
-			//Right : 67.5 -> 112.5
-			this.locomotion.clearMovement();
-			this.locomotion.movingRight();
-			//this.updateInput('Right');
-		} else if(this.angleDegLoco > 112.5 && this.angleDegLoco < 157.5){
-			//ForwardRight : 112.5 -> 157.5
-			this.locomotion.clearMovement();
-			this.locomotion.movingForward();
-			this.locomotion.movingRight();
-			//this.updateInput('Forward Right');
-		} else if(this.angleDegLoco > 157.5 || this.angleDegLoco < -157.5){
-			//Forward : 157.5 -> 180 or -157.5 -> -180
-			this.locomotion.clearMovement();
-			this.locomotion.movingForward();
-			//this.updateInput('Forward');
-		} else if(this.angleDegLoco < -112.5 && this.angleDegLoco > -157.5){
-			//ForwardLeft: -112.5 -> -157.5
-			this.locomotion.clearMovement();
-			this.locomotion.movingForward();
-			this.locomotion.movingLeft();
-			//this.updateInput('Forward Left');
-		} else if(this.angleDegLoco < -67.5 && this.angleDegLoco > -112.5){
-			//Left : -67.5 -> -112.5
-			this.locomotion.clearMovement();
-			this.locomotion.movingLeft();
-			//this.updateInput('Left');
-		} else if(this.angleDegLoco < -22.5 && this.angleDegLoco > -67.5){
-			//BackwardLeft: -22.5 -> -67.5 
-			this.locomotion.clearMovement();
-			this.locomotion.movingReverse();
-			this.locomotion.movingLeft();
-			//this.updateInput('Backward Left');
-		}
-	} else {
-		this.locomotion.clearMovement();
-		//this.updateInput('Locomotion Clear');
-	}
-},
-//Joystick 4 Other
-questJoystick4Other: function (e){
-	this.xNumOther = e.detail.x;
-	this.yNumOther = e.detail.y;
-	this.angleOther = Math.atan2(this.xNumOther,this.yNumOther);
-	function radToDeg(rad) {
-	  return rad / (Math.PI / 180);
-	}
-	this.angleDegOther = radToDeg(this.angleOther);
-
-	if(this.yNumOther < this.deadzoneOther && this.yNumOther > this.deadzone*-1 && this.xNumOther > this.deadzoneOther*-1 && this.xNumOther < this.deadzoneOther){
-		this.updateInput('Rotation|Duck Clear');
-	} else if(this.yNumOther > this.deadzoneOther || this.yNumOther < this.deadzoneOther*-1 || this.xNumOther < this.deadzoneOther*-1 || this.xNumOther > this.deadzoneOther) {
-		if(this.angleDegOther > -45 && this.angleDegOther < 45){
-			//Backward : -45 -> 45
-			//this.updateInput('Duck');
-			this.action5Down();
-		} else if(this.angleDegOther > 45 && this.angleDegOther < 135){
-			//Right : 45 -> 135
-			//this.updateInput('Rotate Right');
-			//this.snapRightHit();
-			this.action7Down();
-		} else if(this.angleDegOther > 135 || this.angleDegOther < -135){
-			//Forward : 135 -> 180 or -135 -> -180
-			//this.updateInput('Stand');
-			this.action6Down();
-		} else if(this.angleDegOther < -45 && this.angleDegOther > -135){
-			//Left : -45 -> -135
-			//this.updateInput('Rotate Left');
-			//this.snapLeftHit();
-			this.action8Down();
-		}
-	} else {
-		//this.updateInput('Rotation|Duck Clear');
-	}
-},
-//Temp Blank
-blank: function (e){
-	console.log(e);
-	//this.updateInput('Blank Button');
-},
-update: function () {
-
-	//Universal Events
-	document.addEventListener('mainClick', this.mainClickHit);
-	document.addEventListener('altClick', this.altClickHit);
-	document.addEventListener('direction', this.directionHit);
-	document.addEventListener('rotation', this.rotationHit);
-	document.addEventListener('action1', this.action1Hit);
-	document.addEventListener('action2', this.action2Hit);
-	document.addEventListener('action3', this.action3Hit);
-	document.addEventListener('action4', this.action4Hit);
-	document.addEventListener('action5', this.action5Hit);
-	document.addEventListener('action6', this.action6Hit);
-	document.addEventListener('action7', this.action7Hit);
-	document.addEventListener('action8', this.action8Hit);
-
-	//Desktop
-	document.addEventListener('click', this.mainClickE);
-	document.addEventListener('contextmenu', this.dispatchAlt);
-	document.addEventListener('keydown', this.keyboardDownHit);
-	document.addEventListener('keyup', this.keyboardUpHit);
-
-	//Joystick
-	this.questJoystickLocomotionEvent = (e) => {
-		if(auxl.joystickOther === 1){
-			//this.questJoystick1Locomotion(e);
-		} else if(auxl.joystickOther === 4){
-			this.questJoystick4Locomotion(e);
-		} else if(auxl.joystickOther === 8){
-			this.questJoystick8Locomotion(e);
-		}
-	}
-
-//Allow elements to spawn before grabbing/assigning
-let initTimeout = setTimeout(() => {
-
-	//Locomotion Component
-	this.locomotion = document.getElementById('playerRig').components.locomotion;
-
-	//Quest
-	this.vrController1 = document.getElementById('vrController1');
-	this.vrController2 = document.getElementById('vrController2');
-
-	//Left
-	//Main Trigger
-	this.vrController1.addEventListener('triggerdown', this.questLeftMainClickDown);
-	this.vrController1.addEventListener('triggerup', this.questLeftMainClickUp);
-	//Secondary Trigger
-	this.vrController1.addEventListener('gripdown', this.questLeftAltClickDown);
-	this.vrController1.addEventListener('gripup', this.questLeftAltClickUp);
-	//Button 1 (X)
-	this.vrController1.addEventListener('xbuttondown', this.action1Down);
-	this.vrController1.addEventListener('xbuttonup', this.action1Up);
-	//Button 2 (Y)
-	this.vrController1.addEventListener('ybuttondown', this.action2Down);
-	this.vrController1.addEventListener('ybuttonup', this.action2Up);
-
-	//Right
-	//Main Trigger
-	this.vrController2.addEventListener('triggerdown', this.questRightMainClickDown);
-	this.vrController2.addEventListener('triggerup', this.questRightMainClickUp);
-	//Secondary Trigger
-	this.vrController2.addEventListener('gripdown', this.questRightAltClickDown);
-	this.vrController2.addEventListener('gripup', this.questRightAltClickUp);
-	//Button 1 (A)
-	this.vrController2.addEventListener('abuttondown', this.action3Down);
-	this.vrController2.addEventListener('abuttonup', this.action3Up);
-	//Button 2 (B)
-	this.vrController2.addEventListener('bbuttondown', this.action4Down);
-	this.vrController2.addEventListener('bbuttonup', this.action4Up);
-
-	//Joysticks
-	if(this.auxl.vrHand === 'bothRight' || this.auxl.vrHand === 'bothLeftLoco'){
-		//Left Locomotion
-		this.vrController1.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-		//Right Other
-		this.vrController2.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
-	} else if(this.auxl.vrHand === 'bothLeft' || this.auxl.vrHand === 'bothRightLoco'){
-		//Right Locomotion
-		this.vrController2.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-		//Left Other
-		this.vrController1.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
-	} else {
-		//Left Locomotion
-		this.vrController1.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-		//Right Other
-		this.vrController2.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
-	}
-}, 100);
-
-
-	//Mobile
-	this.mobileUpLeft.addEventListener('touchstart', this.directionForwardLeftDown);
-	this.mobileUpLeft.addEventListener('touchend', this.directionForwardLeftUp);
-	this.mobileUp.addEventListener('touchstart', this.directionForwardDown);
-	this.mobileUp.addEventListener('touchend', this.directionForwardUp);
-	this.mobileUpRight.addEventListener('touchstart', this.directionForwardRightDown);
-	this.mobileUpRight.addEventListener('touchend', this.directionForwardRightUp);
-	this.mobileLeft.addEventListener('touchstart', this.directionLeftDown);
-	this.mobileLeft.addEventListener('touchend', this.directionLeftUp);
-	this.mobileCenter.addEventListener('touchstart', this.blankHit);
-	this.mobileCenter.addEventListener('touchend', this.blankHit);
-	this.mobileRight.addEventListener('touchstart', this.directionRightDown);
-	this.mobileRight.addEventListener('touchend', this.directionRightUp);
-	this.mobileDownLeft.addEventListener('touchstart', this.directionBackwardLeftDown);
-	this.mobileDownLeft.addEventListener('touchend', this.directionBackwardLeftUp);
-	this.mobileDown.addEventListener('touchstart', this.directionBackwardDown);
-	this.mobileDown.addEventListener('touchend', this.directionBackwardUp);
-	this.mobileDownRight.addEventListener('touchstart', this.directionBackwardRightDown);
-	this.mobileDownRight.addEventListener('touchend', this.directionBackwardRightUp);
-	this.mobileSelect.addEventListener('touchstart', this.blankHit);
-	//this.mobileSelect.addEventListener('touchend', this.blankHit);
-	this.mobileStart.addEventListener('touchstart', this.blankHit);
-	//this.mobileStart.addEventListener('touchend', this.blankHit);
-	this.mobileA.addEventListener('touchstart', this.action1Down);
-	this.mobileA.addEventListener('touchend', this.action1Up);
-	this.mobileB.addEventListener('touchstart', this.action2Down);
-	this.mobileB.addEventListener('touchend', this.action2Up);
-	this.mobileC.addEventListener('touchstart', this.action3Down);
-	this.mobileC.addEventListener('touchend', this.action3Up);
-	this.mobileD.addEventListener('touchstart', this.action4Down);
-	this.mobileD.addEventListener('touchend', this.action4Up);
-	this.mobileE.addEventListener('touchstart', this.action5Down);
-	this.mobileE.addEventListener('touchend', this.action5Up);
-	this.mobileF.addEventListener('touchstart', this.action6Down);
-	this.mobileF.addEventListener('touchend', this.action6Up);
-	this.mobileL.addEventListener('touchstart', this.action7Down);
-	this.mobileL.addEventListener('touchend', this.action7Up);
-	this.mobileR.addEventListener('touchstart', this.action8Down);
-	this.mobileR.addEventListener('touchend', this.action8Up);
-
-
-	//document.addEventListener('mousedown', this.mainClickDown);
-	//document.addEventListener('mouseup', this.mainClickUp);
-	//Both the mouseCursor and Canvas element fire mousedown and mouseup resulting in 2 events firing at the same time
-	/*
-	mousedown { target: a-entity#mouseCursor, isTrusted: false, detail: {…}, srcElement: a-entity#mouseCursor, currentTarget: HTMLDocument http://localhost/auxl/test.html, eventPhase: 3, bubbles: true, cancelable: false, returnValue: true, defaultPrevented: false, … }
-
-	mousedown { target: canvas.a-canvas.a-grab-cursor, buttons: 1, clientX: 1245, clientY: 326, layerX: 1245, layerY: 326 }
-
-		document.addEventListener('mousedown', function(e){
-			//e.stopImmediatePropagation();
-			//e.stopPropagation();
-			//e.preventDefault();
-			console.log('Mouse Down')
-		});
-	*/
-
-},
-remove: function () {
-
-	//Universal Events
-	document.removeEventListener('mainClick', this.mainClickHit);
-	document.removeEventListener('altClick', this.altClickHit);
-	document.removeEventListener('direction', this.directionHit);
-	document.removeEventListener('rotation', this.rotationHit);
-	document.removeEventListener('action1', this.action1Hit);
-	document.removeEventListener('action2', this.action2Hit);
-	document.removeEventListener('action3', this.action3Hit);
-	document.removeEventListener('action4', this.action4Hit);
-	document.removeEventListener('action5', this.action5Hit);
-	document.removeEventListener('action6', this.action6Hit);
-	document.removeEventListener('action7', this.action7Hit);
-	document.removeEventListener('action8', this.action8Hit);
-	//Desktop
-	document.removeEventListener('click', this.mainClickE);
-	document.removeEventListener('contextmenu', this.dispatchAlt);
-	document.removeEventListener('keydown', this.keyboardDownHit);
-	document.removeEventListener('keyup', this.keyboardUpHit);
-
-	//VR Controllers
-	this.vrController1.removeEventListener('triggerdown', this.questLeftMainClickDown);
-	this.vrController1.removeEventListener('triggerup', this.questLeftMainClickUp);
-	this.vrController1.removeEventListener('gripdown', this.questLeftAltClickDown);
-	this.vrController1.removeEventListener('gripup', this.questLeftAltClickUp);
-	this.vrController1.removeEventListener('xbuttondown', this.action1Down);
-	this.vrController1.removeEventListener('xbuttonup', this.action1Up);
-	this.vrController1.removeEventListener('ybuttondown', this.action2Down);
-	this.vrController1.removeEventListener('ybuttonup', this.action2Up);
-	this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-	this.vrController2.removeEventListener('triggerdown', this.questRightMainClickDown);
-	this.vrController2.removeEventListener('triggerup', this.questRightMainClickUp);
-	this.vrController2.removeEventListener('gripdown', this.questRightAltClickDown);
-	this.vrController2.removeEventListener('gripup', this.questRightAltClickUp);
-	this.vrController2.removeEventListener('abuttondown', this.action3Down);
-	this.vrController2.removeEventListener('abuttonup', this.action3Up);
-	this.vrController2.removeEventListener('bbuttondown', this.action4Down);
-	this.vrController2.removeEventListener('bbuttonup', this.action4Up);
-	this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
-	//Joysticks
-	if(this.auxl.vrHand === 'bothRight' || this.auxl.vrHand === 'bothLeftLoco'){
-		this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-		this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
-	} else if(this.auxl.vrHand === 'bothLeft' || this.auxl.vrHand === 'bothRightLoco'){
-		this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-		this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
-	} else {
-		this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
-		this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
-	}
-
-	//Mobile
-	this.mobileUpLeft.removeEventListener('mousedown', this.directionForwardLeftDown);
-	this.mobileUpLeft.removeEventListener('mouseup', this.directionForwardLeftUp);
-	this.mobileUp.removeEventListener('mousedown', this.directionForwardDown);
-	this.mobileUp.removeEventListener('mouseup', this.directionForwardUp);
-	this.mobileUpRight.removeEventListener('mousedown', this.directionForwardRightDown);
-	this.mobileUpRight.removeEventListener('mouseup', this.directionForwardRightUp);
-	this.mobileLeft.removeEventListener('mousedown', this.directionLeftDown);
-	this.mobileLeft.removeEventListener('mouseup', this.directionLeftUp);
-	this.mobileCenter.removeEventListener('mousedown', this.blankHit);
-	this.mobileCenter.removeEventListener('mouseup', this.blankHit);
-	this.mobileRight.removeEventListener('mousedown', this.directionRightDown);
-	this.mobileRight.removeEventListener('mouseup', this.directionRightUp);
-	this.mobileDownLeft.removeEventListener('mousedown', this.directionBackwardLeftDown);
-	this.mobileDownLeft.removeEventListener('mouseup', this.directionBackwardLeftUp);
-	this.mobileDown.removeEventListener('mousedown', this.directionBackwardDown);
-	this.mobileDown.removeEventListener('mouseup', this.directionBackwardUp);
-	this.mobileDownRight.removeEventListener('mousedown', this.directionBackwardRightDown);
-	this.mobileDownRight.removeEventListener('mouseup', this.directionBackwardRightUp);
-	this.mobileSelect.removeEventListener('mousedown', this.blankHit);
-	//this.mobileSelect.removeEventListener('mouseup', this.blankHit);
-	this.mobileStart.removeEventListener('mousedown', this.blankHit);
-	//this.mobileStart.removeEventListener('mouseup', this.blankHit);
-	this.mobileA.removeEventListener('mousedown', this.action1Down);
-	this.mobileA.removeEventListener('mouseup', this.action1Up);
-	this.mobileB.removeEventListener('mousedown', this.action2Down);
-	this.mobileB.removeEventListener('mouseup', this.action2Up);
-	this.mobileC.removeEventListener('mousedown', this.action3Down);
-	this.mobileC.removeEventListener('mouseup', this.action3Up);
-	this.mobileD.removeEventListener('mousedown', this.action4Down);
-	this.mobileD.removeEventListener('mouseup', this.action4Up);
-	this.mobileE.removeEventListener('mousedown', this.action5Down);
-	this.mobileE.removeEventListener('mouseup', this.action5Up);
-	this.mobileF.removeEventListener('mousedown', this.action6Down);
-	this.mobileF.removeEventListener('mouseup', this.action6Up);
-	this.mobileL.removeEventListener('touchstart', this.action7Down);
-	this.mobileL.removeEventListener('touchend', this.action7Up);
-	this.mobileR.removeEventListener('touchstart', this.action8Down);
-	this.mobileR.removeEventListener('touchend', this.action8Up);
-},
-});
-
-
-//
-//Dev
-AFRAME.registerComponent('vr-input-test', {
-dependencies: ['auxl'],
-//schema: {
-	//bar: {type: 'number'},
-	//baz: {type: 'string'}
-//},
-
-init: function () {
-
-
-let timeout = setTimeout(function () {
-
-const displayInput = document.querySelector('#displayInput');
-
-let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
-
-function updateInput(input){
-
-displayInputText.value = input;
-displayInput.setAttribute('text',displayInputText);
-
-}
-
-
-const vrController1 = document.getElementById('vrController1');
-const vrController2 = document.getElementById('vrController2');
-
-console.log(vrController1)
-console.log(vrController2)
-
-
-	//Triggers
-	//
-	//Main Trigger
-	vrController1.addEventListener('triggerdown', function (e) {
-		updateInput('left main trigger');
-	});
-
-	//
-	//Secondary Trigger
-	vrController1.addEventListener('gripdown', function (e) {
-		updateInput('left secondary trigger');
-	});
-	//
-	//Main Trigger
-	vrController2.addEventListener('triggerdown', function (e) {
-		updateInput('right main trigger');
-	});
-
-	//
-	//Secondary Trigger
-	vrController2.addEventListener('gripdown', function (e) {
-		updateInput('right secondary trigger');
-	});
-
-	//Buttons
-	//
-	//Right Controller - Button 1 (A)
-	vrController2.addEventListener('abuttondown', function (e) {
-		updateInput('right button 1');
-	});
-	//
-	//Right Controller - Button 2 (B)
-	vrController2.addEventListener('bbuttondown', function (e) {
-		updateInput('right button 2');
-	});
-	//
-	//Left Controller - Button 1 (X)
-	vrController1.addEventListener('xbuttondown', function (e) {
-		updateInput('left button 1');
-	});
-	//
-	//Left Controller - Button 2 (Y)
-	vrController1.addEventListener('ybuttondown', function (e) {
-		updateInput('left button 2');
-	});
-
-	//Joystick
-	//
-	//Controller
-	vrController1.addEventListener('thumbstickmoved', function (e) {
-		if (e.detail.y > 0.95) { 
-			updateInput('left down');
-		}
-		if (e.detail.y < -0.95) { 
-			updateInput('left up');
-		}
-		if (e.detail.x < -0.95) { 
-			updateInput('left left');
-		}
-		if (e.detail.x > 0.95) { 
-			updateInput('left right');
-		}
-	});
-	vrController2.addEventListener('thumbstickmoved', function (e) {
-		if (e.detail.y > 0.95) { 
-			updateInput('right down');
-		}
-		if (e.detail.y < -0.95) { 
-			updateInput('right up');
-		}
-		if (e.detail.x < -0.95) { 
-			updateInput('right left');
-		}
-		if (e.detail.x > 0.95) { 
-			updateInput('right right');
-		}
-	});
-
-
-
-
-}, 250);
-
-
-
-
-
-
-    }//End Init
-});
-
-
-//
-//External Components
-//
-
-//
-//threeColorGradientShader shader - https://github.com/tlaukkan/aframe-three-color-gradient-shader
-/**/
-AFRAME.registerShader('threeColorGradientShader', {
-    schema: {
-        topColor: {type: 'color', default: '1 0 0', is: 'uniform'},
-        middleColor: {type: 'color', default: '0 1 0', is: 'uniform'},
-        bottomColor: {type: 'color', default: '0 0 1', is: 'uniform'}
-    },
-
-    vertexShader: [
-        'varying vec3 vWorldPosition;',
-        'void main() {',
-        ' vec4 worldPosition = modelMatrix * vec4( position, 1.0 );',
-        ' vWorldPosition = worldPosition.xyz;',
-        ' gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );',
-        '}'
-    ].join('\n'),
-
-    fragmentShader: [
-        'uniform vec3 bottomColor;',
-        'uniform vec3 middleColor;',
-        'uniform vec3 topColor;',
-        'uniform float offset;',
-        'varying vec3 vWorldPosition;',
-        'void main() {',
-        ' float h = normalize( vWorldPosition ).y;',
-        ' if (h>0.0) {',
-        '   gl_FragColor = vec4( mix( middleColor, topColor, max( pow( max(h, 0.0 ), 0.8 ), 0.0 ) ), 1.0 );',
-        ' } else {',
-        '   gl_FragColor = vec4( mix( middleColor, bottomColor, max( pow( max(-h, 0.0 ), 0.8 ), 0.0 ) ), 1.0 );',
-        ' }',
-        '}'
-    ].join('\n')
 });
