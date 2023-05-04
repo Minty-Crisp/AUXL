@@ -24,9 +24,14 @@ init: function () {
 /*************************************************************/
 //System
 const auxl = this;
+this.state = 'play';
+this.states = ['play', 'add', 'edit', 'delete'];
 this.expStarted = false;
 this.defaultScenario;
 this.localProfile = {};
+
+//Players
+this.players = {};
 
 //Controller
 let playerRig;
@@ -38,7 +43,6 @@ let vrController1;
 let vrController1UI;
 let vrController2;
 let vrController2UI;
-
 
 //Throttled Scene Loading Function
 this.checkSceneLoadThrottled = AFRAME.utils.throttle(this.checkSceneLoad, 30, this);
@@ -210,11 +214,42 @@ function loadStorage(){
 	}
 }
 
+/*
+localStorage.setItem("myCat", "Tom");
+const cat = localStorage.getItem("myCat");
+localStorage.removeItem("myCat");
+localStorage.clear();
 
+sessionStorage.setItem("myCat", "Tom");
+const cat = sessionStorage.getItem("myCat");
+sessionStorage.removeItem("myCat");
+sessionStorage.clear();
+*/
 
+//Time
+/*************************************************************/
+//Testing
+function time(){
+	const ms = Date.now();//ms
+	const date = Date();//string
+	const start = new Date();//ms
+	const end = new Date();//ms
+	const elapsed = end.getTime() - start.getTime();
+
+	const birthday0 = new Date("1995-12-17T03:24:00"); // This is ISO-8601-compliant and will work reliably
+	const birthday1 = new Date(1995, 11, 17); // the month is 0-indexed
+	const birthday2 = new Date(1995, 11, 17, 3, 24, 0);
+
+	const getFullYear = birthday0.getFullYear();
+	const getMonth = birthday0.getMonth();
+	const getDate = birthday0.getDate();
+	const getDay = birthday0.getDay();
+	const getHours = birthday0.getHours();
+	const getMinutes = birthday0.getMinutes();
+	const getSeconds = birthday0.getSeconds();
+}
 
 /*************************************************************/
-
 
 //Controls
 this.universalControls;
@@ -602,42 +637,6 @@ infoClose.addEventListener('click', toggleInfo);
 
 //
 //Support
-
-//Date Testing
-const ms = Date.now();//ms
-const date = Date();//string
-const start = new Date();//ms
-const end = new Date();//ms
-const elapsed = end.getTime() - start.getTime();
-
-const birthday0 = new Date("1995-12-17T03:24:00"); // This is ISO-8601-compliant and will work reliably
-const birthday1 = new Date(1995, 11, 17); // the month is 0-indexed
-const birthday2 = new Date(1995, 11, 17, 3, 24, 0);
-
-const getFullYear = birthday0.getFullYear();
-const getMonth = birthday0.getMonth();
-const getDate = birthday0.getDate();
-const getDay = birthday0.getDay();
-const getHours = birthday0.getHours();
-const getMinutes = birthday0.getMinutes();
-const getSeconds = birthday0.getSeconds();
-
-
-
-/*
-localStorage.setItem("myCat", "Tom");
-const cat = localStorage.getItem("myCat");
-localStorage.removeItem("myCat");
-localStorage.clear();
-*/
-/*
-sessionStorage.setItem("myCat", "Tom");
-const cat = sessionStorage.getItem("myCat");
-sessionStorage.removeItem("myCat");
-sessionStorage.clear();
-*/
-
-
 
 //
 //Color Theory Generator
@@ -1866,15 +1865,23 @@ this.Layer = (id, all) => {
 	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, GetParentEl, GetChildEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
 }
 
+
 //
 //Player
 //User Controller, Settings and Actions
-this.Player = (layer, id) => {
+this.Player = (id,name,layer) => {
 	//Build directly off of imported Layer and load right away as only single player is supported
 
 	//Player Name
-	layer.id = '000000';
-	layer.label = '#000000';
+	layer.id = id;
+	layer.name = name;
+	//Add to all player list
+	this.players[id] = layer;
+
+
+	
+	//Update Layer Copy
+	//layer.layer.all.parent.core.core.id = id;
 
 	//Default Transition Type
 	//instant
@@ -1928,8 +1935,8 @@ this.Player = (layer, id) => {
 	layer.SpawnLayer();
 	//Currently not tracking Player object as it should not be removed
 	//Grab HTML Elements that have spawned
-	id = document.getElementById('playerSelf#000000');
-	playerSelf = document.getElementById('playerSelf#000000');
+	id = document.getElementById(layer.id);
+	playerSelf = document.getElementById(layer.id);
 	div = document.getElementById('div');
 	playerRig = document.getElementById('playerRig');
 	camera = document.getElementById('camera');
@@ -1956,24 +1963,25 @@ this.Player = (layer, id) => {
 			}
 			clearTimeout(animTimeout0);
 		}, 800);
-		if(auxl.player.layer.teleporting){} else {
-			auxl.player.layer.teleporting = true;
-			if(auxl.player.layer.transition.scene === 'blink'){
-				auxl.player.DisableClick();
-				auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.blink1Screen.EmitEvent('blinkScene1');
-				auxl.blink2Screen.EmitEvent('blinkScene1');
-			} else if(auxl.player.layer.transition.scene === 'fade'){
-				auxl.player.DisableClick();
-				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.fadeScreen.EmitEvent('fadeScene1');
-			} else if(auxl.player.layer.transition.scene === 'sphere'){
-				auxl.player.DisableClick();
-				auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'true'});
-				auxl.sphereScreen.EmitEvent('sphereScene1');
-			} else if(auxl.player.layer.transition.scene === 'instant'){
-				auxl.player.DisableClick();
+		if(layer.teleporting){} else {
+			layer.teleporting = true;
+			if(layer.transition.scene === 'blink'){
+				DisableClick();
+				layer.GetChild('blink1Screen').ChangeSelf({property: 'visible', value: 'true'});
+				layer.GetChild('blink2Screen').ChangeSelf({property: 'visible', value: 'true'});
+				layer.GetChild('blink1Screen').EmitEvent('blinkScene1');
+				layer.GetChild('blink2Screen').EmitEvent('blinkScene1');
+			} else if(layer.transition.scene === 'fade'){
+				DisableClick();
+				layer.GetChild('fadeScreen').ChangeSelf({property: 'visible', value: 'true'});
+				layer.GetChild('fadeScreen').EmitEvent('fadeScene1');
+
+			} else if(layer.transition.scene === 'sphere'){
+				DisableClick();
+					layer.GetChild('sphereScreen').ChangeSelf({property: 'visible', value: 'true'});
+					layer.GetChild('sphereScreen').EmitEvent('sphereScene1');
+			} else if(layer.transition.scene === 'instant'){
+				DisableClick();
 			}
 		}
 	}
@@ -2370,6 +2378,27 @@ this.Player = (layer, id) => {
 		//Workaround could read current rotation and rotate playerRig to compensate
 
 	}
+	//Get user current infomation
+	//Reset User Position/Rotation
+	const GetPlayerInfo = () => {
+
+		return {layer, id: layer.layer.all.parent.core.core.id, pos: playerRig.getAttribute('position'), rot: playerRig.getAttribute('rotation')};
+	}
+	//Attach to user
+	const AttachToPlayer = (element,offset) => {
+		let connectPos = new THREE.Vector3(0,0,0);
+		if(offset){
+			connectPos.x += offset.x;
+			connectPos.y += offset.y;
+			connectPos.z += offset.z;
+		}
+		element.setAttribute('attach',{idname: layer.id, position: connectPos});
+	}
+	//Deattach from user
+	const DetachFromPlayer = (element) => {
+		element.removeAttribute('attach');
+	}
+	
 
 	//Assign to each joystick, 
 	//Player Rotation
@@ -2433,7 +2462,7 @@ this.Player = (layer, id) => {
 		console.log(params);
 	}
 
-	return {layer, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft, ToggleFlashlight, ResetUserPosRot, TestFunc}
+	return {layer, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, DetachFromPlayer, TestFunc}
 }
 
 //
@@ -2593,6 +2622,7 @@ this.MultiMenu = (multiMenuData) => {
 	multiMenu.switchingTimeout;
 	multiMenu.id = multiMenuData.info.id || 'multiMenu';
 	multiMenu.layout = multiMenuData.info.layout || 'circleUp';
+	multiMenu.posOffset = multiMenuData.info.posOffset || new THREE.Vector3(0,0,0);
 	multiMenu.offset = multiMenuData.info.offset || -1;
 	multiMenu.parent = multiMenu.data.info.parent || false;
 	multiMenu.stare = multiMenu.data.info.stare || false;
@@ -2615,7 +2645,7 @@ this.MultiMenu = (multiMenuData) => {
 		text: false,
 		geometry: false,
 		material: false,
-		position: new THREE.Vector3(0,0,0),
+		position: multiMenu.posOffset,
 		rotation: new THREE.Vector3(0,0,0),
 		scale: new THREE.Vector3(1,1,1),
 		animations: false,
@@ -3497,6 +3527,8 @@ this.HamMenu = (id, object) => {
 			ShowInventory();
 			ham.show = true;
 			//autoScriptEmoticon();
+			//console.log(auxl.build)
+			//auxl.build.SpawnBuild();
 			auxl.mainMenu.SpawnMultiMenu();
 			ham.inScene = true;
 		}
@@ -3506,7 +3538,8 @@ this.HamMenu = (id, object) => {
 		if(ham.inScene){
 			//clearInterval(speechTimeoutB);
 			//clearInterval(speechIntervalB);
-			auxl.mainMenu.DespawnMultiMenu();
+			auxl.build.DespawnBuild();
+			//auxl.mainMenu.DespawnMultiMenu();
 			//Delay to let multi-menu complete it's despawn seq
 			let despawnTimeout = setTimeout(() => {
 				HideInventory();
@@ -4371,7 +4404,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 //
 //Scenario Gen
 //entireScenarioSpawnLocationAlwaysDisplay
-this.Scenario = (scenarioData) => {
+this.Scenario = (scenarioData, player) => {
 	let core = Object.assign({}, scenarioData);
 	core.scenarioLoaded = false;
 	let startTimeout;
@@ -6548,6 +6581,665 @@ this.Teleport = (id, locations) => {
 //NEW
 
 //
+//Player Inventory
+this.Inventory = (player) => {
+
+
+
+}
+
+//
+//Build Core/Layer/Other objects in the 3D environment
+this.BuildIn3D = () => {
+
+	let one = {};
+	one.player = auxl.player.GetPlayerInfo();
+	one.core = {};
+	one.core.data = {};
+	one.core.made = [];
+	one.layer = {};
+	one.objGen = {};
+	one.null = {};
+	one.templates = {};
+
+	one.core.blank = {
+		data:'blankData',
+		id:'blank',
+		sources: false,
+		text: false,
+		geometry: false,
+		material: false,
+		position: new THREE.Vector3(0,0,0),
+		rotation: new THREE.Vector3(0,0,0),
+		scale: new THREE.Vector3(1,1,1),
+		animations: false,
+		mixins: false,
+		classes: ['a-ent'],
+		components: false,
+	};
+
+	one.states = ['ready', 'building', 'editing', 'deleting', 'settings'];
+	one.state = one.states[0];
+
+	one.building = {};
+	one.building.current = false;
+	one.building.prepped = false;
+	one.building.building = false;
+
+	//player.id
+//Spawn a multi-menu
+// w/ various individual options for each type of Core/Layer/Other
+/*
+Build
+Edit
+Delete
+Settings
+
+
+Build
+- Core
+- - Name
+- - Geometry
+- - Material
+- - Text
+- - Position
+- - Rotation
+- - Scale
+- - Animations
+- - Clickable
+- - Components
+- - Done
+- Layer
+- ObjGen
+- Null
+- Templates
+
+
+
+auxl.avatarSphereData = {
+data:'avatarSphereData',
+id:'avatarSphere',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent','avatar'],
+components: false,
+};
+
+*/
+	one.buildMenuData = {
+	info:{
+		id: 'buildMenu',
+		buttonData: auxl.buildCoreData,
+		hoverData: auxl.buildHoverData,
+		title: 'Build Mode',
+		description: 'Build objects.',
+		layout:'circleUp',
+		posOffset: new THREE.Vector3(0,1.5,1.5),
+		offset: -1,
+		parent: false,
+		stare: false,
+	},
+	menu0:{
+		button0:{
+			id: 'subMenu1',
+			style: false,
+			title: 'Build',
+			description: 'Build a new object.',
+			subMenu: 'menu1',
+			action: false,
+		},
+		button1:{
+			id: 'subMenu2',
+			style: false,
+			title: 'Edit',
+			description: 'Edit an object in-scene.',
+			subMenu: 'menu22',
+			action: false,
+		},
+		button2:{
+			id: 'subMenu3',
+			style: false,
+			title: 'Delete',
+			description: 'Delete an object in-scene.',
+			subMenu: 'menu23',
+			action: false,
+		},
+		button3:{
+			id: 'subMenu4',
+			style: false,
+			title: 'Settings',
+			description: 'Configure system settings.',
+			subMenu: 'menu24',
+			action: false,
+		},
+	},
+	menu1:{
+		button0:{
+			id: 'subMenu2',
+			style: false,
+			title: 'Core',
+			description: 'Build a Core object.',
+			subMenu: 'menu2',
+			action: false,
+		},
+		button1:{
+			id: 'subMenu3',
+			style: false,
+			title: 'Layer',
+			description: 'Build a Layer object.',
+			subMenu: 'end',
+			action: false,
+		},
+		button2:{
+			id: 'subMenu4',
+			style: false,
+			title: 'ObjGen',
+			description: 'Build an object.',
+			subMenu: 'end',
+			action: false,
+		},
+		button3:{
+			id: 'subMenu5',
+			style: false,
+			title: 'Null',
+			description: 'Build a Null object.',
+			subMenu: 'end',
+			action: false,
+		},
+		button4:{
+			id: 'subMenu6',
+			style: false,
+			title: 'Templates',
+			description: 'Build a from a Template.',
+			subMenu: 'end',
+			action: false,
+		},
+	},
+	menu2:{
+		button0:{
+			id: 'subMenu0',
+			style: false,
+			title: 'Generate',
+			description: 'Generate a default Core object.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'StartBuilding',
+				params: null,
+				menu: 'stay',
+			},
+		},
+		button1:{
+			id: 'subMenu1',
+			style: false,
+			title: 'Name',
+			description: 'Update core Name.',
+			subMenu: 'coreName',
+			action: false,
+		},
+		button2:{
+			id: 'subMenu2',
+			style: false,
+			title: 'Geometry',
+			description: 'Update core Geometry.',
+			subMenu: 'coreGeometry',
+			action: false,
+		},
+		button3:{
+			id: 'subMenu3',
+			style: false,
+			title: 'Material',
+			description: 'Update core Material.',
+			subMenu: 'coreMaterial',
+			action: false,
+		},
+		button4:{
+			id: 'subMenu4',
+			style: false,
+			title: 'Text',
+			description: 'Update core Text.',
+			subMenu: 'coreText',
+			action: false,
+		},
+		button5:{
+			id: 'subMenu5',
+			style: false,
+			title: 'Position',
+			description: 'Update core Position.',
+			subMenu: 'corePosition',
+			action: false,
+		},
+		button6:{
+			id: 'subMenu6',
+			style: false,
+			title: 'More',
+			description: 'More options.',
+			subMenu: 'menu3',
+			action: false,
+		},
+	},
+	menu3:{
+			button0:{
+				id: 'subMenu0',
+				style: false,
+				title: 'Rotation',
+				description: 'Update core Rotation.',
+				subMenu: 'coreRotation',
+				action: false,
+			},
+			button1:{
+				id: 'subMenu1',
+				style: false,
+				title: 'Scale',
+				description: 'Update core Scale.',
+				subMenu: 'coreScale',
+				action: false,
+			},
+			button2:{
+				id: 'subMenu2',
+				style: false,
+				title: 'Animations',
+				description: 'Update core Animations.',
+				subMenu: 'coreAnimations',
+				action: false,
+			},
+			button3:{
+				id: 'subMenu3',
+				style: false,
+				title: 'Clickable',
+				description: 'Toggle core to be clickable in-scene.',
+				subMenu: 'coreClickable',
+				action: false,
+			},
+			button4:{
+				id: 'subMenu4',
+				style: false,
+				title: 'Components',
+				description: 'Update core Components.',
+				subMenu: 'coreComponents',
+				action: false,
+			},
+			button5:{
+				id: 'subMenu5',
+				style: false,
+				title: 'Done',
+				description: 'Finalize core updates.',
+				subMenu: 'coreDone',
+				action: false,
+			},
+	},
+	coreName:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Update Name',
+			description: 'Update the cores name and id.',
+			subMenu: false,
+			action: {
+				auxlObj: 'one',
+				component: false,
+				method: 'UpdateName',
+				params: null,
+				menu: 'stay',
+			},
+		},
+	},
+	coreGeometry:{
+		button0:{
+			id: 'action0',
+			style: false,
+			title: 'Plane',
+			description: 'A 2D plane.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateGeometry',
+				params: 'plane',
+				menu: 'stay',
+			},
+		},
+		button1:{
+			id: 'action1',
+			style: false,
+			title: 'Cube',
+			description: 'A 3D cube.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateGeometry',
+				params: 'box',
+				menu: 'stay',
+			},
+		},
+		button2:{
+			id: 'action2',
+			style: false,
+			title: 'Circle',
+			description: 'A 2D circle.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateGeometry',
+				params: 'circle',
+				menu: 'stay',
+			},
+		},
+		button3:{
+			id: 'action3',
+			style: false,
+			title: 'Cylinder',
+			description: 'A 3D cylinder.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateGeometry',
+				params: 'cylinder',
+				menu: 'stay',
+			},
+		},
+		button4:{
+			id: 'action4',
+			style: false,
+			title: 'Sphere',
+			description: 'A 3D sphere.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateGeometry',
+				params: 'sphere',
+				menu: 'stay',
+			},
+		},
+
+	},
+	coreMaterial:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Update Material',
+			description: 'Update the cores Material.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateMaterial',
+				params: null,
+				menu: 'stay',
+			},
+		},
+	},
+	coreText:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Update Text',
+			description: 'Update the cores text.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateText',
+				params: null,
+				menu: 'stay',
+			},
+		},
+	},
+	corePosition:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Update Position',
+			description: 'Update the cores position.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdatePosition',
+				params: null,
+				menu: 'stay',
+			},
+		},
+	},
+	coreRotation:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Update Rotation',
+			description: 'Update the cores rotation.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateRotation',
+				params: null,
+				menu: 'stay',
+			},
+		},
+	},
+	coreScale:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Update Scale',
+			description: 'Update the cores scale.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateScale',
+				params: null,
+				menu: 'stay',
+			},
+		},
+	},
+	coreAnimations:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Update Animations',
+			description: 'Update the cores animations.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateAnimations',
+				params: null,
+				menu: 'stay',
+			},
+		},
+	},
+	coreClickable:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Toggle Clickable',
+			description: 'Toggle the core being interactable. ',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'ToggleClickable',
+				params: null,
+				menu: 'stay',
+			},
+		},
+	},
+	coreComponents:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Update Components',
+			description: 'Update the cores components.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateComponents',
+				params: null,
+				menu: 'stay',
+			},
+		},
+	},
+	coreDone:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Done',
+			description: 'Finalize the core.',
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'Done',
+				params: null,
+				menu: 'close',
+			},
+		},
+	},
+	end:{
+		button0:{
+			id: 'subMenu2',
+			style: false,
+			title: 'Core',
+			description: 'Build a Core object.',
+			subMenu: 'menu0',
+			action: false,
+		},
+	},
+
+	};
+	auxl.buildMenu = auxl.MultiMenu(one.buildMenuData);
+
+	one.building.geometry = {};
+	one.building.geometry.plane = {primitive: 'plane', width: 0.5, height: 0.5};
+	one.building.geometry.box = {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5};
+	one.building.geometry.circle = {primitive: 'circle', radius: 0.5, segments: 32};
+	one.building.geometry.cylinder = {primitive: 'cylinder', radius: 0.25, height: 0.75, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360};
+	one.building.geometry.sphere = {primitive: 'sphere', radius: 0.4, phiStart: 0, phiLength: 360, segmentsWidth: 16, segmentsHeight: 16, thetaStart: 0, thetaLength: 360};
+
+
+	const SpawnBuild = () => {
+		console.log('Spawning');
+		auxl.buildMenu.SpawnMultiMenu();
+	}
+	const DespawnBuild = () => {
+		console.log('Despawning');
+		auxl.buildMenu.DespawnMultiMenu();
+	}
+
+	const NewCore = () => {
+		if(one.building.prepped){
+			console.log('Already Prepped');
+		} else {
+			console.log('New Core')
+			let name = one.core.made.length;
+			one.core.data[name+'data'] = {
+				data:name+'data',
+				id:name,
+				sources: false,
+				text: false,
+				geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+				material: {shader: "standard", color: "#2aad7b", emissive: '#2aad7b', emissiveIntensity: 0.25, opacity: 1},
+				position: new THREE.Vector3(0,1.5,1.5),
+				rotation: new THREE.Vector3(0,0,0),
+				scale: new THREE.Vector3(1,1,1),
+				animations: false,
+				mixins: false,
+				classes: ['a-ent'],
+				components: false,
+			};
+			one.core[name] = auxl.Core(one.core.data[name+'data']);
+			one.building.current = one.core[name];
+			one.building.prepped = true;
+			one.building.building = true;
+
+			one.building.current.SpawnCore();
+		}
+	}
+
+
+	const StartBuilding = () => {
+		console.log('Start Building')
+
+		NewCore();
+
+
+	}
+
+	const UpdateName = () => {
+		console.log('UpdateName')
+	}
+
+	const UpdateGeometry = (geometry) => {
+		console.log('UpdateGeometry');
+		let geometryData;
+		if(geometry === 'plane'){
+			geometryData = one.building.geometry.plane;
+		} else if(geometry === 'box'){
+			geometryData = one.building.geometry.box;
+		} else if(geometry === 'circle'){
+			geometryData = one.building.geometry.circle;
+		} else if(geometry === 'cylinder'){
+			geometryData = one.building.geometry.cylinder;
+		} else if(geometry === 'sphere'){
+			geometryData = one.building.geometry.sphere;
+		} 
+		//Update Data
+		one.core.data[one.building.current.core.id+'data'].geometry = geometryData;
+		//Update Preview
+		one.building.current.ChangeSelf({property: 'geometry', value: geometryData});
+	}
+	const UpdateMaterial = () => {
+		console.log('UpdateMaterial')
+	}
+	const UpdateText = () => {
+		console.log('UpdateText')
+	}
+	const UpdatePosition = () => {
+		console.log('UpdatePosition')
+	}
+	const UpdateRotation = () => {
+		console.log('UpdateRotation')
+	}
+	const UpdateScale = () => {
+		console.log('UpdateScale')
+	}
+	const UpdateAnimations = () => {
+		console.log('UpdateAnimations')
+	}
+	const UpdateClickable = () => {
+		console.log('UpdateClickable')
+	}
+	const UpdateComponents = () => {
+		console.log('UpdateComponents')
+	}
+	const UpdateDone = () => {
+		console.log('UpdateDone')
+	}
+
+	const Testing = () => {
+		console.log(one)
+	}
+
+	return {one, SpawnBuild, DespawnBuild, StartBuilding, UpdateName, UpdateGeometry, UpdateMaterial, UpdateText, UpdatePosition, UpdateRotation, UpdateScale, UpdateAnimations, UpdateClickable, UpdateComponents, UpdateDone, Testing,}
+
+
+}
+
+//
 //GridAssetGen
 //Build a scene from a dual array grid of asset related ids
 this.GridAssetGen = (gridGenData) => {
@@ -7730,7 +8422,7 @@ classes: ['a-ent','player'],
 components: {
 ['universal-controls']:null,
 ['locomotion']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
-['gimbal']:{uiid: false, courserid: 'mouseController', gimbal: 'desktop'},
+//['gimbal']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
 light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
 },};
 auxl.playerRig = auxl.Core(auxl.playerRigData);
@@ -8042,11 +8734,14 @@ child3: {core: auxl.playerFloor},
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
 auxl.playerLayer = auxl.Layer('playerLayer', auxl.playerAll);
 
+//Players
+
+//Player #000000
+//auxl.player000000 = auxl.Player('player000000','Minty',auxl.player1Layer);
+auxl.player = auxl.Player('player','Dev',auxl.playerLayer);
 
 
 
-//Player Obj
-auxl.player = auxl.Player(auxl.playerLayer);
 
 //
 //Avatar
@@ -8382,6 +9077,43 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
+
+
+//Build Multi-Menu
+auxl.buildCoreData = {
+data:'buildCoreData',
+id:'buildCore',
+sources:false,
+text: {value:'Menu', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+geometry: {primitive: 'circle', radius: 0.25, segments: 32, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#c1664b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#c1664b", emissiveIntensity: 0.6, side: 'double'},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{
+click1:{property: 'scale', from: '1 1 1', to: '1.05 1.05 1.05', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+//Multi-Menu Hover Text Display
+auxl.buildHoverData = {
+data:'buildHoverData',
+id:'buildHover',
+sources:false,
+text: {value:'Menu', wrapCount: 40, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,-0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+
 
 //
 //Ham Avatar
@@ -9469,3 +10201,5 @@ auxl.multiMenuTest = auxl.MultiMenu(auxl.multiMenuTestData);
 
 },
 });
+
+

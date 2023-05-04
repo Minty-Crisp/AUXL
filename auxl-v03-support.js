@@ -547,7 +547,7 @@ schema: {
 	movetype: {type: 'string', default: 'vr'},
 	pov: {type: 'string', default: '1st'},
 	style: {type: 'string', default: 'free'},
-	axis: {type: 'string', default: 'posXYZ'},
+	axis: {type: 'string', default: 'posXZ'},
 },
 init: function () {
 	//AUXL System Connection

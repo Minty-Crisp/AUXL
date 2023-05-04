@@ -55,7 +55,6 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 ---
 
 # v0.3 Beta Updates : :fire:
-# v0.3 Beta Updates : :fire:
 - Custom Object Generators can now be added dynamically to Scenario, Zone, Node and Book Trackers.
 - Updated all ObjGen's to support SetFlag & GetFlag methods, so now If/Else Instructions support all AUXL object.
 - Updated ObjGen's to track if they are already spawned to avoid duplicates and added ToggleSpawn method for use ideally with action controls. Objects added this way are not added to any tracker currently.

@@ -17,6 +17,9 @@ const auxl = document.querySelector('a-scene').systems.auxl;
 
 
 
+//Testing Object
+auxl.build = auxl.BuildIn3D();
+
 
 
 
@@ -690,7 +693,7 @@ auxl.v03ScenesData = {
 	exit:{
 	},
 };
-auxl.v03Scenes = auxl.Scenario(auxl.v03ScenesData);
+auxl.v03Scenes = auxl.Scenario(auxl.v03ScenesData, auxl.player000000);
 
 //
 //World Atlas MapZones & NodeScenes
@@ -914,7 +917,10 @@ auxl.zone1Scene0 = auxl.SceneNode(auxl.zone1Scene0Data);
 auxl.zone1 = auxl.MapZone(auxl.zone1Data);
 
 
-auxl.systemLoaded();
+
+
+//System Loaded
+//auxl.systemLoaded();
 
     },
 });

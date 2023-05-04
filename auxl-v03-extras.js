@@ -5,7 +5,7 @@
 //
 //Created by Minty-Crisp (mintycrisp.com)
 
-//AUXL v0.3 Beta - Addons
+//AUXL v0.3 Beta - Extras
 
 //
 //AUXL Blog

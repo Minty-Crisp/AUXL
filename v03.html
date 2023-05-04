@@ -17,8 +17,8 @@
 <meta property="og:title" content="A-Frame UX Library | v0.3 Engine Example by Minty Crisp">
 <meta property="og:type" content="XR">
 <meta property="og:url" content="auxlibrary.com">
-<!-- A-Frame official release 1.4.1 -->
-<script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
+<!-- A-Frame official release 1.4.2 -->
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <!-- MVP.css -->
 <link rel="stylesheet" href="./assets/css/mvp.css">
 <!-- CSS -->
@@ -27,7 +27,7 @@
 <!-- A-Frame UX Library Engine v0.3 -->
 <script src="./auxl-v03-system.js"></script>
 <script src="./auxl-v03-support.js"></script>
-<script src="./auxl-v03-addons.js"></script>
+<script src="./auxl-v03-extras.js"></script>
 <script src="./auxl-v03-scenes.js"></script>
 
 <body id="htmlBody">
@@ -65,7 +65,7 @@
 </div>
 <main>
 <a-scene
-auxl="id: '#000000'; color: #000000; shortname: 'minty'; longname: 'Minty Crisp'; onlineKey: 'systemPassCode' ;"; 
+auxl
 auxl-library
 auxl-blog
 auxl-mini-games
@@ -103,7 +103,6 @@ light="type: directional; intensity: 0.1; castShadow: false" position="-1 1 -1"
 <a-entity id="ambientLight"
 light="type: ambient; color: #99154E; intensity: 0.7"
 ></a-entity>
-
 <!-- - - - - - - - - - - Debug - - - - - - - - - - -->
 <!-- Display Input
 <a-entity id="displayInput" 
