@@ -568,30 +568,30 @@ init: function () {
 	}
 //
 //posXZ
-//cameraXZ : 1st POV Walk along XZ Floor relative to Camera View
+//directionXZ : 1st POV Walk along XZ Floor relative to Camera View
 //rigXZ : 3rd POV Walk along XZ Floor
 //
 //posXZY
-//cameraXZY : 1st POV Fly relative to Camera View
+//directionXZY : 1st POV Fly relative to Camera View
 //
 //posXY
-//cameraXY : 1st POV Walk along XY Wall relative to Camera View
+//directionXY : 1st POV Walk along XY Wall relative to Camera View
 //rigXY : 3rd POV Walk along XY Wall
 //
 //posXYZ
-//cameraXYZ : 1st POV Walk along XZ Floor relative to Camera View w/ Up & Down Controls
+//directionXYZ : 1st POV Walk along XZ Floor relative to Camera View w/ Up & Down Controls
 //rigXYZ : 3rd POV Walk along XZ Floor w/ Up & Down Controls
 //
 //posXYZWall
-//cameraXYZWall : 1st POV Walk along X, Y or Z Floor/Walls In or Out
+//directionXYZWall : 1st POV Walk along X, Y or Z Floor/Walls In or Out
 //rigXYZWall : 3rd POV Walk along X, Y or Z Floor/Walls In or Out
 //
 //angleXY
-//cameraAXY : 1st POV Orbit Rotate
+//directionAXY : 1st POV Orbit Rotate
 //rigAXY : 3rd POV Orbit Rotate
 //
 //angleXYZ
-//cameraAXYZ : 1st POV Orbit Rotate w/ Zoom In & Out
+//directionAXYZ : 1st POV Orbit Rotate w/ Zoom In & Out
 //rigAXYZ : 3rd POV Orbit Rotate w/ Zoom In & Out
 
 	//Movement Type
@@ -646,6 +646,10 @@ init: function () {
 	this.quaternion = new THREE.Quaternion();
 	this.vector;
 	this.angle;
+	//Direction of Movement
+	this.directionObject;
+    this.directionVector = new THREE.Vector3();
+
 
 	//Collision
 	this.posRound = new THREE.Vector3();
@@ -992,12 +996,30 @@ update: function () {
 	//Keyboard Controller Event Listeners
 	if(this.movetype === 'desktop'){
 		//Controlled by Universal Controls
+		this.directionObject = document.getElementById('camera');
 	} else if(this.movetype === 'mobile'){
 		//Controlled by Universal Controls
+		this.directionObject = document.getElementById('camera');
 	} else if(this.movetype === 'vr'){
 		//Controlled by Universal Controls
+		if(this.auxl.directionType === 'camera'){
+			this.directionObject = document.getElementById('camera');
+		} else {
+			if(this.auxl.vrHand === 'bothRight' || this.auxl.vrHand === 'bothLeftLoco'){
+				this.directionObject = document.getElementById('vrController1');
+			} else if(this.auxl.vrHand === 'bothLeft' || this.auxl.vrHand === 'bothRightLoco'){
+				this.directionObject = document.getElementById('vrController2');
+			} else {
+				this.directionObject = document.getElementById('vrController1');
+			}
+		}	
 	} else if(this.movetype === 'vrHover'){
-		//this.vrController1 = document.getElementById('vrController1');
+		if(this.auxl.directionType === 'camera'){
+			this.directionObject = document.getElementById('camera');
+		} else {
+			this.directionObject = document.getElementById('vrController1');
+		}	
+		//this.vrController1;
 		this.directionForward = document.getElementById('locomotionForwardUI');
 		this.directionReverse = document.getElementById('locomotionReverseUI');
 		this.directionBrake1 = document.getElementById('locomotionBrake1UI');
@@ -1182,19 +1204,19 @@ uiSync: function () {
 move: function (direction, speed) {
 	if(this.pov === '1st'){
 		if(this.axis === 'posXZ'){
-			this.cameraXZ(direction, speed);
+			this.directionXZ(direction, speed);
 		} else if(this.axis === 'posXZY'){
-			this.cameraXZY(direction, speed);
+			this.directionXZY(direction, speed);
 		} else if(this.axis === 'posXY'){
-			this.cameraXY(direction, speed);
+			this.directionXY(direction, speed);
 		} else if(this.axis === 'posXYZ'){
-			this.cameraXYZ(direction, speed);
+			this.directionXYZ(direction, speed);
 		} else if(this.axis === 'posXYZWall'){
-			this.cameraXYZWall(direction, speed);
+			this.directionXYZWall(direction, speed);
 		} else if(this.axis === 'angleXY'){
-			this.cameraAXY(direction, speed);
+			this.directionAXY(direction, speed);
 		} else if(this.axis === 'angleXYZ'){
-			this.cameraAXYZ(direction, speed);
+			this.directionAXYZ(direction, speed);
 		}
 	} else if(this.pov === '3rd'){
 		if(this.axis === 'posXZ'){
@@ -1212,15 +1234,15 @@ move: function (direction, speed) {
 		}
 	}
 },
-//1st POV Walk along XZ Floor relative to Camera View
-cameraXZ: function (action, speed) {
+//1st POV Walk along XZ Floor relative to Direction View
+directionXZ: function (action, speed) {
 	this.velocity = speed;
-	this.cameraVector = new THREE.Vector3();
-	this.camera.object3D.getWorldDirection(this.cameraVector);
+	this.directionVector = new THREE.Vector3();
+	this.directionObject.object3D.getWorldDirection(this.directionVector);
 	this.positionNew = new THREE.Vector3();
 	this.positionPlayer.copy(this.player.object3D.position);
 	//Math out the Angle of Camera
-	this.angle = Math.atan2(this.cameraVector.x,this.cameraVector.z);
+	this.angle = Math.atan2(this.directionVector.x,this.directionVector.z);
 	//Facing
 	this.face;
 	//Quadrant 1 : -x, -z
@@ -1417,15 +1439,15 @@ cameraXZ: function (action, speed) {
 		this.player.object3D.position.copy(this.positionNew);
 	}
 },
-//1st POV Walk with Fly Buttons
-cameraXZY: function (action, speed) {
+//1st POV Walk with Fly Buttons relative to Direction View
+directionXZY: function (action, speed) {
 	this.velocity = speed;
-	this.cameraVector = new THREE.Vector3();
-	this.camera.object3D.getWorldDirection(this.cameraVector);
+	this.directionVector = new THREE.Vector3();
+	this.directionObject.object3D.getWorldDirection(this.directionVector);
 	this.positionNew = new THREE.Vector3();
 	this.positionPlayer.copy(this.player.object3D.position);
 	//Math out the Angle of Camera
-	this.angle = Math.atan2(this.cameraVector.x,this.cameraVector.z);
+	this.angle = Math.atan2(this.directionVector.x,this.directionVector.z);
 	//Facing
 	this.face;
 	//Quadrant 1 : -x, -z
@@ -1962,15 +1984,15 @@ cameraXZY: function (action, speed) {
 
 
 },
-//1st POV Walk along XY Wall relative to Camera View
-cameraXY: function (action, speed) {
+//1st POV Walk along XY Wall relative to Direction View
+directionXY: function (action, speed) {
 	this.velocity = speed;
-	this.cameraVector = new THREE.Vector3();
-	this.camera.object3D.getWorldDirection(this.cameraVector);
+	this.directionVector = new THREE.Vector3();
+	this.directionObject.object3D.getWorldDirection(this.directionVector);
 	this.positionNew = new THREE.Vector3();
 	this.positionPlayer.copy(this.player.object3D.position);
 	//Math out the Angle of Camera
-	this.angle = Math.atan2(this.cameraVector.x,this.cameraVector.z);
+	this.angle = Math.atan2(this.directionVector.x,this.directionVector.z);
 	//Facing
 	this.face;
 	//Quadrant 1 : -x, -z
@@ -2055,16 +2077,16 @@ cameraXY: function (action, speed) {
 		this.player.object3D.position.copy(this.positionNew);
 	}
 },
-//1st POV Fly
-cameraXYZ: function (action, speed) {
+//1st POV Fly relative to Direction View
+directionXYZ: function (action, speed) {
 	this.yDeadZone = 0.1;
 	this.velocity = speed;
-	this.cameraVector = new THREE.Vector3();
-	this.camera.object3D.getWorldDirection(this.cameraVector);
+	this.directionVector = new THREE.Vector3();
+	this.directionObject.object3D.getWorldDirection(this.directionVector);
 	this.positionNew = new THREE.Vector3();
 	this.positionPlayer.copy(this.player.object3D.position);
 	//Math out the Angle of Camera
-	this.angle = Math.atan2(this.cameraVector.x,this.cameraVector.z);
+	this.angle = Math.atan2(this.directionVector.x,this.directionVector.z);
 	//Facing
 	this.face;
 	//Quadrant 1 : -x, -z
@@ -2272,12 +2294,12 @@ cameraXYZ: function (action, speed) {
 		this.player.object3D.position.copy(this.positionNew);
 	}
 },
-//1st POV Walk along X, Y or Z Floor/Walls
-cameraXYZWall: function (action, speed){},
+//1st POV Walk along X, Y or Z Floor/Walls relative to Direction View
+directionXYZWall: function (action, speed){},
 //1st POV Orbit Rotate
-cameraAXY: function (action, speed){},
+directionAXY: function (action, speed){},
 //1st POV Orbit Rotate w/ Zoom In & Out
-cameraAXYZ: function (action, speed){},
+directionAXYZ: function (action, speed){},
 //3rd POV Walk along XZ Floor
 rigXZ: function (action, speed) {
 	this.velocity = speed;
@@ -3062,7 +3084,7 @@ uiSync: function () {
 move: function (direction, speed) {
 	if(this.pov === '1st'){
 		if(this.axis === 'rotXZ'){
-			this.cameraXZ(direction, speed);
+			this.directionXZ(direction, speed);
 		}
 	} else if(this.pov === '3rd'){
 		if(this.axis === 'rotXZ'){
@@ -3071,7 +3093,7 @@ move: function (direction, speed) {
 	}
 },
 //1st POV Rotat along XZ relative to Camera View
-cameraXZ: function (action, speed) {
+directionXZ: function (action, speed) {
 	this.velocity = speed;
 	this.cameraVector = new THREE.Vector3();
 	this.camera.object3D.getWorldDirection(this.cameraVector);
@@ -4442,57 +4464,121 @@ updateAction: function (actionObj){
 		//console.log(actionObj[action]);//object
 		let actionFunc;
 		let actionParams;
+		let actionCommand;
 		if(action === 'altDown'){
 			actionFunc = 'altDownFunc';
 			actionParams = 'altDownParams';
+			if(this.auxl.controls === 'Desktop'){
+				actionCommand = 'Mouse Right Click';
+			} else if(this.auxl.controls === 'Mobile'){
+				actionCommand = 'Middle Directional Button';
+			} else if(this.auxl.controls === 'VR'){
+				actionCommand = 'Grip';
+			}
 		} else if(action === 'altUp'){
 			actionFunc = 'altUpFunc';
 			actionParams = 'altUpParams';
 		} else if(action === 'action1Down'){
 			actionFunc = 'action1DownFunc';
 			actionParams = 'action1DownParams';
+			if(this.auxl.controls === 'Desktop'){
+				actionCommand = this.controls.action1Keys[1] + ' Key';
+			} else if(this.auxl.controls === 'Mobile'){
+				actionCommand = 'A Button';
+			} else if(this.auxl.controls === 'VR'){
+				actionCommand = 'X Button';
+			}
 		} else if(action === 'action1Up'){
 			actionFunc = 'action1UpFunc';
 			actionParams = 'action1UpParams';
 		} else if(action === 'action2Down'){
 			actionFunc = 'action2DownFunc';
 			actionParams = 'action2DownParams';
+			if(this.auxl.controls === 'Desktop'){
+				actionCommand = this.controls.action2Keys[1] + ' Key';
+			} else if(this.auxl.controls === 'Mobile'){
+				actionCommand = 'B Button';
+			} else if(this.auxl.controls === 'VR'){
+				actionCommand = 'Y Button';
+			}
 		} else if(action === 'action2Up'){
 			actionFunc = 'action2UpFunc';
 			actionParams = 'action2UpParams';
 		} else if(action === 'action3Down'){
 			actionFunc = 'action3DownFunc';
 			actionParams = 'action3DownParams';
+			if(this.auxl.controls === 'Desktop'){
+				actionCommand = this.controls.action3Keys[1] + ' Key';
+			} else if(this.auxl.controls === 'Mobile'){
+				actionCommand = 'C Button';
+			} else if(this.auxl.controls === 'VR'){
+				actionCommand = 'A Button';
+			}
 		} else if(action === 'action3Up'){
 			actionFunc = 'action3UpFunc';
 			actionParams = 'action3UpParams';
 		} else if(action === 'action4Down'){
 			actionFunc = 'action4DownFunc';
 			actionParams = 'action4DownParams';
+			if(this.auxl.controls === 'Desktop'){
+				actionCommand = this.controls.action4Keys[1] + ' Key';
+			} else if(this.auxl.controls === 'Mobile'){
+				actionCommand = 'D Button';
+			} else if(this.auxl.controls === 'VR'){
+				actionCommand = 'B Button';
+			}
 		} else if(action === 'action4Up'){
 			actionFunc = 'action4UpFunc';
 			actionParams = 'action4UpParams';
 		} else if(action === 'action5Down'){
 			actionFunc = 'action5DownFunc';
 			actionParams = 'action5DownParams';
+			if(this.auxl.controls === 'Desktop'){
+				actionCommand = this.controls.action5Keys[1] + ' Key';
+			} else if(this.auxl.controls === 'Mobile'){
+				actionCommand = 'E Button';
+			} else if(this.auxl.controls === 'VR'){
+				actionCommand = 'Alt Joystick Down';
+			}
 		} else if(action === 'action5Up'){
 			actionFunc = 'action5UpFunc';
 			actionParams = 'action5UpParams';
 		} else if(action === 'action6Down'){
 			actionFunc = 'action6DownFunc';
 			actionParams = 'action6DownParams';
+			if(this.auxl.controls === 'Desktop'){
+				actionCommand = this.controls.action6Keys[1] + ' Key';
+			} else if(this.auxl.controls === 'Mobile'){
+				actionCommand = 'F Button';
+			} else if(this.auxl.controls === 'VR'){
+				actionCommand = 'Alt Joystick Up';
+			}
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
 			actionParams = 'action6UpParams';
 		} else if(action === 'action7Down'){
 			actionFunc = 'action7DownFunc';
 			actionParams = 'action7DownParams';
+			if(this.auxl.controls === 'Desktop'){
+				actionCommand = this.controls.action7Keys[1] + ' Key';
+			} else if(this.auxl.controls === 'Mobile'){
+				actionCommand = '<- Button';
+			} else if(this.auxl.controls === 'VR'){
+				actionCommand = 'Alt Joystick Left';
+			}
 		} else if(action === 'action7Up'){
 			actionFunc = 'action7UpFunc';
 			actionParams = 'action7UpParams';
 		} else if(action === 'action8Down'){
 			actionFunc = 'action8DownFunc';
 			actionParams = 'action8DownParams';
+			if(this.auxl.controls === 'Desktop'){
+				actionCommand = this.controls.action8Keys[1] + ' Key';
+			} else if(this.auxl.controls === 'Mobile'){
+				actionCommand = '-> Button';
+			} else if(this.auxl.controls === 'VR'){
+				actionCommand = 'Alt Joystick Right';
+			}
 		} else if(action === 'action8Up'){
 			actionFunc = 'action8UpFunc';
 			actionParams = 'action8UpParams';
@@ -4521,6 +4607,12 @@ this[actionFunc] = document.getElementById(auxlObj).components[component][func].
 				//if component is false, then
 				//this.auxl[auxlObj][func]
 				this[actionFunc] = this.auxl[auxlObj][func];
+			}
+			//Update Control Text
+			if(actionObj[action].name){
+				//this.auxl.controlsInfo[actionObj[action].name] = actionObj[action].info;
+				//this.auxl.controlsInfo[action] = {name: actionObj[action].name, info: actionObj[action].info};
+				this.auxl.controlsInfo[actionCommand] = {name: actionObj[action].name, info: actionObj[action].info};
 			}
 		} else {
 			this[actionFunc] = false;
@@ -4595,6 +4687,10 @@ disableAction: function (actionObj){
 			console.log(action)
 			console.log(actionObj[action])
 			return;
+		}
+		//Update Control Text
+		if(actionObj[action].name){
+			delete this.auxl.controlsInfo[actionObj[action].name];
 		}
 		this[actionFunc] = false;
 		this[actionParams] = false;

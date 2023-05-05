@@ -84,6 +84,7 @@ const scenarioHeaderTitle = document.getElementById('scenarioHeaderTitle');
 const scenarioMenuTitle = document.getElementById('scenarioMenuTitle');
 const controllerBlock = document.getElementById('controllerBlock');
 const vrHandButton = document.getElementById('vrHandButton');
+const vrLocomotionType = document.getElementById('vrLocomotionType');
 //Mobile HTML Buttons
 const mobileUpLeft = document.getElementById('upLeft');
 const mobileUp = document.getElementById('up');
@@ -105,7 +106,7 @@ const mobileF = document.getElementById('f');
 const mobileL = document.getElementById('l');
 const mobileR = document.getElementById('r');
 
-let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, viewInfo, viewData, expInfo, infoClose, instructions, scenarioMenuTitle, dataInfo, dataClose, manageData, resetData, controllerBlock, vrHandButton];
+let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, viewInfo, viewData, expInfo, infoClose, instructions, scenarioMenuTitle, dataInfo, dataClose, manageData, resetData, controllerBlock, vrHandButton, vrLocomotionType];
 
 let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, controllerBlock, mobileUpLeft, mobileUp, mobileUpRight, mobileLeft, mobileCenter, mobileRight, mobileDownLeft, mobileDown, mobileDownRight, mobileSelect, mobileStart, mobileA, mobileB, mobileC, mobileD, mobileE, mobileF, mobileL, mobileR];
 
@@ -255,9 +256,12 @@ function time(){
 this.universalControls;
 this.controls = 'Desktop';
 this.vrHand = 'bothRight';
+this.directionType = 'camera';
 //Joystick Configurations : 1,4,8
 this.joystickLoco = 8;
 this.joystickRot = 8;
+this.controlsInfo = {};
+this.controlsText = '';
 //Menu
 this.menuOpen = true;
 this.infoOpen = false;
@@ -573,8 +577,10 @@ function changeControls(){
 		auxl.controls = 'VR';
 		menuModeButton.innerHTML = 'Mode : VR';
 		vrHandButton.style.display = 'flex';
+		vrLocomotionType.style.display = 'flex';
 	} else if(auxl.controls === 'VR'){
 		vrHandButton.style.display = 'none';
+		vrLocomotionType.style.display = 'none';
 		auxl.controls = 'Mobile';
 		menuModeButton.innerHTML = 'Mode : Mobile';
 	} else if(auxl.controls === 'Mobile'){
@@ -608,6 +614,22 @@ function changeVRHand(){
 	updateControls();
 }
 vrHandButton.addEventListener('click', changeVRHand);
+
+
+//Change Locomotion Direction Type
+function changeLocoDirection(){
+	if(auxl.directionType === 'camera'){
+		auxl.directionType = 'controller';
+		vrLocomotionType.innerHTML = 'Direction : Controller';
+	} else {
+		auxl.directionType = 'camera';
+		vrLocomotionType.innerHTML = 'Direction : Camera';
+	}
+	updateControls();
+}
+vrLocomotionType.addEventListener('click', changeLocoDirection);
+
+
 
 //
 //Toggle Audio
@@ -4770,10 +4792,18 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 	//Add Controls into Scenario
 	const AddControls = () => {
 		readTimeline('controls');
+		UpdateControlText();
 	}
 	//Remove Scenario Controls
 	const RemoveControls = () => {
 		auxl.universalControls.disableAction(core['controls']);
+	}
+	//Update Controls
+	const UpdateControlText = () => {
+		for(let control in auxl.controlsInfo){
+			auxl.controlsText += control + ' | ' + auxl.controlsInfo[control].name + ' : ' + auxl.controlsInfo[control].info + '\n';
+		}
+		console.log(auxl.controlsText);
 	}
 	//Read Scenario Start Section
 	const Start = () => {

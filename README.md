@@ -98,7 +98,8 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Added in-progress profile storage save/load/reset system. Upon reset, entire system is unloaded and restarted via Menu.
 - Fixed an issue with Multi-Menus overlapping with each other.
 - Added UpdateUIText() method to Player to update HTML header and VR controller text.
-- Added 90degree snap turning
+- Added 90degree snap turning.
+- Can now change which object's is used with 1st POV Locomotion direction between Camera or Controller.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
