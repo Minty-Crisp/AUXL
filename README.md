@@ -88,14 +88,15 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Re-arranged all components into 4 javascript file categories : System, Support, Addons and Scenes.
 - User position is reset back to 0,0,0 on scene change
 - Added new hovertext support component which on mousehover will display configured text either on top or in front of the object and rotates to user view.
-- Ham Companion now accepts a Layer as an Avatar
-- Added raycast-teleportation-select that spawns a select button on click
-- Added in-progress Mini Games SwipeLaunchGame & GuessHitGame, DragDiffuse
-- Added in-progress Pet, Battler & BattleRef systems
-- Added in-progress Gimbal controller of the player avatar 1st/3rd
-- Added World ObjGen that can hold and navigate multiple Scenarios
+- Ham Companion now accepts a Layer as an Avatar.
+- Added raycast-teleportation-select that spawns a select button on click.
+- Added in-progress Mini Games SwipeLaunchGame & GuessHitGame, DragDiffuse.
+- Added in-progress Pet, Battler & BattleRef systems.
+- Added in-progress Gimbal controller of the player avatar 1st/3rd.
+- Added World ObjGen that can hold and navigate multiple Scenarios.
 - Zone's map data has been moved into each Scenario to allow dynamic mapping through Scenario progression as well as changeable via UpdateMap(mapData) auxl.zoneObject method.
 - Added in-progress profile storage save/load/reset system. Upon reset, entire system is unloaded and restarted via Menu.
+- Fixed an issue with Multi-Menus overlapping with each other.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates

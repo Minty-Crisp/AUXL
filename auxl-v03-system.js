@@ -1594,7 +1594,9 @@ this.Layer = (id, all) => {
 	//Return Child Element in Scene
 	const GetChildEl = (child) => {
 		let childCore = GetChild(child);
-		return childCore.GetEl();
+		if(childCore){
+			return childCore.GetEl();
+		}
 	}
 	//Emit Event from Parent Entity Element - Single or Array
 	const EmitEventParent = (eventName) => {
@@ -1897,9 +1899,11 @@ this.Layer = (id, all) => {
 
 		traverse(layer.all, 0);
 		if(result[0]){
+			console.log(result[0])
 			return result[0];
 		} else {
 			console.log('Unable to find child');
+			return false;
 		}
 	}
 
@@ -2819,7 +2823,7 @@ this.MultiMenu = (multiMenuData) => {
 	//Generate a null parent for the maximum amount of buttons and main button
 	multiMenu.cores.nulls = [];
 	for(let a = 0; a <= maxNulls+1; a++){
-		multiMenu.nullParentData.id = 'null' + a;
+		multiMenu.nullParentData.id = multiMenu.id + 'null' + a;
 		if(multiMenu.layout === 'circleUp'){
 			multiMenu.nullParentData.rotation.z = circleRot*a;
 		} else if(multiMenu.layout === 'circleDown'){
@@ -2848,7 +2852,7 @@ this.MultiMenu = (multiMenuData) => {
 	const SpawnMultiMenu = (open) => {
 		if(multiMenu.inScene){}else{
 			multiMenu.menuLayer.SpawnLayer(multiMenu.parent);
-			multiMenu.menuLayer.GetChildEl('null0').addEventListener('click',ToggleMenu);
+			multiMenu.menuLayer.GetChildEl(multiMenu.id+'null0').addEventListener('click',ToggleMenu);
 			multiMenu.cores.main.ChangeSelf({property: 'text', value:{value:'Open'}});
 			if(open){
 				ToggleMenu();
@@ -2952,11 +2956,11 @@ this.MultiMenu = (multiMenuData) => {
 	}
 
 	const SpawnMenu = () => {
-			if(multiMenu.menuPath.length > 1){
-				multiMenu.cores.main.ChangeSelf({property: 'text', value:{value:'Back'}});
-			} else {
-				multiMenu.cores.main.ChangeSelf({property: 'text', value:{value:'Close'}});
-			}
+		if(multiMenu.menuPath.length > 1){
+			multiMenu.cores.main.ChangeSelf({property: 'text', value:{value:'Back'}});
+		} else {
+			multiMenu.cores.main.ChangeSelf({property: 'text', value:{value:'Close'}});
+		}
 		multiMenu.menuOpen = true;
 		multiMenu.switching = true;
 		let currentMenu = multiMenu.currentMenu;
@@ -2964,7 +2968,7 @@ this.MultiMenu = (multiMenuData) => {
 		let spawnParent;
 		let spawnTimeout = setTimeout(() => {
 			for(let button in multiMenu.cores[currentMenu]){
-				spawnParent = multiMenu.menuLayer.GetChildEl('null'+nullNum);
+				spawnParent = multiMenu.menuLayer.GetChildEl(multiMenu.id+'null'+nullNum);
 				multiMenu.cores[currentMenu][button].SpawnCore(spawnParent);
 				nullNum++;
 			}
@@ -2993,7 +2997,7 @@ this.MultiMenu = (multiMenuData) => {
 		}
 		let despawnTimeout = setTimeout(() => {
 			for(let button in multiMenu.cores[currentMenu]){
-				spawnParents[button] = multiMenu.menuLayer.GetChildEl('null'+nullNum);
+				spawnParents[button] = multiMenu.menuLayer.GetChildEl(multiMenu.id+'null'+nullNum);
 				multiMenu.cores[currentMenu][button].DespawnCore();
 				nullNum++;
 			}
@@ -3066,7 +3070,7 @@ this.MultiMenu = (multiMenuData) => {
 			multiMenu.inScene = false;
 */
 			let resetTimeout = setTimeout(() => {
-				multiMenu.menuLayer.GetChildEl('null0').removeEventListener('click',ToggleMenu);
+				multiMenu.menuLayer.GetChildEl(multiMenu.id+'null0').removeEventListener('click',ToggleMenu);
 				multiMenu.menuLayer.DespawnLayer();
 				multiMenu.inScene = false;
 				clearTimeout(resetTimeout);
@@ -3569,7 +3573,7 @@ this.HamMenu = (id, object) => {
 			ham.show = true;
 			//autoScriptEmoticon();
 			//console.log(auxl.build)
-			//auxl.build.SpawnBuild();
+			auxl.build.SpawnBuild();
 			auxl.mainMenu.SpawnMultiMenu();
 			ham.inScene = true;
 		}
@@ -3579,7 +3583,7 @@ this.HamMenu = (id, object) => {
 		if(ham.inScene){
 			//clearInterval(speechTimeoutB);
 			//clearInterval(speechIntervalB);
-			//auxl.build.DespawnBuild();
+			auxl.build.DespawnBuild();
 			auxl.mainMenu.DespawnMultiMenu();
 			//Delay to let multi-menu complete it's despawn seq
 			let despawnTimeout = setTimeout(() => {
