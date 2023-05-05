@@ -100,6 +100,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Added UpdateUIText() method to Player to update HTML header and VR controller text.
 - Added 90degree snap turning.
 - Can now change which object's is used with 1st POV Locomotion direction between Camera or Controller.
+- Dynamic controls now take in an Action name and Action description that populate a control configuration window toggleable from the Ham menu to display all current control configurations for the current mode (Desktop, Mobile, VR Advanced, VR Basic, etc...).
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates

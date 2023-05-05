@@ -257,6 +257,7 @@ this.universalControls;
 this.controls = 'Desktop';
 this.vrHand = 'bothRight';
 this.directionType = 'camera';
+this.locomotionText = 'WASD Keys';
 //Joystick Configurations : 1,4,8
 this.joystickLoco = 8;
 this.joystickRot = 8;
@@ -446,6 +447,105 @@ startButton.addEventListener('click', startExp);
 //
 //Controls
 
+//Update Control Info
+function UpdateControlText(){
+	auxl.controlsText = 'Control Configuration : ' + auxl.controls + ' mode\n';
+	//Locomotion
+	auxl.controlsText += 'Movement | ' + locomotionText + '\n';
+	let actionCommand = '';
+	for(let action in auxl.controlsInfo){
+		if(action === 'altDown'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = 'Mouse Right Click';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'Middle Directional Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Grip';
+			}
+		} else if(action === 'altUp'){
+		} else if(action === 'action1Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action1Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'A Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'X Button';
+			}
+		} else if(action === 'action1Up'){
+		} else if(action === 'action2Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action2Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'B Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Y Button';
+			}
+		} else if(action === 'action2Up'){
+		} else if(action === 'action3Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action3Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'C Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'A Button';
+			}
+		} else if(action === 'action3Up'){
+		} else if(action === 'action4Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action4Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'D Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'B Button';
+			}
+		} else if(action === 'action4Up'){
+		} else if(action === 'action5Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action5Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'E Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Alt Joystick Down';
+			}
+		} else if(action === 'action5Up'){
+		} else if(action === 'action6Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action6Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'F Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Alt Joystick Up';
+			}
+		} else if(action === 'action6Up'){
+		} else if(action === 'action7Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action7Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = '<- Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Alt Joystick Left';
+			}
+		} else if(action === 'action7Up'){
+		} else if(action === 'action8Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action8Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = '-> Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Alt Joystick Right';
+			}
+		} else if(action === 'action8Up'){
+		} else {
+			console.log('Failed to identify action')
+		}
+
+
+		auxl.controlsText += actionCommand + ' | ' + auxl.controlsInfo[action].name + ' : ' + auxl.controlsInfo[action].info + '\n';
+	}
+	auxl.controlsText += 'Click to Close Window'
+	//console.log(auxl.controlsText);
+}
+
 //VR
 function disableVRControls(){
 	vrController1.setAttribute('visible',false);
@@ -470,6 +570,7 @@ function enableVRControls(){
 		vrController2.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
 		playerRig.setAttribute('universal-controls',{update: 1});
 		auxl.player.EnableVRLocomotion();
+		this.locomotionText = 'Left Controller Joystick';
 	} else if(auxl.vrHand === 'bothLeft'){
 		vrController1.setAttribute('visible',true);
 		vrController2.setAttribute('visible',true);
@@ -482,6 +583,7 @@ function enableVRControls(){
 		vrController1.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
 		playerRig.setAttribute('universal-controls',{update: 2});
 		auxl.player.EnableVRLocomotion();
+		this.locomotionText = 'Right Controller Joystick';
 	} else if(auxl.vrHand === 'bothRightLoco' || auxl.vrHand === 'bothLeftLoco'){
 		vrController1.setAttribute('visible',true);
 		vrController2.setAttribute('visible',true);
@@ -495,6 +597,11 @@ function enableVRControls(){
 		vrController2.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
 		playerRig.setAttribute('universal-controls',{update: 3});
 		auxl.player.EnableVRLocomotion();
+		if(auxl.vrHand === 'bothLeftLoco'){
+			this.locomotionText = 'Left Controller Joystick';
+		} else if (auxl.vrHand === 'bothRightLoco'){
+			this.locomotionText = 'Right Controller Joystick';
+		}
 	} else if(auxl.vrHand === 'right'){
 		vrController2.setAttribute('visible',true);
 		vrController2UI.setAttribute('visible',true);
@@ -503,6 +610,7 @@ function enableVRControls(){
 		vrController2.setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
 		playerRig.setAttribute('universal-controls',{update: 4});
 		auxl.player.EnableVRHoverLocomotion('vrController2');
+		this.locomotionText = 'Hover on Forward/Backward Belt.';
 	} else if(auxl.vrHand === 'left'){
 		vrController1.setAttribute('visible',true);
 		vrController1UI.setAttribute('visible',true);
@@ -511,6 +619,7 @@ function enableVRControls(){
 		vrController1.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
 		playerRig.setAttribute('universal-controls',{update: 5});
 		auxl.player.EnableVRHoverLocomotion('vrController1');
+		this.locomotionText = 'Hover on Forward/Backward Belt.';
 	}
 }
 //Desktop
@@ -525,6 +634,7 @@ function enableDesktopControls(){
 	mouseController.setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true',});
 	playerRig.setAttribute('universal-controls',{update: 0});
 	auxl.player.EnableDesktopLocomotion();
+	this.locomotionText = 'WASD Keys';
 }
 //Mobile
 function disableMobileControls(){
@@ -553,6 +663,7 @@ function enableMobileControls(){
 	controllerBlock.style.display = 'flex';
 	playerRig.setAttribute('universal-controls',{update: 6});
 	auxl.player.EnableMobileLocomotion();
+	this.locomotionText = 'Arrow Buttons';
 }
 //Update Controls
 function updateControls(){
@@ -570,6 +681,7 @@ function updateControls(){
 		disableMobileControls();
 		enableVRControls();
 	}
+	UpdateControlText();
 }
 //Menu Controls Button
 function changeControls(){
@@ -614,8 +726,6 @@ function changeVRHand(){
 	updateControls();
 }
 vrHandButton.addEventListener('click', changeVRHand);
-
-
 //Change Locomotion Direction Type
 function changeLocoDirection(){
 	if(auxl.directionType === 'camera'){
@@ -628,6 +738,7 @@ function changeLocoDirection(){
 	updateControls();
 }
 vrLocomotionType.addEventListener('click', changeLocoDirection);
+
 
 
 
@@ -3197,6 +3308,8 @@ this.HamMenu = (id, object) => {
 	ham.show = false;
 	ham.pos = auxl.playerRig.GetEl().getAttribute('position');
 
+	ham.viewConfig = false;
+
 	//
 	//Main Menu
 	ham.mainMenuData = {
@@ -3235,6 +3348,20 @@ this.HamMenu = (id, object) => {
 			description: 'Configure system settings.',
 			subMenu: 'menu3',
 			action: false,
+		},
+		button3:{
+			id: 'subMenu4',
+			style: false,
+			title: 'Controls',
+			description: 'View current control configuration.',
+			subMenu: false,
+			action: {
+				auxlObj: 'ham',
+				component: false,
+				method: 'ToggleControlView',
+				params: null,
+				menu: 'close',
+			},
 		},
 	},
 	menu1:{
@@ -3708,8 +3835,19 @@ this.HamMenu = (id, object) => {
 	const HideInventory = () => {
 		auxl.inventoryScreen.DespawnCore();
 	}
+	//Display Current Control Configuration
+	const ToggleControlView = () => {
+		if(ham.viewConfig){
+			auxl.configurationView.DespawnCore();
+			ham.viewConfig = false;
+		} else {
+			auxl.configurationView.SpawnCore(auxl.playerRig.GetEl());
+			auxl.configurationView.ChangeSelf({property: 'text', value: {value: auxl.controlsText}});
+			ham.viewConfig = true;
+		}
+	}
 
-	return{ham, SpawnHam, DespawnHam, SetFlag, GetFlag,};
+	return{ham, SpawnHam, DespawnHam, SetFlag, GetFlag, ToggleControlView};
 }
 
 //
@@ -3978,6 +4116,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 	//Add Controls into NodeScene
 	const AddControls = () => {
 		readTimeline('controls');
+		UpdateControlText();
 	}
 	//Remove NodeScene Controls
 	const RemoveControls = () => {
@@ -4329,6 +4468,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	//Add Controls into MapZone
 	const AddControls = () => {
 		readTimeline('controls');
+		//UpdateControlText();
 	}
 	//Remove MapZone Controls
 	const RemoveControls = () => {
@@ -4792,18 +4932,11 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 	//Add Controls into Scenario
 	const AddControls = () => {
 		readTimeline('controls');
-		UpdateControlText();
+		//UpdateControlText();
 	}
 	//Remove Scenario Controls
 	const RemoveControls = () => {
 		auxl.universalControls.disableAction(core['controls']);
-	}
-	//Update Controls
-	const UpdateControlText = () => {
-		for(let control in auxl.controlsInfo){
-			auxl.controlsText += control + ' | ' + auxl.controlsInfo[control].name + ' : ' + auxl.controlsInfo[control].info + '\n';
-		}
-		console.log(auxl.controlsText);
 	}
 	//Read Scenario Start Section
 	const Start = () => {
@@ -9591,6 +9724,28 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.inventoryScreen = auxl.Core(auxl.inventoryScreenData);
+
+//Control Configuration View
+//Top Text Bubble Template
+auxl.configurationViewData = {
+data:'configurationViewData',
+id:'configurationView',
+sources:false,
+text: {value:'Controls', color: "#FFFFFF", align: "left", font: "exo2bold", width: 1.9, zOffset: 0.025, side: 'front', wrapCount: 75, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 2, height: 1},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0,1.5,-2),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components:{
+clickrun:{cursorObj: 'ham', method: 'ToggleControlView'}, 
+['look-at-xyz']:{match: 'camera', y:true},
+},
+};
+auxl.configurationView = auxl.Core(auxl.configurationViewData);
 
 //
 //Text Bubbles

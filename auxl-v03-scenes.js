@@ -663,6 +663,7 @@ auxl.zone0Data = {
 		travelMenu: true,
 	},
 	controls:{
+		action6Down:{auxlObj: 'player', func: 'ToggleSittingMode', name: 'Toggle Sit/Stand', info: 'Change your height between sitting and standing mode.'},
 	},
 	start:{
 		cubeCore:{SpawnCore:null},
@@ -711,7 +712,7 @@ auxl.zone0Scene0Data = {
 		sceneText: true,
 	},
 	controls:{
-
+		action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn', name: 'Toggle Cube', info: 'Toggle an in-scene cube.'},
 	},
 	start:{
 		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#1e7e5d", emissive: "#1e7e5d",},}},
@@ -760,6 +761,7 @@ auxl.zone0Scene1Data = {
 		sceneText: true,
 	},
 	controls:{
+		action1Down:{auxlObj: 'player', func: 'TestFunc', params: {test1: 1, test2: 2}, name: 'Test Action', info: 'Just a Dev test function.'},
 	},
 	start:{
 		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern67, repeat: '150 150',color: "#6f421a", emissive: "#6f421a",},}},
@@ -801,6 +803,7 @@ auxl.zone1Data = {
 		travelMenu: true,
 	},
 	controls:{
+
 	},
 	start:{
 	},

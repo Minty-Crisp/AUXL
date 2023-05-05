@@ -3901,6 +3901,7 @@ action6Keys: ['v','V'],
 action7Keys: ['z','Z'],
 action8Keys: ['x','X'],
 };
+this.auxl.controlConfig = this.controls;
 
 //Mobile HTML Buttons
 this.mobileUpLeft = document.getElementById('upLeft');
@@ -4468,117 +4469,54 @@ updateAction: function (actionObj){
 		if(action === 'altDown'){
 			actionFunc = 'altDownFunc';
 			actionParams = 'altDownParams';
-			if(this.auxl.controls === 'Desktop'){
-				actionCommand = 'Mouse Right Click';
-			} else if(this.auxl.controls === 'Mobile'){
-				actionCommand = 'Middle Directional Button';
-			} else if(this.auxl.controls === 'VR'){
-				actionCommand = 'Grip';
-			}
 		} else if(action === 'altUp'){
 			actionFunc = 'altUpFunc';
 			actionParams = 'altUpParams';
 		} else if(action === 'action1Down'){
 			actionFunc = 'action1DownFunc';
 			actionParams = 'action1DownParams';
-			if(this.auxl.controls === 'Desktop'){
-				actionCommand = this.controls.action1Keys[1] + ' Key';
-			} else if(this.auxl.controls === 'Mobile'){
-				actionCommand = 'A Button';
-			} else if(this.auxl.controls === 'VR'){
-				actionCommand = 'X Button';
-			}
 		} else if(action === 'action1Up'){
 			actionFunc = 'action1UpFunc';
 			actionParams = 'action1UpParams';
 		} else if(action === 'action2Down'){
 			actionFunc = 'action2DownFunc';
 			actionParams = 'action2DownParams';
-			if(this.auxl.controls === 'Desktop'){
-				actionCommand = this.controls.action2Keys[1] + ' Key';
-			} else if(this.auxl.controls === 'Mobile'){
-				actionCommand = 'B Button';
-			} else if(this.auxl.controls === 'VR'){
-				actionCommand = 'Y Button';
-			}
 		} else if(action === 'action2Up'){
 			actionFunc = 'action2UpFunc';
 			actionParams = 'action2UpParams';
 		} else if(action === 'action3Down'){
 			actionFunc = 'action3DownFunc';
 			actionParams = 'action3DownParams';
-			if(this.auxl.controls === 'Desktop'){
-				actionCommand = this.controls.action3Keys[1] + ' Key';
-			} else if(this.auxl.controls === 'Mobile'){
-				actionCommand = 'C Button';
-			} else if(this.auxl.controls === 'VR'){
-				actionCommand = 'A Button';
-			}
 		} else if(action === 'action3Up'){
 			actionFunc = 'action3UpFunc';
 			actionParams = 'action3UpParams';
 		} else if(action === 'action4Down'){
 			actionFunc = 'action4DownFunc';
 			actionParams = 'action4DownParams';
-			if(this.auxl.controls === 'Desktop'){
-				actionCommand = this.controls.action4Keys[1] + ' Key';
-			} else if(this.auxl.controls === 'Mobile'){
-				actionCommand = 'D Button';
-			} else if(this.auxl.controls === 'VR'){
-				actionCommand = 'B Button';
-			}
 		} else if(action === 'action4Up'){
 			actionFunc = 'action4UpFunc';
 			actionParams = 'action4UpParams';
 		} else if(action === 'action5Down'){
 			actionFunc = 'action5DownFunc';
 			actionParams = 'action5DownParams';
-			if(this.auxl.controls === 'Desktop'){
-				actionCommand = this.controls.action5Keys[1] + ' Key';
-			} else if(this.auxl.controls === 'Mobile'){
-				actionCommand = 'E Button';
-			} else if(this.auxl.controls === 'VR'){
-				actionCommand = 'Alt Joystick Down';
-			}
 		} else if(action === 'action5Up'){
 			actionFunc = 'action5UpFunc';
 			actionParams = 'action5UpParams';
 		} else if(action === 'action6Down'){
 			actionFunc = 'action6DownFunc';
 			actionParams = 'action6DownParams';
-			if(this.auxl.controls === 'Desktop'){
-				actionCommand = this.controls.action6Keys[1] + ' Key';
-			} else if(this.auxl.controls === 'Mobile'){
-				actionCommand = 'F Button';
-			} else if(this.auxl.controls === 'VR'){
-				actionCommand = 'Alt Joystick Up';
-			}
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
 			actionParams = 'action6UpParams';
 		} else if(action === 'action7Down'){
 			actionFunc = 'action7DownFunc';
 			actionParams = 'action7DownParams';
-			if(this.auxl.controls === 'Desktop'){
-				actionCommand = this.controls.action7Keys[1] + ' Key';
-			} else if(this.auxl.controls === 'Mobile'){
-				actionCommand = '<- Button';
-			} else if(this.auxl.controls === 'VR'){
-				actionCommand = 'Alt Joystick Left';
-			}
 		} else if(action === 'action7Up'){
 			actionFunc = 'action7UpFunc';
 			actionParams = 'action7UpParams';
 		} else if(action === 'action8Down'){
 			actionFunc = 'action8DownFunc';
 			actionParams = 'action8DownParams';
-			if(this.auxl.controls === 'Desktop'){
-				actionCommand = this.controls.action8Keys[1] + ' Key';
-			} else if(this.auxl.controls === 'Mobile'){
-				actionCommand = '-> Button';
-			} else if(this.auxl.controls === 'VR'){
-				actionCommand = 'Alt Joystick Right';
-			}
 		} else if(action === 'action8Up'){
 			actionFunc = 'action8UpFunc';
 			actionParams = 'action8UpParams';
@@ -4612,7 +4550,7 @@ this[actionFunc] = document.getElementById(auxlObj).components[component][func].
 			if(actionObj[action].name){
 				//this.auxl.controlsInfo[actionObj[action].name] = actionObj[action].info;
 				//this.auxl.controlsInfo[action] = {name: actionObj[action].name, info: actionObj[action].info};
-				this.auxl.controlsInfo[actionCommand] = {name: actionObj[action].name, info: actionObj[action].info};
+				this.auxl.controlsInfo[action] = {name: actionObj[action].name, info: actionObj[action].info};
 			}
 		} else {
 			this[actionFunc] = false;
@@ -4690,7 +4628,7 @@ disableAction: function (actionObj){
 		}
 		//Update Control Text
 		if(actionObj[action].name){
-			delete this.auxl.controlsInfo[actionObj[action].name];
+			delete this.auxl.controlsInfo[action];
 		}
 		this[actionFunc] = false;
 		this[actionParams] = false;
