@@ -4578,14 +4578,22 @@ disableAction: function (actionObj){
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
 			actionParams = 'action6UpParams';
+		} else if(action === 'action7Down'){
+			actionFunc = 'action7DownFunc';
+			actionParams = 'action7DownParams';
 		} else if(action === 'action7Up'){
 			actionFunc = 'action7UpFunc';
 			actionParams = 'action7UpParams';
+		} else if(action === 'action8Down'){
+			actionFunc = 'action8DownFunc';
+			actionParams = 'action8DownParams';
 		} else if(action === 'action8Up'){
 			actionFunc = 'action8UpFunc';
 			actionParams = 'action8UpParams';
 		} else {
 			console.log('Failed to identify action')
+			console.log(action)
+			console.log(actionObj[action])
 			return;
 		}
 		this[actionFunc] = false;

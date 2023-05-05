@@ -27,7 +27,10 @@ const auxl = this;
 this.state = 'play';
 this.states = ['play', 'add', 'edit', 'delete'];
 this.expStarted = false;
-this.defaultScenario;
+this.defaultWorld;
+this.currentWorld;
+this.currentZone;
+this.worldLoaded = false;
 this.localProfile = {};
 
 //Players
@@ -69,9 +72,14 @@ const startButton = document.getElementById('startButton');
 const menuModeButton = document.getElementById('menuModeButton');
 const audioButton = document.getElementById('audioButton');
 const viewInfo = document.getElementById('viewInfo');
+const viewData = document.getElementById('viewData');
 const expInfo = document.getElementById('expInfo');
 const infoClose = document.getElementById('infoClose');
 const instructions = document.getElementById('instructions');
+const dataInfo = document.getElementById('dataInfo');
+const dataClose = document.getElementById('dataClose');
+const manageData = document.getElementById('manageData');
+const resetData = document.getElementById('resetData');
 const scenarioHeaderTitle = document.getElementById('scenarioHeaderTitle');
 const scenarioMenuTitle = document.getElementById('scenarioMenuTitle');
 const controllerBlock = document.getElementById('controllerBlock');
@@ -97,44 +105,23 @@ const mobileF = document.getElementById('f');
 const mobileL = document.getElementById('l');
 const mobileR = document.getElementById('r');
 
-let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, viewInfo, expInfo, infoClose, instructions, scenarioMenuTitle, controllerBlock, vrHandButton];
+let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, viewInfo, viewData, expInfo, infoClose, instructions, scenarioMenuTitle, dataInfo, dataClose, manageData, resetData, controllerBlock, vrHandButton];
 
 let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, controllerBlock, mobileUpLeft, mobileUp, mobileUpRight, mobileLeft, mobileCenter, mobileRight, mobileDownLeft, mobileDown, mobileDownRight, mobileSelect, mobileStart, mobileA, mobileB, mobileC, mobileD, mobileE, mobileF, mobileL, mobileR];
+
 
 
 // System Configure
 /*************************************************************/
 this.systemLoaded = () => {
-	//loadStorage();
-	newStorage();
-	let loadTimeout = setTimeout((e) => {
-		ApplySettings();
-		this.localProfile.systemText+= ' | DONE';
-	    console.log("System Loaded", e, Date(), this.localProfile.id, this.localProfile.shortname, this.localProfile.colorScheme.base, this.localProfile.systemText);
-		UpdateSystemText(this.localProfile.systemText);
-		clearTimeout(loadTimeout);
-	}, 100);
-}
-
-const Default = () => {
-	this.localProfile = {};
-	this.localProfile.id = this.data.id;
-	this.localProfile.color = this.data.color;
-	this.localProfile.colorScheme = auxl.colorTheoryGen(false, 'black');
-	this.localProfile.shortname = this.data.shortname;
-	this.localProfile.longname = this.data.longname;
-	this.localProfile.server = this.data.server;
-	this.localProfile.onlineKey = this.data.onlineKey;
-
-	this.localProfile.systemText = 'Welcome ' + this.localProfile.shortname + '! ID :'+ this.localProfile.id + '| AUXL Engine v0.3.3!\n ^-^!\n Starting...';
-	this.systemText = this.localProfile.systemText
-	
+	setStorage();
+	ApplySettings();
 }
 
 const ApplySettings = () => {
 	ApplyColorScheme();
 	ApplySystemText();
-	console.log('Settings Applied')
+	UpdateSystemText(this.localProfile.systemText);
 }
 
 const ApplyColorScheme = () => {
@@ -183,37 +170,50 @@ const UpdateSystemText = (text) => {
 
 // Local Storage
 /*************************************************************/
-//If the value exists then we have already entered once, do not repeat link anims
+//Default Save
+const Default = () => {
+	this.localProfile = {};
+	this.localProfile.colorScheme = auxl.colorTheoryGen();
+	this.localProfile.id = this.localProfile.colorScheme.base;
+	this.localProfile.color = this.localProfile.colorScheme.base;
+	this.localProfile.shortname = this.localProfile.colorScheme.base;
+	this.localProfile.longname = this.data.longname;
+	this.localProfile.server = this.data.server;
+	this.localProfile.onlineKey = this.data.onlineKey;
+	//this.localProfile.systemText = 'Welcome ' + this.localProfile.shortname + '! ID :'+ this.localProfile.id + '| AUXL Engine v0.3.3!\n ^-^!\n Starting...';
+	this.localProfile.systemText = 'Welcome ' + this.localProfile.shortname;
+	this.systemText = this.localProfile.systemText
+	
+}
+
+//New
 const newStorage = () => {
-	//Testing
 	//Fresh Session, Initiliaze Site Wide Settings
-	this.new = true;
-	//Assign Completion to Storage
-	window.localStorage.setItem('auxl', this.localProfile);
-	//
-	Default();
-	//Test Logging
 	console.log('New here. Loading default data.');
-
+	//Default Data
+	Default();
+	//Assign Completion to Storage
+	window.localStorage.setItem("auxl", JSON.stringify(auxl.localProfile));
+	ApplySettings();
 }
-const localStorage = () => {
+//Load
+const loadStorage = () => {
 	//Return Session, Load Site Wide Settings
-	//Test Logging
-	console.log('Loading...');
+	console.log('Loading previous data.');
 	//Overwrite default profile
-	this.localProfile = window.localStorage.getItem('auxl');
-	this.new = false;
-	console.log('storage value : ' + this.localProfile);
+	this.localProfile = JSON.parse(window.localStorage.getItem("auxl"))
+	ApplySettings();
 }
 
-function loadStorage(){
+//Set
+//If the value exists then we have already entered once, do not repeat link anims
+function setStorage(){
 	if(localStorage.getItem('auxl')){
-		localStorage();
+		loadStorage();
 	} else {
 		newStorage();
 	}
 }
-
 /*
 localStorage.setItem("myCat", "Tom");
 const cat = localStorage.getItem("myCat");
@@ -255,12 +255,13 @@ function time(){
 this.universalControls;
 this.controls = 'Desktop';
 this.vrHand = 'bothRight';
-//Joystick Movement Configurations : 1,4,8
+//Joystick Configurations : 1,4,8
 this.joystickLoco = 8;
 this.joystickRot = 8;
 //Menu
 this.menuOpen = true;
 this.infoOpen = false;
+this.dataOpen = false;
 this.audioEnabled = false;
 this.mobilePermissionGranted = false;
 //Object Tracking
@@ -428,11 +429,11 @@ stickyMenu.addEventListener('click', toggleMenu);
 //
 //Start Experience
 function startExp(){
-	if(auxl.expStarted){}else{
-		auxl.defaultScenario.StartScenario();
+	if(auxl.worldLoaded){}else{
+		auxl.defaultWorld.StartWorld();
 		startButton.innerHTML = 'Resume';
 		updateControls();
-		auxl.expStarted = true;
+		auxl.worldLoaded = true;
 	}
 	toggleMenu();
 }
@@ -634,6 +635,33 @@ function toggleInfo(){
 }
 viewInfo.addEventListener('click', toggleInfo);
 infoClose.addEventListener('click', toggleInfo);
+
+//
+//Toggle Data
+function toggleData(){
+	if(auxl.dataOpen){
+		dataInfo.style.display = 'none';
+		auxl.dataOpen = false;
+	} else {
+		dataInfo.style.display = 'flex';
+		auxl.dataOpen = true;
+	}
+}
+viewData.addEventListener('click', toggleData);
+dataClose.addEventListener('click', toggleData);
+//Reset Storage
+function resetStorage(){
+	newStorage();
+	toggleData();
+	//unload current world and reload default world
+	if(auxl.worldLoaded){
+		auxl.currentWorld.StopWorld();
+		startButton.innerHTML = 'Restart';
+		auxl.worldLoaded = false;
+	}
+}
+resetData.addEventListener('click', resetStorage);
+
 
 //
 //Support
@@ -996,7 +1024,11 @@ this.Core = (data) => {
 		}
 		//Entity Type
 		if(core.entity === 'preAdded'){
-			core.el = document.getElementById(core.id);
+			if(document.getElementById(core.id)){
+				core.el = document.getElementById(core.id);
+			} else {
+				core.el = document.createElement('a-entity');
+			}
 		} else if(core.entity){
 			core.el = document.createElement(core.entity);
 		} else {
@@ -1108,7 +1140,15 @@ this.Core = (data) => {
 				loading();
 			}
 			//Add to Scene or Parent
-			if(core.entity === 'preAdded'){} else {
+			if(core.entity === 'preAdded'){
+				if(document.getElementById(core.id)){} else {
+					if(core.parent){
+						core.parent.appendChild(core.el);
+					} else {
+						sceneEl.appendChild(core.el);
+					}
+				}
+			} else {
 				if(core.parent){
 					core.parent.appendChild(core.el);
 				} else {
@@ -1271,6 +1311,7 @@ this.Core = (data) => {
 	const GetEl = () => {
 		let aEl = document.getElementById(core.id);
 		if(aEl){}else{
+			console.log(core)
 			return false;
 		}
 		return aEl;
@@ -3538,8 +3579,8 @@ this.HamMenu = (id, object) => {
 		if(ham.inScene){
 			//clearInterval(speechTimeoutB);
 			//clearInterval(speechIntervalB);
-			auxl.build.DespawnBuild();
-			//auxl.mainMenu.DespawnMultiMenu();
+			//auxl.build.DespawnBuild();
+			auxl.mainMenu.DespawnMultiMenu();
 			//Delay to let multi-menu complete it's despawn seq
 			let despawnTimeout = setTimeout(() => {
 				HideInventory();
@@ -3950,17 +3991,19 @@ this.MapZone = (mapZoneData) => {
 
 	//Prepare Zone Map
 	const ReadMapData = () => {
-		for(let key in core){
-			if(key === 'info'){
-				core.info = core[key]
-			} else if(key === 'controls' || key === 'start' || key === 'delay' || key === 'interval' || key === 'event' || key === 'interaction' || key === 'exit'){
-				//Ignore
-			} else {
-				core.nodes[key] = auxl[key];
-			}
+		for(let key in core.map){
+			core.nodes[key] = auxl[key];
 		}
 	}
-	ReadMapData();
+	//ReadMapData();
+	//Update Map
+	const UpdateMap = (data) => {
+		core.nodes = {};
+		core.map = data;
+		for(let key in data){
+			core.nodes[key] = auxl[key];
+		}
+	}
 	//If/Else support to run auxlObjMethod()
 	const IfElse = (objRef, condObj,{cond, ifTrue, ifFalse}) => {
 		if(auxl[condObj].GetFlag){
@@ -4254,6 +4297,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	const StartScene = (nodeName) => {
 		core.currentNode = nodeName || core.info.start;
 		core.currentZone = core.info.id;
+		auxl.currentZone = core.info.id
 		if(core.zoneLoaded){} else {
 			StartZone();
 			core.zoneLoaded = true;
@@ -4284,17 +4328,17 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		}
 		let currNum = 0;
 		let moveToNode;
-		for(let connect in core[core.currentNode]){
+		for(let connect in core.map[core.currentNode]){
 			//In Zone Node or Out of Zone Node
-			if(core.nodes[core[core.currentNode][connect].node]){
-				moveToNode = core.nodes[core[core.currentNode][connect].node];
+			if(core.nodes[core.map[core.currentNode][connect].node]){
+				moveToNode = core.nodes[core.map[core.currentNode][connect].node];
 			} else {
-				moveToNode = auxl[core[core.currentNode][connect].node];
+				moveToNode = auxl[core.map[core.currentNode][connect].node];
 			}
 			//Open, Locked or Unlocked Travel
-			if(core[core.currentNode][connect].locked && !auxl.player.GetFlag(core[core.currentNode][connect].key)){
+			if(core.map[core.currentNode][connect].locked && !auxl.player.GetFlag(core.map[core.currentNode][connect].key)){
 				core.mapMenuData.options['option'+currNum] = moveToNode.core.info.name + ' [Locked]';
-			} else if(core[core.currentNode][connect].locked && auxl.player.GetFlag(core[core.currentNode][connect].key)){
+			} else if(core.map[core.currentNode][connect].locked && auxl.player.GetFlag(core.map[core.currentNode][connect].key)){
 				core.mapMenuData.options['option'+currNum] = moveToNode.core.info.name + ' [Unlocked]';
 			} else {
 				core.mapMenuData.options['option'+currNum] = moveToNode.core.info.name;
@@ -4312,20 +4356,20 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		let currNum = 0;
 		let moveToNode;
 		let nodeName;
-		for(let connect in core[core.currentNode]){
+		for(let connect in core.map[core.currentNode]){
 			//console.log(connect)
 			//console.log(core[core.currentNode][connect])
 			//In Zone Node or Out of Zone Node
-			if(core.nodes[core[core.currentNode][connect].node]){
-				moveToNode = core.nodes[core[core.currentNode][connect].node];
+			if(core.nodes[core.map[core.currentNode][connect].node]){
+				moveToNode = core.nodes[core.map[core.currentNode][connect].node];
 			} else {
-				moveToNode = auxl[core[core.currentNode][connect].node];
+				moveToNode = auxl[core.map[core.currentNode][connect].node];
 			}
 
 			//Open, Locked or Unlocked Travel
-			if(core[core.currentNode][connect].locked && !auxl.player.GetFlag(core[core.currentNode][connect].key)){
+			if(core.map[core.currentNode][connect].locked && !auxl.player.GetFlag(core.map[core.currentNode][connect].key)){
 				nodeName = moveToNode.core.info.name + ' [Locked]';
-			} else if(core[core.currentNode][connect].locked && auxl.player.GetFlag(core[core.currentNode][connect].key)){
+			} else if(core.map[core.currentNode][connect].locked && auxl.player.GetFlag(core.map[core.currentNode][connect].key)){
 				nodeName = moveToNode.core.info.name + ' [Unlocked]';
 			} else {
 				nodeName = moveToNode.core.info.name;
@@ -4361,7 +4405,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	}
 	//Move Scenes
 	const Move = (connect) => {
-		newNode = core[core.currentNode][connect];
+		newNode = core.map[core.currentNode][connect];
 		//Check for Lock & Keys
 		if(newNode.locked && !auxl.player.GetFlag(newNode.key)){
 			clearTimeout(timeout2);
@@ -4396,15 +4440,18 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		ClearZoneTimeIntEvt();
 		RemoveControls();
 		clearSpawned(auxl.zoneSpawned);
+		if(core.displayBasicTravelMenu){
+			core.mapMenu.DespawnMenu();
+		}
 	}
 
-	return {core, StartScene, MoveSpawnMenu, MenuMoveClick, Move, ClearZone};
+	return {core, UpdateMap, StartScene, MoveSpawnMenu, MenuMoveClick, Move, ClearZone};
 }
 
 //
 //Scenario Gen
 //entireScenarioSpawnLocationAlwaysDisplay
-this.Scenario = (scenarioData, player) => {
+this.Scenario = (scenarioData) => {
 	let core = Object.assign({}, scenarioData);
 	core.scenarioLoaded = false;
 	let startTimeout;
@@ -4412,15 +4459,6 @@ this.Scenario = (scenarioData, player) => {
 	let scenarioName = core.info.name;
 	let scenarioInstructions = core.info.instructions;
 
-	//Check if default scenario, delay to allow object to be built
-	let scenarioTimeout = setTimeout(function () {
-		if(core.info.default){
-			auxl.defaultScenario = auxl[core.info.id];
-			updateHTMLTitle();
-			updateHTMLInstructions();
-		}
-		clearTimeout(scenarioTimeout);
-	}, 50);
 	//If/Else support to run auxlObjMethod()
 	const IfElse = (objRef, condObj,{cond, ifTrue, ifFalse}) => {
 		if(auxl[condObj].GetFlag){
@@ -4722,6 +4760,11 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 	const StartScenario = () => {
 		if(core.scenarioLoaded){} else {
 			auxl.player.PlayerSceneAnim();
+			//Update Zone Map
+			UpdateZoneMap();
+			//Update HTML
+			updateHTMLTitle();
+			updateHTMLInstructions();
 			//Get Universal Controls component
 			auxl.universalControls = document.getElementById('playerRig').components['universal-controls'];
 			//Start scene mid Player anim
@@ -4741,10 +4784,79 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 		ClearScenarioTimeIntEvt();
 		RemoveControls();
 		clearSpawned(auxl.scenarioSpawned);
+		//unload current zone and scene
+		auxl[auxl.currentZone].ClearZone();
+		auxl[auxl[auxl.currentZone].core.currentNode].ClearScene();
+		core.scenarioLoaded = false;
+	}
+	//Update Zone Maps
+	const UpdateZoneMap = () => {
+		for(let key in core.map){
+			//console.log(key)
+			//console.log(core.map[key])
+			auxl[key].UpdateMap(core.map[key]);
+		}
 	}
 
 	return {core, StartScenario, ClearScenario};
 }
+
+//
+//World Gen
+//containAllScenarios
+this.World = (worldData) => {
+
+	let world = {};
+	world.data = Object.assign({}, worldData);
+	world.id = world.data.info.id;
+	world.name = world.data.info.name;
+	world.scenarios = world.data.scenarios;
+	world.current = 0;
+	world.loaded = false;
+	world.scenarioLoaded = false;
+
+	//Set World as Default
+	const SetAsDefault = () => {
+		auxl.defaultWorld = auxl[world.id];
+	}
+	//Start World at Default Scenario
+	const StartWorld = () => {
+		StartScenario(world.current);
+		auxl.currentWorld = auxl[world.id];
+		auxl.worldLoaded = true;
+	}
+	//Stop World
+	const StopWorld = () => {
+		ClearScenario(world.current);
+		auxl.worldLoaded = false;
+	}
+	//Start a Scenario
+	const StartScenario = (num) => {
+		world.current = num;
+		world.scenarios[num].StartScenario();
+		world.scenarioLoaded = true;
+	}
+	//Clear a Scenario
+	const ClearScenario = (num) => {
+		world.scenarios[num].ClearScenario();
+		world.scenarioLoaded = false;
+	}
+	//Next Scenario
+	const NextScenario = () => {
+		Clear(world.current);
+		world.current++;
+		Start(world.current);
+	}
+	//Load Scenario
+	const LoadScenario = (num) => {
+		Clear(world.current);
+		world.current = num;
+		Start(world.current);
+	}
+
+	return {world, SetAsDefault, StartWorld, StopWorld, StartScenario, ClearScenario, NextScenario, LoadScenario}
+}
+
 
 //
 //Story Book
@@ -5565,7 +5677,6 @@ this.SkyBox = (skyBoxData) => {
 				}
 			}
 		}
-
 		Sunrise();
 		auxl.skyGrad.SetFlag({flag:'day', value: true});
 		dayNightTimeout = setTimeout(function () {
@@ -7132,11 +7243,11 @@ components: false,
 
 
 	const SpawnBuild = () => {
-		console.log('Spawning');
+		//console.log('Spawning');
 		auxl.buildMenu.SpawnMultiMenu();
 	}
 	const DespawnBuild = () => {
-		console.log('Despawning');
+		//console.log('Despawning');
 		auxl.buildMenu.DespawnMultiMenu();
 	}
 

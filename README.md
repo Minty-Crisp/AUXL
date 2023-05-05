@@ -91,10 +91,11 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Ham Companion now accepts a Layer as an Avatar
 - Added raycast-teleportation-select that spawns a select button on click
 - Added in-progress Mini Games SwipeLaunchGame & GuessHitGame, DragDiffuse
-- Add in-progress Pet, Battler & BattleRef systems
-- Add in-progress gimbal controller of the player avatar 1st/3rd
-- Add Test shared portfolio basic structure and system. Test Load and Save of portfolio to localstorage. ApplySettings, ApplyColorScheme & ApplySystemText functions.
-- Add in-progress Gimbal controller
+- Added in-progress Pet, Battler & BattleRef systems
+- Added in-progress Gimbal controller of the player avatar 1st/3rd
+- Added World ObjGen that can hold and navigate multiple Scenarios
+- Zone's map data has been moved into each Scenario to allow dynamic mapping through Scenario progression as well as changeable via UpdateMap(mapData) auxl.zoneObject method.
+- Added in-progress profile storage save/load/reset system. Upon reset, entire system is unloaded and restarted via Menu.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates

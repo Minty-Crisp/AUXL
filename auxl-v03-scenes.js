@@ -646,57 +646,11 @@ init: function () {
 const auxl = document.querySelector('a-scene').systems.auxl;
 
 //
-//Scenarios
-
-//Scenario Starter Example
-//
-//scenarioStarter
-auxl.v03ScenesData = {
-	info:{
-		id: 'v03Scenes',
-		name: 'v03 Scenes',
-		scenarioNum: 0,
-		default: true,
-		startZone: 'zone0',
-		instructions: 'A scenario testing the new features and functionality of the A-Frame UX Library engine v0.3.',
-	},
-	controls:{
-		//action1Down:{auxlObj: 'player', func: 'TestFunc', params: {test1: 1, test2: 2}},
-		action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'movingUp'},
-		action1Up:{auxlObj: 'playerRig', component: 'locomotion', func: 'cancelUp'},
-		action2Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'movingDown'},
-		action2Up:{auxlObj: 'playerRig', component: 'locomotion', func: 'cancelDown'},
-		action3Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
-		//action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn',},
-		action5Down:{auxlObj: 'player', func: 'ToggleCrouch'},
-		//action6Down:{auxlObj: 'player', func: 'ToggleSittingMode'},
-		action7Down:{auxlObj: 'player', func: 'SnapLeft'},
-		action8Down:{auxlObj: 'player', func: 'SnapRight'},
-	},
-	start:{
-		skyBox0:{SpawnSkyBox: null},
-		ham:{SpawnHam: null},
-		floor:{SpawnCore: null},
-		clouds:{SpawnLayer: null},
-	},
-	delay:{
-		100:{
-			skyBox0:{DayNightCycle: null},
-		},
-	},
-	interval:{
-	},
-	event:{
-	},
-	interaction:{
-	},
-	exit:{
-	},
-};
-auxl.v03Scenes = auxl.Scenario(auxl.v03ScenesData, auxl.player000000);
-
-//
 //World Atlas MapZones & NodeScenes
+
+
+//
+//Testing World
 
 //
 //Zone 0
@@ -707,13 +661,6 @@ auxl.zone0Data = {
 		zoneNum: 0,
 		start: 'zone0Scene0',
 		travelMenu: true,
-	},
-	zone0Scene0:{
-		connect0: {inZone: true, node: 'zone0Scene1',},
-		connect1: {inZone: 'zone1', node: 'zone1Scene0', locked: true, key: 'zone1Key', keepKey: true},
-	},
-	zone0Scene1:{
-		connect0: {inZone: true, node: 'zone0Scene0',},
 	},
 	controls:{
 	},
@@ -755,13 +702,6 @@ auxl.zone0Data = {
 
 	},
 };
-
-/*
-	ghost:{EmitEventChild:[{child: 'eye1Pupil', eventName: 'lookRight'},{child: 'eye2Pupil', eventName: 'lookRight'}]},
-	ghost:{EmitEventAll:'poweredDown'},
-	ghost:{EmitEventAll:'poweredUp'},
-*/
-
 //Zone 0 Scene 0
 auxl.zone0Scene0Data = {
 	info:{
@@ -850,9 +790,6 @@ auxl.zone0Scene1 = auxl.SceneNode(auxl.zone0Scene1Data);
 //Map Zone 0
 auxl.zone0 = auxl.MapZone(auxl.zone0Data);
 
-
-
-
 //
 //Zone 1
 auxl.zone1Data = {
@@ -862,9 +799,6 @@ auxl.zone1Data = {
 		zoneNum: 0,
 		start: 'zone1Scene0',
 		travelMenu: true,
-	},
-	zone1Scene0:{
-		connect0: {inZone: 'zone0', node: 'zone0Scene0',},
 	},
 	controls:{
 	},
@@ -913,14 +847,210 @@ auxl.zone1Scene0Data = {
 };
 //Zone 1 Scene 0
 auxl.zone1Scene0 = auxl.SceneNode(auxl.zone1Scene0Data);
-//Map Zone 1
+//Zone 1
 auxl.zone1 = auxl.MapZone(auxl.zone1Data);
 
+//
+//Scenarios
+
+//
+//Testing Scenario
+auxl.v03TestingScenarioData = {
+	info:{
+		id: 'v03TestingScenario',
+		name: 'v03 Testing Scenario',
+		scenarioNum: 0,
+		startZone: 'zone0',
+		instructions: 'A scenario testing the new features and functionality of the A-Frame UX Library engine v0.3.',
+	},
+	
+	map:{
+		zone0:{
+			zone0Scene0:{
+				connect0: {inZone: true, node: 'zone0Scene1',},
+				connect1: {inZone: 'zone1', node: 'zone1Scene0', locked: true, key: 'zone1Key', keepKey: true},
+			},
+			zone0Scene1:{
+				connect0: {inZone: true, node: 'zone0Scene0',},
+			},
+		},
+		zone1:{
+			zone1Scene0:{
+				connect0: {inZone: 'zone0', node: 'zone0Scene0',},
+			},
+		},
+	},
+	controls:{
+		//action1Down:{auxlObj: 'player', func: 'TestFunc', params: {test1: 1, test2: 2}},
+		action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'movingUp'},
+		action1Up:{auxlObj: 'playerRig', component: 'locomotion', func: 'cancelUp'},
+		action2Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'movingDown'},
+		action2Up:{auxlObj: 'playerRig', component: 'locomotion', func: 'cancelDown'},
+		action3Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed'},
+		//action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn',},
+		action5Down:{auxlObj: 'player', func: 'ToggleCrouch'},
+		//action6Down:{auxlObj: 'player', func: 'ToggleSittingMode'},
+		action7Down:{auxlObj: 'player', func: 'SnapLeft'},
+		action8Down:{auxlObj: 'player', func: 'SnapRight'},
+	},
+	start:{
+		skyBox0:{SpawnSkyBox: null},
+		ham:{SpawnHam: null},
+		floor:{SpawnCore: null},
+		clouds:{SpawnLayer: null},
+	},
+	delay:{
+		100:{
+			skyBox0:{DayNightCycle: null},
+		},
+	},
+	interval:{
+	},
+	event:{
+	},
+	interaction:{
+	},
+	exit:{
+	},
+};
+auxl.v03TestingScenario = auxl.Scenario(auxl.v03TestingScenarioData);
+
+//
+//Testing World
+auxl.TestingWorldData = {
+	info:{
+		id: 'testingWorld',
+		name: 'Testing World',
+		description: 'A world containing various test scenarios.',
+	},
+	scenarios:[
+		auxl.v03TestingScenario,
+	],
+};
+auxl.testingWorld = auxl.World(auxl.TestingWorldData);
+auxl.testingWorld.SetAsDefault();
 
 
+
+
+
+
+//
+//Loading World
+
+//
+//Zone Load Data
+auxl.zoneLoadData = {
+	info:{
+		id: 'zoneLoad',
+		name: 'Loading Zone',
+		zoneNum: 0,
+		start: 'zoneLoadScene',
+		travelMenu: false,
+	},
+	map:{
+	},
+	controls:{
+	},
+	start:{
+	},
+	delay:{
+	},
+	interval:{
+	},
+	event:{
+	},
+	interaction:{
+	},
+	exit:{
+	},
+};
+//Zone Load Scene Data
+auxl.zoneLoadSceneData = {
+	info:{
+		id:'zoneLoadScene',
+		name: 'Loading Area',
+		description: 'A loading area to select what you want to do.',
+		sceneText: true,
+	},
+	controls:{
+	},
+	start:{
+		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern75, repeat: '150 150',color: "#be1f8d", emissive: "#be1f8d",},},},
+	},
+	delay:{
+	},
+	interval:{
+	},
+	event:{
+	},
+	interaction:{
+	},
+	exit:{
+	},
+	map:{
+		data: auxl.zoneLoadData.zoneLoadScene,
+	},
+};
+//Zone Load Scene
+auxl.zoneLoadScene = auxl.SceneNode(auxl.zoneLoadSceneData);
+//Zone Load
+auxl.zoneLoad = auxl.MapZone(auxl.zoneLoadData);
+
+//
+//Load Scenario
+auxl.loadScenarioData = {
+	info:{
+		id: 'loadScenario',
+		name: 'Loading Scenario',
+		scenarioNum: 0,
+		startZone: 'zoneLoad',
+		instructions: 'A loading area to select your World to load.',
+	},
+	map:{},
+	controls:{
+		action7Down:{auxlObj: 'player', func: 'SnapLeft'},
+		action8Down:{auxlObj: 'player', func: 'SnapRight'},
+	},
+	start:{
+		skyBox0:{SpawnSkyBox: null},
+		ham:{SpawnHam: null},
+		floor:{SpawnCore: null},
+		clouds:{SpawnLayer: null},
+		//Worlds Loaded Menu Spawn
+	},
+	delay:{
+		100:{
+			skyBox0:{DayNightCycle: null},
+		},
+	},
+	interval:{
+	},
+	event:{
+	},
+	interaction:{
+	},
+	exit:{
+	},
+};
+auxl.loadScenario = auxl.Scenario(auxl.loadScenarioData);
+
+//
+//Load World
+auxl.LoadWorldData = {
+	info:{
+		id: 'loadWorld',
+		name: 'Load World',
+		description: 'A loading world.',
+	},
+	scenarios:[
+		auxl.loadScenario,
+	],
+};
+auxl.loadWorld = auxl.World(auxl.LoadWorldData);
 
 //System Loaded
-//auxl.systemLoaded();
+auxl.systemLoaded();
 
     },
 });
