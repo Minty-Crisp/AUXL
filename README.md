@@ -97,6 +97,8 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Zone's map data has been moved into each Scenario to allow dynamic mapping through Scenario progression as well as changeable via UpdateMap(mapData) auxl.zoneObject method.
 - Added in-progress profile storage save/load/reset system. Upon reset, entire system is unloaded and restarted via Menu.
 - Fixed an issue with Multi-Menus overlapping with each other.
+- Added UpdateUIText() method to Player to update HTML header and VR controller text.
+- Added 90degree snap turning
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates

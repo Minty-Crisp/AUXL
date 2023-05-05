@@ -1899,7 +1899,6 @@ this.Layer = (id, all) => {
 
 		traverse(layer.all, 0);
 		if(result[0]){
-			console.log(result[0])
 			return result[0];
 		} else {
 			console.log('Unable to find child');
@@ -1923,8 +1922,6 @@ this.Player = (id,name,layer) => {
 	//Add to all player list
 	this.players[id] = layer;
 
-
-	
 	//Update Layer Copy
 	//layer.layer.all.parent.core.core.id = id;
 
@@ -1966,15 +1963,27 @@ this.Player = (id,name,layer) => {
 		autoplay: true, 
 		enabled: true,
 	};
+	//Rotate 90
+	let anim90Data = {
+		name: 'anim90',
+		property: 'object3D.rotation.y',
+		from: '0',
+		to: '90', 
+		dur: 250,
+		delay: 0, 
+		loop: 'false', 
+		dir: 'normal', 
+		easing: 'easeInOutSine', 
+		elasticity: 400, 
+		autoplay: true, 
+		enabled: true,
+	};
 	//Inventory
 	layer.inventory = [];
 	layer.inventoryPreText = 'Inventory :\n';
 	layer.inventoryText = layer.inventoryPreText + 'Empty';
 	//Flashlight
 	layer.flashlight = false;
-
-
-
 
 	//Spawn Player
 	layer.SpawnLayer();
@@ -1992,12 +2001,6 @@ this.Player = (id,name,layer) => {
 	vrController1UI = document.getElementById('vrController1UI');
 	vrController2 = document.getElementById('vrController2');
 	vrController2UI = document.getElementById('vrController2UI');
-
-	let loadTimeout = setTimeout(function () {
-
-		clearTimeout(loadTimeout);
-	}, 1000);
-
 
 	//Scene Load Animation Support
 	const PlayerSceneAnim = () => {
@@ -2091,6 +2094,24 @@ this.Player = (id,name,layer) => {
 		auxl.sphereScreen.ChangeSelf({property: 'material', value:{color: newColor}});
 		auxl.blink1Screen.ChangeSelf({property: 'material', value:{color: newColor}});
 		auxl.blink2Screen.ChangeSelf({property: 'material', value:{color: newColor}});
+	}
+	//Update UI Text
+	const UpdateUIText = (text) => {
+		UpdateSystemText(text);
+		if(auxl.controls === 'VR'){
+			if(auxl.vrHand === 'bothRight'){
+				auxl.vrController2.ChangeSelf({property: 'text', value: text});
+			} else if(auxl.vrHand === 'bothLeft'){
+				auxl.vrController1.ChangeSelf({property: 'text', value: text});
+			} else if(auxl.vrHand === 'both'){
+				auxl.vrController1.ChangeSelf({property: 'text', value: text});
+				auxl.vrController2.ChangeSelf({property: 'text', value: text});
+			} else if(auxl.vrHand === 'right'){
+				auxl.vrController2.ChangeSelf({property: 'text', value: text});
+			} else if(auxl.vrHand === 'left'){
+				auxl.vrController1.ChangeSelf({property: 'text', value: text});
+			}
+		}
 	}
 	//Display Camera UI Notification
 	const Notification = (notificationInfo) => {
@@ -2348,8 +2369,8 @@ this.Player = (id,name,layer) => {
 			}
 		}
 	}
-	//Play Snap View Anim to the Right
-	const SnapRight = () => {
+	//Play Snap View Anim to the Right 45degrees
+	const SnapRight45 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
 			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
@@ -2362,8 +2383,8 @@ this.Player = (id,name,layer) => {
 			}, anim45Data.dur+10);
 		}
 	}
-	//Play Snap View Anim to the Left
-	const SnapLeft = () => {
+	//Play Snap View Anim to the Left 45degrees
+	const SnapLeft45 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
 			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
@@ -2374,6 +2395,34 @@ this.Player = (id,name,layer) => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
 			}, anim45Data.dur+10);
+		}
+	}
+	//Play Snap View Anim to the Right 90degrees
+	const SnapRight90 = () => {
+		if(layer.snapRotating){} else {
+			layer.snapRotating = true;
+			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
+			anim90Data.from = rotY;
+			anim90Data.to = rotY - 90;
+			auxl.playerRig.Animate(anim90Data);
+			snapTimeout = setTimeout(() => {
+				layer.snapRotating = false;
+				clearTimeout(snapTimeout);
+			}, anim90Data.dur+10);
+		}
+	}
+	//Play Snap View Anim to the Left 90degrees
+	const SnapLeft90 = () => {
+		if(layer.snapRotating){} else {
+			layer.snapRotating = true;
+			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
+			anim90Data.from = rotY;
+			anim90Data.to = rotY + 90;
+			auxl.playerRig.Animate(anim90Data);
+			snapTimeout = setTimeout(() => {
+				layer.snapRotating = false;
+				clearTimeout(snapTimeout);
+			}, anim90Data.dur+10);
 		}
 	}
 	//Flashlight
@@ -2507,7 +2556,7 @@ this.Player = (id,name,layer) => {
 		console.log(params);
 	}
 
-	return {layer, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, DetachFromPlayer, TestFunc}
+	return {layer, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, UpdateUIText, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, DetachFromPlayer, TestFunc}
 }
 
 //
