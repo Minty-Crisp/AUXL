@@ -2291,7 +2291,7 @@ this.Player = (id,name,layer) => {
 			layer.inventory.push(item);
 			layer[item] = true;
 		}
-		if(auxl.ham.ham.show){
+		if(auxl.ham.ham.inScene){
 			UpdateInventoryScreen();
 		}
 		//Notifications
@@ -2320,7 +2320,7 @@ this.Player = (id,name,layer) => {
 			layer.inventory.splice(layer.inventory.indexOf(item), 1);
 			layer[item] = false;
 		}
-		if(auxl.ham.ham.show){
+		if(auxl.ham.ham.inScene){
 			UpdateInventoryScreen();
 		}
 		//Notifications
@@ -3305,7 +3305,6 @@ this.HamMenu = (id, object) => {
 	ham.systemOpen = false;
 	ham.travelSettingsOpen = false;
 	ham.sceneSettingsOpen = false;
-	ham.show = false;
 	ham.pos = auxl.playerRig.GetEl().getAttribute('position');
 
 	ham.viewConfig = false;
@@ -3414,23 +3413,31 @@ this.HamMenu = (id, object) => {
 			},
 		},
 		button1:{
-			id: 'subMenu4',
+			id: 'subMenu1',
+			style: false,
+			title: 'Companion Avatar',
+			description: 'Change the companion avatar shape.',
+			subMenu: 'menu7',
+			action: false,
+		},
+		button2:{
+			id: 'subMenu2',
 			style: false,
 			title: 'Scene Transition Type',
 			description: 'Change the scene transition animation style.',
 			subMenu: 'menu4',
 			action: false,
 		},
-		button2:{
-			id: 'subMenu5',
+		button3:{
+			id: 'subMenu3',
 			style: false,
 			title: 'Teleport Transition Type',
 			description: 'Change the teleport transition animation style.',
 			subMenu: 'menu5',
 			action: false,
 		},
-		button3:{
-			id: 'subMenu6',
+		button4:{
+			id: 'subMenu4',
 			style: false,
 			title: 'Transition Color',
 			description: 'Change the transition animation color.',
@@ -3654,6 +3661,64 @@ this.HamMenu = (id, object) => {
 			},
 		},
 	},
+	menu7:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Ghost',
+			description: 'Change to a ghost avatar.',
+			subMenu: false,
+			action: {
+				auxlObj: 'ham',
+				component: false,
+				method: 'UpdateShape',
+				params: 'ghost',
+				menu: 'close',
+			},
+		},
+		button1:{
+			id: 'action2',
+			style: false,
+			title: 'Cube',
+			description: 'Change to a cube avatar.',
+			subMenu: false,
+			action: {
+				auxlObj: 'ham',
+				component: false,
+				method: 'UpdateShape',
+				params: 'hamCube',
+				menu: 'close',
+			},
+		},
+		button2:{
+			id: 'action3',
+			style: false,
+			title: 'Sphere',
+			description: 'Change to a sphere avatar.',
+			subMenu: false,
+			action: {
+				auxlObj: 'ham',
+				component: false,
+				method: 'UpdateShape',
+				params: 'hamSphere',
+				menu: 'close',
+			},
+		},
+		button3:{
+			id: 'action4',
+			style: false,
+			title: 'Plane',
+			description: 'Change to a plane avatar.',
+			subMenu: false,
+			action: {
+				auxlObj: 'ham',
+				component: false,
+				method: 'UpdateShape',
+				params: 'hamPlane',
+				menu: 'close',
+			},
+		},
+	},
 	};
 	auxl.mainMenu = auxl.MultiMenu(ham.mainMenuData);
 	/*
@@ -3749,9 +3814,45 @@ this.HamMenu = (id, object) => {
 			}, 2700);
 		}, 250);
 	}
+	//Update Shape
+	const UpdateShape = (newObj) => {
+		let respawn = false;
+		if(ham.inScene){
+			respawn = true;
+			DespawnHam();
+		}
+		let rebuildTimeout = setTimeout(function () {
+			if(newObj.SpawnCore){
+				ham.avatarType = 'core';
+				ham.menuParentId = newObj.core.id;
+				ham.avatar = Object.assign({}, newObj);
+			} else if(newObj.SpawnLayer){
+				ham.avatarType = 'layer';
+				ham.menuParentId = newObj.layer.all.parent.core.core.id;
+				ham.avatar = Object.assign({}, newObj);
+			} else {
+				if(auxl[newObj].SpawnCore){
+					ham.avatarType = 'core';
+					ham.menuParentId = auxl[newObj].core.id;
+				} else if(auxl[newObj].SpawnLayer){
+					ham.avatarType = 'layer';
+					ham.menuParentId = auxl[newObj].layer.all.parent.core.core.id;
+				} else {
+					console.log(newObj);
+					console.log('failed to detect type');
+				}
+				ham.avatar = Object.assign({}, auxl[newObj]);
+			}
+			if(respawn){
+				SpawnHam();
+			}
+		clearTimeout(rebuildTimeout);
+		}, 400);
+
+	}
 	//Toggle Ham Display
 	const ToggleHam = () => {
-		if(ham.show){
+		if(ham.inScene){
 			DespawnHam();
 		} else {
 			SpawnHam();
@@ -3768,11 +3869,15 @@ this.HamMenu = (id, object) => {
 				ham.avatar.SpawnLayer(auxl.playerRig.GetEl());
 			}
 			ShowInventory();
-			ham.show = true;
 			//autoScriptEmoticon();
 			//console.log(auxl.build)
-			auxl.build.SpawnBuild();
-			auxl.mainMenu.SpawnMultiMenu();
+			let spawnTimeout = setTimeout(() => {
+				auxl.build.SpawnBuild();
+				//Update Main Menu Parent Shape ID
+				auxl.mainMenu.multiMenu.parent = ham.menuParentId;
+				auxl.mainMenu.SpawnMultiMenu();
+				clearTimeout(spawnTimeout);
+			}, 100);
 			ham.inScene = true;
 		}
 	}
@@ -3791,13 +3896,11 @@ this.HamMenu = (id, object) => {
 				} else {
 					ham.avatar.DespawnLayer(auxl.playerRig.GetEl());
 				}
-				ham.show = false;
 				ham.systemOpen = false;
 				RemoveFromTracker(ham.id);
 				ham.inScene = false;
 				clearTimeout(despawnTimeout);
 			}, 300);
-
 		}
 	}
 	//Set Flag & Value to Object - Single or Array
@@ -3847,7 +3950,7 @@ this.HamMenu = (id, object) => {
 		}
 	}
 
-	return{ham, SpawnHam, DespawnHam, SetFlag, GetFlag, ToggleControlView};
+	return{ham, UpdateShape, SpawnHam, DespawnHam, SetFlag, GetFlag, ToggleControlView};
 }
 
 //
@@ -9455,7 +9558,7 @@ sources: false,
 text: false,
 geometry: false,
 material: false,
-position: new THREE.Vector3(1.5,1,0),
+position: new THREE.Vector3(2,1,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(0.9,0.9,0.9),
 animations: false,
@@ -9676,15 +9779,14 @@ auxl.ghost = auxl.Layer('ghost',auxl.ghostLayerData);
 
 //
 //Hamburger Menu Companion
-auxl.hamCompData = {
-data:'HAM',
-id:'ham',
+auxl.hamCubeData = {
+data:'hamCubeData',
+id:'hamCube',
 sources:false,
-//sources: {['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',},
 text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
-position: new THREE.Vector3(1.5,1,-0.25),
+position: new THREE.Vector3(2,1,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.2, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
@@ -9693,17 +9795,58 @@ animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.2, dur: 7
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
-clickrun:{cursorObj: 'hamComp', method: 'Click', params: null}, 
-fusingrun:{cursorObj: 'hamComp', method: 'FuseClickRun', params: null}, 
-mousedownrun:{cursorObj: 'hamComp', method: 'CursorDownRun', params: null}, 
-mouseenterrun:{cursorObj: 'hamComp', method: 'CursorEnterRun', params: null}, 
-mouseleaverun:{cursorObj: 'hamComp', method: 'CursorLeaveRun', params: null}, 
-mouseuprun:{cursorObj: 'hamComp', method: 'CursorUpRun', params: null},
-eventrun:{event: 'testEventHit',cursorObj: 'hamComp', method: 'FuseClickRun', params: null}, 
-['look-at']:'#camera', 
+clickrun:{cursorObj: 'hamCube', method: 'Click', params: null}, 
+fusingrun:{cursorObj: 'hamCube', method: 'FuseClickRun', params: null}, 
+mousedownrun:{cursorObj: 'hamCube', method: 'CursorDownRun', params: null}, 
+mouseenterrun:{cursorObj: 'hamCube', method: 'CursorEnterRun', params: null}, 
+mouseleaverun:{cursorObj: 'hamCube', method: 'CursorLeaveRun', params: null}, 
+mouseuprun:{cursorObj: 'hamCube', method: 'CursorUpRun', params: null},
+eventrun:{event: 'testEventHit',cursorObj: 'hamCube', method: 'FuseClickRun', params: null}, 
+['look-at-xyz']:{match: 'camera', y:true},
 },
 };
-auxl.hamComp = auxl.Core(auxl.hamCompData);
+auxl.hamCube = auxl.Core(auxl.hamCubeData);
+
+auxl.hamSphereData = {
+data:'hamSphereData',
+id:'hamSphere',
+sources:false,
+text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
+geometry: {primitive: 'sphere', radius: 0.25},
+material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
+position: new THREE.Vector3(2,1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.2, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at-xyz']:{match: 'camera', y:true},
+},
+};
+auxl.hamSphere = auxl.Core(auxl.hamSphereData);
+
+auxl.hamPlaneData = {
+data:'hamPlaneData',
+id:'hamPlane',
+sources:false,
+text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
+geometry: {primitive: 'plane', width: 0.25, height: 0.25},
+material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
+position: new THREE.Vector3(2,1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.2, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at-xyz']:{match: 'camera', y:true},
+},
+};
+auxl.hamPlane = auxl.Core(auxl.hamPlaneData);
+
 //auxl.ham = auxl.HamMenu('ham',auxl.hamComp);
 auxl.ham = auxl.HamMenu('ham',auxl.ghost);
 //Inventory Screen
@@ -9726,7 +9869,6 @@ components: false,
 auxl.inventoryScreen = auxl.Core(auxl.inventoryScreenData);
 
 //Control Configuration View
-//Top Text Bubble Template
 auxl.configurationViewData = {
 data:'configurationViewData',
 id:'configurationView',
