@@ -102,6 +102,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Can now change which object's is used with 1st POV Locomotion direction between Camera or Controller.
 - Dynamic controls now take in an Action name and Action description that populate a control configuration window toggleable from the Ham menu to display all current control configurations for the current mode (Desktop, Mobile, VR Advanced, VR Basic, etc...).
 - Added Companion method to change avatar's core/layer and menu option for a few preconfigured styles.
+- Updated Core's to be able to parent to a core, layer(parentEl), html entity or html element id string.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates

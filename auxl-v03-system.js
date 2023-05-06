@@ -1265,6 +1265,7 @@ this.Core = (data) => {
 	//Spawn Entity Object
 	const SpawnCore = (parent) => {
 		core.parent = parent || false;
+		let preAdded = false;
 		if(core.inScene){}else{
 			//Generate Entity Element
 			Generate();
@@ -1274,16 +1275,44 @@ this.Core = (data) => {
 			}
 			//Add to Scene or Parent
 			if(core.entity === 'preAdded'){
-				if(document.getElementById(core.id)){} else {
-					if(core.parent){
-						core.parent.appendChild(core.el);
-					} else {
-						sceneEl.appendChild(core.el);
-					}
+				if(document.getElementById(core.id)){
+					preAdded = true;
 				}
-			} else {
+			}
+			if(preAdded){} else {
 				if(core.parent){
-					core.parent.appendChild(core.el);
+					if(core.parent.core){
+						//console.log('Core');
+						if(core.parent.core.inScene){
+							core.parent = core.parent.GetEl();
+						} else {
+							core.parent = false;
+						}
+					} else if(core.parent.layer){
+						//console.log('Layer');
+						if(parent.layer.inScene){
+							core.parent = core.parent.GetParentEl();
+						} else {
+							core.parent = false;
+						}
+					} else if(core.parent.id){
+						//console.log('Entity');
+					} else if(typeof core.parent === 'string'){
+						//console.log('ID');
+						if(document.getElementById(core.parent)){
+							core.parent = document.getElementById(core.parent);
+						} else {
+							core.parent = false;
+						}
+					}
+					if(!core.parent){
+						console.log(id);
+						console.log(core.parent);
+						console.log(document.getElementById(core.parent));
+						console.log('Parent is not in scene!');
+					} else {
+						core.parent.appendChild(core.el);
+					}
 				} else {
 					sceneEl.appendChild(core.el);
 				}
