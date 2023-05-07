@@ -1710,7 +1710,7 @@ auxl.SwipeLaunchGame = (id) => {
 
 	let swipeLaunch = {};
 	swipeLaunch.id = id;
-
+	//Main Core
 	swipeLaunch.data = {
 	data:'swipeLaunchData',
 	id:'swipeLaunchCore',
@@ -1726,9 +1726,8 @@ auxl.SwipeLaunchGame = (id) => {
 	classes: ['clickable','a-ent'],
 	components: false,
 	};
-
 	swipeLaunch.core = auxl.Core(swipeLaunch.data);
-
+	//Current Time
 	swipeLaunch.displayTimeData = {
 	data:'displayTimeData',
 	id:'displayTime',
@@ -1745,7 +1744,7 @@ auxl.SwipeLaunchGame = (id) => {
 	components: false,
 	};
 	swipeLaunch.displayTime = auxl.Core(swipeLaunch.displayTimeData);
-
+	//Current Score
 	swipeLaunch.displayScoreData = {
 	data:'displayScoreData',
 	id:'displayScore',
@@ -1762,6 +1761,53 @@ auxl.SwipeLaunchGame = (id) => {
 	components: false,
 	};
 	swipeLaunch.displayScore = auxl.Core(swipeLaunch.displayScoreData);
+	//High Scores
+	swipeLaunch.highScores = {};
+	swipeLaunch.highScores.score1 = 0;
+	swipeLaunch.highScores.name1 = 0;
+	swipeLaunch.highScores.score2 = 0;
+	swipeLaunch.highScores.name2 = 0;
+	swipeLaunch.highScores.score3 = 0;
+	swipeLaunch.highScores.name3 = 0;
+	swipeLaunch.highScores.score4 = 0;
+	swipeLaunch.highScores.name4 = 0;
+	swipeLaunch.highScores.score5 = 0;
+	swipeLaunch.highScores.name5 = 0;
+	swipeLaunch.highScores.text = '1. Name : 0 Meters\n2. Name : 0 Meters\n3. Name : 0 Meters\n4. Name : 0 Meters\n5. Name : 0 Meters\n';
+	//High Score List
+	swipeLaunch.highScoreData = {
+	data:'highScoreData',
+	id:'highScore',
+	sources:false,
+	text: {value: swipeLaunch.highScores.text, color: "#FFFFFF", font: "exo2bold", width: 1.9, zOffset: 0.025, side: 'front', wrapCount: 75, baseline: 'center', align: 'center'},
+	geometry: {primitive: 'box', depth: 0.025, width: 0.75, height: 0.4},
+	material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+	position: new THREE.Vector3(1,2.25,-0.5),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	swipeLaunch.highScore = auxl.Core(swipeLaunch.highScoreData);
+	//How To Play Instructions
+	swipeLaunch.instructionsData = {
+	data:'instructionsData',
+	id:'instructions',
+	sources:false,
+	text: {value:'How To Play?\nClick the Ready button to start the 3 second countdown.\nOn completion, you will have 6 seconds to hover on and off the ball as many times as you can.\nBefore the timer hits 0, click the ball to launch it.\nThe more times you hover and the closer you get to 0 when clicked, the more power to launch!', color: "#FFFFFF", font: "exo2bold", width: 0.45, zOffset: 0.025, side: 'front', wrapCount: 25, baseline: 'center', align: 'center'},
+	geometry: {primitive: 'box', depth: 0.025, width: 0.5, height: 0.75},
+	material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+	position: new THREE.Vector3(1,1.25,-0.5),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	swipeLaunch.instructions = auxl.Core(swipeLaunch.instructionsData);
 
 	//Game Var
 	swipeLaunch.starting = false;
@@ -1777,6 +1823,61 @@ auxl.SwipeLaunchGame = (id) => {
 	swipeLaunch.power = 0;
 	swipeLaunch.powerDisplay = 0;
 
+	//Build High Score Text
+	function refreshHighScoreText(){
+		swipeLaunch.highScores.text = '1. '+swipeLaunch.highScores.name1+' : '+swipeLaunch.highScores.score1.toFixed(2)+' Meters\n2. '+swipeLaunch.highScores.name2+' : '+swipeLaunch.highScores.score2.toFixed(2)+' Meters\n3. '+swipeLaunch.highScores.name3+' : '+swipeLaunch.highScores.score3.toFixed(2)+' Meters\n4. '+swipeLaunch.highScores.name4+' : '+swipeLaunch.highScores.score4.toFixed(2)+' Meters\n5. '+swipeLaunch.highScores.name5+' : '+swipeLaunch.highScores.score5.toFixed(2)+' Meters\n';
+		swipeLaunch.highScore.ChangeSelf({property:'text',value:{value:swipeLaunch.highScores.text}})
+		auxl.saveToProfile(swipeLaunch.id, 'swipeLaunch' ,'highScores',swipeLaunch.highScores);
+	}
+	//Check for High Score
+	function checkHighScore(score){
+		if(score > swipeLaunch.highScores.score1){
+			swipeLaunch.highScores.score5 = JSON.parse(JSON.stringify(swipeLaunch.highScores.score4));
+			swipeLaunch.highScores.name5 = JSON.parse(JSON.stringify(swipeLaunch.highScores.name4));
+			swipeLaunch.highScores.score4 = JSON.parse(JSON.stringify(swipeLaunch.highScores.score3));
+			swipeLaunch.highScores.name4 = JSON.parse(JSON.stringify(swipeLaunch.highScores.name3));
+			swipeLaunch.highScores.score3 = JSON.parse(JSON.stringify(swipeLaunch.highScores.score2));
+			swipeLaunch.highScores.name3 = JSON.parse(JSON.stringify(swipeLaunch.highScores.name2));
+			swipeLaunch.highScores.score2 = JSON.parse(JSON.stringify(swipeLaunch.highScores.score1));
+			swipeLaunch.highScores.name2 = JSON.parse(JSON.stringify(swipeLaunch.highScores.name1));
+			swipeLaunch.highScores.score1 = score;
+			swipeLaunch.highScores.name1 = auxl.local.profile.shortname;
+			refreshHighScoreText();
+			return;
+		} else if(score > swipeLaunch.highScores.score2){
+			swipeLaunch.highScores.score5 = JSON.parse(JSON.stringify(swipeLaunch.highScores.score4));
+			swipeLaunch.highScores.name5 = JSON.parse(JSON.stringify(swipeLaunch.highScores.name4));
+			swipeLaunch.highScores.score4 = JSON.parse(JSON.stringify(swipeLaunch.highScores.score3));
+			swipeLaunch.highScores.name4 = JSON.parse(JSON.stringify(swipeLaunch.highScores.name3));
+			swipeLaunch.highScores.score3 = JSON.parse(JSON.stringify(swipeLaunch.highScores.score2));
+			swipeLaunch.highScores.name3 = JSON.parse(JSON.stringify(swipeLaunch.highScores.name2));
+			swipeLaunch.highScores.score2 = score;
+			swipeLaunch.highScores.name2 = auxl.local.profile.shortname;
+			refreshHighScoreText();
+			return;
+		} else if(score > swipeLaunch.highScores.score3){
+			swipeLaunch.highScores.score5 = JSON.parse(JSON.stringify(swipeLaunch.highScores.score4));
+			swipeLaunch.highScores.name5 = JSON.parse(JSON.stringify(swipeLaunch.highScores.name4));
+			swipeLaunch.highScores.score4 = JSON.parse(JSON.stringify(swipeLaunch.highScores.score3));
+			swipeLaunch.highScores.name4 = JSON.parse(JSON.stringify(swipeLaunch.highScores.name3));
+			swipeLaunch.highScores.score3 = score;
+			swipeLaunch.highScores.name3 = auxl.local.profile.shortname;
+			refreshHighScoreText();
+			return;
+		} else if(score > swipeLaunch.highScores.score4){
+			swipeLaunch.highScores.score5 = JSON.parse(JSON.stringify(swipeLaunch.highScores.score4));
+			swipeLaunch.highScores.name5 = JSON.parse(JSON.stringify(swipeLaunch.highScores.name4));
+			swipeLaunch.highScores.score4 = score;
+			swipeLaunch.highScores.name4 = auxl.local.profile.shortname;
+			refreshHighScoreText();
+			return;
+		} else if(score > swipeLaunch.highScores.score5){
+			swipeLaunch.highScores.score5 = score;
+			swipeLaunch.highScores.name5 = auxl.local.profile.shortname;
+			refreshHighScoreText();
+			return;
+		}
+	}
 	//Reset
 	function reset(){
 		swipeLaunch.start = false;
@@ -1916,10 +2017,12 @@ auxl.SwipeLaunchGame = (id) => {
 	}
 	//Game Over
 	function gameOver(){
+		checkHighScore(swipeLaunch.power);
 		swipeLaunch.gameOver = setTimeout(() => {
 			updateTimeText('Ready?');
 			swipeLaunch.start = false;
 			swipeLaunch.starting = false;
+			updatePowerText('0');
 			clearTimeout(swipeLaunch.gameOver);
 		}, 3000);
 	};
@@ -1928,6 +2031,9 @@ auxl.SwipeLaunchGame = (id) => {
 		swipeLaunch.core.SpawnCore();
 		swipeLaunch.displayTime.SpawnCore();
 		swipeLaunch.displayScore.SpawnCore();
+		swipeLaunch.highScore.SpawnCore();
+		refreshHighScoreText();
+		swipeLaunch.instructions.SpawnCore();
 		swipeLaunch.core.GetEl().addEventListener('mouseenter', hoverOn);
 		swipeLaunch.core.GetEl().addEventListener('mouseleave', hoverOff);
 		swipeLaunch.core.GetEl().addEventListener('mousedown', launch);
@@ -1942,6 +2048,8 @@ auxl.SwipeLaunchGame = (id) => {
 		swipeLaunch.core.DespawnCore();
 		swipeLaunch.displayTime.DespawnCore();
 		swipeLaunch.displayScore.DespawnCore();
+		swipeLaunch.highScore.DespawnCore();
+		swipeLaunch.instructions.DespawnCore();
 	}
 
 	return {swipeLaunch, SpawnSLGame, DespawnSLGame};

@@ -589,6 +589,115 @@ auxl.npcKeyBody = auxl.Core(auxl.npcKeyBodyData);
 auxl.npcKeyBubble = auxl.Core(auxl.npcKeyBubbleData);
 auxl.npcKeyGiver = auxl.NPC(auxl.npcKeyBody, auxl.npcKeyBookData, auxl.npcKeyBubble);
 
+//Minty NPC
+auxl.npcMintyTextBubbleData = {
+data:'npc text bubble on top',
+id:'npcMintyTextBubble',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.7, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.75, height: 0.15},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.25,1.75,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+['look-at']:'#camera',},
+};
+auxl.npcMintyTextBubble = auxl.Core(auxl.npcMintyTextBubbleData);
+auxl.npcMintyData = {
+data:'npcMinty',
+id:'npcMinty',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(-0.4,0.2,-1.1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1.05,1.05,1.05),
+animations:{
+morphtalk:{property: 'gltf-morph__talk.value', from: 0, to: 1, dur: 500, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true,},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components:{
+['gltf-model']:'./assets/3d/avatar/mc1-1.glb',
+//['animation-mixer']:{timeScale:1},
+//['gltf-morph']:{morphtarget:'Fcl_ALL_Joy', value:1}
+['gltf-morph__talk']:{morphtarget:'target_43', value:0},
+},
+};
+auxl.npcMintyCore = auxl.Core(auxl.npcMintyData);
+auxl.npcMintyPage1Data = {
+	info:{
+	id:'npcMintyPage1Data',
+	description:'An explainer NPC to show off the AUXL system.',
+	tags:'npc',
+	nextPage: null,
+	prevPage: null,
+	timeline:'linear',
+	},
+	timeline0:{
+	self:{Speak:{speech:'Hello and thank you for visiting!'}},
+	},
+	timeline1:{
+	self:{Speak:{speech:'My digital name is Minty Crisp (irl you can call me Justin), it\'s nice to meet you.'}},
+	},
+	timeline2:{
+	self:{Speak:{speech:'You can find more about me, if you are interested in supporting my work or interested in collaborating with me at mintycrisp.com .'}},
+	},
+	timeline3:{
+	self:{Speak:{speech:'Feel free to look around!.'}},
+	},
+	timeline4:{
+	self: {ResetBook: true},
+	},
+};
+auxl.npcMintyIdleData = {
+	info:{
+		id:'npcMintyIdleData',
+		description:'A basic example of a NPC Idle Speech.',
+		tags:'npc',
+		nextPage: null,
+		prevPage: null,
+		timeline:'linear',
+	},
+	timeline0:{
+		self:{Speak:{speech:'Yo ho ho ho and a bottle of rum for me...'}},
+	},
+	timeline1:{
+		self:{Speak:{speech:'Ooh a piece of candy!'}},
+	},
+	timeline1:{
+		self:{Speak:{speech:'Nom nom nom nom.....'}},
+	},
+	timeline3:{
+		self: {IdleReset: true},
+	},
+};
+auxl.npcMintyBookTestData = {
+	info:{
+	id:'npcMinty',
+	name:'Minty',
+	description:'Minty dev NPC.',
+	tags:'npc',
+	timeline: 'linear',
+	idleDelay: 7000,
+	idleInterval: 10000,
+	},
+	pages:{
+		page0: auxl.npcMintyPage1Data,
+	},
+	idle:{
+		page0: auxl.npcMintyIdleData,
+	},
+};
+auxl.npcMinty = auxl.NPC(auxl.npcMintyCore, auxl.npcMintyBookTestData, auxl.npcMintyTextBubble);
+
+
+
 //
 //Doorways
 
@@ -721,6 +830,7 @@ auxl.zone0Scene0Data = {
 		//teleport:{SpawnTeleport:null},
 		//test:{SpawnTest:null},
 		//guessHitGame:{SpawnGHGame:null},
+		//npcMinty:{SpawnNPC:null},
 		doorway1:{SpawnCore:null},
 		doorway2:{SpawnCore:null},
 		//ghost:{SpawnLayer:null},

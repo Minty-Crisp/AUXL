@@ -31,8 +31,8 @@ this.defaultWorld;
 this.currentWorld;
 this.currentZone;
 this.worldLoaded = false;
-this.localProfile = {};
-
+this.local = {};
+this.local.profile = {};
 //Players
 this.players = {};
 
@@ -40,6 +40,7 @@ this.players = {};
 let playerRig;
 let camera;
 let cameraUI;
+let playerBeltUI;
 let playerFloor;
 let mouseController;
 let vrController1;
@@ -117,37 +118,39 @@ let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, controllerBl
 this.systemLoaded = () => {
 	setStorage();
 	ApplySettings();
+	auxl.player.beltText = 'Player : ' + auxl.local.profile.shortname + '\n';
+	auxl.player.UpdateBeltText(auxl.player.beltText);
 }
 
 const ApplySettings = () => {
 	ApplyColorScheme();
 	ApplySystemText();
-	UpdateSystemText(this.localProfile.systemText);
+	UpdateSystemText(this.local.profile.systemText);
 }
 
 const ApplyColorScheme = () => {
 	//HTML
 	for(let element in htmlBackground){
-		htmlBackground[element].style.setProperty('background-color', this.localProfile.colorScheme.base);
-		htmlBackground[element].style.setProperty('color-text', this.localProfile.colorScheme.compl);
+		htmlBackground[element].style.setProperty('background-color', this.local.profile.colorScheme.base);
+		htmlBackground[element].style.setProperty('color-text', this.local.profile.colorScheme.compl);
 	}
 	for(let element in htmlForeground){
 		htmlForeground[element].style.setProperty('background-color', 'transparent');
-		htmlForeground[element].style.setProperty('color-text', this.localProfile.colorScheme.compl);
-		htmlForeground[element].style.setProperty('border-color', this.localProfile.colorScheme.compl);
+		htmlForeground[element].style.setProperty('color-text', this.local.profile.colorScheme.compl);
+		htmlForeground[element].style.setProperty('border-color', this.local.profile.colorScheme.compl);
 	}
 	//Camera UI
-	auxl.cameraUI.ChangeSelf({property: 'material', value: {color: this.localProfile.colorScheme.base,}})
-	auxl.cameraUI.ChangeSelf({property: 'text', value: {color: this.localProfile.colorScheme.compl,}})
+	auxl.cameraUI.ChangeSelf({property: 'material', value: {color: this.local.profile.colorScheme.base,}})
+	auxl.cameraUI.ChangeSelf({property: 'text', value: {color: this.local.profile.colorScheme.compl,}})
 	//Floor
-	auxl.playerFloor.ChangeSelf({property: 'material', value: {color: this.localProfile.colorScheme.base,}})
-	auxl.playerFloor.ChangeSelf({property: 'text', value: {color: this.localProfile.colorScheme.compl,}})
+	auxl.playerFloor.ChangeSelf({property: 'material', value: {color: this.local.profile.colorScheme.base,}})
+	auxl.playerFloor.ChangeSelf({property: 'text', value: {color: this.local.profile.colorScheme.compl,}})
 	//Hands
 	//Floor
-	auxl.vrController1UI.ChangeSelf({property: 'material', value: {color: this.localProfile.colorScheme.base,}})
-	auxl.vrController1UI.ChangeSelf({property: 'text', value: {color: this.localProfile.colorScheme.compl,}})
-	auxl.vrController2UI.ChangeSelf({property: 'material', value: {color: this.localProfile.colorScheme.base,}})
-	auxl.vrController2UI.ChangeSelf({property: 'text', value: {color: this.localProfile.colorScheme.compl,}})
+	auxl.vrController1UI.ChangeSelf({property: 'material', value: {color: this.local.profile.colorScheme.base,}})
+	auxl.vrController1UI.ChangeSelf({property: 'text', value: {color: this.local.profile.colorScheme.compl,}})
+	auxl.vrController2UI.ChangeSelf({property: 'material', value: {color: this.local.profile.colorScheme.base,}})
+	auxl.vrController2UI.ChangeSelf({property: 'text', value: {color: this.local.profile.colorScheme.compl,}})
 
 	//console.log('Color Applied');
 }
@@ -171,50 +174,6 @@ const UpdateSystemText = (text) => {
 
 // Local Storage
 /*************************************************************/
-//Default Save
-const Default = () => {
-	this.localProfile = {};
-	this.localProfile.colorScheme = auxl.colorTheoryGen();
-	this.localProfile.id = this.localProfile.colorScheme.base;
-	this.localProfile.color = this.localProfile.colorScheme.base;
-	this.localProfile.shortname = this.localProfile.colorScheme.base;
-	this.localProfile.longname = this.data.longname;
-	this.localProfile.server = this.data.server;
-	this.localProfile.onlineKey = this.data.onlineKey;
-	//this.localProfile.systemText = 'Welcome ' + this.localProfile.shortname + '! ID :'+ this.localProfile.id + '| AUXL Engine v0.3.3!\n ^-^!\n Starting...';
-	this.localProfile.systemText = 'Welcome ' + this.localProfile.shortname;
-	this.systemText = this.localProfile.systemText
-	
-}
-
-//New
-const newStorage = () => {
-	//Fresh Session, Initiliaze Site Wide Settings
-	console.log('New here. Loading default data.');
-	//Default Data
-	Default();
-	//Assign Completion to Storage
-	window.localStorage.setItem("auxl", JSON.stringify(auxl.localProfile));
-	ApplySettings();
-}
-//Load
-const loadStorage = () => {
-	//Return Session, Load Site Wide Settings
-	console.log('Loading previous data.');
-	//Overwrite default profile
-	this.localProfile = JSON.parse(window.localStorage.getItem("auxl"))
-	ApplySettings();
-}
-
-//Set
-//If the value exists then we have already entered once, do not repeat link anims
-function setStorage(){
-	if(localStorage.getItem('auxl')){
-		loadStorage();
-	} else {
-		newStorage();
-	}
-}
 /*
 localStorage.setItem("myCat", "Tom");
 const cat = localStorage.getItem("myCat");
@@ -226,28 +185,175 @@ const cat = sessionStorage.getItem("myCat");
 sessionStorage.removeItem("myCat");
 sessionStorage.clear();
 */
+//Default Save Data
+const newData = () => {
+	this.local = {};
+	this.local.profile = {};
+	this.local.profile.time = {};
+	this.local.profile.time.creation = time();
+	this.local.profile.time.lastVisit = time();
+	this.local.profile.colorScheme = auxl.colorTheoryGen();
+	this.local.profile.id = this.local.profile.colorScheme.base;
+	this.local.profile.color = this.local.profile.colorScheme.base;
+	this.local.profile.shortname = this.local.profile.colorScheme.base;
+	this.local.profile.longname = this.data.longname;
+	this.local.profile.server = this.data.server;
+	this.local.profile.onlineKey = this.data.onlineKey;
+	//this.local.profile.systemText = 'Welcome ' + this.local.profile.shortname + '! ID :'+ this.local.profile.id + '| AUXL Engine v0.3.3!\n ^-^!\n Starting...';
+	this.local.profile.systemText = 'Welcome ' + this.local.profile.shortname;
+	this.systemText = this.local.profile.systemText
+	
+}
+//New
+const newStorage = () => {
+	//Fresh Session, Initiliaze Site Wide Settings
+	console.log('New here. Loading default data.');
+	//Default Data
+	newData();
+	//Assign Completion to Storage
+	window.localStorage.setItem("auxl", JSON.stringify(auxl.local));
+	ApplySettings();
+}
+//Load
+const loadStorage = () => {
+	//Return Session, Load Site Wide Settings
+	console.log('Loading previous data.');
+	//Overwrite default profile
+	this.local = JSON.parse(window.localStorage.getItem("auxl"));
+	ApplySettings();
+	this.local.profile.time.return = time();
+
+	this.local.profile.time.span = timeDif(this.local.profile.time.lastVisit, this.local.profile.time.return);
+	console.log('Time since last visit :');
+	console.log(this.local.profile.time.span);
+	//Update new Last Visit Data
+	this.local.profile.time.lastVisit = this.local.profile.time.return;
+	//Save Last Visit Date
+	auxl.saveToProfile();
+	UpdateFromLocal();
+}
+//Set
+//If the value exists then we have already entered once, do not repeat link anims
+const setStorage = () => {
+	if(localStorage.getItem('auxl')){
+		loadStorage();
+	} else {
+		newStorage();
+	}
+}
+//Save to Local
+this.saveToProfile = (auxlObject,type,name,data) => {
+	if(!auxlObject){} else {
+		if(auxl.local[auxlObject]){
+			auxl.local[auxlObject][type][name] = data;
+		} else {
+			auxl.local[auxlObject] = {};
+			auxl.local[auxlObject][type] = {};
+			auxl.local[auxlObject][type][name] = data;
+		}
+	}
+	window.localStorage.setItem("auxl", JSON.stringify(auxl.local));
+	//console.log(auxl.local)
+}
+//Update from Local
+const UpdateFromLocal = () => {
+	//console.log(auxl.local)//all
+	for(let each in auxl.local){
+		if(each === 'profile'){} else {
+			//console.log(each)//auxlobject name
+			//console.log(auxl.local[each])// auxlobject saved data
+			for(let type in auxl.local[each]){
+				//console.log(type)//type
+				//console.log(auxl.local[each][type])//saved data
+				for(let data in auxl.local[each][type]){
+					//console.log(data)//data key
+					//console.log(auxl.local[each][type][data])//data
+					if(auxl[each]){
+						auxl[each][type][data] = auxl.local[each][type][data];
+					}
+				}
+			}
+		}
+	}
+}
 
 //Time
 /*************************************************************/
-//Testing
+//Get Time
 function time(){
-	const ms = Date.now();//ms
-	const date = Date();//string
-	const start = new Date();//ms
-	const end = new Date();//ms
-	const elapsed = end.getTime() - start.getTime();
-
-	const birthday0 = new Date("1995-12-17T03:24:00"); // This is ISO-8601-compliant and will work reliably
-	const birthday1 = new Date(1995, 11, 17); // the month is 0-indexed
-	const birthday2 = new Date(1995, 11, 17, 3, 24, 0);
-
-	const getFullYear = birthday0.getFullYear();
-	const getMonth = birthday0.getMonth();
-	const getDate = birthday0.getDate();
-	const getDay = birthday0.getDay();
-	const getHours = birthday0.getHours();
-	const getMinutes = birthday0.getMinutes();
-	const getSeconds = birthday0.getSeconds();
+	let time = {};
+	time.time = new Date();
+	time.year = time.time.getFullYear();
+	time.month = time.time.getMonth();
+	time.date = time.time.getDate();
+	time.day = time.time.getDay();
+	time.hour = time.time.getHours();
+	time.minute = time.time.getMinutes();
+	time.second = time.time.getSeconds();
+	time.ms = time.time.getTime();
+	return time;
+}
+//Time Difference from returned time() object
+function timeDif(start, end){
+	let timeDif = {};
+	let time = {};
+	//Time in MS
+	let ms = 1;
+	let msSecond = 1000;
+	let msMinute = msSecond * 60;
+	let msHour = msMinute * 60;
+	let msDay = msHour * 24;
+	let msMonth = msDay * (365.25/12);
+	let msYear = msMonth * 12;
+	//Get Amount of Time from MS
+	function totalTime(ms){
+		let time = {};
+		time.ms = ms;
+		time.seconds = Math.floor(time.ms / 1000);
+		time.minutes = Math.floor(time.seconds / 60);
+		time.hours = Math.floor(time.minutes / 60);
+		time.days = Math.floor(time.hours / 24);
+		time.months = Math.floor(time.days / (365/12));
+		time.years = Math.floor(time.months / 12);
+		return time;
+	}
+	//Total Time Difference
+	//time.total = end.getTime() - start.getTime();
+	time.total = end.ms - start.ms;
+	//Current Time Difference
+	//let msCurrentDif = end.getTime() - start.getTime();
+	let msCurrentDif = end.ms - start.ms;
+	timeDif = totalTime(msCurrentDif);
+	//Calculate Amounts
+	//Year
+	msCurrentDif -= (timeDif.years * msYear);
+	time.years = timeDif.years;
+	timeDif = totalTime(msCurrentDif);
+	//Month
+	msCurrentDif -= (timeDif.months * msMonth);
+	time.months = timeDif.months;
+	timeDif = totalTime(msCurrentDif);
+	//Days
+	msCurrentDif -= (timeDif.days * msDay);
+	time.days = timeDif.days;
+	timeDif = totalTime(msCurrentDif);
+	//Hours
+	msCurrentDif -= (timeDif.hours * msHour);
+	time.hours = timeDif.hours;
+	timeDif = totalTime(msCurrentDif);
+	//Minutes
+	msCurrentDif -= (timeDif.minutes * msMinute);
+	time.minutes = timeDif.minutes;
+	timeDif = totalTime(msCurrentDif);
+	//Seconds
+	msCurrentDif -= (timeDif.seconds * msSecond);
+	time.seconds = timeDif.seconds;
+	timeDif = totalTime(msCurrentDif);
+	//MS
+	msCurrentDif -= (timeDif.ms * ms);
+	time.ms = timeDif.ms;
+	timeDif = totalTime(msCurrentDif);
+	return time;
 }
 
 /*************************************************************/
@@ -2146,6 +2252,9 @@ this.Player = (id,name,layer) => {
 	layer.inventoryText = layer.inventoryPreText + 'Empty';
 	//Flashlight
 	layer.flashlight = false;
+	//Belt Text
+	layer.beltDisplay = true;
+	layer.beltText = 'Player :\n'
 
 	//Spawn Player
 	layer.SpawnLayer();
@@ -2158,6 +2267,7 @@ this.Player = (id,name,layer) => {
 	camera = document.getElementById('camera');
 	cameraUI = document.getElementById('cameraUI');
 	playerFloor = document.getElementById('playerFloor');
+	playerBeltUI = document.getElementById('playerBeltUI');
 	mouseController = document.getElementById('mouseController');
 	vrController1 = document.getElementById('vrController1');
 	vrController1UI = document.getElementById('vrController1UI');
@@ -2256,6 +2366,22 @@ this.Player = (id,name,layer) => {
 		auxl.sphereScreen.ChangeSelf({property: 'material', value:{color: newColor}});
 		auxl.blink1Screen.ChangeSelf({property: 'material', value:{color: newColor}});
 		auxl.blink2Screen.ChangeSelf({property: 'material', value:{color: newColor}});
+	}
+	//Toggle Belt Text
+	const ToggleBeltText = () => {
+		if(layer.beltDisplay){
+			auxl.playerBeltText.ChangeSelf({property: 'visible', value:false})
+			layer.beltDisplay = false;
+		} else {
+			auxl.playerBeltText.ChangeSelf({property: 'visible', value:true})
+			layer.beltDisplay = true;
+		}
+
+	}
+	playerFloor.addEventListener('click',ToggleBeltText);
+	//Update Belt Text
+	const UpdateBeltText = (text) => {
+		auxl.playerBeltText.ChangeSelf({property: 'text', value:{value: text}})
 	}
 	//Update UI Text
 	const UpdateUIText = (text) => {
@@ -2718,7 +2844,7 @@ this.Player = (id,name,layer) => {
 		console.log(params);
 	}
 
-	return {layer, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, UpdateUIText, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, DetachFromPlayer, TestFunc}
+	return {layer, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, DetachFromPlayer, TestFunc}
 }
 
 //
@@ -3893,6 +4019,8 @@ this.HamMenu = (id, object) => {
 	const SpawnHam = () => {
 		if(ham.inScene){}else{
 			if(ham.avatarType === 'core'){
+//get player y rotation to match
+
 				ham.avatar.SpawnCore(auxl.playerRig.GetEl());
 			} else {
 				ham.avatar.SpawnLayer(auxl.playerRig.GetEl());
@@ -5191,15 +5319,15 @@ this.World = (worldData) => {
 	}
 	//Next Scenario
 	const NextScenario = () => {
-		Clear(world.current);
+		ClearScenario(world.current);
 		world.current++;
-		Start(world.current);
+		StartScenario(world.current);
 	}
 	//Load Scenario
 	const LoadScenario = (num) => {
-		Clear(world.current);
+		ClearScenario(world.current);
 		world.current = num;
-		Start(world.current);
+		StartScenario(world.current);
 	}
 
 	return {world, SetAsDefault, StartWorld, StopWorld, StartScenario, ClearScenario, NextScenario, LoadScenario}
@@ -5854,6 +5982,7 @@ return {npc, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, Ena
 this.SkyBox = (skyBoxData) => {
 	let skyBox = Object.assign({}, skyBoxData);
 	skyBox.inScene = false;
+	skyBox.day = false;
 	let dayNightTimeout;
 	let dayNightInterval;
 	//Spawn All Light Core/Layers
@@ -5955,6 +6084,19 @@ this.SkyBox = (skyBoxData) => {
 			skyBox.inScene = false;
 		}
 	}
+	//Emit Event for All in Array
+	const EmitEventArray = (all, event) => {
+		for(let each in all){
+			if(all[each].SpawnCore){
+				all[each].EmitEvent(event);
+			} else if(all[each].SpawnLayer){
+				all[each].EmitEventAll(event);
+			} else {
+				console.log('Failed to emit event to object');
+				console.log(all[each]);
+			}
+		}
+	}
 	//Toggle Spawn
 	const ToggleSpawn = () => {
 		if(skyBox.inScene){
@@ -5987,33 +6129,29 @@ this.SkyBox = (skyBoxData) => {
 	}
 	//Sunrise Animation Event
 	const Sunrise = () => {
-		auxl.directionalLight.EmitEvent('sunrise');
-		auxl.directionalLight2.EmitEvent('sunrise');
-		auxl.directionalLight3.EmitEvent('sunrise');
-		auxl.ambientLight.EmitEvent('sunrise');
-		auxl.skyGrad.EmitEvent('sunrise');
-		auxl.sunLayer.EmitEventParent('sunrise');
-		auxl.moonLayer.EmitEventParent('sunrise');
+		skyBox.day = true;
+		EmitEventArray(skyBox.lights, 'sunrise');
+		EmitEventArray(skyBox.sky, 'sunrise');
+		EmitEventArray(skyBox.space, 'sunrise');
+	}
+	//Sunset Animation Event
+	const Sunset = () => {
+		skyBox.day = false;
+		EmitEventArray(skyBox.lights, 'sunset');
+		EmitEventArray(skyBox.sky, 'sunset');
+		EmitEventArray(skyBox.space, 'sunset');
 	}
 	//Suspend Day/Night Animation
 	const PauseDayNight = () => {
-		auxl.directionalLight.EmitEvent('pauseDayNight');
-		auxl.directionalLight2.EmitEvent('pauseDayNight');
-		auxl.directionalLight3.EmitEvent('pauseDayNight');
-		auxl.ambientLight.EmitEvent('pauseDayNight');
-		auxl.skyGrad.EmitEvent('pauseDayNight');
-		auxl.sunLayer.EmitEventParent('pauseDayNight');
-		auxl.moonLayer.EmitEventParent('pauseDayNight');
+		EmitEventArray(skyBox.lights, 'pauseDayNight');
+		EmitEventArray(skyBox.sky, 'pauseDayNight');
+		EmitEventArray(skyBox.space, 'pauseDayNight');
 	}
 	//Resume Day/Night Animation
 	const ResumeDayNight = () => {
-		auxl.directionalLight.EmitEvent('resumeDayNight');
-		auxl.directionalLight2.EmitEvent('resumeDayNight');
-		auxl.directionalLight3.EmitEvent('resumeDayNight');
-		auxl.ambientLight.EmitEvent('resumeDayNight');
-		auxl.skyGrad.EmitEvent('resumeDayNight');
-		auxl.sunLayer.EmitEventParent('resumeDayNight');
-		auxl.moonLayer.EmitEventParent('resumeDayNight');
+		EmitEventArray(skyBox.lights, 'resumeDayNight');
+		EmitEventArray(skyBox.sky, 'resumeDayNight');
+		EmitEventArray(skyBox.space, 'resumeDayNight');
 	}
 	//Looping Day/Night Cycle
 	const DayNightCycle = (dayLength) => {
@@ -6026,19 +6164,14 @@ this.SkyBox = (skyBoxData) => {
 			}
 		}
 		Sunrise();
-		auxl.skyGrad.SetFlag({flag:'day', value: true});
 		dayNightTimeout = setTimeout(function () {
-			auxl.skyGrad.SetFlag({flag:'day', value: false});
-			auxl.skyGrad.EmitEvent('sunset');
+			Sunset();
 			dayNightInterval = setInterval(function() {
-				if(auxl.skyGrad.GetFlag('day')){
-					auxl.skyGrad.SetFlag({flag:'day', value: false});
-					auxl.skyGrad.EmitEvent('sunset');
+				if(skyBox.day){
+					Sunset();
 				}else{
-					auxl.skyGrad.SetFlag({flag:'day', value: true});
-					auxl.skyGrad.EmitEvent('sunrise');
+					Sunrise();
 				}
-
 			}, auxl.timeInDay/2);
 		}, auxl.timeInDay/2 - auxl.timeInDay/24);
 	}
@@ -9034,6 +9167,42 @@ classes: ['a-ent','player'],
 components: {visible: 'false',},
 };
 auxl.vrController2UI = auxl.Core(auxl.vrController2UIData);
+//Belt UI
+auxl.playerBeltUIData = {
+data:'playerBeltUIData',
+id:'playerBeltUI',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	['look-at-xyz']:{match: 'camera', x:false, y:true, z:false}
+},
+};
+auxl.playerBeltUI = auxl.Core(auxl.playerBeltUIData);
+//Belt Text
+auxl.playerBeltTextData = {
+data:'playerBeltTextData',
+id:'playerBeltText',
+sources:false,
+text: {value:'Player :\n', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.9, zOffset: 0.03, side: 'front', wrapCount: 45, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 1, height: 0.25},
+material: {shader: "standard", color: "#4bb8c1", opacity: 0.75, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0,0.69,-0.8),
+rotation: new THREE.Vector3(-30,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.playerBeltText = auxl.Core(auxl.playerBeltTextData);
 //Player Bottom
 auxl.playerFloorData = {
 data:'Player Floor',
@@ -9041,7 +9210,7 @@ id:'playerFloor',
 sources: false,
 text: false,
 geometry: {primitive: 'circle', radius: 1, segments: 32, thetaStart: 0, thetaLength: 360},
-material: {shader: "flat", color: "#3EB489", opacity: 0.69, side: 'both'},
+material: {shader: "flat", src: './assets/img/compass/compass.jpg', repeat: '1 1', color: "#3EB489", opacity: 0.42, side: 'both'},
 position: new THREE.Vector3(0,0.05,0),
 rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -9188,7 +9357,11 @@ child2: {
 	parent: {core: auxl.vrController2},
 	child0: {core: auxl.vrController2UI},
 },
-child3: {core: auxl.playerFloor},
+child3: {
+	parent: {core: auxl.playerBeltUI},
+	child0: {core: auxl.playerBeltText},
+},
+child4: {core: auxl.playerFloor},
 }
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
 auxl.playerLayer = auxl.Layer('playerLayer', auxl.playerAll);
@@ -9594,6 +9767,7 @@ animations: false,
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
+//['look-at-xyz']:{match: 'camera', y:true},
 ['look-at']:'#camera',
 },
 };
@@ -9831,7 +10005,8 @@ mouseenterrun:{cursorObj: 'hamCube', method: 'CursorEnterRun', params: null},
 mouseleaverun:{cursorObj: 'hamCube', method: 'CursorLeaveRun', params: null}, 
 mouseuprun:{cursorObj: 'hamCube', method: 'CursorUpRun', params: null},
 eventrun:{event: 'testEventHit',cursorObj: 'hamCube', method: 'FuseClickRun', params: null}, 
-['look-at-xyz']:{match: 'camera', y:true},
+//['look-at-xyz']:{match: 'camera', y:true},
+['look-at']:'#camera',
 },
 };
 auxl.hamCube = auxl.Core(auxl.hamCubeData);
@@ -9851,7 +10026,8 @@ animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.2, dur: 7
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
-['look-at-xyz']:{match: 'camera', y:true},
+//['look-at-xyz']:{match: 'camera', y:true},
+['look-at']:'#camera',
 },
 };
 auxl.hamSphere = auxl.Core(auxl.hamSphereData);
@@ -9871,10 +10047,30 @@ animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.2, dur: 7
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
-['look-at-xyz']:{match: 'camera', y:true},
+//['look-at-xyz']:{match: 'camera', y:true},
+['look-at']:'#camera',
 },
 };
 auxl.hamPlane = auxl.Core(auxl.hamPlaneData);
+
+//Ham Avatar Parent
+//Belt UI
+auxl.hamAvatarData = {
+data:'hamAvatarData',
+id:'hamAvatar',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.hamAvatar = auxl.Core(auxl.hamAvatarData);
 
 //auxl.ham = auxl.HamMenu('ham',auxl.hamComp);
 auxl.ham = auxl.HamMenu('ham',auxl.ghost);
@@ -10189,7 +10385,7 @@ position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: {
-daylight:{property: 'light.intensity', from: 0.5, to: 0.25, dur: auxl.timeInDay/2, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},
+daylight:{property: 'light.intensity', from: 0.5, to: 0.25, dur: auxl.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},
 daycolor:{property: 'light.color', from: '#99154E', to: '#fffb96', dur: auxl.timeInDay/4, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},
 },
 mixins: false,
@@ -10211,7 +10407,7 @@ position: new THREE.Vector3(1,1,1),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: {
-nightlight:{property: 'light.intensity', from: 0.2, to: 0.1, dur: auxl.timeInDay/4, delay: 0, loop: 'true', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},
+nightlight:{property: 'light.intensity', from: 0.2, to: 0.1, dur: auxl.timeInDay/4, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},
 daypos:{property: 'position', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(-1,1,-1), dur: auxl.timeInDay/2, delay: 0, loop: '1', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},
 
 },
@@ -10256,7 +10452,7 @@ material: false,
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(-10,45,0),
 scale: new THREE.Vector3(1,1,1),
-animations:{daynight:{property: 'object3D.rotation.x', from: -5, to: 355, dur: auxl.timeInDay, delay: 0, loop: 'true', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true,startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},},
+animations:{daynight:{property: 'object3D.rotation.x', from: -5, to: 355, dur: auxl.timeInDay, delay: 0, loop: '1', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true,startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},},
 mixins: false,
 classes: ['a-ent'],
 components: false,
@@ -10294,7 +10490,7 @@ material: false,
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(170,45,0),
 scale: new THREE.Vector3(1,1,1),
-animations:{daynight:{property: 'object3D.rotation.x', from: 175, to: 535, dur: auxl.timeInDay, delay: 0, loop: 'true', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true,startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},},
+animations:{daynight:{property: 'object3D.rotation.x', from: 175, to: 535, dur: auxl.timeInDay, delay: 0, loop: '1', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true,startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},},
 mixins: false,
 classes: ['a-ent'],
 components: false,
@@ -10346,24 +10542,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.skyGrad = auxl.Core(auxl.skyGradData);
-//Alpha Stars
-auxl.skyStarAlphaData = {
-data: 'sky alpha',
-id: 'skyStarAlpha',
-entity: 'a-sky',
-sources: false,
-text: false,
-geometry: false,
-material: {shader: "flat", src:'./assets/img/360/star-alpha.png', alphaTest: 0.89, transparent: true,},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(0.95, 0.95, 0.95),
-animations:{rotate: {property: 'object3D.rotation.z', from: 0, to: 360, dur: 4000000, delay: 0, loop: 'true', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true}, },
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
+//
 //skyBox0
 auxl.skyBox0Data = {
 data:'skyBox0Data',

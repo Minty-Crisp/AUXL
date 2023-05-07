@@ -103,6 +103,12 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Dynamic controls now take in an Action name and Action description that populate a control configuration window toggleable from the Ham menu to display all current control configurations for the current mode (Desktop, Mobile, VR Advanced, VR Basic, etc...).
 - Added Companion method to change avatar's core/layer and menu option for a few preconfigured styles.
 - Updated Core's to be able to parent to a core, layer(parentEl), html entity or html element id string.
+- Added a belt text UI attached to player to display relevant information and method to update it as well as to toggle it. Toggle attached to player floor.
+- Added compass texture to player floor.
+- Updated SwipeLaunchGame with a Instructions and High Score Leaderboard synced to localStorage.
+- Adjusted SkyBox ObjGen to fire Sunrise/Sunset events to all core/layers in imported array for each section
+- Added auxl.saveToProfile() system function to save AUXLObject data to localstorage which upon reloading the page and finding data, will use the system function UpdateFromLocal() to update all AUXLObjects with that save data. Any AUXLObjects that support save data needs to refresh itself upon spawning as the data will be updated after it's initial creation.
+- Added system function to generate time object and time/date difference of time objects. Added profile creation time sync, current time sync and time span since last visit time sync.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
