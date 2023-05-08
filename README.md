@@ -109,6 +109,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Adjusted SkyBox ObjGen to fire Sunrise/Sunset events to all core/layers in imported array for each section
 - Added auxl.saveToProfile() system function to save AUXLObject data to localstorage which upon reloading the page and finding data, will use the system function UpdateFromLocal() to update all AUXLObjects with that save data. Any AUXLObjects that support save data needs to refresh itself upon spawning as the data will be updated after it's initial creation.
 - Added system function to generate time object and time/date difference of time objects. Added profile creation time sync, current time sync and time span since last visit time sync.
+- Updated Scene, Zone, Scenario and Book Instructions to support Switch like statements
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates

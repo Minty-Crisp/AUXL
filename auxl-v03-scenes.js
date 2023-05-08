@@ -62,6 +62,24 @@ components: false,
 };
 auxl.cubeCore = auxl.Core(auxl.cubeCoreData);
 
+//Cube
+auxl.switchCubeData = {
+data:'switchCubeData',
+id:'switchCube',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: auxl.pattern11, repeat: '1 1', color: "#2380b2", emissive: '#2380b2', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(-1,2,-1.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.switchCube = auxl.Core(auxl.switchCubeData);
+
 //Floor
 auxl.floorData = {
 	data:'floorData',
@@ -543,6 +561,22 @@ auxl.npcKeyPage1Data = {
 		self:{Speak:{speech:'Good luck finding where it goes!'}},
 	},
 	timeline3:{
+		self:{Speak:{speech:'Lets see the switch change'}},
+/*
+		self:{Switch: {switchCube:{cond: 'testSwitch',
+			switchCond1: {
+				switchCube:{EmitEvent: 'switch1',SetFlag:{flag: 'testSwitch', value: 'switchCond2'},},
+			},switchCond2: {
+				switchCube:{EmitEvent: 'switch2',SetFlag:{flag: 'testSwitch', value: 'switchCond3'},},
+			},switchCond3: {
+				switchCube:{EmitEvent: 'switch3',SetFlag:{flag: 'testSwitch', value: 'switchCond4'},},
+			},default: {
+				switchCube:{EmitEvent: 'switch4',SetFlag:{flag: 'testSwitch', value: 'switchCond1'},},
+			},
+		}}},
+*/
+	},
+	timeline4:{
 		self: {ResetBook: true},
 	},
 };
@@ -696,8 +730,6 @@ auxl.npcMintyBookTestData = {
 };
 auxl.npcMinty = auxl.NPC(auxl.npcMintyCore, auxl.npcMintyBookTestData, auxl.npcMintyTextBubble);
 
-
-
 //
 //Doorways
 
@@ -775,6 +807,7 @@ auxl.zone0Data = {
 		action6Down:{auxlObj: 'player', func: 'ToggleSittingMode', name: 'Toggle Sit/Stand', info: 'Change your height between sitting and standing mode.'},
 	},
 	start:{
+		switchCube:{SpawnCore:null},
 		cubeCore:{SpawnCore:null},
 	},
 	delay:{
@@ -831,6 +864,7 @@ auxl.zone0Scene0Data = {
 		//test:{SpawnTest:null},
 		//guessHitGame:{SpawnGHGame:null},
 		//npcMinty:{SpawnNPC:null},
+		//switchCube:{SpawnCore:null},
 		doorway1:{SpawnCore:null},
 		doorway2:{SpawnCore:null},
 		//ghost:{SpawnLayer:null},
@@ -839,6 +873,28 @@ auxl.zone0Scene0Data = {
 	delay:{
 	},
 	interval:{
+/*
+		5000: {
+			run: {switchCube:{EmitEvent: 'switchEvent'},}, loop: 'infinite'
+		},
+*/
+/*
+		5000: {
+			run: {
+				switchCube:{Switch: {switchCube:{cond: 'testSwitch',
+					switchCond1: {
+						switchCube:{EmitEvent: 'switch1',SetFlag:{flag: 'testSwitch', value: 'switchCond2'},},
+					},switchCond2: {
+						switchCube:{EmitEvent: 'switch2',SetFlag:{flag: 'testSwitch', value: 'switchCond3'},},
+					},switchCond3: {
+						switchCube:{EmitEvent: 'switch3',SetFlag:{flag: 'testSwitch', value: 'switchCond4'},},
+					},default: {
+						switchCube:{EmitEvent: 'switch4',SetFlag:{flag: 'testSwitch', value: 'switchCond1'},},
+					},
+				}}},
+			}, loop: 'infinite'
+		},
+*/
 /*
 		5000: {
 			run: {ghost:{IfElse: {ghost: {cond: 'power',
@@ -853,6 +909,31 @@ auxl.zone0Scene0Data = {
 */
 	},
 	event:{
+		switchEvent: {
+			switchCube:{Switch: {switchCube:{cond: 'testSwitch',
+				switchCond1: {
+					switchCube:{EmitEvent: 'switch1',SetFlag:{flag: 'testSwitch', value: 'switchCond2'},},
+				},switchCond2: {
+					switchCube:{EmitEvent: 'switch2',SetFlag:{flag: 'testSwitch', value: 'switchCond3'},},
+				},switchCond3: {
+					switchCube:{EmitEvent: 'switch3',SetFlag:{flag: 'testSwitch', value: 'switchCond4'},},
+				},default: {
+					switchCube:{EmitEvent: 'switch4',SetFlag:{flag: 'testSwitch', value: 'switchCond1'},},
+				},
+			}}},
+		},
+		switch1: {
+			switchCube: {ChangeSelf: {property: 'material', value: {color: '#1da356', emissive: '#1da356'}}},
+		},
+		switch2: {
+			switchCube: {ChangeSelf: {property: 'material', value: {color: '#a72fe6', emissive: '#a72fe6'}}},
+		},
+		switch3: {
+			switchCube: {ChangeSelf: {property: 'material', value: {color: '#e6ca2f', emissive: '#e6ca2f'}}},
+		},
+		switch4: {
+			switchCube: {ChangeSelf: {property: 'material', value: {color: '#e62f59', emissive: '#e62f59'}}},
+		},
 	},
 	interaction:{
 	},

@@ -4124,7 +4124,7 @@ this.SceneNode = (sceneData) => {
 	//If/Else support to run auxlObjMethod()
 	const IfElse = (objRef, condObj,{cond, ifTrue, ifFalse}) => {
 		if(auxl[condObj].GetFlag){
-			//Core
+			//Core, Basic Objects
 			if(auxl[condObj].GetFlag(cond)) {
 				for(let a in ifTrue){
 					for(let b in ifTrue[a]){
@@ -4153,6 +4153,62 @@ this.SceneNode = (sceneData) => {
 					}
 				}
 			}
+		}
+	}
+	//Switch support to run auxlObjMethod()
+	const Switch = (objRef, condObj,switchInfo) => {
+		let switchCases = [];
+		for(let each in switchInfo){
+			if(each === 'default'){}else{
+				switchCases.push(each)
+			}
+		}
+		if(auxl[condObj].GetFlag){
+			//Core, Basic Objects
+			let switchCondition = auxl[condObj].GetFlag(switchInfo.cond);
+			//console.log(switchCondition);
+			//Cases
+			for(let each in switchCases){
+				if(switchCondition === switchCases[each]){
+					for(let a in switchInfo[switchCases[each]]){
+						for(let b in switchInfo[switchCases[each]][a]){
+							auxlObjMethod(a,b,switchInfo[switchCases[each]][a][b]);
+						}
+					}
+					return;
+				}
+			}
+			//Default
+			for(let a in switchInfo.default){
+				for(let b in switchInfo.default[a]){
+					auxlObjMethod(a,b,switchInfo.default[a][b]);
+				}
+			}
+		} else if(auxl[condObj].GetFlagParent){
+			//Layer
+			let switchCondition = auxl[condObj].GetFlagParent(switchInfo.cond);
+			//console.log(switchCondition);
+			//Cases
+			for(let each in switchCases){
+				if(switchCondition === switchCases[each]){
+					for(let a in switchInfo[switchCases[each]]){
+						for(let b in switchInfo[switchCases[each]][a]){
+							auxlObjMethod(a,b,switchInfo[switchCases[each]][a][b]);
+						}
+					}
+					return;
+				}
+			}
+			//Default
+			for(let a in switchInfo.default){
+				for(let b in switchInfo.default[a]){
+					auxlObjMethod(a,b,switchInfo.default[a][b]);
+				}
+			}
+		} else {
+			console.log(condObj);
+			console.log('Unable to find value');
+			console.log(switchInfo.cond);
 		}
 	}
 	//Add Timeout, Interval, Interaction & Event listeners to NodeScene Tracker
@@ -4222,6 +4278,14 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 									clearTimeout(auxl.timeouts[line+a]);
 								}, line);
 							}
+						} else if(b === 'Switch'){
+							for(let c in core[time][line][a][b]){
+								AddToTimeIntEvtTracker({name: line, type: 'timeout', id: a});
+								auxl.timeouts[line+a] = setTimeout(function () {
+									Switch(a,c,core[time][line][a][b][c]);
+									clearTimeout(auxl.timeouts[line+a]);
+								}, line);
+							}
 						} else {
 							AddToTimeIntEvtTracker({name: line, type: 'timeout', id: a});
 							auxl.timeouts[line+a] = setTimeout(function () {
@@ -4253,6 +4317,25 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 												RemoveFromTimeIntEvtTracker(line+b);
 											}*/
 											IfElse(b,d,core[time][line][a][b][c][d]);
+											if(loopTotal === 'infinite'){} else {
+												ranTotal++;
+												if(ranTotal >= loopTotal){
+													clearInterval(auxl.intervals[line+b]);
+													RemoveFromTimeIntEvtTracker(line+b);
+												}
+											}
+										}, line);
+									}
+								} else if(c === 'Switch'){
+									for(let d in core[time][line][a][b][c]){
+										AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
+										auxl.intervals[line+b] = setInterval(function() {
+											/*
+											if(auxl[b].GetFlag(endCond) === 'true'){
+												clearInterval(auxl.intervals[line+b]);
+												RemoveFromTimeIntEvtTracker(line+b);
+											}*/
+											Switch(b,d,core[time][line][a][b][c][d]);
 											if(loopTotal === 'infinite'){} else {
 												ranTotal++;
 												if(ranTotal >= loopTotal){
@@ -4302,6 +4385,15 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 									IfElse(object,c,params);
 								});
 							}
+						} else if(b === 'Switch'){
+							for(let c in core[time][line][a][b]){
+								object = a;
+								params = core[time][line][a][b][c];
+								AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
+								auxl[object].GetEl().addEventListener(line, function(){
+									Switch(object,c,params);
+								});
+							}
 						} else {
 							object = a;
 							method = b;
@@ -4329,6 +4421,15 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 									IfElse(object,c,params);
 								});
 							}
+						} else if(b === 'Switch'){
+							for(let c in core[time][line][a][b]){
+								object = a;
+								params = core[time][line][a][b][c];
+								AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+								auxl[object].GetEl().addEventListener(line, function(){
+									Switch(object,c,params);
+								});
+							}
 						} else {
 							object = a;
 							method = b;
@@ -4348,6 +4449,10 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 							for(let b in core[time][line][a]){
 								IfElse(line,b,core[time][line][a][b]);
 							}
+						} else if(a === 'Switch'){
+							for(let b in core[time][line][a]){
+								Switch(line,b,core[time][line][a][b]);
+							}
 						} else {
 							auxlObjMethod(line,a,core[time][line][a]);
 						}
@@ -4355,6 +4460,10 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 						if(a === 'IfElse'){
 							for(let b in core[time][line][a]){
 								IfElse(line,b,core[time][line][a][b]);
+							}
+						} else if(a === 'Switch'){
+							for(let b in core[time][line][a]){
+								Switch(line,b,core[time][line][a][b]);
 							}
 						} else {
 							auxlObjMethod(line,a,core[time][line][a]);
@@ -4512,6 +4621,62 @@ this.MapZone = (mapZoneData) => {
 			}
 		}
 	}
+	//Switch support to run auxlObjMethod()
+	const Switch = (objRef, condObj,switchInfo) => {
+		let switchCases = [];
+		for(let each in switchInfo){
+			if(each === 'default'){}else{
+				switchCases.push(each)
+			}
+		}
+		if(auxl[condObj].GetFlag){
+			//Core, Basic Objects
+			let switchCondition = auxl[condObj].GetFlag(switchInfo.cond);
+			//console.log(switchCondition);
+			//Cases
+			for(let each in switchCases){
+				if(switchCondition === switchCases[each]){
+					for(let a in switchInfo[switchCases[each]]){
+						for(let b in switchInfo[switchCases[each]][a]){
+							auxlObjMethod(a,b,switchInfo[switchCases[each]][a][b]);
+						}
+					}
+					return;
+				}
+			}
+			//Default
+			for(let a in switchInfo.default){
+				for(let b in switchInfo.default[a]){
+					auxlObjMethod(a,b,switchInfo.default[a][b]);
+				}
+			}
+		} else if(auxl[condObj].GetFlagParent){
+			//Layer
+			let switchCondition = auxl[condObj].GetFlagParent(switchInfo.cond);
+			//console.log(switchCondition);
+			//Cases
+			for(let each in switchCases){
+				if(switchCondition === switchCases[each]){
+					for(let a in switchInfo[switchCases[each]]){
+						for(let b in switchInfo[switchCases[each]][a]){
+							auxlObjMethod(a,b,switchInfo[switchCases[each]][a][b]);
+						}
+					}
+					return;
+				}
+			}
+			//Default
+			for(let a in switchInfo.default){
+				for(let b in switchInfo.default[a]){
+					auxlObjMethod(a,b,switchInfo.default[a][b]);
+				}
+			}
+		} else {
+			console.log(condObj);
+			console.log('Unable to find value');
+			console.log(switchInfo.cond);
+		}
+	}
 	//Run Object Generator Function within MapZone w/Scene Tracking
 	const auxlObjMethod = (object, func, params) => {
 		//Check if spawning to add to Tracker
@@ -4574,6 +4739,14 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 									clearTimeout(auxl.timeouts[line+a]);
 								}, line);
 							}
+						} else if(b === 'Switch'){
+							for(let c in core[time][line][a][b]){
+								AddToZoneTimeIntEvtTracker({name: line, type: 'timeout', id: a});
+								auxl.timeouts[line+a] = setTimeout(function () {
+									Switch(a,c,core[time][line][a][b][c]);
+									clearTimeout(auxl.timeouts[line+a]);
+								}, line);
+							}
 						} else {
 							AddToZoneTimeIntEvtTracker({name: line, type: 'timeout', id: a});
 							auxl.timeouts[line+a] = setTimeout(function () {
@@ -4602,14 +4775,33 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 											/*
 											if(auxl[b].GetFlag(endCond) === 'true'){
 												clearInterval(auxl.intervals[line+b]);
-												RemoveFromZoneTimeIntEvtTracker(line+b);
+												RemoveFromTimeIntEvtTracker(line+b);
 											}*/
 											IfElse(b,d,core[time][line][a][b][c][d]);
 											if(loopTotal === 'infinite'){} else {
 												ranTotal++;
 												if(ranTotal >= loopTotal){
 													clearInterval(auxl.intervals[line+b]);
-													RemoveFromZoneTimeIntEvtTracker(line+b);
+													RemoveFromTimeIntEvtTracker(line+b);
+												}
+											}
+										}, line);
+									}
+								} else if(c === 'Switch'){
+									for(let d in core[time][line][a][b][c]){
+										AddToZoneTimeIntEvtTracker({name: line, type: 'interval', id: b});
+										auxl.intervals[line+b] = setInterval(function() {
+											/*
+											if(auxl[b].GetFlag(endCond) === 'true'){
+												clearInterval(auxl.intervals[line+b]);
+												RemoveFromTimeIntEvtTracker(line+b);
+											}*/
+											Switch(b,d,core[time][line][a][b][c][d]);
+											if(loopTotal === 'infinite'){} else {
+												ranTotal++;
+												if(ranTotal >= loopTotal){
+													clearInterval(auxl.intervals[line+b]);
+													RemoveFromTimeIntEvtTracker(line+b);
 												}
 											}
 										}, line);
@@ -4622,14 +4814,14 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 										/*
 										if(auxl[b].GetFlag(endCond) === 'true'){
 											clearInterval(auxl.intervals[line+b]);
-											RemoveFromZoneTimeIntEvtTracker(line+b);
+											RemoveFromTimeIntEvtTracker(line+b);
 										}*/
 										auxlObjMethod(b,method,params);
 										if(loopTotal === 'infinite'){} else {
 											ranTotal++;
 											if(ranTotal >= loopTotal){
 												clearInterval(auxl.intervals[line+b]);
-												RemoveFromZoneTimeIntEvtTracker(line+b);
+												RemoveFromTimeIntEvtTracker(line+b);
 											}
 										}
 									}, line);
@@ -4652,6 +4844,15 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 								AddToZoneTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
 								auxl[object].GetEl().addEventListener(line, function(){
 									IfElse(object,c,params);
+								});
+							}
+						} else if(b === 'Switch'){
+							for(let c in core[time][line][a][b]){
+								object = a;
+								params = core[time][line][a][b][c];
+								AddToZoneTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
+								auxl[object].GetEl().addEventListener(line, function(){
+									Switch(object,c,params);
 								});
 							}
 						} else {
@@ -4681,6 +4882,15 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 									IfElse(object,c,params);
 								});
 							}
+						} else if(b === 'Switch'){
+							for(let c in core[time][line][a][b]){
+								object = a;
+								params = core[time][line][a][b][c];
+								AddToZoneTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+								auxl[object].GetEl().addEventListener(line, function(){
+									Switch(object,c,params);
+								});
+							}
 						} else {
 							object = a;
 							method = b;
@@ -4700,6 +4910,10 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 							for(let b in core[time][line][a]){
 								IfElse(line,b,core[time][line][a][b]);
 							}
+						} else if(a === 'Switch'){
+							for(let b in core[time][line][a]){
+								Switch(line,b,core[time][line][a][b]);
+							}
 						} else {
 							auxlObjMethod(line,a,core[time][line][a]);
 						}
@@ -4707,6 +4921,10 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 						if(a === 'IfElse'){
 							for(let b in core[time][line][a]){
 								IfElse(line,b,core[time][line][a][b]);
+							}
+						} else if(a === 'Switch'){
+							for(let b in core[time][line][a]){
+								Switch(line,b,core[time][line][a][b]);
 							}
 						} else {
 							auxlObjMethod(line,a,core[time][line][a]);
@@ -4968,6 +5186,62 @@ this.Scenario = (scenarioData) => {
 			}
 		}
 	}
+	//Switch support to run auxlObjMethod()
+	const Switch = (objRef, condObj,switchInfo) => {
+		let switchCases = [];
+		for(let each in switchInfo){
+			if(each === 'default'){}else{
+				switchCases.push(each)
+			}
+		}
+		if(auxl[condObj].GetFlag){
+			//Core, Basic Objects
+			let switchCondition = auxl[condObj].GetFlag(switchInfo.cond);
+			//console.log(switchCondition);
+			//Cases
+			for(let each in switchCases){
+				if(switchCondition === switchCases[each]){
+					for(let a in switchInfo[switchCases[each]]){
+						for(let b in switchInfo[switchCases[each]][a]){
+							auxlObjMethod(a,b,switchInfo[switchCases[each]][a][b]);
+						}
+					}
+					return;
+				}
+			}
+			//Default
+			for(let a in switchInfo.default){
+				for(let b in switchInfo.default[a]){
+					auxlObjMethod(a,b,switchInfo.default[a][b]);
+				}
+			}
+		} else if(auxl[condObj].GetFlagParent){
+			//Layer
+			let switchCondition = auxl[condObj].GetFlagParent(switchInfo.cond);
+			//console.log(switchCondition);
+			//Cases
+			for(let each in switchCases){
+				if(switchCondition === switchCases[each]){
+					for(let a in switchInfo[switchCases[each]]){
+						for(let b in switchInfo[switchCases[each]][a]){
+							auxlObjMethod(a,b,switchInfo[switchCases[each]][a][b]);
+						}
+					}
+					return;
+				}
+			}
+			//Default
+			for(let a in switchInfo.default){
+				for(let b in switchInfo.default[a]){
+					auxlObjMethod(a,b,switchInfo.default[a][b]);
+				}
+			}
+		} else {
+			console.log(condObj);
+			console.log('Unable to find value');
+			console.log(switchInfo.cond);
+		}
+	}
 	//Run Object Generator Function within Scenario w/Scene Tracking
 	const auxlObjMethod = (object, func, params) => {
 		//Check if spawning to add to Tracker
@@ -5023,10 +5297,17 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 					for(let b in core[time][line][a]){
 						if(b === 'IfElse'){
 							for(let c in core[time][line][a][b]){
-
 								AddToScenarioTimeIntEvtTracker({name: line, type: 'timeout', id: a});
 								auxl.timeouts[line+a] = setTimeout(function () {
 									IfElse(a,c,core[time][line][a][b][c]);
+									clearTimeout(auxl.timeouts[line+a]);
+								}, line);
+							}
+						} else if(b === 'Switch'){
+							for(let c in core[time][line][a][b]){
+								AddToScenarioTimeIntEvtTracker({name: line, type: 'timeout', id: a});
+								auxl.timeouts[line+a] = setTimeout(function () {
+									Switch(a,c,core[time][line][a][b][c]);
 									clearTimeout(auxl.timeouts[line+a]);
 								}, line);
 							}
@@ -5058,14 +5339,33 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 											/*
 											if(auxl[b].GetFlag(endCond) === 'true'){
 												clearInterval(auxl.intervals[line+b]);
-												RemoveFromScenarioTimeIntEvtTracker(line+b);
+												RemoveFromTimeIntEvtTracker(line+b);
 											}*/
 											IfElse(b,d,core[time][line][a][b][c][d]);
 											if(loopTotal === 'infinite'){} else {
 												ranTotal++;
 												if(ranTotal >= loopTotal){
 													clearInterval(auxl.intervals[line+b]);
-													RemoveFromScenarioTimeIntEvtTracker(line+b);
+													RemoveFromTimeIntEvtTracker(line+b);
+												}
+											}
+										}, line);
+									}
+								} else if(c === 'Switch'){
+									for(let d in core[time][line][a][b][c]){
+										AddToScenarioTimeIntEvtTracker({name: line, type: 'interval', id: b});
+										auxl.intervals[line+b] = setInterval(function() {
+											/*
+											if(auxl[b].GetFlag(endCond) === 'true'){
+												clearInterval(auxl.intervals[line+b]);
+												RemoveFromTimeIntEvtTracker(line+b);
+											}*/
+											Switch(b,d,core[time][line][a][b][c][d]);
+											if(loopTotal === 'infinite'){} else {
+												ranTotal++;
+												if(ranTotal >= loopTotal){
+													clearInterval(auxl.intervals[line+b]);
+													RemoveFromTimeIntEvtTracker(line+b);
 												}
 											}
 										}, line);
@@ -5078,14 +5378,14 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 										/*
 										if(auxl[b].GetFlag(endCond) === 'true'){
 											clearInterval(auxl.intervals[line+b]);
-											RemoveFromScenarioTimeIntEvtTracker(line+b);
+											RemoveFromTimeIntEvtTracker(line+b);
 										}*/
 										auxlObjMethod(b,method,params);
 										if(loopTotal === 'infinite'){} else {
 											ranTotal++;
 											if(ranTotal >= loopTotal){
 												clearInterval(auxl.intervals[line+b]);
-												RemoveFromScenarioTimeIntEvtTracker(line+b);
+												RemoveFromTimeIntEvtTracker(line+b);
 											}
 										}
 									}, line);
@@ -5108,6 +5408,15 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 								AddToScenarioTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
 								auxl[object].GetEl().addEventListener(line, function(){
 									IfElse(object,c,params);
+								});
+							}
+						} else if(b === 'Switch'){
+							for(let c in core[time][line][a][b]){
+								object = a;
+								params = core[time][line][a][b][c];
+								AddToScenarioTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
+								auxl[object].GetEl().addEventListener(line, function(){
+									Switch(object,c,params);
 								});
 							}
 						} else {
@@ -5137,6 +5446,15 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 									IfElse(object,c,params);
 								});
 							}
+						} else if(b === 'Switch'){
+							for(let c in core[time][line][a][b]){
+								object = a;
+								params = core[time][line][a][b][c];
+								AddToScenarioTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+								auxl[object].GetEl().addEventListener(line, function(){
+									Switch(object,c,params);
+								});
+							}
 						} else {
 							object = a;
 							method = b;
@@ -5156,6 +5474,10 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 							for(let b in core[time][line][a]){
 								IfElse(line,b,core[time][line][a][b]);
 							}
+						} else if(a === 'Switch'){
+							for(let b in core[time][line][a]){
+								Switch(line,b,core[time][line][a][b]);
+							}
 						} else {
 							auxlObjMethod(line,a,core[time][line][a]);
 						}
@@ -5164,17 +5486,22 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 							for(let b in core[time][line][a]){
 								IfElse(line,b,core[time][line][a][b]);
 							}
+						} else if(a === 'Switch'){
+							for(let b in core[time][line][a]){
+								Switch(line,b,core[time][line][a][b]);
+							}
 						} else {
 							auxlObjMethod(line,a,core[time][line][a]);
 						}
 					} else if(time === 'info') {
+						//Data only
 					} else {
 						console.log('Hit Other Timeline, Please Investigate');
 					}
 				}
 			}
 		}
-	return;
+		return;
 	}
 	//Update HTML w/Scenario Name
 	function updateHTMLTitle(){
@@ -5909,6 +6236,9 @@ this.NPC = (core, bookData, textDisplay) => {
 		if(object === 'self'){
 			object = npc.id;
 		}
+		console.log(object)
+		console.log(func)
+		console.log(params)
 		auxl[object][func](params);
 	}
 	//If/Else for NPC Methods
@@ -5950,6 +6280,66 @@ this.NPC = (core, bookData, textDisplay) => {
 			}
 		}
 	}
+	//Switch support to run auxlObjMethod()
+	const Switch = (objRef, condObj, switchInfo) => {
+		console.log('NPC Switch Running')
+		console.log(objRef)
+		console.log(condObj)
+		console.log(switchInfo)
+		let switchCases = [];
+		for(let each in switchInfo){
+			if(each === 'default'){}else{
+				switchCases.push(each)
+			}
+		}
+		if(auxl[condObj].GetFlag){
+			//Core, Basic Objects
+			let switchCondition = auxl[condObj].GetFlag(switchInfo.cond);
+			//console.log(switchCondition);
+			//Cases
+			for(let each in switchCases){
+				if(switchCondition === switchCases[each]){
+					for(let a in switchInfo[switchCases[each]]){
+						for(let b in switchInfo[switchCases[each]][a]){
+							auxlObjMethod(a,b,switchInfo[switchCases[each]][a][b]);
+						}
+					}
+					return;
+				}
+			}
+			//Default
+			for(let a in switchInfo.default){
+				for(let b in switchInfo.default[a]){
+					auxlObjMethod(a,b,switchInfo.default[a][b]);
+				}
+			}
+		} else if(auxl[condObj].GetFlagParent){
+			//Layer
+			let switchCondition = auxl[condObj].GetFlagParent(switchInfo.cond);
+			//console.log(switchCondition);
+			//Cases
+			for(let each in switchCases){
+				if(switchCondition === switchCases[each]){
+					for(let a in switchInfo[switchCases[each]]){
+						for(let b in switchInfo[switchCases[each]][a]){
+							auxlObjMethod(a,b,switchInfo[switchCases[each]][a][b]);
+						}
+					}
+					return;
+				}
+			}
+			//Default
+			for(let a in switchInfo.default){
+				for(let b in switchInfo.default[a]){
+					auxlObjMethod(a,b,switchInfo.default[a][b]);
+				}
+			}
+		} else {
+			console.log(condObj);
+			console.log('Unable to find value');
+			console.log(switchInfo.cond);
+		}
+	}
 	//Set Flag & Value to Object - Single or Array
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
@@ -5973,7 +6363,7 @@ this.NPC = (core, bookData, textDisplay) => {
 		}
 	}
 
-return {npc, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextPage, ResetBook, IdleNext, IdleReset, Click, Jump, SelectJump, auxlObjMethod, IfElse, SetFlag, GetFlag}
+return {npc, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextPage, ResetBook, IdleNext, IdleReset, Click, Jump, SelectJump, auxlObjMethod, IfElse, Switch, SetFlag, GetFlag}
 }
 
 //
