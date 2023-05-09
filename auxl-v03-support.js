@@ -144,6 +144,39 @@ AFRAME.registerComponent('look-at-xyz', {
 });
 
 //
+//Stare
+AFRAME.registerComponent('stare', {
+	dependencies: ['auxl'],
+	schema: {
+		id: {type: 'string', default:'playerRig'},
+		twist: {type: 'boolean', default: false},
+	},
+    init: function () {
+    },
+    update: function () {
+		this.idView = document.getElementById(this.data.id);
+		this.idPosition = new THREE.Vector3();
+		this.stareThrottled = AFRAME.utils.throttle(this.stare, 30, this);
+    },
+    stare: function () {
+		//Get Position of Stare Object
+		this.idPosition.copy(this.idView.object3D.position);
+		//If player, add current camera height
+		if(this.data.id === 'playerRig'){
+			this.idPosition.y += document.getElementById('camera').object3D.position.y;
+		}
+		//Twist will not look up or down
+		if(this.data.twist){
+			this.idPosition.y = this.el.object3D.position.y;
+		}
+		this.el.object3D.lookAt(this.idPosition);
+    },
+    tick: function (time, timeDelta) {
+        this.stareThrottled();
+    },
+});
+
+//
 //Event Listener Components to run Auxl.Object.Methods()
 
 //Attach to run Object's .Click() method on click
@@ -452,18 +485,14 @@ schema: {
 	value: {type: 'string', default: 'TEXT'},
 	hover: {type: 'string', default: 'front'},
 	offset: {type: 'number', default: 1},
-	x: {type: 'bool', default: false},
-	y: {type: 'bool', default: true},
-	z: {type: 'bool', default: false},
+	twist: {type: 'bool', default: true},
 },
     init: function () {
 		this.auxl = document.querySelector('a-scene').systems.auxl;
 		this.value = this.data.value;
 		this.hover = this.data.hover;
 		this.offset = this.data.offset;
-		this.x = this.data.x;
-		this.y = this.data.y;
-		this.z = this.data.z;
+		this.twist = this.data.twist;
 		this.hoverSpawned = false;
 
 		this.position = new THREE.Vector3(0,0,0);
@@ -490,7 +519,8 @@ schema: {
 		mixins: false,
 		classes: ['nullParent','a-ent'],
 		components: {
-			['look-at-xyz']:{match: 'camera', x:this.x, y:this.y, z:this.z}
+			['look-at-xyz']:{match: 'camera', y:this.twist,},
+			//['stare']:{id: 'playerRig', twist: this.twist},
 		},
 		};
 		this.hoverTextParent = this.auxl.Core(this.hoverTextParentData);

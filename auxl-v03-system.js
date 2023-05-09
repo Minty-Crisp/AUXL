@@ -241,15 +241,33 @@ const setStorage = () => {
 		newStorage();
 	}
 }
-//Save to Local
-this.saveToProfile = (auxlObject,type,name,data) => {
-	if(!auxlObject){} else {
-		if(auxl.local[auxlObject]){
-			auxl.local[auxlObject][type][name] = data;
+
+//Save to Profile and Local
+this.saveToProfile = (sync) => {
+//sync.auxlObject, sync.type, sync.sub, sync.name, sync.data
+	if(!sync){
+		//Save Profile Only
+	} else {
+		if(auxl.local[sync.auxlObject]){
+			if(sync.sub){
+				if(auxl.local[sync.auxlObject][sync.type][sync.sub]){
+					auxl.local[sync.auxlObject][sync.type][sync.sub][sync.name] = sync.data;
+				} else {
+					auxl.local[sync.auxlObject][sync.type][sync.sub] = {};
+					auxl.local[sync.auxlObject][sync.type][sync.sub][sync.name] = sync.data;
+				}
+			} else {
+				auxl.local[sync.auxlObject][sync.type][sync.name] = sync.data;
+			}
 		} else {
-			auxl.local[auxlObject] = {};
-			auxl.local[auxlObject][type] = {};
-			auxl.local[auxlObject][type][name] = data;
+			auxl.local[sync.auxlObject] = {};
+			auxl.local[sync.auxlObject][sync.type] = {};
+			if(sync.sub){
+				auxl.local[sync.auxlObject][sync.type][sync.sub] = {};
+				auxl.local[sync.auxlObject][sync.type][sync.sub][sync.name] = sync.data;
+			} else {
+				auxl.local[sync.auxlObject][sync.type][sync.name] = sync.data;
+			}
 		}
 	}
 	window.localStorage.setItem("auxl", JSON.stringify(auxl.local));
@@ -257,19 +275,21 @@ this.saveToProfile = (auxlObject,type,name,data) => {
 }
 //Update from Local
 const UpdateFromLocal = () => {
-	//console.log(auxl.local)//all
+	//console.log(auxl.local)
 	for(let each in auxl.local){
 		if(each === 'profile'){} else {
-			//console.log(each)//auxlobject name
-			//console.log(auxl.local[each])// auxlobject saved data
 			for(let type in auxl.local[each]){
-				//console.log(type)//type
-				//console.log(auxl.local[each][type])//saved data
-				for(let data in auxl.local[each][type]){
-					//console.log(data)//data key
-					//console.log(auxl.local[each][type][data])//data
-					if(auxl[each]){
-						auxl[each][type][data] = auxl.local[each][type][data];
+				for(let a in auxl.local[each][type]){
+					if(Object.keys(auxl.local[each][type][a]).length > 0){
+						for(let b in auxl.local[each][type][a]){
+							if(auxl[each]){
+								auxl[each][type][a][b] = auxl.local[each][type][a][b];
+							}
+						}
+					} else {
+						if(auxl[each]){
+							auxl[each][type][a] = auxl.local[each][type][a];
+						}
 					}
 				}
 			}
@@ -845,9 +865,6 @@ function changeLocoDirection(){
 }
 vrLocomotionType.addEventListener('click', changeLocoDirection);
 
-
-
-
 //
 //Toggle Audio
 function toggleAudio(){
@@ -1183,6 +1200,38 @@ mono.push(dark);
 return {base, light, dark, compl, splitCompl, triadic, tetradic, analog};
 
 }
+
+//Generate new Core Data from Template
+this.coreFromTemplate = (data, edit) => {
+	console.log(data);
+	let newCore = JSON.parse(JSON.stringify(data));
+	//Apply Edits
+	if(edit){
+		for(let each in edit){
+			newCore[each] = edit[each];
+		}
+	}
+	//Generate Unique ID if not Specified
+	if(!edit.id){
+		let num = 1;
+		idRandomize: while (true) {
+			if(auxl[newCore.id+num]){
+				num++;
+				continue idRandomize;
+			} else {
+				newCore.id = newCore.id + num;
+				break;
+			}
+		}
+	}
+	//console.log(newCore);
+	return newCore;
+}
+
+
+
+
+
 
 //
 //Object Generators
@@ -1598,10 +1647,12 @@ this.Core = (data) => {
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			core[flagValue[each].flag] = flagValue[each].value;
+				core[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: core.id, type: 'core', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			core[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: core.id, type: 'core', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -2247,7 +2298,7 @@ this.Player = (id,name,layer) => {
 		enabled: true,
 	};
 	//Inventory
-	layer.inventory = [];
+	layer.inventory = {};
 	layer.inventoryPreText = 'Inventory :\n';
 	layer.inventoryText = layer.inventoryPreText + 'Empty';
 	//Flashlight
@@ -2417,10 +2468,12 @@ this.Player = (id,name,layer) => {
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			layer[flagValue[each].flag] = flagValue[each].value;
+				layer[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			layer[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Player - Single or Array
@@ -2439,12 +2492,12 @@ this.Player = (id,name,layer) => {
 	const AddToInventory = (item) => {
 		if(Array.isArray(item)){
 			for(let each in item){
-				layer.inventory.push(item[each]);
-				layer[item[each]] = true;
+				layer.inventory[item[each]] = true;
+				auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: 'inventory', name: item[each], data: true});
 			}
 		} else {
-			layer.inventory.push(item);
-			layer[item] = true;
+			layer.inventory[item] = true;;
+			auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: 'inventory', name: item, data: true});
 		}
 		if(auxl.ham.ham.inScene){
 			UpdateInventoryScreen();
@@ -2468,12 +2521,12 @@ this.Player = (id,name,layer) => {
 	const RemoveFromInventory = (item) => {
 		if(Array.isArray(item)){
 			for(let each in item){
-				layer.inventory.splice(layer.inventory.indexOf(item[each]), 1);
-				layer[item[each]] = false;
+				delete layer.inventory[item[each]];
+				auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: 'inventory', name: item[each], data: false});
 			}
 		} else {
-			layer.inventory.splice(layer.inventory.indexOf(item), 1);
-			layer[item] = false;
+			delete layer.inventory[item];
+			auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: 'inventory', name: item, data: false});
 		}
 		if(auxl.ham.ham.inScene){
 			UpdateInventoryScreen();
@@ -2498,7 +2551,7 @@ this.Player = (id,name,layer) => {
 		if(Array.isArray(item)){
 			let itemArray = [];
 			for(let each in item){
-				if(layer.inventory.includes(item)){
+				if(layer.inventory[item]){
 					itemArray.push(true);
 				} else {
 					itemArray.push(false);
@@ -2506,7 +2559,7 @@ this.Player = (id,name,layer) => {
 			}
 			return itemArray;
 		} else {
-			if(layer.inventory.includes(item)){
+			if(layer.inventory[item]){
 				return true;
 			} else {
 				return false;
@@ -2515,11 +2568,11 @@ this.Player = (id,name,layer) => {
 	}
 	//Update Inventory Display Screen
 	const UpdateInventoryScreen = () => {
-		if(layer.inventory.length > 0){
+		if(Object.keys(layer.inventory).length > 0){
 			layer.inventoryText = layer.inventoryPreText;
 			let itemText = '';
 			for(let each in layer.inventory){
-				itemText = layer.inventory[each] + '\n';
+				itemText = each + '\n';
 				layer.inventoryText += itemText;
 			}
 		} else {
@@ -2942,10 +2995,12 @@ this.Menu = (menuData) => {
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			menu[flagValue[each].flag] = flagValue[each].value;
+				menu[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: menu.id, type: 'menu', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			menu[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: menu.id, type: 'menu', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -3034,13 +3089,15 @@ this.MultiMenu = (multiMenuData) => {
 		mixins: false,
 		classes: ['a-ent'],
 		components: false,
-		//components: {['look-at']:'#camera',},
-		//components: {['look-at-xyz']:{match: 'camera', y:true},},
 	};
+/*
 	if(multiMenu.stare){
 		multiMenu.nullParentData.components['look-at-xyz'] = {match: multiMenu.stare.id, x: multiMenu.stare.x, y: multiMenu.stare.y, z: multiMenu.stare.z}
 	}
-
+*/
+	if(multiMenu.stare){
+		multiMenu.nullParentData.components['stare'] = {id: multiMenu.stare.id, twist: multiMenu.stare.twist,}
+	}
 	multiMenu.cores = {};
 	multiMenu.cores.hover = {};
 	//Main Menu Null
@@ -3185,7 +3242,7 @@ this.MultiMenu = (multiMenuData) => {
 	//console.log(multiMenu.menuLayerData);
 	//Init Layer
 	multiMenu.menuLayer = auxl.Layer(multiMenu.id, multiMenu.menuLayerData);
-
+	//Spawn Menu
 	const SpawnMultiMenu = (open) => {
 		if(multiMenu.inScene){}else{
 			multiMenu.menuLayer.SpawnLayer(multiMenu.parent);
@@ -3291,7 +3348,7 @@ this.MultiMenu = (multiMenuData) => {
 			}
 		}
 	}
-
+	//Spawn Sub Menu
 	const SpawnMenu = () => {
 		if(multiMenu.menuPath.length > 1){
 			multiMenu.cores.main.ChangeSelf({property: 'text', value:{value:'Back'}});
@@ -3316,7 +3373,7 @@ this.MultiMenu = (multiMenuData) => {
 			clearTimeout(multiMenu.switchingTimeout);
 		}, switchDelay*2);
 	}
-
+	//Despawn Sub Menu
 	const DespawnMenu = (instant) => {
 		multiMenu.menuOpen = false;
 		multiMenu.switching = true;
@@ -3434,6 +3491,30 @@ this.MultiMenu = (multiMenuData) => {
 			multiMenu.descriptionOpen = false;
 		}
 	}
+	//Set Flag & Value to Object - Single or Array
+	const SetFlag = (flagValue) => {
+		if(Array.isArray(flagValue)){
+			for(let each in flagValue){
+				multiMenu[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: multiMenu.id, type: 'multiMenu', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
+			}
+		} else {
+			multiMenu[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: multiMenu.id, type: 'multiMenu', sub: false, name: flagValue.flag, data: flagValue.value});
+		}
+	}
+	//Retreive Flag Value from Object - Single or Array
+	const GetFlag = (flag) => {
+		if(Array.isArray(flag)){
+			let flagArray = [];
+			for(let each in flag){
+				flagArray.push(multiMenu(flag[each]));
+			}
+			return flagArray;
+		} else {
+			return multiMenu[flag];
+		}
+	}
 
 	return {multiMenu, SpawnMultiMenu, DespawnMultiMenu, ToggleMenu, UpdateParent, UpdateSubMenu, SubMenu, ResetMenu, SpawnDescription, DespawnDescription};
 }
@@ -3457,10 +3538,13 @@ this.HamMenu = (id, object) => {
 
 	ham.id = id;
 	ham.inScene = false;
+	ham.toggle = false;
 	ham.systemOpen = false;
 	ham.travelSettingsOpen = false;
 	ham.sceneSettingsOpen = false;
 	ham.pos = auxl.playerRig.GetEl().getAttribute('position');
+	ham.height = 1;
+	ham.distance = -2;
 
 	ham.viewConfig = false;
 
@@ -3923,6 +4007,18 @@ this.HamMenu = (id, object) => {
 		//Blinking
 	*/
 
+	//Return Position Direction of Camera
+	function cameraDirection(distance){
+		//Get the direction vector in world space
+		let direction = new THREE.Vector3();
+		camera.object3D.getWorldDirection(direction);
+		//Calculate the position based on the direction and distance
+		let position = new THREE.Vector3();
+		position.copy(camera.object3D.position).add(new THREE.Vector3(direction.x, 0, direction.z).normalize().multiplyScalar(distance));
+		position.y = ham.height;
+		return position;
+	}
+
 	//Emoti Prep
 	let speechIntervalB;
 	let speechTimeoutB;
@@ -4005,12 +4101,18 @@ this.HamMenu = (id, object) => {
 		}, 400);
 
 	}
+	//Toggle playerFloor Clickable Class
+	const ToggleSpawnClick = () => {
+		playerFloor.classList.toggle('clickable');
+	}
 	//Toggle Ham Display
 	const ToggleHam = () => {
-		if(ham.inScene){
-			DespawnHam();
-		} else {
-			SpawnHam();
+		if(ham.toggle){}else{
+			if(ham.inScene){
+				DespawnHam();
+			} else {
+				SpawnHam();
+			}
 		}
 	}
 	//Attach Toggle to playerFloor
@@ -4018,12 +4120,13 @@ this.HamMenu = (id, object) => {
 	//Spawn & Start Ham
 	const SpawnHam = () => {
 		if(ham.inScene){}else{
+			ToggleSpawnClick();
 			if(ham.avatarType === 'core'){
-//get player y rotation to match
-
 				ham.avatar.SpawnCore(auxl.playerRig.GetEl());
+				ham.avatar.ChangeSelf({property: 'position', value: cameraDirection(ham.distance)});
 			} else {
 				ham.avatar.SpawnLayer(auxl.playerRig.GetEl());
+				ham.avatar.ChangeParent({property: 'position', value: cameraDirection(ham.distance)});
 			}
 			ShowInventory();
 			//autoScriptEmoticon();
@@ -4033,6 +4136,7 @@ this.HamMenu = (id, object) => {
 				//Update Main Menu Parent Shape ID
 				auxl.mainMenu.multiMenu.parent = ham.menuParentId;
 				auxl.mainMenu.SpawnMultiMenu();
+				ToggleSpawnClick();
 				clearTimeout(spawnTimeout);
 			}, 100);
 			ham.inScene = true;
@@ -4041,6 +4145,7 @@ this.HamMenu = (id, object) => {
 	//Despawn & Stop Ham
 	const DespawnHam = () => {
 		if(ham.inScene){
+			ToggleSpawnClick();
 			//clearInterval(speechTimeoutB);
 			//clearInterval(speechIntervalB);
 			auxl.build.DespawnBuild();
@@ -4049,13 +4154,14 @@ this.HamMenu = (id, object) => {
 			let despawnTimeout = setTimeout(() => {
 				HideInventory();
 				if(ham.avatarType === 'core'){
-					ham.avatar.DespawnCore(auxl.playerRig.GetEl());
+					ham.avatar.DespawnCore();
 				} else {
-					ham.avatar.DespawnLayer(auxl.playerRig.GetEl());
+					ham.avatar.DespawnLayer();
 				}
 				ham.systemOpen = false;
 				RemoveFromTracker(ham.id);
 				ham.inScene = false;
+				ToggleSpawnClick();
 				clearTimeout(despawnTimeout);
 			}, 300);
 		}
@@ -4064,10 +4170,12 @@ this.HamMenu = (id, object) => {
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			ham[flagValue[each].flag] = flagValue[each].value;
+				ham[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: hame.id, type: 'hame', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			ham[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: hame.id, type: 'hame', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -5100,12 +5208,12 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	const Move = (connect) => {
 		newNode = core.map[core.currentNode][connect];
 		//Check for Lock & Keys
-		if(newNode.locked && !auxl.player.GetFlag(newNode.key)){
+		if(newNode.locked && !auxl.player.CheckInventory(newNode.key)){
 			clearTimeout(timeout2);
 			auxl.player.Notification({message:'Requires : ' + newNode.key});
 		} else {
-			if(newNode.locked && auxl.player.GetFlag(newNode.key) && !newNode.keepKey){
-				auxl.player.SetFlag({flag: newNode.key, value: false})
+			if(newNode.locked && auxl.player.CheckInventory(newNode.key) && !newNode.keepKey){
+				auxl.player.RemoveFromInventory(newNode.key)
 			}
 			//Move to NodeScene and/or MapZone
 			timeout = setTimeout(() => {
@@ -6236,9 +6344,9 @@ this.NPC = (core, bookData, textDisplay) => {
 		if(object === 'self'){
 			object = npc.id;
 		}
-		console.log(object)
-		console.log(func)
-		console.log(params)
+		//console.log(object)
+		//console.log(func)
+		//console.log(params)
 		auxl[object][func](params);
 	}
 	//If/Else for NPC Methods
@@ -6344,10 +6452,12 @@ this.NPC = (core, bookData, textDisplay) => {
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			npc[flagValue[each].flag] = flagValue[each].value;
+				npc[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: npc.id, type: 'npc', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			npc[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: npc.id, type: 'npc', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -6499,10 +6609,12 @@ this.SkyBox = (skyBoxData) => {
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			skyBox[flagValue[each].flag] = flagValue[each].value;
+				skyBox[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: skyBox.id, type: 'skyBox', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			skyBox[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: skyBox.id, type: 'skyBox', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -6819,10 +6931,12 @@ this.Horizon = (horizonData) => {
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			horizon[flagValue[each].flag] = flagValue[each].value;
+				horizon[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: horizon.id, type: 'horizon', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			horizon[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: horizon.id, type: 'horizon', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -6984,10 +7098,12 @@ this.ObjsGenRing = (objRingData) => {
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			singleGen[flagValue[each].flag] = flagValue[each].value;
+				singleGen[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: singleGen.id, type: 'singleGen', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			singleGen[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: singleGen.id, type: 'singleGen', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -7439,10 +7555,12 @@ if(a === 0){
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			multiGen[flagValue[each].flag] = flagValue[each].value;
+				multiGen[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: multiGen.id, type: 'multiGen', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			multiGen[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: multiGen.id, type: 'multiGen', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -7536,10 +7654,12 @@ this.Teleport = (id, locations) => {
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			teleport[flagValue[each].flag] = flagValue[each].value;
+				teleport[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: teleport.id, type: 'teleport', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			teleport[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: teleport.id, type: 'teleport', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -7561,14 +7681,6 @@ this.Teleport = (id, locations) => {
 
 //
 //NEW
-
-//
-//Player Inventory
-this.Inventory = (player) => {
-
-
-
-}
 
 //
 //Build Core/Layer/Other objects in the 3D environment
@@ -8264,10 +8376,12 @@ this.GridAssetGen = (gridGenData) => {
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			gridGen[flagValue[each].flag] = flagValue[each].value;
+				gridGen[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: gridGen.id, type: 'gridGen', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			gridGen[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: gridGen.id, type: 'gridGen', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -9004,10 +9118,12 @@ this.Collision = (gridData) => {
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-			grid[flagValue[each].flag] = flagValue[each].value;
+				grid[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: grid.id, type: 'grid', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			grid[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: grid.id, type: 'grid', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -9572,7 +9688,7 @@ animations: false,
 mixins: false,
 classes: ['a-ent'],
 components: {
-	['look-at-xyz']:{match: 'camera', x:false, y:true, z:false}
+	['look-at-xyz']:{match: 'camera', x:false, y:true, z:false},
 },
 };
 auxl.playerBeltUI = auxl.Core(auxl.playerBeltUIData);
@@ -10046,7 +10162,6 @@ auxl.menuBaseData = {
 data:'menu part',
 id:'menuBaseTemp',
 sources:false,
-//sources: {['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',},
 text: {value:'Hmmm...', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
 geometry: {primitive: 'box', depth: 0.04, width: 0.4, height: 0.15},
 material: {shader: "standard", color: "#c1664b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#c1664b", emissiveIntensity: 0.6},
@@ -10060,7 +10175,7 @@ click2:{property: 'material.emissiveIntensity', from: '0.6',to: '0.8', dur: 125,
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
-['look-at']:'#camera',
+['stare']:{id: 'playerRig'},
 },
 };
 
@@ -10157,8 +10272,7 @@ animations: false,
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
-//['look-at-xyz']:{match: 'camera', y:true},
-['look-at']:'#camera',
+['stare']:{id: 'playerRig'},
 },
 };
 auxl.ghostParent = auxl.Core(auxl.ghostParentData);
@@ -10395,8 +10509,7 @@ mouseenterrun:{cursorObj: 'hamCube', method: 'CursorEnterRun', params: null},
 mouseleaverun:{cursorObj: 'hamCube', method: 'CursorLeaveRun', params: null}, 
 mouseuprun:{cursorObj: 'hamCube', method: 'CursorUpRun', params: null},
 eventrun:{event: 'testEventHit',cursorObj: 'hamCube', method: 'FuseClickRun', params: null}, 
-//['look-at-xyz']:{match: 'camera', y:true},
-['look-at']:'#camera',
+['stare']:{id: 'playerRig'},
 },
 };
 auxl.hamCube = auxl.Core(auxl.hamCubeData);
@@ -10416,8 +10529,7 @@ animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.2, dur: 7
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
-//['look-at-xyz']:{match: 'camera', y:true},
-['look-at']:'#camera',
+['stare']:{id: 'playerRig'},
 },
 };
 auxl.hamSphere = auxl.Core(auxl.hamSphereData);
@@ -10437,8 +10549,7 @@ animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.2, dur: 7
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
-//['look-at-xyz']:{match: 'camera', y:true},
-['look-at']:'#camera',
+['stare']:{id: 'playerRig'},
 },
 };
 auxl.hamPlane = auxl.Core(auxl.hamPlaneData);
@@ -10499,7 +10610,8 @@ mixins: false,
 classes: ['clickable','a-ent'],
 components:{
 clickrun:{cursorObj: 'ham', method: 'ToggleControlView'}, 
-['look-at-xyz']:{match: 'camera', y:true},
+//['look-at-xyz']:{match: 'camera', y:true},
+['stare']:{id: 'playerRig', twist: true},
 },
 };
 auxl.configurationView = auxl.Core(auxl.configurationViewData);
@@ -10594,7 +10706,7 @@ mixins: false,
 classes: ['a-ent'],
 components: {
 detailprompt:{type: 'detail'},
-['look-at']:'#camera',
+['stare']:{id: 'playerRig'},
 },
 };
 //Detail Close Button
@@ -10722,7 +10834,8 @@ animations:false,
 mixins: false,
 classes: ['a-ent','clickable'],
 components:{
-['look-at-xyz']:{match: 'camera', y:true},
+//['look-at-xyz']:{match: 'camera', y:true},
+['stare']:{id: 'playerRig', twist: true},
 ['raycast-teleportation']:null,
 },
 };
@@ -10971,9 +11084,7 @@ scale: new THREE.Vector3(1,1,1),
 animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
 mixins: false,
 classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
+components: false,
 };
 auxl.eventTesting = auxl.Core(auxl.eventTestingData);
 auxl.eventTesting2Data = {
@@ -10989,9 +11100,7 @@ scale: new THREE.Vector3(1,1,1),
 animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
 mixins: false,
 classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
+components: false,
 };
 auxl.eventTesting2 = auxl.Core(auxl.eventTesting2Data);
 auxl.eventTesting3Data = {
@@ -11007,9 +11116,7 @@ scale: new THREE.Vector3(1,1,1),
 animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
 mixins: false,
 classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
+components: false,
 };
 auxl.eventTesting3 = auxl.Core(auxl.eventTesting3Data);
 auxl.eventTesting4Data = {
@@ -11025,9 +11132,7 @@ scale: new THREE.Vector3(1,1,1),
 animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
 mixins: false,
 classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
+components: false,
 };
 auxl.eventTesting4 = auxl.Core(auxl.eventTesting4Data);
 auxl.eventTesting5Data = {
@@ -11043,9 +11148,7 @@ scale: new THREE.Vector3(1,1,1),
 animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
 mixins: false,
 classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
+components: false,
 };
 auxl.eventTesting5 = auxl.Core(auxl.eventTesting5Data);
 //Spawn Tester
@@ -11062,9 +11165,7 @@ scale: new THREE.Vector3(1.5,1.5,1.5),
 animations:false,
 mixins: false,
 classes: ['clickable','a-ent'],
-components: {
-//['look-at']:'#camera', 
-},
+components: false,
 };
 auxl.spawnTesting = auxl.Core(auxl.spawnTestingData);
 //Sound Testing

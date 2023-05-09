@@ -62,13 +62,13 @@ components: false,
 };
 auxl.cubeCore = auxl.Core(auxl.cubeCoreData);
 
-//Cube
+//Switch Cube
 auxl.switchCubeData = {
 data:'switchCubeData',
 id:'switchCube',
 sources: false,
 text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+geometry: {primitive: 'box', depth: 0.15, width: 0.5, height: 0.5},
 material: {shader: "standard", src: auxl.pattern11, repeat: '1 1', color: "#2380b2", emissive: '#2380b2', emissiveIntensity: 0.25, opacity: 1},
 position: new THREE.Vector3(-1,2,-1.5),
 rotation: new THREE.Vector3(0,0,0),
@@ -76,9 +76,20 @@ scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
 classes: ['clickable','a-ent'],
-components: false,
+components: {
+['stare']:{id: 'playerRig', twist: true,},
+},
 };
 auxl.switchCube = auxl.Core(auxl.switchCubeData);
+
+//auxl.templateTest = auxl.Core(auxl.coreFromTemplate('templateTest', auxl.switchCubeData, {position: new THREE.Vector3(0,3,-3)}));
+//auxl.templateTestData = auxl.coreFromTemplate(auxl.switchCubeData, {id: 'templateTest', position: new THREE.Vector3(0,3,-3)});
+//auxl.templateTest = auxl.Core(auxl.templateTestData);
+//auxl.templateTest.SpawnCore();
+
+auxl.templateTestData = auxl.coreFromTemplate(auxl.switchCubeData, {position: new THREE.Vector3(0,3,-3)});
+auxl[auxl.templateTestData.id] = auxl.Core(auxl.templateTestData);
+auxl[auxl.templateTestData.id].SpawnCore();
 
 //Floor
 auxl.floorData = {
@@ -517,7 +528,7 @@ auxl.npcKeyBubbleData = {
 	mixins: false,
 	classes: ['clickable','a-ent'],
 	components: {
-		['look-at']:'#camera',
+		['stare']:{id: 'playerRig'},
 	},
 };
 auxl.npcKeyBodyData = {
@@ -534,7 +545,7 @@ auxl.npcKeyBodyData = {
 	mixins: false,
 	classes: ['clickable','a-ent'],
 	components: {
-		['look-at']:'#camera', 
+		['stare']:{id: 'playerRig'},
 	},
 };
 auxl.npcKeyPage1Data = {
@@ -638,7 +649,8 @@ animations: false,
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
-['look-at']:'#camera',},
+['stare']:{id: 'playerRig'},
+},
 };
 auxl.npcMintyTextBubble = auxl.Core(auxl.npcMintyTextBubbleData);
 auxl.npcMintyData = {
@@ -749,7 +761,7 @@ mixins: false,
 classes: ['clickable','a-ent'],
 components: {
 	doorway:{zone: 'zone0', to: 'connect0'},
-	hovertext:{value: 'Doorway to Scene 1',  hover: 'front', offset: 0.5, x: false, y: true, z: false},
+	hovertext:{value: 'Doorway to Scene 1',  hover: 'front', offset: 0.75, twist: true,},
 },
 };
 auxl.doorway1 = auxl.Core(auxl.doorway1Data);
@@ -770,7 +782,7 @@ mixins: false,
 classes: ['clickable','a-ent'],
 components: {
 	doorway:{zone: 'zone0', to: 'connect1'},
-	hovertext:{value: 'Doorway to Scene 2', hover: 'top', offset: 1, x: true, y: true, z: true},
+	hovertext:{value: 'Doorway to Scene 2', hover: 'top', offset: 1, twist: true,},
 },
 };
 auxl.doorway2 = auxl.Core(auxl.doorway2Data);

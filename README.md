@@ -109,7 +109,11 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Adjusted SkyBox ObjGen to fire Sunrise/Sunset events to all core/layers in imported array for each section
 - Added auxl.saveToProfile() system function to save AUXLObject data to localstorage which upon reloading the page and finding data, will use the system function UpdateFromLocal() to update all AUXLObjects with that save data. Any AUXLObjects that support save data needs to refresh itself upon spawning as the data will be updated after it's initial creation.
 - Added system function to generate time object and time/date difference of time objects. Added profile creation time sync, current time sync and time span since last visit time sync.
-- Updated Scene, Zone, Scenario and Book Instructions to support Switch like statements
+- Updated Scene, Zone, Scenario and Book Instructions to support Switch like statements.
+- Added new component stare which uses the three.js method lookAt to have one object rotate watch another object's movement. In addition to ID of object to watch, can also enable twist which only rotates on the y axis.
+- Companion now spawns in the direction of the player camera on spawn toggle.
+- Updated all system AUXL Objects SetFlag and Player Inventory methods to support save/load.
+- Added system function auxl.coreFromTemplate() to generate new Core data from a template with any additional changes needed.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
