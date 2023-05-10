@@ -1203,7 +1203,6 @@ return {base, light, dark, compl, splitCompl, triadic, tetradic, analog};
 
 //Generate new Core Data from Template
 this.coreFromTemplate = (data, edit) => {
-	console.log(data);
 	let newCore = JSON.parse(JSON.stringify(data));
 	//Apply Edits
 	if(edit){
@@ -1228,11 +1227,6 @@ this.coreFromTemplate = (data, edit) => {
 	return newCore;
 }
 
-
-
-
-
-
 //
 //Object Generators
 
@@ -1243,6 +1237,7 @@ this.Core = (data) => {
 	let core = JSON.parse(JSON.stringify(data));
 	core.inScene = false;
 	core.el = {};
+	core.events = {};
 	core.parent = false;
 	let details = false;
 	let load3D = false;
@@ -1265,6 +1260,41 @@ this.Core = (data) => {
 	//Asset Loaded
 	function loaded(){
 		auxl.loadingObjects.delete(core.id);
+	}
+	//
+	const AddToTimeIntEvtCore = ({name,type,id,method,params,events}) => {
+		let nameId = name+id;
+		if(type === 'timeout'){
+			core.events[nameId] = {type, name, id, nameId};
+		} else if (type === 'interval'){
+			core.events[nameId] = {type, name, id, nameId};
+		} else if (type === 'interaction' || type === 'event'){
+			core.events[nameId] = {type, name, id, nameId, method, params, events};
+		}
+	}
+	//
+	const ClearCoreTimeIntEvt = () => {
+		for(let run in core.events){
+			if(core.events[run].type === 'timeout'){
+				clearTimeout(auxl.timeouts[core.events[run].nameId]);
+				delete auxl.timeouts[core.events[run].nameId];
+			} else if (core.events[run].type === 'interval'){
+				clearInterval(auxl.intervals[core.events[run].nameId]);
+				delete auxl.intervals[core.events[run].nameId];
+			} else if (core.events[run].type === 'interaction' || core.events[run].type === 'event'){
+auxl[core.events[run].name].GetEl().removeEventListener(core.events[ran].events, function(){
+auxlObjMethod(core.events[run].object,core.events[run].method,core.events[run].params);
+});
+			}
+			RemoveFromTimeIntEvtTracker(run);
+		}
+	}
+	//
+	function addTimeIntEvt(){
+AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+auxl[object].GetEl().addEventListener(line, function(){
+	auxlObjMethod(object,method,params);
+});
 	}
 	//Generate Entity Element
 	const Generate = () => {
@@ -1414,6 +1444,144 @@ this.Core = (data) => {
 				}
 			}
 		}
+
+
+
+if(core.event){
+	for(let a in core[event]){
+		for(let b in core[event][a]){
+			let object;
+			let method;
+			let params;
+			if(b === 'IfElse'){
+				for(let c in core[event][a][b]){
+					object = a;
+					params = core[event][a][b][c];
+
+					AddToTimeIntEvtCore({name: object, type: 'event', id: a, method, params, event: event});
+					auxl[object].GetEl().addEventListener(event, function(){
+						IfElse(object,c,params);
+					});
+				}
+			} else if(b === 'Switch'){
+				for(let c in core[event][a][b]){
+					object = a;
+					params = core[event][a][b][c];
+					AddToTimeIntEvtCore({name: object, type: 'event', id: a, method, params, event: event});
+					auxl[object].GetEl().addEventListener(event, function(){
+						Switch(object,c,params);
+					});
+				}
+			} else {
+				object = a;
+				method = b;
+				params = core[event][a][b];
+				AddToTimeIntEvtCore({name: object, type: 'event', id: a, method, params, event: event});
+				auxl[object].GetEl().addEventListener(event, function(){
+					auxlObjMethod(object,method,params);
+				});
+			}
+		}
+	}
+}
+
+/*
+//Event
+if(core.event){
+	for (let each in core.event) {
+		console.log(each)//eventName
+		for (let object in core.event[each]) {
+			console.log(object)//auxlObject
+			console.log(core.event[each][object]);//actions
+		}
+	}
+
+/*
+AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+auxl[object].GetEl().addEventListener(line, function(){
+	auxlObjMethod(object,method,params);
+});
+*/
+
+/*
+event: {
+	event1: {
+		self: {ChangeSelf: {property: 'material', value: {color: '#d81559', emissive: '#d81559'}}},
+		floor: {ChangeSelf: {property: 'material', value: {color: '#d81559', emissive: '#d81559'}}},
+	},
+	click: {
+		self: {ChangeSelf: {property: 'material', value: {color: '#15b2d8', emissive: '#15b2d8'}}},
+		floor: {ChangeSelf: {property: 'material', value: {color: '#15b2d8', emissive: '#15b2d8'}}},
+	},
+},
+*/
+
+}*/
+
+//Delay
+if(core.delay){
+	for (let each in core.delay) {
+		//console.log(each)
+		for (let object in core.delay[each]) {
+			//console.log(object)
+			//console.log(core.delay[each][object]);
+		}
+	}
+/*
+AddToTimeIntEvtTracker({name: line, type: 'timeout', id: a});
+auxl.timeouts[line+a] = setTimeout(function () {
+	auxlObjMethod(a,b,core[time][line][a][b]);
+	clearTimeout(auxl.timeouts[line+a]);
+}, line);
+*/
+/*
+	120000:{
+		player:{Notification: {message:'2 Minutes'}},
+	},
+*/
+}
+
+//Interval
+if(core.interval){
+	for (let each in core.interval) {
+		//console.log(each)
+		for (let object in core.interval[each]) {
+			//console.log(object)
+			//console.log(core.interval[each][object]);
+		}
+	}
+/*
+	let ranTotal = 0;
+	let loopTotal = core[time][line]['loop'];
+	let endCond;
+	if(core[time][line]['end']){
+		endCond = core[time][line]['end'];
+	}
+
+	AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
+	auxl.intervals[line+b] = setInterval(function() {
+		if(auxl[b].GetFlag(endCond) === true){
+			clearInterval(auxl.intervals[line+b]);
+			RemoveFromTimeIntEvtTracker(line+b);
+		}
+		auxlObjMethod(b,method,params);
+		if(loopTotal === 'infinite'){} else {
+			ranTotal++;
+			if(ranTotal >= loopTotal){
+				clearInterval(auxl.intervals[line+b]);
+				RemoveFromTimeIntEvtTracker(line+b);
+			}
+		}
+	}, line);
+*/
+/*
+	6000: {
+		run: {self:{EmitEvent: 'event1'},}, loop: 'infinite'
+	},
+*/
+}
+
+
 		//Object element generation done
 		return core.el;
 	}
@@ -1633,6 +1801,21 @@ this.Core = (data) => {
 		}
 		return aEl;
 	}
+/*
+	//Add Event
+	const AddEvent = (eventName, action) => {
+		if(core.events[action]){}else{
+			core.events[action] = {event: eventName, method: action}
+		}
+	}
+	//Spawn Events
+	const SpawnEvents = () => {
+		//AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+		GetEl().addEventListener(line, function(){
+			auxlObjMethod(core,method,params);
+		});
+	}
+*/
 	//Emit Event from Entity Element - Single or Array
 	const EmitEvent = (eventName) => {
 		if(Array.isArray(eventName)){
@@ -4407,11 +4590,10 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 				for(let a in core[time][line]){
 					let ranTotal = 0;
 					let loopTotal = core[time][line]['loop'];
-					/*
 					let endCond;
 					if(core[time][line]['end']){
 						endCond = core[time][line]['end'];
-					}*/
+					}
 					if(a === 'run'){
 						for(let b in core[time][line][a]){
 							for(let c in core[time][line][a][b]){
@@ -4419,11 +4601,10 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 									for(let d in core[time][line][a][b][c]){
 										AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
 										auxl.intervals[line+b] = setInterval(function() {
-											/*
-											if(auxl[b].GetFlag(endCond) === 'true'){
+											if(auxl[b].GetFlag(endCond) === true){
 												clearInterval(auxl.intervals[line+b]);
 												RemoveFromTimeIntEvtTracker(line+b);
-											}*/
+											}
 											IfElse(b,d,core[time][line][a][b][c][d]);
 											if(loopTotal === 'infinite'){} else {
 												ranTotal++;
@@ -4438,11 +4619,10 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 									for(let d in core[time][line][a][b][c]){
 										AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
 										auxl.intervals[line+b] = setInterval(function() {
-											/*
-											if(auxl[b].GetFlag(endCond) === 'true'){
+											if(auxl[b].GetFlag(endCond) === true){
 												clearInterval(auxl.intervals[line+b]);
 												RemoveFromTimeIntEvtTracker(line+b);
-											}*/
+											}
 											Switch(b,d,core[time][line][a][b][c][d]);
 											if(loopTotal === 'infinite'){} else {
 												ranTotal++;
@@ -4458,11 +4638,10 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 									let params = core[time][line][a][b][c];
 									AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
 									auxl.intervals[line+b] = setInterval(function() {
-										/*
-										if(auxl[b].GetFlag(endCond) === 'true'){
+										if(auxl[b].GetFlag(endCond) === true){
 											clearInterval(auxl.intervals[line+b]);
 											RemoveFromTimeIntEvtTracker(line+b);
-										}*/
+										}
 										auxlObjMethod(b,method,params);
 										if(loopTotal === 'infinite'){} else {
 											ranTotal++;
@@ -4868,11 +5047,10 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 				for(let a in core[time][line]){
 					let ranTotal = 0;
 					let loopTotal = core[time][line]['loop'];
-					/*
 					let endCond;
 					if(core[time][line]['end']){
 						endCond = core[time][line]['end'];
-					}*/
+					}
 					if(a === 'run'){
 						for(let b in core[time][line][a]){
 							for(let c in core[time][line][a][b]){
@@ -4880,17 +5058,16 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 									for(let d in core[time][line][a][b][c]){
 										AddToZoneTimeIntEvtTracker({name: line, type: 'interval', id: b});
 										auxl.intervals[line+b] = setInterval(function() {
-											/*
-											if(auxl[b].GetFlag(endCond) === 'true'){
+											if(auxl[b].GetFlag(endCond) === true){
 												clearInterval(auxl.intervals[line+b]);
-												RemoveFromTimeIntEvtTracker(line+b);
-											}*/
+												RemoveFromZoneTimeIntEvtTracker(line+b);
+											}
 											IfElse(b,d,core[time][line][a][b][c][d]);
 											if(loopTotal === 'infinite'){} else {
 												ranTotal++;
 												if(ranTotal >= loopTotal){
 													clearInterval(auxl.intervals[line+b]);
-													RemoveFromTimeIntEvtTracker(line+b);
+													RemoveFromZoneTimeIntEvtTracker(line+b);
 												}
 											}
 										}, line);
@@ -4899,17 +5076,16 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 									for(let d in core[time][line][a][b][c]){
 										AddToZoneTimeIntEvtTracker({name: line, type: 'interval', id: b});
 										auxl.intervals[line+b] = setInterval(function() {
-											/*
-											if(auxl[b].GetFlag(endCond) === 'true'){
+											if(auxl[b].GetFlag(endCond) === true){
 												clearInterval(auxl.intervals[line+b]);
-												RemoveFromTimeIntEvtTracker(line+b);
-											}*/
+												RemoveFromZoneTimeIntEvtTracker(line+b);
+											}
 											Switch(b,d,core[time][line][a][b][c][d]);
 											if(loopTotal === 'infinite'){} else {
 												ranTotal++;
 												if(ranTotal >= loopTotal){
 													clearInterval(auxl.intervals[line+b]);
-													RemoveFromTimeIntEvtTracker(line+b);
+													RemoveFromZoneTimeIntEvtTracker(line+b);
 												}
 											}
 										}, line);
@@ -4919,17 +5095,16 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 									let params = core[time][line][a][b][c];
 									AddToZoneTimeIntEvtTracker({name: line, type: 'interval', id: b});
 									auxl.intervals[line+b] = setInterval(function() {
-										/*
-										if(auxl[b].GetFlag(endCond) === 'true'){
+										if(auxl[b].GetFlag(endCond) === true){
 											clearInterval(auxl.intervals[line+b]);
-											RemoveFromTimeIntEvtTracker(line+b);
-										}*/
+											RemoveFromZoneTimeIntEvtTracker(line+b);
+										}
 										auxlObjMethod(b,method,params);
 										if(loopTotal === 'infinite'){} else {
 											ranTotal++;
 											if(ranTotal >= loopTotal){
 												clearInterval(auxl.intervals[line+b]);
-												RemoveFromTimeIntEvtTracker(line+b);
+												RemoveFromZoneTimeIntEvtTracker(line+b);
 											}
 										}
 									}, line);
@@ -5432,11 +5607,10 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 				for(let a in core[time][line]){
 					let ranTotal = 0;
 					let loopTotal = core[time][line]['loop'];
-					/*
 					let endCond;
 					if(core[time][line]['end']){
 						endCond = core[time][line]['end'];
-					}*/
+					}
 					if(a === 'run'){
 						for(let b in core[time][line][a]){
 							for(let c in core[time][line][a][b]){
@@ -5444,17 +5618,16 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 									for(let d in core[time][line][a][b][c]){
 										AddToScenarioTimeIntEvtTracker({name: line, type: 'interval', id: b});
 										auxl.intervals[line+b] = setInterval(function() {
-											/*
-											if(auxl[b].GetFlag(endCond) === 'true'){
+											if(auxl[b].GetFlag(endCond) === true){
 												clearInterval(auxl.intervals[line+b]);
-												RemoveFromTimeIntEvtTracker(line+b);
-											}*/
+												RemoveFromScenarioTimeIntEvtTracker(line+b);
+											}
 											IfElse(b,d,core[time][line][a][b][c][d]);
 											if(loopTotal === 'infinite'){} else {
 												ranTotal++;
 												if(ranTotal >= loopTotal){
 													clearInterval(auxl.intervals[line+b]);
-													RemoveFromTimeIntEvtTracker(line+b);
+													RemoveFromScenarioTimeIntEvtTracker(line+b);
 												}
 											}
 										}, line);
@@ -5463,17 +5636,16 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 									for(let d in core[time][line][a][b][c]){
 										AddToScenarioTimeIntEvtTracker({name: line, type: 'interval', id: b});
 										auxl.intervals[line+b] = setInterval(function() {
-											/*
-											if(auxl[b].GetFlag(endCond) === 'true'){
+											if(auxl[b].GetFlag(endCond) === true){
 												clearInterval(auxl.intervals[line+b]);
-												RemoveFromTimeIntEvtTracker(line+b);
-											}*/
+												RemoveFromScenarioTimeIntEvtTracker(line+b);
+											}
 											Switch(b,d,core[time][line][a][b][c][d]);
 											if(loopTotal === 'infinite'){} else {
 												ranTotal++;
 												if(ranTotal >= loopTotal){
 													clearInterval(auxl.intervals[line+b]);
-													RemoveFromTimeIntEvtTracker(line+b);
+													RemoveFromScenarioTimeIntEvtTracker(line+b);
 												}
 											}
 										}, line);
@@ -5483,17 +5655,16 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 									let params = core[time][line][a][b][c];
 									AddToScenarioTimeIntEvtTracker({name: line, type: 'interval', id: b});
 									auxl.intervals[line+b] = setInterval(function() {
-										/*
-										if(auxl[b].GetFlag(endCond) === 'true'){
+										if(auxl[b].GetFlag(endCond) === true){
 											clearInterval(auxl.intervals[line+b]);
-											RemoveFromTimeIntEvtTracker(line+b);
-										}*/
+											RemoveFromScenarioTimeIntEvtTracker(line+b);
+										}
 										auxlObjMethod(b,method,params);
 										if(loopTotal === 'infinite'){} else {
 											ranTotal++;
 											if(ranTotal >= loopTotal){
 												clearInterval(auxl.intervals[line+b]);
-												RemoveFromTimeIntEvtTracker(line+b);
+												RemoveFromScenarioTimeIntEvtTracker(line+b);
 											}
 										}
 									}, line);
@@ -11207,6 +11378,47 @@ components:{
 },
 };
 auxl.testing = auxl.Core(auxl.testingData);
+//Event Testing
+//Spawn Tester
+auxl.coreEventTestingData = {
+data:'coreEventTestingData',
+id:'coreEventTesting',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern54, repeat: '1 1', color: "#256de0", emissive: '#256de0', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(1,1,1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+event: {
+/*
+	event1: {
+		self: {ChangeSelf: {property: 'material', value: {color: '#d81559', emissive: '#d81559'}}},
+		floor: {ChangeSelf: {property: 'material', value: {color: '#d81559', emissive: '#d81559'}}},
+	},
+*/
+	click: {
+		self: {ChangeSelf: {property: 'material', value: {color: '#15b2d8', emissive: '#15b2d8'}}},
+		floor: {ChangeSelf: {property: 'material', value: {color: '#15b2d8', emissive: '#15b2d8'}}},
+	},
+},
+delay:{
+	120000:{
+		player:{Notification: {message:'2 Minutes'}},
+	},
+},
+interval:{
+	6000: {
+		run: {self:{EmitEvent: 'event1'},}, loop: 'infinite'
+	},
+},
+
+};
+auxl.coreEventTesting = auxl.Core(auxl.coreEventTestingData);
 
 /*
 //
@@ -11392,4 +11604,4 @@ auxl.multiMenuTest = auxl.MultiMenu(auxl.multiMenuTestData);
 },
 });
 
-
+//should event / delay / interval support if/else and switch

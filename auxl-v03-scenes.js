@@ -86,10 +86,17 @@ auxl.switchCube = auxl.Core(auxl.switchCubeData);
 //auxl.templateTestData = auxl.coreFromTemplate(auxl.switchCubeData, {id: 'templateTest', position: new THREE.Vector3(0,3,-3)});
 //auxl.templateTest = auxl.Core(auxl.templateTestData);
 //auxl.templateTest.SpawnCore();
-
-auxl.templateTestData = auxl.coreFromTemplate(auxl.switchCubeData, {position: new THREE.Vector3(0,3,-3)});
+/*
+auxl.templateTestData = auxl.coreFromTemplate(auxl.switchCubeData, {position: new THREE.Vector3(0,3,-3), material: {shader:'grid-glitch', color: 'blue',}});
 auxl[auxl.templateTestData.id] = auxl.Core(auxl.templateTestData);
 auxl[auxl.templateTestData.id].SpawnCore();
+*/
+/*
+auxl.templateTest2Data = auxl.coreFromTemplate(auxl.switchCubeData, {position: new THREE.Vector3(0,1,-3), material: {shader:'grid-glitch', color: 'blue',}});
+auxl[auxl.templateTest2Data.id] = auxl.Core(auxl.templateTestData);
+auxl[auxl.templateTest2Data.id].SpawnCore();
+*/
+
 
 //Floor
 auxl.floorData = {
@@ -823,13 +830,16 @@ auxl.zone0Data = {
 		cubeCore:{SpawnCore:null},
 	},
 	delay:{
+		30000:{
+			cubeCore:{SetFlag:{flag: 'stopIntervalVar', value: true},},
+		},
 		60000:{
 			player:{Notification: {message:'1 Minute'}},
 		},
 	},
 	interval:{
 		6000: {
-			run: {cubeCore:{EmitEvent: 'swapEvent'},}, loop: 'infinite'
+			run: {cubeCore:{EmitEvent: 'swapEvent'},}, loop: 'infinite', end: 'stopIntervalVar',
 		},
 	},
 	event:{
@@ -877,6 +887,7 @@ auxl.zone0Scene0Data = {
 		//guessHitGame:{SpawnGHGame:null},
 		//npcMinty:{SpawnNPC:null},
 		//switchCube:{SpawnCore:null},
+		coreEventTesting:{SpawnCore:null},
 		doorway1:{SpawnCore:null},
 		doorway2:{SpawnCore:null},
 		//ghost:{SpawnLayer:null},
