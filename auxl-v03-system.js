@@ -1514,10 +1514,10 @@ event: {
 		floor: {ChangeSelf: {property: 'material', value: {color: '#15b2d8', emissive: '#15b2d8'}}},
 	},
 },
+
+
+}
 */
-
-}*/
-
 //Delay
 if(core.delay){
 	for (let each in core.delay) {
