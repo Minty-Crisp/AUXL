@@ -73,7 +73,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Reduced Notification TempDisableClick time.
 - Added a minimum load time to scene instruction reading to ensure that all items that require downloading are added in complete to the auxl.loadingObjects object before logic checks.
 - NPC now spawns Book's SpeechBubble on initial mouseover unless Idle Speech is configured. Added Idle Speech autoplay support with customizable delay, interval and IdlePage instructions. Idle Speech is swapped out for regular Pages on interaction.
-- NPC speech now displays a blinking indicator to prompt additional interaction for next slide or to restart book.
+- NPC speech now displays a blinking indicator to prompt additional interaction for next slide or when at end of book.
 - Companion now uses a mutli-menu Main Menu with settings such as Travel to Scenes, Toggle FlashLight, Toggle Sit/Stand Mode, Change Scene Transition Type, Change Teleport Transition Type and Change Transition Color.
 - Zone's can now define if the basic Travel menu will display. Travel menu will always update in Companion Menu and other objects aka Doorways can be configured for Travel as well.
 - Updated Spawn/DespawnCore and Spawn/DespawnLayer. Layer's can now be attached to a Parent entity via AUXL.object, entity or element ID.
@@ -82,15 +82,14 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - - Fixed an issue with how actions were being added.
 - - Dynamically update a subMenu with UpdateSubMenu() method.
 - - Parent can now be dynamically updated via the method UpdateParent().
-- - Actions can now control how the menu reacts on click whether to stay open, goBack a menu or close.
+- - Actions can now control how the menu reacts on click whether to stay open, go back or close.
 - - Can now be configured to 'stare' at an object with look-at-xyz component providing the id and which axis x,y and/or z angles.
-- Added support to Multi-Menu for Circle Down Layout
-- Re-arranged all components into 4 javascript file categories : System, Support, Addons and Scenes.
+- Re-arranged all components into 4 javascript file categories : System, Support, Extras and Scenes.
 - User position is reset back to 0,0,0 on scene change
 - Added new hovertext support component which on mousehover will display configured text either on top or in front of the object and rotates to user view.
 - Ham Companion now accepts a Layer as an Avatar.
 - Added raycast-teleportation-select that spawns a select button on click.
-- Added in-progress Mini Games SwipeLaunchGame & GuessHitGame, DragDiffuse.
+- Added in-progress Mini Games SwipeLaunchGame, GuessHitGame & DragDiffuse.
 - Added in-progress Pet, Battler & BattleRef systems.
 - Added in-progress Gimbal controller of the player avatar 1st/3rd.
 - Added World ObjGen that can hold and navigate multiple Scenarios.
@@ -99,7 +98,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Fixed an issue with Multi-Menus overlapping with each other.
 - Added UpdateUIText() method to Player to update HTML header and VR controller text.
 - Added 90degree snap turning.
-- Can now change which object's is used with 1st POV Locomotion direction between Camera or Controller.
+- Can now change which is used with 1st POV Locomotion direction between Camera or Controller.
 - Dynamic controls now take in an Action name and Action description that populate a control configuration window toggleable from the Ham menu to display all current control configurations for the current mode (Desktop, Mobile, VR Advanced, VR Basic, etc...).
 - Added Companion method to change avatar's core/layer and menu option for a few preconfigured styles.
 - Updated Core's to be able to parent to a core, layer(parentEl), html entity or html element id string.
