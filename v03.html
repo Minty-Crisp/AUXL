@@ -29,6 +29,9 @@
 <script src="./auxl-v03-support.js"></script>
 <script src="./auxl-v03-extras.js"></script>
 <script src="./auxl-v03-scenes.js"></script>
+<script src="./auxl-v03-shader.js"></script>
+<!-- Testing -->
+<script src="https://rawcdn.githack.com/elbobo/aframe-gltf-morph-component/07e9b80bd382cc1c19223468d35c453e7c76e9a2/dist/aframe-gltf-morph-component.js"></script>
 
 <body id="htmlBody">
 <!-- Sticky -->
@@ -48,6 +51,7 @@
 <li><button class="menu" id="startButton">Start</button></li>
 <li><button id="menuModeButton" class="flexCol">Mode : Desktop</button></li>
 <li><button id="vrHandButton" class="flexCol">2 Hands : Right Ray | Left Move</button></li>
+<li><button id="vrLocomotionType" class="flexCol">Direction : Camera</button></li>
 <li><button id="audioButton" class="flexCol">Sound : Disabled</button></li>
 <li><button id="viewInfo" class="flexCol">View Instructions</button></li>
 <li><button id="viewData" class="flexCol">Reset Data</button></li>
@@ -111,6 +115,17 @@ light="type: directional; intensity: 0.1; castShadow: false" position="-1 1 -1"
 light="type: ambient; color: #99154E; intensity: 0.7"
 ></a-entity>
 <!-- - - - - - - - - - - Debug - - - - - - - - - - -->
+<!--
+<a-sphere material="shader:displacement-offset"
+myoffset-updater
+scale="1 1 1"
+radius="0.2"
+position="0 1.5 -2"
+segments-height="128"
+segments-width="128">
+<a-animation attribute="scale" direction="alternate-reverse" dur="5000" from="1 1 1" to="4 4 4" repeat="indefinite"></a-animation>
+</a-sphere>
+-->
 <!-- Display Input
 <a-entity id="displayInput" 
 position="0 3.5 -3" rotation="45 0 0"
