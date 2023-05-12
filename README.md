@@ -113,6 +113,9 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Companion now spawns in the direction of the player camera on spawn toggle.
 - Updated all system AUXL Objects SetFlag and Player Inventory methods to support save/load.
 - Added system function auxl.coreFromTemplate() to generate new Core data from a template with any additional changes needed.
+- Added support component onspawnrun that runs method when object is added to scene and component ondespawnrun that runs method when object is removed from the scene
+- All support components that run methods allow mutliple copies added with name__id to be attached to the same object.
+- Added new InfoBubble ObjGen to display a temporary emote or interaction required alert with a string of text with background above object on event emit of parent. Has multiple preconfigured emote/alerts, but also supports custom ones as well.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates

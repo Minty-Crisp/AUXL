@@ -199,6 +199,7 @@ events: {
 //Attach to run specified method from Object on click event or method from component if in scene
 AFRAME.registerComponent('clickrun', {
 dependencies: ['auxl'],
+multiple: true,
 //multiple: true,
 schema: {
 	cursorObj: {type: 'string', default: 'auxlObj'},
@@ -239,6 +240,7 @@ events: {
 //Attach to run specified method from Object on fusing event
 AFRAME.registerComponent('fusingrun', {
 dependencies: ['auxl'],
+multiple: true,
 schema: {
 	cursorObj: {type: 'string', default: 'auxlObj'},
 	component: {type: 'string', default: 'null'},
@@ -277,6 +279,7 @@ events: {
 //Attach to run specified method from Object on mousedown event
 AFRAME.registerComponent('mousedownrun', {
 dependencies: ['auxl'],
+multiple: true,
 schema: {
 	cursorObj: {type: 'string', default: 'auxlObj'},
 	component: {type: 'string', default: 'null'},
@@ -315,6 +318,7 @@ events: {
 //Attach to run specified method from Object on mouseenter event
 AFRAME.registerComponent('mouseenterrun', {
 dependencies: ['auxl'],
+multiple: true,
 schema: {
 	cursorObj: {type: 'string', default: 'auxlObj'},
 	component: {type: 'string', default: 'null'},
@@ -353,6 +357,7 @@ events: {
 //Attach to run specified method from Object on mouseleave event
 AFRAME.registerComponent('mouseleaverun', {
 dependencies: ['auxl'],
+multiple: true,
 schema: {
 	cursorObj: {type: 'string', default: 'auxlObj'},
 	component: {type: 'string', default: 'null'},
@@ -391,6 +396,7 @@ events: {
 //Attach to run specified method from Object on mouseup event
 AFRAME.registerComponent('mouseuprun', {
 dependencies: ['auxl'],
+multiple: true,
 schema: {
 	cursorObj: {type: 'string', default: 'auxlObj'},
 	component: {type: 'string', default: 'null'},
@@ -453,6 +459,87 @@ events: {
 	}
 },
 });
+
+//On Spawn Run
+//Run AUXL object method, params on object spawning
+AFRAME.registerComponent('onspawnrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	//console.log(this.attrName)
+	//console.log(this.id)
+	if(this.data.component === 'null'){
+		if(this.auxl[this.data.cursorObj][this.data.method]){
+			if(this.data.params === 'null'){
+				this.auxl[this.data.cursorObj][this.data.method]();
+			} else {
+				this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+			}
+		}
+	} else {
+		//object is a dom entity and the component is attached to that object and the func is in that component
+		if(document.getElementById(this.data.cursorObj)){
+			this.domEnt = document.getElementById(this.data.cursorObj);
+			if(this.data.params === 'null'){
+				this.domEnt.components[this.data.component][this.data.method]();
+			} else {
+				this.domEnt.components[this.data.component][this.data.method](this.data.params);
+			}
+		}
+	}
+},
+});
+
+//On Despawn Run
+//Run AUXL object method, params on object spawning
+AFRAME.registerComponent('ondespawnrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	//console.log(this.attrName)
+	//console.log(this.id)
+},
+remove: function () {
+	if(this.data.component === 'null'){
+		if(this.auxl[this.data.cursorObj][this.data.method]){
+			if(this.data.params === 'null'){
+				this.auxl[this.data.cursorObj][this.data.method]();
+			} else {
+				this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+			}
+		}
+	} else {
+		//object is a dom entity and the component is attached to that object and the func is in that component
+		if(document.getElementById(this.data.cursorObj)){
+			this.domEnt = document.getElementById(this.data.cursorObj);
+			if(this.data.params === 'null'){
+				this.domEnt.components[this.data.component][this.data.method]();
+			} else {
+				this.domEnt.components[this.data.component][this.data.method](this.data.params);
+			}
+		}
+	}
+},
+});
+
 
 //
 //Map Travel Support

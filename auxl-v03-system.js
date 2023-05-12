@@ -58,7 +58,11 @@ this.jsLoaded = {};
 this.jsAll = {
 ['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',
 //threeGradShader: 'https://unpkg.com/@tlaukkan/aframe-three-color-gradient-shader@0.0.1/index.js',//Shaders needs it's own checker
+['gltf-morph']:'https://rawcdn.githack.com/elbobo/aframe-gltf-morph-component/07e9b80bd382cc1c19223468d35c453e7c76e9a2/dist/aframe-gltf-morph-component.js',
 };
+
+
+
 
 /*************************************************************/
 //HTML Elements
@@ -7849,9 +7853,242 @@ this.Teleport = (id, locations) => {
 	return {teleport, SpawnTeleport, DespawnTeleport, ToggleSpawn, SetFlag, GetFlag,};
 }
 
+//
+//Info Bubble
+//Display an Emote or Alert Bubble
+this.InfoBubble = (id, object, offset, color) => {
+//Not in Tracker as it is controlled via component
+//Add sound to play on spawn in and out
+let infoBubble = {};
+
+infoBubble.id = id;
+let bubbleId = infoBubble.id + 'bubble';
+let textId = infoBubble.id + 'text';
+infoBubble.parent = object;
+infoBubble.custom = {};
+infoBubble.inScene = false;
+infoBubble.position = new THREE.Vector3(0,0.5,0);
+infoBubble.rotation = new THREE.Vector3(0,0,0);
+infoBubble.color = color || '#14d9a4';
+//Position
+if(offset){
+	if(offset.x){
+		infoBubble.position.x = offset.x;
+		infoBubble.position.y = offset.y;
+		infoBubble.position.z = offset.z;
+	} else {
+		infoBubble.position.y = offset;
+	}
+}
+//Emoti Bubble
+infoBubble.infoBubbleData = {
+data:'infoBubbleData',
+id: bubbleId,
+sources:false,
+text: false,
+geometry: {primitive: 'circle', radius: 0.3, segments: 32, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: infoBubble.color, opacity: 1, metalness: 0.2, roughness: 0.8, emissive: infoBubble.color, emissiveIntensity: 0.6, side: 'double'},
+position: infoBubble.position,
+rotation: infoBubble.rotation,
+scale: new THREE.Vector3(0.01,0.01,0.01),
+animations:{
+spawnin:{property: 'scale', from: '0.01 0.01 0.01', to: '1 1 1', dur: 1500, delay: 500, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: true, enabled: true},
+spawnout:{property: 'scale', from: '1 1 1', to: '0.01 0.01 0.01', dur: 1000, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true},
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+['stare']:{id: 'playerRig'},
+},
+};
+infoBubble[bubbleId] = auxl.Core(infoBubble.infoBubbleData);
+//Emoti Text
+infoBubble.emotiTextData = {
+data:'emotiTextData',
+id: textId,
+sources:false,
+text: {value:'!', wrapCount: 2, color: "#FFFFFF", font: "exo2bold", zOffset: 0, side: 'double', align: "center", baseline: 'center'},
+geometry: false,
+material: false,
+position: new THREE.Vector3(0.025,0.1,0.025),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+infoBubble[textId] = auxl.Core(infoBubble.emotiTextData);
+//Emoti Layer
+infoBubble.emotiLayerData = {
+	parent: {core: infoBubble[bubbleId]},
+	child0: {core: infoBubble[textId]},
+}
+infoBubble[infoBubble.id] = auxl.Layer(infoBubble.id, infoBubble.emotiLayerData);
+
+//Spawn Emote Bubble Layer
+const SpawnBubble = () => {
+	if(infoBubble.inScene){}else{
+		infoBubble[infoBubble.id].layer.all.parent.core.core.animations.spawnout = {property: 'scale', from: '1 1 1', to: '0.01 0.01 0.01', dur: 1000, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true,};
+		infoBubble[infoBubble.id].SpawnLayer(infoBubble.parent);
+		infoBubble.inScene = true;
+		infoBubble.timeout = setTimeout(() => {
+			DespawnBubble();
+			clearTimeout(infoBubble.timeout);
+		}, 4050);
+	}
+}
+//Despawn Emote Bubble Layer
+const DespawnBubble = () => {
+	infoBubble[infoBubble.id].DespawnLayer();
+	infoBubble.inScene = false;
+}
+//Spawn Alert Bubble Layer
+const SpawnAlert = () => {
+	if(infoBubble.inScene){}else{
+		infoBubble[infoBubble.id].layer.all.parent.core.core.animations.spawnout = {property: 'scale', from: '1 1 1', to: '0.01 0.01 0.01', dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true, startEvents: 'spawnOut'};
+
+		infoBubble[infoBubble.id].SpawnLayer(infoBubble.parent);
+		infoBubble.inScene = true;
+		infoBubble.parent.GetEl().addEventListener('mouseenter',DespawnAlert);
+	}
+}
+//Despawn Emote Bubble Layer
+const DespawnAlert = () => {
+	infoBubble[infoBubble.id].EmitEventParent('spawnOut');
+	infoBubble.timeout = setTimeout(() => {
+		DespawnBubble();
+		infoBubble.inScene = false;
+		clearTimeout(infoBubble.timeout);
+	}, 1050);
+}
+//Update Emote Text Core
+const UpdateText = (text, rotation) => {
+	infoBubble[textId].core.text.value = text;
+	infoBubble[textId].core.text.wrapCount = text.length+1;
+	if(rotation){
+		infoBubble[textId].core.rotation.z = rotation;
+	} else {
+		infoBubble[textId].core.rotation.z = 0;
+	}
+}
+//Add Event Listener
+const AddSpawnEvent = (event, action) => {
+	infoBubble.parent.GetEl().addEventListener(event,action);
+}
+//Remove Event Listener
+const RemoveSpawnEvent = (event, action) => {
+	infoBubble.parent.GetEl().removeEventListener(event,action);
+}
+//Add Custom Emote
+const NewBubble = (details) => {
+	infoBubble.custom[details.eventName] = details;
+	//details.emote or alert
+	//details.text
+	//details.eventName
+	//details.rotation
+}
+//Spawn a Custom Emote
+const CustomBubble = (event) => {
+	for(let emote in infoBubble.custom){
+		if(event.type === emote){
+			if(infoBubble.custom[emote].rotation){
+				UpdateText(infoBubble.custom[emote].text,infoBubble.custom[emote].rotation);
+			} else {
+				UpdateText(infoBubble.custom[emote].text);
+			}
+			if(infoBubble.custom[emote].alert){
+				SpawnAlert();
+			} else {
+				SpawnBubble();
+			}
+			break;
+		}
+	}
+}
+//Emote !
+const Emote1 = () => {
+	UpdateText('!');
+	SpawnBubble();
+}
+//Alert !
+const Alert1 = () => {
+	UpdateText('!');
+	SpawnAlert();
+}
+//Emote ?
+const Emote2 = () => {
+	UpdateText('?');
+	SpawnBubble();
+}
+//Alert ?
+const Alert2 = () => {
+	UpdateText('?');
+	SpawnAlert();
+}
+//Emote :)
+const Emote3 = () => {
+	UpdateText(':)', -90);
+	SpawnBubble();
+}
+//Emote ^-^
+const Emote4 = () => {
+	UpdateText('^-^');
+	SpawnBubble();
+}
+//Add all Emotes to Element
+const AddEmotes = () => {
+	AddSpawnEvent('alert1', Alert1);
+	AddSpawnEvent('alert2', Alert2);
+	AddSpawnEvent('emote1', Emote1);
+	AddSpawnEvent('emote2', Emote2);
+	AddSpawnEvent('emote3', Emote3);
+	AddSpawnEvent('emote4', Emote4);
+	for(let each in infoBubble.custom){
+		AddSpawnEvent(each, CustomBubble);
+	}
+}
+//Remove all Emotes to Element
+const RemoveEmotes = () => {
+	if(infoBubble.inScene){
+		clearTimeout(infoBubble.timeout);
+		DespawnBubble();
+	}
+	RemoveSpawnEvent('alert1', Alert1);
+	RemoveSpawnEvent('alert2', Alert2);
+	RemoveSpawnEvent('emote1', Emote1);
+	RemoveSpawnEvent('emote2', Emote2);
+	RemoveSpawnEvent('emote3', Emote3);
+	RemoveSpawnEvent('emote4', Emote4);
+	for(let each in infoBubble.custom){
+		RemoveSpawnEvent(each, CustomBubble);
+	}
+}
+//On init, add required component methods to parent
+const Init = () => {
+	infoBubble.parent.core.components['onspawnrun__emote'] = {
+		cursorObj: infoBubble.id,
+		component: null,
+		method: 'AddEmotes',
+		params: null,
+	};
+	infoBubble.parent.core.components['ondespawnrun__emote'] = {
+		cursorObj: infoBubble.id,
+		component: null,
+		method: 'RemoveEmotes',
+		params: null,
+	};
+}
+Init();
+
+return {infoBubble, AddEmotes, RemoveEmotes, NewBubble};
+
+}
+
 
 //
-//NEW
+//In-Progress
+
 
 //
 //Build Core/Layer/Other objects in the 3D environment
@@ -10858,6 +11095,10 @@ components: false,
 };
 auxl.textBubbleTop = auxl.Core(auxl.textBubbleTopData);
 
+
+
+
+
 //
 //Details & Prompt
 
@@ -11393,7 +11634,30 @@ scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
 classes: ['clickable','a-ent'],
-components: false,
+components: {
+/*
+	onspawnrun:{
+		cursorObj: 'emoticonTesting',
+		component: null,
+		method: 'AddEmotes',
+		params: null,
+	},
+	ondespawnrun:{
+		cursorObj: 'emoticonTesting',
+		component: null,
+		method: 'RemoveEmotes',
+		params: null,
+	},
+*/
+/*
+	onspawnrun__2:{
+		cursorObj: 'AUXL Object Name 2',
+		component: 'Component Name 2',
+		method: 'Method Name 2',
+		params: 'Param Info 2',
+	},
+*/
+},
 event: {
 /*
 	event1: {
@@ -11419,6 +11683,29 @@ interval:{
 
 };
 auxl.coreEventTesting = auxl.Core(auxl.coreEventTestingData);
+
+
+//Emoticon Bubble
+auxl.emoticonTesting = auxl.InfoBubble('emoticonTesting', auxl.coreEventTesting, false, 'red');
+
+auxl.emoticonTesting.NewBubble({
+emote: true,
+text: '$_$',
+eventName: 'emote10',
+rotation: false,
+});
+auxl.emoticonTesting.NewBubble({
+alert: true,
+text: '$_$',
+eventName: 'alert10',
+rotation: false,
+});
+
+
+
+
+
+
 
 /*
 //

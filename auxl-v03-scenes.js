@@ -894,6 +894,9 @@ auxl.zone0Scene0Data = {
 		//multiMenuTest:{SpawnMultiMenu:null},
 	},
 	delay:{
+		3000:{
+			coreEventTesting:{EmitEvent:'alert1'},
+		},
 	},
 	interval:{
 /*
@@ -959,6 +962,9 @@ auxl.zone0Scene0Data = {
 		},
 	},
 	interaction:{
+		mouseenter:{
+			coreEventTesting:{EmitEvent:'alert'},
+		},
 	},
 	exit:{
 	},
@@ -1113,7 +1119,7 @@ auxl.v03TestingScenarioData = {
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
-		ham:{SpawnHam: null},
+		//ham:{SpawnHam: null},
 		floor:{SpawnCore: null},
 		clouds:{SpawnLayer: null},
 	},
