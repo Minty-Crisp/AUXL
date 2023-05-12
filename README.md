@@ -116,6 +116,9 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Added support component onspawnrun that runs method when object is added to scene and component ondespawnrun that runs method when object is removed from the scene
 - All support components that run methods allow mutliple copies added with name__id to be attached to the same object.
 - Added new InfoBubble ObjGen to display a temporary emote or interaction required alert with a string of text with background above object on event emit of parent. Has multiple preconfigured emote/alerts, but also supports custom ones as well.
+- Scenes now support Fog configuration via Info.
+- Current Location is now being saved and will respawn in same location upon revisit.
+- Updated NPC Book SelectJump() to import Prompt Message.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates

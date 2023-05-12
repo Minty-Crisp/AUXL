@@ -567,20 +567,28 @@ auxl.npcKeyPage1Data = {
 	timeline0:{
 		self:{IfElse: {self:{cond: 'zone1Key',
 		ifTrue: {
-			self:{Speak:{speech:'Did you find where the Key goes?'}, Jump: {timeline: 'timeline3'},},
+			self:{Speak:{speech:'Did you find where the Key goes?'}, Jump: {timeline: 'timeline2'},},
 		},ifFalse: {
-			self:{Speak:{role: '???', speech:'I found this key, but I don\'t know what it is used for. Would you like it?'}},},}}},
+			self:{Speak:{role: '???', speech:'I found this key, but I don\'t know what it is used for. Would you like it?'}, SelectJump:['Take the Key?',['Yes','timeline1'], ['No','timeline3'],],},},}}},
 	},
 	timeline1:{
 		self:{Speak:{speech:'Here you go!'}, SetFlag: {flag: 'zone1Key', value: true}},
 		player:{AddToInventory: 'zone1Key'},
 	},
 	timeline2:{
-		self:{Speak:{speech:'Good luck finding where it goes!'}},
+		self:{Speak:{speech:'Good luck finding where it goes!'}, Jump: {timeline: 'timeline4'},},
+
 	},
 	timeline3:{
-		self:{Speak:{speech:'Lets see the switch change'}},
+		self:{Speak:{speech:'Oklie doklie then, I guess I will keep it for now!'}},
+	},
+	timeline4:{
+		self:{Speak:{speech:'Now... where was that cookie I was eating?'}},
+	},
 /*
+	timeline4:{
+		self:{Speak:{speech:'Lets test the switch change!'}},
+
 		self:{Switch: {switchCube:{cond: 'testSwitch',
 			switchCond1: {
 				switchCube:{EmitEvent: 'switch1',SetFlag:{flag: 'testSwitch', value: 'switchCond2'},},
@@ -592,8 +600,8 @@ auxl.npcKeyPage1Data = {
 				switchCube:{EmitEvent: 'switch4',SetFlag:{flag: 'testSwitch', value: 'switchCond1'},},
 			},
 		}}},
-*/
 	},
+*/
 	timeline4:{
 		self: {ResetBook: true},
 	},
@@ -874,6 +882,7 @@ auxl.zone0Scene0Data = {
 		name: 'Zone 0 | Scene 0',
 		description: 'Default scene to load on Scenario/Zone.',
 		sceneText: true,
+		fog: {type: 'exponential', color: '#000', density: 0.025},
 	},
 	controls:{
 		action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn', name: 'Toggle Cube', info: 'Toggle an in-scene cube.'},
@@ -1046,6 +1055,7 @@ auxl.zone1Scene0Data = {
 		name: 'Zone 1 | Scene 0',
 		description: 'A new Zone and Scene to move to/from. The floor here is raycast click teleportable.',
 		sceneText: true,
+		fog: {type: 'exponential', color: '#AAA', density: 0.05},
 	},
 	controls:{
 	},
@@ -1119,7 +1129,7 @@ auxl.v03TestingScenarioData = {
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
-		//ham:{SpawnHam: null},
+		ham:{SpawnHam: null},
 		floor:{SpawnCore: null},
 		clouds:{SpawnLayer: null},
 	},

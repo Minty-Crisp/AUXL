@@ -61,9 +61,6 @@ this.jsAll = {
 ['gltf-morph']:'https://rawcdn.githack.com/elbobo/aframe-gltf-morph-component/07e9b80bd382cc1c19223468d35c453e7c76e9a2/dist/aframe-gltf-morph-component.js',
 };
 
-
-
-
 /*************************************************************/
 //HTML Elements
 const sceneEl = document.querySelector('a-scene');
@@ -115,12 +112,10 @@ let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, 
 
 let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, controllerBlock, mobileUpLeft, mobileUp, mobileUpRight, mobileLeft, mobileCenter, mobileRight, mobileDownLeft, mobileDown, mobileDownRight, mobileSelect, mobileStart, mobileA, mobileB, mobileC, mobileD, mobileE, mobileF, mobileL, mobileR];
 
-
-
 // System Configure
 /*************************************************************/
-this.systemLoaded = () => {
-	setStorage();
+this.systemLoaded = (reset) => {
+	setStorage(reset);
 	ApplySettings();
 	auxl.player.beltText = 'Player : ' + auxl.local.profile.shortname + '\n';
 	auxl.player.UpdateBeltText(auxl.player.beltText);
@@ -206,6 +201,18 @@ const newData = () => {
 	//this.local.profile.systemText = 'Welcome ' + this.local.profile.shortname + '! ID :'+ this.local.profile.id + '| AUXL Engine v0.3.3!\n ^-^!\n Starting...';
 	this.local.profile.systemText = 'Welcome ' + this.local.profile.shortname;
 	this.systemText = this.local.profile.systemText
+	//Current Location
+	this.local.location = {};
+	this.local.location.world = '';
+	this.local.location.scenario = '';
+	this.local.location.zone = '';
+	this.local.location.scene = '';
+
+	//Player Inventory
+	auxl.player.inventory = {};
+
+	//Load Save Data
+	this.local.load = false;
 	
 }
 //New
@@ -232,14 +239,18 @@ const loadStorage = () => {
 	console.log(this.local.profile.time.span);
 	//Update new Last Visit Data
 	this.local.profile.time.lastVisit = this.local.profile.time.return;
+	//Flag that we are loading data
+	this.local.load = true;
 	//Save Last Visit Date
 	auxl.saveToProfile();
 	UpdateFromLocal();
 }
 //Set
 //If the value exists then we have already entered once, do not repeat link anims
-const setStorage = () => {
-	if(localStorage.getItem('auxl')){
+const setStorage = (reset) => {
+  	if(reset){
+		newStorage();
+	} else if(localStorage.getItem('auxl')){
 		loadStorage();
 	} else {
 		newStorage();
@@ -279,7 +290,7 @@ this.saveToProfile = (sync) => {
 }
 //Update from Local
 const UpdateFromLocal = () => {
-	//console.log(auxl.local)
+	console.log(auxl.local)
 	for(let each in auxl.local){
 		if(each === 'profile'){} else {
 			for(let type in auxl.local[each]){
@@ -565,10 +576,18 @@ stickyMenu.addEventListener('click', toggleMenu);
 //Start Experience
 function startExp(){
 	if(auxl.worldLoaded){}else{
-		auxl.defaultWorld.StartWorld();
+		if(auxl.local.location.world === ''){
+			auxl.defaultWorld.StartWorld();
+		} else {
+			auxl[auxl.local.location.world].StartWorld();
+		}
 		startButton.innerHTML = 'Resume';
 		updateControls();
 		auxl.worldLoaded = true;
+		let loadTimeout = setTimeout(() => {
+			auxl.local.load = false;
+			clearTimeout(loadTimeout);
+		}, 1000);
 	}
 	toggleMenu();
 }
@@ -911,14 +930,14 @@ viewData.addEventListener('click', toggleData);
 dataClose.addEventListener('click', toggleData);
 //Reset Storage
 function resetStorage(){
-	newStorage();
-	toggleData();
 	//unload current world and reload default world
 	if(auxl.worldLoaded){
 		auxl.currentWorld.StopWorld();
 		startButton.innerHTML = 'Restart';
 		auxl.worldLoaded = false;
 	}
+	auxl.systemLoaded(true);
+	toggleData();
 }
 resetData.addEventListener('click', resetStorage);
 
@@ -3726,9 +3745,6 @@ this.HamMenu = (id, object) => {
 	ham.id = id;
 	ham.inScene = false;
 	ham.toggle = false;
-	ham.systemOpen = false;
-	ham.travelSettingsOpen = false;
-	ham.sceneSettingsOpen = false;
 	ham.pos = auxl.playerRig.GetEl().getAttribute('position');
 	ham.height = 1;
 	ham.distance = -2;
@@ -4345,7 +4361,6 @@ this.HamMenu = (id, object) => {
 				} else {
 					ham.avatar.DespawnLayer();
 				}
-				ham.systemOpen = false;
 				RemoveFromTracker(ham.id);
 				ham.inScene = false;
 				ToggleSpawnClick();
@@ -4560,6 +4575,14 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 			auxl.universalControls.updateAction(core[time]);
 			return;
 		}
+		//Fog
+		if(time === 'info'){
+			if(core[time].fog){
+				sceneEl.setAttribute('fog',core[time].fog);
+			} else {
+				sceneEl.setAttribute('fog',{type: "linear", near: 999, far: 1000, color: "#FFF" });
+			}
+		}
 		for(let line in core[time]){
 			//Check for special object support
 			if(time === 'delay'){
@@ -4732,7 +4755,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 						}
 					}
 				}
-			} else {
+			} else if(time === 'info'){} else {
 				//Reading non-special timeline, read normally
 				for(let a in core[time][line]){
 					if(time === 'start'){
@@ -4759,9 +4782,10 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 						} else {
 							auxlObjMethod(line,a,core[time][line][a]);
 						}
-					} else if(time === 'info') {
-						//Data only
 					} else {
+						console.log(time)
+						console.log(line)
+						console.log(a)
 						console.log('Hit Other Timeline, Please Investigate');
 					}
 				}
@@ -4817,6 +4841,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 	//NodeScene Start
 	const StartScene = () => {
 		auxl.sceneReading = true;
+		Info();
 		Start();
 		Delay();
 		Interval();
@@ -4828,7 +4853,8 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 			auxl.sceneReading = false;
 			clearTimeout(loadTimeout);
 		}, minLoadTime);
-
+		auxl.local.location.scene = core.info.id;
+		auxl.saveToProfile();
 	}
 	//Scene Text Support
 	const sceneTextDisplay = () => {
@@ -5189,7 +5215,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 						}
 					}
 				}
-			} else {
+			} else if(time === 'info'){} else {
 				//Reading non-special timeline, read normally
 				for(let a in core[time][line]){
 					if(time === 'start'){
@@ -5216,8 +5242,6 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 						} else {
 							auxlObjMethod(line,a,core[time][line][a]);
 						}
-					} else if(time === 'info') {
-						//Data only
 					} else {
 						console.log('Hit Other Timeline, Please Investigate');
 					}
@@ -5263,6 +5287,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	const Exit = () => {
 		readTimeline('exit');
 		RemoveControls();
+		core.zoneLoaded = false;
 	}
 	//MapZone Start
 	const StartZone = () => {
@@ -5275,11 +5300,16 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	}
 	//Start NodeScene within MapZone
 	const StartScene = (nodeName) => {
-		core.currentNode = nodeName || core.info.start;
+		if(auxl.local.load){
+			core.currentNode = auxl.local.location.scene;
+		} else {
+			core.currentNode = nodeName || core.info.start;
+		}
 		core.currentZone = core.info.id;
-		auxl.currentZone = core.info.id
+		auxl.currentZone = core.info.id;
 		if(core.zoneLoaded){} else {
 			StartZone();
+			auxl.local.location.zone = core.info.id;
 			core.zoneLoaded = true;
 		}
 		auxl[core.currentNode].StartScene();
@@ -5392,7 +5422,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			auxl.player.Notification({message:'Requires : ' + newNode.key});
 		} else {
 			if(newNode.locked && auxl.player.CheckInventory(newNode.key) && !newNode.keepKey){
-				auxl.player.RemoveFromInventory(newNode.key)
+				auxl.player.RemoveFromInventory(newNode.key);
 			}
 			//Move to NodeScene and/or MapZone
 			timeout = setTimeout(() => {
@@ -5407,7 +5437,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 				} else {
 					ClearZone();
 					core.zoneLoaded = false;
-					auxl[newNode.inZone].StartScene(newNode.node)
+					auxl[newNode.inZone].StartScene(newNode.node);
 				}
 				clearTimeout(timeout);
 			}, 425);
@@ -5749,7 +5779,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 						}
 					}
 				}
-			} else {
+			} else if(time === 'info'){} else {
 				//Reading non-special timeline, read normally
 				for(let a in core[time][line]){
 					if(time === 'start'){
@@ -5776,8 +5806,6 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 						} else {
 							auxlObjMethod(line,a,core[time][line][a]);
 						}
-					} else if(time === 'info') {
-						//Data only
 					} else {
 						console.log('Hit Other Timeline, Please Investigate');
 					}
@@ -5854,25 +5882,37 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 			//Get Universal Controls component
 			auxl.universalControls = document.getElementById('playerRig').components['universal-controls'];
 			//Start scene mid Player anim
-			startTimeout = setTimeout(function () {
+			startTimeout = setTimeout(() => {
 				//Load All Scenario Items
 				Init();
 				//zone to start in
+				if(auxl.local.load){
+					zoneSpawn = auxl.local.location.zone;
+/*
+					if(zoneSpawn === ''){
+						zoneSpawn = core.info.startZone;
+					}
+*/
+				} else {
+					zoneSpawn = core.info.startZone;
+				}
 				auxl[zoneSpawn].StartScene();
 				core.scenarioLoaded = true;
+				auxl.local.location.scenario = core.info.id;
 				clearTimeout(startTimeout);
 			}, 425);
 		}
 	}
 	//Exit & Clear Scenario
 	const ClearScenario = () => {
+		//unload current zone and scene
+		auxl[auxl[auxl.currentZone].core.currentNode].ClearScene();
+		auxl[auxl.currentZone].ClearZone();
 		Exit();
 		ClearScenarioTimeIntEvt();
 		RemoveControls();
 		clearSpawned(auxl.scenarioSpawned);
-		//unload current zone and scene
-		auxl[auxl.currentZone].ClearZone();
-		auxl[auxl[auxl.currentZone].core.currentNode].ClearScene();
+
 		core.scenarioLoaded = false;
 	}
 	//Update Zone Maps
@@ -5910,6 +5950,7 @@ this.World = (worldData) => {
 		StartScenario(world.current);
 		auxl.currentWorld = auxl[world.id];
 		auxl.worldLoaded = true;
+		auxl.local.location.world = world.id;
 	}
 	//Stop World
 	const StopWorld = () => {
@@ -6158,7 +6199,7 @@ this.Book = (core, npc) => {
 		let selectedPage = false;
 		let selectJumpData = {
 			id: 'selectJump',
-			prompt: 'When to?',
+			prompt: jumpOptions[0],
 			options: {},
 			actions: {},
 			data: auxl.menuBaseData,
@@ -6166,7 +6207,7 @@ this.Book = (core, npc) => {
 			pos: new THREE.Vector3(1,1.5,-0.5),
 			method: 'Click',
 		}
-		for(let a = 0; a < jumpOptions.length; a++){
+		for(let a = 1; a < jumpOptions.length; a++){
 			selectJumpData.options['option'+a] = jumpOptions[a][0];
 			selectJumpData.actions['action'+a] = jumpOptions[a][1];
 		}
@@ -7955,10 +7996,10 @@ const SpawnAlert = () => {
 }
 //Despawn Emote Bubble Layer
 const DespawnAlert = () => {
+	infoBubble.parent.GetEl().removeEventListener('mouseenter',DespawnAlert);
 	infoBubble[infoBubble.id].EmitEventParent('spawnOut');
 	infoBubble.timeout = setTimeout(() => {
 		DespawnBubble();
-		infoBubble.inScene = false;
 		clearTimeout(infoBubble.timeout);
 	}, 1050);
 }
@@ -11378,7 +11419,7 @@ id:'sun',
 sources: false,
 text: false,
 geometry: {primitive: 'circle', radius: 30, segments: 32},
-material: {shader: "standard", color: "#F0A500", opacity: 1, side: 'front', emissive: '#F0A500', emissiveIntensity: 1, roughness: 0.42},
+material: {shader: "standard", color: "#F0A500", opacity: 1, side: 'front', emissive: '#F0A500', emissiveIntensity: 1, roughness: 0.42, fog: false},
 position: new THREE.Vector3(0,0,-400),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -11416,7 +11457,7 @@ id:'moon',
 sources: false,
 text: false,
 geometry: {primitive: 'circle', radius: 24, segments: 32},
-material: {shader: "standard", color: "#5c2196", opacity: 1, side: 'front', emissive: '#5c2196', emissiveIntensity: 0.75, roughness: 0.42},
+material: {shader: "standard", color: "#5c2196", opacity: 1, side: 'front', emissive: '#5c2196', emissiveIntensity: 0.75, roughness: 0.42, fog: false},
 position: new THREE.Vector3(0,0,-400),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -11628,7 +11669,7 @@ sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {shader: "standard", src: auxl.pattern54, repeat: '1 1', color: "#256de0", emissive: '#256de0', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(1,1,1),
+position: new THREE.Vector3(2,1,-1),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,

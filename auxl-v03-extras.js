@@ -1826,8 +1826,8 @@ auxl.SwipeLaunchGame = (id) => {
 	//Build High Score Text
 	function refreshHighScoreText(){
 		swipeLaunch.highScores.text = '1. '+swipeLaunch.highScores.name1+' : '+swipeLaunch.highScores.score1.toFixed(2)+' Meters\n2. '+swipeLaunch.highScores.name2+' : '+swipeLaunch.highScores.score2.toFixed(2)+' Meters\n3. '+swipeLaunch.highScores.name3+' : '+swipeLaunch.highScores.score3.toFixed(2)+' Meters\n4. '+swipeLaunch.highScores.name4+' : '+swipeLaunch.highScores.score4.toFixed(2)+' Meters\n5. '+swipeLaunch.highScores.name5+' : '+swipeLaunch.highScores.score5.toFixed(2)+' Meters\n';
-		swipeLaunch.highScore.ChangeSelf({property:'text',value:{value:swipeLaunch.highScores.text}})
-		auxl.saveToProfile(swipeLaunch.id, 'swipeLaunch' ,'highScores',swipeLaunch.highScores);
+		swipeLaunch.highScore.ChangeSelf({property:'text',value:{value:swipeLaunch.highScores.text}});
+		auxl.saveToProfile({auxlObject: swipeLaunch.id, type: 'swipeLaunch', sub: false, name: 'highScores', data: swipeLaunch.highScores});
 	}
 	//Check for High Score
 	function checkHighScore(score){
