@@ -117,8 +117,9 @@ let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, controllerBl
 this.systemLoaded = (reset) => {
 	setStorage(reset);
 	ApplySettings();
-	auxl.player.beltText = 'Player : ' + auxl.local.profile.shortname + '\n';
-	auxl.player.UpdateBeltText(auxl.player.beltText);
+	auxl.player.infoText = 'Player : ' + auxl.local.profile.shortname + '\n';
+	auxl.ham.UpdateInfoScreen(auxl.player.infoText);
+	auxl.player.UpdateInventoryScreen();
 }
 
 const ApplySettings = () => {
@@ -212,7 +213,7 @@ const newData = () => {
 	auxl.player.inventory = {};
 
 	//Load Save Data
-	this.local.load = false;
+	//this.local.load = false;
 	
 }
 //New
@@ -240,7 +241,7 @@ const loadStorage = () => {
 	//Update new Last Visit Data
 	this.local.profile.time.lastVisit = this.local.profile.time.return;
 	//Flag that we are loading data
-	this.local.load = true;
+	//this.local.load = true;
 	//Save Last Visit Date
 	auxl.saveToProfile();
 	UpdateFromLocal();
@@ -292,19 +293,11 @@ this.saveToProfile = (sync) => {
 const UpdateFromLocal = () => {
 	console.log(auxl.local)
 	for(let each in auxl.local){
-		if(each === 'profile'){} else {
+		if(each === 'profile' || each === 'location'){} else {
 			for(let type in auxl.local[each]){
 				for(let a in auxl.local[each][type]){
-					if(Object.keys(auxl.local[each][type][a]).length > 0){
-						for(let b in auxl.local[each][type][a]){
-							if(auxl[each]){
-								auxl[each][type][a][b] = auxl.local[each][type][a][b];
-							}
-						}
-					} else {
-						if(auxl[each]){
-							auxl[each][type][a] = auxl.local[each][type][a];
-						}
+					if(auxl[each]){
+						auxl[each][type][a] = auxl.local[each][type][a];
 					}
 				}
 			}
@@ -584,10 +577,12 @@ function startExp(){
 		startButton.innerHTML = 'Resume';
 		updateControls();
 		auxl.worldLoaded = true;
+/*
 		let loadTimeout = setTimeout(() => {
 			auxl.local.load = false;
 			clearTimeout(loadTimeout);
 		}, 1000);
+*/
 	}
 	toggleMenu();
 }
@@ -939,7 +934,14 @@ function resetStorage(){
 	auxl.systemLoaded(true);
 	toggleData();
 }
-resetData.addEventListener('click', resetStorage);
+//resetData.addEventListener('click', resetStorage);
+//Reset and Reload
+function resetReload(){
+	auxl.systemLoaded(true);
+	window.location.reload();
+}
+resetData.addEventListener('click', resetReload);
+
 
 
 //
@@ -1467,144 +1469,6 @@ auxl[object].GetEl().addEventListener(line, function(){
 				}
 			}
 		}
-
-
-
-if(core.event){
-	for(let a in core[event]){
-		for(let b in core[event][a]){
-			let object;
-			let method;
-			let params;
-			if(b === 'IfElse'){
-				for(let c in core[event][a][b]){
-					object = a;
-					params = core[event][a][b][c];
-
-					AddToTimeIntEvtCore({name: object, type: 'event', id: a, method, params, event: event});
-					auxl[object].GetEl().addEventListener(event, function(){
-						IfElse(object,c,params);
-					});
-				}
-			} else if(b === 'Switch'){
-				for(let c in core[event][a][b]){
-					object = a;
-					params = core[event][a][b][c];
-					AddToTimeIntEvtCore({name: object, type: 'event', id: a, method, params, event: event});
-					auxl[object].GetEl().addEventListener(event, function(){
-						Switch(object,c,params);
-					});
-				}
-			} else {
-				object = a;
-				method = b;
-				params = core[event][a][b];
-				AddToTimeIntEvtCore({name: object, type: 'event', id: a, method, params, event: event});
-				auxl[object].GetEl().addEventListener(event, function(){
-					auxlObjMethod(object,method,params);
-				});
-			}
-		}
-	}
-}
-
-/*
-//Event
-if(core.event){
-	for (let each in core.event) {
-		console.log(each)//eventName
-		for (let object in core.event[each]) {
-			console.log(object)//auxlObject
-			console.log(core.event[each][object]);//actions
-		}
-	}
-
-/*
-AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
-auxl[object].GetEl().addEventListener(line, function(){
-	auxlObjMethod(object,method,params);
-});
-*/
-
-/*
-event: {
-	event1: {
-		self: {ChangeSelf: {property: 'material', value: {color: '#d81559', emissive: '#d81559'}}},
-		floor: {ChangeSelf: {property: 'material', value: {color: '#d81559', emissive: '#d81559'}}},
-	},
-	click: {
-		self: {ChangeSelf: {property: 'material', value: {color: '#15b2d8', emissive: '#15b2d8'}}},
-		floor: {ChangeSelf: {property: 'material', value: {color: '#15b2d8', emissive: '#15b2d8'}}},
-	},
-},
-
-
-}
-*/
-//Delay
-if(core.delay){
-	for (let each in core.delay) {
-		//console.log(each)
-		for (let object in core.delay[each]) {
-			//console.log(object)
-			//console.log(core.delay[each][object]);
-		}
-	}
-/*
-AddToTimeIntEvtTracker({name: line, type: 'timeout', id: a});
-auxl.timeouts[line+a] = setTimeout(function () {
-	auxlObjMethod(a,b,core[time][line][a][b]);
-	clearTimeout(auxl.timeouts[line+a]);
-}, line);
-*/
-/*
-	120000:{
-		player:{Notification: {message:'2 Minutes'}},
-	},
-*/
-}
-
-//Interval
-if(core.interval){
-	for (let each in core.interval) {
-		//console.log(each)
-		for (let object in core.interval[each]) {
-			//console.log(object)
-			//console.log(core.interval[each][object]);
-		}
-	}
-/*
-	let ranTotal = 0;
-	let loopTotal = core[time][line]['loop'];
-	let endCond;
-	if(core[time][line]['end']){
-		endCond = core[time][line]['end'];
-	}
-
-	AddToTimeIntEvtTracker({name: line, type: 'interval', id: b});
-	auxl.intervals[line+b] = setInterval(function() {
-		if(auxl[b].GetFlag(endCond) === true){
-			clearInterval(auxl.intervals[line+b]);
-			RemoveFromTimeIntEvtTracker(line+b);
-		}
-		auxlObjMethod(b,method,params);
-		if(loopTotal === 'infinite'){} else {
-			ranTotal++;
-			if(ranTotal >= loopTotal){
-				clearInterval(auxl.intervals[line+b]);
-				RemoveFromTimeIntEvtTracker(line+b);
-			}
-		}
-	}, line);
-*/
-/*
-	6000: {
-		run: {self:{EmitEvent: 'event1'},}, loop: 'infinite'
-	},
-*/
-}
-
-
 		//Object element generation done
 		return core.el;
 	}
@@ -2503,15 +2367,25 @@ this.Player = (id,name,layer) => {
 		autoplay: true, 
 		enabled: true,
 	};
-	//Inventory
+	//Belt Inventory, Toggle & Text
+	layer.beltDisplay = true;
 	layer.inventory = {};
-	layer.inventoryPreText = 'Inventory :\n';
+	layer.inventoryPreText = 'Inventory : ';
 	layer.inventoryText = layer.inventoryPreText + 'Empty';
+
+	//Could use a multi-menu for an inventory as it supports categories, pagenation, selections, info and methods.
+
+	//Inventory Categories
+	//Keys
+	//Items
+	//Passive
+
+
+
 	//Flashlight
 	layer.flashlight = false;
-	//Belt Text
-	layer.beltDisplay = true;
-	layer.beltText = 'Player :\n'
+	//Info Text
+	layer.infoText = 'Player :\n'
 
 	//Spawn Player
 	layer.SpawnLayer();
@@ -2631,14 +2505,20 @@ this.Player = (id,name,layer) => {
 			layer.beltDisplay = false;
 		} else {
 			auxl.playerBeltText.ChangeSelf({property: 'visible', value:true})
+			UpdateBeltText();
 			layer.beltDisplay = true;
 		}
-
 	}
 	playerFloor.addEventListener('click',ToggleBeltText);
 	//Update Belt Text
 	const UpdateBeltText = (text) => {
-		auxl.playerBeltText.ChangeSelf({property: 'text', value:{value: text}})
+		if(text){
+			layer.inventoryText = text;
+		}
+		if(layer.beltDisplay){
+			auxl.playerBeltText.ChangeSelf({property: 'text', value:{value: layer.inventoryText}})
+		}
+
 	}
 	//Update UI Text
 	const UpdateUIText = (text) => {
@@ -2705,7 +2585,7 @@ this.Player = (id,name,layer) => {
 			layer.inventory[item] = true;;
 			auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: 'inventory', name: item, data: true});
 		}
-		if(auxl.ham.ham.inScene){
+		if(auxl.playerBeltText.core.inScene){
 			UpdateInventoryScreen();
 		}
 		//Notifications
@@ -2734,7 +2614,7 @@ this.Player = (id,name,layer) => {
 			delete layer.inventory[item];
 			auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: 'inventory', name: item, data: false});
 		}
-		if(auxl.ham.ham.inScene){
+		if(auxl.playerBeltText.core.inScene){
 			UpdateInventoryScreen();
 		}
 		//Notifications
@@ -2778,13 +2658,14 @@ this.Player = (id,name,layer) => {
 			layer.inventoryText = layer.inventoryPreText;
 			let itemText = '';
 			for(let each in layer.inventory){
-				itemText = each + '\n';
+				itemText = each + ' | ';
 				layer.inventoryText += itemText;
 			}
 		} else {
 			layer.inventoryText = layer.inventoryPreText + 'Empty';
 		}
-		auxl.inventoryScreen.ChangeSelf({property: 'text', value:{value:layer.inventoryText}})
+		UpdateBeltText(layer.inventoryText);
+		//auxl.playerBeltText.ChangeSelf({property: 'text', value:{value:layer.inventoryText}})
 	}
 	//Disable Player Selection for a Time
 	const TempDisableClick = (time) => {
@@ -3730,7 +3611,6 @@ this.MultiMenu = (multiMenuData) => {
 //System Menu & Inventory
 this.HamMenu = (id, object) => {
 	let ham = {};
-
 	ham.avatarType = '';
 	ham.menuParentId;
 	if(object.SpawnCore){
@@ -3745,6 +3625,7 @@ this.HamMenu = (id, object) => {
 	ham.id = id;
 	ham.inScene = false;
 	ham.toggle = false;
+	ham.infoDisplay = false;
 	ham.pos = auxl.playerRig.GetEl().getAttribute('position');
 	ham.height = 1;
 	ham.distance = -2;
@@ -4331,7 +4212,7 @@ this.HamMenu = (id, object) => {
 				ham.avatar.SpawnLayer(auxl.playerRig.GetEl());
 				ham.avatar.ChangeParent({property: 'position', value: cameraDirection(ham.distance)});
 			}
-			ShowInventory();
+			ShowInfo();
 			//autoScriptEmoticon();
 			//console.log(auxl.build)
 			let spawnTimeout = setTimeout(() => {
@@ -4355,7 +4236,7 @@ this.HamMenu = (id, object) => {
 			auxl.mainMenu.DespawnMultiMenu();
 			//Delay to let multi-menu complete it's despawn seq
 			let despawnTimeout = setTimeout(() => {
-				HideInventory();
+				HideInfo();
 				if(ham.avatarType === 'core'){
 					ham.avatar.DespawnCore();
 				} else {
@@ -4393,17 +4274,28 @@ this.HamMenu = (id, object) => {
 		}
 	}
 	//Display Inventory Screen attached to Ham
-	const ShowInventory = () => {
+	const ShowInfo = () => {
 		if(ham.avatarType === 'core'){
-			auxl.inventoryScreen.SpawnCore(ham.avatar.GetEl());
+			auxl.infoScreen.SpawnCore(ham.avatar.GetEl());
 		} else {
-			auxl.inventoryScreen.SpawnCore(ham.avatar.GetParentEl());
+			auxl.infoScreen.SpawnCore(ham.avatar.GetParentEl());
 		}
-		auxl.player.UpdateInventoryScreen();
+		ham.infoDisplay = true;
+		UpdateInfoScreen();
 	}
 	//Remove Inventory Screen
-	const HideInventory = () => {
-		auxl.inventoryScreen.DespawnCore();
+	const HideInfo = () => {
+		ham.infoDisplay = false;
+		auxl.infoScreen.DespawnCore();
+	}
+	//Update Info Display Screen
+	const UpdateInfoScreen = (text) => {
+		if(text){
+			auxl.player.infoText = text;
+		}
+		if(ham.infoDisplay){
+			auxl.infoScreen.ChangeSelf({property: 'text', value:{value:auxl.player.infoText}})
+		}
 	}
 	//Display Current Control Configuration
 	const ToggleControlView = () => {
@@ -4417,7 +4309,7 @@ this.HamMenu = (id, object) => {
 		}
 	}
 
-	return{ham, UpdateShape, SpawnHam, DespawnHam, SetFlag, GetFlag, ToggleControlView};
+	return{ham, UpdateShape, SpawnHam, DespawnHam, SetFlag, GetFlag, UpdateInfoScreen, ToggleControlView,};
 }
 
 //
@@ -5300,7 +5192,8 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	}
 	//Start NodeScene within MapZone
 	const StartScene = (nodeName) => {
-		if(auxl.local.load){
+		//if(auxl.local.load){
+		if(auxl.local.location.world === ''){
 			core.currentNode = auxl.local.location.scene;
 		} else {
 			core.currentNode = nodeName || core.info.start;
@@ -5886,7 +5779,8 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 				//Load All Scenario Items
 				Init();
 				//zone to start in
-				if(auxl.local.load){
+				//if(auxl.local.load){
+				if(auxl.local.location.world === ''){
 					zoneSpawn = auxl.local.location.zone;
 /*
 					if(zoneSpawn === ''){
@@ -6605,14 +6499,15 @@ this.NPC = (core, bookData, textDisplay) => {
 		}
 	}
 	//Switch support to run auxlObjMethod()
-	const Switch = (objRef, condObj, switchInfo) => {
-		console.log('NPC Switch Running')
-		console.log(objRef)
-		console.log(condObj)
-		console.log(switchInfo)
+	const Switch = (obj) => {
+		let condObj = Object.keys(obj)[0]
+		let switchInfo = obj[condObj];
+		if(condObj === 'self'){
+			condObj = npc.id;
+		}
 		let switchCases = [];
 		for(let each in switchInfo){
-			if(each === 'default'){}else{
+			if(each === 'cond' || each === 'default'){}else{
 				switchCases.push(each)
 			}
 		}
@@ -9720,8 +9615,7 @@ tick: function (time, timeDelta) {
 //AUXL Library : List of Materials, Geometries, Sounds, Animations, Data, Cores, Layers & Objects
 AFRAME.registerComponent('auxl-library', {
 dependencies: ['auxl'],
-
-init: function () {
+update: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
@@ -10146,7 +10040,7 @@ auxl.playerBeltTextData = {
 data:'playerBeltTextData',
 id:'playerBeltText',
 sources:false,
-text: {value:'Player :\n', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.9, zOffset: 0.03, side: 'front', wrapCount: 45, baseline: 'center'},
+text: {value:'Inventory : Empty', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.9, zOffset: 0.03, side: 'front', wrapCount: 45, baseline: 'center'},
 geometry: {primitive: 'box', depth: 0.025, width: 1, height: 0.25},
 material: {shader: "standard", color: "#4bb8c1", opacity: 0.75, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
 position: new THREE.Vector3(0,0.69,-0.8),
@@ -10326,9 +10220,6 @@ auxl.playerLayer = auxl.Layer('playerLayer', auxl.playerAll);
 //Player #000000
 //auxl.player000000 = auxl.Player('player000000','Minty',auxl.player1Layer);
 auxl.player = auxl.Player('player','Dev',auxl.playerLayer);
-
-
-
 
 //
 //Avatar
@@ -11025,11 +10916,12 @@ auxl.hamAvatar = auxl.Core(auxl.hamAvatarData);
 //auxl.ham = auxl.HamMenu('ham',auxl.hamComp);
 auxl.ham = auxl.HamMenu('ham',auxl.ghost);
 //Inventory Screen
-auxl.inventoryScreenData = {
-data:'inventoryScreenData',
-id:'inventoryScreen',
+
+auxl.infoScreenData = {
+data:'infoScreenData',
+id:'infoScreen',
 sources:false,
-text: {value:'Inventory :\nEmpty', color: "#FFFFFF", align: "center", font: "exo2bold", width: 1.2, zOffset: 0.025, side: 'front', wrapCount: 35, baseline: 'bottom', anchor: 'center'},
+text: {value:'Player :\n', color: "#FFFFFF", align: "center", font: "exo2bold", width: 1.2, zOffset: 0.025, side: 'front', wrapCount: 35, baseline: 'bottom', anchor: 'center'},
 geometry: {primitive: 'box', depth: 0.025, width: 0.75, height: 0.3},
 material: {shader: "standard", color: "#4bb8c1", opacity: 0.8, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
 //position: new THREE.Vector3(0,0.65,-1.25),
@@ -11041,7 +10933,8 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-auxl.inventoryScreen = auxl.Core(auxl.inventoryScreenData);
+auxl.infoScreen = auxl.Core(auxl.infoScreenData);
+
 
 //Control Configuration View
 auxl.configurationViewData = {
@@ -11676,49 +11569,28 @@ animations:false,
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
-/*
-	onspawnrun:{
-		cursorObj: 'emoticonTesting',
-		component: null,
-		method: 'AddEmotes',
-		params: null,
+	oneventrun__test:{
+		event: 'test',
+		cursorObj: 'player',
+		component: 'null',
+		method: 'TestFunc',
+		params: 'Event Test',
 	},
-	ondespawnrun:{
-		cursorObj: 'emoticonTesting',
-		component: null,
-		method: 'RemoveEmotes',
-		params: null,
+	ondelayrun__test:{
+		delay: 1000,
+		cursorObj: 'player',
+		component: 'null',
+		method: 'TestFunc',
+		params: 'Delay Test'
 	},
-*/
-/*
-	onspawnrun__2:{
-		cursorObj: 'AUXL Object Name 2',
-		component: 'Component Name 2',
-		method: 'Method Name 2',
-		params: 'Param Info 2',
-	},
-*/
-},
-event: {
-/*
-	event1: {
-		self: {ChangeSelf: {property: 'material', value: {color: '#d81559', emissive: '#d81559'}}},
-		floor: {ChangeSelf: {property: 'material', value: {color: '#d81559', emissive: '#d81559'}}},
-	},
-*/
-	click: {
-		self: {ChangeSelf: {property: 'material', value: {color: '#15b2d8', emissive: '#15b2d8'}}},
-		floor: {ChangeSelf: {property: 'material', value: {color: '#15b2d8', emissive: '#15b2d8'}}},
-	},
-},
-delay:{
-	120000:{
-		player:{Notification: {message:'2 Minutes'}},
-	},
-},
-interval:{
-	6000: {
-		run: {self:{EmitEvent: 'event1'},}, loop: 'infinite'
+	onintervalrun__test:{
+		interval: 2000,
+		loop: 13,
+		end: 'test',
+		cursorObj: 'player',
+		component: 'null',
+		method: 'TestFunc',
+		params: 'Interval Test',
 	},
 },
 
@@ -11931,5 +11803,3 @@ auxl.multiMenuTest = auxl.MultiMenu(auxl.multiMenuTestData);
 
 },
 });
-
-//should event / delay / interval support if/else and switch

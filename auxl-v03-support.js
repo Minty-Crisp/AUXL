@@ -461,7 +461,7 @@ events: {
 });
 
 //On Spawn Run
-//Run AUXL object method, params on object spawning
+//Run AUXL object method
 AFRAME.registerComponent('onspawnrun', {
 dependencies: ['auxl'],
 multiple: true,
@@ -500,7 +500,7 @@ init: function () {
 });
 
 //On Despawn Run
-//Run AUXL object method, params on object spawning
+//Run AUXL object method
 AFRAME.registerComponent('ondespawnrun', {
 dependencies: ['auxl'],
 multiple: true,
@@ -540,8 +540,216 @@ remove: function () {
 },
 });
 
+//On Event Run
+//On Event fired, run method
+AFRAME.registerComponent('oneventrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	event: {type: 'string', default: 'eventName'},
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	//console.log(this.attrName)
+	//console.log(this.id)
+	//console.log(this.data)
+},
+update: function () {
+	//Prep
+	this.event = this.data.event;
+	this.cursorObj = this.data.cursorObj;
+	this.component = this.data.component;
+	this.method = this.data.method;
+	this.params = this.data.params;
+	//Run Function
+	this.run = () => {
+		if(this.component === 'null'){
+			if(this.auxl[this.cursorObj][this.method]){
+				if(this.params === 'null'){
+					this.auxl[this.cursorObj][this.method]();
+				} else {
+					this.auxl[this.cursorObj][this.method](this.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.cursorObj)){
+				this.domEnt = document.getElementById(this.cursorObj);
+				if(this.params === 'null'){
+					this.domEnt.components[this.component][this.method]();
+				} else {
+					this.domEnt.components[this.component][this.method](this.params);
+				}
+			}
+		}
+	}
+	//Add Event Listener
+	this.el.addEventListener(this.event,this.run);
+},
+remove: function () {
+	//Remove Event Listener
+	this.el.removeEventListener(this.event,this.run);
+},
+});
 
-//
+//On Delay Run
+//On Delay, run method
+AFRAME.registerComponent('ondelayrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	delay: {type: 'number', default: 1000},
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	//console.log(this.attrName)
+	//console.log(this.id)
+	//console.log(this.data)
+},
+update: function () {
+	//Prep
+	this.delay = this.data.delay;
+	this.cursorObj = this.data.cursorObj;
+	this.component = this.data.component;
+	this.method = this.data.method;
+	this.params = this.data.params;
+	//Run Function
+	this.run = () => {
+		if(this.component === 'null'){
+			if(this.auxl[this.cursorObj][this.method]){
+				if(this.params === 'null'){
+					this.auxl[this.cursorObj][this.method]();
+				} else {
+					this.auxl[this.cursorObj][this.method](this.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.cursorObj)){
+				this.domEnt = document.getElementById(this.cursorObj);
+				if(this.params === 'null'){
+					this.domEnt.components[this.component][this.method]();
+				} else {
+					this.domEnt.components[this.component][this.method](this.params);
+				}
+			}
+		}
+	}
+	//Set Timeout
+	this.timeout = setTimeout(() => {
+		this.run();
+		clearTimeout(this.timeout);
+	}, this.delay);
+
+},
+remove: function () {
+	//Clear Timeout
+	clearTimeout(this.timeout);
+},
+});
+
+//On Interval Run
+//On Interval, run method
+AFRAME.registerComponent('onintervalrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	interval: {type: 'number', default: 1000},
+	loop: {type: 'number', default: 0},
+	end: {type: 'string', default: 'null'},
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	//console.log(this.attrName)
+	//console.log(this.id)
+	//console.log(this.data)
+},
+update: function () {
+	//Prep
+	this.interval = this.data.interval;
+	this.loop = this.data.loop;
+	if(this.loop === 0){
+		this.loop = false;
+	}
+	this.end = this.data.end;
+	this.checkEnd = false;
+	if(this.end === 'null'){} else {
+		this.checkEnd = true;
+	}
+	this.running = true;
+	this.cursorObj = this.data.cursorObj;
+	this.component = this.data.component;
+	this.method = this.data.method;
+	this.params = this.data.params;
+	//Run Function
+	this.run = () => {
+		if(this.component === 'null'){
+			if(this.auxl[this.cursorObj][this.method]){
+				if(this.params === 'null'){
+					this.auxl[this.cursorObj][this.method]();
+				} else {
+					this.auxl[this.cursorObj][this.method](this.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.cursorObj)){
+				this.domEnt = document.getElementById(this.cursorObj);
+				if(this.params === 'null'){
+					this.domEnt.components[this.component][this.method]();
+				} else {
+					this.domEnt.components[this.component][this.method](this.params);
+				}
+			}
+		}
+	}
+	//Set Timeout
+	this.repeat = setInterval(() => {
+		//Flag End Condition
+		if(this.checkEnd){
+			if(this.auxl[this.cursorObj].GetFlag(this.end) === true){
+				this.running = false;
+				clearInterval(this.repeat);
+			}
+		}
+		if(this.running){
+			this.run();
+		}
+		//Loop End Condition
+		if(this.loop){
+			this.loop--;
+			if(this.loop <= 0){
+				this.running = false;
+				clearInterval(this.repeat);
+			}
+		}
+	}, this.interval);
+
+},
+remove: function () {
+	//Clear Timeout
+	clearInterval(this.repeat);
+},
+});
+
 //Map Travel Support
 //Move to Node
 AFRAME.registerComponent('doorway', {

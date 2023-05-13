@@ -119,6 +119,8 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Scenes now support Fog configuration via Info.
 - Current Location is now being saved and will respawn in same location upon revisit.
 - Updated NPC Book SelectJump() to import Prompt Message.
+- Added Switch logic to NPC Books.
+- Added new components oneventrun, ondelayrun & onintervalrun to run AUXL method or components method on Event, Delay or Interval.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates

@@ -15,8 +15,6 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
-
-
 //Testing Object
 auxl.build = auxl.BuildIn3D();
 
@@ -585,6 +583,19 @@ auxl.npcKeyPage1Data = {
 	timeline4:{
 		self:{Speak:{speech:'Now... where was that cookie I was eating?'}},
 	},
+	timeline5:{
+		self:{Switch: {self:{cond: 'testSwitch',
+			switchCond1: {
+				self:{Speak:{speech:'Found it!'},SetFlag:{flag: 'testSwitch', value: 'switchCond2'},},
+			},switchCond2: {
+				self:{Speak:{speech:'Nom nom nom nom.'},SetFlag:{flag: 'testSwitch', value: 'switchCond3'},},
+			},switchCond3: {
+				self:{Speak:{speech:'That was delicious.'},SetFlag:{flag: 'testSwitch', value: 'switchCond4'},},
+			},default: {
+				self:{Speak:{speech:'Hmmmmm.'},SetFlag:{flag: 'testSwitch', value: 'switchCond1'},},
+			},
+		}}},
+	},
 /*
 	timeline4:{
 		self:{Speak:{speech:'Lets test the switch change!'}},
@@ -602,7 +613,7 @@ auxl.npcKeyPage1Data = {
 		}}},
 	},
 */
-	timeline4:{
+	timeline6:{
 		self: {ResetBook: true},
 	},
 };
@@ -906,8 +917,17 @@ auxl.zone0Scene0Data = {
 		3000:{
 			coreEventTesting:{EmitEvent:'alert1'},
 		},
+		4000:{
+			coreEventTesting:{EmitEvent:'test'},
+		},
+		5000:{
+			player:{SetFlag:{flag: 'test', value: true}},
+		},
 	},
 	interval:{
+		5000: {
+			run: {switchCube:{EmitEvent: 'switchEvent'},}, loop: 'infinite'
+		},
 /*
 		5000: {
 			run: {switchCube:{EmitEvent: 'switchEvent'},}, loop: 'infinite'
