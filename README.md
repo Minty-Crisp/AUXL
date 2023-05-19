@@ -121,6 +121,12 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Updated NPC Book SelectJump() to import Prompt Message.
 - Added Switch logic to NPC Books.
 - Added new components oneventrun, ondelayrun & onintervalrun to run AUXL method or components method on Event, Delay or Interval.
+- Added support for multiple sounds attaching to a single Core entity under the new data key 'sounds'
+- Renamed HamMenu/Ham to Companion/Comp
+- Added a build method for each component containing object generations that contains a copy of all declared objects for that component which runs on system reset. Allows for all objects, flags, changes, etc... to be reset back to defaults without reloading page via Reset Data menu option.
+- Added Companion position update by clicking belt text ui screen to move the companion while spawned.
+- Added GetAllEl method to layer.
+- Updated NPC to support Layer as the Avatar and added GetNPCEl, AddNPCEvents & RemoveNPCEvents methods. Fixed a few various issues with NPC as well.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates

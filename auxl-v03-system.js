@@ -33,14 +33,14 @@ this.currentZone;
 this.worldLoaded = false;
 this.local = {};
 this.local.profile = {};
-//Players
-this.players = {};
+this.rebuildObjects = [];
 
 //Controller
 let playerRig;
 let camera;
 let cameraUI;
 let playerBeltUI;
+let playerBeltText;
 let playerFloor;
 let mouseController;
 let vrController1;
@@ -113,21 +113,20 @@ let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, 
 let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, controllerBlock, mobileUpLeft, mobileUp, mobileUpRight, mobileLeft, mobileCenter, mobileRight, mobileDownLeft, mobileDown, mobileDownRight, mobileSelect, mobileStart, mobileA, mobileB, mobileC, mobileD, mobileE, mobileF, mobileL, mobileR];
 
 // System Configure
-/*************************************************************/
+/***********************************************************/
+//System Loaded, Runs after World/Scenario/Zone/Scenes loaded
 this.systemLoaded = (reset) => {
 	setStorage(reset);
-	ApplySettings();
 	auxl.player.infoText = 'Player : ' + auxl.local.profile.shortname + '\n';
-	auxl.ham.UpdateInfoScreen(auxl.player.infoText);
-	auxl.player.UpdateInventoryScreen();
+	ApplySettings();
 }
-
+//Apply System Settings
 const ApplySettings = () => {
 	ApplyColorScheme();
 	ApplySystemText();
 	UpdateSystemText(this.local.profile.systemText);
 }
-
+//Apply Color Scheme
 const ApplyColorScheme = () => {
 	//HTML
 	for(let element in htmlBackground){
@@ -154,10 +153,12 @@ const ApplyColorScheme = () => {
 
 	//console.log('Color Applied');
 }
-
+//Apply System Text
 const ApplySystemText = () => {
 	//HTML
 	systemText.innerHTML = this.systemText;
+	//Player Belt
+	auxl.player.UpdateBeltText(this.systemText);
 	//Camera UI
 	auxl.cameraUI.ChangeSelf({property: 'text', value: {value: this.systemText,}})
 	//Hands
@@ -166,10 +167,22 @@ const ApplySystemText = () => {
 
 	//console.log('System Text Applied');
 }
-
+//Update System Text
 const UpdateSystemText = (text) => {
 	this.systemText = text;
 	ApplySystemText()
+}
+//Add Component Rebuild Method
+this.toBeRebuilt = (methodName) => {
+	auxl.rebuildObjects.push(methodName);
+}
+//Rebuild Player and All ObjGens
+const Rebuild = () => {
+	auxl.comp.ClearInventoryNotifications();
+	auxl.player.Reset();
+	for(let each in auxl.rebuildObjects){
+		auxl[auxl.rebuildObjects[each]]();
+	}
 }
 
 // Local Storage
@@ -204,16 +217,11 @@ const newData = () => {
 	this.systemText = this.local.profile.systemText
 	//Current Location
 	this.local.location = {};
+	this.local.location.load = false;
 	this.local.location.world = '';
 	this.local.location.scenario = '';
 	this.local.location.zone = '';
 	this.local.location.scene = '';
-
-	//Player Inventory
-	auxl.player.inventory = {};
-
-	//Load Save Data
-	//this.local.load = false;
 	
 }
 //New
@@ -222,6 +230,8 @@ const newStorage = () => {
 	console.log('New here. Loading default data.');
 	//Default Data
 	newData();
+	//Rebuild All Objects
+	Rebuild();
 	//Assign Completion to Storage
 	window.localStorage.setItem("auxl", JSON.stringify(auxl.local));
 	ApplySettings();
@@ -241,7 +251,12 @@ const loadStorage = () => {
 	//Update new Last Visit Data
 	this.local.profile.time.lastVisit = this.local.profile.time.return;
 	//Flag that we are loading data
-	//this.local.load = true;
+	if(this.local.location.world === '' ||  this.local.location.scenario === '' || this.local.location.zone === '' || this.local.location.scene === ''){
+		this.local.location.load = false;
+	}else{
+		this.local.location.load = true;
+	}
+
 	//Save Last Visit Date
 	auxl.saveToProfile();
 	UpdateFromLocal();
@@ -421,7 +436,7 @@ menu:{type:'menu', spawn: 'SpawnMenu', despawn: 'DespawnMenu'},
 multiMenu:{type:'multiMenu', spawn: 'SpawnMultiMenu', despawn: 'DespawnMultiMenu'},
 singleGen:{type:'singleGen', spawn: 'SpawnObjRing', despawn: 'DespawnObjRing'},
 multiGen:{type:'multiGen', spawn: 'SpawnMultiAsset', despawn: 'DespawnMultiAsset'},
-ham:{type:'ham', spawn: 'SpawnHam', despawn: 'DespawnHam'},
+comp:{type:'comp', spawn: 'SpawnComp', despawn: 'DespawnComp'},
 teleport:{type:'teleport', spawn: 'SpawnTeleport', despawn: 'DespawnTeleport'},
 npc:{type:'npc', spawn: 'SpawnNPC', despawn: 'DespawnNPC'},
 speechSystem:{type:'speechSystem', spawn: 'SpawnSpeech', despawn: 'DespawnSpeech'},
@@ -577,12 +592,6 @@ function startExp(){
 		startButton.innerHTML = 'Resume';
 		updateControls();
 		auxl.worldLoaded = true;
-/*
-		let loadTimeout = setTimeout(() => {
-			auxl.local.load = false;
-			clearTimeout(loadTimeout);
-		}, 1000);
-*/
 	}
 	toggleMenu();
 }
@@ -924,7 +933,7 @@ function toggleData(){
 viewData.addEventListener('click', toggleData);
 dataClose.addEventListener('click', toggleData);
 //Reset Storage
-function resetStorage(){
+function resetSystem(){
 	//unload current world and reload default world
 	if(auxl.worldLoaded){
 		auxl.currentWorld.StopWorld();
@@ -934,13 +943,13 @@ function resetStorage(){
 	auxl.systemLoaded(true);
 	toggleData();
 }
-//resetData.addEventListener('click', resetStorage);
+resetData.addEventListener('click', resetSystem);
 //Reset and Reload
 function resetReload(){
 	auxl.systemLoaded(true);
 	window.location.reload();
 }
-resetData.addEventListener('click', resetReload);
+//resetData.addEventListener('click', resetReload);
 
 
 
@@ -1379,7 +1388,14 @@ auxl[object].GetEl().addEventListener(line, function(){
 		}
 		//Sound
 		if(this.audioEnabled){
-			if(core.sound){core.el.setAttribute('sound', core.sound)};
+			if(core.sound){
+				core.el.setAttribute('sound', core.sound);
+			};
+			if(core.sounds){
+				for(let each in core.sounds){
+					core.el.setAttribute('sound__'+each, core.sounds[each]);
+				}
+			};
 		}
 		//Text
 		if(core.text){core.el.setAttribute('text', core.text)};
@@ -1843,9 +1859,11 @@ auxl[object].GetEl().addEventListener(line, function(){
 this.Layer = (id, all) => {
 	let layer = {id, all};
 	layer.inScene = false;
+	layer.allNames = [];
 	layer.children = {};
 	layer.secondParents = [];
 	layer.thirdParents = [];
+	layer.fourthParents = [];
 	layer.parent = false;
 	//Spawn Multi Entity Object
 	const SpawnLayer = (parent) => {
@@ -1887,26 +1905,31 @@ this.Layer = (id, all) => {
 			for(let each in all){
 				if(each === 'parent'){
 					all[each].core.SpawnCore(layer.parent);
+					layer.allNames.push(all[each].core.core.id);
 				} else {
 					for(let a in all[each]){
 						if(a === 'core'){
 							layer.children[all[each].core.core.id] = {obj: all[each][a], parent: all.parent.core.core.el};
 							all[each][a].SpawnCore(all.parent.core.core.el);
+							layer.allNames.push(all[each][a].core.id);
 						} else {
 							if(a === 'parent'){
 								layer.children[all[each][a].core.core.id] = {obj: all[each][a].core, parent: all.parent.core.core.el};
 								layer.secondParents.push(all[each][a].core);
 								all[each][a].core.SpawnCore(all.parent.core.core.el);
+								layer.allNames.push(all[each][a].core.core.id);
 							} else {
 								for(let b in all[each][a]){
 									if(b === 'core'){
 										layer.children[all[each][a].core.core.id] = {obj: all[each][a][b], parent: all[each].parent.core.core.el};
 										all[each][a][b].SpawnCore(all[each].parent.core.core.el);
+										layer.allNames.push(all[each][a][b].core.id);
 									} else {
 										if(b === 'parent'){
 											layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b].core, parent: all[each].parent.core.core.el};
 											layer.thirdParents.push(all[each][a][b].core);
 											all[each][a][b].core.SpawnCore(all[each].parent.core.core.el);
+											layer.allNames.push(all[each][a][b].core.core.id);
 										} else {
 											for(let c in all[each][a][b]){
 												if(c === 'parent'){
@@ -1914,6 +1937,7 @@ this.Layer = (id, all) => {
 												} else {
 													layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b][c], parent: all[each][a].parent.core.core.el};
 													all[each][a][b][c].SpawnCore(all[each][a].parent.core.core.el);
+													layer.allNames.push(all[each][a][b][c].core.id);
 												}
 											}
 										}
@@ -1986,6 +2010,14 @@ this.Layer = (id, all) => {
 		if(childCore){
 			return childCore.GetEl();
 		}
+	}
+	//Return Child Element in Scene
+	const GetAllEl = () => {
+		let allEl = [];
+		for(let each in layer.allNames){
+			allEl.push(GetChildEl(layer.allNames[each]));
+		}
+		return allEl;
 	}
 	//Emit Event from Parent Entity Element - Single or Array
 	const EmitEventParent = (eventName) => {
@@ -2291,25 +2323,23 @@ this.Layer = (id, all) => {
 			return result[0];
 		} else {
 			console.log('Unable to find child');
+			console.log(childName)
 			return false;
 		}
 	}
 
-	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, GetParentEl, GetChildEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
+	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, GetParentEl, GetChildEl, GetAllEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
 }
 
 
 //
 //Player
 //User Controller, Settings and Actions
-this.Player = (id,name,layer) => {
+this.Player = (id,layer) => {
 	//Build directly off of imported Layer and load right away as only single player is supported
 
 	//Player Name
 	layer.id = id;
-	layer.name = name;
-	//Add to all player list
-	this.players[id] = layer;
 
 	//Update Layer Copy
 	//layer.layer.all.parent.core.core.id = id;
@@ -2327,7 +2357,6 @@ this.Player = (id,name,layer) => {
 	//Notifications
 	let notificationTimeout;
 	let displayTime;
-	let inventoryTimeouts = [];
 	//Sitting or Standing Mode
 	layer.stand = true;
 	//Duck | Standing
@@ -2369,18 +2398,8 @@ this.Player = (id,name,layer) => {
 	};
 	//Belt Inventory, Toggle & Text
 	layer.beltDisplay = true;
-	layer.inventory = {};
-	layer.inventoryPreText = 'Inventory : ';
-	layer.inventoryText = layer.inventoryPreText + 'Empty';
-
-	//Could use a multi-menu for an inventory as it supports categories, pagenation, selections, info and methods.
-
-	//Inventory Categories
-	//Keys
-	//Items
-	//Passive
-
-
+	layer.beltDefaultText = 'Hello World!';
+	layer.beltText = 'Hello World!';
 
 	//Flashlight
 	layer.flashlight = false;
@@ -2399,12 +2418,36 @@ this.Player = (id,name,layer) => {
 	cameraUI = document.getElementById('cameraUI');
 	playerFloor = document.getElementById('playerFloor');
 	playerBeltUI = document.getElementById('playerBeltUI');
+	playerBeltText = document.getElementById('playerBeltText');
 	mouseController = document.getElementById('mouseController');
 	vrController1 = document.getElementById('vrController1');
 	vrController1UI = document.getElementById('vrController1UI');
 	vrController2 = document.getElementById('vrController2');
 	vrController2UI = document.getElementById('vrController2UI');
 
+	//Reset to Defaults
+	const Reset = () => {
+		layer.transition = {};
+		layer.transition.id = '000000';
+		layer.transition.scene = 'fade';
+		layer.transition.teleport = 'fade';
+		layer.teleporting = false;
+		//Sitting or Standing Mode
+		layer.stand = true;
+		//Duck | Standing
+		layer.standing = true;
+		layer.animating = false;
+		//Snap Rotation
+		layer.snapRotating = false;
+		//Belt Inventory, Toggle & Text
+		layer.beltDisplay = true;
+		layer.beltDefaultText = 'Hello World!';
+		layer.beltText = 'Hello World!';
+		//Flashlight
+		layer.flashlight = false;
+		//Info Text
+		layer.infoText = 'Player :\n'
+	}
 	//Scene Load Animation Support
 	const PlayerSceneAnim = () => {
 		//Minimum Anim Delay if assets don't need loading
@@ -2513,10 +2556,10 @@ this.Player = (id,name,layer) => {
 	//Update Belt Text
 	const UpdateBeltText = (text) => {
 		if(text){
-			layer.inventoryText = text;
+			layer.beltText = text;
 		}
 		if(layer.beltDisplay){
-			auxl.playerBeltText.ChangeSelf({property: 'text', value:{value: layer.inventoryText}})
+			auxl.playerBeltText.ChangeSelf({property: 'text', value:{value: layer.beltText}})
 		}
 
 	}
@@ -2549,123 +2592,6 @@ this.Player = (id,name,layer) => {
 			auxl.cameraUI.ChangeSelf({property: 'visible', value: 'false'});
 			clearTimeout(notificationTimeout);
 		}, displayTime);
-	}
-	//Set Flag & Value to Player - Single or Array
-	const SetFlag = (flagValue) => {
-		if(Array.isArray(flagValue)){
-			for(let each in flagValue){
-				layer[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
-			}
-		} else {
-			layer[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: false, name: flagValue.flag, data: flagValue.value});
-		}
-	}
-	//Retreive Flag Value from Player - Single or Array
-	const GetFlag = (flag) => {
-		if(Array.isArray(flag)){
-			let flagArray = [];
-			for(let each in flag){
-				flagArray.push(layer(flag[each]));
-			}
-			return flagArray;
-		} else {
-			return layer[flag];
-		}
-	}
-	//Add Item/Key to Player Inventory - Single or Array
-	const AddToInventory = (item) => {
-		if(Array.isArray(item)){
-			for(let each in item){
-				layer.inventory[item[each]] = true;
-				auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: 'inventory', name: item[each], data: true});
-			}
-		} else {
-			layer.inventory[item] = true;;
-			auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: 'inventory', name: item, data: true});
-		}
-		if(auxl.playerBeltText.core.inScene){
-			UpdateInventoryScreen();
-		}
-		//Notifications
-		inventoryTimeouts = [];
-		if(Array.isArray(item)){
-			for(let each in item){
-				let delay = 3800;
-				delay *= each;
-				inventoryTimeouts[each] = setTimeout(function () {
-					Notification({message:'Acquired : ' + item[each]});
-					clearTimeout(inventoryTimeouts[each]);
-				}, delay);
-			}
-		} else {
-			Notification({message:'Acquired : ' + item});
-		}
-	}
-	//Remove Item/Key to Player Inventory - Single or Array
-	const RemoveFromInventory = (item) => {
-		if(Array.isArray(item)){
-			for(let each in item){
-				delete layer.inventory[item[each]];
-				auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: 'inventory', name: item[each], data: false});
-			}
-		} else {
-			delete layer.inventory[item];
-			auxl.saveToProfile({auxlObject: layer.id, type: 'layer', sub: 'inventory', name: item, data: false});
-		}
-		if(auxl.playerBeltText.core.inScene){
-			UpdateInventoryScreen();
-		}
-		//Notifications
-		inventoryTimeouts = [];
-		if(Array.isArray(item)){
-			for(let each in item){
-				let delay = 3800;
-				delay *= each;
-				inventoryTimeouts[each] = setTimeout(function () {
-					Notification({message:'Removed : ' + item[each]});
-					clearTimeout(inventoryTimeouts[each]);
-				}, delay);
-			}
-		} else {
-			Notification({message:'Removed : ' + item});
-		}
-	}
-	//Check if Item/Key is in Player Inventory - Single or Array
-	const CheckInventory = (item) => {
-		if(Array.isArray(item)){
-			let itemArray = [];
-			for(let each in item){
-				if(layer.inventory[item]){
-					itemArray.push(true);
-				} else {
-					itemArray.push(false);
-				}
-			}
-			return itemArray;
-		} else {
-			if(layer.inventory[item]){
-				return true;
-			} else {
-				return false;
-			}
-		}
-	}
-	//Update Inventory Display Screen
-	const UpdateInventoryScreen = () => {
-		if(Object.keys(layer.inventory).length > 0){
-			layer.inventoryText = layer.inventoryPreText;
-			let itemText = '';
-			for(let each in layer.inventory){
-				itemText = each + ' | ';
-				layer.inventoryText += itemText;
-			}
-		} else {
-			layer.inventoryText = layer.inventoryPreText + 'Empty';
-		}
-		UpdateBeltText(layer.inventoryText);
-		//auxl.playerBeltText.ChangeSelf({property: 'text', value:{value:layer.inventoryText}})
 	}
 	//Disable Player Selection for a Time
 	const TempDisableClick = (time) => {
@@ -2901,7 +2827,6 @@ this.Player = (id,name,layer) => {
 
 	}
 	//Get user current infomation
-	//Reset User Position/Rotation
 	const GetPlayerInfo = () => {
 
 		return {layer, id: layer.layer.all.parent.core.core.id, pos: playerRig.getAttribute('position'), rot: playerRig.getAttribute('rotation')};
@@ -2984,7 +2909,7 @@ this.Player = (id,name,layer) => {
 		console.log(params);
 	}
 
-	return {layer, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, SetFlag, GetFlag, AddToInventory, RemoveFromInventory, CheckInventory, UpdateInventoryScreen, TempDisableClick, DisableClick, EnableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, DetachFromPlayer, TestFunc}
+	return {layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, DetachFromPlayer, TestFunc}
 }
 
 //
@@ -3293,9 +3218,6 @@ this.MultiMenu = (multiMenuData) => {
 			if(buttonTotal > maxNulls){
 				maxNulls = buttonTotal;
 			}
-
-
-
 		}
 	}
 
@@ -3303,7 +3225,9 @@ this.MultiMenu = (multiMenuData) => {
 	//let circleRot = (360/maxNulls+1)*-1;
 	//Generate a null parent for the maximum amount of buttons and main button
 	multiMenu.cores.nulls = [];
-	for(let a = 0; a <= maxNulls+1; a++){
+	//If you update the menu to hold more then any preconfigured menu amount of nulls then this breaks, so might as well configure to the max
+	//for(let a = 0; a <= maxNulls+1; a++){
+	for(let a = 0; a <= 8; a++){
 		multiMenu.nullParentData.id = multiMenu.id + 'null' + a;
 		if(multiMenu.layout === 'circleUp'){
 			multiMenu.nullParentData.rotation.z = circleRot*a;
@@ -3312,6 +3236,7 @@ this.MultiMenu = (multiMenuData) => {
 		}
 		multiMenu.cores.nulls.push(auxl.Core(multiMenu.nullParentData));
 	}
+	//console.log(maxNulls)
 	//console.log(multiMenu.cores.nulls);
 	//Init Layer
 	multiMenu.menuLayerData = {
@@ -3607,34 +3532,42 @@ this.MultiMenu = (multiMenuData) => {
 }
 
 //
-//Ham Companion
+//Companion
 //System Menu & Inventory
-this.HamMenu = (id, object) => {
-	let ham = {};
-	ham.avatarType = '';
-	ham.menuParentId;
+this.Companion = (id, object) => {
+	let comp = {};
+	comp.avatarType = '';
+	comp.menuParentId;
 	if(object.SpawnCore){
-		ham.avatarType = 'core';
-		ham.menuParentId = object.core.id;
+		comp.avatarType = 'core';
+		comp.menuParentId = object.core.id;
 	} else if(object.SpawnLayer){
-		ham.avatarType = 'layer';
-		ham.menuParentId = object.layer.all.parent.core.core.id;
+		comp.avatarType = 'layer';
+		comp.menuParentId = object.layer.all.parent.core.core.id;
 	}
-	ham.avatar = Object.assign({}, object);
+	comp.avatar = Object.assign({}, object);
 
-	ham.id = id;
-	ham.inScene = false;
-	ham.toggle = false;
-	ham.infoDisplay = false;
-	ham.pos = auxl.playerRig.GetEl().getAttribute('position');
-	ham.height = 1;
-	ham.distance = -2;
+	comp.id = id;
+	comp.inScene = false;
+	comp.toggle = false;
+	comp.infoDisplay = false;
+	comp.pos = auxl.playerRig.GetEl().getAttribute('position');
+	comp.height = 1.5;
+	comp.distance = -2;
+	comp.firstSpawn = true;
 
-	ham.viewConfig = false;
+	comp.viewConfig = false;
+
+	//Inventory
+	comp.inventoryTimeouts = [];
+	comp.items = {};
+	comp.tools = {};
+	comp.keys = {};
+	comp.specials = {};
 
 	//
 	//Main Menu
-	ham.mainMenuData = {
+	comp.mainMenuData = {
 	info:{
 		id: 'mainMenu',
 		buttonData: auxl.menuCylinderData,
@@ -3643,24 +3576,24 @@ this.HamMenu = (id, object) => {
 		description: 'Main menu for travel, system and settings.',
 		layout:'circleUp',
 		offset: -1,
-		parent: ham.menuParentId,
+		parent: comp.menuParentId,
 		stare: false,
 	},
 	menu0:{
 		button0:{
 			id: 'subMenu1',
 			style: false,
-			title: 'Travel to',
-			description: 'Select your next travel destination.',
-			subMenu: 'menu1',
+			title: 'Inventory',
+			description: 'View your inventory.',
+			subMenu: 'inventory',
 			action: false,
 		},
 		button1:{
 			id: 'subMenu2',
 			style: false,
-			title: 'Tools',
-			description: 'Enable/Disable player tools.',
-			subMenu: 'menu2',
+			title: 'Travel to',
+			description: 'Select your next travel destination.',
+			subMenu: 'menu1',
 			action: false,
 		},
 		button2:{
@@ -3678,7 +3611,7 @@ this.HamMenu = (id, object) => {
 			description: 'View current control configuration.',
 			subMenu: false,
 			action: {
-				auxlObj: 'ham',
+				auxlObj: 'comp',
 				component: false,
 				method: 'ToggleControlView',
 				params: null,
@@ -3992,7 +3925,7 @@ this.HamMenu = (id, object) => {
 			description: 'Change to a ghost avatar.',
 			subMenu: false,
 			action: {
-				auxlObj: 'ham',
+				auxlObj: 'comp',
 				component: false,
 				method: 'UpdateShape',
 				params: 'ghost',
@@ -4006,10 +3939,10 @@ this.HamMenu = (id, object) => {
 			description: 'Change to a cube avatar.',
 			subMenu: false,
 			action: {
-				auxlObj: 'ham',
+				auxlObj: 'comp',
 				component: false,
 				method: 'UpdateShape',
-				params: 'hamCube',
+				params: 'compCube',
 				menu: 'close',
 			},
 		},
@@ -4020,10 +3953,10 @@ this.HamMenu = (id, object) => {
 			description: 'Change to a sphere avatar.',
 			subMenu: false,
 			action: {
-				auxlObj: 'ham',
+				auxlObj: 'comp',
 				component: false,
 				method: 'UpdateShape',
-				params: 'hamSphere',
+				params: 'compSphere',
 				menu: 'close',
 			},
 		},
@@ -4034,25 +3967,127 @@ this.HamMenu = (id, object) => {
 			description: 'Change to a plane avatar.',
 			subMenu: false,
 			action: {
-				auxlObj: 'ham',
+				auxlObj: 'comp',
 				component: false,
 				method: 'UpdateShape',
-				params: 'hamPlane',
+				params: 'compPlane',
+				menu: 'close',
+			},
+		},
+	},
+	inventory:{
+		button0:{
+			id: 'subMenu1',
+			style: false,
+			title: 'Items',
+			description: 'View your items.',
+			subMenu: 'items1',
+			action: false,
+		},
+		button1:{
+			id: 'subMenu2',
+			style: false,
+			title: 'Tools',
+			description: 'View your tools.',
+			subMenu: 'tools1',
+			action: false,
+		},
+		button2:{
+			id: 'subMenu3',
+			style: false,
+			title: 'Keys',
+			description: 'View your keys.',
+			subMenu: 'keys1',
+			action: false,
+		},
+		button3:{
+			id: 'subMenu4',
+			style: false,
+			title: 'Special',
+			description: 'View your special objects.',
+			subMenu: 'specials1',
+			action: false,
+		},
+	},
+	items1:{
+		button0:{
+			id: 'testItem1',
+			style: false,
+			title: 'Test Item 1',
+			description: 'A test item.',
+			subMenu: false,
+			action: {
+				auxlObj: 'itemObj',
+				component: false,
+				method: 'itemMethod',
+				params: null,
+				menu: 'close',
+			},
+		},
+	},
+	tools1:{
+		button0:{
+			id: 'testTool1',
+			style: false,
+			title: 'Test Tool 1',
+			description: 'A test tool.',
+			subMenu: false,
+			action: {
+				auxlObj: 'toolObj',
+				component: false,
+				method: 'toolMethod',
+				params: null,
+				menu: 'close',
+			},
+		},
+	},
+	keys1:{
+		button0:{
+			id: 'testKey1',
+			style: false,
+			title: 'Test Key 1',
+			description: 'A test key.',
+			subMenu: false,
+			action: {
+				auxlObj: 'keyObj',
+				component: false,
+				method: 'keyMethod',
+				params: null,
+				menu: 'close',
+			},
+		},
+	},
+	specials1:{
+		button0:{
+			id: 'testSpecial1',
+			style: false,
+			title: 'Test Special 1',
+			description: 'A test special object.',
+			subMenu: false,
+			action: {
+				auxlObj: 'specialObj',
+				component: false,
+				method: 'specialMethod',
+				params: null,
 				menu: 'close',
 			},
 		},
 	},
 	};
-	auxl.mainMenu = auxl.MultiMenu(ham.mainMenuData);
+	auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
 	/*
 	Main Menu
 
+	Inventory
+	- Items
+	- Tools
+	- - Toggle Flashlight
+	- - Toggle Click to Teleport *
+	- Keys
+	- Specials
+
 	Travel
 	- Scenes
-
-	Tools
-	- Toggle Flashlight
-	- Toggle Click to Teleport *
 
 	Settings
 	- Sit/Stand Mode Toggle
@@ -4069,38 +4104,22 @@ this.HamMenu = (id, object) => {
 	- Scene Instructions *
 	- Sound Settings *
 	*/
-	/*
-		//Emotions
-
-		//Normal
-		//Talking
-		//Happy
-		//Sad
-		//Suprised
-		//Angry
-		//Annoyed
-		//Confused
-		//Smug
-		//Sleepy
-		//Blushing
-		//Anticipation
-		//Guilty
-		//Winking
-		//Sigh
-
-		//Blinking
-	*/
 
 	//Return Position Direction of Camera
-	function cameraDirection(distance){
+	function cameraDirection(){
 		//Get the direction vector in world space
 		let direction = new THREE.Vector3();
 		camera.object3D.getWorldDirection(direction);
 		//Calculate the position based on the direction and distance
 		let position = new THREE.Vector3();
-		position.copy(camera.object3D.position).add(new THREE.Vector3(direction.x, 0, direction.z).normalize().multiplyScalar(distance));
-		position.y = ham.height;
+		position.copy(camera.object3D.position).add(new THREE.Vector3(direction.x, 0, direction.z).normalize().multiplyScalar(comp.distance));
+		position.y = comp.height;
 		return position;
+	}
+
+	//Testing Function
+	const TestFunc = (params) => {
+		console.log(params);
 	}
 
 	//Emoti Prep
@@ -4137,10 +4156,10 @@ this.HamMenu = (id, object) => {
 		let b;
 		speechTimeoutB = setTimeout(function () {
 			b = 0;
-			if(ham.avatarType === 'core'){
-				buddy = ham.avatar.GetEl();
+			if(comp.avatarType === 'core'){
+				buddy = comp.avatar.GetEl();
 			} else {
-				buddy = ham.avatar.GetParentEl();
+				buddy = comp.avatar.GetParentEl();
 			}
 			speechIntervalB = setInterval(function() {
 				buddyFaceMaterial.value = emotiSpeechArray[b];
@@ -4152,34 +4171,34 @@ this.HamMenu = (id, object) => {
 	//Update Shape
 	const UpdateShape = (newObj) => {
 		let respawn = false;
-		if(ham.inScene){
+		if(comp.inScene){
 			respawn = true;
-			DespawnHam();
+			DespawnComp();
 		}
 		let rebuildTimeout = setTimeout(function () {
 			if(newObj.SpawnCore){
-				ham.avatarType = 'core';
-				ham.menuParentId = newObj.core.id;
-				ham.avatar = Object.assign({}, newObj);
+				comp.avatarType = 'core';
+				comp.menuParentId = newObj.core.id;
+				comp.avatar = Object.assign({}, newObj);
 			} else if(newObj.SpawnLayer){
-				ham.avatarType = 'layer';
-				ham.menuParentId = newObj.layer.all.parent.core.core.id;
-				ham.avatar = Object.assign({}, newObj);
+				comp.avatarType = 'layer';
+				comp.menuParentId = newObj.layer.all.parent.core.core.id;
+				comp.avatar = Object.assign({}, newObj);
 			} else {
 				if(auxl[newObj].SpawnCore){
-					ham.avatarType = 'core';
-					ham.menuParentId = auxl[newObj].core.id;
+					comp.avatarType = 'core';
+					comp.menuParentId = auxl[newObj].core.id;
 				} else if(auxl[newObj].SpawnLayer){
-					ham.avatarType = 'layer';
-					ham.menuParentId = auxl[newObj].layer.all.parent.core.core.id;
+					comp.avatarType = 'layer';
+					comp.menuParentId = auxl[newObj].layer.all.parent.core.core.id;
 				} else {
 					console.log(newObj);
 					console.log('failed to detect type');
 				}
-				ham.avatar = Object.assign({}, auxl[newObj]);
+				comp.avatar = Object.assign({}, auxl[newObj]);
 			}
 			if(respawn){
-				SpawnHam();
+				SpawnComp();
 			}
 		clearTimeout(rebuildTimeout);
 		}, 400);
@@ -4189,61 +4208,77 @@ this.HamMenu = (id, object) => {
 	const ToggleSpawnClick = () => {
 		playerFloor.classList.toggle('clickable');
 	}
-	//Toggle Ham Display
-	const ToggleHam = () => {
-		if(ham.toggle){}else{
-			if(ham.inScene){
-				DespawnHam();
+	//Toggle Companion Display
+	const ToggleComp = () => {
+		if(comp.toggle){}else{
+			if(comp.inScene){
+				DespawnComp();
 			} else {
-				SpawnHam();
+				SpawnComp();
 			}
 		}
 	}
 	//Attach Toggle to playerFloor
-	playerFloor.addEventListener('click',ToggleHam);
-	//Spawn & Start Ham
-	const SpawnHam = () => {
-		if(ham.inScene){}else{
+	playerFloor.addEventListener('click',ToggleComp);
+	//Update Position
+	const UpdatePosition = () => {
+		if(comp.avatarType === 'core'){
+			comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
+		} else {
+			comp.avatar.ChangeParent({property: 'position', value: cameraDirection()});
+		}
+	}
+	//Spawn & Start Companion
+	const SpawnComp = () => {
+		if(comp.inScene){}else{
 			ToggleSpawnClick();
-			if(ham.avatarType === 'core'){
-				ham.avatar.SpawnCore(auxl.playerRig.GetEl());
-				ham.avatar.ChangeSelf({property: 'position', value: cameraDirection(ham.distance)});
+			if(comp.avatarType === 'core'){
+				comp.avatar.SpawnCore(auxl.playerRig.GetEl());
+				if(comp.firstSpawn){
+					comp.firstSpawn = false;
+				} else {
+					comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
+				}
 			} else {
-				ham.avatar.SpawnLayer(auxl.playerRig.GetEl());
-				ham.avatar.ChangeParent({property: 'position', value: cameraDirection(ham.distance)});
+				comp.avatar.SpawnLayer(auxl.playerRig.GetEl());
+				if(comp.firstSpawn){
+					comp.firstSpawn = false;
+				} else {
+					comp.avatar.ChangeParent({property: 'position', value: cameraDirection()});
+				}
 			}
-			ShowInfo();
 			//autoScriptEmoticon();
 			//console.log(auxl.build)
 			let spawnTimeout = setTimeout(() => {
-				auxl.build.SpawnBuild();
+				//auxl.build.SpawnBuild();
+				//Update Inventory
+				UpdateInventoryMenu();
 				//Update Main Menu Parent Shape ID
-				auxl.mainMenu.multiMenu.parent = ham.menuParentId;
+				auxl.mainMenu.multiMenu.parent = comp.menuParentId;
 				auxl.mainMenu.SpawnMultiMenu();
 				ToggleSpawnClick();
 				clearTimeout(spawnTimeout);
 			}, 100);
-			ham.inScene = true;
+			comp.inScene = true;
 		}
 	}
-	//Despawn & Stop Ham
-	const DespawnHam = () => {
-		if(ham.inScene){
+	//Despawn & Stop Companion
+	const DespawnComp = () => {
+		if(comp.inScene){
 			ToggleSpawnClick();
 			//clearInterval(speechTimeoutB);
 			//clearInterval(speechIntervalB);
-			auxl.build.DespawnBuild();
+			//auxl.build.DespawnBuild();
 			auxl.mainMenu.DespawnMultiMenu();
 			//Delay to let multi-menu complete it's despawn seq
 			let despawnTimeout = setTimeout(() => {
-				HideInfo();
-				if(ham.avatarType === 'core'){
-					ham.avatar.DespawnCore();
+				if(comp.avatarType === 'core'){
+					comp.avatar.DespawnCore();
 				} else {
-					ham.avatar.DespawnLayer();
+					comp.avatar.DespawnLayer();
 				}
-				RemoveFromTracker(ham.id);
-				ham.inScene = false;
+				RemoveFromTracker(comp.id);
+				comp.inScene = false;
 				ToggleSpawnClick();
 				clearTimeout(despawnTimeout);
 			}, 300);
@@ -4253,12 +4288,12 @@ this.HamMenu = (id, object) => {
 	const SetFlag = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-				ham[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: hame.id, type: 'hame', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
+				comp[flagValue[each].flag] = flagValue[each].value;
+				auxl.saveToProfile({auxlObject: comp.id, type: 'comp', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
-			ham[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: hame.id, type: 'hame', sub: false, name: flagValue.flag, data: flagValue.value});
+			comp[flagValue.flag] = flagValue.value;
+			auxl.saveToProfile({auxlObject: comp.id, type: 'comp', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -4266,50 +4301,199 @@ this.HamMenu = (id, object) => {
 		if(Array.isArray(flag)){
 			let flagArray = [];
 			for(let each in flag){
-				flagArray.push(ham(flag[each]));
+				flagArray.push(comp(flag[each]));
 			}
 			return flagArray;
 		} else {
-			return ham[flag];
-		}
-	}
-	//Display Inventory Screen attached to Ham
-	const ShowInfo = () => {
-		if(ham.avatarType === 'core'){
-			auxl.infoScreen.SpawnCore(ham.avatar.GetEl());
-		} else {
-			auxl.infoScreen.SpawnCore(ham.avatar.GetParentEl());
-		}
-		ham.infoDisplay = true;
-		UpdateInfoScreen();
-	}
-	//Remove Inventory Screen
-	const HideInfo = () => {
-		ham.infoDisplay = false;
-		auxl.infoScreen.DespawnCore();
-	}
-	//Update Info Display Screen
-	const UpdateInfoScreen = (text) => {
-		if(text){
-			auxl.player.infoText = text;
-		}
-		if(ham.infoDisplay){
-			auxl.infoScreen.ChangeSelf({property: 'text', value:{value:auxl.player.infoText}})
+			return comp[flag];
 		}
 	}
 	//Display Current Control Configuration
 	const ToggleControlView = () => {
-		if(ham.viewConfig){
+		if(comp.viewConfig){
 			auxl.configurationView.DespawnCore();
-			ham.viewConfig = false;
+			comp.viewConfig = false;
 		} else {
 			auxl.configurationView.SpawnCore(auxl.playerRig.GetEl());
 			auxl.configurationView.ChangeSelf({property: 'text', value: {value: auxl.controlsText}});
-			ham.viewConfig = true;
+			comp.viewConfig = true;
 		}
 	}
+	//Add To Inventory
+	const AddToInventory = ({item, hide}) => {
+		function inventoryAdd(item){
+			if(comp[item.category][item.name]){
+				if(comp[item.category][item.name].persist = 'limited'){
+					comp[item.category][item.name].amount += item.amount;
+				}
+			} else {
+				comp[item.category][item.name] = item;
+			}
+			auxl.saveToProfile({auxlObject: comp.id, type: 'comp', sub: item.category, name: item.name, data: item});
+		}
+		if(Array.isArray(item)){
+			for(let each in item){
+				inventoryAdd(item[each]);
+			}
+		} else {
+			inventoryAdd(item);
+		}
+		UpdateInventoryMenu();
+		//Notifications
+		ClearInventoryNotifications();
+		if(hide){}else{
+			if(Array.isArray(item)){
+				for(let each in item){
+					let delay = 3800;
+					delay *= each;
+					comp.inventoryTimeouts[each] = setTimeout(() => {
+						auxl.player.Notification({message:'Acquired : ' + item[each].name});
+						clearTimeout(comp.inventoryTimeouts[each]);
+					}, delay);
+				}
+			} else {
+				auxl.player.Notification({message:'Acquired : ' + item.name});
+			}
+		}
+	}
+	//Clear Inventory Notifications
+	const ClearInventoryNotifications = () => {
+		for(let each in comp.inventoryTimeouts){
+			clearTimeout(comp.inventoryTimeouts[each])
+		}
+		comp.inventoryTimeouts = [];
+	}
+	//Remove Item/Key to Player Inventory - Single or Array
+	const RemoveFromInventory = (item) => {
+		function inventoryRemove(item){
+			if(comp[item.category][item.name]){
+				if(comp[item.category][item.name].persist = 'limited'){
+					comp[item.category][item.name].amount--;
+					if(comp[item.category][item.name].amount <= 0){
+						delete comp[item.category][item.name];
+					}
+				}
+			} else {
+				delete comp[item.category][item.name];
+			}
+			auxl.saveToProfile({auxlObject: comp.id, type: 'comp', sub: item.category, name: item.name, data: item});
+		}
+		if(Array.isArray(item)){
+			for(let each in item){
+				inventoryRemove(item[each]);
+			}
+		} else {
+			inventoryRemove(item);
+		}
+		UpdateInventoryMenu();
+	}
+	//Check if Item/Key is in Player Inventory - Single or Array
+	const CheckInventory = (item) => {
+		let returnValue;
+		function inventoryCheck(item){
+			if(comp[item.category][item.name]){
+				return true;
+			} else {
+				return false;
+			}
+		}
+		if(Array.isArray(item)){
+			for(let each in item){
+				returnValue.push(inventoryCheck(item[each]));
+			}
+		} else {
+			returnValue = inventoryCheck(item);
+		}
+		return returnValue;
+	}
+	//Check for Key
+	const CheckForKey = (name) => {
+		let match = false;
+		if(Object.keys(comp.keys).length === 0){
+			match = false;
+		} else {
+			for(let each in comp.keys){
+				if(comp.keys[each].id === name){
+					match =  true;
+					break;
+				}
+			}
+		}
+		return match;
+	}
+	//Update Inventory Menu Category
+	const UpdateInventoryMenuCategory = (category) => {
+		comp.inventoryButtons = {};
+		let buttonTemplate = {};
+		let currNum = 1;
+		let currPage = 1;
+		let total = Object.keys(comp[category]).length;
+		let pages = Math.ceil(total/8);
+		let subMenuName = category + currPage;
 
-	return{ham, UpdateShape, SpawnHam, DespawnHam, SetFlag, GetFlag, UpdateInfoScreen, ToggleControlView,};
+		for(let each in comp[category]){
+			let name;
+			if(comp[category][each].persist === 'limited'){
+				name = comp[category][each].name+' x'+comp[category][each].amount;
+			} else {
+				name = comp[category][each].name;
+			}
+			buttonTemplate = {
+				id: 'action'+currNum,
+				style: comp[category][each].style,
+				title: name,
+				description: comp[category][each].description,
+				subMenu: false,
+				action: {
+					auxlObj: comp[category][each].auxlObj,
+					component: comp[category][each].component,
+					method: comp[category][each].method,
+					params: comp[category][each].params,
+					menu: 'close',
+				},
+			};
+			if(comp[category][each].action){} else {
+				buttonTemplate.action = false;
+			}
+			moreTemplate = {
+				id: 'action'+currNum,
+				style: false,
+				title: 'More',
+				description: 'Next Page',
+				subMenu: false,
+				action: false,
+			};
+			comp.inventoryButtons['button'+currNum] = buttonTemplate;
+			if(currNum === total){
+auxl.mainMenu.UpdateSubMenu(subMenuName,comp.inventoryButtons);
+			} else {
+				currNum++;
+			}
+
+			if(pages > 1){
+				if(currNum % 7 === 0){
+					currPage++;
+					//build more button
+					moreTemplate.id = 'action'+currNum;
+					moreTemplate.subMenu = category + currPage;
+					comp.inventoryButtons['button'+currNum] = moreTemplate;
+auxl.mainMenu.UpdateSubMenu(subMenuName,comp.inventoryButtons);
+					comp.inventoryButtons = {};
+					subMenuName = category + currPage;
+				}
+			}
+
+		}
+	}
+	//Update Inventory Menu
+	const UpdateInventoryMenu = () => {
+		UpdateInventoryMenuCategory('items');
+		UpdateInventoryMenuCategory('tools');
+		UpdateInventoryMenuCategory('keys');
+		UpdateInventoryMenuCategory('specials');
+	}
+
+	return{comp, TestFunc, UpdateShape, SpawnComp, DespawnComp, SetFlag, GetFlag, UpdatePosition, ToggleControlView, AddToInventory, ClearInventoryNotifications, RemoveFromInventory, CheckInventory, CheckForKey};
 }
 
 //
@@ -4747,6 +4931,9 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		}, minLoadTime);
 		auxl.local.location.scene = core.info.id;
 		auxl.saveToProfile();
+		if(auxl.local.location.load){
+			auxl.local.location.load = false;
+		}
 	}
 	//Scene Text Support
 	const sceneTextDisplay = () => {
@@ -5192,8 +5379,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	}
 	//Start NodeScene within MapZone
 	const StartScene = (nodeName) => {
-		//if(auxl.local.load){
-		if(auxl.local.location.world === ''){
+		if(auxl.local.location.load){
 			core.currentNode = auxl.local.location.scene;
 		} else {
 			core.currentNode = nodeName || core.info.start;
@@ -5239,9 +5425,9 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 				moveToNode = auxl[core.map[core.currentNode][connect].node];
 			}
 			//Open, Locked or Unlocked Travel
-			if(core.map[core.currentNode][connect].locked && !auxl.player.GetFlag(core.map[core.currentNode][connect].key)){
+			if(core.map[core.currentNode][connect].locked && !auxl.comp.CheckForKey(core.map[core.currentNode][connect].keyId)){
 				core.mapMenuData.options['option'+currNum] = moveToNode.core.info.name + ' [Locked]';
-			} else if(core.map[core.currentNode][connect].locked && auxl.player.GetFlag(core.map[core.currentNode][connect].key)){
+			} else if(core.map[core.currentNode][connect].locked && auxl.comp.CheckForKey(core.map[core.currentNode][connect].keyId)){
 				core.mapMenuData.options['option'+currNum] = moveToNode.core.info.name + ' [Unlocked]';
 			} else {
 				core.mapMenuData.options['option'+currNum] = moveToNode.core.info.name;
@@ -5259,6 +5445,12 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		let currNum = 0;
 		let moveToNode;
 		let nodeName;
+		//scenario UpdateZoneMap
+		if(auxl.local.location.load){}else{
+			if(auxl.local.location.scenario === ''){}else{
+				auxl[auxl.local.location.scenario].UpdateZoneMap();
+			}
+		}
 		for(let connect in core.map[core.currentNode]){
 			//console.log(connect)
 			//console.log(core[core.currentNode][connect])
@@ -5268,16 +5460,14 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			} else {
 				moveToNode = auxl[core.map[core.currentNode][connect].node];
 			}
-
 			//Open, Locked or Unlocked Travel
-			if(core.map[core.currentNode][connect].locked && !auxl.player.GetFlag(core.map[core.currentNode][connect].key)){
+			if(core.map[core.currentNode][connect].locked && !auxl.comp.CheckForKey(core.map[core.currentNode][connect].keyId)){
 				nodeName = moveToNode.core.info.name + ' [Locked]';
-			} else if(core.map[core.currentNode][connect].locked && auxl.player.GetFlag(core.map[core.currentNode][connect].key)){
+			} else if(core.map[core.currentNode][connect].locked && auxl.comp.CheckForKey(core.map[core.currentNode][connect].keyId)){
 				nodeName = moveToNode.core.info.name + ' [Unlocked]';
 			} else {
 				nodeName = moveToNode.core.info.name;
 			}
-
 			//Update Button
 			buttonTemplate = {
 				id: 'action'+currNum,
@@ -5296,7 +5486,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			core.mapMainMenuData['button'+currNum] = buttonTemplate;
 			currNum++;
 		}
-		//Update HAM main menu
+		//Update Companion main menu
 		auxl.mainMenu.UpdateSubMenu('menu1',core.mapMainMenuData);
 		//console.log(auxl.mainMenu.multiMenu.cores.menu1)
 		//auxl.mainMenu.multiMenu.cores.menu1
@@ -5310,12 +5500,12 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	const Move = (connect) => {
 		newNode = core.map[core.currentNode][connect];
 		//Check for Lock & Keys
-		if(newNode.locked && !auxl.player.CheckInventory(newNode.key)){
+		if(newNode.locked && !auxl.comp.CheckForKey(newNode.keyId)){
 			clearTimeout(timeout2);
-			auxl.player.Notification({message:'Requires : ' + newNode.key});
+			auxl.player.Notification({message:'Requires : ' + newNode.keyName});
 		} else {
-			if(newNode.locked && auxl.player.CheckInventory(newNode.key) && !newNode.keepKey){
-				auxl.player.RemoveFromInventory(newNode.key);
+			if(newNode.locked && auxl.comp.CheckForKey(newNode.keyId) && !newNode.keepKey){
+				auxl.comp.RemoveFromInventory(newNode.keyId);
 			}
 			//Move to NodeScene and/or MapZone
 			timeout = setTimeout(() => {
@@ -5779,14 +5969,8 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 				//Load All Scenario Items
 				Init();
 				//zone to start in
-				//if(auxl.local.load){
-				if(auxl.local.location.world === ''){
+				if(auxl.local.location.load){
 					zoneSpawn = auxl.local.location.zone;
-/*
-					if(zoneSpawn === ''){
-						zoneSpawn = core.info.startZone;
-					}
-*/
 				} else {
 					zoneSpawn = core.info.startZone;
 				}
@@ -5818,7 +6002,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 		}
 	}
 
-	return {core, StartScenario, ClearScenario};
+	return {core, StartScenario, ClearScenario, UpdateZoneMap};
 }
 
 //
@@ -5882,12 +6066,12 @@ this.World = (worldData) => {
 //
 //Story Book
 //Linear, Tree, Quests, Jump, Menu, Conditionals, Flags...
-this.Book = (core, npc) => {
+this.Book = (bookData, npc) => {
 	let progress = 0;
 	//Run Object Generator Function within Book w/Scene Tracking
 	const auxlObjMethod = (object, func, params) => {
 		if(object === 'self'){
-			object = core.info.id;
+			object = npc.id;
 		}
 		//Check if spawning to add to Tracker
 		for (let types in auxl.objGenTracking) {
@@ -5899,6 +6083,14 @@ this.Book = (core, npc) => {
 	}
 	//Yield Timeline
 	function* lineReader(book,time){
+		//Update and Check Book Progress
+		progress++;
+		if(progress >= Object.keys(book.pages.page0).length-1){
+			npc.bookEnd = true;
+		} else {
+			npc.bookEnd = false;
+		}
+		//Run Line
 		for(let line in time){
 			//Ignore Page Data
 			if(line === 'id' || line === 'description' ||line === 'tags' ||line === 'nextPage' ||line === 'prevPage' ||line === 'timeline'){
@@ -5914,10 +6106,6 @@ this.Book = (core, npc) => {
 				}
 			}
 		}
-		progress++;
-		if(progress >= Object.keys(book.pages.page0).length-1){
-			npc.bookEnd = true;
-		}
 		yield;
 	}
 	//Yield Time
@@ -5926,10 +6114,10 @@ this.Book = (core, npc) => {
 			book.currentTimeline = time;
 			book.timelineQue.push([time,page[time]]);
 			//Skip|Ignore Data til timeline# reach if jumping
-			if(time === core.jumpTo){
-				core.jumping = false;
+			if(time === bookData.jumpTo){
+				bookData.jumping = false;
 			}
-			if(core.jumping){}else{
+			if(bookData.jumping){}else{
 				yield* lineReader(book, page[time]);
 			}
 		}
@@ -5973,7 +6161,7 @@ this.Book = (core, npc) => {
 		yield* pageReader(book);
 	};
 	//Init Yield Gen Book
-	let book = bookReader(core);
+	let book = bookReader(bookData);
 	//Yield Timeline
 	function* idleLineReader(book,time){
 		for(let line in time){
@@ -5999,10 +6187,10 @@ this.Book = (core, npc) => {
 			book.currentTimeline = time;
 			book.timelineQue.push([time,page[time]]);
 			//Skip|Ignore Data til timeline# reach if jumping
-			if(time === core.jumpTo){
-				core.jumping = false;
+			if(time === bookData.jumpTo){
+				bookData.jumping = false;
 			}
-			if(core.jumping){}else{
+			if(bookData.jumping){}else{
 				yield* idleLineReader(book, page[time]);
 			}
 		}
@@ -6044,18 +6232,18 @@ this.Book = (core, npc) => {
 		yield* idlePageReader(book);
 	};
 	let idle;
-	if(core.idle){
-		idle = idleBookReader(core);
+	if(bookData.idle){
+		idle = idleBookReader(bookData);
 	}
 	//Read Book Timeline
 	function readTimeline({page,time}){
-		for(let line in core.pages[page][time]){
+		for(let line in bookData.pages[page][time]){
 			if(line === 'pureFunction'){
 				//Need a good check condition for this.func() and not this.obj.func()
 				auxl[line](time[line])
 			} else {
-				for(let a in core.pages[page][time][line]){
-					auxl[line][a](core.pages[page][time][line][a]);
+				for(let a in bookData.pages[page][time][line]){
+					auxl[line][a](bookData.pages[page][time][line][a]);
 				}
 			}
 		}
@@ -6081,10 +6269,10 @@ this.Book = (core, npc) => {
 	}
 	//Jump to Timeline
 	const Jump = ({timeline, page}) => {
-		let toPage = page || core.currentPage;
-		core.jumpTo = timeline;
-		if(core.pages[toPage][core.jumpTo]){
-			core.jumping = true;
+		let toPage = page || bookData.currentPage;
+		bookData.jumpTo = timeline;
+		if(bookData.pages[toPage][bookData.jumpTo]){
+			bookData.jumping = true;
 		}
 	}
 	//Jump Menu
@@ -6097,21 +6285,29 @@ this.Book = (core, npc) => {
 			options: {},
 			actions: {},
 			data: auxl.menuBaseData,
-			cursorObj: npc.core.id,
+			cursorObj: npc.id,
 			pos: new THREE.Vector3(1,1.5,-0.5),
 			method: 'Click',
 		}
 		for(let a = 1; a < jumpOptions.length; a++){
-			selectJumpData.options['option'+a] = jumpOptions[a][0];
-			selectJumpData.actions['action'+a] = jumpOptions[a][1];
+			selectJumpData.options['option'+(a-1)] = jumpOptions[a][0];
+			selectJumpData.actions['action'+(a-1)] = jumpOptions[a][1];
 		}
 		book.selectJumpMenu = auxl.Menu(selectJumpData);
 		book.selectJumpMenu.SpawnMenu();
 		book.selectJumpMenu.AddToParentSpawnTracker(book.selectJumpMenu, npc);
-		npc.GetEl().classList.toggle('clickable', false);
+		//npc.GetEl().classList.toggle('clickable', false);
+		if(npc.avatarType === 'core'){
+			npc.avatar.GetEl().classList.toggle('clickable', false);
+		} else {
+			let all = npc.avatar.GetAllEl();
+			for(let each in all){
+				all[each].classList.toggle('clickable', false);
+			}
+		}
 	}
 
-	return {core, book, Next, IdleNext, Jump, SelectJump, readTimeline};
+	return {bookData, book, Next, IdleNext, Jump, SelectJump, readTimeline};
 }
 
 //
@@ -6121,6 +6317,7 @@ this.SpeechSystem = (core, npc) => {
 	core.on = false;
 	core.speaking = false;
 	core.blinking = false;
+	core.blinkNextText = '';
 	core.blinkText0 = '';
 	core.blinkText1 = '';
 	core.textDisplayInterval;
@@ -6261,9 +6458,19 @@ this.SpeechSystem = (core, npc) => {
 //
 //NPC
 //Core Object w/ Book|Pages & Textbubble
-this.NPC = (core, bookData, textDisplay) => {
-	let npc = Object.assign({}, core);
-	npc.id = npc.core.id;
+this.NPC = (id, object, bookData, textDisplay) => {
+	let npc = {};
+	npc.avatar = Object.assign({}, object);
+	npc.avatarType;
+	npc.parentId;
+	if(object.SpawnCore){
+		npc.avatarType = 'core';
+		npc.parentId = object.core.id;
+	} else if(object.SpawnLayer){
+		npc.avatarType = 'layer';
+		npc.parentId = object.layer.all.parent.core.core.id;
+	}
+	npc.id = id;
 	npc.inScene = false;
 	npc.speaking = false;
 	npc.bookEnd = false;
@@ -6289,14 +6496,51 @@ this.NPC = (core, bookData, textDisplay) => {
 	let idleIntervalTime = bookData.info.idleInterval || 10000;
 	let menuTimeout;
 
-
+	//Get NPC Element
+	const GetNPCEl = () => {
+		let allEl;
+		if(npc.avatarType === 'core'){
+			allEl = npc.avatar.GetEl();
+		} else {
+			allEl = npc.avatar.GetAllEl();
+		}
+		return allEl;
+	}
+	//AddEventListener to Avatar
+	const AddNPCEvents = (eventName, method) => {
+		if(npc.avatarType === 'core'){
+			npc.avatar.GetEl().addEventListener(eventName, method);
+		} else {
+			let all = npc.avatar.GetAllEl();
+			for(let each in all){
+				all[each].addEventListener(eventName, method);
+			}
+		}
+	}
+	//RemoveEventListener to Avatar
+	const RemoveNPCEvents = (eventName, method) => {
+		if(npc.avatarType === 'core'){
+			npc.avatar.GetEl().removeEventListener(eventName, method);
+		} else {
+			let all = npc.avatar.GetAllEl();
+			for(let each in all){
+				all[each].removeEventListener(eventName, method);
+			}
+		}
+	}
 	//Spawn NPC, Reset Book & Start Speaking
 	const SpawnNPC = () => {
 		if(npc.inScene){}else{
 			//Reset book on each spawn
 			book = auxl.Book(bookData, npc);
-			npc.SpawnCore();
-			npc.GetEl().addEventListener('mouseenter', EnableSpeech);
+			//npc.SpawnCore();
+			if(npc.avatarType === 'core'){
+				npc.avatar.SpawnCore();
+			} else {
+				npc.avatar.SpawnLayer();
+			}
+			//npc.GetEl().addEventListener('mouseenter', EnableSpeech);
+			AddNPCEvents('mouseenter', EnableSpeech);
 			if(npc.idleSpeech){
 				idleTimeout = setTimeout(() => {
 					EnableIdleSpeech()
@@ -6310,16 +6554,24 @@ this.NPC = (core, bookData, textDisplay) => {
 	const DespawnNPC = () => {
 		if(npc.inScene){
 			if(npc.speaking){
-				npc.GetEl().removeEventListener('mouseenter', NextPage);
-				npc.GetEl().removeEventListener('click', ResetBook);
+				//npc.GetEl().removeEventListener('mouseenter', NextPage);
+				//npc.GetEl().removeEventListener('click', ResetBook);
+				RemoveNPCEvents('mouseenter',NextPage);
+				RemoveNPCEvents('click',ResetBook);
 			} else {
-				npc.GetEl().removeEventListener('mouseenter', EnableSpeech);
+				//npc.GetEl().removeEventListener('mouseenter', EnableSpeech);
+				RemoveNPCEvents('mouseenter',EnableSpeech);
 			}
 			ClearBookSpawn();
 			clearTimeout(idleTimeout);
 			DisableSpeech();
 			DisableIdleSpeech();
-			npc.DespawnCore();
+			//npc.DespawnCore();
+			if(npc.avatarType === 'core'){
+				npc.avatar.DespawnCore();
+			} else {
+				npc.avatar.DespawnLayer();
+			}
 			RemoveFromTracker(npc.id);
 			npc.inScene = false;
 		}
@@ -6344,26 +6596,41 @@ this.NPC = (core, bookData, textDisplay) => {
 		}
 		clearTimeout(idleTimeout);
 		npc.speaking = true;
-		npc.GetEl().removeEventListener('mouseenter', EnableSpeech);
+		//npc.GetEl().removeEventListener('mouseenter', EnableSpeech);
+		RemoveNPCEvents('mouseenter',EnableSpeech);
 		text.Start();
-		npc.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}})
+		//npc.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}})
+		if(npc.avatarType === 'core'){
+			npc.avatar.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}});
+		} else {
+			npc.avatar.ChangeParent({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}});
+		}
 		//Jump over Info to Timeline0
 		NextPage();
 		NextPage();
-		npc.GetEl().addEventListener('mouseenter', NextPage);
-		npc.GetEl().addEventListener('click', ResetBook);
+		//npc.GetEl().addEventListener('mouseenter', NextPage);
+		//npc.GetEl().addEventListener('click', ResetBook);
+		AddNPCEvents('mouseenter',NextPage);
+		AddNPCEvents('click',ResetBook);
 	}
 	//Disable NPC Speaking
 	const DisableSpeech = () => {
 		text.KillStop();
-		npc.GetEl().removeEventListener('mouseenter', NextPage);
-		npc.GetEl().removeEventListener('click', ResetBook);
+		//npc.GetEl().removeEventListener('mouseenter', NextPage);
+		//npc.GetEl().removeEventListener('click', ResetBook);
+		RemoveNPCEvents('mouseenter',NextPage);
+		RemoveNPCEvents('click',ResetBook);
 	}
 	//Prep & Start NPC Speaking
 	const EnableIdleSpeech = () => {
 		npc.idle = true;
 		text.Start();
-		npc.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}})
+		//npc.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}})
+		if(npc.avatarType === 'core'){
+			npc.avatar.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}});
+		} else {
+			npc.avatar.ChangeParent({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}});
+		}
 		//Jump over Info to Timeline0
 		IdleNext();
 		IdleNext();
@@ -6429,11 +6696,20 @@ this.NPC = (core, bookData, textDisplay) => {
 	}
 	//NPC Book Jump Menu Click
 	const Click = (el) => {
+		text.Skip();
 		let result = el.getAttribute('result');
 		Jump({timeline: result});
 		book.Next();
 		//Need to update after creating book control component
-		npc.GetEl().classList.toggle('clickable', true);
+		//npc.GetEl().classList.toggle('clickable', true);
+		if(npc.avatarType === 'core'){
+			npc.avatar.GetEl().classList.toggle('clickable', true);
+		} else {
+			let all = npc.avatar.GetAllEl();
+			for(let each in all){
+				all[each].classList.toggle('clickable', true);
+			}
+		}
 		menuTimeout = setTimeout(function () {
 			book.book.selectJumpMenu.DespawnMenu();
 			book.book.selectJumpMenu.RemoveMenuFromSceneTracker();
@@ -6584,7 +6860,8 @@ this.NPC = (core, bookData, textDisplay) => {
 		}
 	}
 
-return {npc, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextPage, ResetBook, IdleNext, IdleReset, Click, Jump, SelectJump, auxlObjMethod, IfElse, Switch, SetFlag, GetFlag}
+
+return {npc, GetNPCEl, AddNPCEvents, RemoveNPCEvents, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextPage, ResetBook, IdleNext, IdleReset, Click, Jump, SelectJump, auxlObjMethod, IfElse, Switch, SetFlag, GetFlag}
 }
 
 //
@@ -8024,7 +8301,6 @@ return {infoBubble, AddEmotes, RemoveEmotes, NewBubble};
 
 //
 //In-Progress
-
 
 //
 //Build Core/Layer/Other objects in the 3D environment
@@ -10040,7 +10316,7 @@ auxl.playerBeltTextData = {
 data:'playerBeltTextData',
 id:'playerBeltText',
 sources:false,
-text: {value:'Inventory : Empty', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.9, zOffset: 0.03, side: 'front', wrapCount: 45, baseline: 'center'},
+text: {value:'Hello World!', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.9, zOffset: 0.03, side: 'front', wrapCount: 45, baseline: 'center'},
 geometry: {primitive: 'box', depth: 0.025, width: 1, height: 0.25},
 material: {shader: "standard", color: "#4bb8c1", opacity: 0.75, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
 position: new THREE.Vector3(0,0.69,-0.8),
@@ -10049,7 +10325,14 @@ scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
 classes: ['clickable','a-ent'],
-components: false,
+components: {
+	clickrun__movecomp:{
+		cursorObj: 'comp',
+		component: 'null',
+		method: 'UpdatePosition',
+		params: 'null',
+	},
+},
 };
 auxl.playerBeltText = auxl.Core(auxl.playerBeltTextData);
 //Player Bottom
@@ -10214,12 +10497,10 @@ child4: {core: auxl.playerFloor},
 }
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
 auxl.playerLayer = auxl.Layer('playerLayer', auxl.playerAll);
+//Player
+auxl.player = auxl.Player('player',auxl.playerLayer);
 
-//Players
 
-//Player #000000
-//auxl.player000000 = auxl.Player('player000000','Minty',auxl.player1Layer);
-auxl.player = auxl.Player('player','Dev',auxl.playerLayer);
 
 //
 //Avatar
@@ -10593,7 +10874,7 @@ components: false,
 
 
 //
-//Ham Avatar
+//Comp Avatar
 //
 //Ghost
 
@@ -10605,20 +10886,37 @@ sources: false,
 text: false,
 geometry: false,
 material: false,
-position: new THREE.Vector3(2,1,0),
+position: new THREE.Vector3(2,1.5,0),
 rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(0.9,0.9,0.9),
+scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['clickable','a-ent'],
+classes: ['a-ent'],
 components: {
 ['stare']:{id: 'playerRig'},
 },
 };
 auxl.ghostParent = auxl.Core(auxl.ghostParentData);
+//All
+auxl.ghostAllData = {
+data:'ghostAllData',
+id:'ghostAll',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0.75,0.75,0.75),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.ghostAll = auxl.Core(auxl.ghostAllData);
 //EyeSocket
-auxl.eyeSocketData = {
-data:'eyeSocketData',
+auxl.eye1SocketData = {
+data:'eye1SocketData',
 id:'eye1Socket',
 sources: false,
 text: false,
@@ -10637,15 +10935,13 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-//Eye1Socket
-auxl.eye1Socket = auxl.Core(auxl.eyeSocketData);
+auxl.eye1Socket = auxl.Core(auxl.eye1SocketData);
 //Eye2Socket
-auxl.eyeSocketData.id = 'eye2Socket';
-auxl.eyeSocketData.position = new THREE.Vector3(0.15,0.1,0.4);
-auxl.eye2Socket = auxl.Core(auxl.eyeSocketData);
-//EyePupil
-auxl.eyePupilData = {
-data:'eyePupilData',
+auxl.eye2SocketData = auxl.coreFromTemplate(auxl.eye1SocketData, {id: 'eye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)});
+auxl.eye2Socket = auxl.Core(auxl.eye2SocketData);
+//Eye1Pupil
+auxl.eye1PupilData = {
+data:'eye1PupilData',
 id:'eye1Pupil',
 sources: false,
 text: false,
@@ -10669,11 +10965,10 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-//Eye1Pupil
-auxl.eye1Pupil = auxl.Core(auxl.eyePupilData);
+auxl.eye1Pupil = auxl.Core(auxl.eye1PupilData);
 //Eye2Pupil
-auxl.eyePupilData.id = 'eye2Pupil';
-auxl.eye2Pupil = auxl.Core(auxl.eyePupilData);
+auxl.eye2PupilData = auxl.coreFromTemplate(auxl.eye1PupilData, {id: 'eye2Pupil',});
+auxl.eye2Pupil = auxl.Core(auxl.eye2PupilData);
 //Mouth
 auxl.mouthData = {
 data:'mouthData',
@@ -10768,7 +11063,7 @@ auxl.body = auxl.Core(auxl.bodyData);
 //Legs
 auxl.legData = {
 data:'legData',
-id:'leg1',
+id:'leg',
 sources: false,
 text: false,
 geometry: {primitive: 'cone', radiusBottom: 0, radiusTop: 0.15, height: 0.2, openEnded: false, segmentsHeight: 4, segmentsRadial: 8, thetaStart: 0, thetaLength: 360},
@@ -10787,84 +11082,88 @@ classes: ['a-ent'],
 components: false,
 };
 //Leg 1
-auxl.leg1 = auxl.Core(auxl.legData);
+auxl.leg1Data = auxl.coreFromTemplate(auxl.legData, {id: 'leg1',});
+auxl.leg1 = auxl.Core(auxl.leg1Data);
 //Leg 2
-auxl.legData.id = 'leg2'
-auxl.legData.position = new THREE.Vector3(0.25,-0.25,0);
-auxl.leg2 = auxl.Core(auxl.legData);
+auxl.leg2Data = auxl.coreFromTemplate(auxl.legData, {id: 'leg2', position: new THREE.Vector3(0.25,-0.25,0)});
+auxl.leg2 = auxl.Core(auxl.leg2Data);
 //Leg 3
-auxl.legData.id = 'leg3'
-auxl.legData.position = new THREE.Vector3(0,-0.25,-0.25);
-auxl.leg3 = auxl.Core(auxl.legData);
+auxl.leg3Data = auxl.coreFromTemplate(auxl.legData, {id: 'leg3', position: new THREE.Vector3(0,-0.25,-0.25)});
+auxl.leg3 = auxl.Core(auxl.leg3Data);
 //Leg 4
-auxl.legData.id = 'leg4'
-auxl.legData.position = new THREE.Vector3(0,-0.25,0.25);
-auxl.leg4 = auxl.Core(auxl.legData);
+auxl.leg4Data = auxl.coreFromTemplate(auxl.legData, {id: 'leg4', position: new THREE.Vector3(0,-0.25,0.25)});
+auxl.leg4 = auxl.Core(auxl.leg4Data);
 //Ghost Layer
 auxl.ghostLayerData = {
 	parent: {core: auxl.ghostParent}, 
 	child0: {
-		parent: {core: auxl.eye1Socket}, 
-		child0: {core: auxl.eye1Pupil}, 
+		parent: {core: auxl.ghostAll}, 
+		child0: {
+			parent: {core: auxl.eye1Socket}, 
+			child0: {core: auxl.eye1Pupil}, 
+		}, 
+		child1: {
+			parent: {core: auxl.eye2Socket}, 
+			child0: {core: auxl.eye2Pupil}, 
+		}, 
+		child2: {core: auxl.mouth},
+		child3: {
+			parent: {core: auxl.spin}, 
+			child0: {core: auxl.head}, 
+			child1: {core: auxl.body}, 
+			child2: {core: auxl.leg1}, 
+			child3: {core: auxl.leg2}, 
+			child4: {core: auxl.leg3}, 
+			child5: {core: auxl.leg4}, 
+		}, 
 	}, 
-	child1: {
-		parent: {core: auxl.eye2Socket}, 
-		child0: {core: auxl.eye2Pupil}, 
-	}, 
-	child2: {core: auxl.mouth},
-	child3: {
-		parent: {core: auxl.spin}, 
-		child0: {core: auxl.head}, 
-		child1: {core: auxl.body}, 
-		child2: {core: auxl.leg1}, 
-		child3: {core: auxl.leg2}, 
-		child4: {core: auxl.leg3}, 
-		child5: {core: auxl.leg4}, 
-	}, 
+
 }
 auxl.ghost = auxl.Layer('ghost',auxl.ghostLayerData);
 
 //
-//Hamburger Menu Companion
-auxl.hamCubeData = {
-data:'hamCubeData',
-id:'hamCube',
+//Companion Shapes
+
+//Cube
+auxl.compCubeData = {
+data:'compCubeData',
+id:'compCube',
 sources:false,
 text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
-position: new THREE.Vector3(2,1,0),
+position: new THREE.Vector3(2,1.5,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.2, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
+animations:{bobbing:{property: 'object3D.position.y', from: 1.45, to: 1.55, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
 //click: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}
 },
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
-clickrun:{cursorObj: 'hamCube', method: 'Click', params: null}, 
-fusingrun:{cursorObj: 'hamCube', method: 'FuseClickRun', params: null}, 
-mousedownrun:{cursorObj: 'hamCube', method: 'CursorDownRun', params: null}, 
-mouseenterrun:{cursorObj: 'hamCube', method: 'CursorEnterRun', params: null}, 
-mouseleaverun:{cursorObj: 'hamCube', method: 'CursorLeaveRun', params: null}, 
-mouseuprun:{cursorObj: 'hamCube', method: 'CursorUpRun', params: null},
-eventrun:{event: 'testEventHit',cursorObj: 'hamCube', method: 'FuseClickRun', params: null}, 
+clickrun:{cursorObj: 'compCube', method: 'Click', params: null}, 
+fusingrun:{cursorObj: 'compCube', method: 'FuseClickRun', params: null}, 
+mousedownrun:{cursorObj: 'compCube', method: 'CursorDownRun', params: null}, 
+mouseenterrun:{cursorObj: 'compCube', method: 'CursorEnterRun', params: null}, 
+mouseleaverun:{cursorObj: 'compCube', method: 'CursorLeaveRun', params: null}, 
+mouseuprun:{cursorObj: 'compCube', method: 'CursorUpRun', params: null},
+eventrun:{event: 'testEventHit',cursorObj: 'compCube', method: 'FuseClickRun', params: null}, 
 ['stare']:{id: 'playerRig'},
 },
 };
-auxl.hamCube = auxl.Core(auxl.hamCubeData);
-
-auxl.hamSphereData = {
-data:'hamSphereData',
-id:'hamSphere',
+auxl.compCube = auxl.Core(auxl.compCubeData);
+//Sphere
+auxl.compSphereData = {
+data:'compSphereData',
+id:'compSphere',
 sources:false,
 text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
 geometry: {primitive: 'sphere', radius: 0.25},
 material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
-position: new THREE.Vector3(2,1,0),
+position: new THREE.Vector3(2,1.5,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.2, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
+animations:{bobbing:{property: 'object3D.position.y', from: 1.45, to: 1.55, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
 },
 mixins: false,
 classes: ['clickable','a-ent'],
@@ -10872,19 +11171,19 @@ components: {
 ['stare']:{id: 'playerRig'},
 },
 };
-auxl.hamSphere = auxl.Core(auxl.hamSphereData);
-
-auxl.hamPlaneData = {
-data:'hamPlaneData',
-id:'hamPlane',
+auxl.compSphere = auxl.Core(auxl.compSphereData);
+//Plane
+auxl.compPlaneData = {
+data:'compPlaneData',
+id:'compPlane',
 sources:false,
 text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
 geometry: {primitive: 'plane', width: 0.25, height: 0.25},
 material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
-position: new THREE.Vector3(2,1,0),
+position: new THREE.Vector3(2,1.5,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-animations:{bobbing:{property: 'object3D.position.y', from: 1.1, to: 1.2, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
+animations:{bobbing:{property: 'object3D.position.y', from: 1.45, to: 1.55, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
 },
 mixins: false,
 classes: ['clickable','a-ent'],
@@ -10892,48 +11191,102 @@ components: {
 ['stare']:{id: 'playerRig'},
 },
 };
-auxl.hamPlane = auxl.Core(auxl.hamPlaneData);
+auxl.compPlane = auxl.Core(auxl.compPlaneData);
 
-//Ham Avatar Parent
-//Belt UI
-auxl.hamAvatarData = {
-data:'hamAvatarData',
-id:'hamAvatar',
-sources:false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
+//Companion
+auxl.comp = auxl.Companion('comp',auxl.ghost);
+
+
+/*
+auxl.compBubbleData = {
+	data:'compBubbleData',
+	id:'compBubble',
+	sources:false,
+	text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.75, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+	geometry: {primitive: 'box', depth: 0.025, width: 0.8, height: 0.15},
+	material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+	position: new THREE.Vector3(0.25,0.25,-0.05),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable','a-ent'],
+	components: false,
 };
-auxl.hamAvatar = auxl.Core(auxl.hamAvatarData);
-
-//auxl.ham = auxl.HamMenu('ham',auxl.hamComp);
-auxl.ham = auxl.HamMenu('ham',auxl.ghost);
-//Inventory Screen
-
-auxl.infoScreenData = {
-data:'infoScreenData',
-id:'infoScreen',
-sources:false,
-text: {value:'Player :\n', color: "#FFFFFF", align: "center", font: "exo2bold", width: 1.2, zOffset: 0.025, side: 'front', wrapCount: 35, baseline: 'bottom', anchor: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 0.75, height: 0.3},
-material: {shader: "standard", color: "#4bb8c1", opacity: 0.8, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-//position: new THREE.Vector3(0,0.65,-1.25),
-position: new THREE.Vector3(0,0.7,-0.25),
-rotation: new THREE.Vector3(15,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
+auxl.compPage1Data = {
+	info:{
+		id:'compPage1',
+		description:'Companion page 1.',
+		tags:'comp',
+		nextPage: null,
+		prevPage: null,
+		timeline:'linear',
+	},
+	timeline0:{
+		self:{Speak:{speech:'Hey there!'},},
+	},
+	timeline1:{
+		self:{Speak:{speech:'Having fun?'},},
+	},
+	timeline2:{
+		self:{Speak:{speech:'Lets look around.'},},
+	},
+	timeline3:{
+		self:{Speak:{speech:'Whats over there?'}},
+	},
+	timeline4:{
+		self:{Speak:{speech:'Now... where was that cookie I was eating?'}},
+	},
+	timeline5:{
+		self:{Speak:{speech:'Found it!'}},
+	},
+	timeline6:{
+		self: {ResetBook: true},
+	},
 };
-auxl.infoScreen = auxl.Core(auxl.infoScreenData);
+auxl.compIdleData = {
+	info:{
+		id:'compIdleData',
+		description:'Companion idle page.',
+		tags:'comp',
+		nextPage: null,
+		prevPage: null,
+		timeline:'linear',
+	},
+	timeline0:{
+		self:{Speak:{speech:'Yo ho ho ho and a bottle of rum for me...'}},
+	},
+	timeline1:{
+		self:{Speak:{speech:'Ooh a piece of candy!'}},
+	},
+	timeline1:{
+		self:{Speak:{speech:'Nom nom nom nom.....'}},
+	},
+	timeline3:{
+		self: {IdleReset: true},
+	},
+};
+auxl.compBookData = {
+	info:{
+		id:'compBook',
+		name: 'Companion',
+		description:'Companion book.',
+		tags:'comp',
+		timeline: 'linear',
+		idleDelay: 7000,
+		idleInterval: 10000,
+	},
+	pages:{
+		page0: auxl.compPage1Data,
+	},
+	idle:{
+		page0: auxl.compIdleData,
+	},
+};
+auxl.compBubble = auxl.Core(auxl.compBubbleData);
+auxl.compNPC = auxl.NPC(auxl.ghost, auxl.compBookData, auxl.compBubble);
+*/
+
 
 
 //Control Configuration View
@@ -10951,7 +11304,7 @@ animations: false,
 mixins: false,
 classes: ['clickable','a-ent'],
 components:{
-clickrun:{cursorObj: 'ham', method: 'ToggleControlView'}, 
+clickrun:{cursorObj: 'comp', method: 'ToggleControlView'}, 
 //['look-at-xyz']:{match: 'camera', y:true},
 ['stare']:{id: 'playerRig', twist: true},
 },
@@ -11028,10 +11381,6 @@ classes: ['clickable','a-ent'],
 components: false,
 };
 auxl.textBubbleTop = auxl.Core(auxl.textBubbleTopData);
-
-
-
-
 
 //
 //Details & Prompt
@@ -11185,11 +11534,10 @@ components:{
 ['raycast-teleportation']:null,
 },
 };
-auxl.teleportPortalData.id = 'teleportPortal1';
-auxl.teleportPortal1 = auxl.Core(auxl.teleportPortalData);
-auxl.teleportPortalData.id = 'teleportPortal2';
-auxl.teleportPortalData.position = new THREE.Vector3(0,5,3);
-auxl.teleportPortal2 = auxl.Core(auxl.teleportPortalData);
+auxl.teleportPortal1Data = auxl.coreFromTemplate(auxl.teleportPortalData, {id: 'teleportPortal1',});
+auxl.teleportPortal1 = auxl.Core(auxl.teleportPortal1Data);
+auxl.teleportPortal2Data = auxl.coreFromTemplate(auxl.teleportPortalData, {id: 'teleportPortal2', position: new THREE.Vector3(0,5,3)});
+auxl.teleportPortal2 = auxl.Core(auxl.teleportPortal2Data);
 
 
 //
@@ -11519,7 +11867,11 @@ auxl.soundTestingData = {
 data:'Sound Testing',
 id:'soundTesting',
 sources: false,
-sound: {src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
+//sound: {src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
+sounds: {
+pickup:{src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
+pickup2:{src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound2'},
+},
 text: false,
 geometry: false,
 material: false,
@@ -11571,14 +11923,14 @@ classes: ['clickable','a-ent'],
 components: {
 	oneventrun__test:{
 		event: 'test',
-		cursorObj: 'player',
+		cursorObj: 'comp',
 		component: 'null',
 		method: 'TestFunc',
 		params: 'Event Test',
 	},
 	ondelayrun__test:{
 		delay: 1000,
-		cursorObj: 'player',
+		cursorObj: 'comp',
 		component: 'null',
 		method: 'TestFunc',
 		params: 'Delay Test'
@@ -11587,7 +11939,7 @@ components: {
 		interval: 2000,
 		loop: 13,
 		end: 'test',
-		cursorObj: 'player',
+		cursorObj: 'comp',
 		component: 'null',
 		method: 'TestFunc',
 		params: 'Interval Test',
@@ -11600,7 +11952,6 @@ auxl.coreEventTesting = auxl.Core(auxl.coreEventTestingData);
 
 //Emoticon Bubble
 auxl.emoticonTesting = auxl.InfoBubble('emoticonTesting', auxl.coreEventTesting, false, 'red');
-
 auxl.emoticonTesting.NewBubble({
 emote: true,
 text: '$_$',
@@ -11614,192 +11965,88 @@ eventName: 'alert10',
 rotation: false,
 });
 
+//Build Library Objects
+auxl.buildLibrary = () => {
 
+//Player is Reset within Rebuild()
 
+//Companion
+auxl.ghostParent = auxl.Core(auxl.ghostParentData);
+auxl.ghostAll = auxl.Core(auxl.ghostAllData);
+auxl.eye1Socket = auxl.Core(auxl.eye1SocketData);
+auxl.eye2Socket = auxl.Core(auxl.eye2SocketData);
+auxl.eye1Pupil = auxl.Core(auxl.eye1PupilData);
+auxl.eye2Pupil = auxl.Core(auxl.eye2PupilData);
+auxl.mouth = auxl.Core(auxl.mouthData);
+auxl.spin = auxl.Core(auxl.spinData);
+auxl.head = auxl.Core(auxl.headData);
+auxl.body = auxl.Core(auxl.bodyData);
+auxl.leg1 = auxl.Core(auxl.leg1Data);
+auxl.leg2 = auxl.Core(auxl.leg2Data);
+auxl.leg3 = auxl.Core(auxl.leg3Data);
+auxl.leg4 = auxl.Core(auxl.leg4Data);
+auxl.ghost = auxl.Layer('ghost',auxl.ghostLayerData);
+auxl.compCube = auxl.Core(auxl.compCubeData);
+auxl.compSphere = auxl.Core(auxl.compSphereData);
+auxl.compPlane = auxl.Core(auxl.compPlaneData);
+auxl.comp = auxl.Companion('comp',auxl.ghost);
 
+//Configuration Screen
+auxl.configurationView = auxl.Core(auxl.configurationViewData);
 
+//TextBubble
+auxl.textBubbleSide = auxl.Core(auxl.textBubbleSideData);
+auxl.textBubbleBottom = auxl.Core(auxl.textBubbleBottomData);
+auxl.textBubbleTop = auxl.Core(auxl.textBubbleTopData);
 
+//Teleport
+auxl.teleport = auxl.Teleport('teleport', teleportPos);
+auxl.teleport0 = auxl.Teleport('teleport0', teleportPos0);
+auxl.teleportPortal1 = auxl.Core(auxl.teleportPortal1Data);
+auxl.teleportPortal2 = auxl.Core(auxl.teleportPortal2Data);
 
-/*
-//
-//MultiMenu test
-auxl.multiMenuTestData = {
-info:{
-	id: 'multiMenuTest',
-	buttonData: auxl.menuCylinderData,
-	hoverData: auxl.menuHoverData,
-	title: 'Multi-Menu Test Menu',
-	description: 'A test menu that contains multiple sub menus to go between.',
-	layout:'circle',
-	//layout:'vertical',
-	//layout:'horizontal',
-	offset: -1,
-	//offset: 0.5,
-	//offset: 0.75,
-	parent: false,
-	stare: false,
-	position: new THREE.Vector3(0.25,1.5,-1.5),
-},
-menu0:{
-	button0:{
-		id: 'subMenu1',
-		style: false,
-		title: 'Sub Menu 1 Test',
-		description: 'A test sub menu.',
-		subMenu: 'menu1',
-		action: false,
-	},
-	button1:{
-		id: 'subMenu2',
-		style: false,
-		title: 'Sub Menu 2 Test',
-		description: 'A test sub menu.',
-		subMenu: 'menu2',
-		action: false,
-	},
-	button2:{
-		id: 'subMenu3',
-		style: false,
-		title: 'Sub Menu 3 Test',
-		description: 'A test sub menu.',
-		subMenu: 'menu3',
-		action: false,
-	},
-},
-menu1:{
-	button0:{
-		id: 'subMenu4',
-		style: false,
-		title: 'Sub Menu 4 Test',
-		description: 'A test sub menu.',
-		subMenu: 'menu4',
-		action: false,
-	},
-	button1:{
-		id: 'subMenu5',
-		style: false,
-		title: 'Sub Menu 5 Test',
-		description: 'A test sub menu.',
-		subMenu: 'menu5',
-		action: false,
-	},
-},
-menu2:{
-	button0:{
-		id: 'action1',
-		style: false,
-		title: 'Sub Menu 2 Action 1 Test',
-		description: 'A test sub menu action.',
-		subMenu: false,
-		action: {
-			auxlObj: 'test',
-			component: false,
-			method: 'TestMethod',
-			params: 'Sub Menu 2 Action 1',
-		},
-	},
-	button1:{
-		id: 'action2',
-		style: false,
-		title: 'Sub Menu 2 Action 2 Test',
-		description: 'A test sub menu action.',
-		subMenu: false,
-		action: {
-			auxlObj: 'test',
-			component: false,
-			method: 'TestMethod',
-			params: 'Sub Menu 2 Action 2',
-		},
-	},
-},
-menu3:{
-	button0:{
-		id: 'action1',
-		style: false,
-		title: 'Sub Menu 3 Action 1 Test',
-		description: 'A test sub menu action.',
-		subMenu: false,
-		action: {
-			auxlObj: 'test',
-			component: false,
-			method: 'TestMethod',
-			params: 'Sub Menu 3 Action 1',
-		},
-	},
-	button1:{
-		id: 'action2',
-		style: false,
-		title: 'Sub Menu 3 Action 2 Test',
-		description: 'A test sub menu action.',
-		subMenu: false,
-		action: {
-			auxlObj: 'test',
-			component: false,
-			method: 'TestMethod',
-			params: 'Sub Menu 3 Action 2',
-		},
-	},
-},
-menu4:{
-	button0:{
-		id: 'action1',
-		style: false,
-		title: 'Sub Menu 4 Action 1 Test',
-		description: 'A test sub menu action.',
-		subMenu: false,
-		action: {
-			auxlObj: 'test',
-			component: false,
-			method: 'TestMethod',
-			params: 'Sub Menu 4 Action 1',
-		},
-	},
-	button1:{
-		id: 'action2',
-		style: false,
-		title: 'Sub Menu 4 Action 2 Test',
-		description: 'A test sub menu action.',
-		subMenu: false,
-		action: {
-			auxlObj: 'test',
-			component: false,
-			method: 'TestMethod',
-			params: 'Sub Menu 4 Action 2',
-		},
-	},
-},
-menu5:{
-	button0:{
-		id: 'action1',
-		style: false,
-		title: 'Sub Menu 5 Action 1 Test',
-		description: 'A test sub menu action.',
-		subMenu: false,
-		action: {
-			auxlObj: 'test',
-			component: false,
-			method: 'TestMethod',
-			params: 'Sub Menu 5 Action 1',
-		},
-	},
-	button1:{
-		id: 'action2',
-		style: false,
-		title: 'Sub Menu 5 Action 2 Test',
-		description: 'A test sub menu action.',
-		subMenu: false,
-		action: {
-			auxlObj: 'playerRig',
-			component: 'locomotion',
-			method: 'toggleSpeed',
-			params: false,
-		},
-	},
-},
+//Lighting
+auxl.directionalLight = auxl.Core(auxl.directionalLightData);
+auxl.ambientLight = auxl.Core(auxl.ambientLightData);
+auxl.directionalLight2 = auxl.Core(auxl.directionalLight2Data);
+auxl.directionalLight3 = auxl.Core(auxl.directionalLight3Data);
 
-};
-auxl.multiMenuTest = auxl.MultiMenu(auxl.multiMenuTestData);
-*/
+//SkyBox
+auxl.sunOuter = auxl.Core(auxl.sunOuterData);
+auxl.sun = auxl.Core(auxl.sunData);
+auxl.sunLayer = auxl.Layer('sunLayer', auxl.sunLayerData);
+auxl.moonOuter = auxl.Core(auxl.moonOuterData);
+auxl.moon = auxl.Core(auxl.moonData);
+auxl.moonLayer = auxl.Layer('moonLayer', auxl.moonLayerData);
+auxl.skyGrad = auxl.Core(auxl.skyGradData);
+auxl.skyBox0 = auxl.SkyBox(auxl.skyBox0Data);
+
+//Testing
+auxl.eventTesting = auxl.Core(auxl.eventTestingData);
+auxl.eventTesting2 = auxl.Core(auxl.eventTesting2Data);
+auxl.eventTesting3 = auxl.Core(auxl.eventTesting3Data);
+auxl.eventTesting4 = auxl.Core(auxl.eventTesting4Data);
+auxl.eventTesting5 = auxl.Core(auxl.eventTesting5Data);
+auxl.spawnTesting = auxl.Core(auxl.spawnTestingData);
+auxl.soundTesting = auxl.Core(auxl.soundTestingData);
+auxl.testing = auxl.Core(auxl.testingData);
+auxl.coreEventTesting = auxl.Core(auxl.coreEventTestingData);
+auxl.emoticonTesting = auxl.InfoBubble('emoticonTesting', auxl.coreEventTesting, false, 'red');
+auxl.emoticonTesting.NewBubble({
+emote: true,
+text: '$_$',
+eventName: 'emote10',
+rotation: false,
+});
+auxl.emoticonTesting.NewBubble({
+alert: true,
+text: '$_$',
+eventName: 'alert10',
+rotation: false,
+});
+
+}
+auxl.toBeRebuilt('buildLibrary');
 
 },
 });

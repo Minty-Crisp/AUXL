@@ -1000,6 +1000,16 @@ images: [
 };
 auxl.carouselTesting = auxl.ImageCarousel(auxl.carouselTestingData);
 
+
+//Build Blog Objects
+auxl.buildBlog = () => {
+
+auxl.imageSwapper1 = auxl.ImageSwapper('imageSwapper1',auxl.imageSwapperViewData, auxl.imageSwapperButtonData, auxl.mat0, auxl.mat1, auxl.mat2, auxl.mat3, auxl.mat4);
+auxl.carouselTesting = auxl.ImageCarousel(auxl.carouselTestingData);
+
+}
+auxl.toBeRebuilt('buildBlog');
+
 },
 });
 
@@ -2420,7 +2430,7 @@ auxl.DragDiffuse = (id) => {
 	scale: new THREE.Vector3(1,1,1),
 	animations: false,
 	mixins: false,
-	classes: ['a-ent'],
+	classes: ['clickable','a-ent'],
 	components: false,
 	};
 	dragDiffuse.gameParent = auxl.Core(dragDiffuse.gameParentData);
@@ -2451,10 +2461,13 @@ auxl.DragDiffuse = (id) => {
 	material: {shader: "standard", color: "#39a56b", emissive: '#39a56b', emissiveIntensity: 0.25, opacity: 1},
 	position: new THREE.Vector3(1,0,0),
 	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
+	scale: new THREE.Vector3(0.001,0.001,0.001),
+	animations: {
+		countdown: {property: 'scale', from: new THREE.Vector3(0.001,0.001,0.001), to: new THREE.Vector3(1,1,1), dur: 500, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'countdown'},
+		reset: {property: 'scale', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(0.001,0.001,0.001), dur: 1000, delay: 500, loop: 'false', dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset'},
+	},
 	mixins: false,
-	classes: ['a-ent'],
+	classes: ['clickable','a-ent'],
 	components: false,
 	};
 	dragDiffuse.dragMainData.id = 'dragMain1';
@@ -2464,19 +2477,21 @@ auxl.DragDiffuse = (id) => {
 	data:'dragOuterData',
 	id:'dragOuter',
 	text: false,
-	geometry: {primitive: 'ring', radiusInner: 0.175, radiusOuter: 0.25},
+	geometry: {primitive: 'ring', radiusInner: 0.175, radiusOuter: 0.25, thetaLength: 0},
 	material: {shader: "standard", color: "#a5394e", emissive: '#a5394e', emissiveIntensity: 0.25, opacity: 1},
 	position: new THREE.Vector3(1,0,0),
 	rotation: new THREE.Vector3(0,0,0),
 	scale: new THREE.Vector3(1,1,1),
-	animations: false,
+	animations: {
+		countdown: {property: 'geometry.thetaLength', from: 0, to: 360, dur: 6000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'countdown', pauseEvents: 'countdownPause'},
+		reset: {property: 'geometry.thetaLength', to: 0, dur: 500, delay: 250, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset',},
+	},
 	mixins: false,
 	classes: ['a-ent'],
 	components: false,
 	};
 	dragDiffuse.dragOuterData.id = 'dragOuter1';
 	dragDiffuse.dragOuter1 = auxl.Core(dragDiffuse.dragOuterData);
-
 
 	dragDiffuse.dragParentData.id = 'dragParent2';
 	dragDiffuse.dragParentData.rotation = new THREE.Vector3(0,0,-45);
@@ -2580,12 +2595,115 @@ auxl.DragDiffuse = (id) => {
 	dragDiffuse.gameAll = auxl.Layer('gameAll', dragDiffuse.gameAllData);
 
 
+	dragDiffuse.startDelay;
+	dragDiffuse.gameInterval;
+
+	dragDiffuse.mainsAll = ['dragMain1','dragMain2','dragMain3','dragMain4','dragMain5','dragMain6','dragMain7','dragMain8'];
+
+	dragDiffuse.outersAll = ['dragOuter1','dragOuter2','dragOuter3','dragOuter4','dragOuter5','dragOuter6','dragOuter7','dragOuter8'];
+
+	//Game Start
+	function gameStart(){
+		dragDiffuse.startDelay = setTimeout(() => {
+			dragDiffuse.gameInterval = setInterval(() => {
+				countdownRandom();
+			}, 4000);
+		}, 3000);
+	};
+
+	function levelComplete(){
+		console.log('Level Complete');
+		clearTimeout(dragDiffuse.startDelay);
+		clearInterval(dragDiffuse.gameInterval);
+	}
+
+	dragDiffuse.level = 1;
+	dragDiffuse.diffuseTotal = 8;
+	let countdownMains = Array.from(dragDiffuse.mainsAll);
+	let countdownOuter = Array.from(dragDiffuse.outersAll);
+
+	//Random Drag Selection Countdown
+	function countdownRandom(){
+		let select = Math.floor(Math.random()*countdownOuter.length);
+		dragDiffuse[countdownMains[select]].EmitEvent('countdown');
+		dragDiffuse[countdownOuter[select]].EmitEvent('countdown');
+		countdownMains.splice(select, 1);
+		countdownOuter.splice(select, 1);
+	}
+
+
+	let dragStarted = false;
+	let dragEnded = false;
+
+	let dragMains = Array.from(dragDiffuse.mainsAll);
+
+	let dragOuters = Array.from(dragDiffuse.outersAll);
+
+	//Drag Start
+	function dragStart(){
+		if(dragStarted){}else{
+			console.log('Start');
+			dragStarted = true;
+			dragEnded = false;
+		}
+	}
+	//Drag Fail
+	function dragFail(){
+		if(dragStarted){
+			console.log('Fail');
+			dragStarted = false;
+		}
+	}
+
+	//Drag Complete
+	function dragEnd(event){
+		if(dragStarted){
+			for(let main in dragMains){
+				if(event.target.id === dragMains[main]){
+dragDiffuse[dragOuters[main]].ChangeSelf({property: 'material', value: {color: 'green', emissive: 'green'}});
+
+dragDiffuse[dragOuters[main]].EmitEvent('countdownPause');
+dragDiffuse[dragMains[main]].EmitEvent('reset');
+dragDiffuse[dragOuters[main]].EmitEvent('reset');
+
+dragMains.splice(main, 1);
+dragOuters.splice(main, 1);
+
+					console.log('End');
+					dragStarted = false;
+					dragEnded = true;
+
+dragDiffuse.diffuseTotal--;
+if(dragDiffuse.diffuseTotal <= 0){
+	levelComplete();
+}
+
+				}
+			}
+		}
+	}
+
+
 	//Spawn Game
 	const SpawnDDGame = () => {
-		dragDiffuse.gameAll.SpawnLayer();
+	dragDiffuse.gameAll.SpawnLayer();
+		gameStart();
+
+	dragDiffuse.gameParent.GetEl().addEventListener('mousedown', dragStart);
+	dragDiffuse.gameParent.GetEl().addEventListener('mouseup', dragFail);
+
+	dragDiffuse.dragMain1.GetEl().addEventListener('mouseenter', dragEnd);
+	dragDiffuse.dragMain2.GetEl().addEventListener('mouseenter', dragEnd);
+	dragDiffuse.dragMain3.GetEl().addEventListener('mouseenter', dragEnd);
+	dragDiffuse.dragMain4.GetEl().addEventListener('mouseenter', dragEnd);
+	dragDiffuse.dragMain5.GetEl().addEventListener('mouseenter', dragEnd);
+	dragDiffuse.dragMain6.GetEl().addEventListener('mouseenter', dragEnd);
+	dragDiffuse.dragMain7.GetEl().addEventListener('mouseenter', dragEnd);
+	dragDiffuse.dragMain8.GetEl().addEventListener('mouseenter', dragEnd);
 	}
 	//Despawn Game
 	const DespawnDDGame = () => {
+		//Remove Event Listeners !!!
 		dragDiffuse.gameAll.DespawnLayer();
 	}
 
@@ -2613,6 +2731,20 @@ High Low
 Reflex Range
 - Object moves, press button to stop, try to stop within range. Have multiple ones, need to stop them all within range?
 */
+
+
+//Build Mini Games Objects
+auxl.buildMiniGames = () => {
+
+auxl.memory = auxl.MemoryGame('memory',[auxl.memory0Data,auxl.memory1Data,auxl.memory2Data,auxl.memory3Data]);
+auxl.petCore = auxl.Core(auxl.petCoreData);
+let pet0 = auxl.Pet(auxl.pet0Data);
+auxl.swipeLaunchGame = auxl.SwipeLaunchGame('swipeLaunchGame');
+auxl.guessHitGame = auxl.GuessHitGame('guessHitGame');
+auxl.dragDiffuseGame = auxl.DragDiffuse('dragDiffuseGame');
+
+}
+auxl.toBeRebuilt('buildMiniGames');
 
 
 },
@@ -3292,6 +3424,22 @@ function startBattle(){
 }
 //startBattle();
 
+//Build RPG Objects
+auxl.buildRPG = () => {
+
+auxl.battlerPet1Core = auxl.Core(auxl.battlerPet1Build);
+auxl.battlerPet2Core = auxl.Core(auxl.battlerPet2Build);
+auxl.battlerPet1 = auxl.Battler('Turq', auxl.battlerPet1Core);
+auxl.battlerPet2 = auxl.Battler('Minera', auxl.battlerPet2Core);
+auxl.cs1B0 = auxl.Core(auxl.cs1B0Data);
+auxl.cs1B1 = auxl.Core(auxl.cs1B1Data);
+auxl.cs1B2 = auxl.Core(auxl.cs1B2Data);
+auxl.cs1B3 = auxl.Core(auxl.cs1B3Data);
+auxl.cs1 = auxl.Layer('cs1', auxl.cs1Data);
+auxl.newBattle = auxl.BattleRef('newBattle' ,auxl.battlerPet1, auxl.battlerPet2);
+
+}
+auxl.toBeRebuilt('buildRPG');
 
 
 },
@@ -3353,6 +3501,14 @@ auxl.TestObj = (id) => {
 //name of the Spawn and Despawn methods, must be unique
 auxl.AddObjGenToTracker('testObj', 'SpawnTest', 'DespawnTest');
 auxl.test = auxl.TestObj('test');
+
+//Build Extra Objects
+auxl.buildExtra = () => {
+
+auxl.test = auxl.TestObj('test');
+
+}
+auxl.toBeRebuilt('buildExtra');
 
 
 },

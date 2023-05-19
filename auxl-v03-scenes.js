@@ -15,14 +15,260 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
-//Testing Object
-auxl.build = auxl.BuildIn3D();
+//
+//Face
+
+//Parent
+auxl.faceParentData = {
+data:'faceParentData',
+id:'faceParent',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,3,-3),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+['stare']:{id: 'playerRig'},
+},
+};
+auxl.faceParent = auxl.Core(auxl.faceParentData);
+//All
+auxl.faceAllData = {
+data:'faceAllData',
+id:'faceAll',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.faceAll = auxl.Core(auxl.faceAllData);
+//EyeSocket
+auxl.faceEye1SocketData = {
+data:'faceEye1SocketData',
+id:'faceEye1Socket',
+sources: false,
+text: false,
+geometry: {primitive: 'cylinder', radius: 0.175, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 32, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#fcfafd", emissive: '#fcfafd', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(-0.15,0.1,0.4),
+rotation: new THREE.Vector3(90,0,0),
+scale: new THREE.Vector3(0.75,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.faceEye1Socket = auxl.Core(auxl.faceEye1SocketData);
+//Eye2Socket
+auxl.faceEye2SocketData = auxl.coreFromTemplate(auxl.faceEye1SocketData, {id: 'faceEye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)});
+auxl.faceEye2Socket = auxl.Core(auxl.faceEye2SocketData);
+//Eye1Pupil
+auxl.faceEye1PupilData = {
+data:'faceEye1PupilData',
+id:'faceEye1Pupil',
+sources: false,
+text: false,
+geometry: {primitive: 'cylinder', radius: 0.075, height: 0.025, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#1500fa", emissive: '#1500fa', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0.01,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1.25,1,1),
+animations: {
+lookdown: {property: 'position', to: new THREE.Vector3(0,0.01,0.07), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookDown'},
+lookup: {property: 'position', to: new THREE.Vector3(0,0.01,-0.07), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookUp'},
+lookright: {property: 'position', to: new THREE.Vector3(0.05,0.01,0), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookRight'},
+lookleft: {property: 'position', to: new THREE.Vector3(-0.05,0.01,0), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookLeft'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.faceEye1Pupil = auxl.Core(auxl.faceEye1PupilData);
+//Eye2Pupil
+auxl.faceEye2PupilData = auxl.coreFromTemplate(auxl.faceEye1PupilData, {id: 'faceEye2Pupil',});
+auxl.faceEye2Pupil = auxl.Core(auxl.faceEye2PupilData);
+
+//Eyebrow
+auxl.faceEyebrow1Data = {
+data:'faceEyebrow1Data',
+id:'faceEyebrow1',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.04, width: 0.3, height: 0.025, },
+material: {shader: "standard", color: "#c921af", emissive: '#c921af', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0,-0.25),
+rotation: new THREE.Vector3(0,10,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+updown: {property: 'object3D.position.z', from: -0.3, to: -0.225, dur: 2000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.faceEyebrow1 = auxl.Core(auxl.faceEyebrow1Data);
+auxl.faceEyebrow2Data = auxl.coreFromTemplate(auxl.faceEyebrow1Data, {id: 'faceEyebrow2', rotation: new THREE.Vector3(0,-10,0)});
+auxl.faceEyebrow2 = auxl.Core(auxl.faceEyebrow2Data);
+
+//Eyelid Offset
+auxl.faceEye1LidOffsetData = {
+data:'faceEye1LidOffsetData',
+id:'faceEye1LidOffset',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,-0.175),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+scale: {property: 'object3D.scale.z', from: 0.65, to: 1.3, dur: 2000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.faceEye1LidOffset = auxl.Core(auxl.faceEye1LidOffsetData);
+auxl.faceEye2LidOffsetData = auxl.coreFromTemplate(auxl.faceEye1LidOffsetData, {id: 'faceEye2LidOffset'});
+auxl.faceEye2LidOffset = auxl.Core(auxl.faceEye2LidOffsetData);
+//Eyelid
+auxl.faceEye1LidData = {
+data:'faceEye1LidData',
+id:'faceEye1Lid',
+sources: false,
+text: false,
+geometry: {primitive: 'cylinder', radius: 0.175, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 90, thetaLength: 180},
+material: {shader: "standard", color: "#c921af", emissive: '#c921af', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0,0.175),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1.06,4,1.06),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.faceEye1Lid = auxl.Core(auxl.faceEye1LidData);
+auxl.faceEye2LidData = auxl.coreFromTemplate(auxl.faceEye1LidData, {id: 'faceEye2Lid'});
+auxl.faceEye2Lid = auxl.Core(auxl.faceEye2LidData);
+
+//Blink
+auxl.faceEye1BlinkData = {
+data:'faceEye1BlinkData',
+id:'faceEye1Blink',
+sources: false,
+text: false,
+geometry: {primitive: 'cylinder', radius: 0.175, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#c921af", emissive: '#c921af', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1.1,4,1.1),
+animations: {
+blinkin: {property: 'visible', from: false, to: true, dur: 1, delay: 2000, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},
+blinkout: {property: 'visible', from: true, to: false, dur: 1, delay: 2250, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+visible: false,
+},
+};
+auxl.faceEye1Blink = auxl.Core(auxl.faceEye1BlinkData);
+auxl.faceEye2BlinkData = auxl.coreFromTemplate(auxl.faceEye1BlinkData, {id: 'faceEye2Blink'});
+auxl.faceEye2Blink = auxl.Core(auxl.faceEye2BlinkData);
 
 
+//Ear Offset
+auxl.faceEar1OffsetData = {
+data:'faceEar1OffsetData',
+id:'faceEar1Offset',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(-0.25,0.5,0.4),
+rotation: new THREE.Vector3(90,0,0),
+scale: new THREE.Vector3(0.5,1,0.5),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.faceEar1Offset = auxl.Core(auxl.faceEar1OffsetData);
+auxl.faceEar2OffsetData = auxl.coreFromTemplate(auxl.faceEar1OffsetData, {id: 'faceEar2Offset', position: new THREE.Vector3(0.25,0.5,0.4)});
+auxl.faceEar2Offset = auxl.Core(auxl.faceEar2OffsetData);
+//Ear
+auxl.faceEar1Data = {
+data:'faceEar1Data',
+id:'faceEar1',
+sources: false,
+text: false,
+geometry: {primitive: 'cylinder', radius: 0.175, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 90, thetaLength: 180},
+material: {shader: "standard", color: "#c921af", emissive: '#c921af', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0,0.175),
+rotation: new THREE.Vector3(0,30,0),
+scale: new THREE.Vector3(1,1,3),
+animations: {
+twitch: {property: 'object3D.rotation.y', from: 25, to: 35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.faceEar1 = auxl.Core(auxl.faceEar1Data);
+auxl.faceEar2Data = auxl.coreFromTemplate(auxl.faceEar1Data, {id: 'faceEar2', rotation: new THREE.Vector3(0,-30,0), animations:{twitch: {property: 'object3D.rotation.y', from: -25, to: -35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},}});
+auxl.faceEar2 = auxl.Core(auxl.faceEar2Data);
+
+auxl.faceLayerData = {
+	parent: {core: auxl.faceParent}, 
+	child0: {
+		parent: {core: auxl.faceEye1Socket}, 
+		child0: {core: auxl.faceEyebrow1}, 
+		child1: {core: auxl.faceEye1Pupil},
+		child2: {core: auxl.faceEye1Blink}, 
+		child3: {
+			parent: {core: auxl.faceEye1LidOffset}, 
+			child0: {core: auxl.faceEye1Lid}, 
+		}, 
+	},
+	child1: {
+		parent: {core: auxl.faceEye2Socket}, 
+		child0: {core: auxl.faceEyebrow2}, 
+		child1: {core: auxl.faceEye2Pupil},
+		child2: {core: auxl.faceEye2Blink}, 
+		child3: {
+			parent: {core: auxl.faceEye2LidOffset}, 
+			child0: {core: auxl.faceEye2Lid}, 
+		}, 
+	},
+	child2: {
+		parent: {core: auxl.faceEar1Offset}, 
+		child0: {core: auxl.faceEar1}, 
+	},
+	child3: {
+		parent: {core: auxl.faceEar2Offset}, 
+		child0: {core: auxl.faceEar2}, 
+	},
+}
+auxl.face = auxl.Layer('face',auxl.faceLayerData);
 
 
 //
-//Cores
+//Testing
+
+//Build
+auxl.build = auxl.BuildIn3D();
 
 //Toggle Test
 auxl.testCubeCoreData = {
@@ -80,15 +326,21 @@ components: {
 };
 auxl.switchCube = auxl.Core(auxl.switchCubeData);
 
+//Build new Data from template
+//3 Ways
+
 //auxl.templateTest = auxl.Core(auxl.coreFromTemplate('templateTest', auxl.switchCubeData, {position: new THREE.Vector3(0,3,-3)}));
+
 //auxl.templateTestData = auxl.coreFromTemplate(auxl.switchCubeData, {id: 'templateTest', position: new THREE.Vector3(0,3,-3)});
 //auxl.templateTest = auxl.Core(auxl.templateTestData);
 //auxl.templateTest.SpawnCore();
+
 /*
 auxl.templateTestData = auxl.coreFromTemplate(auxl.switchCubeData, {position: new THREE.Vector3(0,3,-3), material: {shader:'grid-glitch', color: 'blue',}});
 auxl[auxl.templateTestData.id] = auxl.Core(auxl.templateTestData);
 auxl[auxl.templateTestData.id].SpawnCore();
 */
+
 /*
 auxl.templateTest2Data = auxl.coreFromTemplate(auxl.switchCubeData, {position: new THREE.Vector3(0,1,-3), material: {shader:'grid-glitch', color: 'blue',}});
 auxl[auxl.templateTest2Data.id] = auxl.Core(auxl.templateTestData);
@@ -188,18 +440,12 @@ auxl.cloudData = {
 	classes: ['a-ent'],
 	components: false,
 };
-auxl.cloudData.id = 'cloud1';
-auxl.cloudData.position = new THREE.Vector3(-150,200,-300);
-auxl.cloudData.scale = new THREE.Vector3(1,0.25,0.75);
+auxl.cloud1Data = auxl.coreFromTemplate(auxl.cloudData, {id: 'cloud1', position: new THREE.Vector3(-150,200,-300), scale: new THREE.Vector3(1,0.25,0.75)});
 auxl.cloud1 = auxl.Core(auxl.cloudData);
-auxl.cloudData.id = 'cloud2';
-auxl.cloudData.position = new THREE.Vector3(-150,200,200);
-auxl.cloudData.scale = new THREE.Vector3(1,0.25,0.75);
-auxl.cloud2 = auxl.Core(auxl.cloudData);
-auxl.cloudData.id = 'cloud3';
-auxl.cloudData.position = new THREE.Vector3(100,200,0);
-auxl.cloudData.scale = new THREE.Vector3(0.5,0.5,0.25);
-auxl.cloud3 = auxl.Core(auxl.cloudData);
+auxl.cloud2Data = auxl.coreFromTemplate(auxl.cloudData, {id: 'cloud2', position: new THREE.Vector3(-150,200,200), scale: new THREE.Vector3(1,0.25,0.75)});
+auxl.cloud2 = auxl.Core(auxl.cloud2Data);
+auxl.cloud3Data = auxl.coreFromTemplate(auxl.cloudData, {id: 'cloud3', position: new THREE.Vector3(100,200,0), scale: new THREE.Vector3(0.5,0.5,0.25)});
+auxl.cloud3 = auxl.Core(auxl.cloud3Data);
 auxl.cloudLayerData = {
 	parent: {core: auxl.cloudsParent}, 
 	child0: {core: auxl.cloud1}, 
@@ -514,6 +760,242 @@ width: 'normal',
 };
 auxl.indoorWall = auxl.Horizon(auxl.indoorWallData);
 
+//
+//Inventory Objects
+
+//Items
+auxl.testItem1 = {
+	name: 'Test Item 1',
+	description: 'Just a test item.',
+	category: 'items',
+	type: 'use',
+	persist: 'limited',
+	amount: 3,
+	style: false,
+	action: true,
+	auxlObj: 'testItem1Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+auxl.testItem2 = {
+	name: 'Test Item 2',
+	description: 'Just a test item.',
+	category: 'items',
+	type: 'equip',
+	persist: 'limited',
+	amount: 1,
+	style: false,
+	action: true,
+	auxlObj: 'testItem2Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+
+//Tools
+auxl.testTool1 = {
+	name: 'Test Tool 1',
+	description: 'Just a test tool.',
+	category: 'tools',
+	type: 'use',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: true,
+	auxlObj: 'testTool1Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+auxl.testTool2 = {
+	name: 'Test Tool 2',
+	description: 'Just a test tool.',
+	category: 'tools',
+	type: 'use',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: true,
+	auxlObj: 'testTool2Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+
+//Keys
+auxl.zone1Key = {
+	name: 'Zone 1 Key',
+	id: 'zone1Key',
+	description: 'A Key to unlock Zone 1.',
+	category: 'keys',
+	type: 'passive',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: false,
+	auxlObj: 'zone1Key',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+auxl.testKey1 = {
+	name: 'Test Key 1',
+	description: 'Just a test key.',
+	category: 'keys',
+	type: 'passive',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: false,
+	auxlObj: 'testKey1Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+auxl.testKey2 = {
+	name: 'Test Key 2',
+	description: 'Just a test key.',
+	category: 'keys',
+	type: 'passive',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: false,
+	auxlObj: 'testKey2Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+auxl.testKey3 = {
+	name: 'Test Key 3',
+	description: 'Just a test key.',
+	category: 'keys',
+	type: 'passive',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: false,
+	auxlObj: 'testKey3Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+auxl.testKey4 = {
+	name: 'Test Key 4',
+	description: 'Just a test key.',
+	category: 'keys',
+	type: 'passive',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: false,
+	auxlObj: 'testKey4Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+auxl.testKey5 = {
+	name: 'Test Key 5',
+	description: 'Just a test key.',
+	category: 'keys',
+	type: 'passive',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: false,
+	auxlObj: 'testKey5Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+auxl.testKey6 = {
+	name: 'Test Key 6',
+	description: 'Just a test key.',
+	category: 'keys',
+	type: 'passive',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: false,
+	auxlObj: 'testKey6Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+auxl.testKey7 = {
+	name: 'Test Key 7',
+	description: 'Just a test key.',
+	category: 'keys',
+	type: 'passive',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: false,
+	auxlObj: 'testKey7Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+auxl.testKey8 = {
+	name: 'Test Key 8',
+	description: 'Just a test key.',
+	category: 'keys',
+	type: 'passive',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: false,
+	auxlObj: 'testKey8Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+auxl.testKey9 = {
+	name: 'Test Key 9',
+	description: 'Just a test key.',
+	category: 'keys',
+	type: 'passive',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: false,
+	auxlObj: 'testKey9Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+
+//Specials
+auxl.testSpecial1 = {
+	name: 'Test Special 1',
+	description: 'Just a test special object.',
+	category: 'specials',
+	type: 'spawnable',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: true,
+	auxlObj: 'testSpecial1Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+auxl.testSpecial2 = {
+	name: 'Test Special 2',
+	description: 'Just a test special object.',
+	category: 'specials',
+	type: 'spawnable',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: true,
+	auxlObj: 'testSpecial2Obj',
+	component: false,
+	method: 'test',
+	params: 'null'
+};
+
 
 //
 //NPC
@@ -571,7 +1053,7 @@ auxl.npcKeyPage1Data = {
 	},
 	timeline1:{
 		self:{Speak:{speech:'Here you go!'}, SetFlag: {flag: 'zone1Key', value: true}},
-		player:{AddToInventory: 'zone1Key'},
+		comp:{AddToInventory: {item: auxl.zone1Key}},
 	},
 	timeline2:{
 		self:{Speak:{speech:'Good luck finding where it goes!'}, Jump: {timeline: 'timeline4'},},
@@ -596,23 +1078,6 @@ auxl.npcKeyPage1Data = {
 			},
 		}}},
 	},
-/*
-	timeline4:{
-		self:{Speak:{speech:'Lets test the switch change!'}},
-
-		self:{Switch: {switchCube:{cond: 'testSwitch',
-			switchCond1: {
-				switchCube:{EmitEvent: 'switch1',SetFlag:{flag: 'testSwitch', value: 'switchCond2'},},
-			},switchCond2: {
-				switchCube:{EmitEvent: 'switch2',SetFlag:{flag: 'testSwitch', value: 'switchCond3'},},
-			},switchCond3: {
-				switchCube:{EmitEvent: 'switch3',SetFlag:{flag: 'testSwitch', value: 'switchCond4'},},
-			},default: {
-				switchCube:{EmitEvent: 'switch4',SetFlag:{flag: 'testSwitch', value: 'switchCond1'},},
-			},
-		}}},
-	},
-*/
 	timeline6:{
 		self: {ResetBook: true},
 	},
@@ -658,7 +1123,7 @@ auxl.npcKeyBookData = {
 };
 auxl.npcKeyBody = auxl.Core(auxl.npcKeyBodyData);
 auxl.npcKeyBubble = auxl.Core(auxl.npcKeyBubbleData);
-auxl.npcKeyGiver = auxl.NPC(auxl.npcKeyBody, auxl.npcKeyBookData, auxl.npcKeyBubble);
+auxl.npcKeyGiver = auxl.NPC('npcKeyGiver', auxl.npcKeyBody, auxl.npcKeyBookData, auxl.npcKeyBubble);
 
 //Minty NPC
 auxl.npcMintyTextBubbleData = {
@@ -766,7 +1231,156 @@ auxl.npcMintyBookTestData = {
 		page0: auxl.npcMintyIdleData,
 	},
 };
-auxl.npcMinty = auxl.NPC(auxl.npcMintyCore, auxl.npcMintyBookTestData, auxl.npcMintyTextBubble);
+auxl.npcMinty = auxl.NPC('npcMinty', auxl.npcMintyCore, auxl.npcMintyBookTestData, auxl.npcMintyTextBubble);
+
+
+//NPC Layer Test
+auxl.testNullData = {
+data:'testNullData',
+id:'testNull',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,1,-3),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.testNull = auxl.Core(auxl.testNullData);
+auxl.test0Data = {
+data:'test0Data',
+id:'test0',
+sources: false,
+text: false,
+geometry: {primitive: 'sphere', radius: 0.1,},
+material: {shader: "standard", color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.test0 = auxl.Core(auxl.test0Data);
+auxl.test1Data = {
+data:'test1Data',
+id:'test1',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.1, width: 0.5, height: 0.5},
+material: {shader: "standard", color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.25,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.test1 = auxl.Core(auxl.test1Data);
+auxl.testLayerData = {
+	parent: {core: auxl.testNull}, 
+	child0: {
+		parent: {core: auxl.test0}, 
+		child0: {core: auxl.test1}, 
+	}, 
+}
+auxl.testLayer = auxl.Layer('testLayer',auxl.testLayerData);
+
+auxl.layerBubbleData = {
+	data:'layerBubbleData',
+	id:'layerBubble',
+	sources:false,
+	text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.75, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+	geometry: {primitive: 'box', depth: 0.025, width: 0.8, height: 0.15},
+	material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+	position: new THREE.Vector3(0.25,0.75,-0.05),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable','a-ent'],
+	components: false,
+};
+auxl.layerPage1Data = {
+	info:{
+		id:'layerPage1',
+		description:'Layer test page 1.',
+		tags:'npc',
+		nextPage: null,
+		prevPage: null,
+		timeline:'linear',
+	},
+	timeline0:{
+		self:{Speak:{speech:'Hey there!'},},
+	},
+	timeline1:{
+		self:{Speak:{speech:'Having fun?'},},
+	},
+	timeline2:{
+		self:{Speak:{speech:'Lets look around.'},},
+	},
+	timeline3:{
+		self:{Speak:{speech:'Whats over there?'}},
+	},
+	timeline4:{
+		self:{Speak:{speech:'Now... where was that cookie I was eating?'}},
+	},
+	timeline5:{
+		self:{Speak:{speech:'Found it!'}},
+	},
+	timeline6:{
+		self: {ResetBook: true},
+	},
+};
+auxl.layerIdleData = {
+	info:{
+		id:'layerIdleData',
+		description:'Layer test idle page.',
+		tags:'comp',
+		nextPage: null,
+		prevPage: null,
+		timeline:'linear',
+	},
+	timeline0:{
+		self:{Speak:{speech:'Yo ho ho ho and a bottle of rum for me...'}},
+	},
+	timeline1:{
+		self:{Speak:{speech:'Ooh a piece of candy!'}},
+	},
+	timeline1:{
+		self:{Speak:{speech:'Nom nom nom nom.....'}},
+	},
+	timeline3:{
+		self: {IdleReset: true},
+	},
+};
+auxl.layerBookData = {
+	info:{
+		id:'layerNPC',
+		name: 'Layer Test',
+		description:'Layer test book.',
+		tags:'npc',
+		timeline: 'linear',
+		idleDelay: 7000,
+		idleInterval: 10000,
+	},
+	pages:{
+		page0: auxl.layerPage1Data,
+	},
+	idle:{
+		page0: auxl.layerIdleData,
+	},
+};
+auxl.layerBubble = auxl.Core(auxl.layerBubbleData);
+auxl.layerNPC = auxl.NPC('layerNPC', auxl.testLayer, auxl.layerBookData, auxl.layerBubble);
+
+
 
 //
 //Doorways
@@ -812,6 +1426,55 @@ components: {
 },
 };
 auxl.doorway2 = auxl.Core(auxl.doorway2Data);
+
+
+//Build Scene Library Objects
+auxl.buildSceneLibrary = () => {
+
+//Testing
+auxl.build = auxl.BuildIn3D();
+auxl.testCubeCore = auxl.Core(auxl.testCubeCoreData);
+auxl.cubeCore = auxl.Core(auxl.cubeCoreData);
+auxl.switchCube = auxl.Core(auxl.switchCubeData);
+//Floor
+auxl.floor = auxl.Core(auxl.floorData);
+auxl.floor1 = auxl.Core(auxl.floor1Data);
+//Ceiling
+auxl.indoorCeiling = auxl.Core(auxl.indoorCeilingData);
+//Clouds
+auxl.cloudsParent = auxl.Core(auxl.cloudsParentData);
+auxl.cloud1 = auxl.Core(auxl.cloudData);
+auxl.cloud2 = auxl.Core(auxl.cloud2Data);
+auxl.cloud3 = auxl.Core(auxl.cloud3Data);
+auxl.clouds = auxl.Layer('clouds',auxl.cloudLayerData);
+//Environment
+auxl.basicRing = auxl.ObjsGenRing(auxl.basicRingData);
+auxl.biome = auxl.MultiAssetGen(auxl.biomeData);
+auxl.hills = auxl.Horizon(auxl.hillsData);
+auxl.indoorWall = auxl.Horizon(auxl.indoorWallData);
+//NPCs
+//Key Giver
+auxl.npcKeyBody = auxl.Core(auxl.npcKeyBodyData);
+auxl.npcKeyBubble = auxl.Core(auxl.npcKeyBubbleData);
+auxl.npcKeyGiver = auxl.NPC('npcKeyGiver', auxl.npcKeyBody, auxl.npcKeyBookData, auxl.npcKeyBubble);
+//Minty
+auxl.npcMintyTextBubble = auxl.Core(auxl.npcMintyTextBubbleData);
+auxl.npcMintyCore = auxl.Core(auxl.npcMintyData);
+auxl.npcMinty = auxl.NPC('npcMinty', auxl.npcMintyCore, auxl.npcMintyBookTestData, auxl.npcMintyTextBubble);
+//Layer NPC Test
+auxl.testNull = auxl.Core(auxl.testNullData);
+auxl.test0 = auxl.Core(auxl.test0Data);
+auxl.test1 = auxl.Core(auxl.test1Data);
+auxl.testLayer = auxl.Layer('testLayer',auxl.testLayerData);
+auxl.layerBubble = auxl.Core(auxl.layerBubbleData);
+auxl.layerNPC = auxl.NPC('layerNPC', auxl.testLayer, auxl.layerBookData, auxl.layerBubble);
+
+//Doorways
+auxl.doorway1 = auxl.Core(auxl.doorway1Data);
+auxl.doorway2 = auxl.Core(auxl.doorway2Data);
+
+}
+auxl.toBeRebuilt('buildSceneLibrary');
 
 },
 });
@@ -912,6 +1575,8 @@ auxl.zone0Scene0Data = {
 		doorway2:{SpawnCore:null},
 		//ghost:{SpawnLayer:null},
 		//multiMenuTest:{SpawnMultiMenu:null},
+		face:{SpawnLayer:null},
+		layerNPC:{SpawnNPC:null},
 	},
 	delay:{
 		3000:{
@@ -921,7 +1586,7 @@ auxl.zone0Scene0Data = {
 			coreEventTesting:{EmitEvent:'test'},
 		},
 		5000:{
-			player:{SetFlag:{flag: 'test', value: true}},
+			comp:{SetFlag:{flag: 'test', value: true}},
 		},
 	},
 	interval:{
@@ -1082,7 +1747,8 @@ auxl.zone1Scene0Data = {
 	start:{
 		floor:{ChangeSelf:[{property: 'material', value: {src: auxl.pattern80, repeat: '150 150',color: "#21679a", emissive: "#21679a",},},{property: 'position', value: new THREE.Vector3(0,0,0),},{property: 'raycast-teleportation-select', value: null,}],},
 		basicRing:{SpawnObjRing:null},
-		swipeLaunchGame:{SpawnSLGame:null},
+		//swipeLaunchGame:{SpawnSLGame:null},
+		//dragDiffuseGame:{SpawnDDGame:null},
 	},
 	delay:{
 	},
@@ -1122,7 +1788,7 @@ auxl.v03TestingScenarioData = {
 		zone0:{
 			zone0Scene0:{
 				connect0: {inZone: true, node: 'zone0Scene1',},
-				connect1: {inZone: 'zone1', node: 'zone1Scene0', locked: true, key: 'zone1Key', keepKey: true},
+				connect1: {inZone: 'zone1', node: 'zone1Scene0', locked: true, keyId: 'zone1Key', keyName: 'Zone 1 Key', keepKey: true},
 			},
 			zone0Scene1:{
 				connect0: {inZone: true, node: 'zone0Scene0',},
@@ -1149,7 +1815,7 @@ auxl.v03TestingScenarioData = {
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
-		ham:{SpawnHam: null},
+		comp:{SpawnComp: null, AddToInventory:{item:[ auxl.testItem1, auxl.testItem2, auxl.testTool1, auxl.testTool2, auxl.testKey1, auxl.testKey2, auxl.testKey3, auxl.testKey4, auxl.testKey5, auxl.testKey6, auxl.testKey7, auxl.testKey8, auxl.testKey9, auxl.testSpecial1, auxl.testSpecial2,], hide: true}},
 		floor:{SpawnCore: null},
 		clouds:{SpawnLayer: null},
 	},
@@ -1183,10 +1849,6 @@ auxl.TestingWorldData = {
 };
 auxl.testingWorld = auxl.World(auxl.TestingWorldData);
 auxl.testingWorld.SetAsDefault();
-
-
-
-
 
 
 //
@@ -1268,7 +1930,7 @@ auxl.loadScenarioData = {
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
-		ham:{SpawnHam: null},
+		comp:{SpawnComp: null},
 		floor:{SpawnCore: null},
 		clouds:{SpawnLayer: null},
 		//Worlds Loaded Menu Spawn
@@ -1303,6 +1965,7 @@ auxl.LoadWorldData = {
 };
 auxl.loadWorld = auxl.World(auxl.LoadWorldData);
 
+//
 //System Loaded
 auxl.systemLoaded();
 
