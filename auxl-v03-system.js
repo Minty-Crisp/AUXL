@@ -1861,10 +1861,11 @@ this.Layer = (id, all) => {
 	layer.inScene = false;
 	layer.allNames = [];
 	layer.children = {};
-	layer.secondParents = [];
-	layer.thirdParents = [];
-	layer.fourthParents = [];
+	layer.tempParents = [];
 	layer.parent = false;
+	//Order of Elements Added to Scene
+	let accessOrder = [];
+
 	//Spawn Multi Entity Object
 	const SpawnLayer = (parent) => {
 		layer.parent = parent || false;
@@ -1902,82 +1903,82 @@ this.Layer = (id, all) => {
 			}
 		}
 		if(layer.inScene){}else{
-			for(let each in all){
-				if(each === 'parent'){
-					all[each].core.SpawnCore(layer.parent);
-					layer.allNames.push(all[each].core.core.id);
-				} else {
-					for(let a in all[each]){
-						if(a === 'core'){
-							layer.children[all[each].core.core.id] = {obj: all[each][a], parent: all.parent.core.core.el};
-							all[each][a].SpawnCore(all.parent.core.core.el);
-							layer.allNames.push(all[each][a].core.id);
-						} else {
-							if(a === 'parent'){
-								layer.children[all[each][a].core.core.id] = {obj: all[each][a].core, parent: all.parent.core.core.el};
-								layer.secondParents.push(all[each][a].core);
-								all[each][a].core.SpawnCore(all.parent.core.core.el);
-								layer.allNames.push(all[each][a].core.core.id);
-							} else {
-								for(let b in all[each][a]){
-									if(b === 'core'){
-										layer.children[all[each][a].core.core.id] = {obj: all[each][a][b], parent: all[each].parent.core.core.el};
-										all[each][a][b].SpawnCore(all[each].parent.core.core.el);
-										layer.allNames.push(all[each][a][b].core.id);
-									} else {
-										if(b === 'parent'){
-											layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b].core, parent: all[each].parent.core.core.el};
-											layer.thirdParents.push(all[each][a][b].core);
-											all[each][a][b].core.SpawnCore(all[each].parent.core.core.el);
-											layer.allNames.push(all[each][a][b].core.core.id);
-										} else {
-											for(let c in all[each][a][b]){
-												if(c === 'parent'){
-													console.log('Add support for more layers')
-												} else {
-													layer.children[all[each][a][b].core.core.id] = {obj: all[each][a][b][c], parent: all[each][a].parent.core.core.el};
-													all[each][a][b][c].SpawnCore(all[each][a].parent.core.core.el);
-													layer.allNames.push(all[each][a][b][c].core.id);
-												}
-											}
-										}
-									}
-								}
+			let currentParent = layer.parent;
+			let previousParent = false
+			function spawnSection(sectionParent, object, depth) {
+				currentParent = sectionParent || false;
+				//New Depth Parent
+				if(object.parent){
+					layer.tempParents[depth] = object.parent.core.core.id;
+				}
+				for(let key in object){
+					if(object.hasOwnProperty(key)){
+						if(key === 'core'){
+						//Access Order
+						if(accessOrder.length === depth){
+							accessOrder.push([]);
+						}
+						accessOrder[depth].push(object[key]);
+						layer.allNames.push(object[key].core.id);
+						//Skip Parent Spawns
+						if(object[key].core.id === layer.all.parent.core.core.id || object[key].core.id === currentParent || object[key].core.id === layer.tempParents[depth] || object[key].core.id === layer.tempParents[depth-1]){} else {
+							//Spawning Child
+							layer.children[object[key].core.id] = {obj: object[key], parent: currentParent};
+							object[key].SpawnCore(currentParent);
+						}
+						} else if(key === "parent" && object[key].hasOwnProperty('core')){
+							//Access Order of Elements
+							if(accessOrder.length === depth){
+								accessOrder.push([]);
 							}
+							accessOrder[depth].push(object[key].core);
+
+							//Update Current Parent
+							if(object[key].core.core.id === layer.all.parent.core.core.id){
+								//Main Layer Parent
+								currentParent = layer.parent;
+							} else if(object[key].core.core.id === currentParent || object[key].core.core.id === layer.tempParents[depth]){
+								//Previous Depth Parent
+								currentParent = layer.tempParents[depth-1];
+							} else {
+								//Current Depth Parent
+								currentParent = layer.tempParents[depth];
+							}
+
+							//Spawn
+							layer.children[object[key].core.id] = {obj: object[key], parent: currentParent};
+							object[key].core.SpawnCore(currentParent);
+
+							//Continue
+							spawnSection(currentParent, object[key], depth + 1);
+						} else if(typeof object[key] === 'object'){
+							//Update Current Parent
+							if(object[key].parent){
+								currentParent = object[key].parent;
+							} else {
+								currentParent = layer.tempParents[depth];
+							}
+							//Continue
+							spawnSection(currentParent, object[key], depth + 1);
 						}
 					}
 				}
 			}
+			spawnSection(layer.parent, layer.all, 0);
 			layer.inScene = true;
 		}
 	}
-	//Order of Despawning
-	function layerOrder(object) {
-		let result = [[], [], [], []];
-		function traverse(object, depth) {
-			for (let key in object) {
-				if (object.hasOwnProperty(key)) {
-					if (key === 'core') {
-						result[depth].push(object[key]);
-					} else if (key === "parent" && object[key].hasOwnProperty('core')) {
-						result[depth].push(object[key].core);
-					} else if (typeof object[key] === 'object') {
-						traverse(object[key], depth + 1);
-					}
-				}
-			}
-		}
 
-		traverse(object, 0);
-		return result;
-	}
-	let accessOrder = layerOrder(layer.all);
 	//Despawn Multi Entity Object
 	const DespawnLayer = () => {
 		if(layer.inScene){
-			let removeOrder = layerOrder(layer.all).reverse();
+			let removeOrder = [...accessOrder];
+			removeOrder.reverse();
+			let levelOrder;
 			for(let layer of removeOrder){
-				for(let each of layer){
+				levelOrder = [...layer];
+				levelOrder.reverse();
+				for(let each of levelOrder){
 					each.DespawnCore();
 				}
 			}
@@ -10495,12 +10496,11 @@ child3: {
 },
 child4: {core: auxl.playerFloor},
 }
+
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
 auxl.playerLayer = auxl.Layer('playerLayer', auxl.playerAll);
 //Player
 auxl.player = auxl.Player('player',auxl.playerLayer);
-
-
 
 //
 //Avatar

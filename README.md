@@ -127,6 +127,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Added Companion position update by clicking belt text ui screen to move the companion while spawned.
 - Added GetAllEl method to layer.
 - Updated NPC to support Layer as the Avatar and added GetNPCEl, AddNPCEvents & RemoveNPCEvents methods. Fixed a few various issues with NPC as well.
+- Added support for unlimited parent/child sections inside Layers.
 
 # Features Roadmap : :cherries:
 - System Function, Component & ObjGen Updates
