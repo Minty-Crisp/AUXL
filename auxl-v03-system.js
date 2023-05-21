@@ -1704,21 +1704,6 @@ auxl[object].GetEl().addEventListener(line, function(){
 		}
 		return aEl;
 	}
-/*
-	//Add Event
-	const AddEvent = (eventName, action) => {
-		if(core.events[action]){}else{
-			core.events[action] = {event: eventName, method: action}
-		}
-	}
-	//Spawn Events
-	const SpawnEvents = () => {
-		//AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
-		GetEl().addEventListener(line, function(){
-			auxlObjMethod(core,method,params);
-		});
-	}
-*/
 	//Emit Event from Entity Element - Single or Array
 	const EmitEvent = (eventName) => {
 		if(Array.isArray(eventName)){
@@ -1968,7 +1953,6 @@ this.Layer = (id, all) => {
 			layer.inScene = true;
 		}
 	}
-
 	//Despawn Multi Entity Object
 	const DespawnLayer = () => {
 		if(layer.inScene){
@@ -2005,14 +1989,24 @@ this.Layer = (id, all) => {
 	const GetParentEl = () => {
 		return layer.all.parent.core.GetEl();
 	}
-	//Return Child Element in Scene
+	//Return a Child Element in Scene
 	const GetChildEl = (child) => {
 		let childCore = GetChild(child);
 		if(childCore){
 			return childCore.GetEl();
 		}
 	}
-	//Return Child Element in Scene
+	//Return Only Child Elements in Scene
+	const GetAllChildEl = () => {
+		let allEl = [];
+		for(let each in layer.allNames){
+			if(layer.allNames[each] === layer.all.parent.core.core.id){} else {
+				allEl.push(GetChildEl(layer.allNames[each]));
+			}
+		}
+		return allEl;
+	}
+	//Return All Elements in Scene
 	const GetAllEl = () => {
 		let allEl = [];
 		for(let each in layer.allNames){
@@ -2329,7 +2323,7 @@ this.Layer = (id, all) => {
 		}
 	}
 
-	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, GetParentEl, GetChildEl, GetAllEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
+	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, GetParentEl, GetChildEl, GetAllChildEl, GetAllEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
 }
 
 
@@ -3559,6 +3553,9 @@ this.Companion = (id, object) => {
 
 	comp.viewConfig = false;
 
+	//NPC
+	auxl.compNPC = auxl.NPC('compNPC', comp.avatar, auxl.compBookData, auxl.compBubble, true);
+
 	//Inventory
 	comp.inventoryTimeouts = [];
 	comp.items = {};
@@ -3943,7 +3940,7 @@ this.Companion = (id, object) => {
 				auxlObj: 'comp',
 				component: false,
 				method: 'UpdateShape',
-				params: 'compCube',
+				params: 'compCubeLayer',
 				menu: 'close',
 			},
 		},
@@ -3957,21 +3954,7 @@ this.Companion = (id, object) => {
 				auxlObj: 'comp',
 				component: false,
 				method: 'UpdateShape',
-				params: 'compSphere',
-				menu: 'close',
-			},
-		},
-		button3:{
-			id: 'action4',
-			style: false,
-			title: 'Plane',
-			description: 'Change to a plane avatar.',
-			subMenu: false,
-			action: {
-				auxlObj: 'comp',
-				component: false,
-				method: 'UpdateShape',
-				params: 'compPlane',
+				params: 'compSphereLayer',
 				menu: 'close',
 			},
 		},
@@ -4127,7 +4110,7 @@ this.Companion = (id, object) => {
 	let speechIntervalB;
 	let speechTimeoutB;
 	//Emoticon Loop Display
-	const autoScriptEmoticon = () => {
+	const autoScriptEmoticonOld = () => {
 		//Emoticons
 		function* emotiSpeech() {
 			yield '-_-';
@@ -4170,7 +4153,7 @@ this.Companion = (id, object) => {
 		}, 250);
 	}
 	//Update Shape
-	const UpdateShape = (newObj) => {
+	const UpdateShapeOld = (newObj) => {
 		let respawn = false;
 		if(comp.inScene){
 			respawn = true;
@@ -4205,6 +4188,82 @@ this.Companion = (id, object) => {
 		}, 400);
 
 	}
+	//Emoticon Loop Display
+	const autoScriptEmoticon = () => {
+		//Emoticons
+		function* emotiSpeech() {
+			yield '-_-';
+			yield 'O_O';
+			yield 'o_o';
+			yield 'o_O';
+			yield 'O_o';
+			yield 'O_^';
+			yield '^_o';
+			yield '^_^';
+			yield 'o_^';
+			yield '^_O';
+			yield '<_<';
+			yield '>_>';
+			yield '>_<';
+			yield 'X_X';
+			yield '*_*';
+			yield '+_+';
+			yield '0_0';
+		}
+		let emotiSpeechArray = [];
+		for (speech of emotiSpeech()) {
+			emotiSpeechArray.push(speech);
+		}
+		let buddy;
+		let buddyFaceMaterial = {value:'^_^', color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double',}
+		let b;
+		speechTimeoutB = setTimeout(function () {
+			b = 0;
+			buddy = auxl.compNPC.GetAllNPCEl();
+			speechIntervalB = setInterval(function() {
+				buddyFaceMaterial.value = emotiSpeechArray[b];
+				buddy.setAttribute('text', buddyFaceMaterial);
+				if(b === emotiSpeechArray.length){b = 0}else{b++}
+			}, 2700);
+		}, 250);
+	}
+	//Update Shape
+	const UpdateShape = (newObj) => {
+		let respawn = false;
+		if(comp.inScene){
+			respawn = true;
+			DespawnComp();
+		}
+		let rebuildTimeout = setTimeout(function () {
+			if(newObj.SpawnCore){
+				comp.avatarType = 'core';
+				comp.menuParentId = newObj.core.id;
+				comp.avatar = Object.assign({}, newObj);
+			} else if(newObj.SpawnLayer){
+				comp.avatarType = 'layer';
+				comp.menuParentId = newObj.layer.all.parent.core.core.id;
+				comp.avatar = Object.assign({}, newObj);
+			} else {
+				if(auxl[newObj].SpawnCore){
+					comp.avatarType = 'core';
+					comp.menuParentId = auxl[newObj].core.id;
+				} else if(auxl[newObj].SpawnLayer){
+					comp.avatarType = 'layer';
+					comp.menuParentId = auxl[newObj].layer.all.parent.core.core.id;
+				} else {
+					console.log(newObj);
+					console.log('failed to detect type');
+				}
+				comp.avatar = Object.assign({}, auxl[newObj]);
+			}
+			auxl.compNPC = auxl.NPC('compNPC', comp.avatar, auxl.compBookData, auxl.compBubble, true);
+			if(respawn){
+				SpawnComp();
+			}
+		clearTimeout(rebuildTimeout);
+		}, 400);
+
+	}
 	//Toggle playerFloor Clickable Class
 	const ToggleSpawnClick = () => {
 		playerFloor.classList.toggle('clickable');
@@ -4222,7 +4281,7 @@ this.Companion = (id, object) => {
 	//Attach Toggle to playerFloor
 	playerFloor.addEventListener('click',ToggleComp);
 	//Update Position
-	const UpdatePosition = () => {
+	const UpdatePositionOld = () => {
 		if(comp.avatarType === 'core'){
 			comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
 		} else {
@@ -4230,7 +4289,7 @@ this.Companion = (id, object) => {
 		}
 	}
 	//Spawn & Start Companion
-	const SpawnComp = () => {
+	const SpawnCompOld = () => {
 		if(comp.inScene){}else{
 			ToggleSpawnClick();
 			if(comp.avatarType === 'core'){
@@ -4264,7 +4323,7 @@ this.Companion = (id, object) => {
 		}
 	}
 	//Despawn & Stop Companion
-	const DespawnComp = () => {
+	const DespawnCompOld = () => {
 		if(comp.inScene){
 			ToggleSpawnClick();
 			//clearInterval(speechTimeoutB);
@@ -4277,6 +4336,72 @@ this.Companion = (id, object) => {
 					comp.avatar.DespawnCore();
 				} else {
 					comp.avatar.DespawnLayer();
+				}
+				RemoveFromTracker(comp.id);
+				comp.inScene = false;
+				ToggleSpawnClick();
+				clearTimeout(despawnTimeout);
+			}, 300);
+		}
+	}
+	//Update Position
+	const UpdatePosition = () => {
+		if(comp.avatarType === 'core'){
+			comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
+		} else {
+			comp.avatar.ChangeParent({property: 'position', value: cameraDirection()});
+		}
+	}
+	//Spawn & Start Companion
+	const SpawnComp = () => {
+		if(comp.inScene){}else{
+			ToggleSpawnClick();
+			auxl.compNPC.SpawnNPC(auxl.playerRig.GetEl());
+			if(comp.avatarType === 'core'){
+				//comp.avatar.SpawnCore(auxl.playerRig.GetEl());
+				if(comp.firstSpawn){
+					comp.firstSpawn = false;
+				} else {
+					comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
+				}
+			} else {
+				//comp.avatar.SpawnLayer(auxl.playerRig.GetEl());
+				if(comp.firstSpawn){
+					comp.firstSpawn = false;
+				} else {
+					comp.avatar.ChangeParent({property: 'position', value: cameraDirection()});
+				}
+			}
+			//autoScriptEmoticon();
+			//console.log(auxl.build)
+			let spawnTimeout = setTimeout(() => {
+				//auxl.build.SpawnBuild();
+				//Update Inventory
+				UpdateInventoryMenu();
+				//Update Main Menu Parent Shape ID
+				auxl.mainMenu.multiMenu.parent = comp.menuParentId;
+				auxl.mainMenu.SpawnMultiMenu();
+				ToggleSpawnClick();
+				clearTimeout(spawnTimeout);
+			}, 100);
+			comp.inScene = true;
+		}
+	}
+	//Despawn & Stop Companion
+	const DespawnComp = () => {
+		if(comp.inScene){
+			ToggleSpawnClick();
+			//clearInterval(speechTimeoutB);
+			//clearInterval(speechIntervalB);
+			//auxl.build.DespawnBuild();
+			auxl.mainMenu.DespawnMultiMenu();
+			//Delay to let multi-menu complete it's despawn seq
+			let despawnTimeout = setTimeout(() => {
+				auxl.compNPC.DespawnNPC();
+				if(comp.avatarType === 'core'){
+					//comp.avatar.DespawnCore();
+				} else {
+					//comp.avatar.DespawnLayer();
 				}
 				RemoveFromTracker(comp.id);
 				comp.inScene = false;
@@ -4466,7 +4591,7 @@ this.Companion = (id, object) => {
 			};
 			comp.inventoryButtons['button'+currNum] = buttonTemplate;
 			if(currNum === total){
-auxl.mainMenu.UpdateSubMenu(subMenuName,comp.inventoryButtons);
+				auxl.mainMenu.UpdateSubMenu(subMenuName,comp.inventoryButtons);
 			} else {
 				currNum++;
 			}
@@ -4478,7 +4603,7 @@ auxl.mainMenu.UpdateSubMenu(subMenuName,comp.inventoryButtons);
 					moreTemplate.id = 'action'+currNum;
 					moreTemplate.subMenu = category + currPage;
 					comp.inventoryButtons['button'+currNum] = moreTemplate;
-auxl.mainMenu.UpdateSubMenu(subMenuName,comp.inventoryButtons);
+					auxl.mainMenu.UpdateSubMenu(subMenuName,comp.inventoryButtons);
 					comp.inventoryButtons = {};
 					subMenuName = category + currPage;
 				}
@@ -6063,12 +6188,31 @@ this.World = (worldData) => {
 	return {world, SetAsDefault, StartWorld, StopWorld, StartScenario, ClearScenario, NextScenario, LoadScenario}
 }
 
-
 //
 //Story Book
 //Linear, Tree, Quests, Jump, Menu, Conditionals, Flags...
 this.Book = (bookData, npc) => {
 	let progress = 0;
+	let currentPage = 0;
+	let currentPageIdle = 0;
+	let pagesTimelineLength = 0;
+	for(let page in bookData.pages){
+		pagesTimelineLength += Object.keys(bookData.pages[page]).length-1;
+	}
+
+	//let type = bookData.pages.page0.info.timeline;
+	//let idleType = bookData.idle.page0.info.timeline;
+	let type = bookData.pages['page'+currentPage].info.timeline;
+	let idleType = bookData.idle['page'+currentPageIdle].info.timeline;
+
+	let timelineLength = Object.keys(bookData.pages.page0).length;
+	let random = Math.floor(Math.random()*timelineLength-1)+1;
+	let previousRandom = 0;
+
+	let timelineLengthIdle = Object.keys(bookData.idle.page0).length;
+	let randomIdle = Math.floor(Math.random()*timelineLengthIdle-1)+1;
+	let previousRandomIdle = 0;
+
 	//Run Object Generator Function within Book w/Scene Tracking
 	const auxlObjMethod = (object, func, params) => {
 		if(object === 'self'){
@@ -6086,7 +6230,7 @@ this.Book = (bookData, npc) => {
 	function* lineReader(book,time){
 		//Update and Check Book Progress
 		progress++;
-		if(progress >= Object.keys(book.pages.page0).length-1){
+		if(progress >= pagesTimelineLength){
 			npc.bookEnd = true;
 		} else {
 			npc.bookEnd = false;
@@ -6133,7 +6277,7 @@ this.Book = (bookData, npc) => {
 	}
 	//Yield Book
 	function* bookReader(book){
-		book.currentPage = 0;
+		//book.currentPage = 0;
 		book.currentTimeline = 0;
 		book.currentEntry = 0;
 		book.currentDialog = 0;
@@ -6232,9 +6376,10 @@ this.Book = (bookData, npc) => {
 		//Start reading Pages
 		yield* idlePageReader(book);
 	};
-	let idle;
+	//Build Idle Book
+	let idleBook = false;
 	if(bookData.idle){
-		idle = idleBookReader(bookData);
+		idleBook = idleBookReader(bookData);
 	}
 	//Read Book Timeline
 	function readTimeline({page,time}){
@@ -6250,22 +6395,107 @@ this.Book = (bookData, npc) => {
 		}
 		return;
 	}
-	//Next Yield
-	const Next = () => {
+	//Init Book
+	const Init = () => {
 		book.done = book.next().done;
-		if(book.done){
-			//console.log('All Done!');
-		} else {
-			//console.log('Continue...')
-		}
+		npc.loadingTimeline = false;
 	}
-	//Next Idle Yield
-	const IdleNext = () => {
-		idle.done = idle.next().done;
-		if(idle.done){
-			//console.log('All Done!');
+	//Next
+	const Next = (timeline) => {
+		if(type === 'random'){
+			Random(timeline);
+		}
+		book.done = book.next().done;
+		let nextTimeout = setTimeout(function () {
+			npc.loadingTimeline = false;
+			clearTimeout(nextTimeout);
+		}, 1000);
+	}
+	//New Page
+	const NewPage = ({page, timeline}) => {
+		let newPage;
+		if(page){
+			newPage = page;
 		} else {
-			//console.log('Continue...')
+			currentPage += 1;
+			newPage = 'page' + currentPage;
+		}
+		let newTimeline = timeline || 'timeline0';
+		Jump({timeline: newTimeline, page: newPage});
+		let pageTimeout = setTimeout(function () {
+			Next();
+			clearTimeout(pageTimeout);
+		}, 250);
+		type = bookData.pages['page'+currentPage].info.timeline;
+	}
+	//Random
+	const Random = (timeline) => {
+		if(timeline){
+			random = timeline;
+		} else {
+			random = Math.floor(Math.random()*timelineLength);
+			randomNum: while (true) {
+				if(random >= timelineLength-1 || random === previousRandom){
+					random = Math.floor(Math.random()*timelineLength-1)+1;
+					continue randomNum;
+				} else {
+					break;
+				}
+			}
+			if(random <= previousRandom){
+				//reset
+				auxl[npc.id].ResetBookRandom(true);
+			}
+		}
+		let randomJump = 'timeline' + random;
+		Jump({timeline: randomJump, page: 'page'+currentPage});
+		previousRandom = random;
+	}
+	//Init Idle
+	const IdleInit = () => {
+		idleBook.done = idleBook.next().done;
+		npc.loadingTimeline = false;
+	}
+	//Idle Next
+	const IdleNext = (timeline) => {
+		if(idleType === 'random'){
+			RandomIdle(timeline);
+		}
+		idleBook.done = idleBook.next().done;
+		let idleNextTimeout = setTimeout(function () {
+			npc.loadingTimeline = false;
+			clearTimeout(idleNextTimeout);
+		}, 1000);
+	}
+	//Random
+	const RandomIdle = (timeline) => {
+		if(timeline){
+			randomIdle = timeline
+		} else {
+			randomIdle = Math.floor(Math.random()*timelineLengthIdle)+1;
+			randomNumIdle: while (true) {
+				if(randomIdle >= timelineLengthIdle-1 || randomIdle === previousRandomIdle){
+					randomIdle = Math.floor(Math.random()*timelineLengthIdle-1)+1;
+					continue randomNumIdle;
+				} else {
+					break;
+				}
+			}
+			if(randomIdle <= previousRandomIdle){
+				//reset
+				auxl[npc.id].ResetIdleRandom(true, randomIdle);
+			}
+		}
+		let randomJumpIdle = 'timeline' + randomIdle;
+		JumpIdle({timeline: randomJumpIdle, page: 'page0'});
+		previousRandomIdle = randomIdle;
+	}
+	//Jump to Idle Timeline
+	const JumpIdle = ({timeline, page}) => {
+		let toPage = page || bookData.currentPage;
+		bookData.jumpTo = timeline;
+		if(bookData.idle[toPage][bookData.jumpTo]){
+			bookData.jumping = true;
 		}
 	}
 	//Jump to Timeline
@@ -6308,7 +6538,7 @@ this.Book = (bookData, npc) => {
 		}
 	}
 
-	return {bookData, book, Next, IdleNext, Jump, SelectJump, readTimeline};
+	return {bookData, book, idleBook, Init, Next, NewPage, Random, IdleInit, IdleNext, RandomIdle, Jump, JumpIdle, SelectJump, readTimeline};
 }
 
 //
@@ -6322,9 +6552,23 @@ this.SpeechSystem = (core, npc) => {
 	core.blinkText0 = '';
 	core.blinkText1 = '';
 	core.textDisplayInterval;
+	let parent = false;
+	if(npc){
+		if(npc.avatar.core){
+			parent = 'core';
+		} else {
+			parent = 'layer';
+		}
+	}
 	//Start Textbubble
 	const Start = () => {
-		core.SpawnCore();
+		let spawnParent = false;
+		if(parent === 'core'){
+			spawnParent = npc.avatar.GetEl();
+		} else if(parent === 'layer'){
+			spawnParent = npc.avatar.GetParentEl();
+		}
+		core.SpawnCore(spawnParent);
 		core.GetEl().addEventListener('mouseenter', Skip);
 		core.on = true;
 	}
@@ -6459,7 +6703,7 @@ this.SpeechSystem = (core, npc) => {
 //
 //NPC
 //Core Object w/ Book|Pages & Textbubble
-this.NPC = (id, object, bookData, textDisplay) => {
+this.NPC = (id, object, bookData, textDisplay, special) => {
 	let npc = {};
 	npc.avatar = Object.assign({}, object);
 	npc.avatarType;
@@ -6472,11 +6716,13 @@ this.NPC = (id, object, bookData, textDisplay) => {
 		npc.parentId = object.layer.all.parent.core.core.id;
 	}
 	npc.id = id;
+	npc.special = special || false;
 	npc.inScene = false;
 	npc.speaking = false;
 	npc.bookEnd = false;
 	npc.idle = false;
 	npc.idleSpeech = false;
+	npc.loadingTimeline = false;
 	if(bookData.info.name){
 		npc.name = bookData.info.name;
 	} else {
@@ -6497,8 +6743,8 @@ this.NPC = (id, object, bookData, textDisplay) => {
 	let idleIntervalTime = bookData.info.idleInterval || 10000;
 	let menuTimeout;
 
-	//Get NPC Element
-	const GetNPCEl = () => {
+	//Get All NPC Elements
+	const GetAllNPCEl = () => {
 		let allEl;
 		if(npc.avatarType === 'core'){
 			allEl = npc.avatar.GetEl();
@@ -6507,8 +6753,18 @@ this.NPC = (id, object, bookData, textDisplay) => {
 		}
 		return allEl;
 	}
+	//Get Main NPC Element
+	const GetMainNPCEl = () => {
+		let allEl;
+		if(npc.avatarType === 'core'){
+			allEl = npc.avatar.GetEl();
+		} else {
+			allEl = npc.avatar.GetParentEl();
+		}
+		return allEl;
+	}
 	//AddEventListener to Avatar
-	const AddNPCEvents = (eventName, method) => {
+	const AddNPCEventsAll = (eventName, method) => {
 		if(npc.avatarType === 'core'){
 			npc.avatar.GetEl().addEventListener(eventName, method);
 		} else {
@@ -6519,7 +6775,7 @@ this.NPC = (id, object, bookData, textDisplay) => {
 		}
 	}
 	//RemoveEventListener to Avatar
-	const RemoveNPCEvents = (eventName, method) => {
+	const RemoveNPCEventsAll = (eventName, method) => {
 		if(npc.avatarType === 'core'){
 			npc.avatar.GetEl().removeEventListener(eventName, method);
 		} else {
@@ -6529,19 +6785,45 @@ this.NPC = (id, object, bookData, textDisplay) => {
 			}
 		}
 	}
+	//AddEventListener to Avatar
+	const AddNPCEventsChildren = (eventName, method) => {
+		if(npc.avatarType === 'core'){
+			npc.avatar.GetEl().addEventListener(eventName, method);
+		} else {
+			let all = npc.avatar.GetAllChildEl();
+			for(let each in all){
+				all[each].addEventListener(eventName, method);
+			}
+		}
+	}
+	//RemoveEventListener to Avatar
+	const RemoveNPCEventsChildren = (eventName, method) => {
+		if(npc.avatarType === 'core'){
+			npc.avatar.GetEl().removeEventListener(eventName, method);
+		} else {
+			let all = npc.avatar.GetAllChildEl();
+			for(let each in all){
+				all[each].removeEventListener(eventName, method);
+			}
+		}
+	}
 	//Spawn NPC, Reset Book & Start Speaking
-	const SpawnNPC = () => {
+	const SpawnNPC = (parent) => {
 		if(npc.inScene){}else{
+			let spawnParent = parent || false;
 			//Reset book on each spawn
 			book = auxl.Book(bookData, npc);
 			//npc.SpawnCore();
 			if(npc.avatarType === 'core'){
-				npc.avatar.SpawnCore();
+				npc.avatar.SpawnCore(spawnParent);
 			} else {
-				npc.avatar.SpawnLayer();
+				npc.avatar.SpawnLayer(spawnParent);
 			}
-			//npc.GetEl().addEventListener('mouseenter', EnableSpeech);
-			AddNPCEvents('mouseenter', EnableSpeech);
+			if(npc.special){
+				AddNPCEventsChildren('mouseenter', EnableSpeech);
+			} else {
+				AddNPCEventsAll('mouseenter', EnableSpeech);
+			}
 			if(npc.idleSpeech){
 				idleTimeout = setTimeout(() => {
 					EnableIdleSpeech()
@@ -6555,19 +6837,24 @@ this.NPC = (id, object, bookData, textDisplay) => {
 	const DespawnNPC = () => {
 		if(npc.inScene){
 			if(npc.speaking){
-				//npc.GetEl().removeEventListener('mouseenter', NextPage);
-				//npc.GetEl().removeEventListener('click', ResetBook);
-				RemoveNPCEvents('mouseenter',NextPage);
-				RemoveNPCEvents('click',ResetBook);
+				if(npc.special){
+					RemoveNPCEventsChildren('mouseenter',NextTimeline);
+					RemoveNPCEventsChildren('click',ResetSpeech);
+				} else {
+					RemoveNPCEventsAll('mouseenter',NextTimeline);
+					RemoveNPCEventsAll('click',ResetSpeech);
+				}
 			} else {
-				//npc.GetEl().removeEventListener('mouseenter', EnableSpeech);
-				RemoveNPCEvents('mouseenter',EnableSpeech);
+				if(npc.special){
+					RemoveNPCEventsChildren('mouseenter',EnableSpeech);
+				} else {
+					RemoveNPCEventsAll('mouseenter',EnableSpeech);
+				}
 			}
 			ClearBookSpawn();
 			clearTimeout(idleTimeout);
 			DisableSpeech();
 			DisableIdleSpeech();
-			//npc.DespawnCore();
 			if(npc.avatarType === 'core'){
 				npc.avatar.DespawnCore();
 			} else {
@@ -6597,52 +6884,32 @@ this.NPC = (id, object, bookData, textDisplay) => {
 		}
 		clearTimeout(idleTimeout);
 		npc.speaking = true;
-		//npc.GetEl().removeEventListener('mouseenter', EnableSpeech);
-		RemoveNPCEvents('mouseenter',EnableSpeech);
-		text.Start();
-		//npc.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}})
-		if(npc.avatarType === 'core'){
-			npc.avatar.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}});
+		if(npc.special){
+			RemoveNPCEventsChildren('mouseenter',EnableSpeech);
 		} else {
-			npc.avatar.ChangeParent({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}});
+			RemoveNPCEventsAll('mouseenter',EnableSpeech);
 		}
-		//Jump over Info to Timeline0
-		NextPage();
-		NextPage();
-		//npc.GetEl().addEventListener('mouseenter', NextPage);
-		//npc.GetEl().addEventListener('click', ResetBook);
-		AddNPCEvents('mouseenter',NextPage);
-		AddNPCEvents('click',ResetBook);
+		text.Start();
+		book.Init()
+		if(npc.special){
+			AddNPCEventsChildren('mouseenter',NextTimeline);
+			AddNPCEventsChildren('click',ResetSpeech);
+		} else {
+			AddNPCEventsAll('mouseenter',NextTimeline);
+			AddNPCEventsAll('click',ResetSpeech);
+		}
+
 	}
 	//Disable NPC Speaking
 	const DisableSpeech = () => {
 		text.KillStop();
-		//npc.GetEl().removeEventListener('mouseenter', NextPage);
-		//npc.GetEl().removeEventListener('click', ResetBook);
-		RemoveNPCEvents('mouseenter',NextPage);
-		RemoveNPCEvents('click',ResetBook);
-	}
-	//Prep & Start NPC Speaking
-	const EnableIdleSpeech = () => {
-		npc.idle = true;
-		text.Start();
-		//npc.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}})
-		if(npc.avatarType === 'core'){
-			npc.avatar.ChangeSelf({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}});
+		if(npc.special){
+			RemoveNPCEventsChildren('mouseenter',NextTimeline);
+			RemoveNPCEventsChildren('click',ResetSpeech);
 		} else {
-			npc.avatar.ChangeParent({property: 'attach', value: {idname: text.core.core.id, position: text.core.core.position}});
+			RemoveNPCEventsAll('mouseenter',NextTimeline);
+			RemoveNPCEventsAll('click',ResetSpeech);
 		}
-		//Jump over Info to Timeline0
-		IdleNext();
-		IdleNext();
-		idleInterval = setInterval(() => {
-			IdleNext();
-		}, idleIntervalTime);
-	}
-	//Disable NPC Speaking
-	const DisableIdleSpeech = () => {
-		clearInterval(idleInterval);
-		npc.idle = false;
 	}
 	//NPC Speaking
 	const Speak = ({role,speech}) => {
@@ -6656,14 +6923,36 @@ this.NPC = (id, object, bookData, textDisplay) => {
 		text.DisplaySpeech({role, speech});
 	}
 	//NPC Book Next Item
-	const NextPage = () => {
+	const NextTimeline = (timeline) => {
 		//Prevent pushing next speech until current is over or skipped to end
 		if(text.core.on){
 			if(text.core.speaking){} else {
-				book.Next()
+				if(npc.loadingTimeline){}else{
+					npc.loadingTimeline = true;
+					book.Next(timeline);
+				}
 			}
 		} else {
-			book.Next()
+			if(npc.loadingTimeline){}else{
+				npc.loadingTimeline = true;
+				book.Next(timeline);
+			}
+		}
+	}
+	//NPC Book New Page
+	const NewPage = ({page,timeline}) => {
+		//Prevent pushing next speech until current is over or skipped to end
+		book.NewPage({page,timeline});
+	}
+	//Restart NPC Book
+	const ResetSpeech = (force) => {
+		DisableSpeech();
+		ClearBookSpawn();
+		book = auxl.Book(bookData, npc);
+		if(npc.special){
+			AddNPCEventsChildren('mouseenter',EnableSpeech);
+		} else {
+			AddNPCEventsAll('mouseenter',EnableSpeech);
 		}
 	}
 	//Reset NPC Book
@@ -6671,29 +6960,73 @@ this.NPC = (id, object, bookData, textDisplay) => {
 		if(book.book.done || force){
 			ClearBookSpawn();
 			book = auxl.Book(bookData, npc);
-			NextPage();
-			NextPage();
+			book.Init()
 		}
 	}
+	//Reset NPC Book
+	const ResetBookRandom = (force, timeline) => {
+		if(book.book.done || force){
+			ClearBookSpawn();
+			book = auxl.Book(bookData, npc);
+			book.Init();
+			NextTimeline(timeline);
+		}
+	}
+	//Prep & Start NPC Speaking
+	const EnableIdleSpeech = () => {
+		npc.idle = true;
+		text.Start();
+		//Jump over Info to Timeline0
+		book.IdleInit();
+		IdleNextTimeline();
+		idleInterval = setInterval(() => {
+			IdleNextTimeline();
+		}, idleIntervalTime);
+	}
+	//Disable NPC Speaking
+	const DisableIdleSpeech = () => {
+		clearInterval(idleInterval);
+		npc.idle = false;
+	}
 	//NPC Book Next Item
-	const IdleNext = () => {
+	const IdleNextTimeline = (timeline) => {
 		//Prevent pushing next speech until current is over or skipped to end
 		if(text.core.on){
 			if(text.core.speaking){} else {
-				book.IdleNext()
+				if(npc.loadingTimeline){}else{
+					npc.loadingTimeline = true;
+					book.IdleNext(timeline);
+				}
 			}
 		} else {
-			book.IdleNext()
+			if(npc.loadingTimeline){}else{
+				npc.loadingTimeline = true;
+				book.IdleNext(timeline);
+			}
 		}
 	}
 	//Reset NPC Book
 	const IdleReset = (force) => {
-		if(book.book.done || force){
+		if(book.idleBook.done || force){
 			ClearBookSpawn();
 			book = auxl.Book(bookData, npc);
-			IdleNext();
-			IdleNext();
+			book.IdleInit();
 		}
+	}
+	//Reset NPC Idle
+	const ResetIdleRandom = (force, timeline) => {
+		if(book.idleBook.done || force){
+			ClearBookSpawn();
+			book = auxl.Book(bookData, npc);
+			book.IdleInit();
+			IdleNextTimeline(timeline);
+		}
+	}
+	//Update Book
+	const UpdateBook = () => {
+		console.log(bookData)
+		console.log(bookData.pages)
+		console.log(bookData.idle)
 	}
 	//NPC Book Jump Menu Click
 	const Click = (el) => {
@@ -6702,7 +7035,6 @@ this.NPC = (id, object, bookData, textDisplay) => {
 		Jump({timeline: result});
 		book.Next();
 		//Need to update after creating book control component
-		//npc.GetEl().classList.toggle('clickable', true);
 		if(npc.avatarType === 'core'){
 			npc.avatar.GetEl().classList.toggle('clickable', true);
 		} else {
@@ -6862,7 +7194,7 @@ this.NPC = (id, object, bookData, textDisplay) => {
 	}
 
 
-return {npc, GetNPCEl, AddNPCEvents, RemoveNPCEvents, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextPage, ResetBook, IdleNext, IdleReset, Click, Jump, SelectJump, auxlObjMethod, IfElse, Switch, SetFlag, GetFlag}
+return {npc, GetAllNPCEl, GetMainNPCEl, AddNPCEventsAll, RemoveNPCEventsAll, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextTimeline, NewPage, ResetSpeech, ResetBook, ResetBookRandom, IdleNextTimeline, IdleReset, ResetIdleRandom, UpdateBook, Click, Jump, SelectJump, auxlObjMethod, IfElse, Switch, SetFlag, GetFlag}
 }
 
 //
@@ -10872,12 +11204,12 @@ classes: ['a-ent'],
 components: false,
 };
 
-
 //
-//Comp Avatar
+//Companion Shapes
+//Should all be layers with a null parent for which main menu attaches to. This avoids conflicts with NPC events system activating when using the menu
+
 //
 //Ghost
-
 //Parent
 auxl.ghostParentData = {
 data:'ghostParentData',
@@ -10910,7 +11242,7 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(0.75,0.75,0.75),
 animations: false,
 mixins: false,
-classes: ['clickable','a-ent'],
+classes: ['a-ent'],
 components: false,
 };
 auxl.ghostAll = auxl.Core(auxl.ghostAllData);
@@ -11034,7 +11366,7 @@ powerdown1: {property: 'material.color', to: '#C14B76', dur: 100, delay: 0, loop
 powerdown2: {property: 'material.emissive', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
 },
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable','a-ent'],
 components: false,
 };
 auxl.head = auxl.Core(auxl.headData);
@@ -11056,7 +11388,7 @@ powerdown1: {property: 'material.color', to: '#C14B76', dur: 100, delay: 0, loop
 powerdown2: {property: 'material.emissive', to: '#C14B76', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredDown'},
 },
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable','a-ent'],
 components: false,
 };
 auxl.body = auxl.Core(auxl.bodyData);
@@ -11122,9 +11454,25 @@ auxl.ghostLayerData = {
 auxl.ghost = auxl.Layer('ghost',auxl.ghostLayerData);
 
 //
-//Companion Shapes
-
-//Cube
+//Basic Cube
+auxl.compCubeParentData = {
+data:'compCubeParentData',
+id:'compCubeParent',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(2,1.5,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+['stare']:{id: 'playerRig'},
+},
+};
+auxl.compCubeParent = auxl.Core(auxl.compCubeParentData);
 auxl.compCubeData = {
 data:'compCubeData',
 id:'compCube',
@@ -11132,80 +11480,74 @@ sources:false,
 text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
 material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.compCube = auxl.Core(auxl.compCubeData);
+auxl.cubeLayerData = {
+	parent: {core: auxl.compCubeParent},
+	child0: {core: auxl.compCube}, 
+}
+auxl.compCubeLayer = auxl.Layer('compCubeLayer',auxl.cubeLayerData);
+
+//
+//Basic Sphere
+auxl.compSphereParentData = {
+data:'compSphereParentData',
+id:'compSphereParent',
+sources:false,
+text: false,
+geometry: false,
+material: false,
 position: new THREE.Vector3(2,1.5,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-animations:{bobbing:{property: 'object3D.position.y', from: 1.45, to: 1.55, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
-//click: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}
-},
+animations:false,
 mixins: false,
-classes: ['clickable','a-ent'],
+classes: ['a-ent'],
 components: {
-clickrun:{cursorObj: 'compCube', method: 'Click', params: null}, 
-fusingrun:{cursorObj: 'compCube', method: 'FuseClickRun', params: null}, 
-mousedownrun:{cursorObj: 'compCube', method: 'CursorDownRun', params: null}, 
-mouseenterrun:{cursorObj: 'compCube', method: 'CursorEnterRun', params: null}, 
-mouseleaverun:{cursorObj: 'compCube', method: 'CursorLeaveRun', params: null}, 
-mouseuprun:{cursorObj: 'compCube', method: 'CursorUpRun', params: null},
-eventrun:{event: 'testEventHit',cursorObj: 'compCube', method: 'FuseClickRun', params: null}, 
 ['stare']:{id: 'playerRig'},
 },
 };
-auxl.compCube = auxl.Core(auxl.compCubeData);
-//Sphere
+auxl.compSphereParent = auxl.Core(auxl.compSphereParentData);
 auxl.compSphereData = {
 data:'compSphereData',
 id:'compSphere',
 sources:false,
-text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
+text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.26, side: 'double'},
 geometry: {primitive: 'sphere', radius: 0.25},
 material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
-position: new THREE.Vector3(2,1.5,0),
+position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-animations:{bobbing:{property: 'object3D.position.y', from: 1.45, to: 1.55, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
-},
+animations:false,
 mixins: false,
 classes: ['clickable','a-ent'],
-components: {
-['stare']:{id: 'playerRig'},
-},
+components: false,
 };
 auxl.compSphere = auxl.Core(auxl.compSphereData);
-//Plane
-auxl.compPlaneData = {
-data:'compPlaneData',
-id:'compPlane',
-sources:false,
-text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
-geometry: {primitive: 'plane', width: 0.25, height: 0.25},
-material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
-position: new THREE.Vector3(2,1.5,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{bobbing:{property: 'object3D.position.y', from: 1.45, to: 1.55, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'}, weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
-},
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-['stare']:{id: 'playerRig'},
-},
-};
-auxl.compPlane = auxl.Core(auxl.compPlaneData);
-
-//Companion
-auxl.comp = auxl.Companion('comp',auxl.ghost);
+auxl.compSphereLayerData = {
+	parent: {core: auxl.compSphereParent},
+	child0: {core: auxl.compSphere}, 
+}
+auxl.compSphereLayer = auxl.Layer('compSphereLayer',auxl.compSphereLayerData);
 
 
-/*
+//
+//Companion Bubble, Book & Pages
 auxl.compBubbleData = {
 	data:'compBubbleData',
 	id:'compBubble',
 	sources:false,
-	text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.75, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
+	text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.75, zOffset: 0.025, side: 'front', wrapCount: 30, baseline: 'center'},
 	geometry: {primitive: 'box', depth: 0.025, width: 0.8, height: 0.15},
 	material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-	position: new THREE.Vector3(0.25,0.25,-0.05),
+	position: new THREE.Vector3(0,0.45,-0.05),
 	rotation: new THREE.Vector3(0,0,0),
 	scale: new THREE.Vector3(1,1,1),
 	animations: false,
@@ -11213,10 +11555,11 @@ auxl.compBubbleData = {
 	classes: ['clickable','a-ent'],
 	components: false,
 };
-auxl.compPage1Data = {
+auxl.compBubble = auxl.Core(auxl.compBubbleData);
+auxl.compPage0Data = {
 	info:{
-		id:'compPage1',
-		description:'Companion page 1.',
+		id:'compPage0',
+		description:'Companion page 0.',
 		tags:'comp',
 		nextPage: null,
 		prevPage: null,
@@ -11241,6 +11584,37 @@ auxl.compPage1Data = {
 		self:{Speak:{speech:'Found it!'}},
 	},
 	timeline6:{
+		self: {NewPage: true},
+	},
+};
+auxl.compPage1Data = {
+	info:{
+		id:'compPage1',
+		description:'Companion page 1.',
+		tags:'comp',
+		nextPage: null,
+		prevPage: null,
+		timeline:'linear',
+	},
+	timeline0:{
+		self:{Speak:{speech:'2 Hey there!'},},
+	},
+	timeline1:{
+		self:{Speak:{speech:'2 Having fun?'},},
+	},
+	timeline2:{
+		self:{Speak:{speech:'2 Lets look around.'},},
+	},
+	timeline3:{
+		self:{Speak:{speech:'2 Whats over there?'}},
+	},
+	timeline4:{
+		self:{Speak:{speech:'2 Now... where was that cookie I was eating?'}},
+	},
+	timeline5:{
+		self:{Speak:{speech:'2 Found it!'}},
+	},
+	timeline6:{
 		self: {ResetBook: true},
 	},
 };
@@ -11251,7 +11625,7 @@ auxl.compIdleData = {
 		tags:'comp',
 		nextPage: null,
 		prevPage: null,
-		timeline:'linear',
+		timeline:'random',
 	},
 	timeline0:{
 		self:{Speak:{speech:'Yo ho ho ho and a bottle of rum for me...'}},
@@ -11259,36 +11633,50 @@ auxl.compIdleData = {
 	timeline1:{
 		self:{Speak:{speech:'Ooh a piece of candy!'}},
 	},
-	timeline1:{
-		self:{Speak:{speech:'Nom nom nom nom.....'}},
+	timeline2:{
+		self:{Speak:{speech:'Nom nom nom nom...'}},
 	},
 	timeline3:{
+		self:{Speak:{speech:'Yada yada yada...'}},
+	},
+	timeline4:{
+		self:{Speak:{speech:'Whistle whistle whistle...'}},
+	},
+	timeline5:{
+		self:{Speak:{speech:'16 16 16...'}},
+	},
+	timeline6:{
+		self:{Speak:{speech:'Twinkle twinkle little star...'}},
+	},
+	timeline7:{
 		self: {IdleReset: true},
 	},
 };
 auxl.compBookData = {
 	info:{
 		id:'compBook',
-		name: 'Companion',
+		name: 'Comp',
 		description:'Companion book.',
 		tags:'comp',
-		timeline: 'linear',
-		idleDelay: 7000,
-		idleInterval: 10000,
+		timeline: 'other',
+		idleDelay: 5000,
+		idleInterval: 7000,
 	},
 	pages:{
-		page0: auxl.compPage1Data,
+		page0: auxl.compPage0Data,
+		page1: auxl.compPage1Data,
 	},
 	idle:{
 		page0: auxl.compIdleData,
 	},
 };
-auxl.compBubble = auxl.Core(auxl.compBubbleData);
-auxl.compNPC = auxl.NPC(auxl.ghost, auxl.compBookData, auxl.compBubble);
-*/
+
+//
+//Companion
+auxl.comp = auxl.Companion('comp',auxl.ghost);
 
 
-
+//
 //Control Configuration View
 auxl.configurationViewData = {
 data:'configurationViewData',
@@ -11310,6 +11698,20 @@ clickrun:{cursorObj: 'comp', method: 'ToggleControlView'},
 },
 };
 auxl.configurationView = auxl.Core(auxl.configurationViewData);
+
+/*
+auxl.cubeLayerData = {
+	parent: {core: auxl.ghostParent},
+	child0: {
+		parent: {core: auxl.ghostAll}, 
+		child0: {core: auxl.eye1Pupil}, 
+	}, 
+}
+bobbing:{property: 'object3D.position.y', from: 1.45, to: 1.55, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'},
+weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
+//click: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}
+*/
+
 
 //
 //Text Bubbles
@@ -11970,7 +12372,8 @@ auxl.buildLibrary = () => {
 
 //Player is Reset within Rebuild()
 
-//Companion
+//Companion Avatars
+//Ghost
 auxl.ghostParent = auxl.Core(auxl.ghostParentData);
 auxl.ghostAll = auxl.Core(auxl.ghostAllData);
 auxl.eye1Socket = auxl.Core(auxl.eye1SocketData);
@@ -11986,9 +12389,17 @@ auxl.leg2 = auxl.Core(auxl.leg2Data);
 auxl.leg3 = auxl.Core(auxl.leg3Data);
 auxl.leg4 = auxl.Core(auxl.leg4Data);
 auxl.ghost = auxl.Layer('ghost',auxl.ghostLayerData);
+//Cube
+auxl.compCubeParent = auxl.Core(auxl.compCubeParentData);
 auxl.compCube = auxl.Core(auxl.compCubeData);
+auxl.compCubeLayer = auxl.Layer('compCubeLayer',auxl.cubeLayerData);
+//Sphere
+auxl.compSphereParent = auxl.Core(auxl.compSphereParentData);
 auxl.compSphere = auxl.Core(auxl.compSphereData);
-auxl.compPlane = auxl.Core(auxl.compPlaneData);
+auxl.compSphereLayer = auxl.Layer('compSphereLayer',auxl.compSphereLayerData);
+//Text Bubble
+auxl.compBubble = auxl.Core(auxl.compBubbleData);
+//Companion
 auxl.comp = auxl.Companion('comp',auxl.ghost);
 
 //Configuration Screen
