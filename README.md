@@ -1,6 +1,6 @@
 # AUXL : A-Frame UX Library :palm_tree: v0.3
 
-## Web XR World, System, Object Generator Engine & Universal Controller System
+## Web XR World, System, Object Generator Engine & Universal Controller
 
 [View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
