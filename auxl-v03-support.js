@@ -73,6 +73,82 @@ fiveTone.magFilter = THREE.NearestFilter
 });
 
 //
+//Physics System
+AFRAME.registerComponent('add-physics', {
+	dependencies: ['auxl'],
+/*
+    schema: {
+        idname: {type: 'string', default: 'ui'},
+        position: {type: 'vec3'},
+    },
+*/
+    init: function () {
+		//Physics Testing
+		//var playerEl = document.querySelector('[camera]');
+		playerRig.addEventListener('collide', function (e) {
+			console.log('Player has collided with body #' + e.detail.body.id);
+
+			e.detail.target.el;  // Original entity (playerEl).
+			e.detail.body.el;    // Other entity, which playerEl touched.
+			e.detail.contact;    // Stats about the collision (CANNON.ContactEquation).
+			e.detail.contact.ni; // Normal (direction) of the collision (CANNON.Vec3).
+
+			// The top of the sphere, relative to the sphere center
+			const topPoint = new CANNON.Vec3(0, 0.25 / 2, 0)
+			const impulse = new CANNON.Vec3(-10, 0, 0)
+			//e.detail.body.el.body.applyImpulse(impulse, topPoint)
+
+			let resetQuat = new THREE.Quaternion(0,0,0,0);
+			let resetPos = new THREE.Vector3(0,6,-6);
+
+			e.detail.body.el.body.position.copy(resetPos);
+
+			//e.detail.body.el.body.quaternion.copy(resetQuat);
+/*
+Stop Moving
+
+ let body = el.body // el = aframe entity
+ body.velocity.set(0,0,0);
+ body.angularVelocity.set(0,0,0);
+ body.vlambda.set(0,0,0);
+ body.wlambda.set(0,0,0);
+*/
+
+
+	/*
+	var el = sceneEl.querySelector('#nyan');
+	el.body.applyImpulse(
+	new CANNON.Vec3(0, 1, -1),// impulse
+	new CANNON.Vec3().copy(el.getComputedAttribute('position'))// world position
+	*/
+	//const force = new CANNON.Vec3(-100, new THREE.Vector3(0,0,0))
+	//e.detail.body.el.body.applyForce(force)
+	/*
+
+	const force = new CANNON.Vec3(-100, 0, 0)
+	body.applyForce(force)
+
+	camera.getWorldDirection(cameraDirection);
+
+	// Move ball forward (multiply by -1 * speed to move backwards)
+
+	let cameraForward: THREE.Vector3 = new THREE.Vector3(cameraDirection.x, 0, cameraDirection.z).multiplyScalar(this.speed * this.dir.ud);
+
+	this.body.applyForce(cameraForward as any, this.body.position);
+
+	// Move to the right (multiply by -1 * speed to move to the left)
+
+	let cameraSideways: THREE.Vector3 = new THREE.Vector3(cameraDirection.z, 0, -cameraDirection.x).multiplyScalar(this.speed * -this.dir.lr);
+
+	this.body.applyForce(cameraSideways as any, this.body.position);
+	*/
+
+		});
+    },
+
+});
+
+//
 //Attach
 AFRAME.registerComponent('attach', {
 	dependencies: ['auxl'],
@@ -841,12 +917,16 @@ schema: {
     },
 events: {
 	mouseenter: function (evt) {
-		this.hoverTextAll.SpawnLayer(this.el);
-		this.hoverSpawned = true;
+		if(this.hoverSpawned){}else{
+			this.hoverSpawned = true;
+			this.hoverTextAll.SpawnLayer(this.el);
+		}
 	},
 	mouseleave: function (evt) {
-		this.hoverTextAll.DespawnLayer();
-		this.hoverSpawned = false;
+		if(this.hoverSpawned){
+			this.hoverTextAll.DespawnLayer();
+			this.hoverSpawned = false;
+		}
 	},
 },
     update: function () {
@@ -1042,7 +1122,7 @@ init: function () {
 },
 //0.5 Increments
 roundHalf: function (num){
-    return Math.round(num*2)/2;
+	return Math.round(num*2)/2;
 },
 //Move Forward
 movingForward: function (){
@@ -1747,14 +1827,15 @@ directionXZ: function (action, speed) {
 
 	this.positionNew.y = this.positionPlayer.y;
 
-	//Collision Enabled or Not
-	if(this.auxl.collision){
+	//Physics, Grid Collision or No Clip
+	if(this.auxl.physics){
+		this.player.body.position.copy(this.positionNew);
+	} else if(this.auxl.collision){
 		//Locomotion with Collision every 0.5 meter
 		this.newPosRound.x = this.roundHalf(this.positionNew.x);
 		this.newPosRound.z = this.roundHalf(this.positionNew.z);
 		this.posRound.x = this.roundHalf(this.positionPlayer.x);
 		this.posRound.z = this.roundHalf(this.positionPlayer.z);
-
 		//Check for Obstacles
 		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
 			this.player.object3D.position.copy(this.positionNew);
@@ -4207,16 +4288,22 @@ this.gimbal;
 this.vrController1;
 this.vrController2;
 
+//Gimbal Disabled
+
 //Remappable Desktop Controls
 this.controls = {
 directionForwardKeys: ['w','W'],
 directionLeftKeys: ['a','A'],
 directionBackwardKeys: ['s','S'],
 directionRightKeys: ['d','D'],
-rotationForwardKeys: ['ArrowUp'],
-rotationLeftKeys: ['ArrowLeft'],
-rotationBackwardKeys: ['ArrowDown'],
-rotationRightKeys: ['ArrowRight'],
+//rotationForwardKeys: ['ArrowUp'],
+rotationForwardKeys: [null],
+//rotationLeftKeys: ['ArrowLeft'],
+rotationLeftKeys: [null],
+//rotationBackwardKeys: ['ArrowDown'],
+rotationBackwardKeys: [null],
+//rotationRightKeys: ['ArrowRight'],
+rotationRightKeys: [null],
 action1Keys: ['q','Q'],
 action2Keys: ['e','E'],
 action3Keys: ['r','R'],

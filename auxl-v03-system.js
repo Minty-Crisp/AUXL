@@ -506,7 +506,11 @@ function clearSpawned(spawned){
 		if(auxl[spawn]){
 			auxl[spawn][auxl.objGenTracking[spawned[spawn].type].despawn]();
 		} else {
-			auxl[spawn].obj[auxl.objGenTracking[spawned[spawn].type].despawn]();
+			if(spawned[spawn].parent){
+				spawned[spawn].parent[spawn][auxl.objGenTracking[spawned[spawn].type].despawn]();
+			} else {
+				auxl[spawn].obj[auxl.objGenTracking[spawned[spawn].type].despawn]();
+			}
 		}
 		//console.log(spawned[spawn]);//Book & Page spawned from
 		delete spawned[spawn];
@@ -561,8 +565,8 @@ this.events = {};
 //Environmental Settings
 //Day|Night Time Length
 this.timeInDay = 360000;
-//Collision
-this.collision = false;
+//Physics
+this.physics = false;
 
 //
 //HTML Menu
@@ -935,13 +939,17 @@ dataClose.addEventListener('click', toggleData);
 //Reset Storage
 function resetSystem(){
 	//unload current world and reload default world
-	if(auxl.worldLoaded){
-		auxl.currentWorld.StopWorld();
-		startButton.innerHTML = 'Restart';
-		auxl.worldLoaded = false;
-	}
-	auxl.systemLoaded(true);
-	toggleData();
+	auxl.comp.DespawnComp();
+	let resetTimeout = setTimeout(function () {
+		if(auxl.worldLoaded){
+			auxl.currentWorld.StopWorld();
+			startButton.innerHTML = 'Restart';
+			auxl.worldLoaded = false;
+		}
+		auxl.systemLoaded(true);
+		toggleData();
+		clearTimeout(resetTimeout);
+	}, 750);
 }
 resetData.addEventListener('click', resetSystem);
 //Reset and Reload
@@ -1234,7 +1242,23 @@ mono.push(dark);
 return {base, light, dark, compl, splitCompl, triadic, tetradic, analog};
 
 }
-
+/*
+let newColor1 = colorTheoryGen();
+let newColor1 = colorTheoryGen('#00d3d3');
+let newColor1 = colorTheoryGen(false, 'red');
+console.log(newColor1.base);
+console.log(newColor1.compl);
+console.log(newColor1.splitCompl[0]);
+console.log(newColor1.splitCompl[1]);
+console.log(newColor1.triadic[0]);
+console.log(newColor1.triadic[1]);
+console.log(newColor1.tetradic[0]);
+console.log(newColor1.tetradic[1]);
+console.log(newColor1.tetradic[2]);
+console.log(newColor1.analog[0]);
+console.log(newColor1.analog[1]);
+console.log(newColor1.analog[2]);
+*/
 //Generate new Core Data from Template
 this.coreFromTemplate = (data, edit) => {
 	let newCore = JSON.parse(JSON.stringify(data));
@@ -1637,6 +1661,47 @@ auxl[object].GetEl().addEventListener(line, function(){
 			GetEl().removeAttribute(property);
 		}
 	}
+	//Physics Position
+	const PhysPos = (pos) => {
+		//Requires Dynamic or Static Body
+ 		if(typeof core.el.getAttribute('static-body') === 'object' || typeof core.el.getAttribute('dynamic-body') === 'object'){
+			if(core.inScene){
+				core.el.body.position.copy(pos);
+			}
+		} else {
+			console.log('No physics body attached!');
+		}
+	}
+	//Update Physics
+	const UpdatePhys = (update) => {
+		//Requires Dynamic or Static Body
+ 		if(typeof core.el.getAttribute('static-body') === 'object' || typeof core.el.getAttribute('dynamic-body') === 'object'){
+			if(core.inScene){
+				//core.el.body.position.copy(pos);
+console.log(update)
+/*
+    [position] Vec3 optional
+    [velocity] Vec3 optional
+    [angularVelocity] Vec3 optional
+    [quaternion] Quaternion optional
+    [mass] Number optional
+    [material] Material optional
+    [type] Number optional
+    [linearDamping=0.01] Number optional
+    [angularDamping=0.01] Number optional
+    [allowSleep=true] Boolean optional
+    [sleepSpeedLimit=0.1] Number optional
+    [sleepTimeLimit=1] Number optional
+    [collisionFilterGroup=1] Number optional
+    [collisionFilterMask=1] Number optional
+    [fixedRotation=false] Boolean optional
+    [shape] Body optional
+*/
+			}
+		} else {
+			console.log('No physics body attached!');
+		}
+	}
 	//Prepare Animation Input for Animate()
 	function prepAnimation(animProps){
 		let name = 'animation__' + animProps.name || 'animation__customAnim';
@@ -1835,7 +1900,7 @@ auxl[object].GetEl().addEventListener(line, function(){
 		GetEl().removeEventListener('click', openClose);
 	}
 
-	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, RemoveComponent, ChangeSelf, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
+	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, RemoveComponent, ChangeSelf, PhysPos, UpdatePhys, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
 }
 
 //
@@ -2945,7 +3010,8 @@ this.Menu = (menuData) => {
 			menuOptions = [];
 			menuOption = {};
 			//Layer Parent Prompt
-			menu.data.id = menu.id + 'prompt';
+			//menu.data.id = menu.id + 'prompt';
+			menu.data.id = menu.id;
 			menu.data.text.value = menu.prompt;
 			menu.data.material.color, menu.data.material.emissive = auxl.colorTheoryGen().base;
 			prompt = auxl.Core(menu.data);
@@ -3025,13 +3091,13 @@ this.Menu = (menuData) => {
 	//Attach Menu to Tracker matching object generator 
 	const AddToParentSpawnTracker = (obj, parent) => {
 		if(auxl.scenarioSpawned[parent.id]){
-			auxl.scenarioSpawned[menu.id] = {type: 'menu', obj};
+			auxl.scenarioSpawned[menu.id] = {type: 'menu', obj, parent};
 		} else if(auxl.zoneSpawned[parent.id]){
-			auxl.zoneSpawned[menu.id] = {type: 'menu', obj};
+			auxl.zoneSpawned[menu.id] = {type: 'menu', obj, parent};
 		} else if(auxl.nodeSpawned[parent.id]){
-			auxl.nodeSpawned[menu.id] = {type: 'menu', obj};
+			auxl.nodeSpawned[menu.id] = {type: 'menu', obj, parent};
 		} else if(auxl.bookSpawned[parent.id]){
-			auxl.bookSpawned[menu.id] = {type: 'menu', obj};
+			auxl.bookSpawned[menu.id] = {type: 'menu', obj, parent};
 		}
 	}
 	//Remove Menu from Tracker matching object generator 
@@ -3541,6 +3607,9 @@ this.Companion = (id, object) => {
 		comp.menuParentId = object.layer.all.parent.core.core.id;
 	}
 	comp.avatar = Object.assign({}, object);
+	comp.shapes = {
+		default: object,
+	};
 
 	comp.id = id;
 	comp.inScene = false;
@@ -4110,85 +4179,6 @@ this.Companion = (id, object) => {
 	let speechIntervalB;
 	let speechTimeoutB;
 	//Emoticon Loop Display
-	const autoScriptEmoticonOld = () => {
-		//Emoticons
-		function* emotiSpeech() {
-			yield '-_-';
-			yield 'O_O';
-			yield 'o_o';
-			yield 'o_O';
-			yield 'O_o';
-			yield 'O_^';
-			yield '^_o';
-			yield '^_^';
-			yield 'o_^';
-			yield '^_O';
-			yield '<_<';
-			yield '>_>';
-			yield '>_<';
-			yield 'X_X';
-			yield '*_*';
-			yield '+_+';
-			yield '0_0';
-		}
-		let emotiSpeechArray = [];
-		for (speech of emotiSpeech()) {
-			emotiSpeechArray.push(speech);
-		}
-		let buddy;
-		let buddyFaceMaterial = {value:'^_^', color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double',}
-		let b;
-		speechTimeoutB = setTimeout(function () {
-			b = 0;
-			if(comp.avatarType === 'core'){
-				buddy = comp.avatar.GetEl();
-			} else {
-				buddy = comp.avatar.GetParentEl();
-			}
-			speechIntervalB = setInterval(function() {
-				buddyFaceMaterial.value = emotiSpeechArray[b];
-				buddy.setAttribute('text', buddyFaceMaterial);
-				if(b === emotiSpeechArray.length){b = 0}else{b++}
-			}, 2700);
-		}, 250);
-	}
-	//Update Shape
-	const UpdateShapeOld = (newObj) => {
-		let respawn = false;
-		if(comp.inScene){
-			respawn = true;
-			DespawnComp();
-		}
-		let rebuildTimeout = setTimeout(function () {
-			if(newObj.SpawnCore){
-				comp.avatarType = 'core';
-				comp.menuParentId = newObj.core.id;
-				comp.avatar = Object.assign({}, newObj);
-			} else if(newObj.SpawnLayer){
-				comp.avatarType = 'layer';
-				comp.menuParentId = newObj.layer.all.parent.core.core.id;
-				comp.avatar = Object.assign({}, newObj);
-			} else {
-				if(auxl[newObj].SpawnCore){
-					comp.avatarType = 'core';
-					comp.menuParentId = auxl[newObj].core.id;
-				} else if(auxl[newObj].SpawnLayer){
-					comp.avatarType = 'layer';
-					comp.menuParentId = auxl[newObj].layer.all.parent.core.core.id;
-				} else {
-					console.log(newObj);
-					console.log('failed to detect type');
-				}
-				comp.avatar = Object.assign({}, auxl[newObj]);
-			}
-			if(respawn){
-				SpawnComp();
-			}
-		clearTimeout(rebuildTimeout);
-		}, 400);
-
-	}
-	//Emoticon Loop Display
 	const autoScriptEmoticon = () => {
 		//Emoticons
 		function* emotiSpeech() {
@@ -4226,6 +4216,68 @@ this.Companion = (id, object) => {
 				if(b === emotiSpeechArray.length){b = 0}else{b++}
 			}, 2700);
 		}, 250);
+	}
+	//Add Shape
+	const AddAvatar = (name, auxlObj) => {
+		comp.shapes[name] = auxlObj;
+		BuildAvatarMenu();
+	}
+	//Build Shape Menu
+	const BuildAvatarMenu = () => {
+		comp.shapeButtons = {};
+		let buttonTemplate = {};
+		let currNum = 1;
+		let currPage = 1;
+		let total = Object.keys(comp.shapes).length;
+		let pages = Math.ceil(total/8);
+		let subMenuName = 'compShape' + currPage;
+console.log(comp.shapes)
+		for(let each in comp.shapes){
+			buttonTemplate = {
+				id: 'action'+currNum,
+				style: false,
+				title: each,
+				description: 'Change to a '+each+' avatar.',
+				subMenu: false,
+				action: {
+					auxlObj: 'comp',
+					component: false,
+					method: 'UpdateShape',
+					params: comp.shapes[each],
+					menu: 'close',
+				},
+			};
+			if(comp.shapes[each].action){} else {
+				buttonTemplate.action = false;
+			}
+			moreTemplate = {
+				id: 'action'+currNum,
+				style: false,
+				title: 'More',
+				description: 'Next Page',
+				subMenu: false,
+				action: false,
+			};
+			comp.shapeButtons['button'+currNum] = buttonTemplate;
+			if(currNum === total){
+				auxl.mainMenu.UpdateSubMenu(subMenuName,comp.shapeButtons);
+			} else {
+				currNum++;
+			}
+
+			if(pages > 1){
+				if(currNum % 7 === 0){
+					currPage++;
+					//build more button
+					moreTemplate.id = 'action'+currNum;
+					moreTemplate.subMenu = 'compShape' + currPage;
+					comp.shapeButtons['button'+currNum] = moreTemplate;
+					auxl.mainMenu.UpdateSubMenu(subMenuName,comp.shapeButtons);
+					comp.shapeButtons = {};
+					subMenuName = 'compShape' + currPage;
+				}
+			}
+		}
 	}
 	//Update Shape
 	const UpdateShape = (newObj) => {
@@ -4281,70 +4333,6 @@ this.Companion = (id, object) => {
 	//Attach Toggle to playerFloor
 	playerFloor.addEventListener('click',ToggleComp);
 	//Update Position
-	const UpdatePositionOld = () => {
-		if(comp.avatarType === 'core'){
-			comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
-		} else {
-			comp.avatar.ChangeParent({property: 'position', value: cameraDirection()});
-		}
-	}
-	//Spawn & Start Companion
-	const SpawnCompOld = () => {
-		if(comp.inScene){}else{
-			ToggleSpawnClick();
-			if(comp.avatarType === 'core'){
-				comp.avatar.SpawnCore(auxl.playerRig.GetEl());
-				if(comp.firstSpawn){
-					comp.firstSpawn = false;
-				} else {
-					comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
-				}
-			} else {
-				comp.avatar.SpawnLayer(auxl.playerRig.GetEl());
-				if(comp.firstSpawn){
-					comp.firstSpawn = false;
-				} else {
-					comp.avatar.ChangeParent({property: 'position', value: cameraDirection()});
-				}
-			}
-			//autoScriptEmoticon();
-			//console.log(auxl.build)
-			let spawnTimeout = setTimeout(() => {
-				//auxl.build.SpawnBuild();
-				//Update Inventory
-				UpdateInventoryMenu();
-				//Update Main Menu Parent Shape ID
-				auxl.mainMenu.multiMenu.parent = comp.menuParentId;
-				auxl.mainMenu.SpawnMultiMenu();
-				ToggleSpawnClick();
-				clearTimeout(spawnTimeout);
-			}, 100);
-			comp.inScene = true;
-		}
-	}
-	//Despawn & Stop Companion
-	const DespawnCompOld = () => {
-		if(comp.inScene){
-			ToggleSpawnClick();
-			//clearInterval(speechTimeoutB);
-			//clearInterval(speechIntervalB);
-			//auxl.build.DespawnBuild();
-			auxl.mainMenu.DespawnMultiMenu();
-			//Delay to let multi-menu complete it's despawn seq
-			let despawnTimeout = setTimeout(() => {
-				if(comp.avatarType === 'core'){
-					comp.avatar.DespawnCore();
-				} else {
-					comp.avatar.DespawnLayer();
-				}
-				RemoveFromTracker(comp.id);
-				comp.inScene = false;
-				ToggleSpawnClick();
-				clearTimeout(despawnTimeout);
-			}, 300);
-		}
-	}
-	//Update Position
 	const UpdatePosition = () => {
 		if(comp.avatarType === 'core'){
 			comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
@@ -4358,14 +4346,12 @@ this.Companion = (id, object) => {
 			ToggleSpawnClick();
 			auxl.compNPC.SpawnNPC(auxl.playerRig.GetEl());
 			if(comp.avatarType === 'core'){
-				//comp.avatar.SpawnCore(auxl.playerRig.GetEl());
 				if(comp.firstSpawn){
 					comp.firstSpawn = false;
 				} else {
 					comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
 				}
 			} else {
-				//comp.avatar.SpawnLayer(auxl.playerRig.GetEl());
 				if(comp.firstSpawn){
 					comp.firstSpawn = false;
 				} else {
@@ -4373,7 +4359,6 @@ this.Companion = (id, object) => {
 				}
 			}
 			//autoScriptEmoticon();
-			//console.log(auxl.build)
 			let spawnTimeout = setTimeout(() => {
 				//auxl.build.SpawnBuild();
 				//Update Inventory
@@ -4398,11 +4383,6 @@ this.Companion = (id, object) => {
 			//Delay to let multi-menu complete it's despawn seq
 			let despawnTimeout = setTimeout(() => {
 				auxl.compNPC.DespawnNPC();
-				if(comp.avatarType === 'core'){
-					//comp.avatar.DespawnCore();
-				} else {
-					//comp.avatar.DespawnLayer();
-				}
 				RemoveFromTracker(comp.id);
 				comp.inScene = false;
 				ToggleSpawnClick();
@@ -4575,7 +4555,7 @@ this.Companion = (id, object) => {
 					component: comp[category][each].component,
 					method: comp[category][each].method,
 					params: comp[category][each].params,
-					menu: 'close',
+					menu: 'stay',
 				},
 			};
 			if(comp[category][each].action){} else {
@@ -6511,7 +6491,7 @@ this.Book = (bookData, npc) => {
 		let selectedTime;
 		let selectedPage = false;
 		let selectJumpData = {
-			id: 'selectJump',
+			id: 'selectJumpMenu',
 			prompt: jumpOptions[0],
 			options: {},
 			actions: {},
@@ -6524,10 +6504,10 @@ this.Book = (bookData, npc) => {
 			selectJumpData.options['option'+(a-1)] = jumpOptions[a][0];
 			selectJumpData.actions['action'+(a-1)] = jumpOptions[a][1];
 		}
-		book.selectJumpMenu = auxl.Menu(selectJumpData);
-		book.selectJumpMenu.SpawnMenu();
-		book.selectJumpMenu.AddToParentSpawnTracker(book.selectJumpMenu, npc);
-		//npc.GetEl().classList.toggle('clickable', false);
+		npc.selectJumpMenu = auxl.Menu(selectJumpData);
+		npc.selectJumpMenu.SpawnMenu();
+		npc.selectJumpMenu.AddToParentSpawnTracker(npc.selectJumpMenu, npc, 'book');
+		npc.bubble.GetEl().classList.toggle('clickable', false);
 		if(npc.avatarType === 'core'){
 			npc.avatar.GetEl().classList.toggle('clickable', false);
 		} else {
@@ -6728,10 +6708,11 @@ this.NPC = (id, object, bookData, textDisplay, special) => {
 	} else {
 		npc.name = npc.id;
 	}
-	let bubble = Object.assign({}, textDisplay);
-	bubble.blink = true;
+	//let bubble = Object.assign({}, textDisplay);
+	npc.bubble = Object.assign({}, textDisplay);
+	npc.bubble.blink = true;
 	let book;
-	let text = auxl.SpeechSystem(bubble, npc);
+	let text = auxl.SpeechSystem(npc.bubble, npc);
 
 	//Idle
 	if(bookData.idle){
@@ -7035,6 +7016,7 @@ this.NPC = (id, object, bookData, textDisplay, special) => {
 		Jump({timeline: result});
 		book.Next();
 		//Need to update after creating book control component
+		npc.bubble.GetEl().classList.toggle('clickable', true);
 		if(npc.avatarType === 'core'){
 			npc.avatar.GetEl().classList.toggle('clickable', true);
 		} else {
@@ -7044,8 +7026,8 @@ this.NPC = (id, object, bookData, textDisplay, special) => {
 			}
 		}
 		menuTimeout = setTimeout(function () {
-			book.book.selectJumpMenu.DespawnMenu();
-			book.book.selectJumpMenu.RemoveMenuFromSceneTracker();
+			npc.selectJumpMenu.DespawnMenu();
+			npc.selectJumpMenu.RemoveMenuFromSceneTracker();
 			clearTimeout(menuTimeout);
 		}, 250);
 	}
@@ -7486,7 +7468,7 @@ this.Horizon = (horizonData) => {
 	text: false,
 	geometry: false,
 	material: false,
-	position: new THREE.Vector3(0,0,0),
+	position: new THREE.Vector3(0,-5,0),
 	rotation: new THREE.Vector3(0,0,0),
 	scale: new THREE.Vector3(1,1,1),
 	animations: false,
@@ -8403,229 +8385,381 @@ this.Teleport = (id, locations) => {
 //Info Bubble
 //Display an Emote or Alert Bubble
 this.InfoBubble = (id, object, offset, color) => {
-//Not in Tracker as it is controlled via component
-//Add sound to play on spawn in and out
-let infoBubble = {};
-
-infoBubble.id = id;
-let bubbleId = infoBubble.id + 'bubble';
-let textId = infoBubble.id + 'text';
-infoBubble.parent = object;
-infoBubble.custom = {};
-infoBubble.inScene = false;
-infoBubble.position = new THREE.Vector3(0,0.5,0);
-infoBubble.rotation = new THREE.Vector3(0,0,0);
-infoBubble.color = color || '#14d9a4';
-//Position
-if(offset){
-	if(offset.x){
-		infoBubble.position.x = offset.x;
-		infoBubble.position.y = offset.y;
-		infoBubble.position.z = offset.z;
-	} else {
-		infoBubble.position.y = offset;
+	//Not in Tracker as it is controlled via component
+	//Set up for Core parent only at the moment
+	let infoBubble = {};
+	infoBubble.id = id;
+	let bubbleId = infoBubble.id + 'bubble';
+	let textId = infoBubble.id + 'text';
+	infoBubble.parent = object;
+	if(object.SpawnCore){
+		infoBubble.parentType = 'core';
+	} else if(object.SpawnLayer){
+		infoBubble.parentType = 'layer';
 	}
-}
-//Emoti Bubble
-infoBubble.infoBubbleData = {
-data:'infoBubbleData',
-id: bubbleId,
-sources:false,
-text: false,
-geometry: {primitive: 'circle', radius: 0.3, segments: 32, thetaStart: 0, thetaLength: 360},
-material: {shader: "standard", color: infoBubble.color, opacity: 1, metalness: 0.2, roughness: 0.8, emissive: infoBubble.color, emissiveIntensity: 0.6, side: 'double'},
-position: infoBubble.position,
-rotation: infoBubble.rotation,
-scale: new THREE.Vector3(0.01,0.01,0.01),
-animations:{
-spawnin:{property: 'scale', from: '0.01 0.01 0.01', to: '1 1 1', dur: 1500, delay: 500, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: true, enabled: true},
-spawnout:{property: 'scale', from: '1 1 1', to: '0.01 0.01 0.01', dur: 1000, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true},
-},
-mixins: false,
-classes: ['a-ent'],
-components: {
-['stare']:{id: 'playerRig'},
-},
-};
-infoBubble[bubbleId] = auxl.Core(infoBubble.infoBubbleData);
-//Emoti Text
-infoBubble.emotiTextData = {
-data:'emotiTextData',
-id: textId,
-sources:false,
-text: {value:'!', wrapCount: 2, color: "#FFFFFF", font: "exo2bold", zOffset: 0, side: 'double', align: "center", baseline: 'center'},
-geometry: false,
-material: false,
-position: new THREE.Vector3(0.025,0.1,0.025),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-infoBubble[textId] = auxl.Core(infoBubble.emotiTextData);
-//Emoti Layer
-infoBubble.emotiLayerData = {
-	parent: {core: infoBubble[bubbleId]},
-	child0: {core: infoBubble[textId]},
-}
-infoBubble[infoBubble.id] = auxl.Layer(infoBubble.id, infoBubble.emotiLayerData);
-
-//Spawn Emote Bubble Layer
-const SpawnBubble = () => {
-	if(infoBubble.inScene){}else{
-		infoBubble[infoBubble.id].layer.all.parent.core.core.animations.spawnout = {property: 'scale', from: '1 1 1', to: '0.01 0.01 0.01', dur: 1000, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true,};
-		infoBubble[infoBubble.id].SpawnLayer(infoBubble.parent);
-		infoBubble.inScene = true;
-		infoBubble.timeout = setTimeout(() => {
-			DespawnBubble();
-			clearTimeout(infoBubble.timeout);
-		}, 4050);
-	}
-}
-//Despawn Emote Bubble Layer
-const DespawnBubble = () => {
-	infoBubble[infoBubble.id].DespawnLayer();
+	infoBubble.custom = {};
 	infoBubble.inScene = false;
-}
-//Spawn Alert Bubble Layer
-const SpawnAlert = () => {
-	if(infoBubble.inScene){}else{
-		infoBubble[infoBubble.id].layer.all.parent.core.core.animations.spawnout = {property: 'scale', from: '1 1 1', to: '0.01 0.01 0.01', dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true, startEvents: 'spawnOut'};
-
-		infoBubble[infoBubble.id].SpawnLayer(infoBubble.parent);
-		infoBubble.inScene = true;
-		infoBubble.parent.GetEl().addEventListener('mouseenter',DespawnAlert);
-	}
-}
-//Despawn Emote Bubble Layer
-const DespawnAlert = () => {
-	infoBubble.parent.GetEl().removeEventListener('mouseenter',DespawnAlert);
-	infoBubble[infoBubble.id].EmitEventParent('spawnOut');
-	infoBubble.timeout = setTimeout(() => {
-		DespawnBubble();
-		clearTimeout(infoBubble.timeout);
-	}, 1050);
-}
-//Update Emote Text Core
-const UpdateText = (text, rotation) => {
-	infoBubble[textId].core.text.value = text;
-	infoBubble[textId].core.text.wrapCount = text.length+1;
-	if(rotation){
-		infoBubble[textId].core.rotation.z = rotation;
-	} else {
-		infoBubble[textId].core.rotation.z = 0;
-	}
-}
-//Add Event Listener
-const AddSpawnEvent = (event, action) => {
-	infoBubble.parent.GetEl().addEventListener(event,action);
-}
-//Remove Event Listener
-const RemoveSpawnEvent = (event, action) => {
-	infoBubble.parent.GetEl().removeEventListener(event,action);
-}
-//Add Custom Emote
-const NewBubble = (details) => {
-	infoBubble.custom[details.eventName] = details;
-	//details.emote or alert
-	//details.text
-	//details.eventName
-	//details.rotation
-}
-//Spawn a Custom Emote
-const CustomBubble = (event) => {
-	for(let emote in infoBubble.custom){
-		if(event.type === emote){
-			if(infoBubble.custom[emote].rotation){
-				UpdateText(infoBubble.custom[emote].text,infoBubble.custom[emote].rotation);
-			} else {
-				UpdateText(infoBubble.custom[emote].text);
-			}
-			if(infoBubble.custom[emote].alert){
-				SpawnAlert();
-			} else {
-				SpawnBubble();
-			}
-			break;
+	infoBubble.position = new THREE.Vector3(0,0.5,0);
+	infoBubble.rotation = new THREE.Vector3(0,0,0);
+	infoBubble.color = color || '#14d9a4';
+	//Position
+	if(offset){
+		if(offset.x){
+			infoBubble.position.x = offset.x;
+			infoBubble.position.y = offset.y;
+			infoBubble.position.z = offset.z;
+		} else {
+			infoBubble.position.y = offset;
 		}
 	}
-}
-//Emote !
-const Emote1 = () => {
-	UpdateText('!');
-	SpawnBubble();
-}
-//Alert !
-const Alert1 = () => {
-	UpdateText('!');
-	SpawnAlert();
-}
-//Emote ?
-const Emote2 = () => {
-	UpdateText('?');
-	SpawnBubble();
-}
-//Alert ?
-const Alert2 = () => {
-	UpdateText('?');
-	SpawnAlert();
-}
-//Emote :)
-const Emote3 = () => {
-	UpdateText(':)', -90);
-	SpawnBubble();
-}
-//Emote ^-^
-const Emote4 = () => {
-	UpdateText('^-^');
-	SpawnBubble();
-}
-//Add all Emotes to Element
-const AddEmotes = () => {
-	AddSpawnEvent('alert1', Alert1);
-	AddSpawnEvent('alert2', Alert2);
-	AddSpawnEvent('emote1', Emote1);
-	AddSpawnEvent('emote2', Emote2);
-	AddSpawnEvent('emote3', Emote3);
-	AddSpawnEvent('emote4', Emote4);
-	for(let each in infoBubble.custom){
-		AddSpawnEvent(each, CustomBubble);
-	}
-}
-//Remove all Emotes to Element
-const RemoveEmotes = () => {
-	if(infoBubble.inScene){
-		clearTimeout(infoBubble.timeout);
-		DespawnBubble();
-	}
-	RemoveSpawnEvent('alert1', Alert1);
-	RemoveSpawnEvent('alert2', Alert2);
-	RemoveSpawnEvent('emote1', Emote1);
-	RemoveSpawnEvent('emote2', Emote2);
-	RemoveSpawnEvent('emote3', Emote3);
-	RemoveSpawnEvent('emote4', Emote4);
-	for(let each in infoBubble.custom){
-		RemoveSpawnEvent(each, CustomBubble);
-	}
-}
-//On init, add required component methods to parent
-const Init = () => {
-	infoBubble.parent.core.components['onspawnrun__emote'] = {
-		cursorObj: infoBubble.id,
-		component: null,
-		method: 'AddEmotes',
-		params: null,
+	//Emoti Bubble
+	infoBubble.infoBubbleData = {
+	data:'infoBubbleData',
+	id: bubbleId,
+	sources:false,
+	sounds: {
+	maximize:{src: auxl.maximize6, autoplay: true, loop: false, volume: 1,},
+	minimize:{src: auxl.minimize6, autoplay: false, loop: false, volume: 1, on: 'spawnOut'},
+	},
+	text: false,
+	geometry: {primitive: 'circle', radius: 0.3, segments: 32, thetaStart: 0, thetaLength: 360},
+	material: {shader: "standard", color: infoBubble.color, opacity: 1, metalness: 0.2, roughness: 0.8, emissive: infoBubble.color, emissiveIntensity: 0.6, side: 'double'},
+	position: infoBubble.position,
+	rotation: infoBubble.rotation,
+	scale: new THREE.Vector3(0.01,0.01,0.01),
+	animations:{
+	spawnin:{property: 'scale', from: '0.01 0.01 0.01', to: '1 1 1', dur: 1500, delay: 500, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: true, enabled: true},
+	spawnout:{property: 'scale', from: '1 1 1', to: '0.01 0.01 0.01', dur: 1000, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true},
+	},
+	mixins: false,
+	classes: ['a-ent'],
+	components: {
+	['stare']:{id: 'playerRig'},
+	},
 	};
-	infoBubble.parent.core.components['ondespawnrun__emote'] = {
-		cursorObj: infoBubble.id,
-		component: null,
-		method: 'RemoveEmotes',
-		params: null,
+	infoBubble[bubbleId] = auxl.Core(infoBubble.infoBubbleData);
+	//Emoti Text
+	infoBubble.emotiTextData = {
+	data:'emotiTextData',
+	id: textId,
+	sources:false,
+	text: {value:'!', wrapCount: 2, color: "#FFFFFF", font: "exo2bold", zOffset: 0, side: 'double', align: "center", baseline: 'center'},
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0.025,0.1,0.025),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
 	};
-}
-Init();
+	infoBubble[textId] = auxl.Core(infoBubble.emotiTextData);
+	//Emoti Layer
+	infoBubble.emotiLayerData = {
+		parent: {core: infoBubble[bubbleId]},
+		child0: {core: infoBubble[textId]},
+	}
+	infoBubble[infoBubble.id] = auxl.Layer(infoBubble.id, infoBubble.emotiLayerData);
+
+	//Spawn Emote Bubble Layer
+	const SpawnBubble = () => {
+		if(infoBubble.inScene){}else{
+			infoBubble[infoBubble.id].layer.all.parent.core.core.animations.spawnout = {property: 'scale', from: '1 1 1', to: '0.01 0.01 0.01', dur: 1000, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true,};
+
+			infoBubble[infoBubble.id].SpawnLayer(infoBubble.parent);
+
+			infoBubble.inScene = true;
+			infoBubble.soundTimeout = setTimeout(() => {
+				infoBubble[infoBubble.id].EmitEventParent('spawnOut');
+				clearTimeout(infoBubble.soundTimeout);
+			}, 3000);
+			infoBubble.timeout = setTimeout(() => {
+				DespawnBubble();
+				clearTimeout(infoBubble.timeout);
+			}, 4050);
+		}
+	}
+	//Despawn Emote Bubble Layer
+	const DespawnBubble = () => {
+		if(infoBubble.inScene){
+			infoBubble[infoBubble.id].DespawnLayer();
+			infoBubble.inScene = false;
+		}
+	}
+	//Spawn Alert Bubble Layer
+	const SpawnAlert = () => {
+		if(infoBubble.inScene){}else{
+			infoBubble[infoBubble.id].layer.all.parent.core.core.animations.spawnout = {property: 'scale', from: '1 1 1', to: '0.01 0.01 0.01', dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: true, startEvents: 'spawnOut'};
+
+			infoBubble[infoBubble.id].SpawnLayer(infoBubble.parent);
+			infoBubble.inScene = true;
+			AddEvent('mouseenter',DespawnAlert);
+
+		}
+	}
+	//Despawn Emote Bubble Layer
+	const DespawnAlert = () => {
+		if(infoBubble.inScene){
+			RemoveEvent('mouseenter',DespawnAlert);
+			infoBubble[infoBubble.id].EmitEventParent('spawnOut');
+			infoBubble.timeout = setTimeout(() => {
+				DespawnBubble();
+				clearTimeout(infoBubble.timeout);
+			}, 1050);
+		}
+	}
+	//Update Emote Text Core
+	const UpdateText = (text, rotation) => {
+		infoBubble[textId].core.text.value = text;
+		infoBubble[textId].core.text.wrapCount = text.length+1;
+		if(rotation){
+			infoBubble[textId].core.rotation.z = rotation;
+		} else {
+			infoBubble[textId].core.rotation.z = 0;
+		}
+	}
+	//Add Event Listener
+	const AddEvent = (event, action) => {
+		if(infoBubble.parentType === 'core'){
+			infoBubble.parent.GetEl().addEventListener(event,action);
+		} else {
+			infoBubble.parent.GetParentEl().addEventListener(event,action);
+		}
+	}
+	//Remove Event Listener
+	const RemoveEvent = (event, action) => {
+		if(infoBubble.parentType === 'core'){
+			infoBubble.parent.GetEl().removeEventListener(event,action);
+		} else {
+			infoBubble.parent.GetParentEl().removeEventListener(event,action);
+		}
+	}
+	//Add Custom Emote
+	const NewBubble = (details) => {
+		infoBubble.custom[details.eventName] = details;
+		//details.emote or alert
+		//details.text
+		//details.eventName
+		//details.rotation
+	}
+	//Spawn a Custom Emote
+	const CustomBubble = (event) => {
+		for(let emote in infoBubble.custom){
+			if(event.type === emote){
+				if(infoBubble.custom[emote].rotation){
+					UpdateText(infoBubble.custom[emote].text,infoBubble.custom[emote].rotation);
+				} else {
+					UpdateText(infoBubble.custom[emote].text);
+				}
+				if(infoBubble.custom[emote].alert){
+					SpawnAlert();
+				} else {
+					SpawnBubble();
+				}
+				break;
+			}
+		}
+	}
+	//Emote !
+	const Emote1 = () => {
+		UpdateText('!');
+		SpawnBubble();
+	}
+	//Alert !
+	const Alert1 = () => {
+		UpdateText('!');
+		SpawnAlert();
+	}
+	//Emote ?
+	const Emote2 = () => {
+		UpdateText('?');
+		SpawnBubble();
+	}
+	//Alert ?
+	const Alert2 = () => {
+		UpdateText('?');
+		SpawnAlert();
+	}
+	//Emote :)
+	const Emote3 = () => {
+		UpdateText(':)', -90);
+		SpawnBubble();
+	}
+	//Emote ^-^
+	const Emote4 = () => {
+		UpdateText('^-^');
+		SpawnBubble();
+	}
+	//Emote Casual @
+	const EmoteCasual = () => {
+		UpdateText('@');
+		SpawnBubble();
+	}
+	//Emote Happy ^^
+	const EmoteHappy = () => {
+		UpdateText('^^');
+		SpawnBubble();
+	}
+	//Emote Sad "
+	const EmoteSad = () => {
+		UpdateText('"');
+		SpawnBubble();
+	}
+	//Emote Angry *
+	const EmoteAngry = () => {
+		UpdateText('*');
+		SpawnBubble();
+	}
+	//Emote Confused ?
+	const EmoteConfused = () => {
+		UpdateText('?');
+		SpawnBubble();
+	}
+	//Emote Tired %
+	const EmoteTired = () => {
+		UpdateText('%');
+		SpawnBubble();
+	}
+	//Emote Asleep zzz
+	const EmoteAsleep = () => {
+		UpdateText('zzz');
+		SpawnBubble();
+	}
+	//Emote Annoyed +
+	const EmoteAnnoyed = () => {
+		UpdateText('+');
+		SpawnBubble();
+	}
+	//Emote Smug +
+	const EmoteSmug = () => {
+		UpdateText('~');
+		SpawnBubble();
+	}
+	//Emote Shocked !
+	const EmoteShocked = () => {
+		UpdateText('!');
+		SpawnBubble();
+	}
+	//Emote Scared =
+	const EmoteScared = () => {
+		UpdateText('=');
+		SpawnBubble();
+	}
+	//Emote Confident $
+	const EmoteConfident = () => {
+		UpdateText('$');
+		SpawnBubble();
+	}
+	//Emote Love <3
+	const EmoteLove = () => {
+		UpdateText('<3', 90);
+		SpawnBubble();
+	}
+	//Emote Shy #
+	const EmoteShy = () => {
+		UpdateText('#');
+		SpawnBubble();
+	}
+
+	//Add all Emotes to Element
+	const AddEmotes = () => {
+		AddEvent('alert1', Alert1);
+		AddEvent('alert2', Alert2);
+		AddEvent('emote1', Emote1);
+		AddEvent('emote2', Emote2);
+		AddEvent('emote3', Emote3);
+		AddEvent('emote4', Emote4);
+
+		AddEvent('casual', EmoteCasual);
+		AddEvent('happy', EmoteHappy);
+		AddEvent('sad', EmoteSad);
+		AddEvent('angry', EmoteAngry);
+		AddEvent('confused', EmoteConfused);
+		AddEvent('tired', EmoteTired);
+		AddEvent('asleep', EmoteAsleep);
+		AddEvent('annoyed', EmoteAnnoyed);
+		AddEvent('smug', EmoteSmug);
+		AddEvent('shocked', EmoteShocked);
+		AddEvent('scared', EmoteScared);
+		AddEvent('confident', EmoteConfident);
+		AddEvent('love', EmoteLove);
+		AddEvent('shy', EmoteShy);
+
+		for(let each in infoBubble.custom){
+			AddEvent(each, CustomBubble);
+		}
+	}
+	//Remove all Emotes to Element
+	const RemoveEmotes = () => {
+		if(infoBubble.inScene){
+			clearTimeout(infoBubble.soundTimeout);
+			clearTimeout(infoBubble.timeout);
+			DespawnBubble();
+		}
+		RemoveEvent('alert1', Alert1);
+		RemoveEvent('alert2', Alert2);
+		RemoveEvent('emote1', Emote1);
+		RemoveEvent('emote2', Emote2);
+		RemoveEvent('emote3', Emote3);
+		RemoveEvent('emote4', Emote4);
+
+		RemoveEvent('casual', EmoteCasual);
+		RemoveEvent('happy', EmoteHappy);
+		RemoveEvent('sad', EmoteSad);
+		RemoveEvent('angry', EmoteAngry);
+		RemoveEvent('confused', EmoteConfused);
+		RemoveEvent('tired', EmoteTired);
+		RemoveEvent('asleep', EmoteAsleep);
+		RemoveEvent('annoyed', EmoteAnnoyed);
+		RemoveEvent('smug', EmoteSmug);
+		RemoveEvent('shocked', EmoteShocked);
+		RemoveEvent('scared', EmoteScared);
+		RemoveEvent('confident', EmoteConfident);
+		RemoveEvent('love', EmoteLove);
+		RemoveEvent('shy', EmoteShy);
+
+		for(let each in infoBubble.custom){
+			RemoveEvent(each, CustomBubble);
+		}
+	}
+	//On init, add required component methods to parent
+	const Init = () => {
+		if(infoBubble.parentType === 'core'){
+			if(Object.keys(infoBubble.parent.core.components).length === 0){
+				infoBubble.parent.core.components = {};
+			}
+			infoBubble.parent.core.components['onspawnrun__emote'] = {
+				cursorObj: infoBubble.id,
+				component: null,
+				method: 'AddEmotes',
+				params: null,
+			};
+			infoBubble.parent.core.components['ondespawnrun__emote'] = {
+				cursorObj: infoBubble.id,
+				component: null,
+				method: 'RemoveEmotes',
+				params: null,
+			};
+		} else {
+			if(Object.keys(infoBubble.parent.layer.all.parent.core.core.components).length === 0){
+				infoBubble.parent.layer.all.parent.core.core.components = {};
+			}
+			infoBubble.parent.layer.all.parent.core.core.components['onspawnrun__emote'] = {
+				cursorObj: infoBubble.id,
+				component: null,
+				method: 'AddEmotes',
+				params: null,
+			};
+			infoBubble.parent.layer.all.parent.core.core.components['ondespawnrun__emote'] = {
+				cursorObj: infoBubble.id,
+				component: null,
+				method: 'RemoveEmotes',
+				params: null,
+			};
+		}
+	}
+	Init();
 
 return {infoBubble, AddEmotes, RemoveEmotes, NewBubble};
 
@@ -8634,6 +8768,1793 @@ return {infoBubble, AddEmotes, RemoveEmotes, NewBubble};
 
 //
 //In-Progress
+
+//
+//CreatureGen
+//Generate a creature object
+this.Creature = (id, attach, customizations) => {
+
+//No longer will this be an creature, but a creature generator
+//Weave in the ghost body and allow for legs/arms to be added
+//Keep the current round head and cylinder body, but more shape combos to come
+
+//Seed generator
+
+//A 'crystal' like object that on click spawns the creature and on hide goes into it
+
+//Sounds
+
+//Name Generator
+
+//Wing/s (bird/butterfly/moth) and or Tail
+
+//Accesories like crown, hat, bow, etc...
+
+//Ghost body
+//Various body radius sizes
+
+//Cone horn
+
+//Curves with torus like curved horns or arms
+
+//Partial Cones for Ears
+
+//For triangles, do a cylinder with 3 side so it can have depth
+//Diamond Pupils
+
+//Bottom eye lid
+
+//Nose, Mouth and/or beak
+
+//Belly shape/color
+
+//Feet, floaties, ball, wheels, etc...
+
+//Skin textures with randomized repeat sizes
+
+//Pupil Text Character or just match the same shape
+
+//Instead of Accent use, infoBubble?
+
+//Emotion Animation
+/*
+Eye 1/2 : Wide/Normal/Squint/Tired/Blink/Closed
+Eyebrow 1/2 : Low/Mid/High
+Ear : Slow Pulse/Quick Rattle
+Pupil Direction : Forward/Right/Up/Left/Down
+Mouth : Normal/Smile/Sad/Gasp/Shocked/Speaking
+-
+Emotions/Animations :
+Casual
+Happy
+Sad
+Angry
+Confused
+Tired
+Asleep
+Annoyed
+Smug
+Shocked
+Scared
+Confident
+Star Struck
+Shy
+*/
+
+
+
+
+let creature = {};
+creature.id = id;
+creature.auxlId = id+'layer';
+creature.bubbleId = id+'bubble';
+creature.parent = attach || false;
+
+creature.inScene = false;
+
+//Object IDs
+let parentId = 'parent' + creature.id;
+let eye1SocketId = 'eye1Socket' + creature.id;
+let eyebrow1Id = 'eyebrow1' + creature.id;
+let eye1PupilId = 'eye1Pupil' + creature.id;
+let eye1PupilAccentId = 'eye1PupilAccent' + creature.id;
+let eye1BlinkId = 'eye1Blink' + creature.id;
+let eye1LidOffsetId = 'eye1LidOffset' + creature.id;
+let eye1LidId = 'eye1Lid' + creature.id;
+let eye2SocketId = 'eye2Socket' + creature.id;
+let eyebrow2Id = 'eyebrow2' + creature.id;
+let eye2PupilId = 'eye2Pupil' + creature.id;
+let eye2PupilAccentId = 'eye2PupilAccent' + creature.id;
+let eye2BlinkId = 'eye2Blink' + creature.id;
+let eye2LidOffsetId = 'eye2LidOffset' + creature.id;
+let eye2LidId = 'eye2Lid' + creature.id;
+let ear1OffsetId = 'ear1Offset' + creature.id;
+let ear1Id = 'ear1' + creature.id;
+let ear2OffsetId = 'ear2Offset' + creature.id;
+let ear2Id = 'ear2' + creature.id;
+
+//Custommizations
+creature.custom = customizations || false;
+let eye = false;
+let eyeTypes = ['egg', 'circle', 'square', 'rectangle', 'triangle'];
+let pupil = false;
+let pupilTypes = ['egg', 'circle', 'square', 'rectangle', 'triangle'];
+let pupilAccent = false;
+let pupilAccentTypes = ['*', '!', 'x', '&', '<3', 'z'];
+let ear = false;
+let earTypes = ['bun', 'bunny', 'mouse', 'ant', 'horn'];
+//Choose Specifics
+if(creature.custom){
+	if(creature.custom.eye){
+		eye = creature.custom.eye;
+	}
+	if(creature.custom.pupil){
+		pupil = creature.custom.pupil;
+	}
+	if(creature.custom.accent){
+		pupilAccent = creature.custom.accent;
+	}
+	if(creature.custom.ear){
+		ear = creature.custom.ear;
+	}
+}
+if(!eye){
+	eye = eyeTypes[Math.floor(Math.random()*eyeTypes.length)];
+}
+if(!pupil){
+	pupil = pupilTypes[Math.floor(Math.random()*pupilTypes.length)];
+}
+if(!pupilAccent){
+	pupilAccent = pupilAccentTypes[Math.floor(Math.random()*pupilAccentTypes.length)];
+}
+if(!ear){
+	ear = earTypes[Math.floor(Math.random()*earTypes.length)];
+}
+
+
+//Position
+//Rotation
+//Scale
+creature.position = new THREE.Vector3(0,3,-3);
+creature.rotation = new THREE.Vector3(0,0,0);
+creature.scale = new THREE.Vector3(1,1,1);
+if(creature.custom){
+	//Position
+	if(customizations.offset){
+		if(customizations.offset.x){
+			creature.position.x = customizations.offset.x;
+			creature.position.y = customizations.offset.y;
+			creature.position.z = customizations.offset.z;
+		} else {
+			creature.position.z = customizations.offset;
+		}
+	}
+	//Rotation
+	if(customizations.rotation){
+		if(customizations.rotation.x){
+			creature.rotation.x = customizations.rotation.x;
+			creature.rotation.y = customizations.rotation.y;
+			creature.rotation.z = customizations.rotation.z;
+		} else {
+			creature.rotation.y = customizations.rotation;
+		}
+	}
+	//Scale
+	if(customizations.scale){
+		if(customizations.scale.x){
+			creature.scale.x = customizations.scale.x;
+			creature.scale.y = customizations.scale.y;
+			creature.scale.z = customizations.scale.z;
+		} else {
+			creature.scale.y = customizations.scale;
+		}
+	}
+}
+//Random All Below
+creature.color = auxl.colorTheoryGen(false, true);
+//Pupil Material
+creature.pupilColor = creature.color.base;
+creature.pupilMaterial = {shader: "standard", color: creature.pupilColor, emissive: creature.pupilColor, emissiveIntensity: 0.5, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8};
+//Skin Material
+creature.skinColor0 = creature.color.splitCompl[1];
+creature.skinMaterial = {shader: "standard", color: creature.skinColor0, emissive: creature.skinColor0, emissiveIntensity: 0.5, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8};
+//Brow Material
+creature.skinColor1 = auxl.colorTheoryGen(creature.skinColor0).base;
+creature.browMaterial = {shader: "standard", color: creature.skinColor1, emissive: creature.skinColor1, emissiveIntensity: 0.5, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8};
+//Accent
+//creature.accentColor = creature.color.compl;
+creature.accentColor = 'white';
+creature.accentText = {value:pupilAccent, wrapCount: 3, color: creature.accentColor, font: "exo2bold", side: 'double', align: "center", baseline: 'center', zOffset: 0.0175,};
+
+//
+//Eyebrow Thickness
+let browSizeMod = Math.random();
+if(creature.custom){
+	if(customizations.browSize === 'small'){
+		browSizeMod = 0;
+	} else if(customizations.browSize === 'medium'){
+		browSizeMod = 0.5;
+	} else if(customizations.browSize === 'large'){
+		browSizeMod = 1;
+	}
+}
+creature.browThickness = (browSizeMod*0.04)+0.01;
+//
+//Eye
+//eyeSize
+let eyeSizeMod = Math.random();
+if(creature.custom){
+	if(customizations.eyeSize === 'small'){
+		eyeSizeMod = 0;
+	} else if(customizations.eyeSize === 'medium'){
+		eyeSizeMod = 0.5;
+	} else if(customizations.eyeSize === 'large'){
+		eyeSizeMod = 1;
+	}
+}
+//Eye Shape
+//
+//Egg
+let eggSize = (eyeSizeMod*0.08)+0.125;
+//Shape
+let eggSocketShape = {primitive: 'cylinder', radius: eggSize, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 32, thetaStart: 0, thetaLength: 360};
+let eggSocketScale = new THREE.Vector3(0.75,1,1);
+//Lid
+let eggLidShape = {primitive: 'cylinder', radius: eggSize, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 90, thetaLength: 180};
+let eggLidPosition = new THREE.Vector3(0,0,eggSize);
+let eggLidOffsetPosition = new THREE.Vector3(0,0,eggSize*-1);
+//Blink
+let eggBlinkShape = {primitive: 'cylinder', radius: eggSize, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360};
+//Anims
+//Eye 1/2 : Wide/Normal/Squint/Tired/Blink/Closed
+//Flux
+let eggBlinkAnim = {property: 'object3D.scale.z', from: 0.65, to: 1.3, dur: 2000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'flux', stopEvents: 'stopFlux'};
+//Wide
+let eggWideAnim = {property: 'object3D.scale.z', to: 0.5, dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'wide'};
+//Normal
+let eggNormalAnim = {property: 'object3D.scale.z', to: 0.65, dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'normal'};
+//Squint
+let eggSquintAnim = {property: 'object3D.scale.z', to: 1.3, dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'squint'};
+//Tired
+let eggTiredAnim = {property: 'object3D.scale.z', to: 1.1, dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'tired'};
+
+//Pupil
+let eggPupilShape = {primitive: 'cylinder', radius: eggSize/3, height: 0.025, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360};
+//
+//Circle
+let circleSize = (eyeSizeMod*0.0575)+0.1;
+//Shape
+let circleSocketShape = {primitive: 'cylinder', radius: circleSize, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360};
+let circleSocketScale = new THREE.Vector3(1,1,1);
+//Lid
+let circleLidShape = {primitive: 'cylinder', radius: circleSize, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 90, thetaLength: 180};
+let circleLidPosition = new THREE.Vector3(0,0,circleSize);
+let circleLidOffsetPosition = new THREE.Vector3(0,0,circleSize*-1);
+//Blink
+let circleBlinkShape = {primitive: 'cylinder', radius: circleSize, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360};
+//Anims
+let circleBlinkAnim = {property: 'object3D.scale.z', from: 0.65, to: 1.3, dur: 2000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true};
+//Pupil
+let circlePupilShape = {primitive: 'cylinder', radius: circleSize/3, height: 0.025, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360};
+//
+//Square
+let squareSize = (eyeSizeMod*0.125)+0.175;
+//Shape
+let squareSocketShape = {primitive: 'box', depth: squareSize, width: squareSize, height: 0.015};
+let squareSocketScale = new THREE.Vector3(1,1,1);
+//Lid
+let squareLidShape = {primitive: 'box', depth: squareSize, width: squareSize, height: 0.015};
+let squareLidPosition = new THREE.Vector3(0,0,squareSize);
+let squareLidOffsetPosition = new THREE.Vector3(0,0,squareSize*-1);
+//Blink
+let squareBlinkShape = {primitive: 'box', depth: squareSize, width: squareSize, height: 0.015};
+let squareBlinkAnim = {property: 'object3D.scale.z', from: 0.45, to: 0.8, dur: 2000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true};
+//Pupil
+let squarePupilShape = {primitive: 'box', depth: squareSize/3, width: squareSize/3, height: 0.015};
+//
+//Rectangle
+let rectSize1 = (eyeSizeMod*0.25)+0.225;
+let rectSize2 = rectSize1*0.66;
+//Shape
+let rectSocketShape = {primitive: 'box', depth: rectSize1, width: rectSize2, height: 0.015};
+let rectSocketScale = new THREE.Vector3(1,1,1);
+//Lid
+let rectLidShape = {primitive: 'box', depth: rectSize1, width: rectSize2, height: 0.015};
+let rectLidPosition = new THREE.Vector3(0,0,rectSize2);
+let rectLidOffsetPosition = new THREE.Vector3(0,0,rectSize2*-1);
+//Blink
+let rectBlinkShape = {primitive: 'box', depth: rectSize1, width: rectSize2, height: 0.015};
+//Anims
+let rectBlinkAnim = {property: 'object3D.scale.z', from: 0.35, to: 0.75, dur: 2000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true};
+//Pupil
+let rectPupilShape = {primitive: 'box', depth: rectSize1/3, width: rectSize2/3, height: 0.015};
+//
+//Triangle
+let triSize = (eyeSizeMod*0.15)+0.1;
+//Shape
+let triSocketShape = {primitive: 'triangle', vertexA: new THREE.Vector3(0,0,triSize), vertexB: new THREE.Vector3(triSize*-1,0,triSize*-1), vertexC: new THREE.Vector3(triSize,0,triSize*-1)};
+let triSocketScale = new THREE.Vector3(1,1.5,1);
+//Lid
+let triLidShape = {primitive: 'triangle', vertexA: new THREE.Vector3(0,0,triSize), vertexB: new THREE.Vector3(triSize*-1,0,triSize*-1), vertexC: new THREE.Vector3(triSize,0,triSize*-1)};
+let triLidPosition = new THREE.Vector3(0,0.05,triSize);
+let triLidOffsetPosition = new THREE.Vector3(0,0,triSize*-1);
+//Blink
+let triBlinkShape = {primitive: 'triangle', vertexA: new THREE.Vector3(0,0,triSize), vertexB: new THREE.Vector3(triSize*-1,0,triSize*-1), vertexC: new THREE.Vector3(triSize,0,triSize*-1)};
+//Anims
+let triBlinkAnim = {property: 'object3D.scale.z', from: 0.325, to: 0.6, dur: 2000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true};
+//Pupil
+let triPupilShape = {primitive: 'triangle', vertexA: new THREE.Vector3(0,0,triSize*0.33), vertexB: new THREE.Vector3(triSize*-0.33,0,triSize*-0.33), vertexC: new THREE.Vector3(triSize*0.33,0,triSize*-0.33)};
+
+//Pupil Accent
+let accentSize = (eyeSizeMod*0.05)+0.075;
+
+//Eye & Pupil Shape : Egg, Circle, Square, Rectangle, Triangle
+if(pupil === 'egg'){
+	creature.pupilShape = eggPupilShape;
+} else if(pupil === 'circle'){
+	creature.pupilShape = circlePupilShape;
+} else if(pupil === 'square'){
+	creature.pupilShape = squarePupilShape;
+} else if(pupil === 'rectangle'){
+	creature.pupilShape = rectPupilShape;
+} else if(pupil === 'triangle'){
+	creature.pupilShape = triPupilShape;
+}
+if(eye === 'egg'){
+	creature.socketShape = eggSocketShape;
+	creature.socketScale = eggSocketScale;
+	creature.lidShape = eggLidShape;
+	creature.lidPosition = eggLidPosition;
+	creature.lidOffsetPosition = eggLidOffsetPosition;
+	creature.blinkShape = eggBlinkShape;
+	creature.blinkAnim = eggBlinkAnim;
+
+	creature.wideAnim = eggWideAnim;
+	creature.normalAnim = eggNormalAnim;
+	creature.squintAnim = eggSquintAnim;
+	creature.tiredAnim = eggTiredAnim;
+
+} else if(eye === 'circle'){
+	creature.socketShape = circleSocketShape;
+	creature.socketScale = circleSocketScale;
+	creature.lidShape = circleLidShape;
+	creature.lidPosition = circleLidPosition;
+	creature.lidOffsetPosition = circleLidOffsetPosition;
+	creature.blinkShape = circleBlinkShape;
+	creature.blinkAnim = circleBlinkAnim;
+} else if(eye === 'square'){
+	creature.socketShape = squareSocketShape;
+	creature.socketScale = squareSocketScale;
+	creature.lidShape = squareLidShape;
+	creature.lidPosition = squareLidPosition;
+	creature.lidOffsetPosition = squareLidOffsetPosition;
+	creature.blinkShape = squareBlinkShape;
+	creature.blinkAnim = squareBlinkAnim;
+} else if(eye === 'rectangle'){
+	creature.socketShape = rectSocketShape;
+	creature.socketScale = rectSocketScale;
+	creature.lidShape = rectLidShape;
+	creature.lidPosition = rectLidPosition;
+	creature.lidOffsetPosition = rectLidOffsetPosition;
+	creature.blinkShape = rectBlinkShape;
+	creature.blinkAnim = rectBlinkAnim;
+} else if(eye === 'triangle'){
+	creature.socketShape = triSocketShape;
+	creature.socketScale = triSocketScale;
+	creature.lidShape = triLidShape;
+	creature.lidPosition = triLidPosition;
+	creature.lidOffsetPosition = triLidOffsetPosition;
+	creature.blinkShape = triBlinkShape;
+	creature.blinkAnim = triBlinkAnim;
+}
+//
+//Ear
+let earSizeMod = Math.random();
+if(creature.custom){
+	if(customizations.earSize === 'small'){
+		earSizeMod = 0;
+	} else if(customizations.earSize === 'medium'){
+		earSizeMod = 0.5;
+	} else if(customizations.earSize === 'large'){
+		earSizeMod = 1;
+	}
+}
+//Bun
+let bunSize = (earSizeMod*0.15)+0.1;
+let bunEar1OffsetPos = new THREE.Vector3(-0.25,0.5,0.4);
+let bunEar2OffsetPos = new THREE.Vector3(0.25,0.5,0.4);
+let bunEarOffsetScale = new THREE.Vector3(0.9,1,0.9);
+let bunEarShape = {primitive: 'cylinder', radius: bunSize, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 90, thetaLength: 180};
+let bunEarPos = new THREE.Vector3(0,0,0.175);
+let bunEarScale = new THREE.Vector3(1,1,1);
+
+//Bunny
+let bunnySize = (earSizeMod*0.1)+0.15;
+let bunnyEar1OffsetPos = new THREE.Vector3(-0.25,0.5,0.4);
+let bunnyEar2OffsetPos = new THREE.Vector3(0.25,0.5,0.4);
+let bunnyEarOffsetScale = new THREE.Vector3(0.5,1,0.5);
+let bunnyEarShape = {primitive: 'cylinder', radius: bunnySize, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 90, thetaLength: 180};
+let bunnyEarPos = new THREE.Vector3(0,0,0.175);
+let bunnyEarScale = new THREE.Vector3(1,1,5);
+
+//Antennae
+let antSize = (earSizeMod*0.175)+0.075;
+let antEar1OffsetPos = new THREE.Vector3(-0.125,0.51,0.4);
+let antEar2OffsetPos = new THREE.Vector3(0.125,0.51,0.4);
+let antEarOffsetScale = new THREE.Vector3(0.5,1,0.5);
+let antEarShape = {primitive: 'cylinder', radius: antSize, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 90, thetaLength: 180};
+let antEarPos = new THREE.Vector3(0,0,0.175);
+let antEarScale = new THREE.Vector3(0.35,0.35,6);
+
+//Horns
+let hornSize = (earSizeMod*0.2)+0.125;
+let hornEar1OffsetPos = new THREE.Vector3(-0.25,0.5,0.4);
+let hornEar2OffsetPos = new THREE.Vector3(0.25,0.5,0.4);
+let hornEarOffsetScale = new THREE.Vector3(0.5,1,0.5);
+let hornEarShape = {primitive: 'cylinder', radius: hornSize, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 90, thetaLength: 180};
+let hornEarPos = new THREE.Vector3(0,0,0.175);
+let hornEarScale = new THREE.Vector3(0.4,0.4,2);
+
+//Mouse
+let mouseSize = (earSizeMod*0.15)+0.1;
+let mouseEar1OffsetPos = new THREE.Vector3(-0.325,0.625,0.4);
+let mouseEar2OffsetPos = new THREE.Vector3(0.325,0.625,0.4);
+let mouseEarOffsetScale = new THREE.Vector3(1,1,1);
+let mouseEarShape = {primitive: 'cylinder', radius: mouseSize, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360};
+let mouseEarPos = new THREE.Vector3(0,0,0.175);
+let mouseEarScale = new THREE.Vector3(1,1,1);
+
+//Ear Type : Bun, Bunny, Antennae, Horns, Mouse
+if(ear === 'bun'){
+	creature.ear1OffsetPos = bunEar1OffsetPos;
+	creature.ear2OffsetPos = bunEar2OffsetPos;
+	creature.earOffsetScale = bunEarOffsetScale;
+	creature.earShape = bunEarShape;
+	creature.earPos = bunEarPos;
+	creature.earScale = bunEarScale;
+} else if(ear === 'bunny'){
+	creature.ear1OffsetPos = bunnyEar1OffsetPos;
+	creature.ear2OffsetPos = bunnyEar2OffsetPos;
+	creature.earOffsetScale = bunnyEarOffsetScale;
+	creature.earShape = bunnyEarShape;
+	creature.earPos = bunnyEarPos;
+	creature.earScale = bunnyEarScale;
+} else if(ear === 'mouse'){
+	creature.ear1OffsetPos = mouseEar1OffsetPos;
+	creature.ear2OffsetPos = mouseEar2OffsetPos;
+	creature.earOffsetScale = mouseEarOffsetScale;
+	creature.earShape = mouseEarShape;
+	creature.earPos = mouseEarPos;
+	creature.earScale = mouseEarScale;
+} else if(ear === 'ant'){
+	creature.ear1OffsetPos = antEar1OffsetPos;
+	creature.ear2OffsetPos = antEar2OffsetPos;
+	creature.earOffsetScale = antEarOffsetScale;
+	creature.earShape = antEarShape;
+	creature.earPos = antEarPos;
+	creature.earScale = antEarScale;
+} else if(ear === 'horn'){
+	creature.ear1OffsetPos = hornEar1OffsetPos;
+	creature.ear2OffsetPos = hornEar2OffsetPos;
+	creature.earOffsetScale = hornEarOffsetScale;
+	creature.earShape = hornEarShape;
+	creature.earPos = hornEarPos;
+	creature.earScale = hornEarScale;
+}
+
+//
+//Build
+
+//Parent
+creature.faceParentData = {
+data:'faceParentData',
+id: parentId,
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: creature.position,
+rotation: creature.rotation,
+scale: creature.scale,
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+['stare']:{id: 'playerRig'},
+},
+};
+creature[parentId] = auxl.Core(creature.faceParentData);
+//EyeSocket
+creature.faceEye1SocketData = {
+data:'faceEye1SocketData',
+id: eye1SocketId,
+sources: false,
+text: false,
+geometry: creature.socketShape,
+material: {shader: "standard", color: "#fcfafd", emissive: '#fcfafd', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(-0.15,0.1,0.4),
+rotation: new THREE.Vector3(90,0,0),
+scale: creature.socketScale,
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+creature[eye1SocketId] = auxl.Core(creature.faceEye1SocketData);
+//Eye2Socket
+creature.faceEye2SocketData = auxl.coreFromTemplate(creature.faceEye1SocketData, {id: eye2SocketId, position: new THREE.Vector3(0.15,0.1,0.4)});
+creature[eye2SocketId] = auxl.Core(creature.faceEye2SocketData);
+//Eye1Pupil
+creature.faceEye1PupilData = {
+data:'faceEye1PupilData',
+id: eye1PupilId,
+sources: false,
+text: false,
+geometry: creature.pupilShape,
+material: creature.pupilMaterial,
+position: new THREE.Vector3(0,0.01,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+lookdown: {property: 'position', to: new THREE.Vector3(0,0.01,0.07), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookDown'},
+lookup: {property: 'position', to: new THREE.Vector3(0,0.01,-0.07), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookUp'},
+lookright: {property: 'position', to: new THREE.Vector3(0.05,0.01,0), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookRight'},
+lookleft: {property: 'position', to: new THREE.Vector3(-0.05,0.01,0), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookLeft'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+creature[eye1PupilId] = auxl.Core(creature.faceEye1PupilData);
+//Eye2Pupil
+creature.faceEye2PupilData = auxl.coreFromTemplate(creature.faceEye1PupilData, {id: eye2PupilId,});
+creature[eye2PupilId] = auxl.Core(creature.faceEye2PupilData);
+//Eye1PupilAccent
+creature.faceEye1PupilAccentData = {
+data:'faceEye1PupilAccentData',
+id: eye1PupilAccentId,
+sources: false,
+//text: creature.accentText,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(-90,0,0),
+scale: new THREE.Vector3(accentSize,accentSize,accentSize),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+creature[eye1PupilAccentId] = auxl.Core(creature.faceEye1PupilAccentData);
+//Eye2Pupil
+creature.faceEye2PupilAccentData = auxl.coreFromTemplate(creature.faceEye1PupilAccentData, {id: eye2PupilAccentId,});
+creature[eye2PupilAccentId] = auxl.Core(creature.faceEye2PupilAccentData);
+
+//Eyebrow
+creature.faceEyebrow1Data = {
+data:'faceEyebrow1Data',
+id: eyebrow1Id,
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: creature.browThickness, width: 0.25, height: 0.025, },
+material: creature.browMaterial,
+position: new THREE.Vector3(0,0,-0.25),
+rotation: new THREE.Vector3(0,10,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+updown: {property: 'object3D.position.z', from: -0.3, to: -0.225, dur: 2000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+creature[eyebrow1Id] = auxl.Core(creature.faceEyebrow1Data);
+creature.faceEyebrow2Data = auxl.coreFromTemplate(creature.faceEyebrow1Data, {id: eyebrow2Id, rotation: new THREE.Vector3(0,-10,0)});
+creature[eyebrow2Id] = auxl.Core(creature.faceEyebrow2Data);
+
+//Eyelid Offset
+creature.faceEye1LidOffsetData = {
+data:'faceEye1LidOffsetData',
+id: eye1LidOffsetId,
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: creature.lidOffsetPosition,
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+flux: creature.blinkAnim,
+wide: creature.wideAnim,
+normal: creature.normalAnim,
+squint: creature.squintAnim,
+tired: creature.tiredAnim,
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+creature[eye1LidOffsetId] = auxl.Core(creature.faceEye1LidOffsetData);
+creature.faceEye2LidOffsetData = auxl.coreFromTemplate(creature.faceEye1LidOffsetData, {id: eye2LidOffsetId});
+creature[eye2LidOffsetId] = auxl.Core(creature.faceEye2LidOffsetData);
+//Eyelid
+creature.faceEye1LidData = {
+data:'faceEye1LidData',
+id: eye1LidId,
+sources: false,
+text: false,
+geometry: creature.lidShape,
+material: creature.skinMaterial,
+position: creature.lidPosition,
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1.06,4,1.06),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+creature[eye1LidId] = auxl.Core(creature.faceEye1LidData);
+creature.faceEye2LidData = auxl.coreFromTemplate(creature.faceEye1LidData, {id: eye2LidId});
+creature[eye2LidId] = auxl.Core(creature.faceEye2LidData);
+//Blink
+creature.faceEye1BlinkData = {
+data:'faceEye1BlinkData',
+id: eye1BlinkId,
+sources: false,
+text: false,
+geometry: creature.blinkShape,
+material: creature.skinMaterial,
+position: new THREE.Vector3(0,0.05,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1.05,1.05,1.05),
+animations: {
+blinkin: {property: 'visible', from: false, to: true, dur: 1, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+blinkout: {property: 'visible', from: true, to: false, dur: 1, delay: 250, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+close: {property: 'visible', from: false, to: true, dur: 1, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'close'},
+open: {property: 'visible', from: true, to: false, dur: 1, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'open'},
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+visible: false,
+},
+};
+creature[eye1BlinkId] = auxl.Core(creature.faceEye1BlinkData);
+creature.faceEye2BlinkData = auxl.coreFromTemplate(creature.faceEye1BlinkData, {id: eye2BlinkId});
+creature[eye2BlinkId] = auxl.Core(creature.faceEye2BlinkData);
+
+//Ear Offset
+creature.faceEar1OffsetData = {
+data:'faceEar1OffsetData',
+id: ear1OffsetId,
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: creature.ear1OffsetPos,
+rotation: new THREE.Vector3(90,0,0),
+scale: creature.earOffsetScale,
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+creature[ear1OffsetId] = auxl.Core(creature.faceEar1OffsetData);
+creature.faceEar2OffsetData = auxl.coreFromTemplate(creature.faceEar1OffsetData, {id: ear2OffsetId, position: creature.ear2OffsetPos});
+creature[ear2OffsetId] = auxl.Core(creature.faceEar2OffsetData);
+//Ear
+creature.faceEar1Data = {
+data:'faceEar1Data',
+id: ear1Id,
+sources: false,
+text: false,
+geometry: creature.earShape,
+material: creature.skinMaterial,
+position: creature.earPos,
+rotation: new THREE.Vector3(0,30,0),
+scale: creature.earScale,
+animations: {
+twitch: {property: 'object3D.rotation.y', from: 25, to: 35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},
+},
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+creature[ear1Id] = auxl.Core(creature.faceEar1Data);
+creature.faceEar2Data = auxl.coreFromTemplate(creature.faceEar1Data, {id: ear2Id, rotation: new THREE.Vector3(0,-30,0), animations:{twitch: {property: 'object3D.rotation.y', from: -25, to: -35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},}});
+creature[ear2Id] = auxl.Core(creature.faceEar2Data);
+
+//Layer
+creature.faceLayerData = {
+	parent: {core: creature[parentId]}, 
+	child0: {
+		parent: {core: creature[eye1SocketId]}, 
+		child0: {core: creature[eyebrow1Id]}, 
+		child1: {
+			parent: {core: creature[eye1PupilId]},
+			child0: {core: creature[eye1PupilAccentId]},
+		},
+		child2: {core: creature[eye1BlinkId]}, 
+		child3: {
+			parent: {core: creature[eye1LidOffsetId]}, 
+			child0: {core: creature[eye1LidId]}, 
+		}, 
+	},
+	child1: {
+		parent: {core: creature[eye2SocketId]}, 
+		child0: {core: creature[eyebrow2Id]}, 
+		child1: {
+			parent: {core: creature[eye2PupilId]},
+			child0: {core: creature[eye2PupilAccentId]},
+		},
+		child2: {core: creature[eye2BlinkId]}, 
+		child3: {
+			parent: {core: creature[eye2LidOffsetId]}, 
+			child0: {core: creature[eye2LidId]}, 
+		}, 
+	},
+	child2: {
+		parent: {core: creature[ear1OffsetId]}, 
+		child0: {core: creature[ear1Id]}, 
+	},
+	child3: {
+		parent: {core: creature[ear2OffsetId]}, 
+		child0: {core: creature[ear2Id]}, 
+	},
+}
+auxl[creature.auxlId] = auxl.Layer(creature.auxlId,creature.faceLayerData);
+
+//Info Bubble
+auxl[creature.bubbleId] = auxl.InfoBubble(creature.bubbleId, auxl[creature.auxlId], 0.75, creature.color.base);
+
+//Spawn creature
+const SpawnCreature = () => {
+	if(creature.inScene){}else{
+		auxl[creature.auxlId].SpawnLayer(creature.parent);
+		Blinking();
+		testing();
+		creature.inScene = true;
+	}
+}
+//Despawn creature
+const DespawnCreature = () => {
+	if(creature.inScene){
+		ClearEvents();
+		auxl[creature.auxlId].DespawnLayer();
+		creature.inScene = false;
+	}
+}
+
+//Clear Timeouts & Intervals
+const ClearEvents = () => {
+	clearInterval(creature.blinkInterval);
+	clearTimeout(creature.accentTimeout);
+	clearTimeout(creature.emoteTimeout);
+	clearInterval(creature.intervalTest);
+	clearTimeout(creature.timeoutTest);
+}
+
+//Emote Testing
+function testing(){
+creature.timeoutTest = setTimeout(function () {
+	let loopNum = 0;
+	creature.intervalTest = setInterval(function() {
+		if(loopNum === 0){
+			Emote('happy');
+		} else if(loopNum === 1){
+			Emote('shy');
+		} else if(loopNum === 2){
+			Emote('casual');
+		} else if(loopNum === 3){
+			Emote('confused');
+		} else if(loopNum === 4){
+			Emote('angry');
+		} else if(loopNum === 5){
+			Emote('shocked');
+		} else if(loopNum === 6){
+			Emote('tired');
+		} else if(loopNum === 7){
+			Emote('asleep');
+		} else if(loopNum === 8){
+			Emote('wakeUp');
+		} else if(loopNum === 9){
+			Emote('annoyed');
+		} else if(loopNum === 10){
+			Emote('scared');
+		} else if(loopNum === 11){
+			Emote('confident');
+		} else if(loopNum === 12){
+			Emote('sad');
+		} else if(loopNum === 13){
+			Emote('smug');
+		} else if(loopNum === 14){
+			Emote('love');
+			loopNum = -1;
+		}
+		loopNum++;
+	}, 6000);
+}, 2000);
+}
+
+//Blinking
+const Blinking = () => {
+	let blinkChance = 0.25;
+	creature.blinkInterval = setInterval(() => {
+		if(Math.random() >= blinkChance){
+			creature[eye1BlinkId].EmitEvent('blink');
+			creature[eye2BlinkId].EmitEvent('blink');
+			blinkChance = 0.25;
+		} else {
+			blinkChance += 0.25;
+		}
+	}, 3000);
+}
+
+//Implement a Finite State Machine for Emotions
+
+//Emote State
+const Emote = (emote) => {
+console.log(emote)
+	//Anim
+	if(emote === 'casual'){
+		Casual();
+	} else if(emote === 'happy'){
+		Happy();
+	} else if(emote === 'sad'){
+		Sad();
+	} else if(emote === 'angry'){
+		Angry();
+	} else if(emote === 'confused'){
+		Confused();
+	} else if(emote === 'tired'){
+		Tired();
+	} else if(emote === 'asleep'){
+		Asleep();
+	} else if(emote === 'wakeUp'){
+		WakeUp();
+	} else if(emote === 'annoyed'){
+		Annoyed();
+	} else if(emote === 'smug'){
+		Smug();
+	} else if(emote === 'shocked'){
+		Shocked();
+	} else if(emote === 'scared'){
+		Scared();
+	} else if(emote === 'confident'){
+		Confident();
+	} else if(emote === 'love'){
+		Love();
+	} else if(emote === 'shy'){
+		Shy();
+	}
+}
+
+//Casual
+const Casual = () => {
+	creature[eye1LidOffsetId].EmitEvent('normal');
+	creature[eye2LidOffsetId].EmitEvent('normal');
+	auxl[creature.auxlId].EmitEventParent('casual');
+}
+
+//Happy
+const Happy = () => {
+	creature[eye1LidOffsetId].EmitEvent('wide');
+	creature[eye2LidOffsetId].EmitEvent('wide');
+	auxl[creature.auxlId].EmitEventParent('happy');
+}
+
+//Sad
+const Sad = () => {
+	creature[eye1LidOffsetId].EmitEvent('squint');
+	creature[eye2LidOffsetId].EmitEvent('squint');
+	auxl[creature.auxlId].EmitEventParent('sad');
+}
+
+//Angry
+const Angry = () => {
+	creature[eye1LidOffsetId].EmitEvent('squint');
+	creature[eye2LidOffsetId].EmitEvent('squint');
+	auxl[creature.auxlId].EmitEventParent('angry');
+}
+
+//Confused
+const Confused = () => {
+	creature[eye1LidOffsetId].EmitEvent('wide');
+	creature[eye2LidOffsetId].EmitEvent('squint');
+	auxl[creature.auxlId].EmitEventParent('confused');
+}
+
+//Tired
+const Tired = () => {
+	creature[eye1LidOffsetId].EmitEvent('tired');
+	creature[eye2LidOffsetId].EmitEvent('tired');
+	auxl[creature.auxlId].EmitEventParent('tired');
+}
+
+//Asleep
+const Asleep = () => {
+	creature[eye1BlinkId].EmitEvent('close');
+	creature[eye2BlinkId].EmitEvent('close');
+	auxl[creature.auxlId].EmitEventParent('asleep');
+}
+
+//Wake Up
+const WakeUp = () => {
+	creature[eye1BlinkId].EmitEvent('open');
+	creature[eye2BlinkId].EmitEvent('open');
+	auxl[creature.auxlId].EmitEventParent('shocked');
+}
+
+//Annoyed
+const Annoyed = () => {
+	creature[eye1LidOffsetId].EmitEvent('normal');
+	creature[eye2LidOffsetId].EmitEvent('normal');
+	auxl[creature.auxlId].EmitEventParent('annoyed');
+}
+
+//Smug
+const Smug = () => {
+	creature[eye1LidOffsetId].EmitEvent('squint');
+	creature[eye2LidOffsetId].EmitEvent('squint');
+	auxl[creature.auxlId].EmitEventParent('smug');
+}
+
+//Shocked
+const Shocked = () => {
+	creature[eye1LidOffsetId].EmitEvent('wide');
+	creature[eye2LidOffsetId].EmitEvent('wide');
+	auxl[creature.auxlId].EmitEventParent('shocked');
+}
+
+//Scared
+const Scared = () => {
+	creature[eye1LidOffsetId].EmitEvent('wide');
+	creature[eye2LidOffsetId].EmitEvent('wide');
+	auxl[creature.auxlId].EmitEventParent('scared');
+}
+
+//Confident
+const Confident = () => {
+	creature[eye1LidOffsetId].EmitEvent('normal');
+	creature[eye2LidOffsetId].EmitEvent('normal');
+	auxl[creature.auxlId].EmitEventParent('confident');
+}
+
+//Love
+const Love = () => {
+	creature[eye1LidOffsetId].EmitEvent('wide');
+	creature[eye2LidOffsetId].EmitEvent('wide');
+	auxl[creature.auxlId].EmitEventParent('love');
+}
+
+//Shy
+const Shy = () => {
+	creature[eye1LidOffsetId].EmitEvent('squint');
+	creature[eye2LidOffsetId].EmitEvent('squint');
+	auxl[creature.auxlId].EmitEventParent('shy');
+}
+
+return {creature, SpawnCreature, DespawnCreature, Emote};
+
+}
+
+//
+//Collision OLD - Rework into Dungeon Spawner
+//Build a collision map of 0.5 meter sections 
+//Allow or Deny moving outside of collision map
+this.Collision = (gridData) => {
+
+//In-Progress
+//Blocks completed, Walls not yet
+
+//Collision Type
+//2 types of collision : block, wall or ledge
+//Block prevents movements into the square from any direction
+//Wall prevents movements into square from +/- X or Z direction
+//Ledge prevents movement into square from a + or - X or Z direction
+
+//Collision Size : The amount of blocks or walls the object takes up
+
+//On scene start the collision map is reset
+//On object spawn, object updates the shared collision map
+//On object despawn, object updates the shared collision map
+//On object collision move, object updates the shared collision map
+//On user square occupy, can emit a collision event i.e. pick up
+
+
+
+
+//Spawn at center of 0.5 coords - Block : Can't move into from any squares
+//Spawn at edge of 0.5 coords - Wall/s : Can't move between connected square/s
+//Spawn off center of 0.5 coords - Wall : Can't move between connected square
+//Object moves. Update map to block space they will be moving into and once moved, clear out previous space
+//Object is interactable when user is in surrounding or specific grid square
+//Object is auto picked up when user is in specific grid square
+
+//
+//Premade Object Spawning Map Brainstorming
+this.testCoreData = {
+data:'testCore',
+id:'test',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+collision: {
+type: 'block',
+size: [2,3],
+},
+collision2: {
+type: 'wall',
+move: 'x',
+size: [0.5,3],
+},
+collision3: {
+type: 'ledge',
+move: '+x',
+size: [0.5,1],
+},
+};
+
+	let grid = Object.assign({}, gridData);
+	grid.inScene = false;
+	grid.id = gridData.id || 'scene';
+	grid.size = gridData.size || 40;
+	grid.edge = gridData.edge || false;
+
+	grid.mapTopLeft = [];
+	grid.mapTopRight = [];
+	grid.mapBottomLeft = [];
+	grid.mapBottomRight = [];
+	grid.mapAll = [
+		grid.mapTopLeft,
+		grid.mapTopRight,
+		grid.mapBottomLeft,
+		grid.mapBottomRight,
+	];
+
+	const BlankMap = (size) => {
+		grid.mapTopLeft = [];
+		grid.mapTopLeft = Array(size/2).fill(0, 0);
+		for(let each in grid.mapTopLeft){
+			grid.mapTopLeft[each] = Array(size/2).fill(0, 0);
+		}
+		grid.mapTopRight = [];
+		grid.mapTopRight = Array(size/2).fill(0, 0);
+		for(let each in grid.mapTopRight){
+			grid.mapTopRight[each] = Array(size/2).fill(0, 0);
+		}
+		grid.mapBottomLeft = [];
+		grid.mapBottomLeft = Array(size/2).fill(0, 0);
+		for(let each in grid.mapBottomLeft){
+			grid.mapBottomLeft[each] = Array(size/2).fill(0, 0);
+		}
+		grid.mapBottomRight = [];
+		grid.mapBottomRight = Array(size/2).fill(0, 0);
+		for(let each in grid.mapBottomRight){
+			grid.mapBottomRight[each] = Array(size/2).fill(0, 0);
+		}
+		grid.mapAll = [
+			grid.mapTopLeft,
+			grid.mapTopRight,
+			grid.mapBottomLeft,
+			grid.mapBottomRight,
+		];
+	}
+	BlankMap(grid.size);
+	//Update Map
+	const UpdateMapArea = (info) => {
+//pos.area is 0.5z x 1x
+//new THREE.Vector3(0,0.5,-9),
+
+//info.xPos
+//info.xArea
+//info.zPos
+//info.zArea
+
+		let zSpaces = info.zArea[0]*2;
+		let zStart = info.zPos - (info.zArea[0]/2);
+
+		let xSpaces = info.xArea[1]*2;
+		let xStart = info.xPos - (info.xArea[1]/2);
+
+		console.log(zSpaces)
+		console.log(zStart)
+		//console.log(xSpaces)
+		//console.log(xStart)
+
+		for(let z = 0; z < zSpaces;z++){
+			for(let x = 0; x < xSpaces;x++){
+				//UpdateMap(pos,mapKey);
+				console.log(zStart)
+				//console.log(xStart)
+				xStart+=0.5;
+			}
+			zStart+=0.5;
+		}
+	}
+
+	//Update Map
+	const UpdateMap = (pos, mapKey) => {
+		//0.5 meter to integer grid adjustment
+		pos.x *= 2;
+		pos.z *= 2;
+
+		if(pos.x < 0 && pos.z < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			grid.mapAll[0][pos.z * -1][pos.x * -1] = mapKey;
+		} else if(pos.x >= 0 && pos.z < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			grid.mapAll[1][pos.z * -1][pos.x] = mapKey
+		} else if(pos.x < 0 && pos.z >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			grid.mapAll[2][pos.z][pos.x * -1] = mapKey;
+		} else if(pos.x >= 0 && pos.z >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			grid.mapAll[3][pos.z][pos.x] = mapKey;
+		} else {
+			console.log('Update out of bounds')
+		}
+
+	}
+
+	//Check for Map Obstacles 0.5 Meter
+	//Corners need 3 squares in L shape to completely block travel
+	const checkMapObstacles = (newPos) => {
+
+		newPos.x *= 2;
+		newPos.z *= 2;
+
+		if(newPos.x < 0 && newPos.z < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			if(grid.mapAll[0].length > newPos.z * -1){
+				if(grid.mapAll[0][newPos.z * -1].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(grid.mapAll[0][newPos.z * -1][newPos.x * -1] === 0){
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edge){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edge){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			if(grid.mapAll[1].length > newPos.z * -1){
+				if(grid.mapAll[1][newPos.z * -1].length > newPos.x){
+					//console.log('Within Map');
+					if(grid.mapAll[1][newPos.z * -1][newPos.x] === 0){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edge){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edge){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x < 0 && newPos.z >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			if(grid.mapAll[2].length > newPos.z){
+				if(grid.mapAll[2][newPos.z].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(grid.mapAll[2][newPos.z][newPos.x * -1] === 0){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edge){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edge){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			if(grid.mapAll[3].length > newPos.z){
+				if(grid.mapAll[3][newPos.z].length > newPos.x){
+					if(grid.mapAll[3][newPos.z][newPos.x] === 0){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edge){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edge){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else {
+			return false;
+		}
+	}
+
+	//Check for Map Obstacles 0.5 Meter
+	//Attempting to fix L required corners, only requiring 2 instead of 3
+	const checkMapObstaclesDiagonal = (newPos, pos) => {
+
+		newPos.x *= 2;
+		newPos.z *= 2;
+
+		pos.x *= 2;
+		pos.z *= 2;
+
+		//World direction of movement
+		if(newPos.x === pos.x && newPos.z === pos.z){
+			//console.log('Same Square')
+			travelDirection = 'same';
+		} else {
+			if(newPos.x === pos.x || newPos.z === pos.z){
+				if(newPos.x === pos.x){
+					//console.log('Forward|Backward');
+					travelDirection = 'z';
+				} else if(newPos.z === pos.z){
+					//console.log('Side to Side');
+					travelDirection = 'x';
+				}
+			} else {
+				console.log('Diagonal');
+				if(newPos.x > pos.x){
+					//Right
+					if(newPos.z > pos.z){
+						//Backward
+						travelDirection = 'reverseRight';
+					} else {
+						//Forward
+						travelDirection = 'forwardRight';
+					}
+				} else {
+					//Left
+					if(newPos.z > pos.z){
+						//Backward
+						travelDirection = 'reverseLeft';
+					} else {
+						//Forward
+						travelDirection = 'forwardLeft';
+					}
+				}
+			}
+		}
+
+
+		if(newPos.x < 0 && newPos.z < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			if(mapAll[0].length > newPos.z * -1){
+				if(mapAll[0][newPos.z * -1].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(mapAll[0][newPos.z * -1][newPos.x * -1] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)+1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			if(mapAll[1].length > newPos.z * -1){
+				if(mapAll[1][newPos.z * -1].length > newPos.x){
+					//console.log('Within Map');
+					if(mapAll[1][newPos.z * -1][newPos.x] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)+1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x < 0 && newPos.z >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			if(mapAll[2].length > newPos.z){
+				if(mapAll[2][newPos.z].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(mapAll[2][newPos.z][newPos.x * -1] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(mapAll[0][(newPos.z)+1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//-Z
+							//+X
+							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			if(mapAll[3].length > newPos.z){
+				if(mapAll[3][newPos.z].length > newPos.x){
+					if(mapAll[3][newPos.z][newPos.x] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(mapAll[0][newPos.z+1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//-Z
+							//+X
+							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else {
+			return false;
+		}
+	}
+
+	//Enable Collision Checks for Locomotion
+	const EnableCollision = () => {
+		auxl.collision = true;
+	}
+	//Disable Collision Checks for Locomotion
+	const DisableCollision = () => {
+		auxl.collision = false;
+	}
+
+	//Spawn Edge Collision Object
+	const SpawnEdge = () => {
+
+	}
+
+	//Despawn Edge Collision Object
+	const DespawnEdge = () => {
+
+	}
+
+
+	//Premade Maps
+	//
+	//-X requires .reverse() on each inner one
+	//-Z requires .reverse() on the outer set
+	//Arrays are read top to bottom and left to right, so to spawn at -10,-10 the value must be located at 10,10 within the array hence the reverses.
+
+	//Top Left
+	//Loop 1 : -Z
+	//Loop 2 : -X
+	let mapTopLeft = [ 
+	[1,1,1,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,1,0,0,0,0,0,0].reverse(),
+	[1,0,0,0,1,0,0,0,0,0].reverse(),
+	[1,0,1,0,1,0,0,0,0,0].reverse(),
+	[1,0,1,0,0,0,0,0,1,0].reverse(),
+	[1,0,1,0,0,0,0,0,0,0].reverse(),
+	[1,0,1,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,0,0,0,0,0,0,0].reverse()
+	];
+
+	//Top Right
+	//Loop 1 : -Z
+	//Loop 2 : +X
+	let mapTopRight = [ 
+	[0,0,0,0,1,0,0,0,0,1],
+	[0,0,0,0,1,0,0,0,0,1],
+	[0,0,1,0,0,0,1,0,0,1],
+	[0,0,0,0,0,0,1,0,0,1],
+	[0,0,0,0,0,0,1,0,0,1],
+	[0,0,1,0,1,0,0,0,0,1],
+	[0,0,1,0,0,0,0,0,1,1],
+	[0,0,1,0,0,0,0,0,0,1],
+	[0,0,0,1,0,0,0,0,0,1],
+	[0,0,0,0,0,0,0,0,0,1]
+	];
+
+	//Bottom Left
+	//Loop 1 : +Z
+	//Loop 2 : -X
+	let mapBottomLeft = [ 
+	[1,0,0,0,0,0,0,0,0,0].reverse(),
+	[1,0,0,0,1,0,0,0,0,0].reverse(),
+	[1,0,1,0,1,0,0,0,0,0].reverse(),
+	[1,0,1,0,0,0,0,0,1,0].reverse(),
+	[1,0,1,0,0,0,0,0,0,0].reverse(),
+	[1,0,1,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,0,0,0,1,0,0,0].reverse(),
+	[1,0,0,1,0,0,0,0,0,0].reverse(),
+	[1,1,1,1,1,1,1,1,1,1].reverse()
+	];
+
+	//Bottom Right
+	//Loop 1 : +Z
+	//Loop 2 : +X
+	let mapBottomRight = [ 
+	[0,0,0,0,0,0,0,0,0,1],
+	[0,0,1,0,0,0,1,0,0,1],
+	[0,0,0,0,0,0,1,0,0,1],
+	[0,0,0,0,0,0,1,0,0,1],
+	[1,0,0,1,0,0,0,0,0,1],
+	[0,0,0,0,1,0,0,0,0,1],
+	[1,0,1,0,1,0,0,0,0,1],
+	[0,0,1,0,0,0,0,0,1,1],
+	[1,0,1,0,0,0,0,0,0,1],
+	[1,1,1,1,1,1,1,1,1,1]
+	];
+
+	//Combined Map Array
+	let mapAll = [
+	mapTopLeft.reverse(),
+	mapTopRight.reverse(),
+	mapBottomLeft,
+	mapBottomRight
+	];
+
+	//
+	//Basic Block Spawner
+	function basicBlockSpawner(map,parentEl,quadrant) {
+
+	//Loop through Z array set
+	for (let i = 0; i < map.length; i++) {
+
+		//Loop through X array set
+		for (let j = 0; j < map[i].length; j++) {
+
+			//Check for non-interactable obstacles (1)
+			//Spawn Basic Blocks
+			if(map[i][j] === 1){
+				//Create block Entity
+				let block = document.createElement('a-entity');
+				//Set primitive shape
+				block.setAttribute('geometry', {primitive: 'box', width: 0.5, height: 1, depth: 0.5});
+				//Set Material
+				block.setAttribute('material', {shader: "standard", color: "#91502d", opacity: "1",});
+				block.setAttribute('static-body', {});
+
+				//Add basic block class
+				block.classList.add("block");
+
+				//Set position
+				let posX;
+				let posY = 0.5;//half the height of object
+				let posZ;
+
+				if(quadrant === 'topLeft'){
+					posX = j * -1;
+					posZ = i * -1;
+				} else if(quadrant === 'topRight'){
+					posX = j;
+					posZ = i * -1;
+				} else if(quadrant === 'bottomLeft'){
+					posX = j * -1;
+					posZ = i;
+				} else if(quadrant === 'bottomRight'){
+					posX = j;
+					posZ = i;
+				}
+
+				posX /= 2;
+				posZ /= 2;
+
+				//Set Position
+				let positionVec3 = new THREE.Vector3(posX, posY, posZ);
+				block.setAttribute('position', positionVec3);
+				UpdateMap({x:posX,z:posZ}, 1);
+
+				//Attach to parent entity
+				parentEl.appendChild(block);
+			   }//End Basic Block Detection
+
+		}//End X array Loop
+	}//End Z array Loop
+
+	}//End Basic Block Spawner
+
+	//
+	//Map Spawner
+	function mapSpawner(map) {
+
+	//Create parent identity w/ id
+	let blockParent = document.createElement('a-entity');
+	blockParent.setAttribute('id','blockParent');
+	//Append parent entity to scene
+	sceneEl.appendChild(blockParent);
+
+	//Loop through mega array set
+	for (let h = 0; h < map.length; h++) {
+
+		if (h === 0){
+			//Spawn Basic Blocks
+			basicBlockSpawner(map[h],blockParent,'topLeft');
+
+		} else if (h === 1){
+			//Spawn Basic Blocks
+			basicBlockSpawner(map[h],blockParent,'topRight');
+
+		} else if (h === 2){
+			//Spawn Basic Blocks
+			basicBlockSpawner(map[h],blockParent,'bottomLeft');
+
+		} else if (h === 3){
+			//Spawn Basic Blocks
+			basicBlockSpawner(map[h],blockParent,'bottomRight');
+
+		}//End if Checks
+
+	}//End Multi-Map array Loop
+
+	}//End Map Spawner Function
+
+	//
+	//Testing mapSpawner function
+	//mapSpawner(mapAll);
+
+	return {grid, BlankMap, UpdateMap, UpdateMapArea, EnableCollision, DisableCollision, checkMapObstacles, SpawnEdge, DespawnEdge};
+}
+
+//
+//Collision Map
+this.mapCollisionData = {
+	id: 'mapCollision',
+	mapSize: 40,
+	edge: false,
+
+};
+//this.mapCollision = auxl.Collision(auxl.mapCollisionData);
+//this.sceneCollision.BuildBlankMap();
+//this.mapCollision.EnableCollision();
 
 //
 //Build Core/Layer/Other objects in the 3D environment
@@ -9286,885 +11207,6 @@ components: false,
 
 }
 
-//
-//GridAssetGen
-//Build a scene from a dual array grid of asset related ids
-this.GridAssetGen = (gridGenData) => {
-	let gridGen = Object.assign({}, gridGenData);
-	gridGen.inScene = false;
-
-	//Generate Grid Cores
-	const genCores = () => {
-
-	}
-	//Spawn all Grid Cores
-	const SpawnGrid = () => {
-		if(gridGen.inScene){}else{
-			genCores();
-			for(let a = 0; a < gridGen.total; a++){
-				gridGen.all[a].SpawnCore();
-			}
-			gridGen.inScene = true;
-		}
-	}
-	//Despawn all Grid Cores
-	const DespawnGrid = () => {
-		if(gridGen.inScene){
-			for(let a = 0; a < gridGen.total; a++){
-				gridGen.all[a].DespawnCore();
-			}
-			RemoveFromTracker(gridGen.id);
-			gridGen.inScene = false;
-		}
-	}
-	//Toggle Spawn
-	const ToggleSpawn = () => {
-		if(gridGen.inScene){
-			DespawnGrid();
-		} else {
-			SpawnGrid();
-		}
-	}
-	//Set Flag & Value to Object - Single or Array
-	const SetFlag = (flagValue) => {
-		if(Array.isArray(flagValue)){
-			for(let each in flagValue){
-				gridGen[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: gridGen.id, type: 'gridGen', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
-			}
-		} else {
-			gridGen[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: gridGen.id, type: 'gridGen', sub: false, name: flagValue.flag, data: flagValue.value});
-		}
-	}
-	//Retreive Flag Value from Object - Single or Array
-	const GetFlag = (flag) => {
-		if(Array.isArray(flag)){
-			let flagArray = [];
-			for(let each in flag){
-				flagArray.push(gridGen(flag[each]));
-			}
-			return flagArray;
-		} else {
-			return gridGen[flag];
-		}
-	}
-
-	return {gridGen, SpawnGrid, DespawnGrid, ToggleSpawn, SetFlag, GetFlag};
-}
-
-//In-Progress
-//Blocks completed, Walls not yet
-//
-//Collision
-//Build a collision map of 0.5 meter sections 
-//Allow or Deny moving outside of collision map
-this.Collision = (gridData) => {
-	let grid = Object.assign({}, gridData);
-	grid.inScene = false;
-	//grid.id
-	//grid.mapSize
-	//grid.edgeCollide
-	//grid.spawn
-
-	grid.mapTopLeft = [];
-	grid.mapTopRight = [];
-	grid.mapBottomLeft = [];
-	grid.mapBottomRight = [];
-	grid.mapAll = [
-		grid.mapTopLeft,
-		grid.mapTopRight,
-		grid.mapBottomLeft,
-		grid.mapBottomRight,
-	];
-
-	//Currently using a single object as a shared map that will be built, reset, rebuilt through each. But wont work well with flags, should each scene have it's own collision map or should I have an object of scenes within the map collision that flags will be saved to and read from.
-
-	//Spawn Object w/ Collision & add to Grid Map Square or Squares
-	//Spawn at center of 0.5 coords - Block : Can't move into from any squares
-	//Spawn at edge of 0.5 coords - Wall/s : Can't move between connected square/s
-	//Spawn off center of 0.5 coords - Wall : Can't move between connected square
-	//Despawn Object w/ Collision & add to Grid Map Square or Squares
-	//
-	//Object moves. Update map to block space they will be moving into and once moved, clear out previous space
-	//Object is interactable when user is in surrounding or specific grid square
-	//Object is auto picked up when user is in specific grid square
-
-
-	//Maps
-	//
-	//-X requires .reverse() on each inner one
-	//-Z requires .reverse() on the outer set
-
-	//Top Left
-	//Loop 1 : -Z
-	//Loop 2 : -X
-	//[1,1,1,1,1,1,1,1,1,1].reverse(),
-	let mapTopLeft = [ 
-	[1,0,0,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,1,0,0,0,0,0,0].reverse(),
-	[1,0,0,0,1,0,0,0,0,0].reverse(),
-	[1,0,1,0,1,0,0,0,0,0].reverse(),
-	[1,0,1,0,0,0,0,0,1,0].reverse(),
-	[1,0,1,0,0,0,0,0,0,0].reverse(),
-	[1,0,1,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,0,0,0,0,0,0,0].reverse()
-	];
-
-	//Top Right
-	//Loop 1 : -Z
-	//Loop 2 : +X
-	let mapTopRight = [ 
-	[0,0,0,0,1,0,0,0,0,1],
-	[0,0,0,0,1,0,0,0,0,1],
-	[0,0,1,0,0,0,1,0,0,1],
-	[0,0,0,0,0,0,1,0,0,1],
-	[0,0,0,0,0,0,1,0,0,1],
-	[0,0,1,0,1,0,0,0,0,1],
-	[0,0,1,0,0,0,0,0,1,1],
-	[0,0,1,0,0,0,0,0,0,1],
-	[0,0,0,1,0,0,0,0,0,1],
-	[0,0,0,0,0,0,0,0,0,1]
-	];
-
-	//Bottom Left
-	//Loop 1 : +Z
-	//Loop 2 : -X
-	let mapBottomLeft = [ 
-	[1,0,0,0,0,0,0,0,0,0].reverse(),
-	[1,0,0,0,1,0,0,0,0,0].reverse(),
-	[1,0,1,0,1,0,0,0,0,0].reverse(),
-	[1,0,1,0,0,0,0,0,1,0].reverse(),
-	[1,0,1,0,0,0,0,0,0,0].reverse(),
-	[1,0,1,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,1,0,0,0,0,0,0].reverse(),
-	[1,1,1,1,1,1,1,1,1,1].reverse()
-	];
-
-	//Bottom Right
-	//Loop 1 : +Z
-	//Loop 2 : +X
-	let mapBottomRight = [ 
-	[0,0,0,0,0,0,0,0,0,1],
-	[0,0,1,0,0,0,1,0,0,1],
-	[0,0,0,0,0,0,1,0,0,1],
-	[0,0,0,0,0,0,1,0,0,1],
-	[1,0,0,1,0,0,0,0,0,1],
-	[0,0,0,0,1,0,0,0,0,1],
-	[1,0,1,0,1,0,0,0,0,1],
-	[0,0,1,0,0,0,0,0,1,1],
-	[1,0,1,0,0,0,0,0,0,1],
-	[1,1,1,1,1,1,1,1,1,1]
-	];
-
-	//Combined Map Array
-	let mapAll = [
-	mapTopLeft.reverse(),
-	mapTopRight.reverse(),
-	mapBottomLeft,
-	mapBottomRight
-	];
-
-
-	//
-	//Basic Block Spawner
-	function basicBlockSpawner(map,parentEl,quadrant) {
-
-	//Loop through Z array set
-	for (let i = 0; i < map.length; i++) {
-
-		//Loop through X array set
-		for (let j = 0; j < map[i].length; j++) {
-
-			//Check for non-interactable obstacles (1)
-			//Spawn Basic Blocks
-			if(map[i][j] === 1){
-				//Create block Entity
-				let block = document.createElement('a-entity');
-				//Set primitive shape
-				block.setAttribute('geometry', {primitive: 'box', width: 0.5, height: 1, depth: 0.5});
-				//Set Material
-				block.setAttribute('material', {shader: "standard", color: "#91502d", opacity: "1",});
-
-				//Add basic block class
-				block.classList.add("block");
-
-				//Set position
-				let posX;
-				let posY = 0.5;//half the height of object
-				let posZ;
-
-				if(quadrant === 'topLeft'){
-					posX = j * -1;
-					posZ = i * -1;
-				} else if(quadrant === 'topRight'){
-					posX = j;
-					posZ = i * -1;
-				} else if(quadrant === 'bottomLeft'){
-					posX = j * -1;
-					posZ = i;
-				} else if(quadrant === 'bottomRight'){
-					posX = j;
-					posZ = i;
-				}
-
-				posX /= 2;
-				posZ /= 2;
-
-				//Set Position
-				let positionVec3 = new THREE.Vector3(posX, posY, posZ);
-				block.setAttribute('position', positionVec3);
-
-				//Attach to parent entity
-				parentEl.appendChild(block);
-			   }//End Basic Block Detection
-
-		}//End X array Loop
-	}//End Z array Loop
-
-	}//End Basic Block Spawner
-
-	//
-	//Map Spawner
-	function mapSpawner(map) {
-
-	//Create parent identity w/ id
-	let blockParent = document.createElement('a-entity');
-	blockParent.setAttribute('id','blockParent');
-	//Append parent entity to scene
-	sceneEl.appendChild(blockParent);
-
-	//Loop through mega array set
-	for (let h = 0; h < map.length; h++) {
-
-		if (h === 0){
-			//Spawn Basic Blocks
-			basicBlockSpawner(map[h],blockParent,'topLeft');
-
-		} else if (h === 1){
-			//Spawn Basic Blocks
-			basicBlockSpawner(map[h],blockParent,'topRight');
-
-		} else if (h === 2){
-			//Spawn Basic Blocks
-			basicBlockSpawner(map[h],blockParent,'bottomLeft');
-
-		} else if (h === 3){
-			//Spawn Basic Blocks
-			basicBlockSpawner(map[h],blockParent,'bottomRight');
-
-		}//End if Checks
-
-	}//End Multi-Map array Loop
-
-	}//End Map Spawner Function
-
-	//
-	//Testing mapSpawner function
-	mapSpawner(mapAll);
-
-	//Init blank map
-	const BuildBlankMap = () => {
-		for(let map in grid.mapAll){
-			for(let a = 0; a < grid.mapSize/2; a++){
-				grid.mapAll[map].push([]);
-				for(let b = 0; b < grid.mapSize/2; b++){
-					grid.mapAll[map][a].push(1);
-				}
-			}
-		}
-	}
-	//Reset to blank map
-	const ResetMap = () => {
-		for(let map in grid.mapAll){
-			grid.mapAll[map].fill(0,0,grid.mapSize/2);
-		}
-	}
-
-	//Update Map
-	const UpdateMap = (pos, mapKey) => {
-
-		//0.5 meter to integer grid adjustment
-		pos.x *= 2;
-		pos.z *= 2;
-
-		if(pos.x < 0 && pos.z < 0){
-			//Top Left - 0
-			//Loop 1 : -Z
-			//Loop 2 : -X
-			mapAll[0][pos.z * -1][pos.x * -1] = mapKey;
-		} else if(pos.x >= 0 && pos.z < 0){
-			//Top Right - 1
-			//Loop 1 : -Z
-			//Loop 2 : +X
-			mapAll[1][pos.z * -1][pos.x] = mapKey
-		} else if(pos.x < 0 && pos.z >= 0){
-			//Bottom Left - 2
-			//Loop 1 : +Z
-			//Loop 2 : -X
-			mapAll[2][pos.z][pos.x * -1] = mapKey;
-		} else if(pos.x >= 0 && pos.z >= 0){
-			//Bottom Right - 3
-			//Loop 1 : +Z
-			//Loop 2 : +X
-			mapAll[3][pos.z][pos.x] = mapKey;
-		} else {
-			console.log('Update out of bounds')
-		}
-
-	}
-
-	//Check for Map Obstacles 0.5 Meter
-	//Corners need 3 squares in L shape to completely block travel
-	const checkMapObstacles = (newPos) => {
-
-		newPos.x *= 2;
-		newPos.z *= 2;
-
-		if(newPos.x < 0 && newPos.z < 0){
-			//Top Left - 0
-			//Loop 1 : -Z
-			//Loop 2 : -X
-			if(mapAll[0].length > newPos.z * -1){
-				if(mapAll[0][newPos.z * -1].length > newPos.x * -1){
-					//console.log('Within Map');
-					if(mapAll[0][newPos.z * -1][newPos.x * -1] === 0){
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x >= 0 && newPos.z < 0){
-			//Top Right - 1
-			//Loop 1 : -Z
-			//Loop 2 : +X
-			if(mapAll[1].length > newPos.z * -1){
-				if(mapAll[1][newPos.z * -1].length > newPos.x){
-					//console.log('Within Map');
-					if(mapAll[1][newPos.z * -1][newPos.x] === 0){
-						//User can move
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x < 0 && newPos.z >= 0){
-			//Bottom Left - 2
-			//Loop 1 : +Z
-			//Loop 2 : -X
-			if(mapAll[2].length > newPos.z){
-				if(mapAll[2][newPos.z].length > newPos.x * -1){
-					//console.log('Within Map');
-					if(mapAll[2][newPos.z][newPos.x * -1] === 0){
-						//User can move
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x >= 0 && newPos.z >= 0){
-			//Bottom Right - 3
-			//Loop 1 : +Z
-			//Loop 2 : +X
-			if(mapAll[3].length > newPos.z){
-				if(mapAll[3][newPos.z].length > newPos.x){
-					if(mapAll[3][newPos.z][newPos.x] === 0){
-						//User can move
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else {
-			return false;
-		}
-	}
-
-	//Check for Map Obstacles 0.5 Meter
-	//Attempting to fix L required corners, only requiring 2 instead of 3
-	const checkMapObstaclesDiagonal = (newPos, pos) => {
-
-		newPos.x *= 2;
-		newPos.z *= 2;
-
-		pos.x *= 2;
-		pos.z *= 2;
-
-		//World direction of movement
-		if(newPos.x === pos.x && newPos.z === pos.z){
-			//console.log('Same Square')
-			travelDirection = 'same';
-		} else {
-			if(newPos.x === pos.x || newPos.z === pos.z){
-				if(newPos.x === pos.x){
-					//console.log('Forward|Backward');
-					travelDirection = 'z';
-				} else if(newPos.z === pos.z){
-					//console.log('Side to Side');
-					travelDirection = 'x';
-				}
-			} else {
-				console.log('Diagonal');
-				if(newPos.x > pos.x){
-					//Right
-					if(newPos.z > pos.z){
-						//Backward
-						travelDirection = 'reverseRight';
-					} else {
-						//Forward
-						travelDirection = 'forwardRight';
-					}
-				} else {
-					//Left
-					if(newPos.z > pos.z){
-						//Backward
-						travelDirection = 'reverseLeft';
-					} else {
-						//Forward
-						travelDirection = 'forwardLeft';
-					}
-				}
-			}
-		}
-
-
-		if(newPos.x < 0 && newPos.z < 0){
-			//Top Left - 0
-			//Loop 1 : -Z
-			//Loop 2 : -X
-			if(mapAll[0].length > newPos.z * -1){
-				if(mapAll[0][newPos.z * -1].length > newPos.x * -1){
-					//console.log('Within Map');
-					if(mapAll[0][newPos.z * -1][newPos.x * -1] === 0){
-						//Block diagonal movement if both adjacent squares are occupied
-						if(travelDirection === 'forwardRight'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'forwardLeft'){
-							//-Z
-							//-X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)-1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseRight'){
-							//+Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)+1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseLeft'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x >= 0 && newPos.z < 0){
-			//Top Right - 1
-			//Loop 1 : -Z
-			//Loop 2 : +X
-			if(mapAll[1].length > newPos.z * -1){
-				if(mapAll[1][newPos.z * -1].length > newPos.x){
-					//console.log('Within Map');
-					if(mapAll[1][newPos.z * -1][newPos.x] === 0){
-						//Block diagonal movement if both adjacent squares are occupied
-						if(travelDirection === 'forwardRight'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'forwardLeft'){
-							//-Z
-							//-X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)-1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseRight'){
-							//+Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)+1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseLeft'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x < 0 && newPos.z >= 0){
-			//Bottom Left - 2
-			//Loop 1 : +Z
-			//Loop 2 : -X
-			if(mapAll[2].length > newPos.z){
-				if(mapAll[2][newPos.z].length > newPos.x * -1){
-					//console.log('Within Map');
-					if(mapAll[2][newPos.z][newPos.x * -1] === 0){
-						//Block diagonal movement if both adjacent squares are occupied
-						if(travelDirection === 'forwardRight'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'forwardLeft'){
-							//-Z
-							//-X
-							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)-1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseRight'){
-							//+Z
-							//+X
-							if(mapAll[0][(newPos.z)+1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseLeft'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x >= 0 && newPos.z >= 0){
-			//Bottom Right - 3
-			//Loop 1 : +Z
-			//Loop 2 : +X
-			if(mapAll[3].length > newPos.z){
-				if(mapAll[3][newPos.z].length > newPos.x){
-					if(mapAll[3][newPos.z][newPos.x] === 0){
-						//Block diagonal movement if both adjacent squares are occupied
-						if(travelDirection === 'forwardRight'){
-							//-Z
-							//+X
-							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'forwardLeft'){
-							//-Z
-							//-X
-							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x-1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseRight'){
-							//+Z
-							//+X
-							if(mapAll[0][newPos.z+1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseLeft'){
-							//-Z
-							//+X
-							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else {
-			return false;
-		}
-	}
-
-	//Enable Collision Checks for Locomotion
-	const EnableCollision = () => {
-		auxl.collision = true;
-	}
-	//Disable Collision Checks for Locomotion
-	const DisableCollision = () => {
-		auxl.collision = false;
-	}
-
-	//Spawn Edge Collision Object
-	const SpawnEdge = () => {
-
-	}
-
-	//Despawn Edge Collision Object
-	const DespawnEdge = () => {
-
-	}
-
-	//Set Flag & Value to Object - Single or Array
-	const SetFlag = (flagValue) => {
-		if(Array.isArray(flagValue)){
-			for(let each in flagValue){
-				grid[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: grid.id, type: 'grid', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
-			}
-		} else {
-			grid[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: grid.id, type: 'grid', sub: false, name: flagValue.flag, data: flagValue.value});
-		}
-	}
-	//Retreive Flag Value from Object - Single or Array
-	const GetFlag = (flag) => {
-		if(Array.isArray(flag)){
-			let flagArray = [];
-			for(let each in flag){
-				flagArray.push(grid(flag[each]));
-			}
-			return flagArray;
-		} else {
-			return grid[flag];
-		}
-	}
-
-	return {grid, BuildBlankMap, ResetMap, UpdateMap, EnableCollision, DisableCollision, checkMapObstacles, SpawnEdge, DespawnEdge, SetFlag, GetFlag};
-}
-
-//
-//Collision Map
-
-this.mapCollisionData = {
-	data: 'mapCollisionData',
-	id: 'mapCollision',
-	mapSize: 20,
-	edgeCollide: false,
-
-};
-//this.mapCollision = auxl.Collision(auxl.mapCollisionData);
-//this.mapCollision.BuildBlankMap();
-//this.mapCollision.EnableCollision();
-
-//
-//Premade Object Spawning Map Brainstorming
-this.testCoreData = {
-data:'testCore',
-id:'test',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(-1.5,2.5,-1.5),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-
-this.gridObjTest11Data = {
-auxlObj: auxl.objTest11Data,
-mapKeyId: 101,
-size: 1,
-single: true,
-collision: true,
-interactable: false,
-moveable: false,
-walls: false,
-offset: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-
-};
-
-this.mapSpawnData = {
-	data: 'mapSpawnData',
-	id: 'mapCollision',
-	mapSize: 20,
-	edgeCollide: false,
-	spawn: '6 6',//xz coords
-	map:[
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0],
-	],
-
-};
-
-
-
 
 },
 //Delay Player Load in Animation until Scene is Ready
@@ -10224,9 +11266,38 @@ tick: function (time, timeDelta) {
 //AUXL Library : List of Materials, Geometries, Sounds, Animations, Data, Cores, Layers & Objects
 AFRAME.registerComponent('auxl-library', {
 dependencies: ['auxl'],
-update: function () {
+init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
+
+//Sounds
+//
+
+//Kenny
+auxl.confirm1 = './assets/audio/kenny/confirmation_001.ogg';
+auxl.confirm2 = './assets/audio/kenny/confirmation_002.ogg';
+auxl.confirm3 = './assets/audio/kenny/confirmation_003.ogg';
+auxl.confirm4 = './assets/audio/kenny/confirmation_004.ogg';
+auxl.drop1 = './assets/audio/kenny/drop_001.ogg';
+auxl.drop2 = './assets/audio/kenny/drop_002.ogg';
+auxl.drop3 = './assets/audio/kenny/drop_003.ogg';
+auxl.drop4 = './assets/audio/kenny/drop_004.ogg';
+auxl.error7 = './assets/audio/kenny/error_007.ogg';
+auxl.glass1 = './assets/audio/kenny/glass_001.ogg';
+auxl.glass3 = './assets/audio/kenny/glass_003.ogg';
+auxl.maximize6 = './assets/audio/kenny/maximize_006.ogg';
+auxl.maximize7 = './assets/audio/kenny/maximize_007.ogg';
+auxl.maximize8 = './assets/audio/kenny/maximize_008.ogg';
+auxl.minimize6 = './assets/audio/kenny/minimize_006.ogg';
+auxl.minimize7 = './assets/audio/kenny/minimize_007.ogg';
+auxl.minimize8 = './assets/audio/kenny/minimize_008.ogg';
+auxl.pluck1 = './assets/audio/kenny/pluck_001.ogg';
+auxl.pluck2 = './assets/audio/kenny/pluck_002.ogg';
+auxl.question3 = './assets/audio/kenny/question_003.ogg';
+auxl.select2 = './assets/audio/kenny/select_002.ogg';
+auxl.select6 = './assets/audio/kenny/select_006.ogg';
+auxl.select7 = './assets/audio/kenny/select_007.ogg';
+auxl.switch2 = './assets/audio/kenny/switch_002.ogg';
 
 //Colors
 //
@@ -11675,7 +12746,6 @@ auxl.compBookData = {
 //Companion
 auxl.comp = auxl.Companion('comp',auxl.ghost);
 
-
 //
 //Control Configuration View
 auxl.configurationViewData = {
@@ -11698,20 +12768,6 @@ clickrun:{cursorObj: 'comp', method: 'ToggleControlView'},
 },
 };
 auxl.configurationView = auxl.Core(auxl.configurationViewData);
-
-/*
-auxl.cubeLayerData = {
-	parent: {core: auxl.ghostParent},
-	child0: {
-		parent: {core: auxl.ghostAll}, 
-		child0: {core: auxl.eye1Pupil}, 
-	}, 
-}
-bobbing:{property: 'object3D.position.y', from: 1.45, to: 1.55, dur: 7000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true, pauseEvents: 'mouseenter', resumeEvents: 'mouseleave'},
-weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, 
-//click: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}
-*/
-
 
 //
 //Text Bubbles
@@ -12163,210 +13219,6 @@ auxl.moonLayer,
 };
 auxl.skyBox0 = auxl.SkyBox(auxl.skyBox0Data);
 
-//
-//Testing Objects
-
-//Testing Object for Interactions and Events
-auxl.eventTestingData = {
-data:'Event Testing',
-id:'eventTesting',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(-0.75,1.25,-0.75),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-auxl.eventTesting = auxl.Core(auxl.eventTestingData);
-auxl.eventTesting2Data = {
-data:'Event Testing 2',
-id:'eventTesting2',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#3999a5", emissive: '#3999a5', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0.75,1.25,-0.75),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-auxl.eventTesting2 = auxl.Core(auxl.eventTesting2Data);
-auxl.eventTesting3Data = {
-data:'Event Testing 3',
-id:'eventTesting3',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern22, repeat: '1 1', color: "#ad482a", emissive: '#ad482a', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,1.25,-0.75),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-auxl.eventTesting3 = auxl.Core(auxl.eventTesting3Data);
-auxl.eventTesting4Data = {
-data:'Event Testing 4',
-id:'eventTesting4',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern27, repeat: '1 1', color: "#d2e025", emissive: '#d2e025', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,2,-0.75),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-auxl.eventTesting4 = auxl.Core(auxl.eventTesting4Data);
-auxl.eventTesting5Data = {
-data:'Event Testing 5',
-id:'eventTesting5',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern33, repeat: '1 1', color: "#25e074", emissive: '#25e074', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,1.5,-0.75),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-auxl.eventTesting5 = auxl.Core(auxl.eventTesting5Data);
-//Spawn Tester
-auxl.spawnTestingData = {
-data:'spawnTestingData',
-id:'spawnTesting',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern69, repeat: '1 1', color: "#25e074", emissive: '#25e074', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,0.5,-0.5),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1.5,1.5,1.5),
-animations:false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-auxl.spawnTesting = auxl.Core(auxl.spawnTestingData);
-//Sound Testing
-auxl.soundTestingData = {
-data:'Sound Testing',
-id:'soundTesting',
-sources: false,
-//sound: {src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
-sounds: {
-pickup:{src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
-pickup2:{src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound2'},
-},
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['sound','a-ent'],
-components: false,
-};
-auxl.soundTesting = auxl.Core(auxl.soundTestingData);
-//GLTF Material Modification Testing
-auxl.testingData = {
-data:'testingData',
-id:'testing',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,1.5,-1),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components:{
-['gltf-model']:'./assets/3d/kenny/crop_melon.glb',
-//['modify-materials']:null,
-//['auxl-object']:{dataName: 'testingData'},
-},
-};
-auxl.testing = auxl.Core(auxl.testingData);
-//Event Testing
-//Spawn Tester
-auxl.coreEventTestingData = {
-data:'coreEventTestingData',
-id:'coreEventTesting',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {shader: "standard", src: auxl.pattern54, repeat: '1 1', color: "#256de0", emissive: '#256de0', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(2,1,-1),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-	oneventrun__test:{
-		event: 'test',
-		cursorObj: 'comp',
-		component: 'null',
-		method: 'TestFunc',
-		params: 'Event Test',
-	},
-	ondelayrun__test:{
-		delay: 1000,
-		cursorObj: 'comp',
-		component: 'null',
-		method: 'TestFunc',
-		params: 'Delay Test'
-	},
-	onintervalrun__test:{
-		interval: 2000,
-		loop: 13,
-		end: 'test',
-		cursorObj: 'comp',
-		component: 'null',
-		method: 'TestFunc',
-		params: 'Interval Test',
-	},
-},
-
-};
-auxl.coreEventTesting = auxl.Core(auxl.coreEventTestingData);
-
-
-//Emoticon Bubble
-auxl.emoticonTesting = auxl.InfoBubble('emoticonTesting', auxl.coreEventTesting, false, 'red');
-auxl.emoticonTesting.NewBubble({
-emote: true,
-text: '$_$',
-eventName: 'emote10',
-rotation: false,
-});
-auxl.emoticonTesting.NewBubble({
-alert: true,
-text: '$_$',
-eventName: 'alert10',
-rotation: false,
-});
-
 //Build Library Objects
 auxl.buildLibrary = () => {
 
@@ -12431,30 +13283,6 @@ auxl.moon = auxl.Core(auxl.moonData);
 auxl.moonLayer = auxl.Layer('moonLayer', auxl.moonLayerData);
 auxl.skyGrad = auxl.Core(auxl.skyGradData);
 auxl.skyBox0 = auxl.SkyBox(auxl.skyBox0Data);
-
-//Testing
-auxl.eventTesting = auxl.Core(auxl.eventTestingData);
-auxl.eventTesting2 = auxl.Core(auxl.eventTesting2Data);
-auxl.eventTesting3 = auxl.Core(auxl.eventTesting3Data);
-auxl.eventTesting4 = auxl.Core(auxl.eventTesting4Data);
-auxl.eventTesting5 = auxl.Core(auxl.eventTesting5Data);
-auxl.spawnTesting = auxl.Core(auxl.spawnTestingData);
-auxl.soundTesting = auxl.Core(auxl.soundTestingData);
-auxl.testing = auxl.Core(auxl.testingData);
-auxl.coreEventTesting = auxl.Core(auxl.coreEventTestingData);
-auxl.emoticonTesting = auxl.InfoBubble('emoticonTesting', auxl.coreEventTesting, false, 'red');
-auxl.emoticonTesting.NewBubble({
-emote: true,
-text: '$_$',
-eventName: 'emote10',
-rotation: false,
-});
-auxl.emoticonTesting.NewBubble({
-alert: true,
-text: '$_$',
-eventName: 'alert10',
-rotation: false,
-});
 
 }
 auxl.toBeRebuilt('buildLibrary');

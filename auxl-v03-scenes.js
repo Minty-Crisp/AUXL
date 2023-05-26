@@ -15,8 +15,270 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
+
 //
-//Face
+//Testing Objects
+
+//Testing Object for Interactions and Events
+auxl.eventTestingData = {
+data:'Event Testing',
+id:'eventTesting',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(-0.75,1.25,-0.75),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.eventTesting = auxl.Core(auxl.eventTestingData);
+auxl.eventTesting2Data = {
+data:'Event Testing 2',
+id:'eventTesting2',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#3999a5", emissive: '#3999a5', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0.75,1.25,-0.75),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.eventTesting2 = auxl.Core(auxl.eventTesting2Data);
+auxl.eventTesting3Data = {
+data:'Event Testing 3',
+id:'eventTesting3',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern22, repeat: '1 1', color: "#ad482a", emissive: '#ad482a', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,1.25,-0.75),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.eventTesting3 = auxl.Core(auxl.eventTesting3Data);
+auxl.eventTesting4Data = {
+data:'Event Testing 4',
+id:'eventTesting4',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern27, repeat: '1 1', color: "#d2e025", emissive: '#d2e025', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,2,-0.75),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.eventTesting4 = auxl.Core(auxl.eventTesting4Data);
+auxl.eventTesting5Data = {
+data:'Event Testing 5',
+id:'eventTesting5',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern33, repeat: '1 1', color: "#25e074", emissive: '#25e074', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,1.5,-0.75),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{weaving: {property: 'object3D.rotation.y', from: 280, to: 320, dur: 10000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: true, enabled: false}, customevent: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'customevent'}, click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.eventTesting5 = auxl.Core(auxl.eventTesting5Data);
+//Spawn Tester
+auxl.spawnTestingData = {
+data:'spawnTestingData',
+id:'spawnTesting',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern69, repeat: '1 1', color: "#25e074", emissive: '#25e074', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.5,-0.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1.5,1.5,1.5),
+animations:false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.spawnTesting = auxl.Core(auxl.spawnTestingData);
+//Sound Testing
+auxl.soundTestingData = {
+data:'Sound Testing',
+id:'soundTesting',
+sources: false,
+//sound: {src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
+sounds: {
+pickup:{src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
+pickup2:{src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound2'},
+},
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['sound','a-ent'],
+components: false,
+};
+auxl.soundTesting = auxl.Core(auxl.soundTestingData);
+//GLTF Material Modification Testing
+auxl.testingData = {
+data:'testingData',
+id:'testing',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,1.5,-1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components:{
+['gltf-model']:'./assets/3d/kenny/crop_melon.glb',
+//['modify-materials']:null,
+//['auxl-object']:{dataName: 'testingData'},
+},
+};
+auxl.testing = auxl.Core(auxl.testingData);
+//Event Testing
+//Spawn Tester
+auxl.coreEventTestingData = {
+data:'coreEventTestingData',
+id:'coreEventTesting',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern54, repeat: '1 1', color: "#256de0", emissive: '#256de0', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(2,1,-1),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+	oneventrun__test:{
+		event: 'test',
+		cursorObj: 'comp',
+		component: 'null',
+		method: 'TestFunc',
+		params: 'Event Test',
+	},
+	ondelayrun__test:{
+		delay: 1000,
+		cursorObj: 'comp',
+		component: 'null',
+		method: 'TestFunc',
+		params: 'Delay Test'
+	},
+	onintervalrun__test:{
+		interval: 2000,
+		loop: 13,
+		end: 'test',
+		cursorObj: 'comp',
+		component: 'null',
+		method: 'TestFunc',
+		params: 'Interval Test',
+	},
+},
+
+};
+auxl.coreEventTesting = auxl.Core(auxl.coreEventTestingData);
+
+
+//Info Bubble
+auxl.infoTesting = auxl.InfoBubble('infoTesting', auxl.coreEventTesting, false, 'red');
+auxl.infoTesting.NewBubble({
+emote: true,
+text: '$_$',
+eventName: 'emote10',
+rotation: false,
+});
+auxl.infoTesting.NewBubble({
+alert: true,
+text: '$_$',
+eventName: 'alert10',
+rotation: false,
+});
+
+//Creature Testing
+//auxl.emoticonTesting = auxl.Creature('emoticonTesting', false, {eyeSize: 'large', eye: 'egg', pupil: 'square', earSize: 'large', ear: 'bun'});
+auxl.creatureTesting1 = auxl.Creature('creatureTesting1', false, {eye: 'egg', pupil: 'egg'});
+
+auxl.creatureTesting2 = auxl.Creature('creatureTesting2', false, {offset: new THREE.Vector3(2,3,-3)});
+
+//Physics Testing
+auxl.physicsTest1Data = {
+data:'physicsTest1Data',
+id:'physicsTest1',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,6,-6),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+['dynamic-body']:null,
+},
+};
+auxl.physicsTest1 = auxl.Core(auxl.physicsTest1Data);
+
+
+//Collision testing
+auxl.collisionTest1Data = {
+data:'collisionTest1Data',
+id:'collisionTest1',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 2, height: 1},
+material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0.5,-1.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+['static-body']:null,
+},
+};
+auxl.collisionTest1 = auxl.Core(auxl.collisionTest1Data);
+/*
+auxl.collisionTest1.SpawnCore();
+auxl.mapCollision.UpdateMapArea(
+{xPos:auxl.collisionTest1Data.position.x,
+xArea:auxl.collisionTest1Data.geometry.width,
+zPos:auxl.collisionTest1Data.position.z,
+zArea:auxl.collisionTest1Data.geometry.depth,
+key: 1,
+});
+*/
+
+//
+//Creature Face Testing
 
 //Parent
 auxl.faceParentData = {
@@ -26,7 +288,7 @@ sources: false,
 text: false,
 geometry: false,
 material: false,
-position: new THREE.Vector3(0,3,-3),
+position: new THREE.Vector3(0,5,-3),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -37,23 +299,6 @@ components: {
 },
 };
 auxl.faceParent = auxl.Core(auxl.faceParentData);
-//All
-auxl.faceAllData = {
-data:'faceAllData',
-id:'faceAll',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components: false,
-};
-auxl.faceAll = auxl.Core(auxl.faceAllData);
 //EyeSocket
 auxl.faceEye1SocketData = {
 data:'faceEye1SocketData',
@@ -261,7 +506,7 @@ auxl.faceLayerData = {
 		child0: {core: auxl.faceEar2}, 
 	},
 }
-auxl.face = auxl.Layer('face',auxl.faceLayerData);
+auxl.faceTest = auxl.Layer('faceTest',auxl.faceLayerData);
 
 
 //
@@ -294,7 +539,7 @@ data:'cubeCoreData',
 id:'cubeCore',
 sources: false,
 text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+geometry: {primitive: 'box', depth: 0.35, width: 0.35, height: 0.35},
 material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
 position: new THREE.Vector3(1,1.5,-1.5),
 rotation: new THREE.Vector3(0,0,0),
@@ -305,6 +550,7 @@ classes: ['clickable','a-ent'],
 components: false,
 };
 auxl.cubeCore = auxl.Core(auxl.cubeCoreData);
+auxl.cubeCoreInfo = auxl.InfoBubble('cubeCoreInfo', auxl.cubeCore, false, 'red');
 
 //Switch Cube
 auxl.switchCubeData = {
@@ -312,7 +558,7 @@ data:'switchCubeData',
 id:'switchCube',
 sources: false,
 text: false,
-geometry: {primitive: 'box', depth: 0.15, width: 0.5, height: 0.5},
+geometry: {primitive: 'box', depth: 0.15, width: 0.35, height: 0.35},
 material: {shader: "standard", src: auxl.pattern11, repeat: '1 1', color: "#2380b2", emissive: '#2380b2', emissiveIntensity: 0.25, opacity: 1},
 position: new THREE.Vector3(-1,2,-1.5),
 rotation: new THREE.Vector3(0,0,0),
@@ -325,28 +571,7 @@ components: {
 },
 };
 auxl.switchCube = auxl.Core(auxl.switchCubeData);
-
-//Build new Data from template
-//3 Ways
-
-//auxl.templateTest = auxl.Core(auxl.coreFromTemplate('templateTest', auxl.switchCubeData, {position: new THREE.Vector3(0,3,-3)}));
-
-//auxl.templateTestData = auxl.coreFromTemplate(auxl.switchCubeData, {id: 'templateTest', position: new THREE.Vector3(0,3,-3)});
-//auxl.templateTest = auxl.Core(auxl.templateTestData);
-//auxl.templateTest.SpawnCore();
-
-/*
-auxl.templateTestData = auxl.coreFromTemplate(auxl.switchCubeData, {position: new THREE.Vector3(0,3,-3), material: {shader:'grid-glitch', color: 'blue',}});
-auxl[auxl.templateTestData.id] = auxl.Core(auxl.templateTestData);
-auxl[auxl.templateTestData.id].SpawnCore();
-*/
-
-/*
-auxl.templateTest2Data = auxl.coreFromTemplate(auxl.switchCubeData, {position: new THREE.Vector3(0,1,-3), material: {shader:'grid-glitch', color: 'blue',}});
-auxl[auxl.templateTest2Data.id] = auxl.Core(auxl.templateTestData);
-auxl[auxl.templateTest2Data.id].SpawnCore();
-*/
-
+auxl.switchCubeInfo = auxl.InfoBubble('switchCubeInfo', auxl.switchCube, false, 'blue');
 
 //Floor
 auxl.floorData = {
@@ -773,7 +998,7 @@ auxl.testItem1 = {
 	amount: 3,
 	style: false,
 	action: true,
-	auxlObj: 'testItem1Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -787,13 +1012,27 @@ auxl.testItem2 = {
 	amount: 1,
 	style: false,
 	action: true,
-	auxlObj: 'testItem2Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
 };
 
 //Tools
+auxl.flashlightTool = {
+	name: 'Toggle Flashlight',
+	description: 'Turn On/Off your flashlight.',
+	category: 'items',
+	type: 'use',
+	persist: 'permenant',
+	amount: false,
+	style: false,
+	action: true,
+	auxlObj: 'player',
+	component: false,
+	method: 'ToggleFlashlight',
+	params: 'close'
+};
 auxl.testTool1 = {
 	name: 'Test Tool 1',
 	description: 'Just a test tool.',
@@ -803,7 +1042,7 @@ auxl.testTool1 = {
 	amount: false,
 	style: false,
 	action: true,
-	auxlObj: 'testTool1Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -817,7 +1056,7 @@ auxl.testTool2 = {
 	amount: false,
 	style: false,
 	action: true,
-	auxlObj: 'testTool2Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -834,7 +1073,7 @@ auxl.zone1Key = {
 	amount: false,
 	style: false,
 	action: false,
-	auxlObj: 'zone1Key',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -848,7 +1087,7 @@ auxl.testKey1 = {
 	amount: false,
 	style: false,
 	action: false,
-	auxlObj: 'testKey1Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -862,7 +1101,7 @@ auxl.testKey2 = {
 	amount: false,
 	style: false,
 	action: false,
-	auxlObj: 'testKey2Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -876,7 +1115,7 @@ auxl.testKey3 = {
 	amount: false,
 	style: false,
 	action: false,
-	auxlObj: 'testKey3Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -890,7 +1129,7 @@ auxl.testKey4 = {
 	amount: false,
 	style: false,
 	action: false,
-	auxlObj: 'testKey4Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -904,7 +1143,7 @@ auxl.testKey5 = {
 	amount: false,
 	style: false,
 	action: false,
-	auxlObj: 'testKey5Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -918,7 +1157,7 @@ auxl.testKey6 = {
 	amount: false,
 	style: false,
 	action: false,
-	auxlObj: 'testKey6Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -932,7 +1171,7 @@ auxl.testKey7 = {
 	amount: false,
 	style: false,
 	action: false,
-	auxlObj: 'testKey7Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -946,7 +1185,7 @@ auxl.testKey8 = {
 	amount: false,
 	style: false,
 	action: false,
-	auxlObj: 'testKey8Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -960,7 +1199,7 @@ auxl.testKey9 = {
 	amount: false,
 	style: false,
 	action: false,
-	auxlObj: 'testKey9Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -976,7 +1215,7 @@ auxl.testSpecial1 = {
 	amount: false,
 	style: false,
 	action: true,
-	auxlObj: 'testSpecial1Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -990,7 +1229,7 @@ auxl.testSpecial2 = {
 	amount: false,
 	style: false,
 	action: true,
-	auxlObj: 'testSpecial2Obj',
+	auxlObj: 'player',
 	component: false,
 	method: 'test',
 	params: 'null'
@@ -1432,6 +1671,30 @@ auxl.doorway2 = auxl.Core(auxl.doorway2Data);
 auxl.buildSceneLibrary = () => {
 
 //Testing
+//Testing
+auxl.eventTesting = auxl.Core(auxl.eventTestingData);
+auxl.eventTesting2 = auxl.Core(auxl.eventTesting2Data);
+auxl.eventTesting3 = auxl.Core(auxl.eventTesting3Data);
+auxl.eventTesting4 = auxl.Core(auxl.eventTesting4Data);
+auxl.eventTesting5 = auxl.Core(auxl.eventTesting5Data);
+auxl.spawnTesting = auxl.Core(auxl.spawnTestingData);
+auxl.soundTesting = auxl.Core(auxl.soundTestingData);
+auxl.testing = auxl.Core(auxl.testingData);
+auxl.coreEventTesting = auxl.Core(auxl.coreEventTestingData);
+auxl.emoticonTesting = auxl.InfoBubble('emoticonTesting', auxl.coreEventTesting, false, 'yellow');
+auxl.emoticonTesting.NewBubble({
+emote: true,
+text: '$_$',
+eventName: 'emote10',
+rotation: false,
+});
+auxl.emoticonTesting.NewBubble({
+alert: true,
+text: '$_$',
+eventName: 'alert10',
+rotation: false,
+});
+
 auxl.build = auxl.BuildIn3D();
 auxl.testCubeCore = auxl.Core(auxl.testCubeCoreData);
 auxl.cubeCore = auxl.Core(auxl.cubeCoreData);
@@ -1510,6 +1773,9 @@ auxl.zone0Data = {
 	start:{
 		switchCube:{SpawnCore:null},
 		cubeCore:{SpawnCore:null},
+		faceTest:{SpawnLayer:null},
+		creatureTesting1:{SpawnCreature:null},
+		creatureTesting2:{SpawnCreature:null},
 	},
 	delay:{
 		30000:{
@@ -1563,70 +1829,29 @@ auxl.zone0Scene0Data = {
 	},
 	start:{
 		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#1e7e5d", emissive: "#1e7e5d",},}},
-		//biome:{SpawnMultiAsset:null},
+		biome:{SpawnMultiAsset:null},
 		hills:{SpawnHorizon:null},
-		//teleport:{SpawnTeleport:null},
-		//test:{SpawnTest:null},
-		//guessHitGame:{SpawnGHGame:null},
-		//npcMinty:{SpawnNPC:null},
-		//switchCube:{SpawnCore:null},
 		coreEventTesting:{SpawnCore:null},
 		doorway1:{SpawnCore:null},
 		doorway2:{SpawnCore:null},
-		//ghost:{SpawnLayer:null},
-		//multiMenuTest:{SpawnMultiMenu:null},
-		face:{SpawnLayer:null},
-		layerNPC:{SpawnNPC:null},
 	},
 	delay:{
 		3000:{
-			coreEventTesting:{EmitEvent:'alert1'},
+			switchCube:{EmitEvent:'emote1'},
 		},
 		4000:{
 			coreEventTesting:{EmitEvent:'test'},
+			cubeCore:{EmitEvent:'alert2'},
 		},
 		5000:{
 			comp:{SetFlag:{flag: 'test', value: true}},
+			coreEventTesting:{EmitEvent:'alert1'},
 		},
 	},
 	interval:{
 		5000: {
 			run: {switchCube:{EmitEvent: 'switchEvent'},}, loop: 'infinite'
 		},
-/*
-		5000: {
-			run: {switchCube:{EmitEvent: 'switchEvent'},}, loop: 'infinite'
-		},
-*/
-/*
-		5000: {
-			run: {
-				switchCube:{Switch: {switchCube:{cond: 'testSwitch',
-					switchCond1: {
-						switchCube:{EmitEvent: 'switch1',SetFlag:{flag: 'testSwitch', value: 'switchCond2'},},
-					},switchCond2: {
-						switchCube:{EmitEvent: 'switch2',SetFlag:{flag: 'testSwitch', value: 'switchCond3'},},
-					},switchCond3: {
-						switchCube:{EmitEvent: 'switch3',SetFlag:{flag: 'testSwitch', value: 'switchCond4'},},
-					},default: {
-						switchCube:{EmitEvent: 'switch4',SetFlag:{flag: 'testSwitch', value: 'switchCond1'},},
-					},
-				}}},
-			}, loop: 'infinite'
-		},
-*/
-/*
-		5000: {
-			run: {ghost:{IfElse: {ghost: {cond: 'power',
-			ifTrue: {
-			ghost:{EmitEventAll: 'poweredDown',SetFlagParent:{flag: 'power', value: false},},
-			},
-			ifFalse: {
-			ghost:{EmitEventAll: 'poweredUp',SetFlagParent:{flag: 'power', value: true},},
-			},
-			},}},}, loop: 2
-		},
-*/
 	},
 	event:{
 		switchEvent: {
@@ -1747,8 +1972,6 @@ auxl.zone1Scene0Data = {
 	start:{
 		floor:{ChangeSelf:[{property: 'material', value: {src: auxl.pattern80, repeat: '150 150',color: "#21679a", emissive: "#21679a",},},{property: 'position', value: new THREE.Vector3(0,0,0),},{property: 'raycast-teleportation-select', value: null,}],},
 		basicRing:{SpawnObjRing:null},
-		//swipeLaunchGame:{SpawnSLGame:null},
-		//dragDiffuseGame:{SpawnDDGame:null},
 	},
 	delay:{
 	},
@@ -1801,21 +2024,14 @@ auxl.v03TestingScenarioData = {
 		},
 	},
 	controls:{
-		//action1Down:{auxlObj: 'player', func: 'TestFunc', params: {test1: 1, test2: 2}},
-		//action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'movingUp', name: 'Move Upwards', info: 'Move yourself upwards.'},
-		//action1Up:{auxlObj: 'playerRig', component: 'locomotion', func: 'cancelUp', name: false, info: false},
-		//action2Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'movingDown', name: 'Move Downwards', info: 'Move yourself upwards.'},
-		//action2Up:{auxlObj: 'playerRig', component: 'locomotion', func: 'cancelDown', name: false, info: false},
 		action3Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
-		//action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn',},
 		action5Down:{auxlObj: 'player', func: 'ToggleCrouch', name: 'Toggle Crouch/Stand', info: 'Change your position speed between crouch and standing.'},
-		//action6Down:{auxlObj: 'player', func: 'ToggleSittingMode'},
 		action7Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
 		action8Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
-		comp:{SpawnComp: null, AddToInventory:{item:[ auxl.testItem1, auxl.testItem2, auxl.testTool1, auxl.testTool2, auxl.testKey1, auxl.testKey2, auxl.testKey3, auxl.testKey4, auxl.testKey5, auxl.testKey6, auxl.testKey7, auxl.testKey8, auxl.testKey9, auxl.testSpecial1, auxl.testSpecial2,], hide: true}},
+		comp:{SpawnComp: null, AddToInventory:{item:[ auxl.testItem1, auxl.testItem2, auxl.flashlightTool, auxl.testTool1, auxl.testTool2, auxl.testKey1, auxl.testKey2, auxl.testKey3, auxl.testKey4, auxl.testKey5, auxl.testKey6, auxl.testKey7, auxl.testKey8, auxl.testKey9, auxl.testSpecial1, auxl.testSpecial2,], hide: true}},
 		floor:{SpawnCore: null},
 		clouds:{SpawnLayer: null},
 	},
@@ -1849,121 +2065,6 @@ auxl.TestingWorldData = {
 };
 auxl.testingWorld = auxl.World(auxl.TestingWorldData);
 auxl.testingWorld.SetAsDefault();
-
-
-//
-//Loading World
-
-//
-//Zone Load Data
-auxl.zoneLoadData = {
-	info:{
-		id: 'zoneLoad',
-		name: 'Loading Zone',
-		zoneNum: 0,
-		start: 'zoneLoadScene',
-		travelMenu: false,
-	},
-	map:{
-	},
-	controls:{
-	},
-	start:{
-	},
-	delay:{
-	},
-	interval:{
-	},
-	event:{
-	},
-	interaction:{
-	},
-	exit:{
-	},
-};
-//Zone Load Scene Data
-auxl.zoneLoadSceneData = {
-	info:{
-		id:'zoneLoadScene',
-		name: 'Loading Area',
-		description: 'A loading area to select what you want to do.',
-		sceneText: true,
-	},
-	controls:{
-	},
-	start:{
-		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern75, repeat: '150 150',color: "#be1f8d", emissive: "#be1f8d",},},},
-	},
-	delay:{
-	},
-	interval:{
-	},
-	event:{
-	},
-	interaction:{
-	},
-	exit:{
-	},
-	map:{
-		data: auxl.zoneLoadData.zoneLoadScene,
-	},
-};
-//Zone Load Scene
-auxl.zoneLoadScene = auxl.SceneNode(auxl.zoneLoadSceneData);
-//Zone Load
-auxl.zoneLoad = auxl.MapZone(auxl.zoneLoadData);
-
-//
-//Load Scenario
-auxl.loadScenarioData = {
-	info:{
-		id: 'loadScenario',
-		name: 'Loading Scenario',
-		scenarioNum: 0,
-		startZone: 'zoneLoad',
-		instructions: 'A loading area to select your World to load.',
-	},
-	map:{},
-	controls:{
-		action7Down:{auxlObj: 'player', func: 'SnapLeft'},
-		action8Down:{auxlObj: 'player', func: 'SnapRight'},
-	},
-	start:{
-		skyBox0:{SpawnSkyBox: null},
-		comp:{SpawnComp: null},
-		floor:{SpawnCore: null},
-		clouds:{SpawnLayer: null},
-		//Worlds Loaded Menu Spawn
-	},
-	delay:{
-		100:{
-			skyBox0:{DayNightCycle: null},
-		},
-	},
-	interval:{
-	},
-	event:{
-	},
-	interaction:{
-	},
-	exit:{
-	},
-};
-auxl.loadScenario = auxl.Scenario(auxl.loadScenarioData);
-
-//
-//Load World
-auxl.LoadWorldData = {
-	info:{
-		id: 'loadWorld',
-		name: 'Load World',
-		description: 'A loading world.',
-	},
-	scenarios:[
-		auxl.loadScenario,
-	],
-};
-auxl.loadWorld = auxl.World(auxl.LoadWorldData);
 
 //
 //System Loaded
