@@ -1,14 +1,13 @@
-# AUXL : A-Frame UX Library :palm_tree: v0.2
+# AUXL : A-Frame UX Library :palm_tree: v0.3
 
 ## Web XR Scenario, Object Generator Engine & Universal Controller System
 
 [View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
-[v0.2 Demo Scenario](https://minty-crisp.github.io/AUXL/)
+[v0.3 Demo Scenario](https://minty-crisp.github.io/AUXL/)
 
+### v0.3 Wiki Update and Starter Coming Soon!!!
 Learn how to build your first AUXL Scenario with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
-
-[v0.3 Beta Scenario](https://minty-crisp.github.io/AUXL/v03.html)
 
 AUXL Summary : :star2:
 ---
@@ -24,6 +23,8 @@ AUXL is built to accomplish 3 main goals : :hearts:
 
 Control Configurations : :eyes:
 ---
+- Raycaster Interaction : (Complete)
+- Physics Interaction : (In-Progress)
 - Desktop : Mouse & Keyboard (Complete)
 - Mobile : Touchscreen (Complete)
 - VR Advanced : Dual 6DoF Controllers (Complete)
@@ -39,13 +40,13 @@ A few cool features of AUXL to highlight : :first_quarter_moon_with_face:
 ---
 - Reusable & remixable data to build more with less.
 - Generate various types of in-scene entities all with an abundant amount of customizations and controls.
-- Map out how the Player moves along the Scenario, Zone and Scenes with support for Lock & Keys.
+- Map out how the Player moves along the World, Scenario, Zone and Scenes with support for Lock & Keys.
 - Object spawn tracking for each Scenario, Zone, Scene and Book instructions.
 - Scene Swap/Teleportation transition animations with dynamic loading times to account for new asset downloads.
 - Dynamically load in component javascript URLs as needed.
-- Configure unique controls to object methods or component methods within a Scenario, Zone and Scene.
+- Configure unique controls to object methods or component methods within a Scenario, Zone and Scene and view current loadout for specific type (i.e. Mobile, Desktop, VR, etc...).
 - Build Scenario, Zone and Scene instructions with on start, delay, interval, interaction, event, exit & if/else conditionals.
-- Interactable NPC object with text bubble speech system using their Book as instructions.
+- Interactable NPC object with text bubble speech system using their Book as instructions for progression, idle or random timeline.
 - Companion object with access to settings, inventory and more.
 - Built in Player Rig with locomotion, teleportation, snap turning, crouching, sitting mode & adjustable walk speed actions.
 - Prebuilt AUXL object library to utilize in addition to your own library.
@@ -54,83 +55,75 @@ A few cool features of AUXL to highlight : :first_quarter_moon_with_face:
 Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki) to Learn More!!!
 ---
 
-# v0.3 Beta Updates : :fire:
-- Custom Object Generators can now be added dynamically to Scenario, Zone, Node and Book Trackers.
-- Updated all ObjGen's to support SetFlag & GetFlag methods, so now If/Else Instructions support all AUXL object.
-- Updated ObjGen's to track if they are already spawned to avoid duplicates and added ToggleSpawn method for use ideally with action controls. Objects added this way are not added to any tracker currently.
-- Updated instruction action controls to support adding parameters to object or component methods. Component and Params can be omitted if not needed.
-- Added ToggleFlashlight method to Player which spawns a flashlight on Camera or dominant VR hand.
-- New AUXL Object : MultiMenu. Generates a navigatable menu from a core button with multiple generations of parent/child sub menus all containing actions to jump to a specific menu, run an AUXL Object Method w/Parameters or an AUXL Object Component Method w/Parameters. Button description texts are toggled on hover.
-- Added support component : menurun as well as updated clickrun, fusingrun, mousedownrun, mouseenterrun, mouseleaverun and mouseuprun to be able to run component attached methods.
-- Added GetChildEl() to layer.
-- Added doorway component that can be assigned a zone's scene connection travel point activated upon click.
-- Added new customizable Action 7 and Action 8 to Joystick Other Left/Right, Desktop Keys Z/X and Mobile Buttons Left/Right.
-- Added grid movement support to Locomotion component
-- Additional Locomotion Types in Progress
-- Premade & Dynamic Collision Map Spawning in Progress
-- NPC's Page instructions now accept the keyword 'self' which will run said instructions on the NPC reading it.
-- NPC's Book now accepts new Info key 'name' to be displayed with Speak() method if the 'role' key is omitted or labeled as 'self'.
-- Reduced Notification TempDisableClick time.
-- Added a minimum load time to scene instruction reading to ensure that all items that require downloading are added in complete to the auxl.loadingObjects object before logic checks.
-- NPC now spawns Book's SpeechBubble on initial mouseover unless Idle Speech is configured. Added Idle Speech autoplay support with customizable delay, interval and IdlePage instructions. Idle Speech is swapped out for regular Pages on interaction.
-- NPC speech now displays a blinking indicator to prompt additional interaction for next slide or when at end of book.
-- Companion now uses a mutli-menu Main Menu with settings such as Travel to Scenes, Toggle FlashLight, Toggle Sit/Stand Mode, Change Scene Transition Type, Change Teleport Transition Type and Change Transition Color.
-- Zone's can now define if the basic Travel menu will display. Travel menu will always update in Companion Menu and other objects aka Doorways can be configured for Travel as well.
-- Updated Spawn/DespawnCore and Spawn/DespawnLayer. Layer's can now be attached to a Parent entity via AUXL.object, entity or element ID.
-- Multi-Menu Updates
-- - Supports Circle Up, Circle Down, Vertical and Horizontal Layouts
-- - Fixed an issue with how actions were being added.
-- - Dynamically update a subMenu with UpdateSubMenu() method.
-- - Parent can now be dynamically updated via the method UpdateParent().
-- - Actions can now control how the menu reacts on click whether to stay open, go back or close.
-- - Can now be configured to 'stare' at an object with look-at-xyz component providing the id and which axis x,y and/or z angles.
-- Re-arranged all components into 4 javascript file categories : System, Support, Extras and Scenes.
-- User position is reset back to 0,0,0 on scene change
-- Added new hovertext support component which on mousehover will display configured text either on top or in front of the object and rotates to user view.
-- Ham Companion now accepts a Layer as an Avatar.
-- Added raycast-teleportation-select that spawns a select button on click.
-- Added in-progress Mini Games SwipeLaunchGame, GuessHitGame & DragDiffuse.
-- Added in-progress Pet, Battler & BattleRef systems.
-- Added in-progress Gimbal controller of the player avatar 1st/3rd.
-- Added World ObjGen that can hold and navigate multiple Scenarios.
-- Zone's map data has been moved into each Scenario to allow dynamic mapping through Scenario progression as well as changeable via UpdateMap(mapData) auxl.zoneObject method.
-- Added in-progress profile storage save/load/reset system. Upon reset, entire system is unloaded and restarted via Menu.
-- Fixed an issue with Multi-Menus overlapping with each other.
-- Added UpdateUIText() method to Player to update HTML header and VR controller text.
-- Added 90degree snap turning.
-- Can now change which is used with 1st POV Locomotion direction between Camera or Controller.
-- Dynamic controls now take in an Action name and Action description that populate a control configuration window toggleable from the Ham menu to display all current control configurations for the current mode (Desktop, Mobile, VR Advanced, VR Basic, etc...).
-- Added Companion method to change avatar's core/layer and menu option for a few preconfigured styles.
-- Updated Core's to be able to parent to a core, layer(parentEl), html entity or html element id string.
-- Added a belt text UI attached to player to display relevant information and method to update it as well as to toggle it. Toggle attached to player floor.
-- Added compass texture to player floor.
-- Updated SwipeLaunchGame with a Instructions and High Score Leaderboard synced to localStorage.
-- Adjusted SkyBox ObjGen to fire Sunrise/Sunset events to all core/layers in imported array for each section
-- Added auxl.saveToProfile() system function to save AUXLObject data to localstorage which upon reloading the page and finding data, will use the system function UpdateFromLocal() to update all AUXLObjects with that save data. Any AUXLObjects that support save data needs to refresh itself upon spawning as the data will be updated after it's initial creation.
-- Added system function to generate time object and time/date difference of time objects. Added profile creation time sync, current time sync and time span since last visit time sync.
-- Updated Scene, Zone, Scenario and Book Instructions to support Switch like statements.
-- Added new component stare which uses the three.js method lookAt to have one object rotate watch another object's movement. In addition to ID of object to watch, can also enable twist which only rotates on the y axis.
-- Companion now spawns in the direction of the player camera on spawn toggle.
-- Updated all system AUXL Objects SetFlag and Player Inventory methods to support save/load.
-- Added system function auxl.coreFromTemplate() to generate new Core data from a template with any additional changes needed.
-- Added support component onspawnrun that runs method when object is added to scene and component ondespawnrun that runs method when object is removed from the scene
-- All support components that run methods allow mutliple copies added with name__id to be attached to the same object.
-- Added new InfoBubble ObjGen to display a temporary emote or interaction required alert with a string of text with background above object on event emit of parent. Has multiple preconfigured emote/alerts, but also supports custom ones as well.
-- Scenes now support Fog configuration via Info.
-- Current Location is now being saved and will respawn in same location upon revisit.
-- Updated NPC Book SelectJump() to import Prompt Message.
-- Added Switch logic to NPC Books.
-- Added new components oneventrun, ondelayrun & onintervalrun to run AUXL method or components method on Event, Delay or Interval.
-- Added support for multiple sounds attaching to a single Core entity under the new data key 'sounds'
-- Renamed HamMenu/Ham to Companion/Comp
-- Added a build method for each component containing object generations that contains a copy of all declared objects for that component which runs on system reset. Allows for all objects, flags, changes, etc... to be reset back to defaults without reloading page via Reset Data menu option.
-- Added Companion position update by clicking belt text ui screen to move the companion while spawned.
-- Added GetAllEl method to layer.
-- Updated NPC to support Layer as the Avatar and added GetNPCEl, AddNPCEvents & RemoveNPCEvents methods. Fixed a few various issues with NPC as well.
-- Added support for unlimited parent/child sections inside Layers.
-- NPC pages now support random timelines and going to the next page via NewPage(), the beginning of a specific page via NewPage({page}) or a specific timeline on a new page via NewPage({page, timeline}).
+# v0.3 Brief Overview of Major Updates : :fire:
+## System
+- AUXL is now divided into 5 main files called System, Support, Extras, Shaders and Scenes to hold all needed components.
+- Added Save/Load/Reset system to store profile, date/time/visit, location, support of auxl object flags and more.
+- Generate new Core data from templates along with any customizations via auxl.coreFromTemplate().
+- Each object generator component has a rebuild function to regenerate all defined objects upon system reset without reloading the webpage.
+- Various additional v0.2 Object Generator improvements and methods.
+- Support to add custom Object Generators to Scenario, Zone, Scene and Book trackers via auxl.AddObjGenToTracker('objectCoreName', 'SpawnMethodName', 'DespawnMethodName');
 
-# Features Roadmap : :cherries:
+## Cores & Layer
+- Layers now support unlimited depth of parent/child entities.
+- The connected parent for a Core/Layer can now be identified via a core, name of a core, html element or string name of the element.
+- Various other methods and minor improvements.
+
+## Worlds, Scenarios, Zones, Scenes and Books
+- Instructions now support Switch statements.
+- Scenes now support Fog configuration.
+- Zone maps have been moved into Scenario objects and can be dynamically updated.
+- New main Object Generator, World which holds various Scenarios.
+
+## Companion
+- Updated main menu with Inventory, Fast Travel, Settings and View Current Control Configuration.
+- - Inventory holds Items, Tools, Keys and Special Objects added via companion methods. Objects can be permenant or have limited uses.
+- - Fast Travel menu for all connected areas in the scene.
+- - Settings menu to toggle Sit/Stand mode, change Companion Avatar shape, change Scene Transistion style, change Teleportation Transistion style and change Transistion color.
+- - Control Configuration option to display an information window of all currently configured actions from the Scenario, Zone or Scene as well as the specific interactions for the current control type (i.e. Mobile, Desktop or VR).
+- Combined NPC Book functions into Companion.
+- Toggle spawn still configured to player floor, but can be repositioned without toggling via clicking on the Belt Text UI.
+
+## NPC
+- Now accepts an idle speech page to be displayed if not interacted for specified amount of time.
+- Book Timelines now supports multiple pages, page jumps and reading in a randomized order.
+- Added speech progression blink notification to continue book or indicate book end.
+- Configured the keyword 'self' to be used in place of an auxlObj name which runs any assigned action on the NPC reading the book.
+- Various other minor improvements.
+
+## New ObjGens
+- World : Main system loader that holds Scenarios. Allows for dynamically loading and unloading of the current Scenario with all of its attached Zones and Scenes as well as progressing to the next or a specific Scenario. 
+- Multi-Menu : Generates a navigatable menu from a main button with multiple generations of parent/child sub menus all containing actions to jump to a specific menu, run an AUXL Object Method w/Parameters or an AUXL Object Component Method w/Parameters. Button description texts are toggled on hover with Circle Up, Circle Down, Vertical and Horizontal Layouts. Menu can be dynamically updated as well.
+- InfoBubble : A bubble object that attaches to a parent object to act as either an Emote or Alert prompted by an event called on the parent. Emotes are temporarily displayed, while Alerts require interaction to dismiss. Preconfigured and custom text emote/alerts supported.
+
+## New Support Components
+- hovertext : on mousehover of attached object will display configured text either on top or in front of the object and rotates with user view.
+- doorway : assign a zone's scene connection travel point to an object with movement activated upon click.
+- stare : have one object rotate to watch another object's movement. In addition to ID of object to watch, can also enable twist which only rotates on the y axis.
+- onspawnrun : Run auxl object method on spawn.
+- ondespawnrun : Run auxl object method on despawn.
+- oneventrun : Run auxl object method on event.
+- ondelayrun : Run auxl object method on delay.
+- onintervalrun : Run auxl object method on interval.
+- raycast-teleportation-select : spawn a teleport select button on click.
+
+## Minor Additional Updates
+- Player Flashlight
+- Player Floor Compass Texture
+- 45 & 90 Degree Snap Turning
+- New Locomotion movements such as flying and 3rd Person POV
+
+# v0.4+ In Progress Updates : :cherries:
+- Cannon JS Physics
+- Additional Locomotion Styles and Gimbal Player Control
+- Non-Physics Wall Generation and Movement Collision
+- Creature Generator
+- VRM Asset Support for NPC's with Reaction Animations
+- In 3D Object Builder
+- Mini Games Arcade
+- RPG Demo
+
+# Features Roadmap
 - System Function, Component & ObjGen Updates
 - Additional Control Configurations and Enhancements
 - Companion Improvements & Customizations
@@ -141,9 +134,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - 3D Object Inspection
 - Endless Scene Asset Spawning
 - Enhanced Scenary : Horizon, Foley, Weather, SkyBox, etc...
-- VRM Asset Support for NPC's with Animations & Reactions
 - Quiz, Question, Polls & Feedback Form Submissions
-- Object Notifications & Alerts
 - Home Area, Widgets & Themes
 - RSS Support for Browsing Experiences, Rooms and Components
 - 2D/3D Creation & Editing Tools
