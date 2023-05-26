@@ -1,6 +1,6 @@
 # AUXL : A-Frame UX Library :palm_tree: v0.3
 
-## Web XR Scenario, Object Generator Engine & Universal Controller System
+## Web XR World, System, Object Generator Engine & Universal Controller System
 
 [View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
@@ -13,9 +13,10 @@ AUXL Summary : :star2:
 ---
 AUXL is a javascript engine built to streamline and unify the creation of Web XR experiences based on [A-Frame](https://github.com/aframevr/) & [Three.js](https://threejs.org/). It provides a variety of critical system, object, scene and scenario building tools that allows the user to create XR experiences as if they were making classic 2D HTML websites or game worlds. The types of website styles that can be built with are as endless as the web itself. Anything like a portfolio, gallery, blog, virtual tour, visual novel, video game and more. I envision the system to be a combination of tools like Wordpress and Unity with a long term plan to create 2D/3D admin panel like generation tools to open access to all users in creating their own personal XR content. It is being released under the GPL 3.0 license for all to use and hopefully will help with the adoption of the Web XR ecosystem.
 
-AUXL is built to accomplish 3 main goals : :hearts:
+AUXL is built to accomplish a few main goals : :hearts:
 ---
-- Dynamic Experiences : Swap through experiences in a single browser session that each have their own set of Scenario defined builds and navigatable Zone maps of Scenes.
+- Dynamic Experiences : Swap through World experiences in a single browser session that each have their own set of Scenario defined builds and navigatable Zone maps of Scenes.
+- System Support : XR profile data with Save/Load/Reset as well as various internal functions and components to add all sorts of functionality to the experience.
 - Object Generators : All of the various basic and special objects that you would use, view & interact with inside the 3D environment.
 - Universal Controls : The unified hardware input controls for interacting with the 3D content that a browser can communicate with.
 
@@ -64,12 +65,12 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Various additional v0.2 Object Generator improvements and methods.
 - Support to add custom Object Generators to Scenario, Zone, Scene and Book trackers via auxl.AddObjGenToTracker('objectCoreName', 'SpawnMethodName', 'DespawnMethodName');
 
-## Cores & Layer
+## Core & Layers
 - Layers now support unlimited depth of parent/child entities.
 - The connected parent for a Core/Layer can now be identified via a core, name of a core, html element or string name of the element.
 - Various other methods and minor improvements.
 
-## Worlds, Scenarios, Zones, Scenes and Books
+## World, Scenario, Zone, Scene and Books
 - Instructions now support Switch statements.
 - Scenes now support Fog configuration.
 - Zone maps have been moved into Scenario objects and can be dynamically updated.
@@ -91,7 +92,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Configured the keyword 'self' to be used in place of an auxlObj name which runs any assigned action on the NPC reading the book.
 - Various other minor improvements.
 
-## New ObjGens
+## New Object Generators
 - World : Main system loader that holds Scenarios. Allows for dynamically loading and unloading of the current Scenario with all of its attached Zones and Scenes as well as progressing to the next or a specific Scenario. 
 - Multi-Menu : Generates a navigatable menu from a main button with multiple generations of parent/child sub menus all containing actions to jump to a specific menu, run an AUXL Object Method w/Parameters or an AUXL Object Component Method w/Parameters. Button description texts are toggled on hover with Circle Up, Circle Down, Vertical and Horizontal Layouts. Menu can be dynamically updated as well.
 - InfoBubble : A bubble object that attaches to a parent object to act as either an Emote or Alert prompted by an event called on the parent. Emotes are temporarily displayed, while Alerts require interaction to dismiss. Preconfigured and custom text emote/alerts supported.
@@ -113,7 +114,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - 45 & 90 Degree Snap Turning
 - New Locomotion movements such as flying and 3rd Person POV
 
-# v0.4+ In Progress Updates : :cherries:
+# v0.4+ Currently In-Progress Updates : :cherries:
 - Cannon JS Physics
 - Additional Locomotion Styles and Gimbal Player Control
 - Non-Physics Wall Generation and Movement Collision
@@ -123,7 +124,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Mini Games Arcade
 - RPG Demo
 
-# Features Roadmap
+# Various Feature Ideas
 - System Function, Component & ObjGen Updates
 - Additional Control Configurations and Enhancements
 - Companion Improvements & Customizations
