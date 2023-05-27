@@ -205,6 +205,80 @@ components: {
 auxl.coreEventTesting = auxl.Core(auxl.coreEventTestingData);
 
 
+//Core Duplicating Testing
+//auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest', position: new THREE.Vector3(0,3,-1)});
+
+
+//auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest2', position: new THREE.Vector3(-2,3,-1)});
+//auxl.coreDupeTest2 = auxl.coreFromTemplate(auxl.coreDupeTest,{id: 'coreDupeTest2', position: new THREE.Vector3(-2,3,-1)}, true);
+//auxl.coreDupeTest2.SpawnCore();
+
+/*
+auxl.layerDupeTestData = {
+	parent: {core: auxl.coreDupeTest}, 
+	child0: {core: auxl.coreDupeTest2}, 
+}
+auxl.layerDupeTest = auxl.Layer('layerDupeTest',auxl.layerDupeTestData);
+auxl.layerDupeTest.SpawnLayer();
+*/
+
+//Assign Core Duplication
+auxl.coreDupeTestAssign = auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTestAssign', position: new THREE.Vector3(-2,2,-1)}, true);
+auxl.coreDupeTestAssign.SpawnCore();
+
+
+//Individual Core Duplication from Template
+auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest', position: new THREE.Vector3(0,3,-1)});
+auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest2', position: new THREE.Vector3(-2,3,-1)});
+auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest3', position: new THREE.Vector3(-2,3,-1)});
+auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest4', position: new THREE.Vector3(-2,3,-1)});
+auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest5', position: new THREE.Vector3(-2,3,-1)});
+auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest6', position: new THREE.Vector3(-1,2,-2)});
+auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest7', position: new THREE.Vector3(-1,2,-2)});
+
+auxl.layerDupeTestData = {
+	parent: {core: auxl.coreDupeTest}, 
+	child0: {
+		parent: {core: auxl.coreDupeTest2}, 
+		child0: {
+			parent: {core: auxl.coreDupeTest3}, 
+			child0: {
+				parent: {core: auxl.coreDupeTest4}, 
+				child0: {core: auxl.coreDupeTest5}, 
+			}, 
+		}, 
+	},
+	child1: {
+		parent: {core: auxl.coreDupeTest6}, 
+		child0: {core: auxl.coreDupeTest7}, 
+	},
+}
+auxl.layerDupeTest = auxl.Layer('layerDupeTest',auxl.layerDupeTestData);
+auxl.layerDupeTest.SpawnLayer();
+
+//Layer Duplication from Template
+auxl.layerFromTemplate(auxl.layerDupeTest, 'layerDupeTest', {position: new THREE.Vector3(0,3,-6)});
+auxl.layerDupeTestCopy0.SpawnLayer();
+
+
+//Collision Spawn Testing
+auxl.collisionTest1 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest1', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0)}, true);
+auxl.collisionTest1.SpawnOnGrid({start:{x:0, z:-2}, end: {x:0, z:-2}, collide: true});
+
+
+auxl.collisionTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest2', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0)}, true);
+auxl.collisionTest2.SpawnOnGrid({start:{x:0, z:3}, end: {x:0.5, z:3}, collide: true});
+
+auxl.collisionTest3 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest3', geometry: {primitive: 'box', depth: 2.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0)}, true);
+auxl.collisionTest3.SpawnOnGrid({start:{x:3, z:0}, end: {x:3, z:2}, collide: true});
+
+
+auxl.collisionTest4 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest4', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:-5, z:-2}, end: {x:-3.5, z:-0.5}, collide: true}}, true);
+//auxl.collisionTest4.SpawnOnGrid({start:{x:-5, z:-2}, end: {x:-3.5, z:-0.5}, collide: true});
+auxl.collisionTest4.SpawnOnGrid();
+
+
+
 //Info Bubble
 auxl.infoTesting = auxl.InfoBubble('infoTesting', auxl.coreEventTesting, false, 'red');
 auxl.infoTesting.NewBubble({
@@ -248,9 +322,9 @@ auxl.physicsTest1 = auxl.Core(auxl.physicsTest1Data);
 
 
 //Collision testing
-auxl.collisionTest1Data = {
-data:'collisionTest1Data',
-id:'collisionTest1',
+auxl.physicsTest2Data = {
+data:'physicsTest2Data',
+id:'physicsTest2',
 sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 0.25, width: 2, height: 1},
@@ -265,17 +339,7 @@ components: {
 ['static-body']:null,
 },
 };
-auxl.collisionTest1 = auxl.Core(auxl.collisionTest1Data);
-/*
-auxl.collisionTest1.SpawnCore();
-auxl.mapCollision.UpdateMapArea(
-{xPos:auxl.collisionTest1Data.position.x,
-xArea:auxl.collisionTest1Data.geometry.width,
-zPos:auxl.collisionTest1Data.position.z,
-zArea:auxl.collisionTest1Data.geometry.depth,
-key: 1,
-});
-*/
+auxl.physicsTest2 = auxl.Core(auxl.physicsTest2Data);
 
 //
 //Creature Face Testing
@@ -317,7 +381,7 @@ components: false,
 };
 auxl.faceEye1Socket = auxl.Core(auxl.faceEye1SocketData);
 //Eye2Socket
-auxl.faceEye2SocketData = auxl.coreFromTemplate(auxl.faceEye1SocketData, {id: 'faceEye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)});
+auxl.faceEye2SocketData = auxl.coreDataFromTemplate(auxl.faceEye1SocketData, {id: 'faceEye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)}, true);
 auxl.faceEye2Socket = auxl.Core(auxl.faceEye2SocketData);
 //Eye1Pupil
 auxl.faceEye1PupilData = {
@@ -342,7 +406,7 @@ components: false,
 };
 auxl.faceEye1Pupil = auxl.Core(auxl.faceEye1PupilData);
 //Eye2Pupil
-auxl.faceEye2PupilData = auxl.coreFromTemplate(auxl.faceEye1PupilData, {id: 'faceEye2Pupil',});
+auxl.faceEye2PupilData = auxl.coreDataFromTemplate(auxl.faceEye1PupilData, {id: 'faceEye2Pupil',}, true);
 auxl.faceEye2Pupil = auxl.Core(auxl.faceEye2PupilData);
 
 //Eyebrow
@@ -364,7 +428,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEyebrow1 = auxl.Core(auxl.faceEyebrow1Data);
-auxl.faceEyebrow2Data = auxl.coreFromTemplate(auxl.faceEyebrow1Data, {id: 'faceEyebrow2', rotation: new THREE.Vector3(0,-10,0)});
+auxl.faceEyebrow2Data = auxl.coreDataFromTemplate(auxl.faceEyebrow1Data, {id: 'faceEyebrow2', rotation: new THREE.Vector3(0,-10,0)}, true);
 auxl.faceEyebrow2 = auxl.Core(auxl.faceEyebrow2Data);
 
 //Eyelid Offset
@@ -386,7 +450,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEye1LidOffset = auxl.Core(auxl.faceEye1LidOffsetData);
-auxl.faceEye2LidOffsetData = auxl.coreFromTemplate(auxl.faceEye1LidOffsetData, {id: 'faceEye2LidOffset'});
+auxl.faceEye2LidOffsetData = auxl.coreDataFromTemplate(auxl.faceEye1LidOffsetData, {id: 'faceEye2LidOffset'}, true);
 auxl.faceEye2LidOffset = auxl.Core(auxl.faceEye2LidOffsetData);
 //Eyelid
 auxl.faceEye1LidData = {
@@ -405,7 +469,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEye1Lid = auxl.Core(auxl.faceEye1LidData);
-auxl.faceEye2LidData = auxl.coreFromTemplate(auxl.faceEye1LidData, {id: 'faceEye2Lid'});
+auxl.faceEye2LidData = auxl.coreDataFromTemplate(auxl.faceEye1LidData, {id: 'faceEye2Lid'}, true);
 auxl.faceEye2Lid = auxl.Core(auxl.faceEye2LidData);
 
 //Blink
@@ -430,7 +494,7 @@ visible: false,
 },
 };
 auxl.faceEye1Blink = auxl.Core(auxl.faceEye1BlinkData);
-auxl.faceEye2BlinkData = auxl.coreFromTemplate(auxl.faceEye1BlinkData, {id: 'faceEye2Blink'});
+auxl.faceEye2BlinkData = auxl.coreDataFromTemplate(auxl.faceEye1BlinkData, {id: 'faceEye2Blink'}, true);
 auxl.faceEye2Blink = auxl.Core(auxl.faceEye2BlinkData);
 
 
@@ -451,7 +515,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEar1Offset = auxl.Core(auxl.faceEar1OffsetData);
-auxl.faceEar2OffsetData = auxl.coreFromTemplate(auxl.faceEar1OffsetData, {id: 'faceEar2Offset', position: new THREE.Vector3(0.25,0.5,0.4)});
+auxl.faceEar2OffsetData = auxl.coreDataFromTemplate(auxl.faceEar1OffsetData, {id: 'faceEar2Offset', position: new THREE.Vector3(0.25,0.5,0.4)}, true);
 auxl.faceEar2Offset = auxl.Core(auxl.faceEar2OffsetData);
 //Ear
 auxl.faceEar1Data = {
@@ -472,7 +536,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEar1 = auxl.Core(auxl.faceEar1Data);
-auxl.faceEar2Data = auxl.coreFromTemplate(auxl.faceEar1Data, {id: 'faceEar2', rotation: new THREE.Vector3(0,-30,0), animations:{twitch: {property: 'object3D.rotation.y', from: -25, to: -35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},}});
+auxl.faceEar2Data = auxl.coreDataFromTemplate(auxl.faceEar1Data, {id: 'faceEar2', rotation: new THREE.Vector3(0,-30,0), animations:{twitch: {property: 'object3D.rotation.y', from: -25, to: -35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},}}, true);
 auxl.faceEar2 = auxl.Core(auxl.faceEar2Data);
 
 auxl.faceLayerData = {
@@ -665,11 +729,11 @@ auxl.cloudData = {
 	classes: ['a-ent'],
 	components: false,
 };
-auxl.cloud1Data = auxl.coreFromTemplate(auxl.cloudData, {id: 'cloud1', position: new THREE.Vector3(-150,200,-300), scale: new THREE.Vector3(1,0.25,0.75)});
+auxl.cloud1Data = auxl.coreDataFromTemplate(auxl.cloudData, {id: 'cloud1', position: new THREE.Vector3(-150,200,-300), scale: new THREE.Vector3(1,0.25,0.75)}, true);
 auxl.cloud1 = auxl.Core(auxl.cloudData);
-auxl.cloud2Data = auxl.coreFromTemplate(auxl.cloudData, {id: 'cloud2', position: new THREE.Vector3(-150,200,200), scale: new THREE.Vector3(1,0.25,0.75)});
+auxl.cloud2Data = auxl.coreDataFromTemplate(auxl.cloudData, {id: 'cloud2', position: new THREE.Vector3(-150,200,200), scale: new THREE.Vector3(1,0.25,0.75)}, true);
 auxl.cloud2 = auxl.Core(auxl.cloud2Data);
-auxl.cloud3Data = auxl.coreFromTemplate(auxl.cloudData, {id: 'cloud3', position: new THREE.Vector3(100,200,0), scale: new THREE.Vector3(0.5,0.5,0.25)});
+auxl.cloud3Data = auxl.coreDataFromTemplate(auxl.cloudData, {id: 'cloud3', position: new THREE.Vector3(100,200,0), scale: new THREE.Vector3(0.5,0.5,0.25)}, true);
 auxl.cloud3 = auxl.Core(auxl.cloud3Data);
 auxl.cloudLayerData = {
 	parent: {core: auxl.cloudsParent}, 
@@ -1838,6 +1902,7 @@ auxl.zone0Scene0Data = {
 	delay:{
 		3000:{
 			switchCube:{EmitEvent:'emote1'},
+			collisionTest1:{DespawnFromGrid:null},
 		},
 		4000:{
 			coreEventTesting:{EmitEvent:'test'},

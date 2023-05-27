@@ -60,7 +60,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 ## System
 - AUXL is now divided into 5 main files called System, Support, Extras, Shaders and Scenes to hold all needed components.
 - Added Save/Load/Reset system to store profile, date/time/visit, location, support of auxl object flags and more.
-- Generate new Core data from templates along with any customizations via auxl.coreFromTemplate().
+- Generate new Core Data, Core or Layer from a previously existing object with overwrite protection and customization support via auxl.coreDataFromTemplate(), auxl.coreFromTemplate() and auxl.layerFromTemplate().
 - Each object generator component has a rebuild function to regenerate all defined objects upon system reset without reloading the webpage.
 - Various additional v0.2 Object Generator improvements and methods.
 - Support to add custom Object Generators to Scenario, Zone, Scene and Book trackers via auxl.AddObjGenToTracker('objectCoreName', 'SpawnMethodName', 'DespawnMethodName');
@@ -98,7 +98,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - InfoBubble : A bubble object that attaches to a parent object to act as either an Emote or Alert prompted by an event called on the parent. Emotes are temporarily displayed, while Alerts require interaction to dismiss. Preconfigured and custom text emote/alerts supported.
 
 ## New Support Components
-- hovertext : on mousehover of attached object will display configured text either on top or in front of the object and rotates with user view.
+- hovertext : on mouse hover of attached object will display configured text either on top or in front of the object and rotates with user view.
 - doorway : assign a zone's scene connection travel point to an object with movement activated upon click.
 - stare : have one object rotate to watch another object's movement. In addition to ID of object to watch, can also enable twist which only rotates on the y axis.
 - onspawnrun : Run auxl object method on spawn.

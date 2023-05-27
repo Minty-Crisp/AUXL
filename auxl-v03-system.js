@@ -567,6 +567,10 @@ this.events = {};
 this.timeInDay = 360000;
 //Physics
 this.physics = false;
+//Collision
+//Map
+this.collideMap = [[],[],[],[]];
+this.mapEdge = false;
 
 //
 //HTML Menu
@@ -1259,31 +1263,139 @@ console.log(newColor1.analog[0]);
 console.log(newColor1.analog[1]);
 console.log(newColor1.analog[2]);
 */
+//Check for Duplicate Object
+this.checkDupeName = (id) => {
+	let name = id;
+	let num = -1;
+	idRandomize: while (true){
+		if(auxl[name]){
+			num++;
+			name = id + 'Copy' + num;
+			continue idRandomize;
+		} else {
+			if(id === name){} else {
+				console.log(id + ' changed to ' + name);
+			}
+			return name;
+		}
+	}
+}
+//Randomly Generate a Name
+this.ranNameGen = () => {
+	let name = '';
+	let alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
+	let nameLength = Math.floor(Math.random()*12)+4;
+	for(let letter = 0; letter < nameLength; letter++){
+		name += alphabet[Math.floor(Math.random()*alphabet.length)]
+	}
+	return name;
+}
 //Generate new Core Data from Template
-this.coreFromTemplate = (data, edit) => {
-	let newCore = JSON.parse(JSON.stringify(data));
+this.coreDataFromTemplate = (data, edit, assign) => {
+	//Omit 2 Keys from Object
+	function omit(key1, key2, obj) {
+	  const {[key1]: omitted1, [key2]: omitted2, ...rest} = obj;
+	  return rest;
+	}
+	//Omit element/parent key that contains reference to original Core
+	let newCoreData = omit('el', 'parent', data);
+	newCoreData = JSON.parse(JSON.stringify(newCoreData));
 	//Apply Edits
 	if(edit){
 		for(let each in edit){
-			newCore[each] = edit[each];
+			newCoreData[each] = edit[each];
 		}
 	}
-	//Generate Unique ID if not Specified
-	if(!edit.id){
-		let num = 1;
-		idRandomize: while (true) {
-			if(auxl[newCore.id+num]){
+	//Prevent Overwritting
+	if(assign){}else{
+		if(!edit.id){
+			newCoreData.id = auxl.ranNameGen();
+		}
+		newCoreData.id = auxl.checkDupeName(newCoreData.id);
+	}
+	//Output
+	if(assign){
+		return newCoreData;
+	} else {
+		auxl[newCoreData.id] = newCoreData;
+	}
+}
+//Generate new Core from Template
+this.coreFromTemplate = (core, edit, assign) => {
+	//Prevent Overwritting
+	if(assign){}else{
+		if(edit){
+			if(!edit.id){
+				edit.id = auxl.ranNameGen();
+			}
+		} else {
+			edit = {};
+			edit.id = auxl.ranNameGen();
+		}
+		edit.id = auxl.checkDupeName(edit.id);
+	}
+	let newCoreData = auxl.coreDataFromTemplate(core.core, edit, true);
+	//Output
+	if(assign){
+		return auxl.Core(newCoreData)
+	} else {
+		auxl[newCoreData.id] = auxl.Core(newCoreData);
+	}
+}
+//Generate new Layer from Template
+this.layerFromTemplate = (layer, id, changeParent, assign) => {
+	let struct;
+	let newStruct = {};
+	let num = 0;
+	//Prevent Overwritting
+	if(assign){}else{
+		if(!id){
+			id = auxl.ranNameGen();
+		}
+		id = auxl.checkDupeName(id);
+	}
+	//Prep Parent Core Name
+	if(changeParent){
+		if(changeParent.id){}else{
+			changeParent.id = id+num;
+		}
+	} else {
+		changeParent = {};
+		changeParent.id = id+num;
+	}
+	changeParent.id = auxl.checkDupeName(changeParent.id);
+	//Assign Layout from Existing Layer or Layer Data
+	if(layer.layer){
+		struct = layer.layer.all;
+	} else {
+		struct = layer;
+	}
+	//Traverse Layer Data Object
+	function layerTraverse(structure, newStructure){
+		for(let level in structure){
+			if(structure[level].core){
+				newStructure[level] = {};
+				if(num === 0){
+					newStructure[level].core = auxl.coreFromTemplate(structure[level].core, changeParent, true);
+				} else {
+					newStructure[level].core = auxl.coreFromTemplate(structure[level].core, {id:auxl.checkDupeName(id+num)}, true);
+				}
 				num++;
-				continue idRandomize;
 			} else {
-				newCore.id = newCore.id + num;
-				break;
+				newStructure[level] = {};
+				layerTraverse(structure[level], newStructure[level]);
 			}
 		}
 	}
-	//console.log(newCore);
-	return newCore;
+	layerTraverse(struct, newStruct)
+	//Output
+	if(assign){
+		return auxl.Layer(id, newStruct)
+	} else {
+		auxl[id] = auxl.Layer(id, newStruct);
+	}
 }
+
 
 //
 //Object Generators
@@ -1619,6 +1731,49 @@ auxl[object].GetEl().addEventListener(line, function(){
 			SpawnCore(core.parent);
 		}
 	}
+	//Spawn on Grid
+	const SpawnOnGrid = (grid) => {
+		//Start should always be less than or equal to end
+		//Start from top left to bottom right
+
+		//Grid goes from 0 - 2 takes up 5 grid spaces of 0, 0.5, 1, 1.5, 2
+		//5 spaces of 0.5 equals 2.5, so width or height would be 2.5
+		if(core.inScene){}else{
+			if(grid){
+				core.grid = grid;
+			}
+			if(core.grid.start.x === core.grid.end.x && core.grid.start.z === core.grid.end.z){
+				core.position.x = core.grid.start.x;
+				core.position.z = core.grid.start.z;
+			} else {
+				let xDif = (core.grid.start.x - core.grid.end.x)*-1;
+				let zDif = (core.grid.start.z - core.grid.end.z)*-1;
+				xDif /= 2;
+				zDif /= 2;
+
+				core.position.x = core.grid.start.x + xDif;
+				core.position.z = core.grid.start.z + zDif;
+			}
+			SpawnCore();
+			auxl.mapCollision.UpdateMapArea(core.grid.start,core.grid.end,core.grid.collide);
+		}
+
+	}
+	//Despawn From Grid
+	const DespawnFromGrid = () => {
+		if(core.inScene){
+			auxl.mapCollision.UpdateMapArea(core.grid.start,core.grid.end, false);
+			DespawnCore();
+		}
+	}
+	//Toggle Grid Spawn
+	const ToggleGridSpawn = (grid) => {
+		if(core.inScene){
+			DespawnFromGrid();
+		} else {
+			SpawnOnGrid(grid);
+		}
+	}
 	//Change Element - Single or Array
 	const ChangeSelf = (propertyValue) => {
 		if(Array.isArray(propertyValue)){
@@ -1900,7 +2055,7 @@ console.log(update)
 		GetEl().removeEventListener('click', openClose);
 	}
 
-	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, RemoveComponent, ChangeSelf, PhysPos, UpdatePhys, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
+	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, SpawnOnGrid, DespawnFromGrid, ToggleGridSpawn, RemoveComponent, ChangeSelf, PhysPos, UpdatePhys, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
 }
 
 //
@@ -8778,6 +8933,8 @@ this.Creature = (id, attach, customizations) => {
 //Weave in the ghost body and allow for legs/arms to be added
 //Keep the current round head and cylinder body, but more shape combos to come
 
+//Have creature types like animal (normal eye,pupil,iris), robot (single eye with no pupil or iris, but text character maybe) or celestial (special eyes)
+
 //Seed generator
 
 //A 'crystal' like object that on click spawns the creature and on hide goes into it
@@ -9282,7 +9439,7 @@ components: false,
 };
 creature[eye1SocketId] = auxl.Core(creature.faceEye1SocketData);
 //Eye2Socket
-creature.faceEye2SocketData = auxl.coreFromTemplate(creature.faceEye1SocketData, {id: eye2SocketId, position: new THREE.Vector3(0.15,0.1,0.4)});
+creature.faceEye2SocketData = auxl.coreDataFromTemplate(creature.faceEye1SocketData, {id: eye2SocketId, position: new THREE.Vector3(0.15,0.1,0.4)}, true);
 creature[eye2SocketId] = auxl.Core(creature.faceEye2SocketData);
 //Eye1Pupil
 creature.faceEye1PupilData = {
@@ -9307,7 +9464,7 @@ components: false,
 };
 creature[eye1PupilId] = auxl.Core(creature.faceEye1PupilData);
 //Eye2Pupil
-creature.faceEye2PupilData = auxl.coreFromTemplate(creature.faceEye1PupilData, {id: eye2PupilId,});
+creature.faceEye2PupilData = auxl.coreDataFromTemplate(creature.faceEye1PupilData, {id: eye2PupilId,}, true);
 creature[eye2PupilId] = auxl.Core(creature.faceEye2PupilData);
 //Eye1PupilAccent
 creature.faceEye1PupilAccentData = {
@@ -9328,7 +9485,7 @@ components: false,
 };
 creature[eye1PupilAccentId] = auxl.Core(creature.faceEye1PupilAccentData);
 //Eye2Pupil
-creature.faceEye2PupilAccentData = auxl.coreFromTemplate(creature.faceEye1PupilAccentData, {id: eye2PupilAccentId,});
+creature.faceEye2PupilAccentData = auxl.coreDataFromTemplate(creature.faceEye1PupilAccentData, {id: eye2PupilAccentId,}, true);
 creature[eye2PupilAccentId] = auxl.Core(creature.faceEye2PupilAccentData);
 
 //Eyebrow
@@ -9350,7 +9507,7 @@ classes: ['a-ent'],
 components: false,
 };
 creature[eyebrow1Id] = auxl.Core(creature.faceEyebrow1Data);
-creature.faceEyebrow2Data = auxl.coreFromTemplate(creature.faceEyebrow1Data, {id: eyebrow2Id, rotation: new THREE.Vector3(0,-10,0)});
+creature.faceEyebrow2Data = auxl.coreDataFromTemplate(creature.faceEyebrow1Data, {id: eyebrow2Id, rotation: new THREE.Vector3(0,-10,0)}, true);
 creature[eyebrow2Id] = auxl.Core(creature.faceEyebrow2Data);
 
 //Eyelid Offset
@@ -9376,7 +9533,7 @@ classes: ['a-ent'],
 components: false,
 };
 creature[eye1LidOffsetId] = auxl.Core(creature.faceEye1LidOffsetData);
-creature.faceEye2LidOffsetData = auxl.coreFromTemplate(creature.faceEye1LidOffsetData, {id: eye2LidOffsetId});
+creature.faceEye2LidOffsetData = auxl.coreDataFromTemplate(creature.faceEye1LidOffsetData, {id: eye2LidOffsetId}, true);
 creature[eye2LidOffsetId] = auxl.Core(creature.faceEye2LidOffsetData);
 //Eyelid
 creature.faceEye1LidData = {
@@ -9395,7 +9552,7 @@ classes: ['a-ent'],
 components: false,
 };
 creature[eye1LidId] = auxl.Core(creature.faceEye1LidData);
-creature.faceEye2LidData = auxl.coreFromTemplate(creature.faceEye1LidData, {id: eye2LidId});
+creature.faceEye2LidData = auxl.coreDataFromTemplate(creature.faceEye1LidData, {id: eye2LidId}, true);
 creature[eye2LidId] = auxl.Core(creature.faceEye2LidData);
 //Blink
 creature.faceEye1BlinkData = {
@@ -9421,7 +9578,7 @@ visible: false,
 },
 };
 creature[eye1BlinkId] = auxl.Core(creature.faceEye1BlinkData);
-creature.faceEye2BlinkData = auxl.coreFromTemplate(creature.faceEye1BlinkData, {id: eye2BlinkId});
+creature.faceEye2BlinkData = auxl.coreDataFromTemplate(creature.faceEye1BlinkData, {id: eye2BlinkId}, true);
 creature[eye2BlinkId] = auxl.Core(creature.faceEye2BlinkData);
 
 //Ear Offset
@@ -9441,7 +9598,7 @@ classes: ['a-ent'],
 components: false,
 };
 creature[ear1OffsetId] = auxl.Core(creature.faceEar1OffsetData);
-creature.faceEar2OffsetData = auxl.coreFromTemplate(creature.faceEar1OffsetData, {id: ear2OffsetId, position: creature.ear2OffsetPos});
+creature.faceEar2OffsetData = auxl.coreDataFromTemplate(creature.faceEar1OffsetData, {id: ear2OffsetId, position: creature.ear2OffsetPos}, true);
 creature[ear2OffsetId] = auxl.Core(creature.faceEar2OffsetData);
 //Ear
 creature.faceEar1Data = {
@@ -9462,7 +9619,7 @@ classes: ['a-ent'],
 components: false,
 };
 creature[ear1Id] = auxl.Core(creature.faceEar1Data);
-creature.faceEar2Data = auxl.coreFromTemplate(creature.faceEar1Data, {id: ear2Id, rotation: new THREE.Vector3(0,-30,0), animations:{twitch: {property: 'object3D.rotation.y', from: -25, to: -35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},}});
+creature.faceEar2Data = auxl.coreDataFromTemplate(creature.faceEar1Data, {id: ear2Id, rotation: new THREE.Vector3(0,-30,0), animations:{twitch: {property: 'object3D.rotation.y', from: -25, to: -35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},}}, true);
 creature[ear2Id] = auxl.Core(creature.faceEar2Data);
 
 //Layer
@@ -9513,7 +9670,7 @@ const SpawnCreature = () => {
 	if(creature.inScene){}else{
 		auxl[creature.auxlId].SpawnLayer(creature.parent);
 		Blinking();
-		testing();
+		//testing();
 		creature.inScene = true;
 	}
 }
@@ -9740,69 +9897,348 @@ return {creature, SpawnCreature, DespawnCreature, Emote};
 }
 
 //
-//Collision OLD - Rework into Dungeon Spawner
-//Build a collision map of 0.5 meter sections 
+//Collision
+//Build a collision map in 0.5 meter sections 
 //Allow or Deny moving outside of collision map
 this.Collision = (gridData) => {
 
-//In-Progress
-//Blocks completed, Walls not yet
-
-//Collision Type
-//2 types of collision : block, wall or ledge
-//Block prevents movements into the square from any direction
-//Wall prevents movements into square from +/- X or Z direction
-//Ledge prevents movement into square from a + or - X or Z direction
-
-//Collision Size : The amount of blocks or walls the object takes up
-
-//On scene start the collision map is reset
-//On object spawn, object updates the shared collision map
-//On object despawn, object updates the shared collision map
-//On object collision move, object updates the shared collision map
-//On user square occupy, can emit a collision event i.e. pick up
+//TODO
+//Build Layer.SpawnOnGrid()
+//Core & Layer MoveOnGrid() - block nearest squares it is moving into, release previous once out of. Is it possible to force move the player? Teleport or just push?
+//Determine if user is in same square as collision spawn and postpone to avoid conflicts
+//Do action if user walks into specific square (pick up, trap, etc...)
+//One way collision
+//Premade Dual Array Maps - Duplicate objects when needed aka a tile map
+//Allow both a collision and non collision premade grid map
+//Resize maps on out of bounds spawn
+//Fix diagonal collision
+//Add Edge object spawn indicator
+//Connect to NodeScene spawner and data builder
+//Dungeon Wall Maze Generator
 
 
+	//Enable Collision Checks for Locomotion
+	const EnableCollision = () => {
+		auxl.collision = true;
+	}
+	//Disable Collision Checks for Locomotion
+	const DisableCollision = () => {
+		auxl.collision = false;
+	}
+
+	//Blank Map @ Size
+	const BlankMap = (size) => {
+		auxl.collideMap[0] = [];
+		auxl.collideMap[0] = Array(size/2).fill(0, 0);
+		for(let each in auxl.collideMap[0]){
+			auxl.collideMap[0][each] = Array(size/2).fill(0, 0);
+		}
+		auxl.collideMap[1] = [];
+		auxl.collideMap[1] = Array(size/2).fill(0, 0);
+		for(let each in auxl.collideMap[1]){
+			auxl.collideMap[1][each] = Array(size/2).fill(0, 0);
+		}
+		auxl.collideMap[2] = [];
+		auxl.collideMap[2] = Array(size/2).fill(0, 0);
+		for(let each in auxl.collideMap[2]){
+			auxl.collideMap[2][each] = Array(size/2).fill(0, 0);
+		}
+		auxl.collideMap[3] = [];
+		auxl.collideMap[3] = Array(size/2).fill(0, 0);
+		for(let each in auxl.collideMap[3]){
+			auxl.collideMap[3][each] = Array(size/2).fill(0, 0);
+		}
+	}
+	//Update Map Multi Space
+	const UpdateMapArea = (start,end,collide) => {
+		let pos = {x: start.x, z: start.z};
+		let xSpaces;
+		let xCurrent;
+		let zSpaces;
+		let zCurrent;
+		let mapKey;
+		//Assign Map Key Code
+		if(collide){
+			mapKey = 1;
+		} else {
+			mapKey = 0;
+		}
+		//Calc X
+		function calcXPos(){
+			if(start.x === end.x){
+				xSpaces = 1;
+			} else {
+				xSpaces = start.x - end.x;
+				xSpaces *= 2;
+				if(xSpaces < 0){
+					xSpaces *= -1;
+				}
+				xSpaces += 1;
+			}
+			pos.x = start.x;
+			xCurrent = xSpaces;
+		}
+		//Calc Z
+		function calcZPos(){
+		if(start.z === end.z){
+			zSpaces = 1;
+		} else {
+			zSpaces = start.z - end.z;
+			zSpaces *= 2;
+			if(zSpaces < 0){
+				zSpaces *= -1;
+			}
+			zSpaces += 1;
+		}
+		pos.z = start.z;
+		zCurrent = zSpaces;
+		}
+		//Assign Map Collisions
+		calcZPos();
+		for(let z = 0; z < zSpaces;z++){
+			calcXPos();
+			for(let x = 0; x < xSpaces;x++){
+				UpdateMap(pos,mapKey);
+				xCurrent--;
+				if(xCurrent > 0){
+					pos.x += 0.5;
+				}
+			}
+			zCurrent--;
+			if(zCurrent > 0){
+				pos.z += 0.5;
+			}
+		}
+	}
+	//Update Map Single Space
+	const UpdateMap = (pos, mapKey) => {
+		//0.5 meter to integer grid adjustment
+		let xPos = pos.x * 2;
+		let zPos = pos.z * 2;
+		//console.log({x: xPos, z: zPos})
+
+		//Add a mechanism to detect if the collision it is adding is the same sq that the player is in. If so, do not add until the player has moved out of the square.
+
+		if(xPos < 0 && zPos < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			auxl.collideMap[0][zPos * -1][xPos * -1] = mapKey;
+		} else if(pos.x >= 0 && zPos < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			auxl.collideMap[1][zPos * -1][xPos] = mapKey
+		} else if(xPos < 0 && zPos >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			auxl.collideMap[2][zPos][xPos * -1] = mapKey;
+		} else if(xPos >= 0 && zPos >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			auxl.collideMap[3][zPos][xPos] = mapKey;
+		} else {
+			console.log('Update out of bounds')
+			//resize map
+		}
+
+	}
+
+	//Check for Map Obstacles 0.5 Meter
+	//Corners need 3 squares in L shape to completely block travel
+	const checkMapObstacles = (newPos) => {
+
+		newPos.x *= 2;
+		newPos.z *= 2;
+
+		if(newPos.x < 0 && newPos.z < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			if(auxl.collideMap[0].length > newPos.z * -1){
+				if(auxl.collideMap[0][newPos.z * -1].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(auxl.collideMap[0][newPos.z * -1][newPos.x * -1] === 0){
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(auxl.mapEdge){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(auxl.mapEdge){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			if(auxl.collideMap[1].length > newPos.z * -1){
+				if(auxl.collideMap[1][newPos.z * -1].length > newPos.x){
+					//console.log('Within Map');
+					if(auxl.collideMap[1][newPos.z * -1][newPos.x] === 0){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(auxl.mapEdge){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(auxl.mapEdge){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x < 0 && newPos.z >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			if(auxl.collideMap[2].length > newPos.z){
+				if(auxl.collideMap[2][newPos.z].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(auxl.collideMap[2][newPos.z][newPos.x * -1] === 0){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(auxl.mapEdge){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(auxl.mapEdge){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			if(auxl.collideMap[3].length > newPos.z){
+				if(auxl.collideMap[3][newPos.z].length > newPos.x){
+					if(auxl.collideMap[3][newPos.z][newPos.x] === 0){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(auxl.mapEdge){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(auxl.mapEdge){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else {
+			return false;
+		}
+	}
 
 
-//Spawn at center of 0.5 coords - Block : Can't move into from any squares
-//Spawn at edge of 0.5 coords - Wall/s : Can't move between connected square/s
-//Spawn off center of 0.5 coords - Wall : Can't move between connected square
-//Object moves. Update map to block space they will be moving into and once moved, clear out previous space
-//Object is interactable when user is in surrounding or specific grid square
-//Object is auto picked up when user is in specific grid square
 
-//
-//Premade Object Spawning Map Brainstorming
-this.testCoreData = {
-data:'testCore',
-id:'test',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
-material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-collision: {
-type: 'block',
-size: [2,3],
-},
-collision2: {
-type: 'wall',
-move: 'x',
-size: [0.5,3],
-},
-collision3: {
-type: 'ledge',
-move: '+x',
-size: [0.5,1],
-},
-};
+	//Spawn Map
+	const SpawnMap = (map) => {
+		//Could easily do a list of objects that have grid info, but what would be the best way to do a dual array map?
+		//A single object would take up 1+ squares and any duplicates would be automatically generated as new objects
+
+		//Basic Block Spawner
+		function sectionSpawner(map,quadrant) {
+			//Loop through Z array set
+			for (let i = 0; i < map.length; i++) {
+				//Loop through X array set
+				for (let j = 0; j < map[i].length; j++) {
+					//Check for objects
+					if(map[i][j] === 0){}else{
+						//map[i][j] object identifier
+
+						//Set position
+						let posX;
+						let posY = 0.5;//half the height of object
+						let posZ;
+
+						if(quadrant === 'topLeft'){
+							posX = j * -1;
+							posZ = i * -1;
+						} else if(quadrant === 'topRight'){
+							posX = j;
+							posZ = i * -1;
+						} else if(quadrant === 'bottomLeft'){
+							posX = j * -1;
+							posZ = i;
+						} else if(quadrant === 'bottomRight'){
+							posX = j;
+							posZ = i;
+						}
+						posX /= 2;
+						posZ /= 2;
+						//Set Position
+						let positionVec3 = new THREE.Vector3(posX, posY, posZ);
+						//Update object grid position
+						//object.SpawnOnGrid();
+					}
+				}
+			}
+		}
+
+		//Loop map set
+		for (let h = 0; h < map.length; h++) {
+			if (h === 0){
+				sectionSpawner(map[h],'topLeft');
+			} else if (h === 1){
+				sectionSpawner(map[h],'topRight');
+			} else if (h === 2){
+				sectionSpawner(map[h],'bottomLeft');
+			} else if (h === 3){
+				sectionSpawner(map[h],'bottomRight');
+			}
+		}
+	}
+	//Despawn Map
+	const DespawnMap = (map) => {
+
+	}
+
+
+	//
+	//OLD
 
 	let grid = Object.assign({}, gridData);
 	grid.inScene = false;
@@ -9821,7 +10257,8 @@ size: [0.5,1],
 		grid.mapBottomRight,
 	];
 
-	const BlankMap = (size) => {
+	//Internal Blank Map - OLD
+	const BlankMapOld = (size) => {
 		grid.mapTopLeft = [];
 		grid.mapTopLeft = Array(size/2).fill(0, 0);
 		for(let each in grid.mapTopLeft){
@@ -9849,9 +10286,9 @@ size: [0.5,1],
 			grid.mapBottomRight,
 		];
 	}
-	BlankMap(grid.size);
+	BlankMapOld(grid.size);
 	//Update Map
-	const UpdateMapArea = (info) => {
+	const UpdateMapAreaOld = (info) => {
 //pos.area is 0.5z x 1x
 //new THREE.Vector3(0,0.5,-9),
 
@@ -9883,7 +10320,7 @@ size: [0.5,1],
 	}
 
 	//Update Map
-	const UpdateMap = (pos, mapKey) => {
+	const UpdateMapOld = (pos, mapKey) => {
 		//0.5 meter to integer grid adjustment
 		pos.x *= 2;
 		pos.z *= 2;
@@ -9916,7 +10353,7 @@ size: [0.5,1],
 
 	//Check for Map Obstacles 0.5 Meter
 	//Corners need 3 squares in L shape to completely block travel
-	const checkMapObstacles = (newPos) => {
+	const checkMapObstaclesOld = (newPos) => {
 
 		newPos.x *= 2;
 		newPos.z *= 2;
@@ -10344,14 +10781,6 @@ size: [0.5,1],
 		}
 	}
 
-	//Enable Collision Checks for Locomotion
-	const EnableCollision = () => {
-		auxl.collision = true;
-	}
-	//Disable Collision Checks for Locomotion
-	const DisableCollision = () => {
-		auxl.collision = false;
-	}
 
 	//Spawn Edge Collision Object
 	const SpawnEdge = () => {
@@ -10541,20 +10970,21 @@ size: [0.5,1],
 	//Testing mapSpawner function
 	//mapSpawner(mapAll);
 
-	return {grid, BlankMap, UpdateMap, UpdateMapArea, EnableCollision, DisableCollision, checkMapObstacles, SpawnEdge, DespawnEdge};
+	return {grid, BlankMap, UpdateMap, UpdateMapArea, EnableCollision, DisableCollision, checkMapObstacles, SpawnEdge, DespawnEdge, SpawnMap, DespawnMap};
 }
 
 //
-//Collision Map
+//Collision Map Testing
 this.mapCollisionData = {
 	id: 'mapCollision',
 	mapSize: 40,
 	edge: false,
 
 };
-//this.mapCollision = auxl.Collision(auxl.mapCollisionData);
-//this.sceneCollision.BuildBlankMap();
-//this.mapCollision.EnableCollision();
+this.mapCollision = auxl.Collision(auxl.mapCollisionData);
+this.mapCollision.BlankMap(40);
+this.mapCollision.EnableCollision();
+auxl.mapEdge = true;
 
 //
 //Build Core/Layer/Other objects in the 3D environment
@@ -12340,7 +12770,7 @@ components: false,
 };
 auxl.eye1Socket = auxl.Core(auxl.eye1SocketData);
 //Eye2Socket
-auxl.eye2SocketData = auxl.coreFromTemplate(auxl.eye1SocketData, {id: 'eye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)});
+auxl.eye2SocketData = auxl.coreDataFromTemplate(auxl.eye1SocketData, {id: 'eye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)}, true);
 auxl.eye2Socket = auxl.Core(auxl.eye2SocketData);
 //Eye1Pupil
 auxl.eye1PupilData = {
@@ -12370,7 +12800,7 @@ components: false,
 };
 auxl.eye1Pupil = auxl.Core(auxl.eye1PupilData);
 //Eye2Pupil
-auxl.eye2PupilData = auxl.coreFromTemplate(auxl.eye1PupilData, {id: 'eye2Pupil',});
+auxl.eye2PupilData = auxl.coreDataFromTemplate(auxl.eye1PupilData, {id: 'eye2Pupil',}, true);
 auxl.eye2Pupil = auxl.Core(auxl.eye2PupilData);
 //Mouth
 auxl.mouthData = {
@@ -12485,16 +12915,16 @@ classes: ['a-ent'],
 components: false,
 };
 //Leg 1
-auxl.leg1Data = auxl.coreFromTemplate(auxl.legData, {id: 'leg1',});
+auxl.leg1Data = auxl.coreDataFromTemplate(auxl.legData, {id: 'leg1',}, true);
 auxl.leg1 = auxl.Core(auxl.leg1Data);
 //Leg 2
-auxl.leg2Data = auxl.coreFromTemplate(auxl.legData, {id: 'leg2', position: new THREE.Vector3(0.25,-0.25,0)});
+auxl.leg2Data = auxl.coreDataFromTemplate(auxl.legData, {id: 'leg2', position: new THREE.Vector3(0.25,-0.25,0)}, true);
 auxl.leg2 = auxl.Core(auxl.leg2Data);
 //Leg 3
-auxl.leg3Data = auxl.coreFromTemplate(auxl.legData, {id: 'leg3', position: new THREE.Vector3(0,-0.25,-0.25)});
+auxl.leg3Data = auxl.coreDataFromTemplate(auxl.legData, {id: 'leg3', position: new THREE.Vector3(0,-0.25,-0.25)}, true);
 auxl.leg3 = auxl.Core(auxl.leg3Data);
 //Leg 4
-auxl.leg4Data = auxl.coreFromTemplate(auxl.legData, {id: 'leg4', position: new THREE.Vector3(0,-0.25,0.25)});
+auxl.leg4Data = auxl.coreDataFromTemplate(auxl.legData, {id: 'leg4', position: new THREE.Vector3(0,-0.25,0.25)}, true);
 auxl.leg4 = auxl.Core(auxl.leg4Data);
 //Ghost Layer
 auxl.ghostLayerData = {
@@ -12992,9 +13422,9 @@ components:{
 ['raycast-teleportation']:null,
 },
 };
-auxl.teleportPortal1Data = auxl.coreFromTemplate(auxl.teleportPortalData, {id: 'teleportPortal1',});
+auxl.teleportPortal1Data = auxl.coreDataFromTemplate(auxl.teleportPortalData, {id: 'teleportPortal1',}, true);
 auxl.teleportPortal1 = auxl.Core(auxl.teleportPortal1Data);
-auxl.teleportPortal2Data = auxl.coreFromTemplate(auxl.teleportPortalData, {id: 'teleportPortal2', position: new THREE.Vector3(0,5,3)});
+auxl.teleportPortal2Data = auxl.coreDataFromTemplate(auxl.teleportPortalData, {id: 'teleportPortal2', position: new THREE.Vector3(0,5,3)}, true);
 auxl.teleportPortal2 = auxl.Core(auxl.teleportPortal2Data);
 
 
