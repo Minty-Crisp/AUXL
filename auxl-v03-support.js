@@ -626,7 +626,8 @@ schema: {
 	cursorObj: {type: 'string', default: 'auxlObj'},
 	component: {type: 'string', default: 'null'},
 	method: {type: 'string', default: 'Click'},
-	params: {type: 'string', default: 'null'}
+	params: {type: 'string', default: 'null'},
+	once: {type: 'boolean', default: false}
 },
 init: function () {
 	//AUXL System Connection
@@ -643,6 +644,7 @@ update: function () {
 	this.component = this.data.component;
 	this.method = this.data.method;
 	this.params = this.data.params;
+	this.once = this.data.once;
 	//Run Function
 	this.run = () => {
 		if(this.component === 'null'){
@@ -666,7 +668,7 @@ update: function () {
 		}
 	}
 	//Add Event Listener
-	this.el.addEventListener(this.event,this.run);
+	this.el.addEventListener(this.event,this.run,{once: this.once });
 },
 remove: function () {
 	//Remove Event Listener
@@ -1639,6 +1641,7 @@ move: function (direction, speed) {
 		}
 	}
 },
+//Default
 //1st POV Walk along XZ Floor relative to Direction View
 directionXZ: function (action, speed) {
 	this.velocity = speed;
@@ -1837,8 +1840,20 @@ directionXZ: function (action, speed) {
 		this.posRound.x = this.roundHalf(this.positionPlayer.x);
 		this.posRound.z = this.roundHalf(this.positionPlayer.z);
 		//Check for Obstacles
-		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
+		if(this.auxl.map.CheckMapObstacles(this.newPosRound, this.posRound)){
 			this.player.object3D.position.copy(this.positionNew);
+			this.auxl.player.layer.gridPos.copy(this.newPosRound);
+			//Check for Triggers on New Coords
+			if(this.newPosRound.x === this.posRound.x && this.newPosRound.z === this.posRound.z){} else {
+				//Check for Trigger Enter
+				if(this.auxl.map.CheckMapTriggers(this.newPosRound)){
+					this.auxl.map.TriggerEnterHit(this.newPosRound);
+				}
+				//Check for Trigger Exits
+				this.auxl.map.CheckActiveTriggers(this.newPosRound);
+				//Check for Cleared Spawn Collision Conditions
+				this.auxl.map.WaitingToSpawn();
+			}
 		}
 	} else {
 		//Free Locomotion No Collision
@@ -2380,7 +2395,7 @@ directionXZY: function (action, speed) {
 		this.posRound.z = this.roundHalf(this.positionPlayer.z);
 
 		//Check for Obstacles
-		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
+		if(this.auxl.map.CheckMapObstacles(this.newPosRound, this.posRound)){
 			this.player.object3D.position.copy(this.positionNew);
 		}
 	} else {
@@ -2475,7 +2490,7 @@ directionXY: function (action, speed) {
 		this.posRound.y = this.roundHalf(this.positionPlayer.y);
 
 		//Check for Obstacles
-		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
+		if(this.auxl.map.CheckMapObstacles(this.newPosRound, this.posRound)){
 			this.player.object3D.position.copy(this.positionNew);
 		}
 	} else {
@@ -2692,7 +2707,7 @@ directionXYZ: function (action, speed) {
 		this.posRound.z = this.roundHalf(this.positionPlayer.z);
 
 		//Check for Obstacles
-		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
+		if(this.auxl.map.CheckMapObstacles(this.newPosRound, this.posRound)){
 			this.player.object3D.position.copy(this.positionNew);
 		}
 	} else {
@@ -2748,7 +2763,7 @@ rigXZ: function (action, speed) {
 		this.posRound.z = this.roundHalf(this.positionAvatar.z);
 
 		//Check for Obstacles
-		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
+		if(this.auxl.map.CheckMapObstacles(this.newPosRound, this.posRound)){
 			this.avatar.object3D.position.copy(this.positionNew);
 		}
 	} else {
@@ -2798,7 +2813,7 @@ rigXY: function (action, speed) {
 		this.posRound.y = this.roundHalf(this.positionAvatar.y);
 
 		//Check for Obstacles
-		if(this.auxl.mapCollision.checkMapObstacles(this.newPosRound, this.posRound)){
+		if(this.auxl.map.CheckMapObstacles(this.newPosRound, this.posRound)){
 			this.avatar.object3D.position.copy(this.positionNew);
 		}
 	} else {

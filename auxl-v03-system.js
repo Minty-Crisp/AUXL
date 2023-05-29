@@ -430,8 +430,8 @@ this.spawnedWaitingForJS = {};
 //All Named Object Spawn Functions
 //Unique Spawn/Despawn methods required
 this.objGenTracking = {
-core:{type:'core', spawn: 'SpawnCore', despawn: 'DespawnCore'},
-layer:{type:'layer', spawn: 'SpawnLayer', despawn: 'DespawnLayer'},
+core:{type:'core', spawn: 'SpawnCore', despawn: 'DespawnCore', altSpawn: 'SpawnCoreOnGrid'},
+layer:{type:'layer', spawn: 'SpawnLayer', despawn: 'DespawnLayer', altSpawn: 'SpawnLayerOnGrid'},
 menu:{type:'menu', spawn: 'SpawnMenu', despawn: 'DespawnMenu'},
 multiMenu:{type:'multiMenu', spawn: 'SpawnMultiMenu', despawn: 'DespawnMultiMenu'},
 singleGen:{type:'singleGen', spawn: 'SpawnObjRing', despawn: 'DespawnObjRing'},
@@ -451,10 +451,11 @@ guessHit:{type:'guessHit', spawn: 'SpawnGHGame', despawn: 'DespawnGHGame'},
 dragDiffuse:{type:'dragDiffuse', spawn: 'SpawnDDGame', despawn: 'DespawnDDGame'},
 };
 //Add Custom Built Object to Tracker
-this.AddObjGenToTracker = (type, spawn, despawn) => {
+this.AddObjGenToTracker = (type, spawn, despawn, altSpawn) => {
 	auxl.objGenTracking[type] = {};
 	auxl.objGenTracking[type].type = type;
 	auxl.objGenTracking[type].spawn = spawn;
+	auxl.objGenTracking[type].altSpawn = spawn;
 	auxl.objGenTracking[type].despawn = despawn;
 }
 //Spawn Tracker
@@ -479,7 +480,7 @@ function spawnTracker(obj, spawnLocation, bookName){
 	let id;
 	if(auxl[obj]){
 		for(let types in auxl.objGenTracking){
-			if(auxl[obj][auxl.objGenTracking[types].spawn]){
+			if(auxl[obj][auxl.objGenTracking[types].spawn] || auxl[obj][auxl.objGenTracking[types].altSpawn]){
 				type = auxl.objGenTracking[types].type;
 				id = auxl[obj][type].id;
 				break;
@@ -567,9 +568,9 @@ this.events = {};
 this.timeInDay = 360000;
 //Physics
 this.physics = false;
-//Collision
-//Map
+//Collision Map
 this.collideMap = [[],[],[],[]];
+this.triggerMap = [[],[],[],[]];
 this.mapEdge = false;
 
 //
@@ -1409,6 +1410,16 @@ this.Core = (data) => {
 	core.el = {};
 	core.events = {};
 	core.parent = false;
+	core.gridSpawned = false;
+	core.gridPath = [];
+	core.pathSpeed = 1000;
+	core.pathWait = 1000;
+	core.pathRoute = 'circuit';
+	core.pathLoop = 'infinite';
+	core.pathType = 'direct';
+	core.currentPath = -1;
+	core.gridPathInterval;
+	core.gridPathTimeout;
 	let details = false;
 	let load3D = false;
 	let loadMat = false;
@@ -1692,6 +1703,9 @@ auxl[object].GetEl().addEventListener(line, function(){
 	//Despawn Entity Object
 	const DespawnCore = () => {
 		if(core.inScene){
+			//Clear Core Timeout/Intervals
+			clearTimeout(core.gridPathTimeout);
+			clearInterval(core.gridPathInterval);
 			//Loaded Events
 			if(load3D){
 				core.el.removeEventListener('model-loaded', loaded);
@@ -1705,6 +1719,15 @@ auxl[object].GetEl().addEventListener(line, function(){
 				if(key === 0){} else {
 					GetEl().removeAttribute(componentKeys[key])
 				}
+			}
+			//Collision
+			if(core.gridSpawned){
+				if(core.grid.collide){
+					auxl.map.UpdateMapArea(core.id, core.grid.start, core.grid.end, false);
+				} else if(core.grid.trigger){
+					auxl.map.UpdateMapAreaTrigger(core.id, core.grid.start, core.grid.end, false);
+				}
+				core.gridSpawned = false;
 			}
 			//Remove from Scene or Parent
 			if(core.parent){
@@ -1731,8 +1754,24 @@ auxl[object].GetEl().addEventListener(line, function(){
 			SpawnCore(core.parent);
 		}
 	}
+	//PosOnGrid
+	function posOnGrid(grid){
+		let pos = new THREE.Vector3(0,0,0);
+		if(grid.start.x === grid.end.x && grid.start.z === grid.end.z){
+			pos.x = grid.start.x;
+			pos.z = grid.start.z;
+		} else {
+			let xDif = (grid.start.x - grid.end.x)*-1;
+			let zDif = (grid.start.z - grid.end.z)*-1;
+			xDif /= 2;
+			zDif /= 2;
+			pos.x = grid.start.x + xDif;
+			pos.z = grid.start.z + zDif;
+		}
+		return pos;
+	}
 	//Spawn on Grid
-	const SpawnOnGrid = (grid) => {
+	const SpawnCoreOnGrid = (grid) => {
 		//Start should always be less than or equal to end
 		//Start from top left to bottom right
 
@@ -1742,38 +1781,361 @@ auxl[object].GetEl().addEventListener(line, function(){
 			if(grid){
 				core.grid = grid;
 			}
-			if(core.grid.start.x === core.grid.end.x && core.grid.start.z === core.grid.end.z){
-				core.position.x = core.grid.start.x;
-				core.position.z = core.grid.start.z;
+			//Prevent Player Collision Overlap
+			if(core.grid.start.x <= auxl.player.GetPlayerInfo().grid.x && core.grid.end.x >= auxl.player.GetPlayerInfo().grid.x && core.grid.start.z <= auxl.player.GetPlayerInfo().grid.z && core.grid.end.z >= auxl.player.GetPlayerInfo().grid.z){
+			//Wait to Spawn till Player moves out of Range
+			auxl.map.WaitToSpawn({name:core.id, func: 'SpawnCoreOnGrid'});
 			} else {
-				let xDif = (core.grid.start.x - core.grid.end.x)*-1;
-				let zDif = (core.grid.start.z - core.grid.end.z)*-1;
-				xDif /= 2;
-				zDif /= 2;
-
-				core.position.x = core.grid.start.x + xDif;
-				core.position.z = core.grid.start.z + zDif;
+				let startPos = posOnGrid(core.grid);
+				core.position.x = startPos.x;
+				core.position.z = startPos.z;
+				//Add Starting/End position
+				//GridMove({x: core.position.x, z: core.position.z, time: 3000, type: 'direct'})
+				SpawnCore();
+				if(core.grid.collide){
+					auxl.map.UpdateMapArea(core.id, core.grid.start, core.grid.end, core.grid.collide);
+				} else if(core.grid.trigger){
+					auxl.map.UpdateMapAreaTrigger(core.id, core.grid.start, core.grid.end, core.grid.trigger);
+				}
+				core.gridSpawned = true;
 			}
-			SpawnCore();
-			auxl.mapCollision.UpdateMapArea(core.grid.start,core.grid.end,core.grid.collide);
-		}
-
-	}
-	//Despawn From Grid
-	const DespawnFromGrid = () => {
-		if(core.inScene){
-			auxl.mapCollision.UpdateMapArea(core.grid.start,core.grid.end, false);
-			DespawnCore();
 		}
 	}
 	//Toggle Grid Spawn
-	const ToggleGridSpawn = (grid) => {
+	const ToggleCoreGridSpawn = (grid) => {
 		if(core.inScene){
 			DespawnFromGrid();
 		} else {
 			SpawnOnGrid(grid);
 		}
 	}
+
+//Do jump moves that check collision
+//like wait to spawn, but wait to move
+	const GridMove = (move) => {
+		//with new start/end coords, check if free, if so move, otherwise wait till it is cleared
+		//let gridMovement = {start:{x:0, z:-5}, end: {x:0, z:-5}};
+		let gridMovement = {start:{}, end: {}};
+		gridMovement.start.x = core.grid.start.x;
+		gridMovement.start.z = core.grid.start.z;
+		gridMovement.end.x = core.grid.end.x;
+		gridMovement.end.z = core.grid.end.z;
+		//Calc X
+		if(move.x){
+			gridMovement.start.x += move.x;
+			gridMovement.end.x += move.x;
+		}
+		//Calc Z
+		if(move.z){
+			gridMovement.start.z += move.z;
+			gridMovement.end.z += move.z;
+		}
+		//Actual Position to Move Into
+		let movePos = posOnGrid(gridMovement);
+		movePos.y = core.position.y;
+		//Collision Move Checks
+		if(core.grid.collide){
+			if(auxl.map.CheckMapAreaSansArea(core.grid, gridMovement)){
+				console.log('free')
+				//Clear previous grid pos
+				auxl.map.UpdateMapArea(core.id, core.grid.start, core.grid.end, false);
+				//Update new grid pos
+				auxl.map.UpdateMapArea(core.id, gridMovement.start, gridMovement.end, true);
+				//Move object
+				ChangeSelf({property: 'position', value: movePos});
+				//Update core.grid with new grid pos
+				core.grid.start.x = gridMovement.start.x;
+				core.grid.start.z = gridMovement.start.z;
+				core.grid.end.x = gridMovement.end.x;
+				core.grid.end.z = gridMovement.end.z;
+				return true;
+			} else {
+				console.log('not free')
+				return false;
+			}
+		}
+
+	}
+
+	const GridPath = (grid) => {
+console.log(grid)
+		//Update Speed & Type
+		core.pathSpeed = grid.speed || 1000;
+		core.pathWait = grid.wait || 1000;
+		core.pathRoute = grid.route || 'circuit';
+		core.pathLoop = grid.loop || 'infinite';
+		core.pathType = grid.type || 'direct';
+
+		//Add Starting Point
+		//core.gridPath.push({x:0,z:0});
+		//Add Path
+		for(let each in grid.path){
+			core.gridPath.push(grid.path[each]);
+		}
+
+	}
+	const WalkPath = () => {
+		let movedX = true;
+		let moveX = false;
+		let movedZ = true;
+		let moveZ = false;
+		let loop = 0;
+		let alternate = false;
+
+		//Walk Interval
+		core.gridPathInterval = setInterval(() => {
+			if(movedX && movedZ){
+				if(core.pathRoute === 'circuit'){
+					core.currentPath++;
+					if(core.currentPath >= core.gridPath.length){
+						if(core.pathLoop === 'infinite'){
+						} else if(loop >= core.pathLoop){
+							clearInterval(core.gridPathInterval);
+						} else {
+							loop++;
+						}
+						core.currentPath = 0;
+					}
+				} else if(core.pathRoute === 'alternate'){
+					if(alternate){
+						core.currentPath--;
+						if(core.currentPath < 0){
+							if(core.pathLoop === 'infinite'){
+							} else if(loop >= core.pathLoop){
+								clearInterval(core.gridPathInterval);
+							} else {
+								loop++;
+							}
+							core.currentPath = 0;
+							alternate = false;
+						}
+					} else {
+						core.currentPath++;
+						if(core.currentPath >= core.gridPath.length){
+							if(core.pathLoop === 'infinite'){
+							} else if(loop >= core.pathLoop){
+								clearInterval(core.gridPathInterval);
+							} else {
+								loop++;
+							}
+							core.currentPath = core.gridPath.length-1;
+							alternate = true;
+						}
+					}
+
+				}
+				movedX = false;
+				movedZ = false;
+				if(core.currentPath === -1){
+					core.currentPath = 0;
+					pSwitch = true;
+				}
+				console.log(core.currentPath)
+				if(core.gridPath[core.currentPath].x){
+					moveX = true;
+				} else {
+					moveX = false;
+				}
+				if(core.gridPath[core.currentPath].z){
+					moveZ = true;
+				} else {
+					moveZ = false;
+				}
+			}
+
+			//X than Z Movement
+			if(moveX){
+				if(alternate){
+					movedX = GridMove({x:core.gridPath[core.currentPath].x*-1});
+				} else {
+					movedX = GridMove({x:core.gridPath[core.currentPath].x});
+				}
+				if(movedX){
+					moveX = false;
+					//If X move only, ensure movedZ is reset
+					if(moveZ){}else{
+						movedZ = true;
+					}
+				}
+			} else {
+				if(moveZ){
+					if(alternate){
+						movedZ = GridMove({z:core.gridPath[core.currentPath].z*-1});
+					} else {
+						movedZ = GridMove({z:core.gridPath[core.currentPath].z});
+					}
+					if(movedZ){
+						moveZ = false;
+						//If Z move only, ensure movedX is reset
+						if(moveX){}else{
+							movedX = true;
+						}
+					}
+				}
+			}
+		}, core.pathSpeed + core.pathWait);
+	}
+
+	//Grid Move
+	const GridMoveOld = (move) => {
+		//X
+		let moveX = move.x;
+		let emitX = false;
+		if(moveX){
+			emitX = 'moveXStart'+move.x;
+		} else {
+			if(typeof moveX === 'number'){
+				emitX = 'moveXStart'+move.x;
+			} else {
+				moveX = false;
+			}
+		}
+		//Z
+		let moveZ = move.z;
+		let emitZ = false;
+		if(moveZ){
+			emitZ = 'moveZStart'+move.z;
+		} else {
+			if(typeof moveZ === 'number'){
+				emitZ = 'moveZStart'+move.z;
+			} else {
+				moveZ = false;
+			}
+		}
+		//Add Pos to Path
+		core.gridPath.push({x: moveX, z: moveZ, emitX, emitZ});
+
+		//X Movement
+		if(emitX){
+			let animMoveXData = {
+				name: 'animmovex'+move.x,
+				property: 'object3D.position.x',
+				to: move.x,
+				dur: core.pathSpeed,
+				delay: 0,
+				loop: false,
+				dir: 'normal',
+				easing: 'linear',
+				elasticity: 400,
+				autoplay: false,
+				enabled: true,
+				startEvents: 'moveXStart'+move.x,
+				pauseEvents: 'moveXStop'+move.x,
+			};
+			//console.log(animMoveXData)
+			if(Object.keys(core.animations).length === 0){
+				core.animations = {};
+			}
+			core.animations['animmovex'+move.x] = animMoveXData;
+		}
+		//Z Movement
+		if(emitZ){
+			let animMoveZData = {
+				name: 'animmovez'+move.z,
+				property: 'object3D.position.z',
+				to: move.z,
+				dur: core.pathSpeed,
+				delay: 0,
+				loop: false,
+				dir: 'normal',
+				easing: 'linear',
+				elasticity: 400,
+				autoplay: false,
+				enabled: true,
+				startEvents: 'moveZStart'+move.z,
+				pauseEvents: 'moveZStop'+move.z,
+			};
+			//console.log(animMoveZData)
+			if(Object.keys(core.animations).length === 0){
+				core.animations = {};
+			}
+			core.animations['animmovez'+move.z] = animMoveZData;
+		}
+
+		//auxl.map.MoveToGrid(move, core);
+	}
+	//Grid Path
+	const GridPathOld = (grid) => {
+		//Update Speed & Type
+		core.pathSpeed = grid.speed || 1000;
+		core.pathWait = grid.wait || 1000;
+		core.pathRoute = grid.route || 'circuit';
+		core.pathLoop = grid.loop || 'infinite';
+		core.pathType = grid.type || 'direct';
+
+		//Starter Position
+		let startPos = posOnGrid(core.grid);
+		GridMove({x: startPos.x, z: startPos.z})
+		//Add Path
+		for(let each in grid.path){
+			GridMove(grid.path[each]);
+		}
+
+	} 
+	//Walk Path
+	const WalkPathOld = (path) => {
+
+		/*
+		core.gridPathTimeout = setTimeout(() => {
+
+		clearTimeout(core.gridPathTimeout);
+		}, 1000);
+		*/
+		let movedX = true;
+		let moveX = false;
+		let movedZ = true;
+		let moveZ = false;
+		let loop = 0;
+
+		core.gridPathInterval = setInterval(() => {
+
+			if(movedX && movedZ){
+				core.currentPath++;
+				if(core.currentPath >= core.gridPath.length){
+					if(core.pathLoop === 'infinite'){
+					} else if(loop >= core.pathLoop){
+						clearInterval(core.gridPathInterval);
+					} else {
+						loop++;
+					}
+					core.currentPath = 0;
+				}
+				movedX = false;
+				movedZ = false;
+				if(core.gridPath[core.currentPath].emitX){
+					moveX = true;
+				} else {
+					moveX = false;
+				}
+				if(core.gridPath[core.currentPath].emitZ){
+					moveZ = true;
+				} else {
+					moveZ = false;
+				}
+			}
+
+			//X than Z Movement
+			if(moveX){
+				EmitEvent(core.gridPath[core.currentPath].emitX);
+				movedX = true;
+				moveX = false;
+				if(moveZ){}else{
+					movedZ = true;
+				}
+			} else {
+				if(moveZ){
+					EmitEvent(core.gridPath[core.currentPath].emitZ);
+					movedZ = true;
+					moveZ = false;
+				}
+				if(moveX){}else{
+					movedX = true;
+				}
+			}
+
+		}, core.pathSpeed + core.pathWait);
+	} 
+
 	//Change Element - Single or Array
 	const ChangeSelf = (propertyValue) => {
 		if(Array.isArray(propertyValue)){
@@ -2055,7 +2417,7 @@ console.log(update)
 		GetEl().removeEventListener('click', openClose);
 	}
 
-	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, SpawnOnGrid, DespawnFromGrid, ToggleGridSpawn, RemoveComponent, ChangeSelf, PhysPos, UpdatePhys, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
+	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, PhysPos, UpdatePhys, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
 }
 
 //
@@ -2068,6 +2430,7 @@ this.Layer = (id, all) => {
 	layer.children = {};
 	layer.tempParents = [];
 	layer.parent = false;
+	layer.gridSpawned = false;
 	//Order of Elements Added to Scene
 	let accessOrder = [];
 
@@ -2176,6 +2539,14 @@ this.Layer = (id, all) => {
 	//Despawn Multi Entity Object
 	const DespawnLayer = () => {
 		if(layer.inScene){
+			//Collision
+			if(layer.gridSpawned){
+				if(layer.grid.collide){
+					auxl.map.UpdateMapArea(layer.id, layer.grid.start, layer.grid.end, false);
+				} else if(layer.grid.trigger){
+					auxl.map.UpdateMapAreaTrigger(layer.id, layer.grid.start, layer.grid.end, false);
+				}
+			}
 			let removeOrder = [...accessOrder];
 			removeOrder.reverse();
 			let levelOrder;
@@ -2203,6 +2574,53 @@ this.Layer = (id, all) => {
 			DespawnLayer();
 		} else {
 			SpawnLayer(layer.parent);
+		}
+	}
+	//Spawn on Grid
+	const SpawnLayerOnGrid = (grid) => {
+		//Start should always be less than or equal to end
+		//Start from top left to bottom right
+
+		//Grid goes from 0 - 2 takes up 5 grid spaces of 0, 0.5, 1, 1.5, 2
+		//5 spaces of 0.5 equals 2.5, so width or height would be 2.5
+		if(layer.inScene){}else{
+			if(grid){
+				layer.grid = grid;
+			}
+			if(layer.grid.start.x <= auxl.player.GetPlayerInfo().grid.x && layer.grid.end.x >= auxl.player.GetPlayerInfo().grid.x && layer.grid.start.z <= auxl.player.GetPlayerInfo().grid.z && layer.grid.end.z >= auxl.player.GetPlayerInfo().grid.z){
+			//Wait to Spawn till Player moves out of Range
+			auxl.map.WaitToSpawn({name:layer.id, func: 'SpawnLayerOnGrid'});
+			} else {
+				if(layer.grid.start.x === layer.grid.end.x && layer.grid.start.z === layer.grid.end.z){
+					layer.all.parent.core.core.position.x = layer.grid.start.x;
+					layer.all.parent.core.core.position.z = layer.grid.start.z;
+				} else {
+					let xDif = (layer.grid.start.x - layer.grid.end.x)*-1;
+					let zDif = (layer.grid.start.z - layer.grid.end.z)*-1;
+					xDif /= 2;
+					zDif /= 2;
+					layer.all.parent.core.core.position.x = layer.grid.start.x + xDif;
+					layer.all.parent.core.core.position.z = layer.grid.start.z + zDif;
+				}
+				SpawnLayer();
+				if(layer.grid.collide){
+					auxl.map.UpdateMapArea(layer.id, layer.grid.start, layer.grid.end, layer.grid.collide);
+				} else if(layer.grid.trigger){
+					auxl.map.UpdateMapAreaTrigger(layer.id, layer.grid.start, layer.grid.end, layer.grid.trigger);
+				}
+				layer.gridSpawned = true;
+			}
+
+
+
+		}
+	}
+	//Toggle Grid Spawn
+	const ToggleLayerGridSpawn = (grid) => {
+		if(layer.inScene){
+			DespawnFromGrid();
+		} else {
+			SpawnOnGrid(grid);
 		}
 	}
 	//Return Parent Element in Scene
@@ -2543,7 +2961,7 @@ this.Layer = (id, all) => {
 		}
 	}
 
-	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, GetParentEl, GetChildEl, GetAllChildEl, GetAllEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
+	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, SpawnLayerOnGrid, ToggleLayerGridSpawn, GetParentEl, GetChildEl, GetAllChildEl, GetAllEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
 }
 
 
@@ -2621,6 +3039,9 @@ this.Player = (id,layer) => {
 	//Info Text
 	layer.infoText = 'Player :\n'
 
+	//Collision
+	layer.gridPos = new THREE.Vector3(0,0,0);
+
 	//Spawn Player
 	layer.SpawnLayer();
 	//Currently not tracking Player object as it should not be removed
@@ -2639,6 +3060,9 @@ this.Player = (id,layer) => {
 	vrController1UI = document.getElementById('vrController1UI');
 	vrController2 = document.getElementById('vrController2');
 	vrController2UI = document.getElementById('vrController2UI');
+
+	//Update Current Position
+	layer.gridPos.copy(playerRig.getAttribute('position'));
 
 	//Reset to Defaults
 	const Reset = () => {
@@ -3044,7 +3468,7 @@ this.Player = (id,layer) => {
 	//Get user current infomation
 	const GetPlayerInfo = () => {
 
-		return {layer, id: layer.layer.all.parent.core.core.id, pos: playerRig.getAttribute('position'), rot: playerRig.getAttribute('rotation')};
+		return {layer, id: layer.layer.all.parent.core.core.id, pos: playerRig.getAttribute('position'), rot: playerRig.getAttribute('rotation'), grid:layer.gridPos};
 	}
 	//Attach to user
 	const AttachToPlayer = (element,offset) => {
@@ -4900,7 +5324,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 	const auxlObjMethod = (object, func, params) => {
 		//Check if spawning to add to Tracker
 		for (let types in auxl.objGenTracking) {
-			if(func === auxl.objGenTracking[types].spawn){
+			if(func === auxl.objGenTracking[types].spawn || func === auxl.objGenTracking[types].altSpawn){
 				spawnTracker(object, 'node');
 			}
 		}
@@ -5338,7 +5762,7 @@ this.MapZone = (mapZoneData) => {
 	const auxlObjMethod = (object, func, params) => {
 		//Check if spawning to add to Tracker
 		for (let types in auxl.objGenTracking) {
-			if(func === auxl.objGenTracking[types].spawn){
+			if(func === auxl.objGenTracking[types].spawn || func === auxl.objGenTracking[types].altSpawn){
 				spawnTracker(object, 'zone');
 			}
 		}
@@ -5907,7 +6331,7 @@ this.Scenario = (scenarioData) => {
 	const auxlObjMethod = (object, func, params) => {
 		//Check if spawning to add to Tracker
 		for (let types in auxl.objGenTracking) {
-			if(func === auxl.objGenTracking[types].spawn){
+			if(func === auxl.objGenTracking[types].spawn || func === auxl.objGenTracking[types].altSpawn){
 				spawnTracker(object, 'scenario');
 			}
 		}
@@ -6355,7 +6779,7 @@ this.Book = (bookData, npc) => {
 		}
 		//Check if spawning to add to Tracker
 		for (let types in auxl.objGenTracking) {
-			if(func === auxl.objGenTracking[types].spawn){
+			if(func === auxl.objGenTracking[types].spawn || func === auxl.objGenTracking[types].altSpawn){
 				spawnTracker(object, 'book', npc.id);
 			}
 		}
@@ -9165,7 +9589,7 @@ let eggBlinkShape = {primitive: 'cylinder', radius: eggSize, height: 0.0125, ope
 //Anims
 //Eye 1/2 : Wide/Normal/Squint/Tired/Blink/Closed
 //Flux
-let eggBlinkAnim = {property: 'object3D.scale.z', from: 0.65, to: 1.3, dur: 2000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'flux', stopEvents: 'stopFlux'};
+let eggBlinkAnim = {property: 'object3D.scale.z', from: 0.65, to: 1.3, dur: 2000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'flux', pauseEvents: 'stopFlux'};
 //Wide
 let eggWideAnim = {property: 'object3D.scale.z', to: 0.5, dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'wide'};
 //Normal
@@ -9900,22 +10324,19 @@ return {creature, SpawnCreature, DespawnCreature, Emote};
 //Collision
 //Build a collision map in 0.5 meter sections 
 //Allow or Deny moving outside of collision map
-this.Collision = (gridData) => {
+this.Collision = () => {
 
-//TODO
-//Build Layer.SpawnOnGrid()
-//Core & Layer MoveOnGrid() - block nearest squares it is moving into, release previous once out of. Is it possible to force move the player? Teleport or just push?
-//Determine if user is in same square as collision spawn and postpone to avoid conflicts
-//Do action if user walks into specific square (pick up, trap, etc...)
-//One way collision
-//Premade Dual Array Maps - Duplicate objects when needed aka a tile map
-//Allow both a collision and non collision premade grid map
-//Resize maps on out of bounds spawn
-//Fix diagonal collision
-//Add Edge object spawn indicator
-//Connect to NodeScene spawner and data builder
-//Dungeon Wall Maze Generator
-
+	let grid = {};
+	grid.size = 0;
+	grid.collide = {};
+	grid.trigger = {};
+	grid.triggersActive = false;
+	grid.edges = {};
+	grid.edge = auxl.mapEdgeBasic;
+	grid.waiting = false;
+	grid.spawnWaiting = {};
+	grid.waitingMove = false;
+	grid.moveWaiting = {};
 
 	//Enable Collision Checks for Locomotion
 	const EnableCollision = () => {
@@ -9926,38 +10347,75 @@ this.Collision = (gridData) => {
 		auxl.collision = false;
 	}
 
+	//Build Blank Collision & Trigger Map
+	const BuildMap = (size) => {
+		grid.size = size;
+		BlankMap();
+		BlankMapTrigger();
+	}
+
+	//
+	//Collision
 	//Blank Map @ Size
-	const BlankMap = (size) => {
+	const BlankMap = () => {
+		grid.collide = {};
 		auxl.collideMap[0] = [];
-		auxl.collideMap[0] = Array(size/2).fill(0, 0);
+		auxl.collideMap[0] = Array(grid.size/2).fill(0, 0);
 		for(let each in auxl.collideMap[0]){
-			auxl.collideMap[0][each] = Array(size/2).fill(0, 0);
+			auxl.collideMap[0][each] = Array(grid.size/2).fill(0, 0);
 		}
 		auxl.collideMap[1] = [];
-		auxl.collideMap[1] = Array(size/2).fill(0, 0);
+		auxl.collideMap[1] = Array(grid.size/2).fill(0, 0);
 		for(let each in auxl.collideMap[1]){
-			auxl.collideMap[1][each] = Array(size/2).fill(0, 0);
+			auxl.collideMap[1][each] = Array(grid.size/2).fill(0, 0);
 		}
 		auxl.collideMap[2] = [];
-		auxl.collideMap[2] = Array(size/2).fill(0, 0);
+		auxl.collideMap[2] = Array(grid.size/2).fill(0, 0);
 		for(let each in auxl.collideMap[2]){
-			auxl.collideMap[2][each] = Array(size/2).fill(0, 0);
+			auxl.collideMap[2][each] = Array(grid.size/2).fill(0, 0);
 		}
 		auxl.collideMap[3] = [];
-		auxl.collideMap[3] = Array(size/2).fill(0, 0);
+		auxl.collideMap[3] = Array(grid.size/2).fill(0, 0);
 		for(let each in auxl.collideMap[3]){
-			auxl.collideMap[3][each] = Array(size/2).fill(0, 0);
+			auxl.collideMap[3][each] = Array(grid.size/2).fill(0, 0);
 		}
 	}
+	//Add to Map
+	const OnMap = (obj) => {
+		if(grid.collide[obj.name]){} else {
+			grid.collide[obj.name] = {};
+		}
+		grid.collide[obj.name]['space'+obj.spaces] = {};
+		grid.collide[obj.name]['space'+obj.spaces].pos = obj.pos;
+		
+	}
+	//Remove from Map
+	const OffMap = (name) => {
+		delete grid.collide[name];
+	}
+	//Check Map for no other Overlapping Objects
+	const CheckMapOverlap = (obj) => {
+		for(let each in grid.collide){
+			if(each === obj.name){}else{
+				for(let space in grid.collide[each]){
+					if(grid.collide[each][space].pos.x === obj.pos.x && grid.collide[each][space].pos.z === obj.pos.z){
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
 	//Update Map Multi Space
-	const UpdateMapArea = (start,end,collide) => {
+	const UpdateMapArea = (name,start,end,collide) => {
 		let pos = {x: start.x, z: start.z};
 		let xSpaces;
 		let xCurrent;
 		let zSpaces;
 		let zCurrent;
 		let mapKey;
-		//Assign Map Key Code
+		let spaces = 0;
+		//Assign Map Key Code Add or Remove
 		if(collide){
 			mapKey = 1;
 		} else {
@@ -9980,34 +10438,52 @@ this.Collision = (gridData) => {
 		}
 		//Calc Z
 		function calcZPos(){
-		if(start.z === end.z){
-			zSpaces = 1;
-		} else {
-			zSpaces = start.z - end.z;
-			zSpaces *= 2;
-			if(zSpaces < 0){
-				zSpaces *= -1;
+			if(start.z === end.z){
+				zSpaces = 1;
+			} else {
+				zSpaces = start.z - end.z;
+				zSpaces *= 2;
+				if(zSpaces < 0){
+					zSpaces *= -1;
+				}
+				zSpaces += 1;
 			}
-			zSpaces += 1;
-		}
-		pos.z = start.z;
-		zCurrent = zSpaces;
+			pos.z = start.z;
+			zCurrent = zSpaces;
 		}
 		//Assign Map Collisions
 		calcZPos();
 		for(let z = 0; z < zSpaces;z++){
 			calcXPos();
 			for(let x = 0; x < xSpaces;x++){
-				UpdateMap(pos,mapKey);
+				if(mapKey === 0){
+					//Removing
+					//If another object doesn't exist in same space, clear it
+					if(CheckMapOverlap({name, pos:{x:pos.x,z:pos.z}})){
+						UpdateMap(pos,mapKey);
+					}
+					spaces++;
+				} else if(mapKey === 1){
+					//Adding
+					UpdateMap(pos,mapKey);
+					spaces++;
+					OnMap({name, spaces, pos:{x:pos.x,z:pos.z}});
+				}
+				//Next X Space
 				xCurrent--;
 				if(xCurrent > 0){
 					pos.x += 0.5;
 				}
 			}
+			//Next Z Space
 			zCurrent--;
 			if(zCurrent > 0){
 				pos.z += 0.5;
 			}
+		}
+		//Remove from grid.collide
+		if(mapKey === 0){
+			OffMap(name);
 		}
 	}
 	//Update Map Single Space
@@ -10045,13 +10521,24 @@ this.Collision = (gridData) => {
 		}
 
 	}
-
+	//Check for Player Collision
+	const CheckForPlayer = (grid) => {
+		let playerGrid = auxl.player.GetPlayerInfo().grid;
+		if(grid.start.x <= playerGrid.x && grid.end.x >= playerGrid.x && grid.start.z <= playerGrid.z && grid.end.z >= playerGrid.z){
+			//Player Occupied
+			return false;
+		} else {
+			return true;
+		}
+	}
 	//Check for Map Obstacles 0.5 Meter
+	//Returns True if Free
 	//Corners need 3 squares in L shape to completely block travel
-	const checkMapObstacles = (newPos) => {
+	const CheckMapObstacles = (pos) => {
 
-		newPos.x *= 2;
-		newPos.z *= 2;
+		let newPos = {};
+		newPos.x = pos.x * 2;
+		newPos.z = pos.z * 2;
 
 		if(newPos.x < 0 && newPos.z < 0){
 			//Top Left - 0
@@ -10171,9 +10658,742 @@ this.Collision = (gridData) => {
 			return false;
 		}
 	}
+	//Check for Map Obstacles in an Area
+	const CheckMapObstaclesArea = (start,end) => {
+		let pos = {x: start.x, z: start.z};
+		let xSpaces;
+		let xCurrent;
+		let zSpaces;
+		let zCurrent;
+		let spaces = 0;
+		//Calc X
+		function calcXPos(){
+			if(start.x === end.x){
+				xSpaces = 1;
+			} else {
+				xSpaces = start.x - end.x;
+				xSpaces *= 2;
+				if(xSpaces < 0){
+					xSpaces *= -1;
+				}
+				xSpaces += 1;
+			}
+			pos.x = start.x;
+			xCurrent = xSpaces;
+		}
+		//Calc Z
+		function calcZPos(){
+			if(start.z === end.z){
+				zSpaces = 1;
+			} else {
+				zSpaces = start.z - end.z;
+				zSpaces *= 2;
+				if(zSpaces < 0){
+					zSpaces *= -1;
+				}
+				zSpaces += 1;
+			}
+			pos.z = start.z;
+			zCurrent = zSpaces;
+		}
+		//Assign Map Collisions
+		calcZPos();
+		//Check for Player Collision
+		if(CheckForPlayer({start,end})){}else{
+			console.log('Hit Player')
+			return false;
+		}
+		for(let z = 0; z < zSpaces;z++){
+			calcXPos();
+			for(let x = 0; x < xSpaces;x++){
+				//Check for Other Object Collision
+				if(CheckMapObstacles(pos)){}else{
+					console.log('Hit Object')
+					console.log(pos)
+					return false;
+				}
+				spaces++;
+				//Next X Space
+				xCurrent--;
+				if(xCurrent > 0){
+					pos.x += 0.5;
+				}
+			}
+			//Next Z Space
+			zCurrent--;
+			if(zCurrent > 0){
+				pos.z += 0.5;
+			}
+		}
+		return true;
+	}
+	//Build an Array for the Area
+	const BuildAreaArray = (start,end) => {
+		let pos = {x: start.x, z: start.z};
+		let xSpaces;
+		let xCurrent;
+		let zSpaces;
+		let zCurrent;
+		let spaces = 0;
+		let area = [];
+		//Calc X
+		function calcXPos(){
+			if(start.x === end.x){
+				xSpaces = 1;
+			} else {
+				xSpaces = start.x - end.x;
+				xSpaces *= 2;
+				if(xSpaces < 0){
+					xSpaces *= -1;
+				}
+				xSpaces += 1;
+			}
+			pos.x = start.x;
+			xCurrent = xSpaces;
+		}
+		//Calc Z
+		function calcZPos(){
+			if(start.z === end.z){
+				zSpaces = 1;
+			} else {
+				zSpaces = start.z - end.z;
+				zSpaces *= 2;
+				if(zSpaces < 0){
+					zSpaces *= -1;
+				}
+				zSpaces += 1;
+			}
+			pos.z = start.z;
+			zCurrent = zSpaces;
+		}
+		//Assign Map Collisions
+		calcZPos();
+		for(let z = 0; z < zSpaces;z++){
+			calcXPos();
+			for(let x = 0; x < xSpaces;x++){
+				//Add to Area Array
+				area.push({x:pos.x,z:pos.z});
+				spaces++;
+				//Next X Space
+				xCurrent--;
+				if(xCurrent > 0){
+					pos.x += 0.5;
+				}
+			}
+			//Next Z Space
+			zCurrent--;
+			if(zCurrent > 0){
+				pos.z += 0.5;
+			}
+		}
+		return area;
+	}
+	//Check for Map Obstacles in an Area and Avoid Checking an Area
+	const CheckMapAreaSansArea = (from, to) => {
+		//to is the area moving into
+		//from is the area moving from, do not check any of these spaces
+		let original = BuildAreaArray(from.start, from.end);
+		let skip = false;
+		let pos = {x: to.start.x, z: to.start.z};
+		let xSpaces;
+		let xCurrent;
+		let zSpaces;
+		let zCurrent;
+		let spaces = 0;
+		//Calc X
+		function calcXPos(){
+			if(to.start.x === to.end.x){
+				xSpaces = 1;
+			} else {
+				xSpaces = to.start.x - to.end.x;
+				xSpaces *= 2;
+				if(xSpaces < 0){
+					xSpaces *= -1;
+				}
+				xSpaces += 1;
+			}
+			pos.x = to.start.x;
+			xCurrent = xSpaces;
+		}
+		//Calc Z
+		function calcZPos(){
+			if(to.start.z === to.end.z){
+				zSpaces = 1;
+			} else {
+				zSpaces = to.start.z - to.end.z;
+				zSpaces *= 2;
+				if(zSpaces < 0){
+					zSpaces *= -1;
+				}
+				zSpaces += 1;
+			}
+			pos.z = to.start.z;
+			zCurrent = zSpaces;
+		}
+		//Assign Map Collisions
+		calcZPos();
+		//Check for Player Collision
+		if(CheckForPlayer(to)){}else{
+			console.log('Hit Player')
+			return false;
+		}
+		for(let z = 0; z < zSpaces;z++){
+			calcXPos();
+			for(let x = 0; x < xSpaces;x++){
+				//Check if within From
+				for(let each in original){
+					if(pos.x === original[each].x && pos.x === original[each].x && pos.z === original[each].z && pos.z === original[each].z){
+						skip = true;
+						break;
+					}
+				}
+				//Check for Other Object Collision
+				if(skip){}else{
+					if(CheckMapObstacles(pos)){}else{
+						console.log('Hit Object')
+						console.log(pos)
+						return false;
+					}
+				}
+				spaces++;
+				//Next X Space
+				xCurrent--;
+				if(xCurrent > 0){
+					pos.x += 0.5;
+				}
+			}
+			//Next Z Space
+			zCurrent--;
+			if(zCurrent > 0){
+				pos.z += 0.5;
+			}
+		}
+		return true;
+	}
+
+	//
+	//Triggers
+	//Blank Map @ Size
+	const BlankMapTrigger = () => {
+		grid.trigger = {};
+		auxl.triggerMap[0] = [];
+		auxl.triggerMap[0] = Array(grid.size/2).fill(0, 0);
+		for(let each in auxl.triggerMap[0]){
+			auxl.triggerMap[0][each] = Array(grid.size/2).fill(0, 0);
+		}
+		auxl.triggerMap[1] = [];
+		auxl.triggerMap[1] = Array(grid.size/2).fill(0, 0);
+		for(let each in auxl.triggerMap[1]){
+			auxl.triggerMap[1][each] = Array(grid.size/2).fill(0, 0);
+		}
+		auxl.triggerMap[2] = [];
+		auxl.triggerMap[2] = Array(grid.size/2).fill(0, 0);
+		for(let each in auxl.triggerMap[2]){
+			auxl.triggerMap[2][each] = Array(grid.size/2).fill(0, 0);
+		}
+		auxl.triggerMap[3] = [];
+		auxl.triggerMap[3] = Array(grid.size/2).fill(0, 0);
+		for(let each in auxl.triggerMap[3]){
+			auxl.triggerMap[3][each] = Array(grid.size/2).fill(0, 0);
+		}
+	}
+	//Add to Map
+	const OnMapTrigger = (obj) => {
+		if(grid.trigger[obj.name]){} else {
+			grid.trigger[obj.name] = {};
+		}
+		grid.trigger[obj.name]['space'+obj.spaces] = {};
+		grid.trigger[obj.name]['space'+obj.spaces].pos = obj.pos;
+		
+	}
+	//Remove from Map
+	const OffMapTrigger = (name) => {
+		delete grid.trigger[name];
+	}
+	//Check Map for no other Overlapping Objects
+	const CheckMapOverlapTrigger = (obj) => {
+		for(let each in grid.trigger){
+			if(each === obj.name){}else{
+				for(let space in grid.trigger[each]){
+					if(grid.trigger[each][space].pos.x === obj.pos.x && grid.trigger[each][space].pos.z === obj.pos.z){
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	//Update Map Multi Space
+	const UpdateMapAreaTrigger = (name,start,end,trigger) => {
+		let pos = {x: start.x, z: start.z};
+		let xSpaces;
+		let xCurrent;
+		let zSpaces;
+		let zCurrent;
+		let mapKey;
+		let spaces = 0;
+		//Assign Map Key Code Add or Remove
+		if(trigger){
+			mapKey = 1;
+		} else {
+			mapKey = 0;
+		}
+		//Calc X
+		function calcXPos(){
+			if(start.x === end.x){
+				xSpaces = 1;
+			} else {
+				xSpaces = start.x - end.x;
+				xSpaces *= 2;
+				if(xSpaces < 0){
+					xSpaces *= -1;
+				}
+				xSpaces += 1;
+			}
+			pos.x = start.x;
+			xCurrent = xSpaces;
+		}
+		//Calc Z
+		function calcZPos(){
+		if(start.z === end.z){
+			zSpaces = 1;
+		} else {
+			zSpaces = start.z - end.z;
+			zSpaces *= 2;
+			if(zSpaces < 0){
+				zSpaces *= -1;
+			}
+			zSpaces += 1;
+		}
+		pos.z = start.z;
+		zCurrent = zSpaces;
+		}
+		//Assign Map Collisions
+		calcZPos();
+		for(let z = 0; z < zSpaces;z++){
+			calcXPos();
+			for(let x = 0; x < xSpaces;x++){
+				if(mapKey === 0){
+					//Removing
+					//If another object doesn't exist in same space, clear it
+					if(CheckMapOverlapTrigger({name, pos:{x:pos.x,z:pos.z}})){
+						UpdateMapTrigger(pos,mapKey);
+					}
+					spaces++;
+				} else if(mapKey === 1){
+					//Adding
+					UpdateMapTrigger(pos,mapKey);
+					spaces++;
+					OnMapTrigger({name, spaces, pos:{x:pos.x,z:pos.z}});
+				}
+				//Next X Space
+				xCurrent--;
+				if(xCurrent > 0){
+					pos.x += 0.5;
+				}
+			}
+			//Next Z Space
+			zCurrent--;
+			if(zCurrent > 0){
+				pos.z += 0.5;
+			}
+		}
+		//Remove from grid.trigger
+		if(mapKey === 0){
+			OffMapTrigger(name);
+		}
+	}
+	//Update Map Single Space
+	const UpdateMapTrigger = (pos, mapKey) => {
+		//0.5 meter to integer grid adjustment
+		let xPos = pos.x * 2;
+		let zPos = pos.z * 2;
+		//console.log({x: xPos, z: zPos})
+
+		//Add a mechanism to detect if the collision it is adding is the same sq that the player is in. If so, do not add until the player has moved out of the square.
+
+		if(xPos < 0 && zPos < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			auxl.triggerMap[0][zPos * -1][xPos * -1] = mapKey;
+		} else if(pos.x >= 0 && zPos < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			auxl.triggerMap[1][zPos * -1][xPos] = mapKey
+		} else if(xPos < 0 && zPos >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			auxl.triggerMap[2][zPos][xPos * -1] = mapKey;
+		} else if(xPos >= 0 && zPos >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			auxl.triggerMap[3][zPos][xPos] = mapKey;
+		} else {
+			console.log('Update out of bounds')
+			//resize map
+		}
+
+	}
+	//Check for Map Triggers 0.5 Meter
+	//Returns True if Hit Trigger
+	//Corners need 3 squares in L shape to completely block travel
+	const CheckMapTriggers = (pos) => {
+
+		let newPos = {};
+		newPos.x = pos.x * 2;
+		newPos.z = pos.z * 2;
+
+		if(newPos.x < 0 && newPos.z < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			if(auxl.triggerMap[0].length > newPos.z * -1){
+				if(auxl.triggerMap[0][newPos.z * -1].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(auxl.triggerMap[0][newPos.z * -1][newPos.x * -1] === 1){
+						return true;
+					} else {
+						return false;
+					}
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			if(auxl.triggerMap[1].length > newPos.z * -1){
+				if(auxl.triggerMap[1][newPos.z * -1].length > newPos.x){
+					//console.log('Within Map');
+					if(auxl.triggerMap[1][newPos.z * -1][newPos.x] === 1){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				}
+			}
+		} else if(newPos.x < 0 && newPos.z >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			if(auxl.triggerMap[2].length > newPos.z){
+				if(auxl.triggerMap[2][newPos.z].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(auxl.triggerMap[2][newPos.z][newPos.x * -1] === 1){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			if(auxl.triggerMap[3].length > newPos.z){
+				if(auxl.triggerMap[3][newPos.z].length > newPos.x){
+					if(auxl.triggerMap[3][newPos.z][newPos.x] === 1){
+						//User can move
+						return true;
+					} else {
+						return false;
+					}
+				}
+			}
+		} else {
+			return false;
+		}
 
 
 
+	}
+	//Trigger Event
+	const TriggerEvent = (obj, active) => {
+		if(auxl[obj.name]){
+			if(active){
+				//Trigger Enter
+				if(grid.trigger[obj.name].active){} else {
+					//console.log('Trigger Enter')
+					if(auxl[obj.name].EmitEvent){
+						auxl[obj.name].EmitEvent('triggerEnter');
+					} else if(auxl[obj.name].EmitEventParent){
+						auxl[obj.name].EmitEventParent('triggerEnter');
+					}
+					grid.trigger[obj.name].active = true;
+				}
+			} else {
+				//Trigger Exit
+				if(grid.trigger[obj.name].active){
+					//console.log('Trigger Exit')
+					if(auxl[obj.name].EmitEvent){
+						auxl[obj.name].EmitEvent('triggerExit');
+					} else if(auxl[obj.name].EmitEventParent){
+						auxl[obj.name].EmitEventParent('triggerExit');
+					}
+					grid.trigger[obj.name].active = false;
+				}
+			}
+		} else {
+			console.log(obj.name)
+			console.log('Trigger is not an AUXL object')
+		}
+	}
+	//Check Which Trigger was Hit
+	const TriggerEnterHit = (pos) => {
+		let triggers = [];
+		for(let each in grid.trigger){
+			for(let space in grid.trigger[each]){
+				if(space === 'active'){}else{
+					if(grid.trigger[each][space].pos.x === pos.x && grid.trigger[each][space].pos.z === pos.z){
+						//Trigger Match
+						triggers.push({name: each, pos: grid.trigger[each][space]})
+					}
+				}
+			}
+		}
+		if(triggers.length > 0){
+			grid.triggersActive = true;
+			for(let each in triggers){
+				TriggerEvent(triggers[each], true);
+			}
+		}
+	}
+	//Check Active Triggers for Exit
+	const CheckActiveTriggers = (pos) => {
+		if(grid.triggersActive){
+			let clear = false;
+			let keep = false;
+			for(let each in grid.trigger){
+				keep = false;
+				if(grid.trigger[each].active){
+					//currently active
+					for(let space in grid.trigger[each]){
+						if(grid.trigger[each][space].pos){
+							if(grid.trigger[each][space].pos.x === pos.x && grid.trigger[each][space].pos.z === pos.z){
+								keep = true;
+							}
+						}
+					}
+					if(keep){}else{
+						TriggerEvent({name: each}, false);
+					}
+				}
+			}
+			if(clear){
+				grid.triggersActive = false;
+			}
+		}
+	}
+	//Clear Triggers
+	const ClearTriggers = () => {
+		for(let each in grid.trigger){
+			for(let space in grid.trigger[each]){
+				if(space === 'active'){
+					grid.trigger[each][space] = false;
+				}
+			}
+		}
+		grid.triggersActive = false;
+	}
+
+	//
+	//Edges
+	//Update Edge Core
+	const UpdateEdge = (core) => {
+		grid.edge = core;
+	}
+	//Spawn Map Edge Object
+	const SpawnEdges = () => {
+		let pos = (grid.size/4) +1;
+		let length = (grid.size/2) +2.5;
+		//North
+		grid.edges.northEdge = auxl.coreFromTemplate(grid.edge,{id: 'northEdge', geometry: {primitive: 'box', depth: 0.5, width: length, height: 0.5}, position: new THREE.Vector3(0,0.25,pos*-1)}, true);
+		grid.edges.northEdge.SpawnCore();
+		//South
+		grid.edges.southEdge = auxl.coreFromTemplate(grid.edge,{id: 'southEdge', geometry: {primitive: 'box', depth: 0.5, width: length, height: 0.5}, position: new THREE.Vector3(0,0.25,pos)}, true);
+		grid.edges.southEdge.SpawnCore();
+		//West
+		grid.edges.westEdge = auxl.coreFromTemplate(grid.edge,{id: 'westEdge', geometry: {primitive: 'box', depth: length, width: 0.5, height: 0.5}, position: new THREE.Vector3(pos*-1,0.25,0)}, true);
+		grid.edges.westEdge.SpawnCore();
+		//East
+		grid.edges.eastEdge = auxl.coreFromTemplate(grid.edge,{id: 'eastEdge', geometry: {primitive: 'box', depth: length, width: 0.5, height: 0.5}, position: new THREE.Vector3(pos,0.25,0)}, true);
+		grid.edges.eastEdge.SpawnCore();
+
+	}
+	//Spawn Map Edge Object
+	const DespawnEdges = (map) => {
+		grid.edges.northEdge.DespawnCore();
+		delete grid.edges.northEdge;
+		grid.edges.southEdge.DespawnCore();
+		delete grid.edges.southEdge;
+		grid.edges.westEdge.DespawnCore();
+		delete grid.edges.westEdge;
+		grid.edges.eastEdge.DespawnCore();
+		delete grid.edges.eastEdge;
+	}
+
+	//
+	//Wait to Spawn
+	//Objects that need to wait to be Spawned
+	const WaitToSpawn = (obj) => {
+		if(grid.waiting){}else{
+			grid.waiting = true;
+		}
+		grid.spawnWaiting[obj.name] = obj;
+	}
+	//Object Was Spawned
+	const Spawned = (name) => {
+		delete grid.spawnWaiting[name];
+		if(Object.keys(grid.spawnWaiting).length === 0){
+			grid.waiting = false;
+		}
+	}
+	//Attempt Spawning of Waiting Objects
+	const WaitingToSpawn = () => {
+		if(grid.waiting){
+			for(let each in grid.spawnWaiting){
+				auxl[each][grid.spawnWaiting[each].func]();
+				if(auxl[each].inScene){
+					Spawned(each);
+				}
+			}
+		}
+	}
+
+	//
+	//Wait to Move
+	//Objects that need to wait to be Moved
+	const WaitToMove = (obj) => {
+		if(grid.waitingMove){}else{
+			grid.waitingMove = true;
+		}
+		grid.moveWaiting[obj.name] = obj;
+	}
+	//Object Was Moved
+	const Moved = (name) => {
+		delete grid.moveWaiting[name];
+		if(Object.keys(grid.moveWaiting).length === 0){
+			grid.waitingMove = false;
+		}
+	}
+	//Attempt Moving of Waiting Objects
+	const WaitingToMove = () => {
+		if(grid.waitingMove){
+			for(let each in grid.moveWaiting){
+				auxl[each][grid.moveWaiting[each].func]();
+				if(auxl[each].inScene){
+					Spawned(each);
+				}
+			}
+		}
+	}
+
+	//OLD
+	//Move to Grid
+	const MoveToGrid = (move, obj) => {
+		//Depending on X or Z direction of movement, the grid for which the object will occupy will get 0.5 bigger in either direction. Once it lands on the space, it will remove the attachment to the previous grid it has since moved out of (with a grace period).
+console.log(move)//{z:-3, time: 1000, type: 'direct'}
+console.log(obj)//core's data
+
+let animMoveXData;
+let animRotXData;
+let animRotZData;
+let animMoveZData;
+
+//Move x space +/-
+//Move z space +/-
+//move.x is +5, means move to the right 5 spaces
+//move.z is +3, means move to the front 3 spaces
+//move.time is how long the total movement will take
+//move.type can be direct which if both x and z are defined would make up a diagonal path
+//move.type can be long which if both x and z are defined take the longest path first
+//move.type can be short which if both x and z are defined take the shortest path first
+
+//need parent core to attach move anim and rotate anim as well as emit each anim event
+
+/*
+//Check if Object as all 4 spin rotations, otherwise add them
+let prepSpin = false;
+if(Object.keys(auxl[obj.id].core.animations).length === 0){
+	prepSpin = true;
+} else {
+	if(auxl[obj.id].core.animations.animspinright){} else {
+		prepSpin = true;
+	}
+}
+if(prepSpin){
+	//Spin Right
+	animRotData = {
+		name: 'animspinright',
+		property: 'object3D.rotation.y', 
+		to: -90, 
+		dur: 500, 
+		delay: 0, 
+		loop: false, 
+		dir: 'normal', 
+		easing: 'linear', 
+		elasticity: 400, 
+		autoplay: false, 
+		enabled: true,
+		startEvents: 'spinRightStart',
+		pauseEvents: 'spinRightStop',
+	};
+	auxl[obj.id].Animate(animRotData);
+	//Spin Left
+	animRotData.name = 'animspinleft';
+	animRotData.to = 90;
+	animRotData.startEvents = 'spinLeftStart';
+	animRotData.pauseEvents = 'spinLeftStop';
+	auxl[obj.id].Animate(animRotData);
+	//Spin Forward
+	animRotData.name = 'animspinforward';
+	animRotData.to = 1;
+	animRotData.startEvents = 'spinForwardStart';
+	animRotData.pauseEvents = 'spinForwardStop';
+	auxl[obj.id].Animate(animRotData);
+	//Spin Backward
+	animRotData.name = 'animspinbackward';
+	animRotData.to = 180;
+	animRotData.startEvents = 'spinBackwardStart';
+	animRotData.pauseEvents = 'spinBackwardStop';
+	auxl[obj.id].Animate(animRotData);
+}
+*/
+
+
+
+
+
+
+
+
+
+console.log(auxl[obj.id])
+
+	}
+
+	//Path on Grid
+	const PathOnGrid = (path) => {
+
+		//path.move is an array of grid locations in order from start to finish
+		//path.pause is the amount of time to pause in between each move
+		//path.loop is the amount of times to complete path or infinite
+		//path.type is what kind of path, wether a loop were object ends where it starts or destination where the object ends elsewhere
+		//path.collide is what to do on collision with player or other object like wait or reverse direction
+		//path.direction is which way the object will move each path like normal (continue in same direction), alternate (at end of path go backwards), random (after each move, may go forward or back)
+
+		//Apply move anim and rotate animation on new direction
+
+	}
+
+
+	//
+	//Map Spawning
 	//Spawn Map
 	const SpawnMap = (map) => {
 		//Could easily do a list of objects that have grid info, but what would be the best way to do a dual array map?
@@ -10236,10 +11456,9 @@ this.Collision = (gridData) => {
 
 	}
 
-
 	//
 	//OLD
-
+/*
 	let grid = Object.assign({}, gridData);
 	grid.inScene = false;
 	grid.id = gridData.id || 'scene';
@@ -10353,7 +11572,7 @@ this.Collision = (gridData) => {
 
 	//Check for Map Obstacles 0.5 Meter
 	//Corners need 3 squares in L shape to completely block travel
-	const checkMapObstaclesOld = (newPos) => {
+	const CheckMapObstaclesOld = (newPos) => {
 
 		newPos.x *= 2;
 		newPos.z *= 2;
@@ -10479,7 +11698,7 @@ this.Collision = (gridData) => {
 
 	//Check for Map Obstacles 0.5 Meter
 	//Attempting to fix L required corners, only requiring 2 instead of 3
-	const checkMapObstaclesDiagonal = (newPos, pos) => {
+	const CheckMapObstaclesDiagonal = (newPos, pos) => {
 
 		newPos.x *= 2;
 		newPos.z *= 2;
@@ -10781,18 +12000,6 @@ this.Collision = (gridData) => {
 		}
 	}
 
-
-	//Spawn Edge Collision Object
-	const SpawnEdge = () => {
-
-	}
-
-	//Despawn Edge Collision Object
-	const DespawnEdge = () => {
-
-	}
-
-
 	//Premade Maps
 	//
 	//-X requires .reverse() on each inner one
@@ -10969,22 +12176,10 @@ this.Collision = (gridData) => {
 	//
 	//Testing mapSpawner function
 	//mapSpawner(mapAll);
+*/
+	return {grid, BuildMap, BlankMap, UpdateMap, UpdateMapArea, EnableCollision, DisableCollision, CheckMapObstacles, CheckMapObstaclesArea, CheckMapAreaSansArea, SpawnEdges, DespawnEdges, UpdateEdge, BlankMapTrigger, OnMapTrigger, OffMapTrigger, CheckMapOverlapTrigger, UpdateMapAreaTrigger, UpdateMapTrigger, CheckMapTriggers, TriggerEnterHit, CheckActiveTriggers, ClearTriggers, WaitToSpawn, WaitingToSpawn, MoveToGrid, PathOnGrid,};
 
-	return {grid, BlankMap, UpdateMap, UpdateMapArea, EnableCollision, DisableCollision, checkMapObstacles, SpawnEdge, DespawnEdge, SpawnMap, DespawnMap};
 }
-
-//
-//Collision Map Testing
-this.mapCollisionData = {
-	id: 'mapCollision',
-	mapSize: 40,
-	edge: false,
-
-};
-this.mapCollision = auxl.Collision(auxl.mapCollisionData);
-this.mapCollision.BlankMap(40);
-this.mapCollision.EnableCollision();
-auxl.mapEdge = true;
 
 //
 //Build Core/Layer/Other objects in the 3D environment
@@ -13649,6 +14844,26 @@ auxl.moonLayer,
 };
 auxl.skyBox0 = auxl.SkyBox(auxl.skyBox0Data);
 
+//
+//Collision Support
+auxl.mapEdgeBasicData = {
+data:'mapEdgeBasicData',
+id:'mapEdgeBasic',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.5},
+material: {shader: "standard", color: "#6c4646", opacity: 1},
+position: new THREE.Vector3(0,1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.mapEdgeBasic = auxl.Core(auxl.mapEdgeBasicData);
+
+
 //Build Library Objects
 auxl.buildLibrary = () => {
 
@@ -13713,6 +14928,9 @@ auxl.moon = auxl.Core(auxl.moonData);
 auxl.moonLayer = auxl.Layer('moonLayer', auxl.moonLayerData);
 auxl.skyGrad = auxl.Core(auxl.skyGradData);
 auxl.skyBox0 = auxl.SkyBox(auxl.skyBox0Data);
+
+//Collision Support
+auxl.mapEdgeBasic = auxl.Core(auxl.mapEdgeBasicData);
 
 }
 auxl.toBeRebuilt('buildLibrary');
