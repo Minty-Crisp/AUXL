@@ -1836,13 +1836,19 @@ auxl[object].GetEl().addEventListener(line, function(){
 		//Collision Move Checks
 		if(core.grid.collide){
 			if(auxl.map.CheckMapAreaSansArea(core.grid, gridMovement)){
-				console.log('free')
+				//console.log('free')
 				//Clear previous grid pos
 				auxl.map.UpdateMapArea(core.id, core.grid.start, core.grid.end, false);
 				//Update new grid pos
 				auxl.map.UpdateMapArea(core.id, gridMovement.start, gridMovement.end, true);
-				//Move object
-				ChangeSelf({property: 'position', value: movePos});
+				//Jump Object Move
+				//ChangeSelf({property: 'position', value: movePos});
+				//Animate Object Move
+				if(move.x){
+					EmitEvent('animstartx' + movePos.x);
+				} else if(move.z){
+					EmitEvent('animstartz' + movePos.z);
+				}
 				//Update core.grid with new grid pos
 				core.grid.start.x = gridMovement.start.x;
 				core.grid.start.z = gridMovement.start.z;
@@ -1850,7 +1856,7 @@ auxl[object].GetEl().addEventListener(line, function(){
 				core.grid.end.z = gridMovement.end.z;
 				return true;
 			} else {
-				console.log('not free')
+				//console.log('not free')
 				return false;
 			}
 		}
@@ -1858,21 +1864,85 @@ auxl[object].GetEl().addEventListener(line, function(){
 	}
 
 	const GridPath = (grid) => {
-console.log(grid)
 		//Update Speed & Type
 		core.pathSpeed = grid.speed || 1000;
 		core.pathWait = grid.wait || 1000;
-		core.pathRoute = grid.route || 'circuit';
+		core.pathPatience = grid.patience || 3;
+		core.pathRoute = grid.route || 'any';
 		core.pathLoop = grid.loop || 'infinite';
 		core.pathType = grid.type || 'direct';
 
-		//Add Starting Point
-		//core.gridPath.push({x:0,z:0});
-		//Add Path
+		//Any will walk in either direction along path, each loop may continue or reverse, if blocked will reverse to start/end of path. Closed loops only
+		//Circuit follows path from start to finish, if blocked it will go back to start and try again, otherwise it will keep looping. Closed loops only.
+		//Alternate will walk to end of path and back, if blocked it will reverse to start/end of path and try again. Point A to Point B or Closed loops
+
+		//Add Path Grid Points
+		let step = 0.5;
 		for(let each in grid.path){
-			core.gridPath.push(grid.path[each]);
+			let steps = 1;
+			for(let pos in grid.path[each]){
+				if(grid.path[each][pos] > 0){
+					step = 0.5;
+				} else {
+					step = -0.5;
+				}
+				steps = Math.abs(grid.path[each][pos])/0.5;
+				for(let a = 0; a < steps; a++){
+					core.gridPath.push({[pos]:step});
+				}
+			}
 		}
 
+		//Step Animations
+		let animMoveData = {
+			name: 'animmove',
+			property: 'object3D.position.x',
+			to: 0,
+			dur: core.pathSpeed,
+			delay: 0,
+			loop: false,
+			dir: 'normal',
+			easing: 'linear',
+			elasticity: 400,
+			autoplay: false,
+			enabled: true,
+			startEvents: 'moveXStart',
+			pauseEvents: 'moveXStop',
+		};
+		let key;
+		let move;
+		let currentX = core.position.x;
+		let currentZ = core.position.z;
+
+		//Build Step Animations
+		for(let each in core.gridPath){
+			//console.log(core.gridPath[each])
+			//console.log(Object.keys(core.gridPath[each])[0])
+			key = Object.keys(core.gridPath[each])[0];
+			move = core.gridPath[each][key];
+
+			animMoveData.property = 'object3D.position.' + key;
+			if(key === 'x'){
+				animMoveData.to = (currentX += move);
+				animMoveData.name = 'animmove' + key + currentX;
+				animMoveData.startEvents = 'animstart' + key + currentX;
+				animMoveData.pauseEvents = 'animstop' + key + currentX;
+			} else {
+				animMoveData.to = (currentZ += move);
+				animMoveData.name = 'animmove' + key + currentZ;
+				animMoveData.startEvents = 'animstart' + key + currentZ;
+				animMoveData.pauseEvents = 'animstop' + key + currentZ;
+			}
+			//Add Step Animations
+			if(core.inScene){
+				Animate(animMoveData);
+			} else {
+				if(Object.keys(core.animations).length === 0){
+					core.animations = {};
+				}
+				core.animations[animMoveData.name] = animMoveData;
+			}
+		}
 	}
 	const WalkPath = () => {
 		let movedX = true;
@@ -1881,56 +1951,112 @@ console.log(grid)
 		let moveZ = false;
 		let loop = 0;
 		let alternate = false;
+		let stopped = 0;
 
+		//Randomize Direction for Path Any
+		if(core.pathRoute === 'any'){
+			if(Math.random()*100 >50){
+				alternate = true;
+			}
+		}
+		//Alternate Direction
+		function changeDirection(){
+			if(alternate){
+				alternate = false;
+			} else {
+				alternate = true;
+			}
+		}
+		//Walk from Start of Path
+		function walkFromStart(){
+			core.currentPath = 0;
+		}
+		//Walk Forward Along Path
+		function forward(){
+			core.currentPath++;
+			if(core.currentPath >= core.gridPath.length){
+				if(core.pathLoop === 'infinite'){
+				} else if(loop >= core.pathLoop){
+					clearInterval(core.gridPathInterval);
+				} else {
+					loop++;
+				}
+				if(core.pathRoute === 'circuit'){
+					walkFromStart();
+				} else if(core.pathRoute === 'alternate'){
+					walkFromEnd();
+					changeDirection();
+				} else if(core.pathRoute === 'any'){
+					if(Math.random()*100 >50){
+						walkFromStart();
+					} else {
+						walkFromEnd();
+						changeDirection();
+					}
+				}
+			}
+		}
+		//Walk from End of Path
+		function walkFromEnd(){
+			core.currentPath = core.gridPath.length-1;
+		}
+		//Walk Reverse Along Path
+		function reverse(){
+			core.currentPath--;
+			if(core.currentPath < 0){
+				if(core.pathLoop === 'infinite'){
+				} else if(loop >= core.pathLoop){
+					clearInterval(core.gridPathInterval);
+				} else {
+					loop++;
+				}
+				if(core.pathRoute === 'circuit'){
+					if(alternate){
+						walkFromStart();
+						changeDirection();
+					}
+				} else if(core.pathRoute === 'alternate'){
+					walkFromStart();
+					changeDirection();
+				} else if(core.pathRoute === 'any'){
+					if(Math.random()*100 >50){
+						walkFromStart();
+						changeDirection();
+					} else {
+						walkFromEnd();
+					}
+				}
+			}
+		}
 		//Walk Interval
 		core.gridPathInterval = setInterval(() => {
+			//Path Step Completed, Calc Next
 			if(movedX && movedZ){
+				//Path Direction
 				if(core.pathRoute === 'circuit'){
-					core.currentPath++;
-					if(core.currentPath >= core.gridPath.length){
-						if(core.pathLoop === 'infinite'){
-						} else if(loop >= core.pathLoop){
-							clearInterval(core.gridPathInterval);
-						} else {
-							loop++;
-						}
-						core.currentPath = 0;
+					//forward();
+					if(alternate){
+						reverse();
+					} else {
+						forward();
 					}
 				} else if(core.pathRoute === 'alternate'){
 					if(alternate){
-						core.currentPath--;
-						if(core.currentPath < 0){
-							if(core.pathLoop === 'infinite'){
-							} else if(loop >= core.pathLoop){
-								clearInterval(core.gridPathInterval);
-							} else {
-								loop++;
-							}
-							core.currentPath = 0;
-							alternate = false;
-						}
+						reverse();
 					} else {
-						core.currentPath++;
-						if(core.currentPath >= core.gridPath.length){
-							if(core.pathLoop === 'infinite'){
-							} else if(loop >= core.pathLoop){
-								clearInterval(core.gridPathInterval);
-							} else {
-								loop++;
-							}
-							core.currentPath = core.gridPath.length-1;
-							alternate = true;
-						}
+						forward();
 					}
-
+				} else if(core.pathRoute === 'any'){
+					if(alternate){
+						reverse();
+					} else {
+						forward();
+					}
 				}
+				//Reset Path Step
 				movedX = false;
 				movedZ = false;
-				if(core.currentPath === -1){
-					core.currentPath = 0;
-					pSwitch = true;
-				}
-				console.log(core.currentPath)
+				//Step XZ Movement
 				if(core.gridPath[core.currentPath].x){
 					moveX = true;
 				} else {
@@ -1952,9 +2078,19 @@ console.log(grid)
 				}
 				if(movedX){
 					moveX = false;
+					stopped = 0;
 					//If X move only, ensure movedZ is reset
 					if(moveZ){}else{
 						movedZ = true;
+					}
+				} else {
+					//Patience before reversing direction if blocked
+					stopped++;
+					if(stopped >= core.pathPatience){
+						//reverse and restart
+						movedX = true;
+						movedZ = true;
+						changeDirection();
 					}
 				}
 			} else {
@@ -1966,13 +2102,24 @@ console.log(grid)
 					}
 					if(movedZ){
 						moveZ = false;
+						stopped = 0;
 						//If Z move only, ensure movedX is reset
 						if(moveX){}else{
 							movedX = true;
 						}
+					} else {
+						//Patience before reversing direction if blocked
+						stopped++;
+						if(stopped >= core.pathPatience){
+							//reverse and restart
+							movedX = true;
+							movedZ = true;
+							changeDirection();
+						}
 					}
 				}
 			}
+
 		}, core.pathSpeed + core.pathWait);
 	}
 
@@ -2054,87 +2201,7 @@ console.log(grid)
 
 		//auxl.map.MoveToGrid(move, core);
 	}
-	//Grid Path
-	const GridPathOld = (grid) => {
-		//Update Speed & Type
-		core.pathSpeed = grid.speed || 1000;
-		core.pathWait = grid.wait || 1000;
-		core.pathRoute = grid.route || 'circuit';
-		core.pathLoop = grid.loop || 'infinite';
-		core.pathType = grid.type || 'direct';
-
-		//Starter Position
-		let startPos = posOnGrid(core.grid);
-		GridMove({x: startPos.x, z: startPos.z})
-		//Add Path
-		for(let each in grid.path){
-			GridMove(grid.path[each]);
-		}
-
-	} 
-	//Walk Path
-	const WalkPathOld = (path) => {
-
-		/*
-		core.gridPathTimeout = setTimeout(() => {
-
-		clearTimeout(core.gridPathTimeout);
-		}, 1000);
-		*/
-		let movedX = true;
-		let moveX = false;
-		let movedZ = true;
-		let moveZ = false;
-		let loop = 0;
-
-		core.gridPathInterval = setInterval(() => {
-
-			if(movedX && movedZ){
-				core.currentPath++;
-				if(core.currentPath >= core.gridPath.length){
-					if(core.pathLoop === 'infinite'){
-					} else if(loop >= core.pathLoop){
-						clearInterval(core.gridPathInterval);
-					} else {
-						loop++;
-					}
-					core.currentPath = 0;
-				}
-				movedX = false;
-				movedZ = false;
-				if(core.gridPath[core.currentPath].emitX){
-					moveX = true;
-				} else {
-					moveX = false;
-				}
-				if(core.gridPath[core.currentPath].emitZ){
-					moveZ = true;
-				} else {
-					moveZ = false;
-				}
-			}
-
-			//X than Z Movement
-			if(moveX){
-				EmitEvent(core.gridPath[core.currentPath].emitX);
-				movedX = true;
-				moveX = false;
-				if(moveZ){}else{
-					movedZ = true;
-				}
-			} else {
-				if(moveZ){
-					EmitEvent(core.gridPath[core.currentPath].emitZ);
-					movedZ = true;
-					moveZ = false;
-				}
-				if(moveX){}else{
-					movedX = true;
-				}
-			}
-
-		}, core.pathSpeed + core.pathWait);
-	} 
+ 
 
 	//Change Element - Single or Array
 	const ChangeSelf = (propertyValue) => {
@@ -10842,7 +10909,8 @@ this.Collision = () => {
 			for(let x = 0; x < xSpaces;x++){
 				//Check if within From
 				for(let each in original){
-					if(pos.x === original[each].x && pos.x === original[each].x && pos.z === original[each].z && pos.z === original[each].z){
+					//if(pos.x === original[each].x && pos.x === original[each].x && pos.z === original[each].z && pos.z === original[each].z){
+					if(pos.x === original[each].x && pos.z === original[each].z){
 						skip = true;
 						break;
 					}
@@ -10850,12 +10918,12 @@ this.Collision = () => {
 				//Check for Other Object Collision
 				if(skip){}else{
 					if(CheckMapObstacles(pos)){}else{
-						console.log('Hit Object')
-						console.log(pos)
+						//console.log('Hit Object')
 						return false;
 					}
 				}
 				spaces++;
+				skip = false;
 				//Next X Space
 				xCurrent--;
 				if(xCurrent > 0){
@@ -11265,33 +11333,8 @@ this.Collision = () => {
 		}
 	}
 
-	//
-	//Wait to Move
-	//Objects that need to wait to be Moved
-	const WaitToMove = (obj) => {
-		if(grid.waitingMove){}else{
-			grid.waitingMove = true;
-		}
-		grid.moveWaiting[obj.name] = obj;
-	}
-	//Object Was Moved
-	const Moved = (name) => {
-		delete grid.moveWaiting[name];
-		if(Object.keys(grid.moveWaiting).length === 0){
-			grid.waitingMove = false;
-		}
-	}
-	//Attempt Moving of Waiting Objects
-	const WaitingToMove = () => {
-		if(grid.waitingMove){
-			for(let each in grid.moveWaiting){
-				auxl[each][grid.moveWaiting[each].func]();
-				if(auxl[each].inScene){
-					Spawned(each);
-				}
-			}
-		}
-	}
+
+
 
 	//OLD
 	//Move to Grid

@@ -292,7 +292,7 @@ auxl.ghostCollision.SpawnLayerOnGrid({start:{x:3, z:-5}, end: {x:4, z:-4}, colli
 
 
 
-auxl.collisionTest6 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest6', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:-4, z:-1}, end: {x:-2.5, z:0.5}, collide: true}}, true);
+auxl.collisionTest6 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest6', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:-3, z:-1}, end: {x:-1.5, z:0.5}, collide: true}}, true);
 //auxl.collisionTest6.SpawnCoreOnGrid();
 
 auxl.collisionTest7 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest7', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:20, z:-1}, end: {x:21.5, z:0.5}, collide: true}}, true);
@@ -310,13 +310,15 @@ console.log('Grid Move Test')
 //auxl.collisionTest8.GridMove({z:0.5});
 //auxl.collisionTest4.GridMove({x:0.5});
 
-auxl.collisionTest4.GridPath({route: 'alternate', loop: 'infinite', speed:1000, wait:500, type: 'direct', path:[{z:-0.5,}, {z:-0.5,}, {x:0.5,}, {x:0.5,},{z:0.5,}, {z:0.5,}, {x:-0.5,}, {x:-0.5,},]});
+//auxl.collisionTest4.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'direct', path:[{z:-0.5,}, {z:-0.5,}, {x:0.5,}, {x:0.5,},{z:0.5,}, {z:0.5,}, {x:-0.5,}, {x:-0.5,},]});
+//auxl.collisionTest4.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'direct', path:[{z:-1,}, {x:1,}, {z:1,}, {x:-1,},]});
+auxl.collisionTest4.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'direct', path:[{z:-2,x:2,}, {z:2,x:-2,},]});
 auxl.collisionTest4.SpawnCoreOnGrid();
 auxl.collisionTest4.WalkPath();
 
 
 clearTimeout(timeout);
-}, 5000);
+}, 4000);
 
 
 
@@ -1973,7 +1975,9 @@ auxl.zone0Scene0Data = {
 			comp:{SetFlag:{flag: 'test', value: true}},
 			coreEventTesting:{EmitEvent:'alert1'},
 			ghostCollision:{DespawnLayer:null},
-			//map:{DespawnEdges:null},
+		},
+		20000:{
+			collisionTest6:{DespawnCore:null},
 		},
 	},
 	interval:{
