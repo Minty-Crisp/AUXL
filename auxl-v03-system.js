@@ -53,6 +53,7 @@ this.checkSceneLoadThrottled = AFRAME.utils.throttle(this.checkSceneLoad, 30, th
 this.sceneReading = false;
 this.loadingScene = false;
 this.loadingObjects = new Map();
+this.maxLoadTime = 5000;
 this.jsLoaded = {};
 //JS Scripts Predefined, Ready to be loaded dynamically
 this.jsAll = {
@@ -118,7 +119,14 @@ let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, controllerBl
 this.systemLoaded = (reset) => {
 	setStorage(reset);
 	auxl.player.infoText = 'Player : ' + auxl.local.profile.shortname + '\n';
+	SystemStart();
 	ApplySettings();
+}
+//System Start
+const SystemStart = () => {
+	//Init Collision
+	auxl.map = auxl.Collision();
+
 }
 //Apply System Settings
 const ApplySettings = () => {
@@ -178,11 +186,24 @@ this.toBeRebuilt = (methodName) => {
 }
 //Rebuild Player and All ObjGens
 const Rebuild = () => {
+	//Clear System Intervals & Timeouts
+	clearTimeout(auxl.sceneLoadTimeout);
+	//Clear Inventory
 	auxl.comp.ClearInventoryNotifications();
+	//Reset Player
 	auxl.player.Reset();
+	//Rebuild All Objects
 	for(let each in auxl.rebuildObjects){
 		auxl[auxl.rebuildObjects[each]]();
 	}
+}
+//Scene Asset Load Timeout
+const SceneLoadTimeout = () => {
+	auxl.sceneLoadTimeout = setTimeout(() => {
+		//Empty Loading Objects
+		loadingObjects = {};
+		clearTimeout(auxl.sceneLoadTimeout);
+	}, auxl.maxLoadTime);
 }
 
 // Local Storage
@@ -1343,8 +1364,57 @@ this.coreFromTemplate = (core, edit, assign) => {
 		auxl[newCoreData.id] = auxl.Core(newCoreData);
 	}
 }
-//Generate new Layer from Template
-this.layerFromTemplate = (layer, id, changeParent, assign) => {
+//Generate new Layer from Layer Data Template
+this.layerDataFromTemplate = (layer, changeParent, assign) => {
+	let id = auxl.ranNameGen();
+	id = auxl.checkDupeName(id);
+	let newStruct = {};
+	let num = 0;
+	//Prep Parent Core Name
+	if(changeParent){
+		if(changeParent.id){}else{
+			changeParent.id = id+num;
+		}
+	} else {
+		changeParent = {};
+		changeParent.id = id+num;
+	}
+	changeParent.id = auxl.checkDupeName(changeParent.id);
+	//Traverse Layer Data Object
+	function layerTraverse(structure, newStructure){
+		for(let level in structure){
+			if(structure[level].core){
+				newStructure[level] = {};
+				if(num === 0){
+					newStructure[level].core = auxl.coreFromTemplate(structure[level].core, changeParent, true);
+				} else {
+					newStructure[level].core = auxl.coreFromTemplate(structure[level].core, {id:auxl.checkDupeName(id+num)}, true);
+				}
+				num++;
+			} else {
+				newStructure[level] = {};
+				layerTraverse(structure[level], newStructure[level]);
+			}
+		}
+	}
+	layerTraverse(layer, newStruct);
+	//Update Parent
+	if(changeParent){
+		for(let each in changeParent){
+			newStruct.parent.core.core[each] = changeParent[each];
+		}
+	}
+	//Output
+	if(assign){
+		return newStruct;
+		//return auxl.Layer(id, newStruct, updateLayer)
+	} else {
+		auxl[id] = newStruct;
+		//auxl[id] = auxl.Layer(id, newStruct, updateLayer);
+	}
+}
+//Generate new Layer from Layer Template
+this.layerFromTemplate = (layer, id, changeParent, updateLayer, assign) => {
 	let struct;
 	let newStruct = {};
 	let num = 0;
@@ -1388,12 +1458,18 @@ this.layerFromTemplate = (layer, id, changeParent, assign) => {
 			}
 		}
 	}
-	layerTraverse(struct, newStruct)
+	layerTraverse(struct, newStruct);
+	//Update Parent
+	if(changeParent){
+		for(let each in changeParent){
+			newStruct.parent.core.core[each] = changeParent[each];
+		}
+	}
 	//Output
 	if(assign){
-		return auxl.Layer(id, newStruct)
+		return auxl.Layer(id, newStruct, updateLayer)
 	} else {
-		auxl[id] = auxl.Layer(id, newStruct);
+		auxl[id] = auxl.Layer(id, newStruct, updateLayer);
 	}
 }
 
@@ -1414,9 +1490,9 @@ this.Core = (data) => {
 	core.gridPath = [];
 	core.pathSpeed = 1000;
 	core.pathWait = 1000;
-	core.pathRoute = 'circuit';
+	core.pathRoute = 'any';
 	core.pathLoop = 'infinite';
-	core.pathType = 'direct';
+	core.pathType = 'jump';
 	core.currentPath = -1;
 	core.gridPathInterval;
 	core.gridPathTimeout;
@@ -1781,17 +1857,19 @@ auxl[object].GetEl().addEventListener(line, function(){
 			if(grid){
 				core.grid = grid;
 			}
+			let playerGrid = auxl.player.GetPlayerInfo().grid;
 			//Prevent Player Collision Overlap
-			if(core.grid.start.x <= auxl.player.GetPlayerInfo().grid.x && core.grid.end.x >= auxl.player.GetPlayerInfo().grid.x && core.grid.start.z <= auxl.player.GetPlayerInfo().grid.z && core.grid.end.z >= auxl.player.GetPlayerInfo().grid.z){
-			//Wait to Spawn till Player moves out of Range
-			auxl.map.WaitToSpawn({name:core.id, func: 'SpawnCoreOnGrid'});
+			if(core.grid.start.x <= playerGrid.x && core.grid.end.x >= playerGrid.x && core.grid.start.z <= playerGrid.z && core.grid.end.z >= playerGrid.z){
+				//Wait to Spawn till Player moves out of Range
+				auxl.map.WaitToSpawn({name:core.id, func: 'SpawnCoreOnGrid'});
 			} else {
+				//Grid Position
 				let startPos = posOnGrid(core.grid);
 				core.position.x = startPos.x;
 				core.position.z = startPos.z;
-				//Add Starting/End position
-				//GridMove({x: core.position.x, z: core.position.z, time: 3000, type: 'direct'})
+				//Spawn Core
 				SpawnCore();
+				//Collision or Trigger Map Update
 				if(core.grid.collide){
 					auxl.map.UpdateMapArea(core.id, core.grid.start, core.grid.end, core.grid.collide);
 				} else if(core.grid.trigger){
@@ -1809,10 +1887,8 @@ auxl[object].GetEl().addEventListener(line, function(){
 			SpawnOnGrid(grid);
 		}
 	}
-
-//Do jump moves that check collision
-//like wait to spawn, but wait to move
-	const GridMove = (move) => {
+	//Move on Grid
+	const GridMove = (move, type) => {
 		//with new start/end coords, check if free, if so move, otherwise wait till it is cleared
 		//let gridMovement = {start:{x:0, z:-5}, end: {x:0, z:-5}};
 		let gridMovement = {start:{}, end: {}};
@@ -1841,13 +1917,17 @@ auxl[object].GetEl().addEventListener(line, function(){
 				auxl.map.UpdateMapArea(core.id, core.grid.start, core.grid.end, false);
 				//Update new grid pos
 				auxl.map.UpdateMapArea(core.id, gridMovement.start, gridMovement.end, true);
-				//Jump Object Move
-				//ChangeSelf({property: 'position', value: movePos});
-				//Animate Object Move
-				if(move.x){
-					EmitEvent('animstartx' + movePos.x);
-				} else if(move.z){
-					EmitEvent('animstartz' + movePos.z);
+				//Move Object
+				if(core.pathType === 'anim'){
+					//Animate Object Move
+					if(move.x){
+						EmitEvent('animstartx' + movePos.x);
+					} else if(move.z){
+						EmitEvent('animstartz' + movePos.z);
+					}
+				} else if(core.pathType === 'jump'){
+					//Jump Object Move
+					ChangeSelf({property: 'position', value: movePos});
 				}
 				//Update core.grid with new grid pos
 				core.grid.start.x = gridMovement.start.x;
@@ -1859,10 +1939,33 @@ auxl[object].GetEl().addEventListener(line, function(){
 				//console.log('not free')
 				return false;
 			}
+		} else if(core.grid.trigger){
+			//Clear previous grid pos
+			auxl.map.UpdateMapAreaTrigger(core.id, core.grid.start, core.grid.end, false);
+			//Update new grid pos
+			auxl.map.UpdateMapAreaTrigger(core.id, gridMovement.start, gridMovement.end, true);
+			//Move Object
+			if(core.pathType === 'anim'){
+				//Animate Object Move
+				if(move.x){
+					EmitEvent('animstartx' + movePos.x);
+				} else if(move.z){
+					EmitEvent('animstartz' + movePos.z);
+				}
+			} else if(core.pathType === 'jump'){
+				//Jump Object Move
+				ChangeSelf({property: 'position', value: movePos});
+			}
+			//Update core.grid with new grid pos
+			core.grid.start.x = gridMovement.start.x;
+			core.grid.start.z = gridMovement.start.z;
+			core.grid.end.x = gridMovement.end.x;
+			core.grid.end.z = gridMovement.end.z;
+
+			return true;
 		}
-
 	}
-
+	//Build Path
 	const GridPath = (grid) => {
 		//Update Speed & Type
 		core.pathSpeed = grid.speed || 1000;
@@ -1870,11 +1973,16 @@ auxl[object].GetEl().addEventListener(line, function(){
 		core.pathPatience = grid.patience || 3;
 		core.pathRoute = grid.route || 'any';
 		core.pathLoop = grid.loop || 'infinite';
-		core.pathType = grid.type || 'direct';
+		core.pathType = grid.type || 'jump';
 
 		//Any will walk in either direction along path, each loop may continue or reverse, if blocked will reverse to start/end of path. Closed loops only
 		//Circuit follows path from start to finish, if blocked it will go back to start and try again, otherwise it will keep looping. Closed loops only.
 		//Alternate will walk to end of path and back, if blocked it will reverse to start/end of path and try again. Point A to Point B or Closed loops
+
+		//Ensure Starting Position is Correct
+		let startPos = posOnGrid(core.grid);
+		core.position.x = startPos.x;
+		core.position.z = startPos.z;
 
 		//Add Path Grid Points
 		let step = 0.5;
@@ -1894,56 +2002,61 @@ auxl[object].GetEl().addEventListener(line, function(){
 		}
 
 		//Step Animations
-		let animMoveData = {
-			name: 'animmove',
-			property: 'object3D.position.x',
-			to: 0,
-			dur: core.pathSpeed,
-			delay: 0,
-			loop: false,
-			dir: 'normal',
-			easing: 'linear',
-			elasticity: 400,
-			autoplay: false,
-			enabled: true,
-			startEvents: 'moveXStart',
-			pauseEvents: 'moveXStop',
-		};
 		let key;
 		let move;
 		let currentX = core.position.x;
 		let currentZ = core.position.z;
 
 		//Build Step Animations
-		for(let each in core.gridPath){
-			//console.log(core.gridPath[each])
-			//console.log(Object.keys(core.gridPath[each])[0])
-			key = Object.keys(core.gridPath[each])[0];
-			move = core.gridPath[each][key];
+		if(core.pathType === 'anim'){
+			//Add 90 degree rotation anims
+			for(let each in core.gridPath){
+				let animMoveData = {
+					name: 'animmove',
+					property: 'object3D.position.x',
+					to: 0,
+					dur: core.pathSpeed,
+					delay: 0,
+					loop: false,
+					dir: 'normal',
+					easing: 'linear',
+					elasticity: 400,
+					autoplay: false,
+					enabled: true,
+					startEvents: 'moveXStart',
+					pauseEvents: 'moveXStop',
+				};
+				//console.log(core.gridPath[each])
+				//console.log(Object.keys(core.gridPath[each])[0])
+				key = Object.keys(core.gridPath[each])[0];
+				move = core.gridPath[each][key];
 
-			animMoveData.property = 'object3D.position.' + key;
-			if(key === 'x'){
-				animMoveData.to = (currentX += move);
-				animMoveData.name = 'animmove' + key + currentX;
-				animMoveData.startEvents = 'animstart' + key + currentX;
-				animMoveData.pauseEvents = 'animstop' + key + currentX;
-			} else {
-				animMoveData.to = (currentZ += move);
-				animMoveData.name = 'animmove' + key + currentZ;
-				animMoveData.startEvents = 'animstart' + key + currentZ;
-				animMoveData.pauseEvents = 'animstop' + key + currentZ;
-			}
-			//Add Step Animations
-			if(core.inScene){
-				Animate(animMoveData);
-			} else {
-				if(Object.keys(core.animations).length === 0){
-					core.animations = {};
+				animMoveData.property = 'object3D.position.' + key;
+				if(key === 'x'){
+					animMoveData.to = (currentX += move);
+					animMoveData.name = 'animmove' + key + currentX;
+					animMoveData.startEvents = 'animstart' + key + currentX;
+					animMoveData.pauseEvents = 'animstop' + key + currentX;
+				} else {
+					animMoveData.to = (currentZ += move);
+					animMoveData.name = 'animmove' + key + currentZ;
+					animMoveData.startEvents = 'animstart' + key + currentZ;
+					animMoveData.pauseEvents = 'animstop' + key + currentZ;
 				}
-				core.animations[animMoveData.name] = animMoveData;
+				//Add Step Animations
+				if(core.inScene){
+					Animate(animMoveData);
+				} else {
+					if(Object.keys(core.animations).length === 0){
+						core.animations = {};
+					}
+					delete animMoveData.name;
+					core.animations['move'+each] = animMoveData;
+				}
 			}
 		}
 	}
+	//Walk Along Path
 	const WalkPath = () => {
 		let movedX = true;
 		let moveX = false;
@@ -2122,87 +2235,6 @@ auxl[object].GetEl().addEventListener(line, function(){
 
 		}, core.pathSpeed + core.pathWait);
 	}
-
-	//Grid Move
-	const GridMoveOld = (move) => {
-		//X
-		let moveX = move.x;
-		let emitX = false;
-		if(moveX){
-			emitX = 'moveXStart'+move.x;
-		} else {
-			if(typeof moveX === 'number'){
-				emitX = 'moveXStart'+move.x;
-			} else {
-				moveX = false;
-			}
-		}
-		//Z
-		let moveZ = move.z;
-		let emitZ = false;
-		if(moveZ){
-			emitZ = 'moveZStart'+move.z;
-		} else {
-			if(typeof moveZ === 'number'){
-				emitZ = 'moveZStart'+move.z;
-			} else {
-				moveZ = false;
-			}
-		}
-		//Add Pos to Path
-		core.gridPath.push({x: moveX, z: moveZ, emitX, emitZ});
-
-		//X Movement
-		if(emitX){
-			let animMoveXData = {
-				name: 'animmovex'+move.x,
-				property: 'object3D.position.x',
-				to: move.x,
-				dur: core.pathSpeed,
-				delay: 0,
-				loop: false,
-				dir: 'normal',
-				easing: 'linear',
-				elasticity: 400,
-				autoplay: false,
-				enabled: true,
-				startEvents: 'moveXStart'+move.x,
-				pauseEvents: 'moveXStop'+move.x,
-			};
-			//console.log(animMoveXData)
-			if(Object.keys(core.animations).length === 0){
-				core.animations = {};
-			}
-			core.animations['animmovex'+move.x] = animMoveXData;
-		}
-		//Z Movement
-		if(emitZ){
-			let animMoveZData = {
-				name: 'animmovez'+move.z,
-				property: 'object3D.position.z',
-				to: move.z,
-				dur: core.pathSpeed,
-				delay: 0,
-				loop: false,
-				dir: 'normal',
-				easing: 'linear',
-				elasticity: 400,
-				autoplay: false,
-				enabled: true,
-				startEvents: 'moveZStart'+move.z,
-				pauseEvents: 'moveZStop'+move.z,
-			};
-			//console.log(animMoveZData)
-			if(Object.keys(core.animations).length === 0){
-				core.animations = {};
-			}
-			core.animations['animmovez'+move.z] = animMoveZData;
-		}
-
-		//auxl.map.MoveToGrid(move, core);
-	}
- 
-
 	//Change Element - Single or Array
 	const ChangeSelf = (propertyValue) => {
 		if(Array.isArray(propertyValue)){
@@ -2490,7 +2522,7 @@ console.log(update)
 //
 //Layered Cores
 //Multiple Entity Cores Combined
-this.Layer = (id, all) => {
+this.Layer = (id, all, update) => {
 	let layer = {id, all};
 	layer.inScene = false;
 	layer.allNames = [];
@@ -2498,6 +2530,20 @@ this.Layer = (id, all) => {
 	layer.tempParents = [];
 	layer.parent = false;
 	layer.gridSpawned = false;
+	layer.gridPath = [];
+	layer.pathSpeed = 1000;
+	layer.pathWait = 1000;
+	layer.pathRoute = 'any';
+	layer.pathLoop = 'infinite';
+	layer.pathType = 'jump';
+	layer.currentPath = -1;
+	layer.gridPathInterval;
+	layer.gridPathTimeout;
+	if(update){
+		for(let each in update){
+			layer[each] = update[each];
+		}
+	}
 	//Order of Elements Added to Scene
 	let accessOrder = [];
 
@@ -2606,6 +2652,9 @@ this.Layer = (id, all) => {
 	//Despawn Multi Entity Object
 	const DespawnLayer = () => {
 		if(layer.inScene){
+			//Clear Core Timeout/Intervals
+			clearTimeout(layer.gridPathTimeout);
+			clearInterval(layer.gridPathInterval);
 			//Collision
 			if(layer.gridSpawned){
 				if(layer.grid.collide){
@@ -2643,6 +2692,22 @@ this.Layer = (id, all) => {
 			SpawnLayer(layer.parent);
 		}
 	}
+	//PosOnGrid
+	function posOnGrid(grid){
+		let pos = new THREE.Vector3(0,0,0);
+		if(grid.start.x === grid.end.x && grid.start.z === grid.end.z){
+			pos.x = grid.start.x;
+			pos.z = grid.start.z;
+		} else {
+			let xDif = (grid.start.x - grid.end.x)*-1;
+			let zDif = (grid.start.z - grid.end.z)*-1;
+			xDif /= 2;
+			zDif /= 2;
+			pos.x = grid.start.x + xDif;
+			pos.z = grid.start.z + zDif;
+		}
+		return pos;
+	}
 	//Spawn on Grid
 	const SpawnLayerOnGrid = (grid) => {
 		//Start should always be less than or equal to end
@@ -2654,22 +2719,18 @@ this.Layer = (id, all) => {
 			if(grid){
 				layer.grid = grid;
 			}
-			if(layer.grid.start.x <= auxl.player.GetPlayerInfo().grid.x && layer.grid.end.x >= auxl.player.GetPlayerInfo().grid.x && layer.grid.start.z <= auxl.player.GetPlayerInfo().grid.z && layer.grid.end.z >= auxl.player.GetPlayerInfo().grid.z){
-			//Wait to Spawn till Player moves out of Range
-			auxl.map.WaitToSpawn({name:layer.id, func: 'SpawnLayerOnGrid'});
+			let playerGrid = auxl.player.GetPlayerInfo().grid;
+			if(layer.grid.start.x <= playerGrid.x && layer.grid.end.x >= playerGrid.x && layer.grid.start.z <= playerGrid.z && layer.grid.end.z >= playerGrid.z){
+				//Wait to Spawn till Player moves out of Range
+				auxl.map.WaitToSpawn({name:layer.id, func: 'SpawnLayerOnGrid'});
 			} else {
-				if(layer.grid.start.x === layer.grid.end.x && layer.grid.start.z === layer.grid.end.z){
-					layer.all.parent.core.core.position.x = layer.grid.start.x;
-					layer.all.parent.core.core.position.z = layer.grid.start.z;
-				} else {
-					let xDif = (layer.grid.start.x - layer.grid.end.x)*-1;
-					let zDif = (layer.grid.start.z - layer.grid.end.z)*-1;
-					xDif /= 2;
-					zDif /= 2;
-					layer.all.parent.core.core.position.x = layer.grid.start.x + xDif;
-					layer.all.parent.core.core.position.z = layer.grid.start.z + zDif;
-				}
+				//Grid Position
+				let startPos = posOnGrid(layer.grid);
+				layer.all.parent.core.core.position.x = startPos.x;
+				layer.all.parent.core.core.position.z = startPos.z;
+				//Spawn Layer
 				SpawnLayer();
+				//Collision or Trigger Map Update
 				if(layer.grid.collide){
 					auxl.map.UpdateMapArea(layer.id, layer.grid.start, layer.grid.end, layer.grid.collide);
 				} else if(layer.grid.trigger){
@@ -2677,9 +2738,6 @@ this.Layer = (id, all) => {
 				}
 				layer.gridSpawned = true;
 			}
-
-
-
 		}
 	}
 	//Toggle Grid Spawn
@@ -2689,6 +2747,355 @@ this.Layer = (id, all) => {
 		} else {
 			SpawnOnGrid(grid);
 		}
+	}
+	//Move on Grid
+	const GridMove = (move, type) => {
+		//with new start/end coords, check if free, if so move, otherwise wait till it is cleared
+		//let gridMovement = {start:{x:0, z:-5}, end: {x:0, z:-5}};
+		let gridMovement = {start:{}, end: {}};
+		gridMovement.start.x = layer.grid.start.x;
+		gridMovement.start.z = layer.grid.start.z;
+		gridMovement.end.x = layer.grid.end.x;
+		gridMovement.end.z = layer.grid.end.z;
+		//Calc X
+		if(move.x){
+			gridMovement.start.x += move.x;
+			gridMovement.end.x += move.x;
+		}
+		//Calc Z
+		if(move.z){
+			gridMovement.start.z += move.z;
+			gridMovement.end.z += move.z;
+		}
+		//Actual Position to Move Into
+		let movePos = posOnGrid(gridMovement);
+		movePos.y = layer.all.parent.core.core.position.y;
+		//Collision Move Checks
+		if(layer.grid.collide){
+			if(auxl.map.CheckMapAreaSansArea(layer.grid, gridMovement)){
+				//console.log('free')
+				//Clear previous grid pos
+				auxl.map.UpdateMapArea(layer.id, layer.grid.start, layer.grid.end, false);
+				//Update new grid pos
+				auxl.map.UpdateMapArea(layer.id, gridMovement.start, gridMovement.end, true);
+				//Move Object
+				if(layer.pathType === 'anim'){
+					//Animate Object Move
+					if(move.x){
+						EmitEventParent('animstartx' + movePos.x);
+					} else if(move.z){
+						EmitEventParent('animstartz' + movePos.z);
+					}
+				} else if(layer.pathType === 'jump'){
+					//Jump Object Move
+					ChangeParent({property: 'position', value: movePos});
+				}
+				//Update core.grid with new grid pos
+				layer.grid.start.x = gridMovement.start.x;
+				layer.grid.start.z = gridMovement.start.z;
+				layer.grid.end.x = gridMovement.end.x;
+				layer.grid.end.z = gridMovement.end.z;
+				return true;
+			} else {
+				//console.log('not free')
+				return false;
+			}
+		} else if(layer.grid.trigger){
+			//Clear previous grid pos
+			auxl.map.UpdateMapAreaTrigger(layer.id, layer.grid.start, layer.grid.end, false);
+			//Update new grid pos
+			auxl.map.UpdateMapAreaTrigger(layer.id, gridMovement.start, gridMovement.end, true);
+			//Move Object
+			if(layer.pathType === 'anim'){
+				//Animate Object Move
+				if(move.x){
+					EmitEventParent('animstartx' + movePos.x);
+				} else if(move.z){
+					EmitEventParent('animstartz' + movePos.z);
+				}
+			} else if(layer.pathType === 'jump'){
+				//Jump Object Move
+				ChangeParent({property: 'position', value: movePos});
+			}
+			//Update core.grid with new grid pos
+			layer.grid.start.x = gridMovement.start.x;
+			layer.grid.start.z = gridMovement.start.z;
+			layer.grid.end.x = gridMovement.end.x;
+			layer.grid.end.z = gridMovement.end.z;
+			return true;
+		}
+	}
+	//Build Path
+	const GridPath = (grid) => {
+		//Update Speed & Type
+		layer.pathSpeed = grid.speed || 1000;
+		layer.pathWait = grid.wait || 1000;
+		layer.pathPatience = grid.patience || 3;
+		layer.pathRoute = grid.route || 'any';
+		layer.pathLoop = grid.loop || 'infinite';
+		layer.pathType = grid.type || 'jump';
+
+		//Any will walk in either direction along path, each loop may continue or reverse, if blocked will reverse to start/end of path. Closed loops only
+		//Circuit follows path from start to finish, if blocked it will go back to start and try again, otherwise it will keep looping. Closed loops only.
+		//Alternate will walk to end of path and back, if blocked it will reverse to start/end of path and try again. Point A to Point B or Closed loops
+
+		//Ensure Starting Position is Correct
+		let startPos = posOnGrid(layer.grid);
+		layer.all.parent.core.core.position.x = startPos.x;
+		layer.all.parent.core.core.position.z = startPos.z;
+
+		//Add Path Grid Points
+		let step = 0.5;
+		for(let each in grid.path){
+			let steps = 1;
+			for(let pos in grid.path[each]){
+				if(grid.path[each][pos] > 0){
+					step = 0.5;
+				} else {
+					step = -0.5;
+				}
+				steps = Math.abs(grid.path[each][pos])/0.5;
+				for(let a = 0; a < steps; a++){
+					layer.gridPath.push({[pos]:step});
+				}
+			}
+		}
+
+		//Step Animations
+		let key;
+		let move;
+		let currentX = layer.all.parent.core.core.position.x;
+		let currentZ = layer.all.parent.core.core.position.z;
+
+		//Build Step Animations
+		if(layer.pathType === 'anim'){
+			//Add 90 degree rotation anims
+
+			for(let each in layer.gridPath){
+				let animMoveData = {
+					name: 'animmove',
+					property: 'object3D.position.x',
+					to: 0,
+					dur: layer.pathSpeed,
+					delay: 0,
+					loop: false,
+					dir: 'normal',
+					easing: 'linear',
+					elasticity: 400,
+					autoplay: false,
+					enabled: true,
+					startEvents: 'moveXStart',
+					pauseEvents: 'moveXStop',
+				};
+				//console.log(layer.gridPath[each])
+				//console.log(Object.keys(layer.gridPath[each])[0])
+				key = Object.keys(layer.gridPath[each])[0];
+				move = layer.gridPath[each][key];
+
+				animMoveData.property = 'object3D.position.' + key;
+				if(key === 'x'){
+					animMoveData.to = (currentX += move);
+					animMoveData.name = 'animmove' + key + currentX;
+					animMoveData.startEvents = 'animstart' + key + currentX;
+					animMoveData.pauseEvents = 'animstop' + key + currentX;
+				} else {
+					animMoveData.to = (currentZ += move);
+					animMoveData.name = 'animmove' + key + currentZ;
+					animMoveData.startEvents = 'animstart' + key + currentZ;
+					animMoveData.pauseEvents = 'animstop' + key + currentZ;
+				}
+				//Add Step Animations
+				if(layer.inScene){
+					AnimateParent(animMoveData);
+				} else {
+					if(Object.keys(layer.all.parent.core.core.animations).length === 0){
+						layer.all.parent.core.core.animations = {};
+					}
+					delete animMoveData.name;
+					layer.all.parent.core.core.animations['move'+each] = animMoveData;
+				}
+			}
+//console.log(layer.all.parent.core.core.animations)
+		}
+	}
+	//Walk Along Path
+	const WalkPath = () => {
+		let movedX = true;
+		let moveX = false;
+		let movedZ = true;
+		let moveZ = false;
+		let loop = 0;
+		let alternate = false;
+		let stopped = 0;
+
+		//Randomize Direction for Path Any
+		if(layer.pathRoute === 'any'){
+			if(Math.random()*100 >50){
+				alternate = true;
+			}
+		}
+		//Alternate Direction
+		function changeDirection(){
+			if(alternate){
+				alternate = false;
+			} else {
+				alternate = true;
+			}
+		}
+		//Walk from Start of Path
+		function walkFromStart(){
+			layer.currentPath = 0;
+		}
+		//Walk Forward Along Path
+		function forward(){
+			layer.currentPath++;
+			if(layer.currentPath >= layer.gridPath.length){
+				if(layer.pathLoop === 'infinite'){
+				} else if(loop >= layer.pathLoop){
+					clearInterval(layer.gridPathInterval);
+				} else {
+					loop++;
+				}
+				if(layer.pathRoute === 'circuit'){
+					walkFromStart();
+				} else if(layer.pathRoute === 'alternate'){
+					walkFromEnd();
+					changeDirection();
+				} else if(layer.pathRoute === 'any'){
+					if(Math.random()*100 >50){
+						walkFromStart();
+					} else {
+						walkFromEnd();
+						changeDirection();
+					}
+				}
+			}
+		}
+		//Walk from End of Path
+		function walkFromEnd(){
+			layer.currentPath = layer.gridPath.length-1;
+		}
+		//Walk Reverse Along Path
+		function reverse(){
+			layer.currentPath--;
+			if(layer.currentPath < 0){
+				if(layer.pathLoop === 'infinite'){
+				} else if(loop >= layer.pathLoop){
+					clearInterval(layer.gridPathInterval);
+				} else {
+					loop++;
+				}
+				if(layer.pathRoute === 'circuit'){
+					if(alternate){
+						walkFromStart();
+						changeDirection();
+					}
+				} else if(layer.pathRoute === 'alternate'){
+					walkFromStart();
+					changeDirection();
+				} else if(layer.pathRoute === 'any'){
+					if(Math.random()*100 >50){
+						walkFromStart();
+						changeDirection();
+					} else {
+						walkFromEnd();
+					}
+				}
+			}
+		}
+		//Walk Interval
+		layer.gridPathInterval = setInterval(() => {
+			//Path Step Completed, Calc Next
+			if(movedX && movedZ){
+				//Path Direction
+				if(layer.pathRoute === 'circuit'){
+					//forward();
+					if(alternate){
+						reverse();
+					} else {
+						forward();
+					}
+				} else if(layer.pathRoute === 'alternate'){
+					if(alternate){
+						reverse();
+					} else {
+						forward();
+					}
+				} else if(layer.pathRoute === 'any'){
+					if(alternate){
+						reverse();
+					} else {
+						forward();
+					}
+				}
+				//Reset Path Step
+				movedX = false;
+				movedZ = false;
+				//Step XZ Movement
+				if(layer.gridPath[layer.currentPath].x){
+					moveX = true;
+				} else {
+					moveX = false;
+				}
+				if(layer.gridPath[layer.currentPath].z){
+					moveZ = true;
+				} else {
+					moveZ = false;
+				}
+			}
+
+			//X than Z Movement
+			if(moveX){
+				if(alternate){
+					movedX = GridMove({x:layer.gridPath[layer.currentPath].x*-1});
+				} else {
+					movedX = GridMove({x:layer.gridPath[layer.currentPath].x});
+				}
+				if(movedX){
+					moveX = false;
+					stopped = 0;
+					//If X move only, ensure movedZ is reset
+					if(moveZ){}else{
+						movedZ = true;
+					}
+				} else {
+					//Patience before reversing direction if blocked
+					stopped++;
+					if(stopped >= layer.pathPatience){
+						//reverse and restart
+						movedX = true;
+						movedZ = true;
+						changeDirection();
+					}
+				}
+			} else {
+				if(moveZ){
+					if(alternate){
+						movedZ = GridMove({z:layer.gridPath[layer.currentPath].z*-1});
+					} else {
+						movedZ = GridMove({z:layer.gridPath[layer.currentPath].z});
+					}
+					if(movedZ){
+						moveZ = false;
+						stopped = 0;
+						//If Z move only, ensure movedX is reset
+						if(moveX){}else{
+							movedX = true;
+						}
+					} else {
+						//Patience before reversing direction if blocked
+						stopped++;
+						if(stopped >= layer.pathPatience){
+							//reverse and restart
+							movedX = true;
+							movedZ = true;
+							changeDirection();
+						}
+					}
+				}
+			}
+
+		}, layer.pathSpeed + layer.pathWait);
 	}
 	//Return Parent Element in Scene
 	const GetParentEl = () => {
@@ -3028,7 +3435,7 @@ this.Layer = (id, all) => {
 		}
 	}
 
-	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, SpawnLayerOnGrid, ToggleLayerGridSpawn, GetParentEl, GetChildEl, GetAllChildEl, GetAllEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
+	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, SpawnLayerOnGrid, ToggleLayerGridSpawn, GridMove, GridPath, WalkPath, GetParentEl, GetChildEl, GetAllChildEl, GetAllEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
 }
 
 
@@ -3057,6 +3464,10 @@ this.Player = (id,layer) => {
 	//Notifications
 	let notificationTimeout;
 	let displayTime;
+	//Lock/Unlock Movement
+	layer.move = false;
+	//Locomotion Type
+	layer.moveType = {pov : '1st', axis : 'posXYZ', style : 'free'}
 	//Sitting or Standing Mode
 	layer.stand = true;
 	//Duck | Standing
@@ -3350,10 +3761,19 @@ this.Player = (id,layer) => {
 			auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false}});
 		}
 	}
+	//Unlock Locomotion
+	const UnlockLocomotion = () => {
+		layer.move = true;
+	}
+	//Lock Locomotion
+	const LockLocomotion = () => {
+		layer.move = false;
+	}
 	//Enable VR Controller Joystick Locomotion
 	const EnableVRLocomotion = () => {
 		RemoveBelt();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'vr'});
+		UnlockLocomotion();
 	}
 	//Enable VR Belt UI Locomotion
 	const EnableVRHoverLocomotion = (vrHand) => {
@@ -3361,16 +3781,50 @@ this.Player = (id,layer) => {
 			auxl.locomotionUILayer.SpawnLayer();
 		}
 		playerRig.setAttribute('locomotion',{uiid: 'beltUIParent', courserid: 'mouseController', movetype: 'vrHover'});
+		UnlockLocomotion();
 	}
 	//Enable Desktop Locomotion
 	const EnableDesktopLocomotion = () => {
 		RemoveBelt();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'desktop'});
+		UnlockLocomotion();
 	}
 	//Enable Mobile Locomotion
 	const EnableMobileLocomotion = () => {
 		RemoveBelt();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'mobile'});
+		UnlockLocomotion();
+	}
+	//Change Locomotion Type
+	const ChangeLocomotionType = (type) => {
+		if(type.pov){
+			layer.moveType.pov = type.pov;
+		}
+		if(type.axis){
+			layer.moveType.axis = type.axis;
+		}
+		if(type.style){
+			layer.moveType.style = type.style;
+		}
+		playerRig.setAttribute('locomotion',{pov: layer.moveType.pov, axis: layer.moveType.axis, style: layer.moveType.style});
+		/*
+		pov :
+		1st
+		3rd
+
+		style :
+		free
+		grid
+
+		axis :
+		posXZ
+		posXZY
+		posXY
+		posXYZ
+		posXYZWall
+		angleXY
+		angleXYZ
+		*/
 	}
 	//Despawn VR Belt UI
 	const RemoveBelt = () => {
@@ -3514,7 +3968,7 @@ this.Player = (id,layer) => {
 	//Reset User Position/Rotation
 	const ResetUserPosRot = () => {
 		auxl.playerRig.ChangeSelf({property: 'position', value: new THREE.Vector3(0,0,1)});
-
+		layer.gridPos.copy(playerRig.getAttribute('position'));
 		//This technically works and sets it, but it doesn't actually change it. Look-Controls prevents this?
 		//auxl.camera.ChangeSelf({property: 'rotation', value: new THREE.Vector3(0,0,0)});
 
@@ -3615,7 +4069,7 @@ this.Player = (id,layer) => {
 		console.log(params);
 	}
 
-	return {layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, DetachFromPlayer, TestFunc}
+	return {layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, DetachFromPlayer, TestFunc}
 }
 
 //
@@ -5658,6 +6112,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 	const Exit = () => {
 		readTimeline('exit');
 		RemoveControls();
+		GridMapStop();
 		if(core.info.sceneText){
 			sceneText.KillStop();
 		}
@@ -5666,10 +6121,44 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 	const Map = () => {
 		readTimeline('map');
 	}
+	//Grid Map Start
+	const GridMapStart = () => {
+		if(core.info.map){
+			auxl.map.BuildMap(core.info.map.size);
+			auxl.mapEdge = core.info.map.edge || false;
+			if(core.info.map.edgeUpdate){
+				auxl.map.UpdateEdge(core.info.map.edgeUpdate);
+			}
+			if(auxl.mapEdge){
+				auxl.map.SpawnEdges();
+			}
+		}
+	}
+	//Grid Map Stop
+	const GridMapStop = () => {
+		if(auxl.map.grid.edgeSpawned){
+			auxl.map.DespawnEdges();
+		}
+		auxl.map.ClearWaiting();
+		auxl.map.ClearTriggers();
+	}
+	//Scene Text Support
+	const sceneTextDisplay = () => {
+		if(core.info.sceneText){
+			sceneText.Start();
+			sceneText.DisplaySpeech({role: core.info.name,speech: '...'});
+			let sceneTextTimeout = setTimeout(function () {
+				sceneText.DisplaySpeech({role: core.info.name,speech: core.info.description});
+				clearTimeout(sceneTextTimeout);
+			}, 1250);
+		}
+	}
 	//NodeScene Start
 	const StartScene = () => {
 		auxl.sceneReading = true;
+		SceneLoadTimeout();
 		Info();
+		GridMapStart();
 		Start();
 		Delay();
 		Interval();
@@ -5685,17 +6174,6 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		auxl.saveToProfile();
 		if(auxl.local.location.load){
 			auxl.local.location.load = false;
-		}
-	}
-	//Scene Text Support
-	const sceneTextDisplay = () => {
-		if(core.info.sceneText){
-			sceneText.Start();
-			sceneText.DisplaySpeech({role: core.info.name,speech: '...'});
-			let sceneTextTimeout = setTimeout(function () {
-				sceneText.DisplaySpeech({role: core.info.name,speech: core.info.description});
-				clearTimeout(sceneTextTimeout);
-			}, 1250);
 		}
 	}
 
@@ -7831,6 +8309,7 @@ return {npc, GetAllNPCEl, GetMainNPCEl, AddNPCEventsAll, RemoveNPCEventsAll, Spa
 this.SkyBox = (skyBoxData) => {
 	let skyBox = Object.assign({}, skyBoxData);
 	skyBox.inScene = false;
+	skyBox.time = 5.5;
 	skyBox.day = false;
 	let dayNightTimeout;
 	let dayNightInterval;
@@ -8033,8 +8512,41 @@ this.SkyBox = (skyBoxData) => {
 		Spawn();
 		DayNightCycle(dayLength);
 	}
+	//Set Time
+	const SetTime = (time) => {
+		if(time >= 6 && time <=18 ){
+			skyBox.day = true;
+		} else {
+			skyBox.day = false;
+		}
+		skyBox.time = time;
+//set sun-moon
+//object3D.rotation.x
+//sun 0 rotation is 6
+//moon 180 rotation is 6
+/*
+set lights
 
-	return {skyBox, SpawnSkyBox, DespawnSkyBox, ToggleSpawn, SetFlag, GetFlag, DayNightCycle, PauseDayNight, ResumeDayNight, RestartDayNight};
+ambientLight
+from: 0.5, to: 0.25,
+from: '#99154E', to: '#fffb96',
+
+directionalLight
+from: 0.1, to: 1,
+from: new THREE.Vector3(-1,1,-1), to: new THREE.Vector3(1,1,1)
+
+directionalLight2
+from: 0.2, to: 0.1,
+from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(-1,1,-1)
+
+directionalLight3
+from: 0.05, to: 0.1,
+from: new THREE.Vector3(1,1,-1), to: new THREE.Vector3(-1,1,-1)
+*/
+
+	}
+
+	return {skyBox, SpawnSkyBox, DespawnSkyBox, ToggleSpawn, SetFlag, GetFlag, DayNightCycle, PauseDayNight, ResumeDayNight, RestartDayNight, SetTime};
 }
 
 //
@@ -9411,10 +9923,6 @@ return {infoBubble, AddEmotes, RemoveEmotes, NewBubble};
 
 }
 
-
-//
-//In-Progress
-
 //
 //CreatureGen
 //Generate a creature object
@@ -10398,6 +10906,7 @@ this.Collision = () => {
 	grid.collide = {};
 	grid.trigger = {};
 	grid.triggersActive = false;
+	grid.edgeSpawned = false;
 	grid.edges = {};
 	grid.edge = auxl.mapEdgeBasic;
 	grid.waiting = false;
@@ -10409,6 +10918,7 @@ this.Collision = () => {
 	const EnableCollision = () => {
 		auxl.collision = true;
 	}
+	EnableCollision();
 	//Disable Collision Checks for Locomotion
 	const DisableCollision = () => {
 		auxl.collision = false;
@@ -10598,9 +11108,7 @@ this.Collision = () => {
 			return true;
 		}
 	}
-	//Check for Map Obstacles 0.5 Meter
-	//Returns True if Free
-	//Corners need 3 squares in L shape to completely block travel
+	//Check for Map Obstacles 0.5 Meter Forward or Side
 	const CheckMapObstacles = (pos) => {
 
 		let newPos = {};
@@ -10725,6 +11233,314 @@ this.Collision = () => {
 			return false;
 		}
 	}
+	//Check for Map Obstacles 0.5 Meter and block diagonal movement if forward and side are blocked, but not the actual diagonal spot
+	const CheckMapObstaclesDiagonal = (goPos, atPos) => {
+
+		let newPos = {};
+		newPos.x = goPos.x;
+		newPos.z = goPos.z;
+		newPos.x *= 2;
+		newPos.z *= 2;
+
+		let pos = {};
+		pos.x = atPos.x;
+		pos.z = atPos.z;
+		pos.x *= 2;
+		pos.z *= 2;
+
+		//World direction of movement
+		if(newPos.x === pos.x && newPos.z === pos.z){
+			//console.log('Same Square')
+			travelDirection = 'same';
+		} else {
+			if(newPos.x === pos.x || newPos.z === pos.z){
+				if(newPos.x === pos.x){
+					//console.log('Forward|Backward');
+					travelDirection = 'z';
+				} else if(newPos.z === pos.z){
+					//console.log('Side to Side');
+					travelDirection = 'x';
+				}
+			} else {
+				console.log('Diagonal');
+				if(newPos.x > pos.x){
+					//Right
+					if(newPos.z > pos.z){
+						//Backward
+						travelDirection = 'reverseRight';
+					} else {
+						//Forward
+						travelDirection = 'forwardRight';
+					}
+				} else {
+					//Left
+					if(newPos.z > pos.z){
+						//Backward
+						travelDirection = 'reverseLeft';
+					} else {
+						//Forward
+						travelDirection = 'forwardLeft';
+					}
+				}
+			}
+		}
+		//Check Map in Direction
+		if(newPos.x < 0 && newPos.z < 0){
+			//Top Left - 0
+			//Loop 1 : -Z
+			//Loop 2 : -X
+			if(auxl.collideMap[0].length > newPos.z * -1){
+				if(auxl.collideMap[0][newPos.z * -1].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(auxl.collideMap[0][newPos.z * -1][newPos.x * -1] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(auxl.collideMap[0][(pos.z * -1)-1][pos.x * -1] === 1 && auxl.collideMap[0][pos.z * -1][(pos.x * -1)+1] === 1){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(auxl.collideMap[0][(pos.z * -1)-1][pos.x * -1] !== 0 && auxl.collideMap[0][pos.z * -1][(pos.x * -1)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(auxl.collideMap[0][(pos.z * -1)+1][pos.x * -1] !== 0 && auxl.collideMap[0][pos.z * -1][(pos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//+Z
+							//-X
+							if(auxl.collideMap[0][(pos.z * -1)+1][pos.x * -1] !== 0 && auxl.collideMap[0][pos.z * -1][(pos.x * -1)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z < 0){
+			//Top Right - 1
+			//Loop 1 : -Z
+			//Loop 2 : +X
+			if(auxl.collideMap[1].length > newPos.z * -1){
+				if(auxl.collideMap[1][newPos.z * -1].length > newPos.x){
+					//console.log('Within Map');
+					if(auxl.collideMap[1][newPos.z * -1][newPos.x] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(auxl.collideMap[1][(pos.z * -1)-1][pos.x] !== 0 && auxl.collideMap[1][pos.z * -1][(pos.x)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(auxl.collideMap[1][(pos.z * -1)-1][pos.x] !== 0 && auxl.collideMap[1][pos.z * -1][(pos.x)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(auxl.collideMap[1][(pos.z * -1)+1][pos.x] !== 0 && auxl.collideMap[1][pos.z * -1][(pos.x)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//+Z
+							//-X
+							if(auxl.collideMap[1][(pos.z * -1)+1][pos.x] !== 0 && auxl.collideMap[1][pos.z * -1][(pos.x)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x < 0 && newPos.z >= 0){
+			//Bottom Left - 2
+			//Loop 1 : +Z
+			//Loop 2 : -X
+			if(auxl.collideMap[2].length > newPos.z){
+				if(auxl.collideMap[2][newPos.z].length > newPos.x * -1){
+					//console.log('Within Map');
+					if(auxl.collideMap[2][newPos.z][newPos.x * -1] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(auxl.collideMap[2][(pos.z)-1][pos.x * -1] !== 0 && auxl.collideMap[2][pos.z][(pos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(auxl.collideMap[2][(pos.z)-1][pos.x * -1] !== 0 && auxl.collideMap[2][pos.z][(pos.x * -1)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(auxl.collideMap[2][(pos.z)+1][pos.x * -1] !== 0 && auxl.collideMap[2][pos.z][(pos.x * -1)+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//+Z
+							//-X
+							if(auxl.collideMap[2][(pos.z)+1][pos.x * -1] !== 0 && auxl.collideMap[2][pos.z][(pos.x * -1)-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else if(newPos.x >= 0 && newPos.z >= 0){
+			//Bottom Right - 3
+			//Loop 1 : +Z
+			//Loop 2 : +X
+			if(auxl.collideMap[3].length > newPos.z){
+				if(auxl.collideMap[3][newPos.z].length > newPos.x){
+					if(auxl.collideMap[3][newPos.z][newPos.x] === 0){
+						//Block diagonal movement if both adjacent squares are occupied
+						if(travelDirection === 'forwardRight'){
+							//-Z
+							//+X
+							if(auxl.collideMap[3][pos.z-1][pos.x] !== 0 && auxl.collideMap[3][pos.z][pos.x+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'forwardLeft'){
+							//-Z
+							//-X
+							if(auxl.collideMap[3][pos.z-1][pos.x] !== 0 && auxl.collideMap[3][pos.z][pos.x-1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseRight'){
+							//+Z
+							//+X
+							if(auxl.collideMap[3][pos.z+1][pos.x] !== 0 && auxl.collideMap[3][pos.z][newPos.x+1] !== 0){
+								return false;
+							} else {
+								return true;
+							}
+						} else if(travelDirection === 'reverseLeft'){
+							//+Z
+							//-X
+							if(auxl.collideMap[3][pos.z+1][pos.x] === 1 && auxl.collideMap[3][pos.z][pos.x-1] === 1){
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					//console.log('Out of Map');
+					if(grid.edgeCollide){
+						return false;
+					} else {
+						return true;
+					}
+				}
+			} else {
+				//console.log('Out of Map');
+				if(grid.edgeCollide){
+					return false;
+				} else {
+					return true;
+				}
+			}
+		} else {
+			return false;
+		}
+	}
+
 	//Check for Map Obstacles in an Area
 	const CheckMapObstaclesArea = (start,end) => {
 		let pos = {x: start.x, z: start.z};
@@ -10901,7 +11717,7 @@ this.Collision = () => {
 		calcZPos();
 		//Check for Player Collision
 		if(CheckForPlayer(to)){}else{
-			console.log('Hit Player')
+			//console.log('Hit Player')
 			return false;
 		}
 		for(let z = 0; z < zSpaces;z++){
@@ -11106,6 +11922,94 @@ this.Collision = () => {
 		}
 
 	}
+
+	//Check for Map Trigger in an Area and Avoid Checking an Area
+	//Not working well
+	const UpdateMapAreaSansAreaTrigger = (name, from, to) => {
+		//to is the area moving into
+		//from is the area moving from, do not check any of these spaces
+		let original = BuildAreaArray(from.start, from.end);
+		let skip = false;
+		let pos = {x: to.start.x, z: to.start.z};
+		let xSpaces;
+		let xCurrent;
+		let zSpaces;
+		let zCurrent;
+		let spaces = 0;
+		//Calc X
+		function calcXPos(){
+			if(to.start.x === to.end.x){
+				xSpaces = 1;
+			} else {
+				xSpaces = to.start.x - to.end.x;
+				xSpaces *= 2;
+				if(xSpaces < 0){
+					xSpaces *= -1;
+				}
+				xSpaces += 1;
+			}
+			pos.x = to.start.x;
+			xCurrent = xSpaces;
+		}
+		//Calc Z
+		function calcZPos(){
+			if(to.start.z === to.end.z){
+				zSpaces = 1;
+			} else {
+				zSpaces = to.start.z - to.end.z;
+				zSpaces *= 2;
+				if(zSpaces < 0){
+					zSpaces *= -1;
+				}
+				zSpaces += 1;
+			}
+			pos.z = to.start.z;
+			zCurrent = zSpaces;
+		}
+		//Assign Map Collisions
+		calcZPos();
+		//Check for Player Collision
+		if(CheckForPlayer(to)){}else{
+			console.log('Hit Player')
+			return false;
+		}
+		for(let z = 0; z < zSpaces;z++){
+			calcXPos();
+			for(let x = 0; x < xSpaces;x++){
+
+
+
+				//Check if within From
+				for(let each in original){
+					if(pos.x === original[each].x && pos.z === original[each].z){
+original.splice(original.indexOf(each), 1);
+						skip = true;
+						break;
+					}
+				}
+				//Check for Other Object Collision
+				if(skip){}else{
+					UpdateMapTrigger(pos,mapKey);
+					OnMapTrigger({name, spaces, pos:{x:pos.x,z:pos.z}});
+				}
+				//OffMapTrigger(name);
+
+				spaces++;
+				skip = false;
+				//Next X Space
+				xCurrent--;
+				if(xCurrent > 0){
+					pos.x += 0.5;
+				}
+			}
+			//Next Z Space
+			zCurrent--;
+			if(zCurrent > 0){
+				pos.z += 0.5;
+			}
+		}
+		console.log(original)
+	}
 	//Check for Map Triggers 0.5 Meter
 	//Returns True if Hit Trigger
 	//Corners need 3 squares in L shape to completely block travel
@@ -11279,6 +12183,7 @@ this.Collision = () => {
 	const SpawnEdges = () => {
 		let pos = (grid.size/4) +1;
 		let length = (grid.size/2) +2.5;
+
 		//North
 		grid.edges.northEdge = auxl.coreFromTemplate(grid.edge,{id: 'northEdge', geometry: {primitive: 'box', depth: 0.5, width: length, height: 0.5}, position: new THREE.Vector3(0,0.25,pos*-1)}, true);
 		grid.edges.northEdge.SpawnCore();
@@ -11292,6 +12197,8 @@ this.Collision = () => {
 		grid.edges.eastEdge = auxl.coreFromTemplate(grid.edge,{id: 'eastEdge', geometry: {primitive: 'box', depth: length, width: 0.5, height: 0.5}, position: new THREE.Vector3(pos,0.25,0)}, true);
 		grid.edges.eastEdge.SpawnCore();
 
+		grid.edgeSpawned = true;
+
 	}
 	//Spawn Map Edge Object
 	const DespawnEdges = (map) => {
@@ -11303,6 +12210,8 @@ this.Collision = () => {
 		delete grid.edges.westEdge;
 		grid.edges.eastEdge.DespawnCore();
 		delete grid.edges.eastEdge;
+
+		grid.edgeSpawned = false;
 	}
 
 	//
@@ -11332,7 +12241,11 @@ this.Collision = () => {
 			}
 		}
 	}
-
+	//Clear Waiting
+	const ClearWaiting = () => {
+		grid.waiting = false;
+		grid.spawnWaiting = {};
+	}
 
 
 
@@ -12220,9 +13133,174 @@ console.log(auxl[obj.id])
 	//Testing mapSpawner function
 	//mapSpawner(mapAll);
 */
-	return {grid, BuildMap, BlankMap, UpdateMap, UpdateMapArea, EnableCollision, DisableCollision, CheckMapObstacles, CheckMapObstaclesArea, CheckMapAreaSansArea, SpawnEdges, DespawnEdges, UpdateEdge, BlankMapTrigger, OnMapTrigger, OffMapTrigger, CheckMapOverlapTrigger, UpdateMapAreaTrigger, UpdateMapTrigger, CheckMapTriggers, TriggerEnterHit, CheckActiveTriggers, ClearTriggers, WaitToSpawn, WaitingToSpawn, MoveToGrid, PathOnGrid,};
+	return {grid, BuildMap, BlankMap, UpdateMap, UpdateMapArea, EnableCollision, DisableCollision, CheckMapObstacles, CheckMapObstaclesDiagonal, CheckMapObstaclesArea, CheckMapAreaSansArea, SpawnEdges, DespawnEdges, UpdateEdge, BlankMapTrigger, OnMapTrigger, OffMapTrigger, CheckMapOverlapTrigger, UpdateMapAreaTrigger, UpdateMapTrigger, CheckMapTriggers, TriggerEnterHit, CheckActiveTriggers, ClearTriggers, WaitToSpawn, WaitingToSpawn, ClearWaiting, MoveToGrid, PathOnGrid,};
 
 }
+
+//
+//Grid Layout
+this.GridLayout = (gridLayoutData) => {
+	let gridLayout = Object.assign({}, gridLayoutData);
+	gridLayout.inScene = false;
+
+
+//Use a core data or layer data or array of them
+//Have various grid map sets
+//Build and prepare enough core/layers to spawn the largest grid map version
+//On each grid spawn, update the first set of core/layers with grid info and spawn only those
+
+
+
+
+//Data/Core/Layer
+//Grid Locations to spawn
+	gridLayout.type;
+	if(gridLayout.data){
+		gridLayout.type = 'data';
+	} else if(gridLayout.core){
+		gridLayout.type = 'core';
+	} else if(gridLayout.layer){
+		gridLayout.type = 'layer';
+	}
+
+	gridLayout.objs = [];
+//Duplicate object and update grid position
+//grid
+
+//Randomize
+//Randomize texture color shade, scale of material, offset of material
+//colorShade
+//['red','orange','yellow','lime','blue','cyan','magenta','maroon','olive','green','purple','teal','navy',];
+//matOffsetRange
+//matRepeatRange
+
+//Data or Core will be updated, but if Layer will loop through all cores and any that have a material will be updated
+//How to colors for layer
+
+//grid: {start:{x:-5, z:-2}, end: {x:-3.5, z:-0.5}, collide: true}
+
+gridLayout.amount = Object.keys(gridLayout.grid).length;
+
+	//Generate Grid Objects
+	const GenGrid = () => {
+		for(let a = 0; a<gridLayout.amount; a++){
+			let data = {};
+			let obj = {};
+
+			if(gridLayout.type === 'data'){
+				data = auxl.coreDataFromTemplate(gridLayout.data,{id: gridLayout.id+a, grid: gridLayout.grid[a]}, true);
+				obj = auxl.Core(data);
+				gridLayout.objs.push(obj);
+			} else if(gridLayout.type === 'core'){
+				obj = auxl.coreFromTemplate(gridLayout.core,{id: gridLayout.id+a, grid: gridLayout.grid[a]}, true);
+				gridLayout.objs.push(obj);
+			} else if(gridLayout.type === 'layer'){
+				obj = auxl.layerFromTemplate(gridLayout.layer, gridLayout.id+a, {id: gridLayout.id+a}, {grid: gridLayout.grid[a]}, true);
+				gridLayout.objs.push(obj);
+			}
+		}
+	}
+GenGrid();
+
+	//Randomized Grid
+	const GenGridRandomizeOld = () => {
+		for(let a = 0; a<gridLayout.amount; a++){
+			let data = {};
+			let obj = {};
+			let color = false;
+			let repeatX = false;
+			let repeatZ = false;
+			let offset = Math.random();
+
+			//Color
+			if(gridLayout.colorShade){
+				color = auxl.colorTheoryGen(false, gridLayout.colorShade).base;
+			}
+			//Repeat
+			if(gridLayout.minRepeatX && gridLayout.maxRepeatX){
+				repeatX = (Math.random()*gridLayout.maxRepeatX)+gridLayout.minRepeatX;
+			} else if(gridLayout.minRepeatX){
+				repeatX = Math.random()+gridLayout.minRepeatX;
+			} else if(gridLayout.maxRepeatX){
+				repeatX = Math.random()*gridLayout.maxRepeatX;
+			}
+			if(gridLayout.minRepeatZ && gridLayout.maxRepeatX){
+				repeatZ = (Math.random()*gridLayout.maxRepeatZ)+gridLayout.minRepeatZ;
+			} else if(gridLayout.minRepeatZ){
+				repeatZ = Math.random()+gridLayout.minRepeatZ;
+			} else if(gridLayout.maxRepeatZ){
+				repeatZ = Math.random()*gridLayout.maxRepeatZ;
+			}
+
+
+			if(gridLayout.type === 'data'){
+				data = auxl.coreDataFromTemplate(gridLayout.data,{id: gridLayout.id+a, grid: gridLayout.grid[a]}, true);
+//Color
+if(color){
+	data.material.color = color;
+	if(data.material.emissive){
+		data.material.emissive = color;
+	}
+}
+//Repeat
+if(repeatX && repeatZ){
+	data.material.repeat = repeatX+' '+repeatZ;
+} else if(repeatX){
+	data.material.repeat = repeatX+' 1';
+} else if(repeatZ){
+	data.material.repeat = '1 '+repeatZ;
+}
+//Offset
+if(repeatX || repeatZ){
+	data.material.offset = offset+' '+offset;
+}
+
+				obj = auxl.Core(data);
+				gridLayout.objs.push(obj);
+			} else if(gridLayout.type === 'core'){
+				obj = auxl.coreFromTemplate(gridLayout.core,{id: gridLayout.id+a, grid: gridLayout.grid[a]}, true);
+				gridLayout.objs.push(obj);
+			} else if(gridLayout.type === 'layer'){
+				obj = auxl.layerFromTemplate(gridLayout.layer, gridLayout.id+a, {id: gridLayout.id+a}, {grid: gridLayout.grid[a]}, true);
+				gridLayout.objs.push(obj);
+			}
+		}
+	}
+
+	//Spawn Grid Layout
+	const SpawnGridLayout = () =>{
+		if(gridLayout.inScene){}else{
+			for(let a = 0; a<gridLayout.amount; a++){
+				if(gridLayout.type === 'data' || gridLayout.type === 'core'){
+					gridLayout.objs[a].SpawnCoreOnGrid();
+				} else if(gridLayout.type === 'layer'){
+					gridLayout.objs[a].SpawnLayerOnGrid();
+				}
+			}
+			gridLayout.inScene = true;
+		}
+	}
+	//Despawn Grid Layout
+	const DespawnGridLayout = () =>{
+		if(gridLayout.inScene){
+			for(let a = 0; a<gridLayout.amount; a++){
+				if(gridLayout.type === 'data' || gridLayout.type === 'core'){
+					gridLayout.objs[a].DespawnCoreOnGrid();
+				} else if(gridLayout.type === 'layer'){
+					gridLayout.objs[a].DespawnLayerOnGrid();
+				}
+			}
+			gridLayout.inScene = false;
+		}
+	}
+
+	return {gridLayout, SpawnGridLayout, DespawnGridLayout};
+}
+
+
+
+
+
 
 //
 //Build Core/Layer/Other objects in the 3D environment

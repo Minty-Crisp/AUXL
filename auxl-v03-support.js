@@ -1399,6 +1399,27 @@ update: function () {
 	}
 	//Movement Type
 	this.movetype = this.data.movetype;
+	//Point of View
+	this.pov = this.data.pov;
+	//Free or Grid Locomotion Style
+	this.style = this.data.style;
+	//Movement Coords
+	this.axis = this.data.axis;
+	//3rd Person Config
+	let initDelay = setTimeout(()=> {
+		if(this.pov === '3rd'){
+			this.auxl.avatar.SpawnLayer(true);
+			this.player.object3D.position.copy(new THREE.Vector3(0,5,10));
+			let initDelay = setTimeout(()=> {
+				this.avatar = document.getElementById('avatarRig');
+				this.avatarSphere = document.getElementById('avatarSphere');
+				if(this.axis === 'angleXY'){
+					this.avatar.object3D.position.copy(new THREE.Vector3(0,0,-10));
+					this.player.object3D.position.copy(new THREE.Vector3(0,1.6,2));
+				}
+			},500)
+		}
+	},1000)
 
 	//Keyboard Controller Event Listeners
 	if(this.movetype === 'desktop'){
@@ -1474,16 +1495,19 @@ remove: function () {
 },
 //Tick
 tick: function (time, timeDelta) {
-	//Locomotion Type
-	if(this.style === 'free'){
-		this.freeStepThrottled();
-	} else if(this.style === 'grid'){
-		this.gridStepThrottled();
-	}
+	//Unlocked Locomotion
+	if(this.auxl.player.layer.move){
+		//Locomotion Type
+		if(this.style === 'free'){
+			this.freeStepThrottled();
+		} else if(this.style === 'grid'){
+			this.gridStepThrottled();
+		}
 
-	//Sync Belt
-	if(this.movetype === 'vrHover'){
-		this.uiSync();
+		//Sync Belt
+		if(this.movetype === 'vrHover'){
+			this.uiSync();
+		}
 	}
 },
 //Free Locomotion Tick
@@ -1628,6 +1652,8 @@ move: function (direction, speed) {
 	} else if(this.pov === '3rd'){
 		if(this.axis === 'posXZ'){
 			this.rigXZ(direction, speed);
+		} else if(this.axis === 'posXZY'){
+			this.rigXZY(direction, speed);
 		} else if(this.axis === 'posXY'){
 			this.rigXY(direction, speed);
 		} else if(this.axis === 'posXYZ'){
@@ -1640,6 +1666,37 @@ move: function (direction, speed) {
 			this.rigAXYZ(direction, speed);
 		}
 	}
+},
+//Toggle 1st/3rd POV
+togglePOV: function (){
+
+	//Load 3rd POV
+	if(this.pov === '3rd'){
+		//Spawn Avatar
+		this.auxl.avatar.SpawnLayer(true);
+		//Move Avatar to Player Current POS
+
+		//Move Player to Avatar Offset
+		this.player.object3D.position.copy(new THREE.Vector3(0,5,10));
+
+		let initDelay = setTimeout(()=> {
+			//Update Avatar Reference
+			this.avatar = document.getElementById('avatarRig');
+			this.avatarSphere = document.getElementById('avatarSphere');
+
+/*
+			if(this.axis === 'angleXY'){
+				this.avatar.object3D.position.copy(new THREE.Vector3(0,0,-10));
+				this.player.object3D.position.copy(new THREE.Vector3(0,1.6,2));
+			}
+*/
+
+		},500)
+
+
+	}
+
+
 },
 //Default
 //1st POV Walk along XZ Floor relative to Direction View
@@ -1840,7 +1897,8 @@ directionXZ: function (action, speed) {
 		this.posRound.x = this.roundHalf(this.positionPlayer.x);
 		this.posRound.z = this.roundHalf(this.positionPlayer.z);
 		//Check for Obstacles
-		if(this.auxl.map.CheckMapObstacles(this.newPosRound, this.posRound)){
+		//if(this.auxl.map.CheckMapObstacles(this.newPosRound)){
+		if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
 			this.player.object3D.position.copy(this.positionNew);
 			this.auxl.player.layer.gridPos.copy(this.newPosRound);
 			//Check for Triggers on New Coords
@@ -2503,6 +2561,8 @@ directionXYZ: function (action, speed) {
 	this.yDeadZone = 0.1;
 	this.velocity = speed;
 	this.directionVector = new THREE.Vector3();
+	this.cameraVector = new THREE.Vector3();
+	this.camera.object3D.getWorldDirection(this.cameraVector);
 	this.directionObject.object3D.getWorldDirection(this.directionVector);
 	this.positionNew = new THREE.Vector3();
 	this.positionPlayer.copy(this.player.object3D.position);
@@ -2709,6 +2769,18 @@ directionXYZ: function (action, speed) {
 		//Check for Obstacles
 		if(this.auxl.map.CheckMapObstacles(this.newPosRound, this.posRound)){
 			this.player.object3D.position.copy(this.positionNew);
+			this.auxl.player.layer.gridPos.copy(this.newPosRound);
+			//Check for Triggers on New Coords
+			if(this.newPosRound.x === this.posRound.x && this.newPosRound.z === this.posRound.z){} else {
+				//Check for Trigger Enter
+				if(this.auxl.map.CheckMapTriggers(this.newPosRound)){
+					this.auxl.map.TriggerEnterHit(this.newPosRound);
+				}
+				//Check for Trigger Exits
+				this.auxl.map.CheckActiveTriggers(this.newPosRound);
+				//Check for Cleared Spawn Collision Conditions
+				this.auxl.map.WaitingToSpawn();
+			}
 		}
 	} else {
 		//Free Locomotion No Collision
@@ -2771,6 +2843,8 @@ rigXZ: function (action, speed) {
 		this.avatar.object3D.position.copy(this.positionNew);
 	}
 },
+//3rd POV Walk with Fly Buttons
+rigXZY: function (action, speed){},
 //3rd POV Walk along XY Wall
 rigXY: function (action, speed) {
 	this.velocity = speed;
@@ -5092,6 +5166,7 @@ altClick: function (e){
 direction: function (e){
 	//console.log(e.detail);
 	//this.updateInput(e.detail.info);
+	//Direction Movement Unlocked
 	if(e.detail.direction === 'forwardHit'){
 		this.locomotion.movingForward();
 	} else if(e.detail.direction === 'forwardRelease'){
@@ -5108,7 +5183,7 @@ direction: function (e){
 		this.locomotion.movingRight();
 	} else if(e.detail.direction === 'rightRelease'){
 		this.locomotion.cancelRight();
-	} 
+	}
 },
 //Rotational Movement
 rotation: function (e){
