@@ -18,6 +18,8 @@ const auxl = document.querySelector('a-scene').systems.auxl;
 //
 //Testing Objects
 
+
+//Grid Layout Testing
 auxl.dataGridObjectData = {
 data:'dataGridObjectData',
 id:'dataGrid',
@@ -48,10 +50,6 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-
-//auxl.testGrid = auxl.GridLayout(auxl.testGridData);
-//auxl.testGrid.SpawnGridLayout();
-
 auxl.testGrid2Data = {
 id: 'testGrid2',
 //coreData: auxl.dataGridObjectData,
@@ -78,11 +76,6 @@ grids:{
 //combine : true,
 };
 auxl.testGrid2 = auxl.GridLayout(auxl.testGrid2Data);
-
-
-
-
-
 
 
 //Testing Object for Interactions and Events
@@ -1981,9 +1974,9 @@ auxl.zone0Scene0Data = {
 		sceneText: true,
 		fog: {type: 'exponential', color: '#000', density: 0.025},
 		map: {
-			size: 40,
+			size: 64,
 			edge: true,
-			edgeUpdate: false
+			edgeUpdate: false,
 		},
 	},
 	controls:{
@@ -2084,8 +2077,8 @@ auxl.zone0Scene1Data = {
 		sceneText: true,
 		fog: false,
 		map: {
-			size: 20,
-			edge: false,
+			size: 38,
+			edge: true,
 			edgeUpdate: false,
 		},
 	},

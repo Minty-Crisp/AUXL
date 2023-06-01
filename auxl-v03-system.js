@@ -37,6 +37,7 @@ this.rebuildObjects = [];
 
 //Controller
 let playerRig;
+let playerBody;
 let camera;
 let cameraUI;
 let playerBeltUI;
@@ -3529,6 +3530,7 @@ this.Player = (id,layer) => {
 	playerSelf = document.getElementById(layer.id);
 	div = document.getElementById('div');
 	playerRig = document.getElementById('playerRig');
+	playerBody = document.getElementById('playerBody');
 	camera = document.getElementById('camera');
 	cameraUI = document.getElementById('cameraUI');
 	playerFloor = document.getElementById('playerFloor');
@@ -3838,10 +3840,10 @@ this.Player = (id,layer) => {
 		if(layer.animating){} else {
 			layer.animating = true;
 			if(layer.stand){
-				auxl.playerRig.EmitEvent('sit');
+				auxl.playerBody.EmitEvent('sit');
 				layer.stand = false;
 			} else {
-				auxl.playerRig.EmitEvent('stand');
+				auxl.playerBody.EmitEvent('stand');
 				layer.stand = true;
 			}
 			crouchTimeout = setTimeout(function () {
@@ -3856,10 +3858,10 @@ this.Player = (id,layer) => {
 			if(layer.animating){} else {
 				layer.animating = true;
 				if(layer.standing){
-					auxl.playerRig.EmitEvent('crouchDownStanding');
+					auxl.playerBody.EmitEvent('crouchDownStanding');
 					layer.standing = false;
 				} else {
-					auxl.playerRig.EmitEvent('crouchUpStanding');
+					auxl.playerBody.EmitEvent('crouchUpStanding');
 					layer.standing = true;
 				}
 				crouchTimeout = setTimeout(function () {
@@ -3871,10 +3873,10 @@ this.Player = (id,layer) => {
 			if(layer.animating){} else {
 				layer.animating = true;
 				if(layer.standing){
-					auxl.playerRig.EmitEvent('crouchDownSitting');
+					auxl.playerBody.EmitEvent('crouchDownSitting');
 					layer.standing = false;
 				} else {
-					auxl.playerRig.EmitEvent('crouchUpSitting');
+					auxl.playerBody.EmitEvent('crouchUpSitting');
 					layer.standing = true;
 				}
 				crouchTimeout = setTimeout(function () {
@@ -3888,10 +3890,10 @@ this.Player = (id,layer) => {
 	const SnapRight45 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
-			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerBody.GetEl().getAttribute('rotation').y;
 			anim45Data.from = rotY;
 			anim45Data.to = rotY - 45;
-			auxl.playerRig.Animate(anim45Data);
+			auxl.playerBody.Animate(anim45Data);
 			snapTimeout = setTimeout(() => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
@@ -3902,10 +3904,10 @@ this.Player = (id,layer) => {
 	const SnapLeft45 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
-			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerBody.GetEl().getAttribute('rotation').y;
 			anim45Data.from = rotY;
 			anim45Data.to = rotY + 45;
-			auxl.playerRig.Animate(anim45Data);
+			auxl.playerBody.Animate(anim45Data);
 			snapTimeout = setTimeout(() => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
@@ -3916,10 +3918,10 @@ this.Player = (id,layer) => {
 	const SnapRight90 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
-			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerBody.GetEl().getAttribute('rotation').y;
 			anim90Data.from = rotY;
 			anim90Data.to = rotY - 90;
-			auxl.playerRig.Animate(anim90Data);
+			auxl.playerBody.Animate(anim90Data);
 			snapTimeout = setTimeout(() => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
@@ -3930,10 +3932,10 @@ this.Player = (id,layer) => {
 	const SnapLeft90 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
-			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerBody.GetEl().getAttribute('rotation').y;
 			anim90Data.from = rotY;
 			anim90Data.to = rotY + 90;
-			auxl.playerRig.Animate(anim90Data);
+			auxl.playerBody.Animate(anim90Data);
 			snapTimeout = setTimeout(() => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
@@ -3972,9 +3974,7 @@ this.Player = (id,layer) => {
 		auxl.playerRig.ChangeSelf({property: 'position', value: new THREE.Vector3(0,0,1)});
 		//Update Grid Position
 		layer.gridPos.copy(playerRig.getAttribute('position'));
-/*
-Conflicts with Companion Respawns
-		//Reset Rotation via PlayerRig Only
+		//Reset Rotation via playerBody
 		let y = auxl.camera.GetEl().getAttribute('rotation').y;
 		if(y > 0){
 			if(y<360){
@@ -3985,13 +3985,13 @@ Conflicts with Companion Respawns
 				y = y % 360;
 			}
 		}
-		auxl.playerRig.ChangeSelf({property:'rotation',value:new THREE.Vector3(0,(y*-1)+1,0)});
-*/
+		auxl.playerBody.ChangeSelf({property:'rotation',value:new THREE.Vector3(0,(y*-1)+1,0)});
+
 	}
 	//Get user current infomation
 	const GetPlayerInfo = () => {
 
-		return {layer, id: layer.layer.all.parent.core.core.id, pos: playerRig.getAttribute('position'), rot: playerRig.getAttribute('rotation'), grid:layer.gridPos};
+		return {layer, id: layer.layer.all.parent.core.core.id, pos: playerRig.getAttribute('position'), bodyRot: playerBody.getAttribute('rotation'), headRot: camera.getAttribute('rotation'), grid:layer.gridPos};
 	}
 	//Attach to user
 	const AttachToPlayer = (element,offset) => {
@@ -11336,7 +11336,7 @@ this.Collision = () => {
 					}
 				} else {
 					//console.log('Out of Map');
-					if(grid.edgeCollide){
+					if(auxl.mapEdge){
 						return false;
 					} else {
 						return true;
@@ -11344,7 +11344,7 @@ this.Collision = () => {
 				}
 			} else {
 				//console.log('Out of Map');
-				if(grid.edgeCollide){
+				if(auxl.mapEdge){
 					return false;
 				} else {
 					return true;
@@ -11399,7 +11399,7 @@ this.Collision = () => {
 					}
 				} else {
 					//console.log('Out of Map');
-					if(grid.edgeCollide){
+					if(auxl.mapEdge){
 						return false;
 					} else {
 						return true;
@@ -11407,7 +11407,7 @@ this.Collision = () => {
 				}
 			} else {
 				//console.log('Out of Map');
-				if(grid.edgeCollide){
+				if(auxl.mapEdge){
 					return false;
 				} else {
 					return true;
@@ -11462,7 +11462,7 @@ this.Collision = () => {
 					}
 				} else {
 					//console.log('Out of Map');
-					if(grid.edgeCollide){
+					if(auxl.mapEdge){
 						return false;
 					} else {
 						return true;
@@ -11470,7 +11470,7 @@ this.Collision = () => {
 				}
 			} else {
 				//console.log('Out of Map');
-				if(grid.edgeCollide){
+				if(auxl.mapEdge){
 					return false;
 				} else {
 					return true;
@@ -11524,7 +11524,7 @@ this.Collision = () => {
 					}
 				} else {
 					//console.log('Out of Map');
-					if(grid.edgeCollide){
+					if(auxl.mapEdge){
 						return false;
 					} else {
 						return true;
@@ -11532,7 +11532,7 @@ this.Collision = () => {
 				}
 			} else {
 				//console.log('Out of Map');
-				if(grid.edgeCollide){
+				if(auxl.mapEdge){
 					return false;
 				} else {
 					return true;
@@ -12414,727 +12414,6 @@ console.log(auxl[obj.id])
 
 	}
 
-	//
-	//OLD
-/*
-	let grid = Object.assign({}, gridData);
-	grid.inScene = false;
-	grid.id = gridData.id || 'scene';
-	grid.size = gridData.size || 40;
-	grid.edge = gridData.edge || false;
-
-	grid.mapTopLeft = [];
-	grid.mapTopRight = [];
-	grid.mapBottomLeft = [];
-	grid.mapBottomRight = [];
-	grid.mapAll = [
-		grid.mapTopLeft,
-		grid.mapTopRight,
-		grid.mapBottomLeft,
-		grid.mapBottomRight,
-	];
-
-	//Internal Blank Map - OLD
-	const BlankMapOld = (size) => {
-		grid.mapTopLeft = [];
-		grid.mapTopLeft = Array(size/2).fill(0, 0);
-		for(let each in grid.mapTopLeft){
-			grid.mapTopLeft[each] = Array(size/2).fill(0, 0);
-		}
-		grid.mapTopRight = [];
-		grid.mapTopRight = Array(size/2).fill(0, 0);
-		for(let each in grid.mapTopRight){
-			grid.mapTopRight[each] = Array(size/2).fill(0, 0);
-		}
-		grid.mapBottomLeft = [];
-		grid.mapBottomLeft = Array(size/2).fill(0, 0);
-		for(let each in grid.mapBottomLeft){
-			grid.mapBottomLeft[each] = Array(size/2).fill(0, 0);
-		}
-		grid.mapBottomRight = [];
-		grid.mapBottomRight = Array(size/2).fill(0, 0);
-		for(let each in grid.mapBottomRight){
-			grid.mapBottomRight[each] = Array(size/2).fill(0, 0);
-		}
-		grid.mapAll = [
-			grid.mapTopLeft,
-			grid.mapTopRight,
-			grid.mapBottomLeft,
-			grid.mapBottomRight,
-		];
-	}
-	BlankMapOld(grid.size);
-	//Update Map
-	const UpdateMapAreaOld = (info) => {
-//pos.area is 0.5z x 1x
-//new THREE.Vector3(0,0.5,-9),
-
-//info.xPos
-//info.xArea
-//info.zPos
-//info.zArea
-
-		let zSpaces = info.zArea[0]*2;
-		let zStart = info.zPos - (info.zArea[0]/2);
-
-		let xSpaces = info.xArea[1]*2;
-		let xStart = info.xPos - (info.xArea[1]/2);
-
-		console.log(zSpaces)
-		console.log(zStart)
-		//console.log(xSpaces)
-		//console.log(xStart)
-
-		for(let z = 0; z < zSpaces;z++){
-			for(let x = 0; x < xSpaces;x++){
-				//UpdateMap(pos,mapKey);
-				console.log(zStart)
-				//console.log(xStart)
-				xStart+=0.5;
-			}
-			zStart+=0.5;
-		}
-	}
-
-	//Update Map
-	const UpdateMapOld = (pos, mapKey) => {
-		//0.5 meter to integer grid adjustment
-		pos.x *= 2;
-		pos.z *= 2;
-
-		if(pos.x < 0 && pos.z < 0){
-			//Top Left - 0
-			//Loop 1 : -Z
-			//Loop 2 : -X
-			grid.mapAll[0][pos.z * -1][pos.x * -1] = mapKey;
-		} else if(pos.x >= 0 && pos.z < 0){
-			//Top Right - 1
-			//Loop 1 : -Z
-			//Loop 2 : +X
-			grid.mapAll[1][pos.z * -1][pos.x] = mapKey
-		} else if(pos.x < 0 && pos.z >= 0){
-			//Bottom Left - 2
-			//Loop 1 : +Z
-			//Loop 2 : -X
-			grid.mapAll[2][pos.z][pos.x * -1] = mapKey;
-		} else if(pos.x >= 0 && pos.z >= 0){
-			//Bottom Right - 3
-			//Loop 1 : +Z
-			//Loop 2 : +X
-			grid.mapAll[3][pos.z][pos.x] = mapKey;
-		} else {
-			console.log('Update out of bounds')
-		}
-
-	}
-
-	//Check for Map Obstacles 0.5 Meter
-	//Corners need 3 squares in L shape to completely block travel
-	const CheckMapObstaclesOld = (newPos) => {
-
-		newPos.x *= 2;
-		newPos.z *= 2;
-
-		if(newPos.x < 0 && newPos.z < 0){
-			//Top Left - 0
-			//Loop 1 : -Z
-			//Loop 2 : -X
-			if(grid.mapAll[0].length > newPos.z * -1){
-				if(grid.mapAll[0][newPos.z * -1].length > newPos.x * -1){
-					//console.log('Within Map');
-					if(grid.mapAll[0][newPos.z * -1][newPos.x * -1] === 0){
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edge){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edge){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x >= 0 && newPos.z < 0){
-			//Top Right - 1
-			//Loop 1 : -Z
-			//Loop 2 : +X
-			if(grid.mapAll[1].length > newPos.z * -1){
-				if(grid.mapAll[1][newPos.z * -1].length > newPos.x){
-					//console.log('Within Map');
-					if(grid.mapAll[1][newPos.z * -1][newPos.x] === 0){
-						//User can move
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edge){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edge){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x < 0 && newPos.z >= 0){
-			//Bottom Left - 2
-			//Loop 1 : +Z
-			//Loop 2 : -X
-			if(grid.mapAll[2].length > newPos.z){
-				if(grid.mapAll[2][newPos.z].length > newPos.x * -1){
-					//console.log('Within Map');
-					if(grid.mapAll[2][newPos.z][newPos.x * -1] === 0){
-						//User can move
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edge){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edge){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x >= 0 && newPos.z >= 0){
-			//Bottom Right - 3
-			//Loop 1 : +Z
-			//Loop 2 : +X
-			if(grid.mapAll[3].length > newPos.z){
-				if(grid.mapAll[3][newPos.z].length > newPos.x){
-					if(grid.mapAll[3][newPos.z][newPos.x] === 0){
-						//User can move
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edge){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edge){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else {
-			return false;
-		}
-	}
-
-	//Check for Map Obstacles 0.5 Meter
-	//Attempting to fix L required corners, only requiring 2 instead of 3
-	const CheckMapObstaclesDiagonal = (newPos, pos) => {
-
-		newPos.x *= 2;
-		newPos.z *= 2;
-
-		pos.x *= 2;
-		pos.z *= 2;
-
-		//World direction of movement
-		if(newPos.x === pos.x && newPos.z === pos.z){
-			//console.log('Same Square')
-			travelDirection = 'same';
-		} else {
-			if(newPos.x === pos.x || newPos.z === pos.z){
-				if(newPos.x === pos.x){
-					//console.log('Forward|Backward');
-					travelDirection = 'z';
-				} else if(newPos.z === pos.z){
-					//console.log('Side to Side');
-					travelDirection = 'x';
-				}
-			} else {
-				console.log('Diagonal');
-				if(newPos.x > pos.x){
-					//Right
-					if(newPos.z > pos.z){
-						//Backward
-						travelDirection = 'reverseRight';
-					} else {
-						//Forward
-						travelDirection = 'forwardRight';
-					}
-				} else {
-					//Left
-					if(newPos.z > pos.z){
-						//Backward
-						travelDirection = 'reverseLeft';
-					} else {
-						//Forward
-						travelDirection = 'forwardLeft';
-					}
-				}
-			}
-		}
-
-
-		if(newPos.x < 0 && newPos.z < 0){
-			//Top Left - 0
-			//Loop 1 : -Z
-			//Loop 2 : -X
-			if(mapAll[0].length > newPos.z * -1){
-				if(mapAll[0][newPos.z * -1].length > newPos.x * -1){
-					//console.log('Within Map');
-					if(mapAll[0][newPos.z * -1][newPos.x * -1] === 0){
-						//Block diagonal movement if both adjacent squares are occupied
-						if(travelDirection === 'forwardRight'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'forwardLeft'){
-							//-Z
-							//-X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)-1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseRight'){
-							//+Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)+1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseLeft'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x >= 0 && newPos.z < 0){
-			//Top Right - 1
-			//Loop 1 : -Z
-			//Loop 2 : +X
-			if(mapAll[1].length > newPos.z * -1){
-				if(mapAll[1][newPos.z * -1].length > newPos.x){
-					//console.log('Within Map');
-					if(mapAll[1][newPos.z * -1][newPos.x] === 0){
-						//Block diagonal movement if both adjacent squares are occupied
-						if(travelDirection === 'forwardRight'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'forwardLeft'){
-							//-Z
-							//-X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)-1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseRight'){
-							//+Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)+1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseLeft'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z * -1)-1][newPos.x] !== 0 && mapAll[0][newPos.z * -1][(newPos.x)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x < 0 && newPos.z >= 0){
-			//Bottom Left - 2
-			//Loop 1 : +Z
-			//Loop 2 : -X
-			if(mapAll[2].length > newPos.z){
-				if(mapAll[2][newPos.z].length > newPos.x * -1){
-					//console.log('Within Map');
-					if(mapAll[2][newPos.z][newPos.x * -1] === 0){
-						//Block diagonal movement if both adjacent squares are occupied
-						if(travelDirection === 'forwardRight'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'forwardLeft'){
-							//-Z
-							//-X
-							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)-1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseRight'){
-							//+Z
-							//+X
-							if(mapAll[0][(newPos.z)+1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseLeft'){
-							//-Z
-							//+X
-							if(mapAll[0][(newPos.z)-1][newPos.x * -1] !== 0 && mapAll[0][newPos.z][(newPos.x * -1)+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else if(newPos.x >= 0 && newPos.z >= 0){
-			//Bottom Right - 3
-			//Loop 1 : +Z
-			//Loop 2 : +X
-			if(mapAll[3].length > newPos.z){
-				if(mapAll[3][newPos.z].length > newPos.x){
-					if(mapAll[3][newPos.z][newPos.x] === 0){
-						//Block diagonal movement if both adjacent squares are occupied
-						if(travelDirection === 'forwardRight'){
-							//-Z
-							//+X
-							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'forwardLeft'){
-							//-Z
-							//-X
-							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x-1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseRight'){
-							//+Z
-							//+X
-							if(mapAll[0][newPos.z+1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else if(travelDirection === 'reverseLeft'){
-							//-Z
-							//+X
-							if(mapAll[0][newPos.z-1][newPos.x] !== 0 && mapAll[0][newPos.z][newPos.x+1] !== 0){
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}
-					} else {
-						return false;
-					}
-				} else {
-					//console.log('Out of Map');
-					if(grid.edgeCollide){
-						return false;
-					} else {
-						return true;
-					}
-				}
-			} else {
-				//console.log('Out of Map');
-				if(grid.edgeCollide){
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else {
-			return false;
-		}
-	}
-
-	//Premade Maps
-	//
-	//-X requires .reverse() on each inner one
-	//-Z requires .reverse() on the outer set
-	//Arrays are read top to bottom and left to right, so to spawn at -10,-10 the value must be located at 10,10 within the array hence the reverses.
-
-	//Top Left
-	//Loop 1 : -Z
-	//Loop 2 : -X
-	let mapTopLeft = [ 
-	[1,1,1,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,1,0,0,0,0,0,0].reverse(),
-	[1,0,0,0,1,0,0,0,0,0].reverse(),
-	[1,0,1,0,1,0,0,0,0,0].reverse(),
-	[1,0,1,0,0,0,0,0,1,0].reverse(),
-	[1,0,1,0,0,0,0,0,0,0].reverse(),
-	[1,0,1,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,0,0,0,0,0,0,0].reverse()
-	];
-
-	//Top Right
-	//Loop 1 : -Z
-	//Loop 2 : +X
-	let mapTopRight = [ 
-	[0,0,0,0,1,0,0,0,0,1],
-	[0,0,0,0,1,0,0,0,0,1],
-	[0,0,1,0,0,0,1,0,0,1],
-	[0,0,0,0,0,0,1,0,0,1],
-	[0,0,0,0,0,0,1,0,0,1],
-	[0,0,1,0,1,0,0,0,0,1],
-	[0,0,1,0,0,0,0,0,1,1],
-	[0,0,1,0,0,0,0,0,0,1],
-	[0,0,0,1,0,0,0,0,0,1],
-	[0,0,0,0,0,0,0,0,0,1]
-	];
-
-	//Bottom Left
-	//Loop 1 : +Z
-	//Loop 2 : -X
-	let mapBottomLeft = [ 
-	[1,0,0,0,0,0,0,0,0,0].reverse(),
-	[1,0,0,0,1,0,0,0,0,0].reverse(),
-	[1,0,1,0,1,0,0,0,0,0].reverse(),
-	[1,0,1,0,0,0,0,0,1,0].reverse(),
-	[1,0,1,0,0,0,0,0,0,0].reverse(),
-	[1,0,1,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,0,0,0,1,0,0,0].reverse(),
-	[1,0,0,1,0,0,0,0,0,0].reverse(),
-	[1,1,1,1,1,1,1,1,1,1].reverse()
-	];
-
-	//Bottom Right
-	//Loop 1 : +Z
-	//Loop 2 : +X
-	let mapBottomRight = [ 
-	[0,0,0,0,0,0,0,0,0,1],
-	[0,0,1,0,0,0,1,0,0,1],
-	[0,0,0,0,0,0,1,0,0,1],
-	[0,0,0,0,0,0,1,0,0,1],
-	[1,0,0,1,0,0,0,0,0,1],
-	[0,0,0,0,1,0,0,0,0,1],
-	[1,0,1,0,1,0,0,0,0,1],
-	[0,0,1,0,0,0,0,0,1,1],
-	[1,0,1,0,0,0,0,0,0,1],
-	[1,1,1,1,1,1,1,1,1,1]
-	];
-
-	//Combined Map Array
-	let mapAll = [
-	mapTopLeft.reverse(),
-	mapTopRight.reverse(),
-	mapBottomLeft,
-	mapBottomRight
-	];
-
-	//
-	//Basic Block Spawner
-	function basicBlockSpawner(map,parentEl,quadrant) {
-
-	//Loop through Z array set
-	for (let i = 0; i < map.length; i++) {
-
-		//Loop through X array set
-		for (let j = 0; j < map[i].length; j++) {
-
-			//Check for non-interactable obstacles (1)
-			//Spawn Basic Blocks
-			if(map[i][j] === 1){
-				//Create block Entity
-				let block = document.createElement('a-entity');
-				//Set primitive shape
-				block.setAttribute('geometry', {primitive: 'box', width: 0.5, height: 1, depth: 0.5});
-				//Set Material
-				block.setAttribute('material', {shader: "standard", color: "#91502d", opacity: "1",});
-				block.setAttribute('static-body', {});
-
-				//Add basic block class
-				block.classList.add("block");
-
-				//Set position
-				let posX;
-				let posY = 0.5;//half the height of object
-				let posZ;
-
-				if(quadrant === 'topLeft'){
-					posX = j * -1;
-					posZ = i * -1;
-				} else if(quadrant === 'topRight'){
-					posX = j;
-					posZ = i * -1;
-				} else if(quadrant === 'bottomLeft'){
-					posX = j * -1;
-					posZ = i;
-				} else if(quadrant === 'bottomRight'){
-					posX = j;
-					posZ = i;
-				}
-
-				posX /= 2;
-				posZ /= 2;
-
-				//Set Position
-				let positionVec3 = new THREE.Vector3(posX, posY, posZ);
-				block.setAttribute('position', positionVec3);
-				UpdateMap({x:posX,z:posZ}, 1);
-
-				//Attach to parent entity
-				parentEl.appendChild(block);
-			   }//End Basic Block Detection
-
-		}//End X array Loop
-	}//End Z array Loop
-
-	}//End Basic Block Spawner
-
-	//
-	//Map Spawner
-	function mapSpawner(map) {
-
-	//Create parent identity w/ id
-	let blockParent = document.createElement('a-entity');
-	blockParent.setAttribute('id','blockParent');
-	//Append parent entity to scene
-	sceneEl.appendChild(blockParent);
-
-	//Loop through mega array set
-	for (let h = 0; h < map.length; h++) {
-
-		if (h === 0){
-			//Spawn Basic Blocks
-			basicBlockSpawner(map[h],blockParent,'topLeft');
-
-		} else if (h === 1){
-			//Spawn Basic Blocks
-			basicBlockSpawner(map[h],blockParent,'topRight');
-
-		} else if (h === 2){
-			//Spawn Basic Blocks
-			basicBlockSpawner(map[h],blockParent,'bottomLeft');
-
-		} else if (h === 3){
-			//Spawn Basic Blocks
-			basicBlockSpawner(map[h],blockParent,'bottomRight');
-
-		}//End if Checks
-
-	}//End Multi-Map array Loop
-
-	}//End Map Spawner Function
-
-	//
-	//Testing mapSpawner function
-	//mapSpawner(mapAll);
-*/
 	return {grid, BuildMap, BlankMap, UpdateMap, UpdateMapArea, EnableCollision, DisableCollision, CheckMapObstacles, CheckMapObstaclesDiagonal, CheckMapObstaclesArea, CheckMapAreaSansArea, SpawnEdges, DespawnEdges, UpdateEdge, BlankMapTrigger, OnMapTrigger, OffMapTrigger, CheckMapOverlapTrigger, UpdateMapAreaTrigger, UpdateMapTrigger, CheckMapTriggers, TriggerEnterHit, CheckActiveTriggers, ClearTriggers, WaitToSpawn, WaitingToSpawn, ClearWaiting, MoveToGrid, PathOnGrid,};
 
 }
@@ -14327,7 +13606,7 @@ auxl.animStuffData = {
 
 //Rig
 auxl.playerRigData = {
-data:'Player Base',
+data:'playerRigData',
 id:'playerRig',
 entity: 'preAdded',
 sources: false,
@@ -14335,6 +13614,28 @@ text: false,
 geometry: false,
 material: false,
 position: new THREE.Vector3(0,0,1),
+rotation: new THREE.Vector3(0,0	,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent','player'],
+components: {
+['universal-controls']:null,
+['locomotion']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
+//['gimbal']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
+light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
+},};
+auxl.playerRig = auxl.Core(auxl.playerRigData);
+//Player Body
+auxl.playerBodyData = {
+data:'playerBodyData',
+id:'playerBody',
+entity: 'preAdded',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,1,0),
 scale: new THREE.Vector3(1,1,1),
 animations: {
@@ -14350,13 +13651,9 @@ stand: {property: 'object3D.position.y', from: 0.5, to: 0, dur: 750, delay: 0, l
 },
 mixins: false,
 classes: ['a-ent','player'],
-components: {
-['universal-controls']:null,
-['locomotion']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
-//['gimbal']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
-light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
-},};
-auxl.playerRig = auxl.Core(auxl.playerRigData);
+components: false,
+};
+auxl.playerBody = auxl.Core(auxl.playerBodyData);
 //Camera
 auxl.cameraData = {
 data:'Camera Entity',
@@ -14687,27 +13984,30 @@ auxl.blink2Screen = auxl.Core(auxl.blink2ScreenData);
 auxl.playerAll = {
 parent: {core: auxl.playerRig},
 child0: {
-	parent: {core: auxl.camera},
-	child0: {core: auxl.mouseController},
-	child1: {core: auxl.cameraUI},
-	child2: {core: auxl.fadeScreen},
-	child3: {core: auxl.sphereScreen},
-	child4: {core: auxl.blink1Screen},
-	child5: {core: auxl.blink2Screen},
+	parent: {core: auxl.playerBody},
+	child0: {
+		parent: {core: auxl.camera},
+		child0: {core: auxl.mouseController},
+		child1: {core: auxl.cameraUI},
+		child2: {core: auxl.fadeScreen},
+		child3: {core: auxl.sphereScreen},
+		child4: {core: auxl.blink1Screen},
+		child5: {core: auxl.blink2Screen},
+	},
+	child1: {
+		parent: {core: auxl.vrController1},
+		child0: {core: auxl.vrController1UI},
+	},
+	child2: {
+		parent: {core: auxl.vrController2},
+		child0: {core: auxl.vrController2UI},
+	},
+	child3: {
+		parent: {core: auxl.playerBeltUI},
+		child0: {core: auxl.playerBeltText},
+	},
 },
-child1: {
-	parent: {core: auxl.vrController1},
-	child0: {core: auxl.vrController1UI},
-},
-child2: {
-	parent: {core: auxl.vrController2},
-	child0: {core: auxl.vrController2UI},
-},
-child3: {
-	parent: {core: auxl.playerBeltUI},
-	child0: {core: auxl.playerBeltText},
-},
-child4: {core: auxl.playerFloor},
+child1: {core: auxl.playerFloor},
 }
 
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
