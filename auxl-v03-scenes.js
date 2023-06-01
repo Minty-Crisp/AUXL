@@ -33,30 +33,20 @@ mixins: false,
 classes: ['a-ent'],
 components: false,
 };
-
-//I don't want to create individual objects for each grid set, but reuse the same objects with each new grid
-
-
-auxl.testGridData = {
-id: 'testGrid',
-data: auxl.dataGridObjectData,
-//core: auxl.coreGridObject,
-//layer: auxl.layerGridObject,
-randomize:{
-	colorShade: 'olive',
-	minRepeatX: 1,//up to +3
-	maxRepeatX: 2,//up to +3
-	minRepeatZ: 1,//up to +3
-	maxRepeatZ: 2,//up to +3
-},
-grid:[
-{start: {x:-2, z:-4}, end: {x:-1.5, z:-4}, collide: true,},
-{start: {x:-1, z:-4}, end: {x:-0.5, z:-4}, collide: true,},
-{start: {x:0, z:-4}, end: {x:0.5, z:-4}, collide: true,},
-{start: {x:1, z:-4}, end: {x:1.5, z:-4}, collide: true,},
-{start: {x:2, z:-4}, end: {x:2.5, z:-4}, collide: true,},
-],
-//combine : true,
+auxl.dataGridObject2Data = {
+data:'dataGridObject2Data',
+id:'dataGrid',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.5, height: 2},
+material: {shader: "standard", src: auxl.pattern11, repeat: '1 1', color: "#a53941", emissive: '#a53941', emissiveIntensity: 0.5, opacity: 1},
+position: new THREE.Vector3(0,1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
 };
 
 //auxl.testGrid = auxl.GridLayout(auxl.testGridData);
@@ -64,8 +54,8 @@ grid:[
 
 auxl.testGrid2Data = {
 id: 'testGrid2',
-coreData: auxl.dataGridObjectData,
-//coreData: [auxl.dataGridObjectData, auxl.dataGridObject2Data],
+//coreData: auxl.dataGridObjectData,
+coreData: [auxl.dataGridObjectData, auxl.dataGridObject2Data],
 //layerData: auxl.layerGridObjectData,
 //layerData: [auxl.layerGridObjectData, auxl.layerGridObject2Data],
 
@@ -78,17 +68,16 @@ grids:{
 	{start: {x:2, z:-4}, end: {x:2.5, z:-4}, collide: true,},
 	],
 	grid2:[
-	{start: {x:-2, z:-6}, end: {x:-1.5, z:-6}, collide: true,},
-	{start: {x:-1, z:-6}, end: {x:-0.5, z:-6}, collide: true,},
-	{start: {x:0, z:-6}, end: {x:0.5, z:-6}, collide: true,},
-	{start: {x:1, z:-6}, end: {x:1.5, z:-6}, collide: true,},
-	{start: {x:2, z:-6}, end: {x:2.5, z:-6}, collide: true,},
+	{start: {x:-2, z:4}, end: {x:-1.5, z:4}, collide: true,},
+	{start: {x:-1, z:4}, end: {x:-0.5, z:4}, collide: true,},
+	{start: {x:0, z:4}, end: {x:0.5, z:4}, collide: true,},
+	{start: {x:1, z:4}, end: {x:1.5, z:4}, collide: true,},
+	{start: {x:2, z:4}, end: {x:2.5, z:4}, collide: true,},
 	],
 },
 //combine : true,
 };
-//auxl.testGrid2 = auxl.GridLayout(auxl.testGrid2Data);
-//auxl.testGrid2.SpawnGridLayout('grid1');
+auxl.testGrid2 = auxl.GridLayout(auxl.testGrid2Data);
 
 
 
@@ -2018,6 +2007,7 @@ auxl.zone0Scene0Data = {
 		triggerTest1:{SpawnCoreOnGrid:null},
 		triggerTest2:{SpawnCoreOnGrid:null},
 		ghostCollision:{SpawnLayerOnGrid:null, WalkPath: null},
+		testGrid2:{SpawnGridLayout:'grid1'},
 	},
 	delay:{
 		3000:{
@@ -2167,7 +2157,7 @@ auxl.zone1Scene0Data = {
 		sceneText: true,
 		fog: {type: 'exponential', color: '#AAA', density: 0.05},
 		map: {
-			size: 40,
+			size: 100,
 			edge: false,
 			edgeUpdate: false,
 		},
@@ -2175,8 +2165,9 @@ auxl.zone1Scene0Data = {
 	controls:{
 	},
 	start:{
-		floor:{ChangeSelf:[{property: 'material', value: {src: auxl.pattern80, repeat: '150 150',color: "#21679a", emissive: "#21679a",},},{property: 'position', value: new THREE.Vector3(0,0,0),},{property: 'raycast-teleportation-select', value: null,}],},
+		floor:{ChangeSelf:[{property: 'material', value: {src: auxl.pattern80, repeat: '150 150',color: "#21679a", emissive: "#21679a",},},{property: 'position', value: new THREE.Vector3(0,0,0),}],},
 		basicRing:{SpawnObjRing:null},
+		testGrid2:{SpawnGridLayout:'grid2'},
 	},
 	delay:{
 	},
@@ -2187,7 +2178,6 @@ auxl.zone1Scene0Data = {
 	interaction:{
 	},
 	exit:{
-		floor:{RemoveComponent:'raycast-teleportation'},
 	},
 	map:{
 		data: auxl.zone1Data.zone1Scene0,

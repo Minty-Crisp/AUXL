@@ -464,6 +464,7 @@ speechSystem:{type:'speechSystem', spawn: 'SpawnSpeech', despawn: 'DespawnSpeech
 book:{type:'book', spawn: 'SpawnBook', despawn: 'DespawnBook'},
 horizon:{type:'horizon', spawn: 'SpawnHorizon', despawn: 'DespawnHorizon'},
 skyBox:{type:'skyBox', spawn: 'SpawnSkyBox', despawn: 'DespawnSkyBox'},
+gridLayout:{type:'gridLayout', spawn: 'SpawnGridLayout', despawn: 'DespawnGridLayout'},
 imageSwapper:{type:'imageSwapper', spawn: 'SpawnImgSwap', despawn: 'DespawnImgSwap'},
 imageCarousel:{type:'imageCarousel', spawn: 'SpawnImgCarousel', despawn: 'DespawnImgCarousel'},
 memory:{type:'memory', spawn: 'SpawnMemGame', despawn: 'DespawnMemGame'},
@@ -3967,24 +3968,22 @@ this.Player = (id,layer) => {
 	}
 	//Reset User Position/Rotation
 	const ResetUserPosRot = () => {
+		//Reset Rotation
 		auxl.playerRig.ChangeSelf({property: 'position', value: new THREE.Vector3(0,0,1)});
+		//Update Grid Position
 		layer.gridPos.copy(playerRig.getAttribute('position'));
-		//This technically works and sets it, but it doesn't actually change it. Look-Controls prevents this?
-		//auxl.camera.ChangeSelf({property: 'rotation', value: new THREE.Vector3(0,0,0)});
-
-		//For example
-		/*
-		let currentCameraRot = auxl.camera.GetEl().getAttribute('rotation');
-		console.log(currentCameraRot);
-
-		auxl.camera.ChangeSelf({property: 'rotation', value: new THREE.Vector3(0,0,0)});
-
-		currentCameraRot = auxl.camera.GetEl().getAttribute('rotation');
-		console.log(currentCameraRot);
-		*/
-
-		//Workaround could read current rotation and rotate playerRig to compensate
-
+		//Reset Rotation via PlayerRig Only
+		let y = auxl.camera.GetEl().getAttribute('rotation').y;
+		if(y > 0){
+			if(y<360){
+				y = y % 360;
+			}
+		} else if(y < 0){
+			if(y < -360){
+				y = y % 360;
+			}
+		}
+		auxl.playerRig.ChangeSelf({property:'rotation',value:new THREE.Vector3(0,(y*-1)+1,0)});
 	}
 	//Get user current infomation
 	const GetPlayerInfo = () => {
@@ -11262,7 +11261,7 @@ this.Collision = () => {
 					travelDirection = 'x';
 				}
 			} else {
-				console.log('Diagonal');
+				//console.log('Diagonal');
 				if(newPos.x > pos.x){
 					//Right
 					if(newPos.z > pos.z){
@@ -11297,7 +11296,7 @@ this.Collision = () => {
 						if(travelDirection === 'forwardRight'){
 							//-Z
 							//+X
-							if(auxl.collideMap[0][(pos.z * -1)-1][pos.x * -1] === 1 && auxl.collideMap[0][pos.z * -1][(pos.x * -1)+1] === 1){
+							if(auxl.collideMap[0][(newPos.z * -1)+1][newPos.x * -1] === 1 && auxl.collideMap[0][newPos.z * -1][(newPos.x * -1)-1] === 1){
 								return false;
 							} else {
 								return true;
@@ -11305,7 +11304,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'forwardLeft'){
 							//-Z
 							//-X
-							if(auxl.collideMap[0][(pos.z * -1)-1][pos.x * -1] !== 0 && auxl.collideMap[0][pos.z * -1][(pos.x * -1)-1] !== 0){
+							if(auxl.collideMap[0][(newPos.z * -1)+1][newPos.x * -1] !== 0 && auxl.collideMap[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11313,7 +11312,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseRight'){
 							//+Z
 							//+X
-							if(auxl.collideMap[0][(pos.z * -1)+1][pos.x * -1] !== 0 && auxl.collideMap[0][pos.z * -1][(pos.x * -1)+1] !== 0){
+							if(auxl.collideMap[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && auxl.collideMap[0][newPos.z * -1][(newPos.x * -1)-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11321,7 +11320,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseLeft'){
 							//+Z
 							//-X
-							if(auxl.collideMap[0][(pos.z * -1)+1][pos.x * -1] !== 0 && auxl.collideMap[0][pos.z * -1][(pos.x * -1)-1] !== 0){
+							if(auxl.collideMap[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && auxl.collideMap[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11360,7 +11359,7 @@ this.Collision = () => {
 						if(travelDirection === 'forwardRight'){
 							//-Z
 							//+X
-							if(auxl.collideMap[1][(pos.z * -1)-1][pos.x] !== 0 && auxl.collideMap[1][pos.z * -1][(pos.x)+1] !== 0){
+							if(auxl.collideMap[1][(newPos.z * -1)+1][newPos.x] !== 0 && auxl.collideMap[1][newPos.z * -1][(newPos.x)-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11368,7 +11367,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'forwardLeft'){
 							//-Z
 							//-X
-							if(auxl.collideMap[1][(pos.z * -1)-1][pos.x] !== 0 && auxl.collideMap[1][pos.z * -1][(pos.x)-1] !== 0){
+							if(auxl.collideMap[1][(newPos.z * -1)+1][newPos.x] !== 0 && auxl.collideMap[1][newPos.z * -1][(newPos.x)+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11376,7 +11375,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseRight'){
 							//+Z
 							//+X
-							if(auxl.collideMap[1][(pos.z * -1)+1][pos.x] !== 0 && auxl.collideMap[1][pos.z * -1][(pos.x)+1] !== 0){
+							if(auxl.collideMap[1][(newPos.z * -1)-1][newPos.x] !== 0 && auxl.collideMap[1][newPos.z * -1][(newPos.x)-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11384,7 +11383,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseLeft'){
 							//+Z
 							//-X
-							if(auxl.collideMap[1][(pos.z * -1)+1][pos.x] !== 0 && auxl.collideMap[1][pos.z * -1][(pos.x)-1] !== 0){
+							if(auxl.collideMap[1][(newPos.z * -1)-1][newPos.x] !== 0 && auxl.collideMap[1][newPos.z * -1][(newPos.x)+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11423,7 +11422,7 @@ this.Collision = () => {
 						if(travelDirection === 'forwardRight'){
 							//-Z
 							//+X
-							if(auxl.collideMap[2][(pos.z)-1][pos.x * -1] !== 0 && auxl.collideMap[2][pos.z][(pos.x * -1)+1] !== 0){
+							if(auxl.collideMap[2][(newPos.z)+1][newPos.x * -1] !== 0 && auxl.collideMap[2][newPos.z][(newPos.x * -1)-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11431,7 +11430,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'forwardLeft'){
 							//-Z
 							//-X
-							if(auxl.collideMap[2][(pos.z)-1][pos.x * -1] !== 0 && auxl.collideMap[2][pos.z][(pos.x * -1)-1] !== 0){
+							if(auxl.collideMap[2][(newPos.z)+1][newPos.x * -1] !== 0 && auxl.collideMap[2][newPos.z][(newPos.x * -1)+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11439,7 +11438,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseRight'){
 							//+Z
 							//+X
-							if(auxl.collideMap[2][(pos.z)+1][pos.x * -1] !== 0 && auxl.collideMap[2][pos.z][(pos.x * -1)+1] !== 0){
+							if(auxl.collideMap[2][(newPos.z)-1][newPos.x * -1] !== 0 && auxl.collideMap[2][newPos.z][(newPos.x * -1)-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11447,7 +11446,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseLeft'){
 							//+Z
 							//-X
-							if(auxl.collideMap[2][(pos.z)+1][pos.x * -1] !== 0 && auxl.collideMap[2][pos.z][(pos.x * -1)-1] !== 0){
+							if(auxl.collideMap[2][(newPos.z)-1][newPos.x * -1] !== 0 && auxl.collideMap[2][newPos.z][(newPos.x * -1)+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11485,7 +11484,7 @@ this.Collision = () => {
 						if(travelDirection === 'forwardRight'){
 							//-Z
 							//+X
-							if(auxl.collideMap[3][pos.z-1][pos.x] !== 0 && auxl.collideMap[3][pos.z][pos.x+1] !== 0){
+							if(auxl.collideMap[3][newPos.z+1][newPos.x] !== 0 && auxl.collideMap[3][newPos.z][newPos.x-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11493,7 +11492,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'forwardLeft'){
 							//-Z
 							//-X
-							if(auxl.collideMap[3][pos.z-1][pos.x] !== 0 && auxl.collideMap[3][pos.z][pos.x-1] !== 0){
+							if(auxl.collideMap[3][newPos.z+1][newPos.x] !== 0 && auxl.collideMap[3][newPos.z][newPos.x+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11501,7 +11500,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseRight'){
 							//+Z
 							//+X
-							if(auxl.collideMap[3][pos.z+1][pos.x] !== 0 && auxl.collideMap[3][pos.z][newPos.x+1] !== 0){
+							if(auxl.collideMap[3][newPos.z-1][newPos.x] !== 0 && auxl.collideMap[3][newPos.z][newPos.x-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11509,7 +11508,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseLeft'){
 							//+Z
 							//-X
-							if(auxl.collideMap[3][pos.z+1][pos.x] === 1 && auxl.collideMap[3][pos.z][pos.x-1] === 1){
+							if(auxl.collideMap[3][newPos.z-1][newPos.x] === 1 && auxl.collideMap[3][newPos.z][newPos.x+1] === 1){
 								return false;
 							} else {
 								return true;
@@ -13139,33 +13138,44 @@ console.log(auxl[obj.id])
 
 //
 //Grid Layout
+//Spawn coreData, Core, layerData or Layer Objects at Grid Layouts
 this.GridLayout = (gridLayoutData) => {
 	let gridLayout = Object.assign({}, gridLayoutData);
 	gridLayout.inScene = false;
-
-
-//Use a core data or layer data or array of them
-//Have various grid map sets
-//Build and prepare enough core/layers to spawn the largest grid map version
-//On each grid spawn, update the first set of core/layers with grid info and spawn only those
-
-
-
-
-//Data/Core/Layer
-//Grid Locations to spawn
+	gridLayout.current = false;
+	//Object Type
 	gridLayout.type;
-	if(gridLayout.data){
-		gridLayout.type = 'data';
+	gridLayout.objInfo = 'single';
+	if(gridLayout.coreData){
+		gridLayout.type = 'coreData';
+		if(Array.isArray(gridLayout.coreData)){
+			gridLayout.objInfo = 'array';
+		}
 	} else if(gridLayout.core){
 		gridLayout.type = 'core';
+		if(Array.isArray(gridLayout.core)){
+			gridLayout.objInfo = 'array';
+		}
+	} else if(gridLayout.layerData){
+		gridLayout.type = 'layerData';
+		if(Array.isArray(gridLayout.layerData)){
+			gridLayout.objInfo = 'array';
+		}
 	} else if(gridLayout.layer){
 		gridLayout.type = 'layer';
+		if(Array.isArray(gridLayout.layer)){
+			gridLayout.objInfo = 'array';
+		}
 	}
-
+	//Objects Holder
 	gridLayout.objs = [];
-//Duplicate object and update grid position
-//grid
+	gridLayout.amount = 0;
+	//Get the max amount of cores needed
+	for(let grid in gridLayout.grids){
+		if(gridLayout.grids[grid].length > gridLayout.amount){
+			gridLayout.amount = gridLayout.grids[grid].length;
+		}
+	}
 
 //Randomize
 //Randomize texture color shade, scale of material, offset of material
@@ -13174,34 +13184,83 @@ this.GridLayout = (gridLayoutData) => {
 //matOffsetRange
 //matRepeatRange
 
-//Data or Core will be updated, but if Layer will loop through all cores and any that have a material will be updated
-//How to colors for layer
-
-//grid: {start:{x:-5, z:-2}, end: {x:-3.5, z:-0.5}, collide: true}
-
-gridLayout.amount = Object.keys(gridLayout.grid).length;
-
-	//Generate Grid Objects
-	const GenGrid = () => {
-		for(let a = 0; a<gridLayout.amount; a++){
+	//Prep Objects from Single
+	const PrepObjectsSingle = () => {
+		for(let each = 0; each < gridLayout.amount; each++){
 			let data = {};
 			let obj = {};
 
-			if(gridLayout.type === 'data'){
-				data = auxl.coreDataFromTemplate(gridLayout.data,{id: gridLayout.id+a, grid: gridLayout.grid[a]}, true);
+			if(gridLayout.type === 'coreData'){
+				data = auxl.coreDataFromTemplate(gridLayout.coreData,{id: gridLayout.id+each}, true);
 				obj = auxl.Core(data);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'core'){
-				obj = auxl.coreFromTemplate(gridLayout.core,{id: gridLayout.id+a, grid: gridLayout.grid[a]}, true);
+				obj = auxl.coreFromTemplate(gridLayout.core,{id: gridLayout.id+each}, true);
+				gridLayout.objs.push(obj);
+			} else if(gridLayout.type === 'layerData'){
+				data = auxl.layerDataFromTemplate(gridLayout.layerData,{id: gridLayout.id+each}, true);
+				obj = auxl.Layer(gridLayout.id+'layer', data);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'layer'){
-				obj = auxl.layerFromTemplate(gridLayout.layer, gridLayout.id+a, {id: gridLayout.id+a}, {grid: gridLayout.grid[a]}, true);
+				obj = auxl.layerFromTemplate(gridLayout.layer, gridLayout.id+each, {id: gridLayout.id+each}, false, true);
 				gridLayout.objs.push(obj);
 			}
 		}
 	}
-GenGrid();
+	//Prep Objects from Array
+	const PrepObjectsAll = () => {
+		let current = 0;
+		let max = 1;
+		if(gridLayout.type === 'coreData'){
+			max = gridLayout.coreData.length;
+		} else if(gridLayout.type === 'core'){
+			max = gridLayout.core.length;
+		} else if(gridLayout.type === 'layerData'){
+			max = gridLayout.layerData.length;
+		} else if(gridLayout.type === 'layer'){
+			max = gridLayout.layer.length;
+		}
+		for(let each = 0; each < gridLayout.amount; each++){
+			let data = {};
+			let obj = {};
 
+			if(gridLayout.type === 'coreData'){
+				data = auxl.coreDataFromTemplate(gridLayout.coreData[current],{id: gridLayout.id+each}, true);
+				obj = auxl.Core(data);
+				gridLayout.objs.push(obj);
+			} else if(gridLayout.type === 'core'){
+				obj = auxl.coreFromTemplate(gridLayout.core[current],{id: gridLayout.id+each}, true);
+				gridLayout.objs.push(obj);
+			} else if(gridLayout.type === 'layerData'){
+				data = auxl.layerDataFromTemplate(gridLayout.layerData[current],{id: gridLayout.id+each}, true);
+				obj = auxl.Layer(gridLayout.id+'layer', data);
+				gridLayout.objs.push(obj);
+			} else if(gridLayout.type === 'layer'){
+				obj = auxl.layerFromTemplate(gridLayout.layer[current], gridLayout.id+each, {id: gridLayout.id+each}, false, true);
+				gridLayout.objs.push(obj);
+			}
+			current++
+			if(current >= max){
+				current = 0;
+			}
+		}
+	}
+	//Prep All Needed Core/Layers
+	if(gridLayout.objInfo === 'single'){
+		PrepObjectsSingle();
+	} else {
+		PrepObjectsAll();
+	}
+	//Generate Grid Objects
+	const GenGrid = (name) => {
+		for(let each in gridLayout.grids[name]){
+			if(gridLayout.type === 'coreData' || gridLayout.type === 'core'){
+				gridLayout.objs[each].core.grid = gridLayout.grids[name][each];
+			} else if(gridLayout.type === 'data' || gridLayout.type === 'core'){
+				gridLayout.objs[each].layer.grid = gridLayout.grids[name][each];
+			}
+		}
+	}
 	//Randomized Grid
 	const GenGridRandomizeOld = () => {
 		for(let a = 0; a<gridLayout.amount; a++){
@@ -13266,30 +13325,32 @@ if(repeatX || repeatZ){
 			}
 		}
 	}
-
 	//Spawn Grid Layout
-	const SpawnGridLayout = () =>{
+	const SpawnGridLayout = (name) =>{
 		if(gridLayout.inScene){}else{
-			for(let a = 0; a<gridLayout.amount; a++){
-				if(gridLayout.type === 'data' || gridLayout.type === 'core'){
-					gridLayout.objs[a].SpawnCoreOnGrid();
-				} else if(gridLayout.type === 'layer'){
-					gridLayout.objs[a].SpawnLayerOnGrid();
+			GenGrid(name);
+			for(let each in gridLayout.grids[name]){
+				if(gridLayout.type === 'coreData' || gridLayout.type === 'core'){
+					gridLayout.objs[each].SpawnCoreOnGrid();
+				} else if(gridLayout.type === 'layerData' || gridLayout.type === 'layer'){
+					gridLayout.objs[each].SpawnLayerOnGrid();
 				}
 			}
+			gridLayout.current = name;
 			gridLayout.inScene = true;
 		}
 	}
 	//Despawn Grid Layout
 	const DespawnGridLayout = () =>{
 		if(gridLayout.inScene){
-			for(let a = 0; a<gridLayout.amount; a++){
-				if(gridLayout.type === 'data' || gridLayout.type === 'core'){
-					gridLayout.objs[a].DespawnCoreOnGrid();
-				} else if(gridLayout.type === 'layer'){
-					gridLayout.objs[a].DespawnLayerOnGrid();
+			for(let each in gridLayout.grids[gridLayout.current]){
+				if(gridLayout.type === 'coreData' || gridLayout.type === 'core'){
+					gridLayout.objs[each].DespawnCore();
+				} else if(gridLayout.type === 'layerData' || gridLayout.type === 'layer'){
+					gridLayout.objs[each].DespawnLayer();
 				}
 			}
+			gridLayout.current = false;
 			gridLayout.inScene = false;
 		}
 	}

@@ -4141,7 +4141,7 @@ init: function () {
 	mixins: false,
 	classes: ['clickable', 'a-ent'],
 	components: {
-		['look-at-xyz']:{match: 'camera', x:false, y:true, z:false}
+		stare:{twist: true,}
 	},
 	};
 	this.hoverSelect = this.auxl.Core(this.hoverSelectData);
