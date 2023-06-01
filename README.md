@@ -64,6 +64,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Each object generator component has a rebuild function to regenerate all defined objects upon system reset without reloading the webpage.
 - Various additional v0.2 Object Generator improvements and methods.
 - Support to add custom Object Generators to Scenario, Zone, Scene and Book trackers via auxl.AddObjGenToTracker('objectCoreName', 'SpawnMethodName', 'DespawnMethodName');
+- Max scene load time setting for transition animations.
 
 ## Core & Layers
 - Layers now support unlimited depth of parent/child entities.
@@ -75,6 +76,15 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Scenes now support Fog configuration.
 - Zone maps have been moved into Scenario objects and can be dynamically updated.
 - New main Object Generator, World which holds various Scenarios.
+
+## Player
+- New player body entity added to the player rig.
+- Method to dynamically change player locomotion types.
+- Can lock/unlock player locomotion.
+- Player body rotation reset to forward on new scene.
+- Player flashlight attached to dominant hand or camera(mobile/desktop).
+- Player floor compass texture for better direction awareness.
+- Player body 45 & 90 degree snap turning.
 
 ## Companion
 - Updated main menu with Inventory, Fast Travel, Settings and View Current Control Configuration.
@@ -118,14 +128,6 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - ondelayrun : Run auxl object method on delay.
 - onintervalrun : Run auxl object method on interval.
 - raycast-teleportation-select : spawn a teleport select button on click.
-
-## Minor Additional Updates
-- Dynamically Update Player Locomotion Settings 
-- Player Lock/Unlock Movements
-- Player Rotation Reset on Scene Load
-- Player Flashlight
-- Player Floor Compass Texture
-- 45 & 90 Degree Snap Turning
 
 # v0.4+ Currently In-Progress Updates : :cherries:
 - Locomotion movements such as flying, 3rd Person POV and many more!
