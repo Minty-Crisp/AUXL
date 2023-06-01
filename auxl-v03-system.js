@@ -3972,6 +3972,8 @@ this.Player = (id,layer) => {
 		auxl.playerRig.ChangeSelf({property: 'position', value: new THREE.Vector3(0,0,1)});
 		//Update Grid Position
 		layer.gridPos.copy(playerRig.getAttribute('position'));
+/*
+Conflicts with Companion Respawns
 		//Reset Rotation via PlayerRig Only
 		let y = auxl.camera.GetEl().getAttribute('rotation').y;
 		if(y > 0){
@@ -3984,6 +3986,7 @@ this.Player = (id,layer) => {
 			}
 		}
 		auxl.playerRig.ChangeSelf({property:'rotation',value:new THREE.Vector3(0,(y*-1)+1,0)});
+*/
 	}
 	//Get user current infomation
 	const GetPlayerInfo = () => {
