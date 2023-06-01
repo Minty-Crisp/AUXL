@@ -4,7 +4,7 @@
 
 [View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
-[v0.3 Demo Scenario](https://minty-crisp.github.io/AUXL/)
+[v0.3 In-Progress Demo Scenario](https://minty-crisp.github.io/AUXL/)
 
 ### v0.3 Wiki Update and Starter Coming Soon!!!
 Learn how to build your first AUXL Scenario with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
@@ -56,7 +56,7 @@ A few cool features of AUXL to highlight : :first_quarter_moon_with_face:
 Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki) to Learn More!!!
 ---
 
-# v0.3 Brief Overview of Major Updates : :fire:
+# v0.3 Brief Overview of Major Updates So Far : :fire:
 ## System
 - AUXL is now divided into 5 main files called System, Support, Extras, Shaders and Scenes to hold all needed components.
 - Added Save/Load/Reset system to store profile, date/time/visit, location, support of auxl object flags and more.
@@ -92,10 +92,21 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Configured the keyword 'self' to be used in place of an auxlObj name which runs any assigned action on the NPC reading the book.
 - Various other minor improvements.
 
+## Tile Map Grid Collision System
+- Scenes can now build blank collision based tile map grids of defined size for each scene at 0.5m increments.
+- Define the size of the map, block or allow movement beyond size edges and spawn specific cores to indicate edges for each scene map.
+- Spawn Core/Layers on the grid coordinate system with SpawnCoreOnGrid() or SpawnLayerOnGrid() that uses the object.grid info such as {start: {x:1, z:1}, end: {x:2, z:2}, collide: true,} to define the area for which the object occupies. Each 0.5 increment is a single grid square.
+- Objects can be spawned with collision (collide: true) which will block the player and other collision objects from spawning/moving into that grid space. Any colliding object attempting to spawn in a location which is occupied will wait until the space is cleared before adding itself.
+- Objects can be spawned with a trigger (trigger: true) which will allow the player to collide and will fire an event upon entering the grid area 'triggerEnter' on the grid object as well as fire an event upon exiting the grid area 'triggerExit' on the grid object. Can be combined with the new support component oneventrun for further control of the trigger process to run any AUXL or component method on any object. Can always be set to (once: true) to only allow the trigger to fire In/Out one time.
+- Objects can be spawned without collision or trigger as well to utilize grid coordination system such as foley and decor.
+- Grid spawned objects can also walk along a defined path built with  GridPath() and started with WalkPath(). Paths are built with +/- XZ directions from it's current position. Many path attributes can be customized such as animation or jump to each 0.5 step position, how long each step takes, how long to pause in-between each step, how long to wait if path is blocked to reverse direction or to stubbornly wait, if path should be looped in a specific direction, any direction or to alternate back and forth from start to finish.
+- New ObjGen GridLayout to further support collision which builds a various tile map sections from a single or array of Core Data, Core, Layer Data or Layers to spawn in a scene.
+
 ## New Object Generators
 - World : Main system loader that holds Scenarios. Allows for dynamically loading and unloading of the current Scenario with all of its attached Zones and Scenes as well as progressing to the next or a specific Scenario. 
 - Multi-Menu : Generates a navigatable menu from a main button with multiple generations of parent/child sub menus all containing actions to jump to a specific menu, run an AUXL Object Method w/Parameters or an AUXL Object Component Method w/Parameters. Button description texts are toggled on hover with Circle Up, Circle Down, Vertical and Horizontal Layouts. Menu can be dynamically updated as well.
 - InfoBubble : A bubble object that attaches to a parent object to act as either an Emote or Alert prompted by an event called on the parent. Emotes are temporarily displayed, while Alerts require interaction to dismiss. Preconfigured and custom text emote/alerts supported.
+- GridLayout : Spawn objects from a single or array of Core Data, Core, Layer Data or Layer templates and generate various defined Grid layouts. Spawn individual grid layouts in each scene using the same pool of prebuilt objects that all support the various Tile Map Grid Collision features.
 
 ## New Support Components
 - hovertext : on mouse hover of attached object will display configured text either on top or in front of the object and rotates with user view.
@@ -109,20 +120,23 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - raycast-teleportation-select : spawn a teleport select button on click.
 
 ## Minor Additional Updates
+- Dynamically Update Player Locomotion Settings 
+- Player Lock/Unlock Movements
+- Player Rotation Reset on Scene Load
 - Player Flashlight
 - Player Floor Compass Texture
 - 45 & 90 Degree Snap Turning
-- New Locomotion movements such as flying and 3rd Person POV
 
 # v0.4+ Currently In-Progress Updates : :cherries:
+- Locomotion movements such as flying, 3rd Person POV and many more!
 - Cannon JS Physics
 - Additional Locomotion Styles and Gimbal Player Control
-- Non-Physics Wall Generation and Movement Collision
+- Dungeon Wall Maze Generator
 - Creature Generator
 - VRM Asset Support for NPC's with Reaction Animations
 - In 3D Object Builder
-- Mini Games Arcade
-- RPG Demo
+- RPG System, Demo w/ Mini Games
+- Physics Based Movement & Unique Power System
 
 # Various Feature Ideas
 - System Function, Component & ObjGen Updates
