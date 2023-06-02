@@ -591,9 +591,9 @@ this.events = {};
 this.timeInDay = 360000;
 //Physics
 this.physics = false;
-//Collision Map
-this.collideMap = [[],[],[],[]];
-this.triggerMap = [[],[],[],[]];
+//Collision Maps
+this.collisionMap = [[],[]];
+this.triggerMap = [[],[]];
 this.mapEdge = false;
 
 //
@@ -1287,6 +1287,10 @@ console.log(newColor1.analog[0]);
 console.log(newColor1.analog[1]);
 console.log(newColor1.analog[2]);
 */
+
+//
+//Name Generator
+
 //Check for Duplicate Object
 this.checkDupeName = (id) => {
 	let name = id;
@@ -1314,6 +1318,29 @@ this.ranNameGen = () => {
 	}
 	return name;
 }
+
+//
+//Pronoun Speech Assist
+this.pronoun = (sex) => {
+	let you = {};
+		if(sex === 'male'){
+			you.sex = 'male';
+			you.sexe = 'man';
+			you.sexes = 'men';
+		} else if(sex === 'female'){
+			you.sex = 'female';
+			you.sexe = 'woman';
+			you.sexes = 'women';
+		} else if(sex === 'other'){
+			you.sex = 'person';
+			you.sexe = 'person';
+			you.sexes = 'people';
+		}
+}
+
+//
+//Duplicate Core Data, Core, Layer Data or Layer
+
 //Generate new Core Data from Template
 this.coreDataFromTemplate = (data, edit, assign) => {
 	//Omit 2 Keys from Object
@@ -1846,6 +1873,7 @@ auxl[object].GetEl().addEventListener(line, function(){
 			pos.x = grid.start.x + xDif;
 			pos.z = grid.start.z + zDif;
 		}
+		pos.y = grid.start.y;
 		return pos;
 	}
 	//Spawn on Grid
@@ -1859,15 +1887,23 @@ auxl[object].GetEl().addEventListener(line, function(){
 			if(grid){
 				core.grid = grid;
 			}
-			let playerGrid = auxl.player.GetPlayerInfo().grid;
+			//Ensure Grid Y Level is Set
+			if(core.grid.start.y){} else {
+				core.grid.start.y = 0;
+			}
+			if(core.grid.end.y){} else {
+				core.grid.end.y = 0;
+			}
 			//Prevent Player Collision Overlap
-			if(core.grid.start.x <= playerGrid.x && core.grid.end.x >= playerGrid.x && core.grid.start.z <= playerGrid.z && core.grid.end.z >= playerGrid.z){
+			let playerGrid = auxl.player.GetPlayerInfo().grid;
+			if(core.grid.start.x <= playerGrid.x && core.grid.end.x >= playerGrid.x && core.grid.start.y <= playerGrid.y && core.grid.end.y >= playerGrid.y && core.grid.start.z <= playerGrid.z && core.grid.end.z >= playerGrid.z){
 				//Wait to Spawn till Player moves out of Range
 				auxl.map.WaitToSpawn({name:core.id, func: 'SpawnCoreOnGrid'});
 			} else {
 				//Grid Position
 				let startPos = posOnGrid(core.grid);
 				core.position.x = startPos.x;
+				core.position.y = core.position.y + startPos.y;
 				core.position.z = startPos.z;
 				//Spawn Core
 				SpawnCore();
@@ -1895,13 +1931,20 @@ auxl[object].GetEl().addEventListener(line, function(){
 		//let gridMovement = {start:{x:0, z:-5}, end: {x:0, z:-5}};
 		let gridMovement = {start:{}, end: {}};
 		gridMovement.start.x = core.grid.start.x;
+		gridMovement.start.y = core.grid.start.y;
 		gridMovement.start.z = core.grid.start.z;
 		gridMovement.end.x = core.grid.end.x;
+		gridMovement.end.y = core.grid.end.y;
 		gridMovement.end.z = core.grid.end.z;
 		//Calc X
 		if(move.x){
 			gridMovement.start.x += move.x;
 			gridMovement.end.x += move.x;
+		}
+		//Calc Y
+		if(move.y){
+			gridMovement.start.y += move.y;
+			gridMovement.end.y += move.y;
 		}
 		//Calc Z
 		if(move.z){
@@ -1910,7 +1953,7 @@ auxl[object].GetEl().addEventListener(line, function(){
 		}
 		//Actual Position to Move Into
 		let movePos = posOnGrid(gridMovement);
-		movePos.y = core.position.y;
+		//movePos.y = core.position.y;
 		//Collision Move Checks
 		if(core.grid.collide){
 			if(auxl.map.CheckMapAreaSansArea(core.grid, gridMovement)){
@@ -1924,6 +1967,8 @@ auxl[object].GetEl().addEventListener(line, function(){
 					//Animate Object Move
 					if(move.x){
 						EmitEvent('animstartx' + movePos.x);
+					} else if(move.y){
+						EmitEvent('animstarty' + movePos.y);
 					} else if(move.z){
 						EmitEvent('animstartz' + movePos.z);
 					}
@@ -1933,8 +1978,10 @@ auxl[object].GetEl().addEventListener(line, function(){
 				}
 				//Update core.grid with new grid pos
 				core.grid.start.x = gridMovement.start.x;
+				core.grid.start.y = gridMovement.start.y;
 				core.grid.start.z = gridMovement.start.z;
 				core.grid.end.x = gridMovement.end.x;
+				core.grid.end.y = gridMovement.end.y;
 				core.grid.end.z = gridMovement.end.z;
 				return true;
 			} else {
@@ -1951,6 +1998,8 @@ auxl[object].GetEl().addEventListener(line, function(){
 				//Animate Object Move
 				if(move.x){
 					EmitEvent('animstartx' + movePos.x);
+				} else if(move.y){
+					EmitEvent('animstarty' + movePos.y);
 				} else if(move.z){
 					EmitEvent('animstartz' + movePos.z);
 				}
@@ -1960,8 +2009,10 @@ auxl[object].GetEl().addEventListener(line, function(){
 			}
 			//Update core.grid with new grid pos
 			core.grid.start.x = gridMovement.start.x;
+			core.grid.start.y = gridMovement.start.y;
 			core.grid.start.z = gridMovement.start.z;
 			core.grid.end.x = gridMovement.end.x;
+			core.grid.end.y = gridMovement.end.y;
 			core.grid.end.z = gridMovement.end.z;
 
 			return true;
@@ -1984,6 +2035,9 @@ auxl[object].GetEl().addEventListener(line, function(){
 		//Ensure Starting Position is Correct
 		let startPos = posOnGrid(core.grid);
 		core.position.x = startPos.x;
+		if(startPos.y){
+			core.position.y = core.position.y + startPos.y;
+		}
 		core.position.z = startPos.z;
 
 		//Add Path Grid Points
@@ -2007,6 +2061,7 @@ auxl[object].GetEl().addEventListener(line, function(){
 		let key;
 		let move;
 		let currentX = core.position.x;
+		let currentY = core.position.y;
 		let currentZ = core.position.z;
 
 		//Build Step Animations
@@ -2039,7 +2094,12 @@ auxl[object].GetEl().addEventListener(line, function(){
 					animMoveData.name = 'animmove' + key + currentX;
 					animMoveData.startEvents = 'animstart' + key + currentX;
 					animMoveData.pauseEvents = 'animstop' + key + currentX;
-				} else {
+				} else if(key === 'y'){
+					animMoveData.to = (currentY += move);
+					animMoveData.name = 'animmove' + key + currentY;
+					animMoveData.startEvents = 'animstart' + key + currentY;
+					animMoveData.pauseEvents = 'animstop' + key + currentY;
+				} else if(key === 'z'){
 					animMoveData.to = (currentZ += move);
 					animMoveData.name = 'animmove' + key + currentZ;
 					animMoveData.startEvents = 'animstart' + key + currentZ;
@@ -2062,6 +2122,8 @@ auxl[object].GetEl().addEventListener(line, function(){
 	const WalkPath = () => {
 		let movedX = true;
 		let moveX = false;
+		let movedY = true;
+		let moveY = false;
 		let movedZ = true;
 		let moveZ = false;
 		let loop = 0;
@@ -2708,6 +2770,7 @@ this.Layer = (id, all, update) => {
 			pos.x = grid.start.x + xDif;
 			pos.z = grid.start.z + zDif;
 		}
+		pos.y = grid.start.y;
 		return pos;
 	}
 	//Spawn on Grid
@@ -2721,14 +2784,23 @@ this.Layer = (id, all, update) => {
 			if(grid){
 				layer.grid = grid;
 			}
+			//Ensure Grid Y Level is Set
+			if(layer.grid.start.y){} else {
+				layer.grid.start.y = 0;
+			}
+			if(layer.grid.end.y){} else {
+				layer.grid.end.y = 0;
+			}
+			//Prevent Player Collision Overlap
 			let playerGrid = auxl.player.GetPlayerInfo().grid;
-			if(layer.grid.start.x <= playerGrid.x && layer.grid.end.x >= playerGrid.x && layer.grid.start.z <= playerGrid.z && layer.grid.end.z >= playerGrid.z){
+			if(layer.grid.start.x <= playerGrid.x && layer.grid.end.x >= playerGrid.x && layer.grid.start.y <= playerGrid.y && layer.grid.end.y >= playerGrid.y && layer.grid.start.z <= playerGrid.z && layer.grid.end.z >= playerGrid.z){
 				//Wait to Spawn till Player moves out of Range
 				auxl.map.WaitToSpawn({name:layer.id, func: 'SpawnLayerOnGrid'});
 			} else {
 				//Grid Position
 				let startPos = posOnGrid(layer.grid);
 				layer.all.parent.core.core.position.x = startPos.x;
+				layer.all.parent.core.core.position.y = layer.all.parent.core.core.position.y + startPos.y;
 				layer.all.parent.core.core.position.z = startPos.z;
 				//Spawn Layer
 				SpawnLayer();
@@ -2756,13 +2828,20 @@ this.Layer = (id, all, update) => {
 		//let gridMovement = {start:{x:0, z:-5}, end: {x:0, z:-5}};
 		let gridMovement = {start:{}, end: {}};
 		gridMovement.start.x = layer.grid.start.x;
+		gridMovement.start.y = layer.grid.start.y;
 		gridMovement.start.z = layer.grid.start.z;
 		gridMovement.end.x = layer.grid.end.x;
+		gridMovement.end.y = layer.grid.end.y;
 		gridMovement.end.z = layer.grid.end.z;
 		//Calc X
 		if(move.x){
 			gridMovement.start.x += move.x;
 			gridMovement.end.x += move.x;
+		}
+		//Calc Y
+		if(move.y){
+			gridMovement.start.y += move.y;
+			gridMovement.end.y += move.y;
 		}
 		//Calc Z
 		if(move.z){
@@ -2771,7 +2850,7 @@ this.Layer = (id, all, update) => {
 		}
 		//Actual Position to Move Into
 		let movePos = posOnGrid(gridMovement);
-		movePos.y = layer.all.parent.core.core.position.y;
+		movePos.y = layer.all.parent.core.core.position.y + movePos.y;
 		//Collision Move Checks
 		if(layer.grid.collide){
 			if(auxl.map.CheckMapAreaSansArea(layer.grid, gridMovement)){
@@ -2785,6 +2864,8 @@ this.Layer = (id, all, update) => {
 					//Animate Object Move
 					if(move.x){
 						EmitEventParent('animstartx' + movePos.x);
+					} else if(move.y){
+						EmitEventParent('animstarty' + movePos.y);
 					} else if(move.z){
 						EmitEventParent('animstartz' + movePos.z);
 					}
@@ -2794,8 +2875,10 @@ this.Layer = (id, all, update) => {
 				}
 				//Update core.grid with new grid pos
 				layer.grid.start.x = gridMovement.start.x;
+				layer.grid.start.y = gridMovement.start.y;
 				layer.grid.start.z = gridMovement.start.z;
 				layer.grid.end.x = gridMovement.end.x;
+				layer.grid.end.y = gridMovement.end.y;
 				layer.grid.end.z = gridMovement.end.z;
 				return true;
 			} else {
@@ -2812,6 +2895,8 @@ this.Layer = (id, all, update) => {
 				//Animate Object Move
 				if(move.x){
 					EmitEventParent('animstartx' + movePos.x);
+				} else if(move.y){
+					EmitEventParent('animstarty' + movePos.y);
 				} else if(move.z){
 					EmitEventParent('animstartz' + movePos.z);
 				}
@@ -2821,8 +2906,10 @@ this.Layer = (id, all, update) => {
 			}
 			//Update core.grid with new grid pos
 			layer.grid.start.x = gridMovement.start.x;
+			layer.grid.start.y = gridMovement.start.y;
 			layer.grid.start.z = gridMovement.start.z;
 			layer.grid.end.x = gridMovement.end.x;
+			layer.grid.end.y = gridMovement.end.y;
 			layer.grid.end.z = gridMovement.end.z;
 			return true;
 		}
@@ -2844,6 +2931,7 @@ this.Layer = (id, all, update) => {
 		//Ensure Starting Position is Correct
 		let startPos = posOnGrid(layer.grid);
 		layer.all.parent.core.core.position.x = startPos.x;
+		layer.all.parent.core.core.position.y = layer.all.parent.core.core.position.y + startPos.y;
 		layer.all.parent.core.core.position.z = startPos.z;
 
 		//Add Path Grid Points
@@ -2867,6 +2955,7 @@ this.Layer = (id, all, update) => {
 		let key;
 		let move;
 		let currentX = layer.all.parent.core.core.position.x;
+		let currentY = layer.all.parent.core.core.position.y;
 		let currentZ = layer.all.parent.core.core.position.z;
 
 		//Build Step Animations
@@ -2900,7 +2989,12 @@ this.Layer = (id, all, update) => {
 					animMoveData.name = 'animmove' + key + currentX;
 					animMoveData.startEvents = 'animstart' + key + currentX;
 					animMoveData.pauseEvents = 'animstop' + key + currentX;
-				} else {
+				} else if(key === 'y'){
+					animMoveData.to = (currentY += move);
+					animMoveData.name = 'animmove' + key + currentY;
+					animMoveData.startEvents = 'animstart' + key + currentY;
+					animMoveData.pauseEvents = 'animstop' + key + currentY;
+				} else if(key === 'z'){
 					animMoveData.to = (currentZ += move);
 					animMoveData.name = 'animmove' + key + currentZ;
 					animMoveData.startEvents = 'animstart' + key + currentZ;
@@ -2917,13 +3011,14 @@ this.Layer = (id, all, update) => {
 					layer.all.parent.core.core.animations['move'+each] = animMoveData;
 				}
 			}
-//console.log(layer.all.parent.core.core.animations)
 		}
 	}
 	//Walk Along Path
 	const WalkPath = () => {
 		let movedX = true;
 		let moveX = false;
+		let movedY = true;
+		let moveY = false;
 		let movedZ = true;
 		let moveZ = false;
 		let loop = 0;
@@ -4725,7 +4820,8 @@ this.Companion = (id, object) => {
 	comp.viewConfig = false;
 
 	//NPC
-	auxl.compNPC = auxl.NPC('compNPC', comp.avatar, auxl.compBookData, auxl.compBubble, true);
+	//auxl.compNPC = auxl.NPC('compNPC', comp.avatar, auxl.compBookData, auxl.compBubble, true);
+	auxl.compNPC = auxl.NPC('compNPC', comp.avatar, auxl.compBookData, auxl.compBubbleLayer, true);
 
 	//Inventory
 	comp.inventoryTimeouts = [];
@@ -6126,7 +6222,8 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 	//Grid Map Start
 	const GridMapStart = () => {
 		if(core.info.map){
-			auxl.map.BuildMap(core.info.map.size);
+console.log(core.info.map.height)
+			auxl.map.BuildMap(core.info.map.size, core.info.map.height);
 			auxl.mapEdge = core.info.map.edge || false;
 			if(core.info.map.edgeUpdate){
 				auxl.map.UpdateEdge(core.info.map.edgeUpdate);
@@ -7633,7 +7730,11 @@ this.Book = (bookData, npc) => {
 		npc.selectJumpMenu = auxl.Menu(selectJumpData);
 		npc.selectJumpMenu.SpawnMenu();
 		npc.selectJumpMenu.AddToParentSpawnTracker(npc.selectJumpMenu, npc, 'book');
-		npc.bubble.GetEl().classList.toggle('clickable', false);
+		if(npc.bubble.type === 'core'){
+			npc.bubble.GetEl().classList.toggle('clickable', false);
+		} else {
+			npc.bubble.GetParentEl().classList.toggle('clickable', false);
+		}
 		if(npc.avatarType === 'core'){
 			npc.avatar.GetEl().classList.toggle('clickable', false);
 		} else {
@@ -7650,7 +7751,7 @@ this.Book = (bookData, npc) => {
 //
 //Speech System
 //Speaking Textbubble
-this.SpeechSystem = (core, npc) => {
+this.SpeechSystem = (core, npc, fixed) => {
 	core.on = false;
 	core.speaking = false;
 	core.blinking = false;
@@ -7658,6 +7759,17 @@ this.SpeechSystem = (core, npc) => {
 	core.blinkText0 = '';
 	core.blinkText1 = '';
 	core.textDisplayInterval;
+	let bubbleDespawnTimeout;
+	let bubbleSpawnTimeout;
+	let id = 'speech'
+	core.type = 'core';
+	if(core.core){
+		core.type = 'core';
+		id = core.core.id;
+	} else {
+		core.type = 'layer';
+		id = core.layer.id;
+	}
 	let parent = false;
 	if(npc){
 		if(npc.avatar.core){
@@ -7674,33 +7786,80 @@ this.SpeechSystem = (core, npc) => {
 		} else if(parent === 'layer'){
 			spawnParent = npc.avatar.GetParentEl();
 		}
-		core.SpawnCore(spawnParent);
-		core.GetEl().addEventListener('mouseenter', Skip);
+		if(core.type === 'core'){
+			core.SpawnCore(spawnParent);
+			core.GetEl().addEventListener('mouseenter', Skip);
+			bubbleSpawnTimeout = setTimeout(() => {
+				core.EmitEvent('loadin');
+				clearTimeout(bubbleDespawnTimeout);
+			}, 25);
+		} else {
+			core.SpawnLayer(spawnParent);
+			core.GetParentEl().addEventListener('mouseenter', Skip);
+			StartCloseReset();
+			bubbleSpawnTimeout = setTimeout(() => {
+				core.EmitEventAll('loadin');
+				clearTimeout(bubbleDespawnTimeout);
+			}, 25);
+		}
 		core.on = true;
 	}
 	//Skip to end of speech
 	const Skip = () => {
-		core.GetEl().emit('skip',{});
+		if(core.type === 'core'){
+			core.GetEl().emit('skip',{});
+		} else {
+			core.GetParentEl().emit('skip',{});
+		}
 	}
 	//Stop Textbubble
 	const Stop = () => {
 		if(core.on){
-			core.GetEl().removeEventListener('mouseenter', Skip);
-			core.DespawnCore();
-			core.on = false;
+			if(core.type === 'core'){
+				core.GetEl().removeEventListener('mouseenter', Skip);
+				core.EmitEvent('loadout');
+				bubbleDespawnTimeout = setTimeout(() => {
+					core.DespawnCore();
+					core.on = false;
+					clearTimeout(bubbleDespawnTimeout);
+				}, 1000);
+			} else {
+				core.GetParentEl().removeEventListener('mouseenter', Skip);
+				core.EmitEventAll('loadout');
+				StopCloseReset();
+				bubbleDespawnTimeout = setTimeout(() => {
+					core.DespawnLayer();
+					core.on = false;
+					clearTimeout(bubbleDespawnTimeout);
+				}, 1000);
+			}
 		}
+	}
+	//Start Close & Reset
+	const StartCloseReset = () => {
+		//Close
+		core.layer.all.child0.core.GetEl().addEventListener('click',auxl[npc.id].ResetSpeech)
+		//Reset
+		core.layer.all.child1.core.GetEl().addEventListener('click',auxl[npc.id].ForceResetBook)
+	}
+	//Stop Close & Reset
+	const StopCloseReset = () => {
+		//Close
+		core.layer.all.child0.core.GetEl().removeEventListener('click',npc.ResetSpeech)
+		//Reset
+		core.layer.all.child1.core.GetEl().removeEventListener('click',npc.ForceResetBook)
 	}
 	//Kill Speech
 	const Kill = () => {
 		core.speaking = false;
-		clearInterval(auxl.intervals[core.core.id]);
-		delete auxl.intervals[core.core.id];
+		clearInterval(auxl.intervals[id]);
+		delete auxl.intervals[id];
 	}
 	//Kill Blink
 	const KillBlink = () => {
 		core.blinking = false;
-		clearInterval(auxl.intervals[core.core.id+'blink']);
-		delete auxl.intervals[core.core.id+'blink'];
+		clearInterval(auxl.intervals[id+'blink']);
+		delete auxl.intervals[id+'blink'];
 	}
 	//Kill Speech & Stop Textbuble
 	const KillStop = () => {
@@ -7710,25 +7869,44 @@ this.SpeechSystem = (core, npc) => {
 	}
 	//Change Textbubble - Single or Array
 	const ChangeCore = (setAlt) => {
-		if(Array.isArray(setAlt)){
-			for(let each in setAlt){
-				core.ChangeSelf(setAlt[each])
+		if(core.type === 'core'){
+			if(Array.isArray(setAlt)){
+				for(let each in setAlt){
+					core.ChangeSelf(setAlt[each])
+				}
+			} else {
+				core.ChangeSelf(setAlt)
 			}
 		} else {
-			core.ChangeSelf(setAlt)
+			if(Array.isArray(setAlt)){
+				for(let each in setAlt){
+					core.ChangeParent(setAlt[each])
+				}
+			} else {
+				core.ChangeParent(setAlt)
+			}
 		}
+
 	}
 	//Speaking Controls
 	const DisplaySpeech = ({role,speech}) => {
 		KillBlink();
-		let startText = role + ' : ';
+		let startText = role + ' :\n';
 		let currText = startText;
 		let currChar = 0;
-		core.GetEl().setAttribute('text',{value: currText});
+		if(core.type === 'core'){
+			core.GetEl().setAttribute('text',{value: currText});
+		} else {
+			core.GetParentEl().setAttribute('text',{value: currText});
+		}
 		core.speaking = true;
 
 		function skipText(){
-			core.GetEl().setAttribute('text',{value: startText + speech});
+			if(core.type === 'core'){
+				core.GetEl().setAttribute('text',{value: startText + speech});
+			} else {
+				core.GetParentEl().setAttribute('text',{value: startText + speech});
+			}
 			core.speaking = false;
 			Kill();
 			if(core.blink){
@@ -7742,12 +7920,21 @@ this.SpeechSystem = (core, npc) => {
 				core.blinkText1 += core.blinkNextText;
 				Blink();
 			}
-			core.GetEl().removeEventListener('skip',skipText);
-		}
-		core.GetEl().addEventListener('skip', skipText);
+			if(core.type === 'core'){
+				core.GetEl().removeEventListener('skip',skipText);
+			} else {
+				core.GetParentEl().removeEventListener('skip',skipText);
+			}
 
-		AddToTimeIntEvtTracker({name: 'textDisplayInterval', type: 'interval', id: core.core.id});
-		auxl.intervals[core.core.id] = setInterval(() => {
+		}
+		if(core.type === 'core'){
+			core.GetEl().addEventListener('skip', skipText);
+		} else {
+			core.GetParentEl().addEventListener('skip', skipText);
+		}
+
+		AddToTimeIntEvtTracker({name: 'textDisplayInterval', type: 'interval', id: id});
+		auxl.intervals[id] = setInterval(() => {
 			//Interval Functions
 			if(currChar < speech.length){
 				currText += speech[currChar];
@@ -7755,7 +7942,12 @@ this.SpeechSystem = (core, npc) => {
 			}
 			if(currChar >= speech.length){
 				core.speaking = false;
-				core.GetEl().removeEventListener('skip',skipText);
+				if(core.type === 'core'){
+					core.GetEl().removeEventListener('skip',skipText);
+
+				} else {
+					core.GetParentEl().removeEventListener('skip',skipText);
+				}
 				Kill();
 				if(core.blink){
 					core.blinkText0 = currText;
@@ -7770,19 +7962,31 @@ this.SpeechSystem = (core, npc) => {
 				}
 			}
 			if(core.on){
-				core.GetEl().setAttribute('text',{value: currText});
+				if(core.type === 'core'){
+					core.GetEl().setAttribute('text',{value: currText});
+				} else {
+					core.GetParentEl().setAttribute('text',{value: currText});
+				}
 			}
 		}, 20);
 	}
 	//Blink
 	const Blink = () => {
-		AddToTimeIntEvtTracker({name: 'blinkDisplayInterval', type: 'interval', id: core.core.id});
-		auxl.intervals[core.core.id+'blink'] = setInterval(() => {
+		AddToTimeIntEvtTracker({name: 'blinkDisplayInterval', type: 'interval', id: id});
+		auxl.intervals[id+'blink'] = setInterval(() => {
 			if(core.blinking){
-				core.GetEl().setAttribute('text',{value: core.blinkText1});
+				if(core.type === 'core'){
+					core.GetEl().setAttribute('text',{value: core.blinkText1});
+				} else {
+					core.GetParentEl().setAttribute('text',{value: core.blinkText1});
+				}
 				core.blinking = false;
 			} else {
-				core.GetEl().setAttribute('text',{value: core.blinkText0});
+				if(core.type === 'core'){
+					core.GetEl().setAttribute('text',{value: core.blinkText0});
+				} else {
+					core.GetParentEl().setAttribute('text',{value: core.blinkText0});
+				}
 				core.blinking = true;
 			}
 		}, 1000);
@@ -7822,7 +8026,7 @@ this.NPC = (id, object, bookData, textDisplay, special) => {
 		npc.parentId = object.layer.all.parent.core.core.id;
 	}
 	npc.id = id;
-	npc.special = special || false;
+	npc.special = special || true;
 	npc.inScene = false;
 	npc.speaking = false;
 	npc.bookEnd = false;
@@ -8070,6 +8274,13 @@ this.NPC = (id, object, bookData, textDisplay, special) => {
 			book.Init()
 		}
 	}
+	//Force Reset NPC Book
+	const ForceResetBook = () => {
+		ClearBookSpawn();
+		book = auxl.Book(bookData, npc);
+		book.Init()
+		book.Next()
+	}
 	//Reset NPC Book
 	const ResetBookRandom = (force, timeline) => {
 		if(book.book.done || force){
@@ -8142,7 +8353,11 @@ this.NPC = (id, object, bookData, textDisplay, special) => {
 		Jump({timeline: result});
 		book.Next();
 		//Need to update after creating book control component
-		npc.bubble.GetEl().classList.toggle('clickable', true);
+		if(npc.bubble.type === 'core'){
+			npc.bubble.GetEl().classList.toggle('clickable', false);
+		} else {
+			npc.bubble.GetParentEl().classList.toggle('clickable', false);
+		}
 		if(npc.avatarType === 'core'){
 			npc.avatar.GetEl().classList.toggle('clickable', true);
 		} else {
@@ -8302,7 +8517,7 @@ this.NPC = (id, object, bookData, textDisplay, special) => {
 	}
 
 
-return {npc, GetAllNPCEl, GetMainNPCEl, AddNPCEventsAll, RemoveNPCEventsAll, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextTimeline, NewPage, ResetSpeech, ResetBook, ResetBookRandom, IdleNextTimeline, IdleReset, ResetIdleRandom, UpdateBook, Click, Jump, SelectJump, auxlObjMethod, IfElse, Switch, SetFlag, GetFlag}
+return {npc, GetAllNPCEl, GetMainNPCEl, AddNPCEventsAll, RemoveNPCEventsAll, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextTimeline, NewPage, ResetSpeech, ResetBook, ForceResetBook, ResetBookRandom, IdleNextTimeline, IdleReset, ResetIdleRandom, UpdateBook, Click, Jump, SelectJump, auxlObjMethod, IfElse, Switch, SetFlag, GetFlag}
 }
 
 //
@@ -8496,9 +8711,9 @@ this.SkyBox = (skyBoxData) => {
 			}
 		}
 		Sunrise();
-		dayNightTimeout = setTimeout(function () {
+		dayNightTimeout = setTimeout(() => {
 			Sunset();
-			dayNightInterval = setInterval(function() {
+			dayNightInterval = setInterval(() => {
 				if(skyBox.day){
 					Sunset();
 				}else{
@@ -8516,17 +8731,52 @@ this.SkyBox = (skyBoxData) => {
 	}
 	//Set Time
 	const SetTime = (time) => {
+//Sun|Moon angle
+//4 lights intensity and position
+//Sky grad colors
+
+		PauseDayNight();
 		if(time >= 6 && time <=18 ){
 			skyBox.day = true;
 		} else {
 			skyBox.day = false;
 		}
 		skyBox.time = time;
-//set sun-moon
-//object3D.rotation.x
-//sun 0 rotation is 6
-//moon 180 rotation is 6
+
+		//0 equals -90
+		//6 equals 0
+		//18 equals 180
+		//24 equals 270
+		//Each 1 is 15 degrees
+		//Each 0.1 is 1.5 degrees
+
+		//Set Sun
+		let sunRotX = (skyBox.time * 15) -90;
+		auxl.sunLayer.GetChild('sunOuter').ChangeSelf({property: 'rotation', value: new THREE.Vector3(sunRotX,45,0)});
+
+		//Set Moon
+		let moonRotX = (skyBox.time * 15) + 90;
+		auxl.moonLayer.GetChild('moonOuter').ChangeSelf({property: 'rotation', value: new THREE.Vector3(moonRotX,45,0)});
+		//ResumeDayNight();
+
+
+//To properly start animation at a new time
+//Pause current animations and clear current sunrise interval
+//Set new animation that moves to end of sequence for which the sunrise interval will take it back over
+//At end of this new animation time, reset interval timing sequence
+
 /*
+daynight:{property: 'object3D.rotation.x', from: -5, to: 355, dur: auxl.timeInDay, delay: 0, loop: '1', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'}
+
+daynight:{property: 'object3D.rotation.x', from: 175, to: 535, dur: auxl.timeInDay, delay: 0, loop: '1', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'}
+*/
+
+/*
+auxl.directionalLight
+auxl.ambientLight
+auxl.directionalLight2
+auxl.directionalLight3
+
 set lights
 
 ambientLight
@@ -9670,9 +9920,25 @@ this.InfoBubble = (id, object, offset, color) => {
 		}
 	}
 	//Update Emote Text Core
-	const UpdateText = (text, rotation) => {
+	const UpdateText = (text, rotation, offset) => {
+		//Take in xOffset, yOffset
 		infoBubble[textId].core.text.value = text;
-		infoBubble[textId].core.text.wrapCount = text.length+1;
+		infoBubble[textId].core.text.wrapCount = text.length+2;
+		if(offset){
+			if(offset.x){
+				infoBubble[textId].core.text.xOffset = offset.x;
+			} else {
+				infoBubble[textId].core.text.xOffset = 0;
+			}
+			if(offset.x){
+				infoBubble[textId].core.text.yOffset = offset.y;
+			} else {
+				infoBubble[textId].core.text.yOffset = 0;
+			}
+		} else {
+			infoBubble[textId].core.text.xOffset = 0;
+			infoBubble[textId].core.text.zOffset = 0;
+		}
 		if(rotation){
 			infoBubble[textId].core.rotation.z = rotation;
 		} else {
@@ -9699,7 +9965,8 @@ this.InfoBubble = (id, object, offset, color) => {
 	const NewBubble = (details) => {
 		infoBubble.custom[details.eventName] = details;
 		//details.emote or alert
-		//details.text
+		//details.textValue
+		//details.offset:{x:0.1,y:0.1}
 		//details.eventName
 		//details.rotation
 	}
@@ -9708,7 +9975,7 @@ this.InfoBubble = (id, object, offset, color) => {
 		for(let emote in infoBubble.custom){
 			if(event.type === emote){
 				if(infoBubble.custom[emote].rotation){
-					UpdateText(infoBubble.custom[emote].text,infoBubble.custom[emote].rotation);
+					UpdateText(infoBubble.custom[emote].text,infoBubble.custom[emote].rotation, infoBubble.custom[emote].offset);
 				} else {
 					UpdateText(infoBubble.custom[emote].text);
 				}
@@ -9721,6 +9988,9 @@ this.InfoBubble = (id, object, offset, color) => {
 			}
 		}
 	}
+	//
+	//Emotes
+	//
 	//Emote !
 	const Emote1 = () => {
 		UpdateText('!');
@@ -9813,7 +10083,7 @@ this.InfoBubble = (id, object, offset, color) => {
 	}
 	//Emote Love <3
 	const EmoteLove = () => {
-		UpdateText('<3', 90);
+		UpdateText('<3\n', 90, {x:-0.1});
 		SpawnBubble();
 	}
 	//Emote Shy #
@@ -10699,7 +10969,7 @@ creature.timeoutTest = setTimeout(function () {
 	let loopNum = 0;
 	creature.intervalTest = setInterval(function() {
 		if(loopNum === 0){
-			Emote('happy');
+			Emote('love');
 		} else if(loopNum === 1){
 			Emote('shy');
 		} else if(loopNum === 2){
@@ -10727,7 +10997,7 @@ creature.timeoutTest = setTimeout(function () {
 		} else if(loopNum === 13){
 			Emote('smug');
 		} else if(loopNum === 14){
-			Emote('love');
+			Emote('happy');
 			loopNum = -1;
 		}
 		loopNum++;
@@ -10905,6 +11175,8 @@ this.Collision = () => {
 
 	let grid = {};
 	grid.size = 0;
+	grid.topHeight = 0;
+	grid.bottomHeight = 0;
 	grid.collide = {};
 	grid.trigger = {};
 	grid.triggersActive = false;
@@ -10927,8 +11199,10 @@ this.Collision = () => {
 	}
 
 	//Build Blank Collision & Trigger Map
-	const BuildMap = (size) => {
+	const BuildMap = (size, height) => {
 		grid.size = size;
+		grid.topHeight = height.top || 1;
+		grid.bottomHeight = height.bottom || 0;
 		BlankMap();
 		BlankMapTrigger();
 	}
@@ -10937,27 +11211,54 @@ this.Collision = () => {
 	//Collision
 	//Blank Map @ Size
 	const BlankMap = () => {
+		//Clear Current Map and Objects
 		grid.collide = {};
-		auxl.collideMap[0] = [];
-		auxl.collideMap[0] = Array(grid.size/2).fill(0, 0);
-		for(let each in auxl.collideMap[0]){
-			auxl.collideMap[0][each] = Array(grid.size/2).fill(0, 0);
+		auxl.collisionMap[0] = [];
+		auxl.collisionMap[1] = [];
+
+		//Build Top Map
+		if(grid.topHeight > 0){
+			for(let level = 0; level < grid.topHeight; level++){
+				BlankMapLevel(auxl.collisionMap[0], level);
+			}
 		}
-		auxl.collideMap[1] = [];
-		auxl.collideMap[1] = Array(grid.size/2).fill(0, 0);
-		for(let each in auxl.collideMap[1]){
-			auxl.collideMap[1][each] = Array(grid.size/2).fill(0, 0);
+		//Build Bottom Map
+		if(grid.bottomHeight > 0){
+			for(let level = 0; level < grid.bottomHeight; level++){
+				BlankMapLevel(auxl.collisionMap[1], level);
+			}
 		}
-		auxl.collideMap[2] = [];
-		auxl.collideMap[2] = Array(grid.size/2).fill(0, 0);
-		for(let each in auxl.collideMap[2]){
-			auxl.collideMap[2][each] = Array(grid.size/2).fill(0, 0);
+	}
+	//Build a Single Height Level Collision Map
+	const BlankMapLevel = (array, level) => {
+		//Blank Level
+		let levelMap = [[],[],[],[]];
+		//Top Left
+		levelMap[0] = [];
+		levelMap[0] = Array(grid.size/2).fill(0, 0);
+		for(let each in levelMap[0]){
+			levelMap[0][each] = Array(grid.size/2).fill(0, 0);
 		}
-		auxl.collideMap[3] = [];
-		auxl.collideMap[3] = Array(grid.size/2).fill(0, 0);
-		for(let each in auxl.collideMap[3]){
-			auxl.collideMap[3][each] = Array(grid.size/2).fill(0, 0);
+		//Top Right
+		levelMap[1] = [];
+		levelMap[1] = Array(grid.size/2).fill(0, 0);
+		for(let each in levelMap[1]){
+			levelMap[1][each] = Array(grid.size/2).fill(0, 0);
 		}
+		//Bottom Left
+		levelMap[2] = [];
+		levelMap[2] = Array(grid.size/2).fill(0, 0);
+		for(let each in levelMap[2]){
+			levelMap[2][each] = Array(grid.size/2).fill(0, 0);
+		}
+		//Bottom Right
+		levelMap[3] = [];
+		levelMap[3] = Array(grid.size/2).fill(0, 0);
+		for(let each in levelMap[3]){
+			levelMap[3][each] = Array(grid.size/2).fill(0, 0);
+		}
+		//Add to System
+		array.push(levelMap);
 	}
 	//Add to Map
 	const OnMap = (obj) => {
@@ -10977,7 +11278,7 @@ this.Collision = () => {
 		for(let each in grid.collide){
 			if(each === obj.name){}else{
 				for(let space in grid.collide[each]){
-					if(grid.collide[each][space].pos.x === obj.pos.x && grid.collide[each][space].pos.z === obj.pos.z){
+					if(grid.collide[each][space].pos.x === obj.pos.x && grid.collide[each][space].pos.y === obj.pos.y && grid.collide[each][space].pos.z === obj.pos.z){
 						return false;
 					}
 				}
@@ -10987,9 +11288,11 @@ this.Collision = () => {
 	}
 	//Update Map Multi Space
 	const UpdateMapArea = (name,start,end,collide) => {
-		let pos = {x: start.x, z: start.z};
+		let pos = {x: start.x, y: start.y, z: start.z};
 		let xSpaces;
 		let xCurrent;
+		let ySpaces;
+		let yCurrent;
 		let zSpaces;
 		let zCurrent;
 		let mapKey;
@@ -11015,6 +11318,17 @@ this.Collision = () => {
 			pos.x = start.x;
 			xCurrent = xSpaces;
 		}
+		//Calc Y
+		function calcYPos(){
+			if(start.y === end.y){
+				ySpaces = 1;
+			} else {
+				ySpaces = Math.abs(start.y) + Math.abs(end.y);
+				ySpaces += 1;
+			}
+			pos.y = start.y;
+			yCurrent = ySpaces;
+		}
 		//Calc Z
 		function calcZPos(){
 			if(start.z === end.z){
@@ -11031,33 +11345,41 @@ this.Collision = () => {
 			zCurrent = zSpaces;
 		}
 		//Assign Map Collisions
-		calcZPos();
-		for(let z = 0; z < zSpaces;z++){
-			calcXPos();
-			for(let x = 0; x < xSpaces;x++){
-				if(mapKey === 0){
-					//Removing
-					//If another object doesn't exist in same space, clear it
-					if(CheckMapOverlap({name, pos:{x:pos.x,z:pos.z}})){
+		calcYPos();
+		for(let y = 0; y < ySpaces;y++){
+			calcZPos();
+			for(let z = 0; z < zSpaces;z++){
+				calcXPos();
+				for(let x = 0; x < xSpaces;x++){
+					if(mapKey === 0){
+						//Removing
+						//If another object doesn't exist in same space, clear it
+						if(CheckMapOverlap({name, pos:{x:pos.x, y:pos.y, z:pos.z}})){
+							UpdateMap(pos,mapKey);
+						}
+						spaces++;
+					} else if(mapKey === 1){
+						//Adding
 						UpdateMap(pos,mapKey);
+						spaces++;
+						OnMap({name, spaces, pos:{x:pos.x, y:pos.y, z:pos.z}});
 					}
-					spaces++;
-				} else if(mapKey === 1){
-					//Adding
-					UpdateMap(pos,mapKey);
-					spaces++;
-					OnMap({name, spaces, pos:{x:pos.x,z:pos.z}});
+					//Next X Space
+					xCurrent--;
+					if(xCurrent > 0){
+						pos.x += 0.5;
+					}
 				}
-				//Next X Space
-				xCurrent--;
-				if(xCurrent > 0){
-					pos.x += 0.5;
+				//Next Z Space
+				zCurrent--;
+				if(zCurrent > 0){
+					pos.z += 0.5;
 				}
 			}
-			//Next Z Space
-			zCurrent--;
-			if(zCurrent > 0){
-				pos.z += 0.5;
+			//Next Y Space
+			yCurrent--;
+			if(yCurrent > 0){
+				pos.y += 1;
 			}
 		}
 		//Remove from grid.collide
@@ -11069,41 +11391,47 @@ this.Collision = () => {
 	const UpdateMap = (pos, mapKey) => {
 		//0.5 meter to integer grid adjustment
 		let xPos = pos.x * 2;
+		let yPos = pos.y;
 		let zPos = pos.z * 2;
 		//console.log({x: xPos, z: zPos})
-
+		let map;
+		if(yPos >= 0){
+			//Top
+			map = 0;
+		} else {
+			//Bottom
+			map = 1;
+		}
 		//Add a mechanism to detect if the collision it is adding is the same sq that the player is in. If so, do not add until the player has moved out of the square.
-
 		if(xPos < 0 && zPos < 0){
 			//Top Left - 0
 			//Loop 1 : -Z
 			//Loop 2 : -X
-			auxl.collideMap[0][zPos * -1][xPos * -1] = mapKey;
+			auxl.collisionMap[map][yPos][0][zPos * -1][xPos * -1] = mapKey;
 		} else if(pos.x >= 0 && zPos < 0){
 			//Top Right - 1
 			//Loop 1 : -Z
 			//Loop 2 : +X
-			auxl.collideMap[1][zPos * -1][xPos] = mapKey
+			auxl.collisionMap[map][yPos][1][zPos * -1][xPos] = mapKey
 		} else if(xPos < 0 && zPos >= 0){
 			//Bottom Left - 2
 			//Loop 1 : +Z
 			//Loop 2 : -X
-			auxl.collideMap[2][zPos][xPos * -1] = mapKey;
+			auxl.collisionMap[map][yPos][2][zPos][xPos * -1] = mapKey;
 		} else if(xPos >= 0 && zPos >= 0){
 			//Bottom Right - 3
 			//Loop 1 : +Z
 			//Loop 2 : +X
-			auxl.collideMap[3][zPos][xPos] = mapKey;
+			auxl.collisionMap[map][yPos][3][zPos][xPos] = mapKey;
 		} else {
 			console.log('Update out of bounds')
 			//resize map
 		}
-
 	}
 	//Check for Player Collision
 	const CheckForPlayer = (grid) => {
 		let playerGrid = auxl.player.GetPlayerInfo().grid;
-		if(grid.start.x <= playerGrid.x && grid.end.x >= playerGrid.x && grid.start.z <= playerGrid.z && grid.end.z >= playerGrid.z){
+		if(grid.start.x <= playerGrid.x && grid.end.x >= playerGrid.x && grid.start.y <= playerGrid.y && grid.end.y >= playerGrid.y && grid.start.z <= playerGrid.z && grid.end.z >= playerGrid.z){
 			//Player Occupied
 			return false;
 		} else {
@@ -11115,16 +11443,24 @@ this.Collision = () => {
 
 		let newPos = {};
 		newPos.x = pos.x * 2;
+		newPos.y = pos.y || 0;
 		newPos.z = pos.z * 2;
-
+		let map;
+		if(newPos.y >= 0){
+			//Top
+			map = 0;
+		} else {
+			//Bottom
+			map = 1;
+		}
 		if(newPos.x < 0 && newPos.z < 0){
 			//Top Left - 0
 			//Loop 1 : -Z
 			//Loop 2 : -X
-			if(auxl.collideMap[0].length > newPos.z * -1){
-				if(auxl.collideMap[0][newPos.z * -1].length > newPos.x * -1){
+			if(auxl.collisionMap[map][newPos.y][0].length > newPos.z * -1){
+				if(auxl.collisionMap[map][newPos.y][0][newPos.z * -1].length > newPos.x * -1){
 					//console.log('Within Map');
-					if(auxl.collideMap[0][newPos.z * -1][newPos.x * -1] === 0){
+					if(auxl.collisionMap[map][newPos.y][0][newPos.z * -1][newPos.x * -1] === 0){
 						return true;
 					} else {
 						return false;
@@ -11149,10 +11485,10 @@ this.Collision = () => {
 			//Top Right - 1
 			//Loop 1 : -Z
 			//Loop 2 : +X
-			if(auxl.collideMap[1].length > newPos.z * -1){
-				if(auxl.collideMap[1][newPos.z * -1].length > newPos.x){
+			if(auxl.collisionMap[map][newPos.y][1].length > newPos.z * -1){
+				if(auxl.collisionMap[map][newPos.y][1][newPos.z * -1].length > newPos.x){
 					//console.log('Within Map');
-					if(auxl.collideMap[1][newPos.z * -1][newPos.x] === 0){
+					if(auxl.collisionMap[map][newPos.y][1][newPos.z * -1][newPos.x] === 0){
 						//User can move
 						return true;
 					} else {
@@ -11178,10 +11514,10 @@ this.Collision = () => {
 			//Bottom Left - 2
 			//Loop 1 : +Z
 			//Loop 2 : -X
-			if(auxl.collideMap[2].length > newPos.z){
-				if(auxl.collideMap[2][newPos.z].length > newPos.x * -1){
+			if(auxl.collisionMap[map][newPos.y][2].length > newPos.z){
+				if(auxl.collisionMap[map][newPos.y][2][newPos.z].length > newPos.x * -1){
 					//console.log('Within Map');
-					if(auxl.collideMap[2][newPos.z][newPos.x * -1] === 0){
+					if(auxl.collisionMap[map][newPos.y][2][newPos.z][newPos.x * -1] === 0){
 						//User can move
 						return true;
 					} else {
@@ -11207,9 +11543,9 @@ this.Collision = () => {
 			//Bottom Right - 3
 			//Loop 1 : +Z
 			//Loop 2 : +X
-			if(auxl.collideMap[3].length > newPos.z){
-				if(auxl.collideMap[3][newPos.z].length > newPos.x){
-					if(auxl.collideMap[3][newPos.z][newPos.x] === 0){
+			if(auxl.collisionMap[map][newPos.y][3].length > newPos.z){
+				if(auxl.collisionMap[map][newPos.y][3][newPos.z].length > newPos.x){
+					if(auxl.collisionMap[map][newPos.y][3][newPos.z][newPos.x] === 0){
 						//User can move
 						return true;
 					} else {
@@ -11238,17 +11574,38 @@ this.Collision = () => {
 	//Check for Map Obstacles 0.5 Meter and block diagonal movement if forward and side are blocked, but not the actual diagonal spot
 	const CheckMapObstaclesDiagonal = (goPos, atPos) => {
 
-		let newPos = {};
-		newPos.x = goPos.x;
-		newPos.z = goPos.z;
-		newPos.x *= 2;
-		newPos.z *= 2;
-
 		let pos = {};
 		pos.x = atPos.x;
+		pos.y = atPos.y;
 		pos.z = atPos.z;
 		pos.x *= 2;
 		pos.z *= 2;
+		let map;
+		if(pos.y >= 0){
+			//Top
+			map = 0;
+		} else {
+			//Bottom
+			map = 1;
+		}
+
+		let newPos = {};
+		newPos.x = goPos.x;
+		newPos.y = goPos.y;
+		newPos.z = goPos.z;
+		newPos.x *= 2;
+		newPos.z *= 2;
+		let newMap;
+		if(newPos.y >= 0){
+			//Top
+			newMap = 0;
+		} else {
+			//Bottom
+			newMap = 1;
+		}
+
+		let travelDirection;
+		let travelElevation;
 
 		//World direction of movement
 		if(newPos.x === pos.x && newPos.z === pos.z){
@@ -11286,20 +11643,32 @@ this.Collision = () => {
 				}
 			}
 		}
+		//Travel Elevation
+		if(newPos.y === pos.y){
+			//console.log('Same Square')
+			travelElevation = 'same';
+		} else {
+			//console.log('Diagonal');
+			if(newPos.y > pos.y){
+				travelElevation = 'up';
+			} else {
+				travelElevation = 'down';
+			}
+		}
 		//Check Map in Direction
 		if(newPos.x < 0 && newPos.z < 0){
 			//Top Left - 0
 			//Loop 1 : -Z
 			//Loop 2 : -X
-			if(auxl.collideMap[0].length > newPos.z * -1){
-				if(auxl.collideMap[0][newPos.z * -1].length > newPos.x * -1){
+			if(auxl.collisionMap[newMap][newPos.y][0].length > newPos.z * -1){
+				if(auxl.collisionMap[newMap][newPos.y][0][newPos.z * -1].length > newPos.x * -1){
 					//console.log('Within Map');
-					if(auxl.collideMap[0][newPos.z * -1][newPos.x * -1] === 0){
+					if(auxl.collisionMap[newMap][newPos.y][0][newPos.z * -1][newPos.x * -1] === 0){
 						//Block diagonal movement if both adjacent squares are occupied
 						if(travelDirection === 'forwardRight'){
 							//-Z
 							//+X
-							if(auxl.collideMap[0][(newPos.z * -1)+1][newPos.x * -1] === 1 && auxl.collideMap[0][newPos.z * -1][(newPos.x * -1)-1] === 1){
+							if(auxl.collisionMap[newMap][newPos.y][0][(newPos.z * -1)+1][newPos.x * -1] === 1 && auxl.collisionMap[newMap][newPos.y][0][newPos.z * -1][(newPos.x * -1)-1] === 1){
 								return false;
 							} else {
 								return true;
@@ -11307,7 +11676,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'forwardLeft'){
 							//-Z
 							//-X
-							if(auxl.collideMap[0][(newPos.z * -1)+1][newPos.x * -1] !== 0 && auxl.collideMap[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][0][(newPos.z * -1)+1][newPos.x * -1] !== 0 && auxl.collisionMap[newMap][newPos.y][0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11315,7 +11684,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseRight'){
 							//+Z
 							//+X
-							if(auxl.collideMap[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && auxl.collideMap[0][newPos.z * -1][(newPos.x * -1)-1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && auxl.collisionMap[newMap][newPos.y][0][newPos.z * -1][(newPos.x * -1)-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11323,7 +11692,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseLeft'){
 							//+Z
 							//-X
-							if(auxl.collideMap[0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && auxl.collideMap[0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][0][(newPos.z * -1)-1][newPos.x * -1] !== 0 && auxl.collisionMap[newMap][newPos.y][0][newPos.z * -1][(newPos.x * -1)+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11354,15 +11723,15 @@ this.Collision = () => {
 			//Top Right - 1
 			//Loop 1 : -Z
 			//Loop 2 : +X
-			if(auxl.collideMap[1].length > newPos.z * -1){
-				if(auxl.collideMap[1][newPos.z * -1].length > newPos.x){
+			if(auxl.collisionMap[newMap][newPos.y][1].length > newPos.z * -1){
+				if(auxl.collisionMap[newMap][newPos.y][1][newPos.z * -1].length > newPos.x){
 					//console.log('Within Map');
-					if(auxl.collideMap[1][newPos.z * -1][newPos.x] === 0){
+					if(auxl.collisionMap[newMap][newPos.y][1][newPos.z * -1][newPos.x] === 0){
 						//Block diagonal movement if both adjacent squares are occupied
 						if(travelDirection === 'forwardRight'){
 							//-Z
 							//+X
-							if(auxl.collideMap[1][(newPos.z * -1)+1][newPos.x] !== 0 && auxl.collideMap[1][newPos.z * -1][(newPos.x)-1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][1][(newPos.z * -1)+1][newPos.x] !== 0 && auxl.collisionMap[newMap][newPos.y][1][newPos.z * -1][(newPos.x)-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11370,7 +11739,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'forwardLeft'){
 							//-Z
 							//-X
-							if(auxl.collideMap[1][(newPos.z * -1)+1][newPos.x] !== 0 && auxl.collideMap[1][newPos.z * -1][(newPos.x)+1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][1][(newPos.z * -1)+1][newPos.x] !== 0 && auxl.collisionMap[newMap][newPos.y][1][newPos.z * -1][(newPos.x)+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11378,7 +11747,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseRight'){
 							//+Z
 							//+X
-							if(auxl.collideMap[1][(newPos.z * -1)-1][newPos.x] !== 0 && auxl.collideMap[1][newPos.z * -1][(newPos.x)-1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][1][(newPos.z * -1)-1][newPos.x] !== 0 && auxl.collisionMap[newMap][newPos.y][1][newPos.z * -1][(newPos.x)-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11386,7 +11755,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseLeft'){
 							//+Z
 							//-X
-							if(auxl.collideMap[1][(newPos.z * -1)-1][newPos.x] !== 0 && auxl.collideMap[1][newPos.z * -1][(newPos.x)+1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][1][(newPos.z * -1)-1][newPos.x] !== 0 && auxl.collisionMap[newMap][newPos.y][1][newPos.z * -1][(newPos.x)+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11417,15 +11786,15 @@ this.Collision = () => {
 			//Bottom Left - 2
 			//Loop 1 : +Z
 			//Loop 2 : -X
-			if(auxl.collideMap[2].length > newPos.z){
-				if(auxl.collideMap[2][newPos.z].length > newPos.x * -1){
+			if(auxl.collisionMap[newMap][newPos.y][2].length > newPos.z){
+				if(auxl.collisionMap[newMap][newPos.y][2][newPos.z].length > newPos.x * -1){
 					//console.log('Within Map');
-					if(auxl.collideMap[2][newPos.z][newPos.x * -1] === 0){
+					if(auxl.collisionMap[newMap][newPos.y][2][newPos.z][newPos.x * -1] === 0){
 						//Block diagonal movement if both adjacent squares are occupied
 						if(travelDirection === 'forwardRight'){
 							//-Z
 							//+X
-							if(auxl.collideMap[2][(newPos.z)+1][newPos.x * -1] !== 0 && auxl.collideMap[2][newPos.z][(newPos.x * -1)-1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][2][(newPos.z)+1][newPos.x * -1] !== 0 && auxl.collisionMap[newMap][newPos.y][2][newPos.z][(newPos.x * -1)-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11433,7 +11802,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'forwardLeft'){
 							//-Z
 							//-X
-							if(auxl.collideMap[2][(newPos.z)+1][newPos.x * -1] !== 0 && auxl.collideMap[2][newPos.z][(newPos.x * -1)+1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][2][(newPos.z)+1][newPos.x * -1] !== 0 && auxl.collisionMap[newMap][newPos.y][2][newPos.z][(newPos.x * -1)+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11441,7 +11810,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseRight'){
 							//+Z
 							//+X
-							if(auxl.collideMap[2][(newPos.z)-1][newPos.x * -1] !== 0 && auxl.collideMap[2][newPos.z][(newPos.x * -1)-1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][2][(newPos.z)-1][newPos.x * -1] !== 0 && auxl.collisionMap[newMap][newPos.y][2][newPos.z][(newPos.x * -1)-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11449,7 +11818,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseLeft'){
 							//+Z
 							//-X
-							if(auxl.collideMap[2][(newPos.z)-1][newPos.x * -1] !== 0 && auxl.collideMap[2][newPos.z][(newPos.x * -1)+1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][2][(newPos.z)-1][newPos.x * -1] !== 0 && auxl.collisionMap[newMap][newPos.y][2][newPos.z][(newPos.x * -1)+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11480,14 +11849,14 @@ this.Collision = () => {
 			//Bottom Right - 3
 			//Loop 1 : +Z
 			//Loop 2 : +X
-			if(auxl.collideMap[3].length > newPos.z){
-				if(auxl.collideMap[3][newPos.z].length > newPos.x){
-					if(auxl.collideMap[3][newPos.z][newPos.x] === 0){
+			if(auxl.collisionMap[newMap][newPos.y][3].length > newPos.z){
+				if(auxl.collisionMap[newMap][newPos.y][3][newPos.z].length > newPos.x){
+					if(auxl.collisionMap[newMap][newPos.y][3][newPos.z][newPos.x] === 0){
 						//Block diagonal movement if both adjacent squares are occupied
 						if(travelDirection === 'forwardRight'){
 							//-Z
 							//+X
-							if(auxl.collideMap[3][newPos.z+1][newPos.x] !== 0 && auxl.collideMap[3][newPos.z][newPos.x-1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][3][newPos.z+1][newPos.x] !== 0 && auxl.collisionMap[newMap][newPos.y][3][newPos.z][newPos.x-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11495,7 +11864,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'forwardLeft'){
 							//-Z
 							//-X
-							if(auxl.collideMap[3][newPos.z+1][newPos.x] !== 0 && auxl.collideMap[3][newPos.z][newPos.x+1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][3][newPos.z+1][newPos.x] !== 0 && auxl.collisionMap[newMap][newPos.y][3][newPos.z][newPos.x+1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11503,7 +11872,7 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseRight'){
 							//+Z
 							//+X
-							if(auxl.collideMap[3][newPos.z-1][newPos.x] !== 0 && auxl.collideMap[3][newPos.z][newPos.x-1] !== 0){
+							if(auxl.collisionMap[newMap][newPos.y][3][newPos.z-1][newPos.x] !== 0 && auxl.collisionMap[newMap][newPos.y][3][newPos.z][newPos.x-1] !== 0){
 								return false;
 							} else {
 								return true;
@@ -11511,7 +11880,8 @@ this.Collision = () => {
 						} else if(travelDirection === 'reverseLeft'){
 							//+Z
 							//-X
-							if(auxl.collideMap[3][newPos.z-1][newPos.x] === 1 && auxl.collideMap[3][newPos.z][newPos.x+1] === 1){
+//auxl.collisionMap[newMap][newPos.y][3][(newPos.z - 1)] is undefined
+							if(auxl.collisionMap[newMap][newPos.y][3][newPos.z-1][newPos.x] === 1 && auxl.collisionMap[newMap][newPos.y][3][newPos.z][newPos.x+1] === 1){
 								return false;
 							} else {
 								return true;
@@ -11542,8 +11912,8 @@ this.Collision = () => {
 			return false;
 		}
 	}
-
-	//Check for Map Obstacles in an Area
+	//NOT USED
+	//Check for Map Obstacles in an Area 
 	const CheckMapObstaclesArea = (start,end) => {
 		let pos = {x: start.x, z: start.z};
 		let xSpaces;
@@ -11614,13 +11984,15 @@ this.Collision = () => {
 	}
 	//Build an Array for the Area
 	const BuildAreaArray = (start,end) => {
-		let pos = {x: start.x, z: start.z};
+		let pos = {x: start.x, y: start.y, z: start.z};
 		let xSpaces;
 		let xCurrent;
+		let ySpaces;
+		let yCurrent;
 		let zSpaces;
 		let zCurrent;
 		let spaces = 0;
-		let area = [];
+		let area = [[]];
 		//Calc X
 		function calcXPos(){
 			if(start.x === end.x){
@@ -11635,6 +12007,17 @@ this.Collision = () => {
 			}
 			pos.x = start.x;
 			xCurrent = xSpaces;
+		}
+		//Calc Y
+		function calcYPos(){
+			if(start.y === end.y){
+				ySpaces = 1;
+			} else {
+				ySpaces = Math.abs(start.y) + Math.abs(end.y);
+				ySpaces += 1;
+			}
+			pos.y = start.y;
+			yCurrent = ySpaces;
 		}
 		//Calc Z
 		function calcZPos(){
@@ -11652,23 +12035,31 @@ this.Collision = () => {
 			zCurrent = zSpaces;
 		}
 		//Assign Map Collisions
-		calcZPos();
-		for(let z = 0; z < zSpaces;z++){
-			calcXPos();
-			for(let x = 0; x < xSpaces;x++){
-				//Add to Area Array
-				area.push({x:pos.x,z:pos.z});
-				spaces++;
-				//Next X Space
-				xCurrent--;
-				if(xCurrent > 0){
-					pos.x += 0.5;
+		calcYPos();
+		for(let y = 0; y < ySpaces;y++){
+			calcZPos();
+			for(let z = 0; z < zSpaces;z++){
+				calcXPos();
+				for(let x = 0; x < xSpaces;x++){
+					//Add to Area Array
+					area[pos.y].push({x:pos.x,z:pos.z});
+					spaces++;
+					//Next X Space
+					xCurrent--;
+					if(xCurrent > 0){
+						pos.x += 0.5;
+					}
+				}
+				//Next Z Space
+				zCurrent--;
+				if(zCurrent > 0){
+					pos.z += 0.5;
 				}
 			}
-			//Next Z Space
-			zCurrent--;
-			if(zCurrent > 0){
-				pos.z += 0.5;
+			//Next Y Space
+			yCurrent--;
+			if(yCurrent > 0){
+				pos.y += 1;
 			}
 		}
 		return area;
@@ -11679,9 +12070,11 @@ this.Collision = () => {
 		//from is the area moving from, do not check any of these spaces
 		let original = BuildAreaArray(from.start, from.end);
 		let skip = false;
-		let pos = {x: to.start.x, z: to.start.z};
+		let pos = {x: to.start.x, y: to.start.y, z: to.start.z};
 		let xSpaces;
 		let xCurrent;
+		let ySpaces;
+		let yCurrent;
 		let zSpaces;
 		let zCurrent;
 		let spaces = 0;
@@ -11700,6 +12093,17 @@ this.Collision = () => {
 			pos.x = to.start.x;
 			xCurrent = xSpaces;
 		}
+		//Calc Y
+		function calcYPos(){
+			if(to.start.y === to.end.y){
+				ySpaces = 1;
+			} else {
+				ySpaces = Math.abs(to.start.y) + Math.abs(to.end.y);
+				ySpaces += 1;
+			}
+			pos.y = to.start.y;
+			yCurrent = ySpaces;
+		}
 		//Calc Z
 		function calcZPos(){
 			if(to.start.z === to.end.z){
@@ -11715,43 +12119,51 @@ this.Collision = () => {
 			pos.z = to.start.z;
 			zCurrent = zSpaces;
 		}
-		//Assign Map Collisions
-		calcZPos();
 		//Check for Player Collision
 		if(CheckForPlayer(to)){}else{
 			//console.log('Hit Player')
 			return false;
 		}
-		for(let z = 0; z < zSpaces;z++){
-			calcXPos();
-			for(let x = 0; x < xSpaces;x++){
-				//Check if within From
-				for(let each in original){
-					//if(pos.x === original[each].x && pos.x === original[each].x && pos.z === original[each].z && pos.z === original[each].z){
-					if(pos.x === original[each].x && pos.z === original[each].z){
-						skip = true;
-						break;
+		//Check Map Collisions
+		calcYPos();
+		for(let y = 0; y < ySpaces;y++){
+			calcZPos();
+			for(let z = 0; z < zSpaces;z++){
+				calcXPos();
+				for(let x = 0; x < xSpaces;x++){
+					//Check if within From
+					for(let each in original[pos.y]){
+						//if(pos.x === original[each].x && pos.x === original[each].x && pos.z === original[each].z && pos.z === original[each].z){
+						if(pos.x === original[pos.y][each].x && pos.z === original[pos.y][each].z){
+							skip = true;
+							break;
+						}
+					}
+					//Check for Other Object Collision
+					if(skip){}else{
+						if(CheckMapObstacles(pos)){}else{
+							//console.log('Hit Object')
+							return false;
+						}
+					}
+					spaces++;
+					skip = false;
+					//Next X Space
+					xCurrent--;
+					if(xCurrent > 0){
+						pos.x += 0.5;
 					}
 				}
-				//Check for Other Object Collision
-				if(skip){}else{
-					if(CheckMapObstacles(pos)){}else{
-						//console.log('Hit Object')
-						return false;
-					}
-				}
-				spaces++;
-				skip = false;
-				//Next X Space
-				xCurrent--;
-				if(xCurrent > 0){
-					pos.x += 0.5;
+				//Next Z Space
+				zCurrent--;
+				if(zCurrent > 0){
+					pos.z += 0.5;
 				}
 			}
-			//Next Z Space
-			zCurrent--;
-			if(zCurrent > 0){
-				pos.z += 0.5;
+			//Next Y Space
+			yCurrent--;
+			if(yCurrent > 0){
+				pos.y += 1;
 			}
 		}
 		return true;
@@ -11761,26 +12173,22 @@ this.Collision = () => {
 	//Triggers
 	//Blank Map @ Size
 	const BlankMapTrigger = () => {
-		grid.trigger = {};
+		//Clear Current Map and Objects
+		grid.triggers = {};
 		auxl.triggerMap[0] = [];
-		auxl.triggerMap[0] = Array(grid.size/2).fill(0, 0);
-		for(let each in auxl.triggerMap[0]){
-			auxl.triggerMap[0][each] = Array(grid.size/2).fill(0, 0);
-		}
 		auxl.triggerMap[1] = [];
-		auxl.triggerMap[1] = Array(grid.size/2).fill(0, 0);
-		for(let each in auxl.triggerMap[1]){
-			auxl.triggerMap[1][each] = Array(grid.size/2).fill(0, 0);
+
+		//Build Top Map
+		if(grid.topHeight > 0){
+			for(let level = 0; level < grid.topHeight; level++){
+				BlankMapLevel(auxl.triggerMap[0], level);
+			}
 		}
-		auxl.triggerMap[2] = [];
-		auxl.triggerMap[2] = Array(grid.size/2).fill(0, 0);
-		for(let each in auxl.triggerMap[2]){
-			auxl.triggerMap[2][each] = Array(grid.size/2).fill(0, 0);
-		}
-		auxl.triggerMap[3] = [];
-		auxl.triggerMap[3] = Array(grid.size/2).fill(0, 0);
-		for(let each in auxl.triggerMap[3]){
-			auxl.triggerMap[3][each] = Array(grid.size/2).fill(0, 0);
+		//Build Bottom Map
+		if(grid.bottomHeight > 0){
+			for(let level = 0; level < grid.bottomHeight; level++){
+				BlankMapLevel(auxl.triggerMap[1], level);
+			}
 		}
 	}
 	//Add to Map
@@ -11801,7 +12209,7 @@ this.Collision = () => {
 		for(let each in grid.trigger){
 			if(each === obj.name){}else{
 				for(let space in grid.trigger[each]){
-					if(grid.trigger[each][space].pos.x === obj.pos.x && grid.trigger[each][space].pos.z === obj.pos.z){
+					if(grid.trigger[each][space].pos.x === obj.pos.x && grid.trigger[each][space].pos.y === obj.pos.y && grid.trigger[each][space].pos.z === obj.pos.z){
 						return false;
 					}
 				}
@@ -11811,9 +12219,11 @@ this.Collision = () => {
 	}
 	//Update Map Multi Space
 	const UpdateMapAreaTrigger = (name,start,end,trigger) => {
-		let pos = {x: start.x, z: start.z};
+		let pos = {x: start.x, y: start.y, z: start.z};
 		let xSpaces;
 		let xCurrent;
+		let ySpaces;
+		let yCurrent;
 		let zSpaces;
 		let zCurrent;
 		let mapKey;
@@ -11839,6 +12249,17 @@ this.Collision = () => {
 			pos.x = start.x;
 			xCurrent = xSpaces;
 		}
+		//Calc Y
+		function calcYPos(){
+			if(start.y === end.y){
+				ySpaces = 1;
+			} else {
+				ySpaces = Math.abs(start.y) + Math.abs(end.y);
+				ySpaces += 1;
+			}
+			pos.y = start.y;
+			yCurrent = ySpaces;
+		}
 		//Calc Z
 		function calcZPos(){
 		if(start.z === end.z){
@@ -11855,33 +12276,41 @@ this.Collision = () => {
 		zCurrent = zSpaces;
 		}
 		//Assign Map Collisions
-		calcZPos();
-		for(let z = 0; z < zSpaces;z++){
-			calcXPos();
-			for(let x = 0; x < xSpaces;x++){
-				if(mapKey === 0){
-					//Removing
-					//If another object doesn't exist in same space, clear it
-					if(CheckMapOverlapTrigger({name, pos:{x:pos.x,z:pos.z}})){
+		calcYPos();
+		for(let y = 0; y < ySpaces;y++){
+			calcZPos();
+			for(let z = 0; z < zSpaces;z++){
+				calcXPos();
+				for(let x = 0; x < xSpaces;x++){
+					if(mapKey === 0){
+						//Removing
+						//If another object doesn't exist in same space, clear it
+						if(CheckMapOverlapTrigger({name, pos:{x:pos.x,y:pos.y,z:pos.z}})){
+							UpdateMapTrigger(pos,mapKey);
+						}
+						spaces++;
+					} else if(mapKey === 1){
+						//Adding
 						UpdateMapTrigger(pos,mapKey);
+						spaces++;
+						OnMapTrigger({name, spaces, pos:{x:pos.x,y:pos.y,z:pos.z}});
 					}
-					spaces++;
-				} else if(mapKey === 1){
-					//Adding
-					UpdateMapTrigger(pos,mapKey);
-					spaces++;
-					OnMapTrigger({name, spaces, pos:{x:pos.x,z:pos.z}});
+					//Next X Space
+					xCurrent--;
+					if(xCurrent > 0){
+						pos.x += 0.5;
+					}
 				}
-				//Next X Space
-				xCurrent--;
-				if(xCurrent > 0){
-					pos.x += 0.5;
+				//Next Z Space
+				zCurrent--;
+				if(zCurrent > 0){
+					pos.z += 0.5;
 				}
 			}
-			//Next Z Space
-			zCurrent--;
-			if(zCurrent > 0){
-				pos.z += 0.5;
+			//Next Y Space
+			yCurrent--;
+			if(yCurrent > 0){
+				pos.y += 1;
 			}
 		}
 		//Remove from grid.trigger
@@ -11893,31 +12322,39 @@ this.Collision = () => {
 	const UpdateMapTrigger = (pos, mapKey) => {
 		//0.5 meter to integer grid adjustment
 		let xPos = pos.x * 2;
+		let yPos = pos.y;
 		let zPos = pos.z * 2;
 		//console.log({x: xPos, z: zPos})
-
+		let map;
+		if(pos.y >= 0){
+			//Top
+			map = 0;
+		} else {
+			//Bottom
+			map = 1;
+		}
 		//Add a mechanism to detect if the collision it is adding is the same sq that the player is in. If so, do not add until the player has moved out of the square.
 
 		if(xPos < 0 && zPos < 0){
 			//Top Left - 0
 			//Loop 1 : -Z
 			//Loop 2 : -X
-			auxl.triggerMap[0][zPos * -1][xPos * -1] = mapKey;
+			auxl.triggerMap[map][yPos][0][zPos * -1][xPos * -1] = mapKey;
 		} else if(pos.x >= 0 && zPos < 0){
 			//Top Right - 1
 			//Loop 1 : -Z
 			//Loop 2 : +X
-			auxl.triggerMap[1][zPos * -1][xPos] = mapKey
+			auxl.triggerMap[map][yPos][1][zPos * -1][xPos] = mapKey
 		} else if(xPos < 0 && zPos >= 0){
 			//Bottom Left - 2
 			//Loop 1 : +Z
 			//Loop 2 : -X
-			auxl.triggerMap[2][zPos][xPos * -1] = mapKey;
+			auxl.triggerMap[map][yPos][2][zPos][xPos * -1] = mapKey;
 		} else if(xPos >= 0 && zPos >= 0){
 			//Bottom Right - 3
 			//Loop 1 : +Z
 			//Loop 2 : +X
-			auxl.triggerMap[3][zPos][xPos] = mapKey;
+			auxl.triggerMap[map][yPos][3][zPos][xPos] = mapKey;
 		} else {
 			console.log('Update out of bounds')
 			//resize map
@@ -12019,16 +12456,24 @@ original.splice(original.indexOf(each), 1);
 
 		let newPos = {};
 		newPos.x = pos.x * 2;
+		newPos.y = pos.y;
 		newPos.z = pos.z * 2;
-
+		let map;
+		if(newPos.y >= 0){
+			//Top
+			map = 0;
+		} else {
+			//Bottom
+			map = 1;
+		}
 		if(newPos.x < 0 && newPos.z < 0){
 			//Top Left - 0
 			//Loop 1 : -Z
 			//Loop 2 : -X
-			if(auxl.triggerMap[0].length > newPos.z * -1){
-				if(auxl.triggerMap[0][newPos.z * -1].length > newPos.x * -1){
+			if(auxl.triggerMap[map][newPos.y][0].length > newPos.z * -1){
+				if(auxl.triggerMap[map][newPos.y][0][newPos.z * -1].length > newPos.x * -1){
 					//console.log('Within Map');
-					if(auxl.triggerMap[0][newPos.z * -1][newPos.x * -1] === 1){
+					if(auxl.triggerMap[map][newPos.y][0][newPos.z * -1][newPos.x * -1] === 1){
 						return true;
 					} else {
 						return false;
@@ -12039,10 +12484,10 @@ original.splice(original.indexOf(each), 1);
 			//Top Right - 1
 			//Loop 1 : -Z
 			//Loop 2 : +X
-			if(auxl.triggerMap[1].length > newPos.z * -1){
-				if(auxl.triggerMap[1][newPos.z * -1].length > newPos.x){
+			if(auxl.triggerMap[map][newPos.y][1].length > newPos.z * -1){
+				if(auxl.triggerMap[map][newPos.y][1][newPos.z * -1].length > newPos.x){
 					//console.log('Within Map');
-					if(auxl.triggerMap[1][newPos.z * -1][newPos.x] === 1){
+					if(auxl.triggerMap[map][newPos.y][1][newPos.z * -1][newPos.x] === 1){
 						//User can move
 						return true;
 					} else {
@@ -12054,10 +12499,10 @@ original.splice(original.indexOf(each), 1);
 			//Bottom Left - 2
 			//Loop 1 : +Z
 			//Loop 2 : -X
-			if(auxl.triggerMap[2].length > newPos.z){
-				if(auxl.triggerMap[2][newPos.z].length > newPos.x * -1){
+			if(auxl.triggerMap[map][newPos.y][2].length > newPos.z){
+				if(auxl.triggerMap[map][newPos.y][2][newPos.z].length > newPos.x * -1){
 					//console.log('Within Map');
-					if(auxl.triggerMap[2][newPos.z][newPos.x * -1] === 1){
+					if(auxl.triggerMap[map][newPos.y][2][newPos.z][newPos.x * -1] === 1){
 						//User can move
 						return true;
 					} else {
@@ -12069,9 +12514,9 @@ original.splice(original.indexOf(each), 1);
 			//Bottom Right - 3
 			//Loop 1 : +Z
 			//Loop 2 : +X
-			if(auxl.triggerMap[3].length > newPos.z){
-				if(auxl.triggerMap[3][newPos.z].length > newPos.x){
-					if(auxl.triggerMap[3][newPos.z][newPos.x] === 1){
+			if(auxl.triggerMap[map][newPos.y][3].length > newPos.z){
+				if(auxl.triggerMap[map][newPos.y][3][newPos.z].length > newPos.x){
+					if(auxl.triggerMap[map][newPos.y][3][newPos.z][newPos.x] === 1){
 						//User can move
 						return true;
 					} else {
@@ -14721,6 +15166,86 @@ auxl.compSphereLayer = auxl.Layer('compSphereLayer',auxl.compSphereLayerData);
 
 //
 //Companion Bubble, Book & Pages
+
+//Bubble
+auxl.compBubbleParentData = {
+data:'compBubbleParentData',
+id:'compBubbleParent',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.75, zOffset: 0.025, side: 'front', wrapCount: 30, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.8, height: 0.15},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0,0.45,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0.01,0.01,0.01),
+animations: {
+loadin: {property: 'scale', from: new THREE.Vector3(0.01,0.01,0.01), to: new THREE.Vector3(1,1,1), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadin'},
+loadout: {property: 'scale', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(0.01,0.01,0.01), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadout'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.compBubbleParent = auxl.Core(auxl.compBubbleParentData);
+//Speech Close
+auxl.compBubbleCloseData = {
+data:'compBubbleCloseData',
+id:'compBubbleClose',
+sources:false,
+text: {value:'X', color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.025, side: 'front', wrapCount: 2, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.08, height: 0.08},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.5,0.06,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0.01,0.01,0.01),
+animations: {
+loadin: {property: 'scale', from: new THREE.Vector3(0.01,0.01,0.01), to: new THREE.Vector3(1,1,1), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadin'},
+loadout: {property: 'scale', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(0.01,0.01,0.01), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadout'},
+
+hoveron: {property: 'text.color', to: '#000000', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
+hoveroff: {property: 'text.color', to: '#ffffff', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
+
+click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.compBubbleClose = auxl.Core(auxl.compBubbleCloseData);
+//Speech Reset
+auxl.compBubbleResetData = {
+data:'compBubbleResetData',
+id:'compBubbleReset',
+sources:false,
+text: {value:'@', color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.025, side: 'front', wrapCount: 2, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.08, height: 0.08},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.5,-0.04,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0.01,0.01,0.01),
+animations: {
+loadin: {property: 'scale', from: new THREE.Vector3(0.01,0.01,0.01), to: new THREE.Vector3(1,1,1), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadin'},
+loadout: {property: 'scale', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(0.01,0.01,0.01), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadout'},
+
+hoveron: {property: 'text.color', to: '#000000', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
+hoveroff: {property: 'text.color', to: '#ffffff', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
+
+click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.compBubbleReset = auxl.Core(auxl.compBubbleResetData);
+//Comp Bubble Layer
+auxl.compBubbleLayerData = {
+	parent: {core: auxl.compBubbleParent}, 
+	child0: {core: auxl.compBubbleClose}, 
+	child1: {core: auxl.compBubbleReset}, 
+}
+auxl.compBubbleLayer = auxl.Layer('compBubbleLayer',auxl.compBubbleLayerData);
+
+/*
 auxl.compBubbleData = {
 	data:'compBubbleData',
 	id:'compBubble',
@@ -14730,13 +15255,17 @@ auxl.compBubbleData = {
 	material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
 	position: new THREE.Vector3(0,0.45,-0.05),
 	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
+	scale: new THREE.Vector3(0.01,0.01,0.01),
+	animations: {
+		loadin: {property: 'scale', from: new THREE.Vector3(0.01,0.01,0.01), to: new THREE.Vector3(1,1,1), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadin'},
+		loadout: {property: 'scale', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(0.01,0.01,0.01), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadout'},
+	},
 	mixins: false,
 	classes: ['clickable','a-ent'],
 	components: false,
 };
 auxl.compBubble = auxl.Core(auxl.compBubbleData);
+*/
 auxl.compPage0Data = {
 	info:{
 		id:'compPage0',
@@ -15215,9 +15744,9 @@ text: false,
 geometry: false,
 material: false,
 position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(-10,45,0),
+rotation: new THREE.Vector3(-5,45,0),
 scale: new THREE.Vector3(1,1,1),
-animations:{daynight:{property: 'object3D.rotation.x', from: -5, to: 355, dur: auxl.timeInDay, delay: 0, loop: '1', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true,startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},},
+animations:{daynight:{property: 'object3D.rotation.x', from: -5, to: 355, dur: auxl.timeInDay, delay: 0, loop: '1', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},},
 mixins: false,
 classes: ['a-ent'],
 components: false,
@@ -15253,9 +15782,9 @@ text: false,
 geometry: false,
 material: false,
 position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(170,45,0),
+rotation: new THREE.Vector3(175,45,0),
 scale: new THREE.Vector3(1,1,1),
-animations:{daynight:{property: 'object3D.rotation.x', from: 175, to: 535, dur: auxl.timeInDay, delay: 0, loop: '1', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true,startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},},
+animations:{daynight:{property: 'object3D.rotation.x', from: 175, to: 535, dur: auxl.timeInDay, delay: 0, loop: '1', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},},
 mixins: false,
 classes: ['a-ent'],
 components: false,
@@ -15380,7 +15909,10 @@ auxl.compSphereParent = auxl.Core(auxl.compSphereParentData);
 auxl.compSphere = auxl.Core(auxl.compSphereData);
 auxl.compSphereLayer = auxl.Layer('compSphereLayer',auxl.compSphereLayerData);
 //Text Bubble
-auxl.compBubble = auxl.Core(auxl.compBubbleData);
+auxl.compBubbleParent = auxl.Core(auxl.compBubbleParentData);
+auxl.compBubbleClose = auxl.Core(auxl.compBubbleCloseData);
+auxl.compBubbleReset = auxl.Core(auxl.compBubbleResetData);
+auxl.compBubbleLayer = auxl.Layer('compBubbleLayer',auxl.compBubbleLayerData);
 //Companion
 auxl.comp = auxl.Companion('comp',auxl.ghost);
 

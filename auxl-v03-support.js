@@ -1122,6 +1122,10 @@ init: function () {
 		}
 	},1000)
 },
+//1 Increments
+round: function (num){
+	return Math.round(num);
+},
 //0.5 Increments
 roundHalf: function (num){
 	return Math.round(num*2)/2;
@@ -1891,10 +1895,12 @@ directionXZ: function (action, speed) {
 	if(this.auxl.physics){
 		this.player.body.position.copy(this.positionNew);
 	} else if(this.auxl.collision){
-		//Locomotion with Collision every 0.5 meter
+		//Locomotion with Collision every 0.5 meter on XZ and 1 meter on Y
 		this.newPosRound.x = this.roundHalf(this.positionNew.x);
+		this.newPosRound.y = this.round(this.positionNew.y);
 		this.newPosRound.z = this.roundHalf(this.positionNew.z);
 		this.posRound.x = this.roundHalf(this.positionPlayer.x);
+		this.posRound.y = this.round(this.positionPlayer.y);
 		this.posRound.z = this.roundHalf(this.positionPlayer.z);
 		//Check for Obstacles
 		//if(this.auxl.map.CheckMapObstacles(this.newPosRound)){

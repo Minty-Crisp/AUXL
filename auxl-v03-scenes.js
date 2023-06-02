@@ -316,7 +316,7 @@ auxl.collisionTest1 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTes
 
 
 
-auxl.collisionTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest2', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:0, z:3}, end: {x:0.5, z:3}, collide: true}}, true);
+auxl.collisionTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest2', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:0, y:0, z:3}, end: {x:0.5, y:0, z:3}, collide: true}}, true);
 
 auxl.collisionTest8 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest8', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:1, z:3.5}, end: {x:1.5, z:3.5}, collide: true}}, true);
 
@@ -325,9 +325,10 @@ auxl.collisionTest3 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTes
 
 
 
-auxl.collisionTest4 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest4', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:-5, z:-2}, end: {x:-3.5, z:-0.5}, collide: true}}, true);
+auxl.collisionTest4 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest4', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:-5, y:0, z:-2}, end: {x:-3.5, y:0, z:-0.5}, collide: true}}, true);
 
 auxl.collisionTest4.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'anim', path:[{z:-2,x:2,}, {z:2,x:-2,},]});
+//auxl.collisionTest4.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'anim', path:[{z:-2,y:1,x:2,}, {z:2,y:-1,x:-2,},]});
 
 auxl.collisionTest5 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest5', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:0, z:-5}, end: {x:0, z:-5}, collide: true}}, true);
 
@@ -351,18 +352,9 @@ auxl.triggerTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'triggerTest2',
 
 
 //Collision Layer
-auxl.layerFromTemplate(auxl.ghost, 'ghostCollision', {position: new THREE.Vector3(0,1.5,0)},{grid: {start:{x:3, z:-5}, end: {x:4, z:-4}, collide: true}});
+auxl.layerFromTemplate(auxl.ghost, 'ghostCollision', {position: new THREE.Vector3(0,1.5,0)},{grid: {start:{x:3, y:0, z:-5}, end: {x:4, y:0, z:-4}, collide: true}});
 
 auxl.ghostCollision.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'anim', path:[{z:-2,x:2,}, {z:2,x:-2,},]});
-
-
-
-
-
-
-
-
-
 
 
 //Info Bubble
@@ -1390,40 +1382,52 @@ auxl.testSpecial2 = {
 //NPC
 
 //Key Giver
-auxl.npcKeyBubbleData = {
-	data:'npcKeyBubbleData',
-	id:'npcKeyBubble',
-	sources:false,
-	text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.75, zOffset: 0.025, side: 'front', wrapCount: 45, baseline: 'center'},
-	geometry: {primitive: 'box', depth: 0.025, width: 0.8, height: 0.15},
-	material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-	position: new THREE.Vector3(0.25,0.25,-0.05),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['clickable','a-ent'],
-	components: {
-		['stare']:{id: 'playerRig'},
-	},
+//Parent
+auxl.npcKeyParentData = {
+data:'npcKeyParentData',
+id:'npcKeyParent',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0.5,1,-0.75),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+['stare']:{id: 'playerRig'},
+},
 };
+auxl.npcKeyParent = auxl.Core(auxl.npcKeyParentData);
+//Body
 auxl.npcKeyBodyData = {
-	data:'npcKeyBodyData',
-	id:'npcKeyGiver',
-	sources: false,
-	text: {value:'O_O', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
-	geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-	material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
-	position: new THREE.Vector3(0.5,1,-0.75),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['clickable','a-ent'],
-	components: {
-		['stare']:{id: 'playerRig'},
-	},
+data:'npcKeyBodyData',
+id:'npcKeyGiver',
+sources: false,
+text: {value:'O_O', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+	['stare']:{id: 'playerRig'},
+},
 };
+auxl.npcKeyBody = auxl.Core(auxl.npcKeyBodyData);
+//Rig
+auxl.npcKeyRigData = {
+	parent: {core: auxl.npcKeyParent}, 
+	child0: {core: auxl.npcKeyBody}, 
+
+}
+auxl.npcKeyRig = auxl.Layer('npcKeyRig',auxl.npcKeyRigData);
+//Book & Pages
 auxl.npcKeyPage1Data = {
 	info:{
 		id:'npcKeyPage1',
@@ -1510,9 +1514,85 @@ auxl.npcKeyBookData = {
 		page0: auxl.npcKeyIdleData,
 	},
 };
-auxl.npcKeyBody = auxl.Core(auxl.npcKeyBodyData);
-auxl.npcKeyBubble = auxl.Core(auxl.npcKeyBubbleData);
-auxl.npcKeyGiver = auxl.NPC('npcKeyGiver', auxl.npcKeyBody, auxl.npcKeyBookData, auxl.npcKeyBubble);
+//Bubble
+auxl.keyGiverBubbleParentData = {
+data:'keyGiverBubbleParentData',
+id:'keyGiverBubbleParent',
+sources:false,
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.75, zOffset: 0.025, side: 'front', wrapCount: 30, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.8, height: 0.15},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0,0.45,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0.01,0.01,0.01),
+animations: {
+loadin: {property: 'scale', from: new THREE.Vector3(0.01,0.01,0.01), to: new THREE.Vector3(1,1,1), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadin'},
+loadout: {property: 'scale', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(0.01,0.01,0.01), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadout'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.keyGiverBubbleParent = auxl.Core(auxl.keyGiverBubbleParentData);
+//Speech Close
+auxl.keyGiverBubbleCloseData = {
+data:'keyGiverBubbleCloseData',
+id:'keyGiverBubbleClose',
+sources:false,
+text: {value:'X', color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.025, side: 'front', wrapCount: 2, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.08, height: 0.08},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.5,0.06,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0.01,0.01,0.01),
+animations: {
+loadin: {property: 'scale', from: new THREE.Vector3(0.01,0.01,0.01), to: new THREE.Vector3(1,1,1), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadin'},
+loadout: {property: 'scale', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(0.01,0.01,0.01), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadout'},
+
+hoveron: {property: 'text.color', to: '#000000', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
+hoveroff: {property: 'text.color', to: '#ffffff', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
+
+click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.keyGiverBubbleClose = auxl.Core(auxl.keyGiverBubbleCloseData);
+//Speech Reset
+auxl.keyGiverBubbleResetData = {
+data:'keyGiverBubbleResetData',
+id:'keyGiverBubbleReset',
+sources:false,
+text: {value:'@', color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.025, side: 'front', wrapCount: 2, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 0.08, height: 0.08},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.5,-0.04,-0.05),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(0.01,0.01,0.01),
+animations: {
+loadin: {property: 'scale', from: new THREE.Vector3(0.01,0.01,0.01), to: new THREE.Vector3(1,1,1), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadin'},
+loadout: {property: 'scale', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(0.01,0.01,0.01), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadout'},
+
+hoveron: {property: 'text.color', to: '#000000', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
+hoveroff: {property: 'text.color', to: '#ffffff', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
+
+click: {property: 'scale', from: '1 1 1', to: '1.25 1.25 1.25', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.keyGiverBubbleReset = auxl.Core(auxl.keyGiverBubbleResetData);
+//Comp Bubble Layer
+auxl.keyGiverBubbleLayerData = {
+	parent: {core: auxl.keyGiverBubbleParent}, 
+	child0: {core: auxl.keyGiverBubbleClose}, 
+	child1: {core: auxl.keyGiverBubbleReset}, 
+}
+auxl.keyGiverBubbleLayer = auxl.Layer('keyGiverBubbleLayer',auxl.keyGiverBubbleLayerData);
+//NPC
+auxl.npcKeyGiver = auxl.NPC('npcKeyGiver', auxl.npcKeyRig, auxl.npcKeyBookData, auxl.keyGiverBubbleLayer, true);
 
 //Minty NPC
 auxl.npcMintyTextBubbleData = {
@@ -1525,7 +1605,10 @@ material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, rou
 position: new THREE.Vector3(0.25,1.75,-0.05),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-animations: false,
+animations: {
+	loadin: {property: 'scale', from: new THREE.Vector3(0.01,0.01,0.01), to: new THREE.Vector3(1,1,1), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadin'},
+	loadout: {property: 'scale', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(0.01,0.01,0.01), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadout'},
+},
 mixins: false,
 classes: ['clickable','a-ent'],
 components: {
@@ -1620,7 +1703,7 @@ auxl.npcMintyBookTestData = {
 		page0: auxl.npcMintyIdleData,
 	},
 };
-auxl.npcMinty = auxl.NPC('npcMinty', auxl.npcMintyCore, auxl.npcMintyBookTestData, auxl.npcMintyTextBubble);
+//auxl.npcMinty = auxl.NPC('npcMinty', auxl.npcMintyCore, auxl.npcMintyBookTestData, auxl.npcMintyTextBubble);
 
 
 //NPC Layer Test
@@ -1691,7 +1774,10 @@ auxl.layerBubbleData = {
 	position: new THREE.Vector3(0.25,0.75,-0.05),
 	rotation: new THREE.Vector3(0,0,0),
 	scale: new THREE.Vector3(1,1,1),
-	animations: false,
+	animations: {
+		loadin: {property: 'scale', from: new THREE.Vector3(0.01,0.01,0.01), to: new THREE.Vector3(1,1,1), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadin'},
+		loadout: {property: 'scale', from: new THREE.Vector3(1,1,1), to: new THREE.Vector3(0.01,0.01,0.01), dur: 1000, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'loadout'},
+	},
 	mixins: false,
 	classes: ['clickable','a-ent'],
 	components: false,
@@ -1868,8 +1954,13 @@ auxl.indoorWall = auxl.Horizon(auxl.indoorWallData);
 //NPCs
 //Key Giver
 auxl.npcKeyBody = auxl.Core(auxl.npcKeyBodyData);
-auxl.npcKeyBubble = auxl.Core(auxl.npcKeyBubbleData);
-auxl.npcKeyGiver = auxl.NPC('npcKeyGiver', auxl.npcKeyBody, auxl.npcKeyBookData, auxl.npcKeyBubble);
+auxl.keyGiverBubbleParent = auxl.Core(auxl.keyGiverBubbleParentData);
+auxl.keyGiverBubbleClose = auxl.Core(auxl.keyGiverBubbleCloseData);
+auxl.keyGiverBubbleReset = auxl.Core(auxl.keyGiverBubbleResetData);
+auxl.keyGiverBubbleLayer = auxl.Layer('keyGiverBubbleLayer',auxl.keyGiverBubbleLayerData);
+auxl.npcKeyGiver = auxl.NPC('npcKeyGiver', auxl.npcKeyBody, auxl.npcKeyBookData, auxl.keyGiverBubbleLayer);
+//auxl.npcKeyBubble = auxl.Core(auxl.npcKeyBubbleData);
+//auxl.npcKeyGiver = auxl.NPC('npcKeyGiver', auxl.npcKeyBody, auxl.npcKeyBookData, auxl.npcKeyBubble);
 //Minty
 auxl.npcMintyTextBubble = auxl.Core(auxl.npcMintyTextBubbleData);
 auxl.npcMintyCore = auxl.Core(auxl.npcMintyData);
@@ -1880,7 +1971,7 @@ auxl.test0 = auxl.Core(auxl.test0Data);
 auxl.test1 = auxl.Core(auxl.test1Data);
 auxl.testLayer = auxl.Layer('testLayer',auxl.testLayerData);
 auxl.layerBubble = auxl.Core(auxl.layerBubbleData);
-auxl.layerNPC = auxl.NPC('layerNPC', auxl.testLayer, auxl.layerBookData, auxl.layerBubble);
+//auxl.layerNPC = auxl.NPC('layerNPC', auxl.testLayer, auxl.layerBookData, auxl.layerBubble);
 
 //Doorways
 auxl.doorway1 = auxl.Core(auxl.doorway1Data);
@@ -1975,6 +2066,7 @@ auxl.zone0Scene0Data = {
 		fog: {type: 'exponential', color: '#000', density: 0.025},
 		map: {
 			size: 64,
+			height: {top: 10, bottom: 0},
 			edge: true,
 			edgeUpdate: false,
 		},
@@ -2000,11 +2092,12 @@ auxl.zone0Scene0Data = {
 		triggerTest1:{SpawnCoreOnGrid:null},
 		triggerTest2:{SpawnCoreOnGrid:null},
 		ghostCollision:{SpawnLayerOnGrid:null, WalkPath: null},
-		testGrid2:{SpawnGridLayout:'grid1'},
+		//testGrid2:{SpawnGridLayout:'grid1'},
 	},
 	delay:{
 		3000:{
 			switchCube:{EmitEvent:'emote1'},
+			//skyBox0:{SetTime: 10},
 		},
 		4000:{
 			coreEventTesting:{EmitEvent:'test'},
@@ -2021,9 +2114,11 @@ auxl.zone0Scene0Data = {
 			player:{ChangeLocomotionType:{pov: '1st', axis: 'posXZ', type: 'free'}},
 		},
 */
+
 		24000:{
 			collisionTest6:{DespawnCore:null},
 		},
+
 	},
 	interval:{
 		5000: {
@@ -2078,6 +2173,7 @@ auxl.zone0Scene1Data = {
 		fog: false,
 		map: {
 			size: 38,
+			height: {top: 0, bottom: 0},
 			edge: true,
 			edgeUpdate: false,
 		},
@@ -2151,6 +2247,7 @@ auxl.zone1Scene0Data = {
 		fog: {type: 'exponential', color: '#AAA', density: 0.05},
 		map: {
 			size: 100,
+			height: {top: 20, bottom: 0},
 			edge: false,
 			edgeUpdate: false,
 		},
