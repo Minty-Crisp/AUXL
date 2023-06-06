@@ -18,7 +18,6 @@ const auxl = document.querySelector('a-scene').systems.auxl;
 //
 //Testing Objects
 
-
 //Grid Layout Testing
 auxl.dataGridObjectData = {
 data:'dataGridObjectData',
@@ -312,47 +311,65 @@ auxl.layerTest.SpawnLayer();
 
 
 //Collision Spawn Testing
-auxl.collisionTest1 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest1', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:0, z:1}, end: {x:0, z:1}, collide: true}}, true);
+auxl.collisionTest1 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest1', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:0, z:1}, end: {x:0, z:1}, yOffset: 0.5, collide: true}}, true);
 
 
 
-auxl.collisionTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest2', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:0, y:0, z:3}, end: {x:0.5, y:0, z:3}, collide: true}}, true);
+auxl.collisionTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest2', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:0, y:0, z:3}, end: {x:0.5, y:0, z:3}, yOffset: 0.5, collide: true}}, true);
 
-auxl.collisionTest8 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest8', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:1, z:3.5}, end: {x:1.5, z:3.5}, collide: true}}, true);
-
-
-auxl.collisionTest3 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest3', geometry: {primitive: 'box', depth: 2.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:3, z:0}, end: {x:3, z:2}, collide: true}}, true);
+auxl.collisionTest8 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest8', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:1, z:3.5}, end: {x:1.5, z:3.5}, yOffset: 0.5, collide: true}}, true);
 
 
+auxl.collisionTest3 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest3', geometry: {primitive: 'box', depth: 2.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3, z:0}, end: {x:3, z:2}, yOffset: 0.5, collide: true}}, true);
 
-auxl.collisionTest4 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest4', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:-5, y:0, z:-2}, end: {x:-3.5, y:0, z:-0.5}, collide: true}}, true);
 
-auxl.collisionTest4.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'anim', path:[{z:-2,x:2,}, {z:2,x:-2,},]});
+
+auxl.collisionTest4 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest4', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:-5, y:0, z:-2}, end: {x:-3.5, y:0, z:-0.5}, yOffset: 0.5, collide: true}}, true);
+
+auxl.collisionTest4.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 6, type: 'anim', path:[{z:-2,y:1,x:2,}, {z:2,y:-1,x:-2,},]});
 //auxl.collisionTest4.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'anim', path:[{z:-2,y:1,x:2,}, {z:2,y:-1,x:-2,},]});
 
-auxl.collisionTest5 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest5', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:0, z:-5}, end: {x:0, z:-5}, collide: true}}, true);
+auxl.collisionTest5 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest5', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:0, z:-5}, end: {x:0, z:-5}, yOffset: 0.5, collide: true}}, true);
 
 
-auxl.collisionTest6 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest6', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:-3, z:-1}, end: {x:-1.5, z:0.5}, collide: true}}, true);
+auxl.collisionTest6 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest6', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:-3, y:0, z:-0.5}, end: {x:-1.5, y:0, z:1}, yOffset: 0.5, collide: true}}, true);
 
 
-auxl.collisionTest7 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest7', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), grid: {start:{x:20, z:-1}, end: {x:21.5, z:0.5}, collide: true}}, true);
+auxl.collisionTest7 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest7', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:20, z:-1}, end: {x:21.5, z:0.5}, yOffset: 0.5, collide: true}}, true);
+
+
+auxl.collisionTest9 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest9', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:-5, y:1, z:-4.5}, end: {x:-3.5, y:1, z:-3}, yOffset: 0.5, collide: true}}, true);
+
+
+
+
+auxl.collisionTest10 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest10', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3, y:0, z:-4}, end: {x:3.5, y:1, z:-3.5}, yOffset: 1, collide: true}}, true);
+
+auxl.collisionTest11 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest11', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:5, y:0, z:-4}, end: {x:5.5, y:1, z:-3.5}, yOffset: 1, collide: true}}, true);
 
 
 
 //TriggerTesting 1
 //Trigger In and Out Once Only
-auxl.triggerTest1 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'triggerTest1', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#e6f257", emissive: '#e6f257', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), components: {oneventrun__triggerin:{event: 'triggerEnter', cursorObj: 'comp', component: 'null', method: 'TestFunc', params: 'Trigger In', once: true}, oneventrun__triggerout:{event: 'triggerExit', cursorObj: 'comp', component: 'null', method: 'TestFunc', params: 'Trigger Out', once: true},},grid: {start:{x:5, z:-2}, end: {x:6.5, z:-0.5}, trigger: true}}, true);
+auxl.triggerTest1 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'triggerTest1', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#e6f257", emissive: '#e6f257', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), components: {oneventrun__triggerin:{event: 'triggerEnter', cursorObj: 'comp', component: 'null', method: 'TestFunc', params: 'Trigger In', once: true}, oneventrun__triggerout:{event: 'triggerExit', cursorObj: 'comp', component: 'null', method: 'TestFunc', params: 'Trigger Out', once: true},},grid: {start:{x:5, z:-2}, end: {x:6.5, z:-0.5}, yOffset: 0.5, trigger: true}}, true);
 
 
 //TriggerTesting 2
 //Trigger In and Out Always
-auxl.triggerTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'triggerTest2', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#f28757", emissive: '#f28757', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0.5,0), components: {oneventrun__triggerin:{event: 'triggerEnter', cursorObj: 'comp', component: 'null', method: 'TestFunc', params: 'Trigger In',}, oneventrun__triggerout:{event: 'triggerExit', cursorObj: 'comp', component: 'null', method: 'TestFunc', params: 'Trigger Out',},},grid: {start:{x:5, z:6}, end: {x:6.5, z:7.5}, trigger: true}}, true);
+auxl.triggerTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'triggerTest2', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#f28757", emissive: '#f28757', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), components: {oneventrun__triggerin:{event: 'triggerEnter', cursorObj: 'comp', component: 'null', method: 'TestFunc', params: 'Trigger In',}, oneventrun__triggerout:{event: 'triggerExit', cursorObj: 'comp', component: 'null', method: 'TestFunc', params: 'Trigger Out',},},grid: {start:{x:5, z:6}, yOffset: 0.5, end: {x:6.5, z:7.5}, trigger: true}}, true);
 
+
+//
+//Gates
+
+//Gate 1
+auxl.gate1Base = auxl.coreFromTemplate(auxl.eventTesting,{id: 'gate1Base', geometry: {primitive: 'box', depth: 0.5, width: 1.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a58c", emissive: '#39a58c', emissiveIntensity: 0.25, opacity:0}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3.5, y:0, z:-4}, end: {x:5, y:1, z:-3.5}, yOffset: 1, trigger: true}}, true);
+
+auxl.gate1 = auxl.Gate('gate1', auxl.gate1Base, 'forward');
 
 
 //Collision Layer
-auxl.layerFromTemplate(auxl.ghost, 'ghostCollision', {position: new THREE.Vector3(0,1.5,0)},{grid: {start:{x:3, y:0, z:-5}, end: {x:4, y:0, z:-4}, collide: true}});
+auxl.layerFromTemplate(auxl.ghost, 'ghostCollision', {position: new THREE.Vector3(0,0,0)},{grid: {start:{x:3, y:0, z:-5}, end: {x:4, y:0, z:-4}, yOffset: 1.5, collide: true}});
 
 auxl.ghostCollision.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'anim', path:[{z:-2,x:2,}, {z:2,x:-2,},]});
 
@@ -2066,17 +2083,18 @@ auxl.zone0Scene0Data = {
 		fog: {type: 'exponential', color: '#000', density: 0.025},
 		map: {
 			size: 64,
-			height: {top: 10, bottom: 0},
+			height: {top: 10, bottom: 4},
 			edge: true,
 			edgeUpdate: false,
 		},
+		spawnPos:{x:0,y:0,z:1},
 	},
 	controls:{
 		action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn', name: 'Toggle Cube', info: 'Toggle an in-scene cube.'},
 	},
 	start:{
 		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#1e7e5d", emissive: "#1e7e5d",},}},
-		biome:{SpawnMultiAsset:null},
+		//biome:{SpawnMultiAsset:null},
 		hills:{SpawnHorizon:null},
 		coreEventTesting:{SpawnCore:null},
 		doorway1:{SpawnCore:null},
@@ -2089,9 +2107,13 @@ auxl.zone0Scene0Data = {
 		collisionTest6:{SpawnCoreOnGrid:null},
 		collisionTest7:{SpawnCoreOnGrid:null},
 		collisionTest8:{SpawnCoreOnGrid:null},
-		triggerTest1:{SpawnCoreOnGrid:null},
-		triggerTest2:{SpawnCoreOnGrid:null},
-		ghostCollision:{SpawnLayerOnGrid:null, WalkPath: null},
+		collisionTest9:{SpawnCoreOnGrid:null},
+		collisionTest10:{SpawnCoreOnGrid:null},
+		collisionTest11:{SpawnCoreOnGrid:null},
+		gate1:{SpawnGate:null},
+		//triggerTest1:{SpawnCoreOnGrid:null},
+		//triggerTest2:{SpawnCoreOnGrid:null},
+		//ghostCollision:{SpawnLayerOnGrid:null, WalkPath: null},
 		//testGrid2:{SpawnGridLayout:'grid1'},
 	},
 	delay:{
@@ -2114,8 +2136,10 @@ auxl.zone0Scene0Data = {
 			player:{ChangeLocomotionType:{pov: '1st', axis: 'posXZ', type: 'free'}},
 		},
 */
-
-		24000:{
+		10000:{
+			collisionTest9:{DespawnCore:null},
+		},
+		30000:{
 			collisionTest6:{DespawnCore:null},
 		},
 
@@ -2173,10 +2197,11 @@ auxl.zone0Scene1Data = {
 		fog: false,
 		map: {
 			size: 38,
-			height: {top: 0, bottom: 0},
+			height: false,
 			edge: true,
 			edgeUpdate: false,
 		},
+		spawnPos:{x:0,y:0,z:0},
 	},
 	controls:{
 		action1Down:{auxlObj: 'player', func: 'TestFunc', params: {test1: 1, test2: 2}, name: 'Test Action', info: 'Just a Dev test function.'},
@@ -2251,6 +2276,7 @@ auxl.zone1Scene0Data = {
 			edge: false,
 			edgeUpdate: false,
 		},
+		spawnPos:{x:0,y:0,z:0},
 	},
 	controls:{
 	},
@@ -2258,6 +2284,7 @@ auxl.zone1Scene0Data = {
 		floor:{ChangeSelf:[{property: 'material', value: {src: auxl.pattern80, repeat: '150 150',color: "#21679a", emissive: "#21679a",},},{property: 'position', value: new THREE.Vector3(0,0,0),}],},
 		basicRing:{SpawnObjRing:null},
 		testGrid2:{SpawnGridLayout:'grid2'},
+		build:{SpawnBuild:null},
 	},
 	delay:{
 	},
