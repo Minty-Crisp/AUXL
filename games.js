@@ -10,7 +10,7 @@
 //
 //AUXL Mini Game
 //Unique Game system ObjGens
-AFRAME.registerComponent('auxl-mini-games', {
+AFRAME.registerComponent('mini-games', {
 dependencies: ['auxl'],
 init: function () {
 //AUXL System Connection
@@ -1603,8 +1603,8 @@ auxl.DragDiffuse = (id) => {
 		dragDiffuse.startDelay = setTimeout(() => {
 			dragDiffuse.gameInterval = setInterval(() => {
 				countdownRandom();
-			}, 4000);
-		}, 3000);
+			}, 3000);
+		}, 1000);
 	};
 
 	function levelComplete(){
@@ -1620,11 +1620,17 @@ auxl.DragDiffuse = (id) => {
 
 	//Random Drag Selection Countdown
 	function countdownRandom(){
-		let select = Math.floor(Math.random()*countdownOuter.length);
-		dragDiffuse[countdownMains[select]].EmitEvent('countdown');
-		dragDiffuse[countdownOuter[select]].EmitEvent('countdown');
-		countdownMains.splice(select, 1);
-		countdownOuter.splice(select, 1);
+		if(countdownOuter.length <= 0){
+			console.log('No more countdown obejcts');
+			return;
+		}else{
+			let select = Math.floor(Math.random()*countdownOuter.length);
+			dragDiffuse[countdownMains[select]].EmitEvent('countdown');
+			dragDiffuse[countdownOuter[select]].EmitEvent('countdown');
+			countdownMains.splice(select, 1);
+			countdownOuter.splice(select, 1);
+		}
+
 	}
 
 
@@ -1763,7 +1769,7 @@ auxl.toBeRebuilt('buildMiniGames');
 //
 //AUXL RPG
 //Adventure game focused ObjGens
-AFRAME.registerComponent('auxl-rpg', {
+AFRAME.registerComponent('rpg', {
 dependencies: ['auxl'],
 init: function () {
 //AUXL System Connection
