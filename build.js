@@ -20,6 +20,7 @@ const auxl = document.querySelector('a-scene').systems.auxl;
 auxl.BuildIn3D = () => {
 
 	let one = {};
+	one.id = 'build';
 	one.player = auxl.player.GetPlayerInfo();
 	one.core = {};
 	one.core.data = {};
@@ -565,6 +566,7 @@ components: false,
 	const DespawnBuild = () => {
 		//console.log('Despawning');
 		auxl.buildMenu.DespawnMultiMenu();
+		//auxl.RemoveFromTracker(one.id);
 	}
 
 	const NewCore = () => {

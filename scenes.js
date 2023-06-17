@@ -491,15 +491,8 @@ rotation: new THREE.Vector3(-30,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['clickable','a-ent'],
-components: {
-	clickrun__movecomp:{
-		cursorObj: 'comp',
-		component: 'null',
-		method: 'UpdatePosition',
-		params: 'null',
-	},
-},
+classes: ['a-ent'],
+components: false,
 };
 auxl.playerBeltText = auxl.Core(auxl.playerBeltTextData);
 //Player Bottom
@@ -1970,7 +1963,7 @@ id:'sun',
 sources: false,
 text: false,
 geometry: {primitive: 'sphere', radius: 30,},
-material: {shader: "standard", color: "#F0A500", opacity: 1, side: 'front', emissive: '#F0A500', emissiveIntensity: 1, roughness: 0.42, fog: false},
+material: {shader: "standard", color: "#F0A500", opacity: 1, side: 'front', emissive: '#F0A500', emissiveIntensity: 1, fog: false},
 position: new THREE.Vector3(0,0,-400),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -2008,7 +2001,7 @@ id:'moon',
 sources: false,
 text: false,
 geometry: {primitive: 'sphere', radius: 24,},
-material: {shader: "standard", color: "#5c2196", opacity: 1, side: 'front', emissive: '#5c2196', emissiveIntensity: 0.75, roughness: 0.42, fog: false},
+material: {shader: "standard", color: "#5c2196", opacity: 1, side: 'front', emissive: '#5c2196', emissiveIntensity: 0.75, fog: false},
 position: new THREE.Vector3(0,0,-400),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -2198,6 +2191,26 @@ clickaddinventory:{item: 'flashlightTool', once: true, despawn: true, auxlObj: '
 },
 };
 auxl.chest1 = auxl.Core(auxl.chest1Data);
+
+//Use Object Test
+auxl.use1Data = {
+data:'use1Data',
+id:'use1',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.25},
+material: {shader: "standard", src: auxl.pattern56, repeat: '1 1', color: "#00b1ff", emissive: '#00b1ff', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(2,2,-2),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{click: {property: 'scale', from: '1 1 1', to: '1.1 1.1 1.1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'}, },
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {
+acceptobject:{item: 'testItem1', uses: 2, despawn: true, auxlObj: 'use1', despawnMethod: 'DespawnCore', methodObj: 'player', component: 'null', method: 'TestFunc', params: 'testItem1 Used',},
+},
+};
+auxl.use1 = auxl.Core(auxl.use1Data);
 
 //Grid Layout Testing
 auxl.dataGridObjectData = {
@@ -3341,7 +3354,7 @@ auxl.testItem1 = {
 	component: false,
 	method: 'Equip',
 	params: 'testItem1',
-	menu: 'back',
+	menu: 'stay',
 };
 auxl.testItem2 = {
 	name: 'Test Item 2',
@@ -3356,7 +3369,7 @@ auxl.testItem2 = {
 	component: false,
 	method: 'Equip',
 	params: 'testItem2',
-	menu: 'back',
+	menu: 'stay',
 };
 
 //Tools
@@ -4412,6 +4425,7 @@ auxl.zone0Scene0Data = {
 		hills:{SpawnHorizon:null},
 		coreEventTesting:{SpawnCore:null},
 		chest1:{SpawnCore:null},
+		use1:{SpawnCore:null},
 		doorway1:{SpawnCore:null},
 		doorway2:{SpawnCore:null},
 		collisionTest1:{SpawnCoreOnGrid:null},
@@ -4623,226 +4637,6 @@ auxl.zone1Scene0 = auxl.SceneNode(auxl.zone1Scene0Data);
 auxl.zone1 = auxl.MapZone(auxl.zone1Data);
 
 //
-//Zone 2
-//XRcade Zone
-auxl.xrcadeZoneData = {
-	info:{
-		id: 'xrcadeZone',
-		name: 'XRcade Zone',
-		zoneNum: 0,
-		start: 'xrcadeHome',
-		travelMenu: true,
-	},
-	controls:{
-	},
-	start:{
-	},
-	delay:{
-	},
-	interval:{
-	},
-	event:{
-	},
-	interaction:{
-	},
-	exit:{
-
-	},
-};
-//Home
-auxl.xrcadeHomeData = {
-	info:{
-		id:'xrcadeHome',
-		name: 'XRcade Home',
-		description: 'Welcome to XRcade! This is the home area for all the games.',
-		sceneText: true,
-		fog: false,
-		map: {
-			size: 10,
-			height: {top: 2, bottom: 0},
-			edge: true,
-			spawnEdge: false,
-			edgeUpdate: false,
-		},
-		spawnPos:{x:0,y:0,z:1},
-	},
-	controls:{
-	},
-	start:{
-	},
-	delay:{
-	},
-	interval:{
-	},
-	event:{
-	},
-	interaction:{
-	},
-	exit:{
-	},
-	map:{
-		data: auxl.xrcadeZoneData.xrcadeHome,
-	},
-};
-//Game 1
-auxl.game1Data = {
-	info:{
-		id:'game1',
-		name: 'Game 1',
-		description: 'Play game 1.',
-		sceneText: false,
-		fog: false,
-		map: {
-			size: 10,
-			height: {top: 2, bottom: 0},
-			edge: true,
-			spawnEdge: true,
-			edgeUpdate: false,
-		},
-		spawnPos:{x:0,y:0,z:1},
-	},
-	controls:{
-	},
-	start:{
-		memory:{SpawnMemGame: null},
-	},
-	delay:{
-	},
-	interval:{
-	},
-	event:{
-	},
-	interaction:{
-	},
-	exit:{
-
-	},
-	map:{
-		data: auxl.xrcadeZoneData.game1,
-	},
-};
-//Game 2
-auxl.game2Data = {
-	info:{
-		id:'game2',
-		name: 'Game 2',
-		description: 'Play game 2.',
-		sceneText: false,
-		fog: false,
-		map: {
-			size: 10,
-			height: {top: 2, bottom: 0},
-			edge: true,
-			spawnEdge: true,
-			edgeUpdate: false,
-		},
-		spawnPos:{x:0,y:0,z:1},
-	},
-	controls:{
-	},
-	start:{
-		swipeLaunchGame:{SpawnSLGame: null},
-	},
-	delay:{
-	},
-	interval:{
-	},
-	event:{
-	},
-	interaction:{
-	},
-	exit:{
-
-	},
-	map:{
-		data: auxl.xrcadeZoneData.game2,
-	},
-};
-//Game 3
-auxl.game3Data = {
-	info:{
-		id:'game3',
-		name: 'Game 3',
-		description: 'Play game 3.',
-		sceneText: false,
-		fog: false,
-		map: {
-			size: 10,
-			height: {top: 2, bottom: 0},
-			edge: true,
-			spawnEdge: true,
-			edgeUpdate: false,
-		},
-		spawnPos:{x:0,y:0,z:1},
-	},
-	controls:{
-	},
-	start:{
-		guessHitGame:{SpawnGHGame: null},
-	},
-	delay:{
-	},
-	interval:{
-	},
-	event:{
-	},
-	interaction:{
-	},
-	exit:{
-
-	},
-	map:{
-		data: auxl.xrcadeZoneData.game3,
-	},
-};
-//Game 4
-auxl.game4Data = {
-	info:{
-		id:'game4',
-		name: 'Game 4',
-		description: 'Play game 4.',
-		sceneText: false,
-		fog: false,
-		map: {
-			size: 10,
-			height: {top: 2, bottom: 0},
-			edge: true,
-			spawnEdge: true,
-			edgeUpdate: false,
-		},
-		spawnPos:{x:0,y:0,z:1},
-	},
-	controls:{
-	},
-	start:{
-		dragDiffuseGame:{SpawnDDGame: null},
-	},
-	delay:{
-	},
-	interval:{
-	},
-	event:{
-	},
-	interaction:{
-	},
-	exit:{
-
-	},
-	map:{
-		data: auxl.xrcadeZoneData.game4,
-	},
-};
-//Home
-auxl.xrcadeHome = auxl.SceneNode(auxl.xrcadeHomeData);
-//Games
-auxl.game1 = auxl.SceneNode(auxl.game1Data);
-auxl.game2 = auxl.SceneNode(auxl.game2Data);
-auxl.game3 = auxl.SceneNode(auxl.game3Data);
-auxl.game4 = auxl.SceneNode(auxl.game4Data);
-//Map Zone 0
-auxl.xrcadeZone = auxl.MapZone(auxl.xrcadeZoneData);
-
-//
 //Scenarios
 
 //
@@ -4861,7 +4655,6 @@ auxl.v03TestingScenarioData = {
 			zone0Scene0:{
 				connect0: {inZone: true, node: 'zone0Scene1',},
 				connect1: {inZone: 'zone1', node: 'zone1Scene0', locked: true, keyId: 'zone1Key', keyName: 'Zone 1 Key', keepKey: true},
-				connect2: {inZone: 'xrcadeZone', node: 'xrcadeHome',},
 			},
 			zone0Scene1:{
 				connect0: {inZone: true, node: 'zone0Scene0',},
@@ -4870,39 +4663,6 @@ auxl.v03TestingScenarioData = {
 		zone1:{
 			zone1Scene0:{
 				connect0: {inZone: 'zone0', node: 'zone0Scene0',},
-			},
-		},
-		xrcadeZone:{
-			xrcadeHome:{
-				connect0: {inZone: 'zone0', node: 'zone0Scene0',},
-				connect1: {inZone: true, node: 'game1',},
-				connect2: {inZone: true, node: 'game2',},
-				connect3: {inZone: true, node: 'game3',},
-				connect4: {inZone: true, node: 'game4',},
-			},
-			game1:{
-				connect0: {inZone: true, node: 'xrcadeHome',},
-				connect1: {inZone: true, node: 'game2',},
-				connect2: {inZone: true, node: 'game3',},
-				connect3: {inZone: true, node: 'game4',},
-			},
-			game2:{
-				connect0: {inZone: true, node: 'xrcadeHome',},
-				connect1: {inZone: true, node: 'game1',},
-				connect2: {inZone: true, node: 'game3',},
-				connect3: {inZone: true, node: 'game4',},
-			},
-			game3:{
-				connect0: {inZone: true, node: 'xrcadeHome',},
-				connect1: {inZone: true, node: 'game1',},
-				connect2: {inZone: true, node: 'game2',},
-				connect3: {inZone: true, node: 'game4',},
-			},
-			game4:{
-				connect0: {inZone: true, node: 'xrcadeHome',},
-				connect1: {inZone: true, node: 'game1',},
-				connect2: {inZone: true, node: 'game2',},
-				connect3: {inZone: true, node: 'game3',},
 			},
 		},
 	},

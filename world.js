@@ -1081,6 +1081,25 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			auxl.player.PlayerSceneAnim();
 		}
 	}
+	//Change Scene
+	const Change = (zone,scene) => {
+		//No Key Checks
+		timeout = setTimeout(() => {
+			if(core.displayBasicTravelMenu){
+				core.mapMenu.DespawnMenu();
+			}
+			ClearScene();
+			if(core.id === zone ){
+				StartScene(scene);
+			} else {
+				ClearZone();
+				core.zoneLoaded = false;
+				auxl[zone].StartScene(scene);
+			}
+			clearTimeout(timeout);
+		}, 425);
+		auxl.player.PlayerSceneAnim();
+	}
 	//Clear Zone on Move
 	const ClearZone = () => {
 		Exit();
@@ -1092,7 +1111,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		}
 	}
 
-	return {core, UpdateMap, StartScene, MoveSpawnMenu, MenuMoveClick, Move, ClearZone};
+	return {core, UpdateMap, StartScene, MoveSpawnMenu, MenuMoveClick, Move, Change, ClearZone};
 }
 
 //

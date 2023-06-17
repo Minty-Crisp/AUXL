@@ -165,6 +165,23 @@ display: none;
 display: none;
 }
 
+#audioVolume{
+display: none;
+}
+
+#volUpButton{
+display: flex;
+}
+
+#volume{
+display: flex;
+}
+
+#volDownButton{
+display: flex;
+}
+
+
 /* HTML Controller */
 
 /* Controller Block */

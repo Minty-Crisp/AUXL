@@ -8,6 +8,55 @@
 //AUXL v0.3 Beta - Support
 
 //
+//Arcade Cabinet
+//Testing
+//Altering GLTF Materials & Toon Shader
+AFRAME.registerComponent('modify-cabinet', {
+dependencies: ['auxl'],
+	init: function () {
+		const auxl = document.querySelector('a-scene').systems.auxl;
+		// Wait for model to load. GLTF/OBJ Event
+		this.el.addEventListener('model-loaded', () => {
+			// Grab the mesh / scene.
+			const obj = this.el.getObject3D('mesh');
+
+const texture = new THREE.TextureLoader().load('./assets/img/tiles/kenny/pattern_01.png');
+texture.wrapS = THREE.RepeatWrapping;
+texture.wrapT = THREE.RepeatWrapping;
+texture.repeat.set( 4, 4 );
+const material = new THREE.MeshBasicMaterial({map: texture, color: 0xc92fd6});
+
+//const sprite = new THREE.Sprite( material );
+//sprite.scale.set(200, 200, 1)
+//scene.add( sprite );
+
+			obj.traverse(node => {
+/*
+each material in use is it's own node
+base_1 - glossy black - joystick, top, info, bottom
+base_2 - matte black - slots, around screen
+base_3 - dual buttons
+base_4 - single button
+base_5 - body
+base_6 - screen
+base_7 - marquee
+base_8 - base
+
+*/
+
+				//console.log(node.name)
+				if(node.name.indexOf('base_5') !== -1) {
+					//node.material.color.set('yellow');
+					node.material = material;
+				}
+
+			});
+		});
+	}
+});
+
+
+//
 //Click to Add to Inventory
 AFRAME.registerComponent('clickaddinventory', {
 dependencies: ['auxl'],
@@ -45,6 +94,87 @@ events: {
 				}
 				clearTimeout(this.timeout);
 			}, this.delay);
+		}
+	}
+},
+});
+
+//
+//Use on Object
+AFRAME.registerComponent('acceptobject', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	item: {type: 'string', default: 'itemName'},
+	uses: {type: 'number', default: 1},
+	delay: {type: 'number', default: 0},
+	despawn: {type: 'boolean', default: true},
+	auxlObj: {type: 'string', default: 'auxlObj'},
+	despawnMethod: {type: 'string', default: 'DespawnCore'},
+	methodObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	this.item = this.data.item;
+	this.uses = this.data.uses;
+	this.delay = this.data.delay;
+	this.inUse = false;
+	this.despawn = this.data.despawn;
+	this.auxlObj = this.data.auxlObj;
+	this.despawnMethod = this.data.despawnMethod;
+	this.methodObj = this.data.methodObj;
+	this.component = this.data.component;
+	this.method = this.data.method;
+	this.params = this.data.params;
+},
+run: function(){
+	this.timeout = setTimeout(() => {
+		if(this.component === 'null'){
+			if(this.auxl[this.methodObj][this.method]){
+				if(this.params === 'null'){
+					this.auxl[this.methodObj][this.method]();
+				} else {
+					this.auxl[this.methodObj][this.method](this.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.methodObj)){
+				this.domEnt = document.getElementById(this.methodObj);
+				if(this.params === 'null'){
+					this.domEnt.components[this.component][this.method]();
+				} else {
+					this.domEnt.components[this.component][this.method](this.params);
+				}
+			}
+		}
+		if(this.auxl[this.item].persist === 'limited'){
+			this.auxl[this.item].amount--;
+			this.auxl.comp.UpdateInventoryMenu();
+			this.auxl.player.Unequip();
+		}
+		this.uses--;
+		if(this.uses <= 0 && this.despawn){
+			this.auxl[this.auxlObj][this.despawnMethod]();
+		}
+		this.inUse = false;
+		clearTimeout(this.timeout);
+	}, this.delay);
+},
+events: {
+	click: function () {
+		if(this.auxl.player.layer.equipped){
+			if(this.auxl.player.layer.equippedObject === this.item){
+				if(this.inUse){}else{
+					this.inUse = true;
+					this.run();
+				}
+			}
 		}
 	}
 },

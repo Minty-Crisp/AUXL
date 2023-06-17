@@ -17,10 +17,11 @@
 <meta property="og:title" content="A-Frame UX Library | v0.3 Engine Example by Minty Crisp">
 <meta property="og:type" content="XR">
 <meta property="og:url" content="auxlibrary.com">
-<!-- A-Frame official release 1.4.2 -->
-<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-<!-- local
-<script src="./assets/js/aframe-v1.4.2.min.js"></script>-->
+<!-- A-Frame official release 1.4.2
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script> -->
+<!-- local -->
+<script src="./assets/js/aframe-v1.4.2.min.js"></script>
+
 <!-- MVP.css -->
 <link rel="stylesheet" href="./assets/css/mvp.css">
 <!-- CSS -->
@@ -34,7 +35,6 @@
 <script src="./npc.js"></script>
 <script src="./grid.js"></script>
 <script src="./build.js"></script>
-<script src="./games.js"></script>
 <script src="./support.js"></script>
 <script src="./scenes.js"></script>
 
@@ -58,6 +58,7 @@
 <li><button id="vrHandButton" class="flexCol">2 Hands : Right Ray | Left Move</button></li>
 <li><button id="vrLocomotionType" class="flexCol">Direction : Camera</button></li>
 <li><button id="audioButton" class="flexCol">Sound : Disabled</button></li>
+<li><div id='audioVolume' class="flexRow"><button id="volDownButton">-</button><h2 id="volume">1</h2><button id="volUpButton">+</button></div></li>
 <li><button id="viewInfo" class="flexCol">View Instructions</button></li>
 <li><button id="viewData" class="flexCol">Reset Data</button></li>
 </div>
@@ -88,7 +89,6 @@ environment
 npc
 grid
 build
-mini-games
 library
 scene-library
 scenes

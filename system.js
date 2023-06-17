@@ -35,6 +35,7 @@ this.worldLoaded = false;
 this.local = {};
 this.local.profile = {};
 this.rebuildObjects = [];
+this.volume = 1;
 
 //Controller
 let playerRig;
@@ -76,6 +77,10 @@ const beginDiv = document.getElementById('beginDiv');
 const startButton = document.getElementById('startButton');
 const menuModeButton = document.getElementById('menuModeButton');
 const audioButton = document.getElementById('audioButton');
+const audioVolume = document.getElementById('audioVolume');
+const volDownButton = document.getElementById('volDownButton');
+const volume = document.getElementById('volume');
+const volUpButton = document.getElementById('volUpButton');
 const viewInfo = document.getElementById('viewInfo');
 const viewData = document.getElementById('viewData');
 const expInfo = document.getElementById('expInfo');
@@ -221,10 +226,20 @@ const cat = sessionStorage.getItem("myCat");
 sessionStorage.removeItem("myCat");
 sessionStorage.clear();
 */
+//Save Name
+this.save = 'auxl' + window.location.pathname;
+//console.log(window.location.href)
+//console.log(window.location.hostname)
+//console.log(window.location.pathname)
 //Default Save Data
 const newData = () => {
 	this.local = {};
 	this.local.profile = {};
+	this.local.profile.domain = window.location.hostname;
+	this.local.profile.page = window.location.pathname;
+	this.local.profile.controls = this.controls;
+	this.local.profile.vrHand = this.vrHand;
+	this.local.profile.volume = this.volume;
 	this.local.profile.time = {};
 	this.local.profile.time.creation = time();
 	this.local.profile.time.lastVisit = time();
@@ -245,7 +260,6 @@ const newData = () => {
 	this.local.location.scenario = '';
 	this.local.location.zone = '';
 	this.local.location.scene = '';
-	
 }
 //New
 const newStorage = () => {
@@ -256,15 +270,24 @@ const newStorage = () => {
 	//Rebuild All Objects
 	Rebuild();
 	//Assign Completion to Storage
-	window.localStorage.setItem("auxl", JSON.stringify(auxl.local));
+	window.localStorage.setItem(this.save, JSON.stringify(auxl.local));
 	ApplySettings();
 }
 //Load
 const loadStorage = () => {
 	//Return Session, Load Site Wide Settings
 	console.log('Loading previous data.');
+/*
+	let currentDomain = window.location;
+	//Check for exact domain
+	if(currentDomain === JSON.parse(window.localStorage.getItem("auxl").local.profile.domain)){
+		console.log('Matching Domain');
+	} else {
+		console.log('Different Domain');
+	}
+*/
 	//Overwrite default profile
-	this.local = JSON.parse(window.localStorage.getItem("auxl"));
+	this.local = JSON.parse(window.localStorage.getItem(this.save));
 	ApplySettings();
 	this.local.profile.time.return = time();
 
@@ -283,13 +306,21 @@ const loadStorage = () => {
 	//Save Last Visit Date
 	auxl.saveToProfile();
 	UpdateFromLocal();
+
+	//Update Controls
+	vrHandMenu(this.local.profile.vrHand)
+	controlsMenu(this.local.profile.controls)
+	updateControls();
+
+	//Update Audio
+	this.volume = this.local.profile.volume;
 }
 //Set
 //If the value exists then we have already entered once, do not repeat link anims
 const setStorage = (reset) => {
   	if(reset){
 		newStorage();
-	} else if(localStorage.getItem('auxl')){
+	} else if(localStorage.getItem(this.save)){
 		loadStorage();
 	} else {
 		newStorage();
@@ -324,7 +355,7 @@ this.saveToProfile = (sync) => {
 			}
 		}
 	}
-	window.localStorage.setItem("auxl", JSON.stringify(auxl.local));
+	window.localStorage.setItem(this.save, JSON.stringify(auxl.local));
 	//console.log(auxl.local)
 }
 //Update from Local
@@ -430,6 +461,7 @@ this.controls = 'Desktop';
 this.vrHand = 'bothRight';
 this.directionType = 'camera';
 this.locomotionText = 'WASD Keys';
+
 //Joystick Configurations : 1,4,8
 this.joystickLoco = 8;
 this.joystickRot = 8;
@@ -632,105 +664,6 @@ startButton.addEventListener('click', startExp);
 //
 //Controls
 
-//Update Control Info
-this.UpdateControlText = () => {
-	auxl.controlsText = 'Control Configuration : ' + auxl.controls + ' mode\n';
-	//Locomotion
-	auxl.controlsText += 'Movement | ' + locomotionText + '\n';
-	let actionCommand = '';
-	for(let action in auxl.controlsInfo){
-		if(action === 'altDown'){
-			if(auxl.controls === 'Desktop'){
-				actionCommand = 'Mouse Right Click';
-			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'Middle Directional Button';
-			} else if(auxl.controls === 'VR'){
-				actionCommand = 'Grip';
-			}
-		} else if(action === 'altUp'){
-		} else if(action === 'action1Down'){
-			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action1Keys[1] + ' Key';
-			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'A Button';
-			} else if(auxl.controls === 'VR'){
-				actionCommand = 'X Button';
-			}
-		} else if(action === 'action1Up'){
-		} else if(action === 'action2Down'){
-			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action2Keys[1] + ' Key';
-			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'B Button';
-			} else if(auxl.controls === 'VR'){
-				actionCommand = 'Y Button';
-			}
-		} else if(action === 'action2Up'){
-		} else if(action === 'action3Down'){
-			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action3Keys[1] + ' Key';
-			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'C Button';
-			} else if(auxl.controls === 'VR'){
-				actionCommand = 'A Button';
-			}
-		} else if(action === 'action3Up'){
-		} else if(action === 'action4Down'){
-			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action4Keys[1] + ' Key';
-			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'D Button';
-			} else if(auxl.controls === 'VR'){
-				actionCommand = 'B Button';
-			}
-		} else if(action === 'action4Up'){
-		} else if(action === 'action5Down'){
-			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action5Keys[1] + ' Key';
-			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'E Button';
-			} else if(auxl.controls === 'VR'){
-				actionCommand = 'Alt Joystick Down';
-			}
-		} else if(action === 'action5Up'){
-		} else if(action === 'action6Down'){
-			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action6Keys[1] + ' Key';
-			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'F Button';
-			} else if(auxl.controls === 'VR'){
-				actionCommand = 'Alt Joystick Up';
-			}
-		} else if(action === 'action6Up'){
-		} else if(action === 'action7Down'){
-			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action7Keys[1] + ' Key';
-			} else if(auxl.controls === 'Mobile'){
-				actionCommand = '<- Button';
-			} else if(auxl.controls === 'VR'){
-				actionCommand = 'Alt Joystick Left';
-			}
-		} else if(action === 'action7Up'){
-		} else if(action === 'action8Down'){
-			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action8Keys[1] + ' Key';
-			} else if(auxl.controls === 'Mobile'){
-				actionCommand = '-> Button';
-			} else if(auxl.controls === 'VR'){
-				actionCommand = 'Alt Joystick Right';
-			}
-		} else if(action === 'action8Up'){
-		} else {
-			console.log('Failed to identify action')
-		}
-
-
-		auxl.controlsText += actionCommand + ' | ' + auxl.controlsInfo[action].name + ' : ' + auxl.controlsInfo[action].info + '\n';
-	}
-	auxl.controlsText += 'Click to Close Window'
-	//console.log(auxl.controlsText);
-}
-
 //VR
 function disableVRControls(){
 	vrController1.setAttribute('visible',false);
@@ -850,39 +783,168 @@ function enableMobileControls(){
 	auxl.player.EnableMobileLocomotion();
 	this.locomotionText = 'Arrow Buttons';
 }
-//Update Controls
-function updateControls(){
+//Controls Menu
+function controlsMenu(state){
+	//Old
 	if(auxl.controls === 'Desktop'){
 		disableVRControls();
-		disableMobileControls();
-		enableDesktopControls();
 	} else if(auxl.controls === 'Mobile'){
-		disableVRControls();
-		disableDesktopControls();
-		enableMobileControls();
-	} else if(auxl.controls === 'VR'){
-		disableVRControls();
-		disableDesktopControls();
 		disableMobileControls();
+	} else if(auxl.controls === 'VR'){
+		vrHandButton.style.display = 'none';
+		vrLocomotionType.style.display = 'none';
+		disableVRControls();
+	}
+	//New
+	if(state === 'Desktop'){
+		menuModeButton.innerHTML = 'Mode : Desktop'
+		enableDesktopControls();
+	} else if(state === 'Mobile'){
+		menuModeButton.innerHTML = 'Mode : Mobile';
+		enableMobileControls();
+	} else if(state === 'VR'){
+		menuModeButton.innerHTML = 'Mode : VR';
+		vrHandButton.style.display = 'flex';
+		vrLocomotionType.style.display = 'flex';
 		enableVRControls();
 	}
+	//Update State
+	auxl.controls = state;
+	updateControls();
+}
+//VR Hand Menu
+function vrHandMenu(state){
+	//New
+	if(state === 'bothRight'){
+		vrHandButton.innerHTML = '2 Hands : Right Ray | Left Move';
+	} else if(state === 'bothLeft'){
+		vrHandButton.innerHTML = '2 Hands : Left Ray | Right Move';
+	} else if(state === 'bothLeftLoco'){
+		vrHandButton.innerHTML = '2 Hands : Dual Ray | Left Move';
+	} else if(state === 'bothRightLoco'){
+		vrHandButton.innerHTML = '2 Hands : Dual Ray | Right Move';
+	} else if(state === 'right'){
+		vrHandButton.innerHTML = '1 Hand : Right Ray | Belt Move';
+	} else if(state === 'left'){
+		vrHandButton.innerHTML = '1 Hand : Left Ray | Belt Move';
+	}
+	//Update State
+	auxl.vrHand = state;
+}
+
+//Update Control Info
+this.UpdateControlText = () => {
+	auxl.controlsText = 'Control Configuration : ' + auxl.controls + ' mode\n';
+	//Locomotion
+	auxl.controlsText += 'Movement | ' + auxl.locomotionText + '\n';
+	let actionCommand = '';
+	for(let action in auxl.controlsInfo){
+		if(action === 'altDown'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = 'Mouse Right Click';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'Middle Directional Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Grip';
+			}
+		} else if(action === 'altUp'){
+		} else if(action === 'action1Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action1Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'A Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'X Button';
+			}
+		} else if(action === 'action1Up'){
+		} else if(action === 'action2Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action2Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'B Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Y Button';
+			}
+		} else if(action === 'action2Up'){
+		} else if(action === 'action3Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action3Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'C Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'A Button';
+			}
+		} else if(action === 'action3Up'){
+		} else if(action === 'action4Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action4Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'D Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'B Button';
+			}
+		} else if(action === 'action4Up'){
+		} else if(action === 'action5Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action5Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'E Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Alt Joystick Down';
+			}
+		} else if(action === 'action5Up'){
+		} else if(action === 'action6Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action6Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'F Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Alt Joystick Up';
+			}
+		} else if(action === 'action6Up'){
+		} else if(action === 'action7Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action7Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = '<- Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Alt Joystick Left';
+			}
+		} else if(action === 'action7Up'){
+		} else if(action === 'action8Down'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action8Keys[1] + ' Key';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = '-> Button';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Alt Joystick Right';
+			}
+		} else if(action === 'action8Up'){
+		} else {
+			console.log('Failed to identify action')
+		}
+
+
+		auxl.controlsText += actionCommand + ' | ' + auxl.controlsInfo[action].name + ' : ' + auxl.controlsInfo[action].info + '\n';
+	}
+	auxl.controlsText += 'Click to Close Window'
+	//console.log(auxl.controlsText);
+}
+//Update Controls
+function updateControls(){
 	auxl.UpdateControlText();
+	auxl.local.profile.controls = auxl.controls;
+	auxl.local.profile.vrHand = auxl.vrHand;
+	auxl.saveToProfile();
 }
 //Menu Controls Button
 function changeControls(){
 	if(auxl.controls === 'Desktop'){
-		auxl.controls = 'VR';
-		menuModeButton.innerHTML = 'Mode : VR';
-		vrHandButton.style.display = 'flex';
-		vrLocomotionType.style.display = 'flex';
+		controlsMenu('VR');
 	} else if(auxl.controls === 'VR'){
-		vrHandButton.style.display = 'none';
-		vrLocomotionType.style.display = 'none';
-		auxl.controls = 'Mobile';
-		menuModeButton.innerHTML = 'Mode : Mobile';
+		controlsMenu('Mobile');
 	} else if(auxl.controls === 'Mobile'){
-		auxl.controls = 'Desktop';
-		menuModeButton.innerHTML = 'Mode : Desktop'
+		controlsMenu('Desktop');
 	}
 	updateControls();
 }
@@ -890,23 +952,17 @@ menuModeButton.addEventListener('click', changeControls);
 //Cycle VR Configurations
 function changeVRHand(){
 	if(auxl.vrHand === 'bothRight'){
-		auxl.vrHand = 'bothLeft';
-		vrHandButton.innerHTML = '2 Hands : Left Ray | Right Move';
+		vrHandMenu('bothLeft');
 	} else if(auxl.vrHand === 'bothLeft'){
-		auxl.vrHand = 'bothLeftLoco';
-		vrHandButton.innerHTML = '2 Hands : Dual Ray | Left Move';
+		vrHandMenu('bothLeftLoco');
 	} else if(auxl.vrHand === 'bothLeftLoco'){
-		auxl.vrHand = 'bothRightLoco';
-		vrHandButton.innerHTML = '2 Hands : Dual Ray | Right Move';
+		vrHandMenu('bothRightLoco');
 	} else if(auxl.vrHand === 'bothRightLoco'){
-		auxl.vrHand = 'right';
-		vrHandButton.innerHTML = '1 Hand : Right Ray | Belt Move';
+		vrHandMenu('right');
 	} else if(auxl.vrHand === 'right'){
-		auxl.vrHand = 'left';
-		vrHandButton.innerHTML = '1 Hand : Left Ray | Belt Move';
+		vrHandMenu('left');
 	} else if(auxl.vrHand = 'left') {
-		auxl.vrHand = 'bothRight';
-		vrHandButton.innerHTML = '2 Hands : Right Ray | Left Move';
+		vrHandMenu('bothRight');
 	}
 	updateControls();
 }
@@ -929,13 +985,41 @@ vrLocomotionType.addEventListener('click', changeLocoDirection);
 function toggleAudio(){
 	if(auxl.audioEnabled){
 		auxl.audioEnabled = false;
+		audioVolume.style.display = 'none';
 		audioButton.innerHTML = 'Sound : Disabled';
 	} else {
 		auxl.audioEnabled = true;
 		audioButton.innerHTML = 'Sound : Enabled';
+		audioVolume.style.display = 'flex';
+		volume.innerHTML = auxl.volume.toFixed(1);
 	}
 }
 audioButton.addEventListener('click', toggleAudio);
+
+//
+//Volume Control
+//Up
+function audioUp(){
+	auxl.volume += 0.1;
+	if(auxl.volume > 2){
+		auxl.volume = 2;
+	}
+	volume.innerHTML = auxl.volume.toFixed(1);
+	auxl.local.profile.volume = auxl.volume;
+	auxl.saveToProfile();
+}
+volUpButton.addEventListener('click', audioUp);
+//Down
+function audioDown(){
+	auxl.volume -= 0.1;
+	if(auxl.volume < 0){
+		auxl.volume = 0;
+	}
+	volume.innerHTML = auxl.volume.toFixed(1);
+	auxl.local.profile.volume = auxl.volume;
+	auxl.saveToProfile();
+}
+volDownButton.addEventListener('click', audioDown);
 
 //
 //Toggle Instructions
@@ -1605,12 +1689,23 @@ this.Core = (data) => {
 		}
 		//Sound
 		if(this.audioEnabled){
+			let sound = {};
 			if(core.sound){
-				core.el.setAttribute('sound', core.sound);
+				sound = JSON.parse(JSON.stringify(core.sound));
+				if(!sound.volume){
+					sound.volume = 1;
+				}
+				sound.volume *= auxl.volume;
+				core.el.setAttribute('sound', sound);
 			};
 			if(core.sounds){
 				for(let each in core.sounds){
-					core.el.setAttribute('sound__'+each, core.sounds[each]);
+					sound = JSON.parse(JSON.stringify(core.sounds[each]));
+					if(!sound.volume){
+						sound.volume = 1;
+					}
+					sound.volume *= auxl.volume;
+					core.el.setAttribute('sound__'+each, sound);
 				}
 			};
 		}
@@ -4496,7 +4591,7 @@ this.Player = (id,layer) => {
 //
 //Companion
 //System Menu & Inventory
-this.Companion = (id, object) => {
+this.Companion = (id, object, inventory) => {
 	let comp = {};
 	comp.avatarType = '';
 	comp.menuParentId;
@@ -4527,6 +4622,7 @@ this.Companion = (id, object) => {
 	auxl.compNPC = auxl.NPC('compNPC', comp.avatar, auxl.compBookData, auxl.compBubbleLayer, true);
 
 	//Inventory
+	comp.enableInventory = inventory || false;
 	comp.inventoryTimeouts = [];
 	comp.items = {};
 	comp.tools = {};
@@ -4548,14 +4644,6 @@ this.Companion = (id, object) => {
 		stare: false,
 	},
 	menu0:{
-		button0:{
-			id: 'subMenu1',
-			style: false,
-			title: 'Inventory',
-			description: 'View your inventory.',
-			subMenu: 'inventory',
-			action: false,
-		},
 		button1:{
 			id: 'subMenu2',
 			style: false,
@@ -4584,20 +4672,6 @@ this.Companion = (id, object) => {
 				method: 'ToggleControlView',
 				params: null,
 				menu: 'close',
-			},
-		},
-		button4:{
-			id: 'subMenu5',
-			style: false,
-			title: 'Unequip',
-			description: 'Unequip your held object.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'Unequip',
-				params: null,
-				menu: 'stay',
 			},
 		},
 	},
@@ -4982,6 +5056,33 @@ this.Companion = (id, object) => {
 	keys1:{},
 	specials1:{},
 	};
+
+	if(comp.enableInventory){
+		comp.mainMenuData.menu0.button0 = {
+			id: 'subMenu1',
+			style: false,
+			title: 'Inventory',
+			description: 'View your inventory.',
+			subMenu: 'inventory',
+			action: false,
+		};
+		comp.mainMenuData.menu0.button4 = {
+			id: 'subMenu5',
+			style: false,
+			title: 'Unequip',
+			description: 'Unequip your held object.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'Unequip',
+				params: null,
+				menu: 'stay',
+			},
+		};
+	}
+
+
 	auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
 	/*
 	Main Menu
@@ -5215,7 +5316,9 @@ console.log(comp.shapes)
 			let spawnTimeout = setTimeout(() => {
 				//auxl.build.SpawnBuild();
 				//Update Inventory
-				UpdateInventoryMenu();
+				if(comp.enableInventory){
+					UpdateInventoryMenu();
+				}
 				//Update Main Menu Parent Shape ID
 				auxl.mainMenu.multiMenu.parent = comp.menuParentId;
 				auxl.mainMenu.SpawnMultiMenu();
@@ -5458,7 +5561,7 @@ console.log(comp.shapes)
 		UpdateInventoryMenuCategory('specials');
 	}
 
-	return{comp, TestFunc, UpdateShape, SpawnComp, DespawnComp, SetFlag, GetFlag, UpdatePosition, ToggleControlView, AddToInventory, ClearInventoryNotifications, RemoveFromInventory, CheckInventory, CheckForKey};
+	return{comp, TestFunc, UpdateShape, SpawnComp, DespawnComp, SetFlag, GetFlag, UpdatePosition, ToggleControlView, AddToInventory, ClearInventoryNotifications, RemoveFromInventory, CheckInventory, CheckForKey, UpdateInventoryMenu};
 }
 
 },

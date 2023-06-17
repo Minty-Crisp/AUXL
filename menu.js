@@ -585,6 +585,7 @@ auxl.MultiMenu = (multiMenuData) => {
 				multiMenu.menuLayer.GetChildEl(multiMenu.id+'null0').removeEventListener('click',ToggleMenu);
 				multiMenu.menuLayer.DespawnLayer();
 				multiMenu.inScene = false;
+				auxl.RemoveFromTracker(multiMenu.id);
 				clearTimeout(resetTimeout);
 			}, switchDelay);
 

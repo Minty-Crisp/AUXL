@@ -1253,6 +1253,7 @@ auxl.InfoBubble = (id, object, offset, color) => {
 		if(infoBubble.inScene){
 			infoBubble[infoBubble.id].DespawnLayer();
 			infoBubble.inScene = false;
+			auxl.RemoveFromTracker(infoBubble.id);
 		}
 	}
 	//Spawn Alert Bubble Layer
@@ -1273,6 +1274,7 @@ auxl.InfoBubble = (id, object, offset, color) => {
 			infoBubble[infoBubble.id].EmitEventParent('spawnOut');
 			infoBubble.timeout = setTimeout(() => {
 				DespawnBubble();
+				auxl.RemoveFromTracker(infoBubble.id);
 				clearTimeout(infoBubble.timeout);
 			}, 1050);
 		}

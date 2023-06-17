@@ -2087,6 +2087,7 @@ if(repeatX || repeatZ){
 			}
 			gridLayout.current = false;
 			gridLayout.inScene = false;
+			auxl.RemoveFromTracker(gridLayout.id)
 		}
 	}
 
@@ -2167,6 +2168,18 @@ auxl.Gate = (id, object, direction) => {
 				gate.object.DespawnLayer();
 			}
 			gate.inScene = false;
+			auxl.RemoveFromTracker(gate.id);
+		}
+	}
+
+	const RemoveGate = () => {
+		if(gate.inScene){
+			if(gate.objType === 'core'){
+				gate.object.DespawnCore();
+			} else if(gate.objType === 'layer'){
+				gate.object.DespawnLayer();
+			}
+			gate.inScene = false;
 		}
 	}
 
@@ -2186,7 +2199,7 @@ auxl.Gate = (id, object, direction) => {
 						delete gate.object.layer.all.parent.core.core.components.oneventrun__closegate;
 						gate.object.layer.all.parent.core.core.material.opacity = 1;
 					}
-					DespawnGate();
+					RemoveGate();
 					SpawnGate();
 					gate.open = false;
 //testing
@@ -2203,7 +2216,7 @@ clearTimeout(timeout);
 	const OpenGate = () => {
 		if(gate.open){}else{
 			console.log('opening gate')
-			DespawnGate();
+			RemoveGate();
 			if(gate.objType === 'core'){
 				gate.object.core.grid.collide = false;
 				gate.object.core.grid.trigger = true;

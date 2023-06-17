@@ -58,7 +58,6 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
 # v0.3 Brief Overview of Major Updates So Far : :fire:
 ## System
-- AUXL is now divided into 5 main files called System, Support, Extras, Shaders and Scenes to hold all needed components.
 - Added Save/Load/Reset system to store profile, date/time/visit, location, support of auxl object flags and more.
 - Generate new Core Data, Core or Layer from a previously existing object with overwrite protection and customization support via auxl.coreDataFromTemplate(), auxl.coreFromTemplate() and auxl.layerFromTemplate().
 - Each object generator component has a rebuild function to regenerate all defined objects upon system reset without reloading the webpage.
@@ -100,6 +99,8 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Book Timelines now supports multiple pages, page jumps and reading in a randomized order.
 - Added speech progression blink notification to continue book or indicate book end.
 - Configured the keyword 'self' to be used in place of an auxlObj name which runs any assigned action on the NPC reading the book.
+- Textbubble options such as close and reset added. Used with NPC layer and parent rig for body avatar.
+- Textbubbles emit a loadin/loadout event for animation support.
 - Various other minor improvements.
 
 ## Tile Map Grid Collision System
@@ -129,18 +130,41 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - onintervalrun : Run auxl object method on interval.
 - raycast-teleportation-select : spawn a teleport select button on click.
 
-# v0.4+ Currently In-Progress Updates : :cherries:
-- Locomotion movements such as flying, 3rd Person POV and many more!
-- Cannon JS Physics
-- Additional Locomotion Styles and Gimbal Player Control
+# v0.3 Recent Updates (Not Added to Notes Yet) : :zap:
+- Collision & Trigger map expanded to support height levels. Height blocks every 1 meter. Grid objects can take up multiple height sections at a time. Player while standing will hit 2 height levels, but crouching will only hit 1 height level. When crouching under a collision object, player cannot stand until cleared.
+- New Collision based ObjGen Gate. Allow pass through in a specific direction to close the gate behind the user. Can otherwise trigger close or opening of Gate.
+- Movement on collision now continues by skimming walls and floor/ceilings instead of stopping when at edge/collision including when flying.
+- Fixed an issue regarding diagonal collision detection
+- Creature now has a body
+- Scene Info can now take in a spawnPos object to set the default spawn position when loading into the scene
+- doorway component now accepts a delay amount to postpone before swapping scenes in-case an animation needs to play like a door that opens.
+- doorway-trigger component to activate scene transition on trigger collision
+- clickaddinventory component to add an auxl object item/tool/special/etc... on click. Can be configured to use only once, despawn and delay to allow animation to play.
+- player method to control companion and menu. If menu if open, will go back 1 level. If menu is closed will despawn companion. If companion is despawned, will spawn companion.
+- Quick Hover Menu : Hold down button to spawn circle menu, hover on option and let go of button. Active hover selection on button up happens
+- Player equipping and unequipping inventory objects
+- acceptobject component to use player equipped object on entity
+- Updated save data to load data on same domain only
+- Zone method to change scenes using zone and scene names without key checks
+- Updated HTML menu to a state machine and synced control configuration to save profile
+- Added volume control to html system menu and syncing to profile
+
+# v0.3 Currently In-Progress Updates : :cherries:
+- Grid Enhancements & Features
+- Large & Personal Vehicle
+- Color Lock Combination
+- Locomotion movements such as flying, 3rd Person POV & more
 - Dungeon Wall Maze Generator
 - Creature Generator
-- VRM Asset Support for NPC's with Reaction Animations
-- In 3D Object Builder
-- RPG System, Demo w/ Mini Games
-- Physics Based Movement & Unique Power System
+- Mini Games
 
-# Various Feature Ideas
+# v0.4+ Features
+- RPG System
+- In 3D Object Builder
+- VRM Asset Support for NPC's with Reaction Animations
+- Additional Locomotion Styles and Gimbal Player Control
+- Cannon JS Physics
+- Physics Based Movement & Unique Power System
 - System Function, Component & ObjGen Updates
 - Additional Control Configurations and Enhancements
 - Companion Improvements & Customizations
