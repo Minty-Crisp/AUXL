@@ -12,11 +12,17 @@
 //ObjsGenRing
 //MultiAssetGen
 //Teleport
+//
+AFRAME.registerComponent('environment', {
+dependencies: ['auxl'],
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
 
 //
 //SkyBox
 //Lights, Sky, Space
-const SkyBox = (auxl, skyBoxData) => {
+auxl.SkyBox = (skyBoxData) => {
 	let skyBox = Object.assign({}, skyBoxData);
 	skyBox.inScene = false;
 	skyBox.time = 5.5;
@@ -297,7 +303,7 @@ from: new THREE.Vector3(1,1,-1), to: new THREE.Vector3(-1,1,-1)
 //
 //Horizon
 //Mountains, Hills, Buildings, Cylinder/Square Wall
-const Horizon = (auxl, horizonData) => {
+auxl.Horizon = (horizonData) => {
 	let horizon = Object.assign({}, horizonData);
 	horizon.inScene = false;
 
@@ -565,7 +571,7 @@ const Horizon = (auxl, horizonData) => {
 //
 //Ring of Objects
 //Randomize Set of Objects from Single in a Ring Radius
-const ObjsGenRing = (auxl, objRingData) => {
+auxl.ObjsGenRing = (objRingData) => {
 	let singleGen = Object.assign({}, objRingData);
 	singleGen.inScene = false;
 	let ogData = Object.assign({}, objRingData.objData);
@@ -732,7 +738,7 @@ const ObjsGenRing = (auxl, objRingData) => {
 //
 //Multi Asset Generator
 //Randomize Sets of Various Sized Objects in various Ring Radius'
-const MultiAssetGen = (auxl, multiGenData) => {
+auxl.MultiAssetGen = (multiGenData) =>{
 //Add the ability to read an array of different objects for same size
 //Need to better optimize each size's radius
 	let multiGen = Object.assign({}, multiGenData);
@@ -1190,7 +1196,7 @@ if(a === 0){
 //
 //Teleport
 //Generate Teleport Points at Array of Locations
-const Teleport = (auxl, id, locations) => {
+auxl.Teleport = (id, locations) => {
 //Allow to select mutli-interactino circle, light beam and more.
 	let teleport = {};
 	teleport.id = id;
@@ -1285,6 +1291,5 @@ const Teleport = (auxl, id, locations) => {
 	return {teleport, SpawnTeleport, DespawnTeleport, ToggleSpawn, SetFlag, GetFlag,};
 }
 
-//
-//Export
-export {SkyBox, Horizon, ObjsGenRing, MultiAssetGen, Teleport};
+},
+});

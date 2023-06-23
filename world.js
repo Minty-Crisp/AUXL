@@ -5,17 +5,23 @@
 //
 //Created by Minty-Crisp (mintycrisp.com)
 //
-//Scenes
+//World
 //
 //SceneNode
 //MapZone
 //Scenario
 //World
+//
+AFRAME.registerComponent('world', {
+dependencies: ['auxl'],
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
 
 //
 //Scene Node ObjGen
 //scenePlaceTownBuildingCastleLabrynthLevelAreaOfInterest
-const SceneNode = (auxl, sceneData) => {
+auxl.SceneNode = (sceneData) => {
 	let core = Object.assign({}, sceneData);
 	//Scene Text Support
 	let textBubble = auxl.Core(auxl.sceneTextData);
@@ -503,7 +509,7 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 //
 //Map Zone Gen & reader
 //mapRegionDistrictTerritoryZoneSection
-const MapZone = (auxl, mapZoneData) => {
+auxl.MapZone = (mapZoneData) => {
 	let core = Object.assign({}, mapZoneData);
 	core.mapMenuData = false;
 	core.mapMainMenuData = false;
@@ -1111,7 +1117,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 //
 //Scenario Gen
 //entireScenarioSpawnLocationAlwaysDisplay
-const Scenario = (auxl, scenarioData) => {
+auxl.Scenario = (scenarioData) => {
 	let core = Object.assign({}, scenarioData);
 	core.scenarioLoaded = false;
 	let startTimeout;
@@ -1575,7 +1581,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 //
 //World Gen
 //containAllScenarios
-const World = (auxl, worldData) => {
+auxl.World = (worldData) => {
 
 	let world = {};
 	world.data = Object.assign({}, worldData);
@@ -1629,6 +1635,5 @@ const World = (auxl, worldData) => {
 	return {world, SetAsDefault, StartWorld, StopWorld, StartScenario, ClearScenario, NextScenario, LoadScenario}
 }
 
-//
-//Export
-export {SceneNode, MapZone, Scenario, World};
+},
+});

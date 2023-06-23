@@ -9,12 +9,18 @@
 //
 //Menu
 //MultiMenu
-//HoverMenu
+//
+AFRAME.registerComponent('menu', {
+dependencies: ['auxl'],
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
+
 
 //
 //Menu
 //Single Menu | Vertical/Horizontal
-const Menu = (auxl, menuData) => {
+auxl.Menu = (menuData) => {
 	let menu = {};
 	menu.inScene = false;
 	menu.data = Object.assign({}, menuData.data);
@@ -158,7 +164,7 @@ const Menu = (auxl, menuData) => {
 //
 //MultiMenu
 //Multi Sub Menus | Circle/Vertical/Horizontal
-const MultiMenu = (auxl, multiMenuData) => {
+auxl.MultiMenu = (multiMenuData) => {
 	let multiMenu = {};
 	multiMenu.data = Object.assign({}, multiMenuData);
 	multiMenu.inScene = false;
@@ -608,9 +614,10 @@ const MultiMenu = (auxl, multiMenuData) => {
 	return {multiMenu, SpawnMultiMenu, DespawnMultiMenu, ToggleMenu, UpdateParent, UpdateSubMenu, SubMenu, ResetMenu, SpawnDescription, DespawnDescription};
 }
 
+//
 //Quick Hover Menu :
 //Hold down button to spawn circle menu, hover on option and let go of button. Active hover selection on button up happens and menu closes
-const HoverMenu = (auxl, hoverMenuData) => {
+auxl.HoverMenu = (hoverMenuData) => {
 	let hoverMenu = {};
 	hoverMenu.data = Object.assign({}, hoverMenuData);
 	hoverMenu.inScene = false;
@@ -991,6 +998,8 @@ const HoverMenu = (auxl, hoverMenuData) => {
 	return {hoverMenu, SpawnHoverMenu, DespawnHoverMenu, UpdateParent, UpdateSubMenu, ResetMenu, SpawnDescription, DespawnDescription};
 }
 
-//
-//Export
-export {Menu, MultiMenu, HoverMenu};
+
+
+
+},
+});

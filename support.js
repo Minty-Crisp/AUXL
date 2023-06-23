@@ -4,19 +4,1217 @@
 //https://github.com/Minty-Crisp/AUXL
 //
 //Created by Minty-Crisp (mintycrisp.com)
+
+//AUXL v0.3 Beta - Support
+
+
 //
-//Movement
+//Altering GLTF Materials
+//Instead of a set of arrays for each setting, could do a single array for objects that have setting keys
+AFRAME.registerComponent('gltfmat', {
+dependencies: ['auxl'],
+schema: {
+	colors: {type: 'array', default: ['#FFFFFF']},
+	emissive: {type: 'array', default: [0]},
+	textures: {type: 'array', default: [false]},
+	repeats: {type: 'array', default: [false]},
+	random: {type: 'boolean', default: false},
+},
+	init: function () {
+		//AUXL System
+		const auxl = document.querySelector('a-scene').systems.auxl;
+		//Mesh Name
+		this.meshName = false;
+		this.current = 0;
+		this.materials = [];
+		this.data.colors.forEach(color => {
+			//Color
+			if(color || color !== 'false'){
+				this.materials[this.current] = new THREE.MeshStandardMaterial({color});
+				//Emissive
+				if(!this.data.emissive[this.current] || this.data.emissive[this.current] === '0'){} else {
+					this.materials[this.current].emissive = this.materials[this.current].color;
+					this.materials[this.current].emissiveIntensity = this.data.emissive[this.current];
+				}
+				//Texture
+				if(!this.data.textures[this.current] || this.data.textures[this.current] === 'false'){} else {
+					this.materials[this.current].texture = new THREE.TextureLoader().load(this.data.textures[this.current]);
+					if(!this.data.repeats[this.current] || this.data.repeats[this.current] === 'false'){} else {
+						this.materials[this.current].texture.wrapS = THREE.RepeatWrapping;
+						this.materials[this.current].texture.wrapT = THREE.RepeatWrapping;
+						this.materials[this.current].texture.repeat.set(this.data.repeats[this.current]);
+					}
+				}
+			} else if(color === 'random'){
+				this.materials[this.current] = new THREE.MeshStandardMaterial({color: auxl.colorTheoryGen().base});
+			} else {
+				this.materials[this.current] = false;
+			}
+			this.current++;
+		})
+		//console.log(this.materials)
+		this.current = -2;
+		// Wait for model to load. GLTF/OBJ Event
+		this.el.addEventListener('model-loaded', () => {
+			// Grab the mesh / scene.
+			const obj = this.el.getObject3D('mesh');
+			obj.traverse(node => {
+				//console.log(node.name)
+				if(this.current < 0){} else {
+					if(this.data.random){
+						node.material = new THREE.MeshStandardMaterial({color: auxl.colorTheoryGen().base});
+					} else {
+						if(this.materials[this.current]){
+							node.material = this.materials[this.current];
+						}
+					}
+				}
+				this.current++;
+			});
+		});
+	}
+});
+
 //
-//locomotion
-//gimbal
-//teleportation
-//raycastTeleport
-//raycastTeleportSelect
+//Click to Add to Inventory
+AFRAME.registerComponent('clickaddinventory', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	item: {type: 'string', default: 'itemName'},
+	once: {type: 'boolean', default: true},
+	delay: {type: 'number', default: 0},
+	despawn: {type: 'boolean', default: true},
+	auxlObj: {type: 'string', default: 'auxlObj'},
+	despawnMethod: {type: 'string', default: 'DespawnCore'},
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	this.item = this.data.item;
+	this.once = this.data.once;
+	this.delay = this.data.delay;
+	this.give = true;
+	this.despawn = this.data.despawn;
+	this.auxlObj = this.data.auxlObj;
+	this.despawnMethod = this.data.despawnMethod;
+},
+events: {
+	click: function () {
+		if(this.give){
+			this.timeout = setTimeout(() => {
+				this.auxl.comp.AddToInventory({item:this.auxl[this.item]});
+				if(this.once){
+					this.give = false;
+				}
+				if(this.despawn){
+					this.auxl[this.auxlObj][this.despawnMethod]();
+				}
+				clearTimeout(this.timeout);
+			}, this.delay);
+		}
+	}
+},
+});
+
+//
+//Use on Object
+AFRAME.registerComponent('acceptobject', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	item: {type: 'string', default: 'itemName'},
+	uses: {type: 'number', default: 1},
+	delay: {type: 'number', default: 0},
+	despawn: {type: 'boolean', default: true},
+	auxlObj: {type: 'string', default: 'auxlObj'},
+	despawnMethod: {type: 'string', default: 'DespawnCore'},
+	methodObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	this.item = this.data.item;
+	this.uses = this.data.uses;
+	this.delay = this.data.delay;
+	this.inUse = false;
+	this.despawn = this.data.despawn;
+	this.auxlObj = this.data.auxlObj;
+	this.despawnMethod = this.data.despawnMethod;
+	this.methodObj = this.data.methodObj;
+	this.component = this.data.component;
+	this.method = this.data.method;
+	this.params = this.data.params;
+},
+run: function(){
+	this.timeout = setTimeout(() => {
+		if(this.component === 'null'){
+			if(this.auxl[this.methodObj][this.method]){
+				if(this.params === 'null'){
+					this.auxl[this.methodObj][this.method]();
+				} else {
+					this.auxl[this.methodObj][this.method](this.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.methodObj)){
+				this.domEnt = document.getElementById(this.methodObj);
+				if(this.params === 'null'){
+					this.domEnt.components[this.component][this.method]();
+				} else {
+					this.domEnt.components[this.component][this.method](this.params);
+				}
+			}
+		}
+		if(this.auxl[this.item].persist === 'limited'){
+			this.auxl[this.item].amount--;
+			this.auxl.comp.UpdateInventoryMenu();
+			this.auxl.player.Unequip();
+		}
+		this.uses--;
+		if(this.uses <= 0 && this.despawn){
+			this.auxl[this.auxlObj][this.despawnMethod]();
+		}
+		this.inUse = false;
+		clearTimeout(this.timeout);
+	}, this.delay);
+},
+events: {
+	click: function () {
+		if(this.auxl.player.layer.equipped){
+			if(this.auxl.player.layer.equippedObject === this.item){
+				if(this.inUse){}else{
+					this.inUse = true;
+					this.run();
+				}
+			}
+		}
+	}
+},
+});
+
+//Testing
+//Gradient & Toon Shader
+AFRAME.registerComponent('modify-materials', {
+dependencies: ['auxl'],
+	init: function () {
+		const auxl = document.querySelector('a-scene').systems.auxl;
+		// Wait for model to load. GLTF/OBJ Event
+		this.el.addEventListener('model-loaded', () => {
+			// Grab the mesh / scene.
+			const obj = this.el.getObject3D('mesh');
+			// Go over the submeshes and modify materials we want.
+			//const materialTest = {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
+			//mesh.material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+			const materialTest = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+
+const threeTone = new THREE.TextureLoader().load('./assets/img/gradient/threeTone.jpg')
+threeTone.minFilter = THREE.NearestFilter
+threeTone.magFilter = THREE.NearestFilter
+
+const fourTone = new THREE.TextureLoader().load('./assets/img/gradient/fourTone.jpg')
+fourTone.minFilter = THREE.NearestFilter
+fourTone.magFilter = THREE.NearestFilter
+
+const fiveTone = new THREE.TextureLoader().load('./assets/img/gradient/fiveTone.jpg')
+fiveTone.minFilter = THREE.NearestFilter
+fiveTone.magFilter = THREE.NearestFilter
+
+			//const diffuseColor = new THREE.Color().setHSL( alpha, 0.5, gamma * 0.5 + 0.1 ).multiplyScalar( 1 - beta * 0.2 );
+			const gradientMap = new THREE.DataTexture( 2, 1, 2, 3 );
+			gradientMap.needsUpdate = true;
+
+			const materialToon = new THREE.MeshToonMaterial( {
+				color: 'blue',
+				gradientMap: fiveTone
+			} );
+
+			obj.traverse(node => {
+				if(node.name.indexOf('Mesh_crop_melon') !== -1) {
+					node.material = materialToon;
+				}
+
+
+//testing
+//<empty string>
+//crop_melon
+//Mesh_crop_melon
+//Mesh_crop_melon_1
+//Mesh_crop_melon_2
+/*
+				console.log(node.name)
+				if(node.name.indexOf('Mesh_crop_melon') !== -1) {
+					node.material.color.set('red');
+				}
+				if(node.name.indexOf('Mesh_crop_melon_1') !== -1) {
+					node.material.color.set('blue');
+				}
+				if(node.name.indexOf('Mesh_crop_melon_2') !== -1) {
+					node.material.color.set('yellow');
+				}
+*/
+			});
+		});
+	}
+});
+
+//
+//Physics System
+AFRAME.registerComponent('add-physics', {
+	dependencies: ['auxl'],
+/*
+    schema: {
+        idname: {type: 'string', default: 'ui'},
+        position: {type: 'vec3'},
+    },
+*/
+    init: function () {
+		//Physics Testing
+		//var playerEl = document.querySelector('[camera]');
+		playerRig.addEventListener('collide', function (e) {
+			console.log('Player has collided with body #' + e.detail.body.id);
+
+			e.detail.target.el;  // Original entity (playerEl).
+			e.detail.body.el;    // Other entity, which playerEl touched.
+			e.detail.contact;    // Stats about the collision (CANNON.ContactEquation).
+			e.detail.contact.ni; // Normal (direction) of the collision (CANNON.Vec3).
+
+			// The top of the sphere, relative to the sphere center
+			const topPoint = new CANNON.Vec3(0, 0.25 / 2, 0)
+			const impulse = new CANNON.Vec3(-10, 0, 0)
+			//e.detail.body.el.body.applyImpulse(impulse, topPoint)
+
+			let resetQuat = new THREE.Quaternion(0,0,0,0);
+			let resetPos = new THREE.Vector3(0,6,-6);
+
+			e.detail.body.el.body.position.copy(resetPos);
+
+			//e.detail.body.el.body.quaternion.copy(resetQuat);
+/*
+Stop Moving
+
+ let body = el.body // el = aframe entity
+ body.velocity.set(0,0,0);
+ body.angularVelocity.set(0,0,0);
+ body.vlambda.set(0,0,0);
+ body.wlambda.set(0,0,0);
+*/
+
+
+	/*
+	var el = sceneEl.querySelector('#nyan');
+	el.body.applyImpulse(
+	new CANNON.Vec3(0, 1, -1),// impulse
+	new CANNON.Vec3().copy(el.getComputedAttribute('position'))// world position
+	*/
+	//const force = new CANNON.Vec3(-100, new THREE.Vector3(0,0,0))
+	//e.detail.body.el.body.applyForce(force)
+	/*
+
+	const force = new CANNON.Vec3(-100, 0, 0)
+	body.applyForce(force)
+
+	camera.getWorldDirection(cameraDirection);
+
+	// Move ball forward (multiply by -1 * speed to move backwards)
+
+	let cameraForward: THREE.Vector3 = new THREE.Vector3(cameraDirection.x, 0, cameraDirection.z).multiplyScalar(this.speed * this.dir.ud);
+
+	this.body.applyForce(cameraForward as any, this.body.position);
+
+	// Move to the right (multiply by -1 * speed to move to the left)
+
+	let cameraSideways: THREE.Vector3 = new THREE.Vector3(cameraDirection.z, 0, -cameraDirection.x).multiplyScalar(this.speed * -this.dir.lr);
+
+	this.body.applyForce(cameraSideways as any, this.body.position);
+	*/
+
+		});
+    },
+
+});
+
+//
+//Attach
+AFRAME.registerComponent('attach', {
+	dependencies: ['auxl'],
+    schema: {
+        idname: {type: 'string', default: 'ui'},
+        position: {type: 'vec3'},
+    },
+    init: function () {
+        //Thing To Attach
+        this.attachee = document.getElementById(this.data.idname);
+        this.offset = new THREE.Vector3();
+		if(this.data.position){
+			this.offset.copy(this.data.position);
+		} else {
+        	this.offset.copy(this.attachee.object3D.position);
+		}
+        this.newPosVec3 = new THREE.Vector3();
+    },
+    attached: function () {
+        //Clone current the entity this component is attached to's position
+        this.newPosVec3.copy(this.el.object3D.position);
+        //Offsets
+        this.newPosVec3.x += this.offset.x;
+        this.newPosVec3.y += this.offset.y;
+        this.newPosVec3.z += this.offset.z;
+        //Set position for UI at 3js level for speed!
+        this.attachee.object3D.position.copy(this.newPosVec3);
+    },
+    tick: function (time, timeDelta) {
+        this.attached();
+    },
+});
+
+//
+//Look At XYZ
+AFRAME.registerComponent('look-at-xyz', {
+	dependencies: ['auxl'],
+	schema: {
+		match: {type: 'string', default:'camera'},
+		x: {type: 'boolean', default: false},
+		y: {type: 'boolean', default: false},
+		z: {type: 'boolean', default: false},
+	},
+    init: function () {
+    },
+    update: function () {
+		this.rotation = this.el.object3D.rotation;
+		this.matchView = document.getElementById(this.data.match);
+		this.matchRotation = new THREE.Euler();
+		this.lookAtXYZThrottled = AFRAME.utils.throttle(this.lookAtXYZ, 30, this);
+    },
+    lookAtXYZ: function () {
+		this.matchRotation.copy(this.matchView.object3D.rotation);
+		//Sync X,Y and/or Z
+		if(this.data.x){
+			this.rotation.x = this.matchRotation.x;
+		}
+		if(this.data.y){
+			this.rotation.y = this.matchRotation.y;
+		}
+		if(this.data.z){
+			this.rotation.z = this.matchRotation.z;
+		}
+		this.el.object3D.rotation.copy(this.rotation);
+    },
+    tick: function (time, timeDelta) {
+        this.lookAtXYZThrottled();
+    },
+});
+
+//
+//Stare
+AFRAME.registerComponent('stare', {
+	dependencies: ['auxl'],
+	schema: {
+		id: {type: 'string', default:'playerRig'},
+		twist: {type: 'boolean', default: false},
+	},
+    init: function () {
+    },
+    update: function () {
+		this.idView = document.getElementById(this.data.id);
+		this.idPosition = new THREE.Vector3();
+		this.stareThrottled = AFRAME.utils.throttle(this.stare, 30, this);
+    },
+    stare: function () {
+		//Get Position of Stare Object
+		this.idPosition.copy(this.idView.object3D.position);
+		//If player, add current camera height
+		if(this.data.id === 'playerRig'){
+			this.idPosition.y += document.getElementById('camera').object3D.position.y;
+		}
+		//Twist will not look up or down
+		if(this.data.twist){
+			this.idPosition.y = this.el.object3D.position.y;
+		}
+		this.el.object3D.lookAt(this.idPosition);
+    },
+    tick: function (time, timeDelta) {
+        this.stareThrottled();
+    },
+});
+
+//
+//Event Listener Components to run Auxl.Object.Methods()
+
+//Attach to run Object's .Click() method on click
+//Legacy | Will be replaced by clickrun
+AFRAME.registerComponent('clickfunc', {
+dependencies: ['auxl'],
+schema: {
+	clickObj: {type: 'string', default: 'auxlObj'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+events: {
+	click: function (evt) {
+		this.auxl[this.data.clickObj].Click(evt.target);
+	}
+},
+});
+//Attach to run specified method from Object on click event or method from component if in scene
+AFRAME.registerComponent('clickrun', {
+dependencies: ['auxl'],
+multiple: true,
+//multiple: true,
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+},
+events: {
+	click: function (evt) {
+		if(this.data.component === 'null'){
+			if(this.auxl[this.data.cursorObj][this.data.method]){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.data.cursorObj)){
+				this.domEnt = document.getElementById(this.data.cursorObj);
+				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else {
+					this.domEnt.components[this.data.component][this.data.method](this.data.params);
+				}
+			}
+		}
+	}
+},
+});
+
+//Attach to run specified method from Object on fusing event
+AFRAME.registerComponent('fusingrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+},
+events: {
+	fusing: function (evt) {
+		if(this.data.component === 'null'){
+			if(this.auxl[this.data.cursorObj][this.data.method]){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.data.cursorObj)){
+				this.domEnt = document.getElementById(this.data.cursorObj);
+				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else {
+					this.domEnt.components[this.data.component][this.data.method](this.data.params);
+				}
+			}
+		}
+	}
+},
+});
+//Attach to run specified method from Object on mousedown event
+AFRAME.registerComponent('mousedownrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+},
+events: {
+	mousedown: function (evt) {
+		if(this.data.component === 'null'){
+			if(this.auxl[this.data.cursorObj][this.data.method]){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.data.cursorObj)){
+				this.domEnt = document.getElementById(this.data.cursorObj);
+				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else {
+					this.domEnt.components[this.data.component][this.data.method](this.data.params);
+				}
+			}
+		}
+	}
+},
+});
+//Attach to run specified method from Object on mouseenter event
+AFRAME.registerComponent('mouseenterrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+},
+events: {
+	mouseenter: function (evt) {
+		if(this.data.component === 'null'){
+			if(this.auxl[this.data.cursorObj][this.data.method]){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.data.cursorObj)){
+				this.domEnt = document.getElementById(this.data.cursorObj);
+				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else {
+					this.domEnt.components[this.data.component][this.data.method](this.data.params);
+				}
+			}
+		}
+	}
+},
+});
+//Attach to run specified method from Object on mouseleave event
+AFRAME.registerComponent('mouseleaverun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+},
+events: {
+	mouseleave: function (evt) {
+		if(this.data.component === 'null'){
+			if(this.auxl[this.data.cursorObj][this.data.method]){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.data.cursorObj)){
+				this.domEnt = document.getElementById(this.data.cursorObj);
+				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else {
+					this.domEnt.components[this.data.component][this.data.method](this.data.params);
+				}
+			}
+		}
+	}
+},
+});
+//Attach to run specified method from Object on mouseup event
+AFRAME.registerComponent('mouseuprun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'methodName'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+},
+events: {
+	mouseup: function (evt) {
+		if(this.data.component === 'null'){
+			if(this.auxl[this.data.cursorObj][this.data.method]){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.data.cursorObj)){
+				this.domEnt = document.getElementById(this.data.cursorObj);
+				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else {
+					this.domEnt.components[this.data.component][this.data.method](this.data.params);
+				}
+			}
+		}
+	}
+},
+});
+
+//MultiMenu Suppot
+//Attach to run specified method from Object on click event
+AFRAME.registerComponent('menurun', {
+dependencies: ['auxl'],
+//multiple: true,
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+events: {
+	click: function (evt) {
+		if(this.auxl[this.data.cursorObj][this.data.method]){
+			if(this.data.params === 'null'){
+				this.auxl[this.data.cursorObj][this.data.method](evt.target);
+			} else {
+				this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+			}
+		}
+	}
+},
+});
+
+//HoverMenu Support
+//Attach to run specified method from Object on mouseenter event
+AFRAME.registerComponent('hoverrun', {
+dependencies: ['auxl'],
+schema: {
+	attached: {type: 'string', default: 'none'},
+	menu: {type: 'string', default: 'menuName'},
+	action: {type: 'string', default: 'actionName'},
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.attached = this.data.attached;
+	this.menu = this.data.menu;
+	this.action = this.data.action;
+},
+events: {
+	mouseenter: function (evt) {
+		//Active
+		if(this.attached !== 'none'){
+			this.auxl[this.attached][this.menu].hoverMenu.active = this.action;
+		} else {
+			this.auxl[this.menu].hoverMenu.active = this.action;
+		}
+	},
+	mouseleave: function (evt) {
+		//No longer active
+		if(this.attached !== 'none'){
+			this.auxl[this.attached][this.menu].hoverMenu.active = false;
+		} else {
+			this.auxl[this.menu].hoverMenu.active = false;
+		}
+	}
+},
+});
+
+
+//On Spawn Run
+//Run AUXL object method
+AFRAME.registerComponent('onspawnrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	//console.log(this.attrName)
+	//console.log(this.id)
+	if(this.data.component === 'null'){
+		if(this.auxl[this.data.cursorObj][this.data.method]){
+			if(this.data.params === 'null'){
+				this.auxl[this.data.cursorObj][this.data.method]();
+			} else {
+				this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+			}
+		}
+	} else {
+		//object is a dom entity and the component is attached to that object and the func is in that component
+		if(document.getElementById(this.data.cursorObj)){
+			this.domEnt = document.getElementById(this.data.cursorObj);
+			if(this.data.params === 'null'){
+				this.domEnt.components[this.data.component][this.data.method]();
+			} else {
+				this.domEnt.components[this.data.component][this.data.method](this.data.params);
+			}
+		}
+	}
+},
+});
+
+//On Despawn Run
+//Run AUXL object method
+AFRAME.registerComponent('ondespawnrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	//console.log(this.attrName)
+	//console.log(this.id)
+},
+remove: function () {
+	if(this.data.component === 'null'){
+		if(this.auxl[this.data.cursorObj][this.data.method]){
+			if(this.data.params === 'null'){
+				this.auxl[this.data.cursorObj][this.data.method]();
+			} else {
+				this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+			}
+		}
+	} else {
+		//object is a dom entity and the component is attached to that object and the func is in that component
+		if(document.getElementById(this.data.cursorObj)){
+			this.domEnt = document.getElementById(this.data.cursorObj);
+			if(this.data.params === 'null'){
+				this.domEnt.components[this.data.component][this.data.method]();
+			} else {
+				this.domEnt.components[this.data.component][this.data.method](this.data.params);
+			}
+		}
+	}
+},
+});
+
+//On Event Run
+//On Event fired, run method
+AFRAME.registerComponent('oneventrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	event: {type: 'string', default: 'eventName'},
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'},
+	once: {type: 'boolean', default: false}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	//console.log(this.attrName)
+	//console.log(this.id)
+	//console.log(this.data)
+},
+update: function () {
+	//Prep
+	this.event = this.data.event;
+	this.cursorObj = this.data.cursorObj;
+	this.component = this.data.component;
+	this.method = this.data.method;
+	this.params = this.data.params;
+	this.once = this.data.once;
+	//Run Function
+	this.run = () => {
+		if(this.component === 'null'){
+			if(this.auxl[this.cursorObj][this.method]){
+				if(this.params === 'null'){
+					this.auxl[this.cursorObj][this.method]();
+				} else {
+					this.auxl[this.cursorObj][this.method](this.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.cursorObj)){
+				this.domEnt = document.getElementById(this.cursorObj);
+				if(this.params === 'null'){
+					this.domEnt.components[this.component][this.method]();
+				} else {
+					this.domEnt.components[this.component][this.method](this.params);
+				}
+			}
+		}
+	}
+	//Add Event Listener
+	this.el.addEventListener(this.event,this.run,{once: this.once });
+},
+remove: function () {
+	//Remove Event Listener
+	this.el.removeEventListener(this.event,this.run);
+},
+});
+
+//On Delay Run
+//On Delay, run method
+AFRAME.registerComponent('ondelayrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	delay: {type: 'number', default: 1000},
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	//console.log(this.attrName)
+	//console.log(this.id)
+	//console.log(this.data)
+},
+update: function () {
+	//Prep
+	this.delay = this.data.delay;
+	this.cursorObj = this.data.cursorObj;
+	this.component = this.data.component;
+	this.method = this.data.method;
+	this.params = this.data.params;
+	//Run Function
+	this.run = () => {
+		if(this.component === 'null'){
+			if(this.auxl[this.cursorObj][this.method]){
+				if(this.params === 'null'){
+					this.auxl[this.cursorObj][this.method]();
+				} else {
+					this.auxl[this.cursorObj][this.method](this.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.cursorObj)){
+				this.domEnt = document.getElementById(this.cursorObj);
+				if(this.params === 'null'){
+					this.domEnt.components[this.component][this.method]();
+				} else {
+					this.domEnt.components[this.component][this.method](this.params);
+				}
+			}
+		}
+	}
+	//Set Timeout
+	this.timeout = setTimeout(() => {
+		this.run();
+		clearTimeout(this.timeout);
+	}, this.delay);
+
+},
+remove: function () {
+	//Clear Timeout
+	clearTimeout(this.timeout);
+},
+});
+
+//On Interval Run
+//On Interval, run method
+AFRAME.registerComponent('onintervalrun', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	interval: {type: 'number', default: 1000},
+	loop: {type: 'number', default: 0},
+	end: {type: 'string', default: 'null'},
+	cursorObj: {type: 'string', default: 'auxlObj'},
+	component: {type: 'string', default: 'null'},
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.domEnt;
+	//console.log(this.attrName)
+	//console.log(this.id)
+	//console.log(this.data)
+},
+update: function () {
+	//Prep
+	this.interval = this.data.interval;
+	this.loop = this.data.loop;
+	if(this.loop === 0){
+		this.loop = false;
+	}
+	this.end = this.data.end;
+	this.checkEnd = false;
+	if(this.end === 'null'){} else {
+		this.checkEnd = true;
+	}
+	this.running = true;
+	this.cursorObj = this.data.cursorObj;
+	this.component = this.data.component;
+	this.method = this.data.method;
+	this.params = this.data.params;
+	//Run Function
+	this.run = () => {
+		if(this.component === 'null'){
+			if(this.auxl[this.cursorObj][this.method]){
+				if(this.params === 'null'){
+					this.auxl[this.cursorObj][this.method]();
+				} else {
+					this.auxl[this.cursorObj][this.method](this.params);
+				}
+			}
+		} else {
+			//object is a dom entity and the component is attached to that object and the func is in that component
+			if(document.getElementById(this.cursorObj)){
+				this.domEnt = document.getElementById(this.cursorObj);
+				if(this.params === 'null'){
+					this.domEnt.components[this.component][this.method]();
+				} else {
+					this.domEnt.components[this.component][this.method](this.params);
+				}
+			}
+		}
+	}
+	//Set Timeout
+	this.repeat = setInterval(() => {
+		//Flag End Condition
+		if(this.checkEnd){
+			if(this.auxl[this.cursorObj].GetFlag(this.end) === true){
+				this.running = false;
+				clearInterval(this.repeat);
+			}
+		}
+		if(this.running){
+			this.run();
+		}
+		//Loop End Condition
+		if(this.loop){
+			this.loop--;
+			if(this.loop <= 0){
+				this.running = false;
+				clearInterval(this.repeat);
+			}
+		}
+	}, this.interval);
+
+},
+remove: function () {
+	//Clear Timeout
+	clearInterval(this.repeat);
+},
+});
+
+//Map Travel Support
+
+//Click
+AFRAME.registerComponent('doorway', {
+	dependencies: ['auxl'],
+schema: {
+	zone: {type: 'string', default: 'zone0'},
+	to: {type: 'string', default: 'connect0'},
+	delay: {type: 'number', default: 0},
+},
+init: function () {
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.zone = this.data.zone;
+	this.to = this.data.to;
+	this.delay = this.data.delay;
+},
+swap: function(){
+	this.timeout = setTimeout(() => {
+		this.auxl[this.zone].Move(this.to);
+		clearTimeout(this.timeout);
+	}, this.delay);
+},
+events: {
+	click: function (evt) {
+		this.swap();
+	}
+},
+remove: function() {
+	clearTimeout(this.timeout);
+},
+});
+
+//Trigger
+AFRAME.registerComponent('doorway-trigger', {
+	dependencies: ['auxl'],
+schema: {
+	zone: {type: 'string', default: 'zone0'},
+	to: {type: 'string', default: 'connect0'},
+	delay: {type: 'number', default: 0},
+},
+init: function () {
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.zone = this.data.zone;
+	this.to = this.data.to;
+	this.delay = this.data.delay;
+},
+swap: function(){
+	this.timeout = setTimeout(() => {
+		this.auxl[this.zone].Move(this.to);
+		clearTimeout(this.timeout);
+	}, this.delay);
+},
+remove: function() {
+	clearTimeout(this.timeout);
+},
+});
+
+//
+//Display Text Description on Hover
+//Could make each core have the ability to configure a hover text just like detail text and then use mouseenterrun/mouseleaverun
+//Otherwise need to fix despawning on multiple objects
+AFRAME.registerComponent('hovertext', {
+	dependencies: ['auxl'],
+schema: {
+	value: {type: 'string', default: 'TEXT'},
+	hover: {type: 'string', default: 'front'},
+	offset: {type: 'number', default: 1},
+	twist: {type: 'bool', default: true},
+	size: {type: 'number', default: 20},
+},
+    init: function () {
+		this.auxl = document.querySelector('a-scene').systems.auxl;
+		this.value = this.data.value;
+		this.hover = this.data.hover;
+		this.offset = this.data.offset;
+		this.twist = this.data.twist;
+		this.size = this.data.size;
+		this.hoverSpawned = false;
+
+		this.position = new THREE.Vector3(0,0,0);
+
+		if(this.hover === 'top'){
+			this.position = new THREE.Vector3(0,this.offset,0);
+		} else if(this.hover === 'front'){
+			this.position = new THREE.Vector3(0,0,this.offset);
+		}
+
+		//
+		//Hover Text Template
+		this.hoverTextParentData = {
+		data:'hoverTextParentData',
+		id:'hoverTextParent',
+		sources:false,
+		text: false,
+		geometry: false,
+		material: false,
+		position: new THREE.Vector3(0,0,0),
+		rotation: new THREE.Vector3(0,0,0),
+		scale: new THREE.Vector3(1,1,1),
+		animations: false,
+		mixins: false,
+		classes: ['nullParent','a-ent'],
+		components: {
+			//['look-at-xyz']:{match: 'camera', y:this.twist,},
+			['stare']:{id: 'playerRig', twist: this.twist},
+		},
+		};
+		this.hoverTextParent = this.auxl.Core(this.hoverTextParentData);
+		this.hoverTextData = {
+		data:'hoverTextData',
+		id:'hoverText',
+		text: {value:this.value, wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center', width: 2},
+		position: this.position,
+		rotation: new THREE.Vector3(0,0,0),
+		scale: new THREE.Vector3(1,1,1),
+		animations: false,
+		mixins: false,
+		classes: ['a-ent'],
+		components: false,
+		};
+		this.hoverText = this.auxl.Core(this.hoverTextData);
+		this.hoverTextAllData = {
+			parent: {core: this.hoverTextParent},
+			child0: {core: this.hoverText},
+		}
+		this.hoverTextAll = this.auxl.Layer('hoverTextAll', this.hoverTextAllData);
+
+    },
+events: {
+	mouseenter: function (evt) {
+		if(this.hoverSpawned){}else{
+			this.hoverSpawned = true;
+			this.hoverTextAll.SpawnLayer(this.el);
+		}
+	},
+	mouseleave: function (evt) {
+		if(this.hoverSpawned){
+			this.hoverTextAll.DespawnLayer();
+			this.hoverSpawned = false;
+		}
+	},
+},
+    update: function () {
+
+    },
+    remove: function () {
+		if(this.hoverSpawned){}else{
+			this.hoverTextAll.DespawnLayer();
+			this.hoverSpawned = false;
+		}
+    },
+
+});
 
 //
 //Locomotion
 //1st/3rd Walk|Run X,Y and/or Z w/ Collision Support
-const locomotion = AFRAME.registerComponent('locomotion', {
+AFRAME.registerComponent('locomotion', {
 dependencies: ['auxl'],
 schema: {
 	uiid: {type: 'string', default: 'ui'},
@@ -2266,7 +3464,7 @@ userDirection: function (){
 //
 //Gimbal
 //1st/3rd Rotation X,Y and/or Z
-const gimbal = AFRAME.registerComponent('gimbal', {
+AFRAME.registerComponent('gimbal', {
 dependencies: ['auxl'],
 schema: {
 	uiid: {type: 'string', default: 'ui'},
@@ -3154,7 +4352,7 @@ userDirection: function (){
 //
 //Teleportation
 //Component for Teleportation Points Object
-const teleportation = AFRAME.registerComponent('teleportation',{
+AFRAME.registerComponent('teleportation',{
 dependencies: ['auxl'],
 //Uses Player's Scene Transition Type to Teleport
 //Locomotion Teleportation also supported 
@@ -3325,7 +4523,7 @@ remove: function () {
 //
 //Raycast Teleportation
 //Add to Clickable Object to Teleport to Raycast Intersection Position
-const raycastTeleport = AFRAME.registerComponent('raycast-teleportation-select', {
+AFRAME.registerComponent('raycast-teleportation-select', {
 //Uses Player's Scene Transition Type to Teleport
 //Locomotion Teleportation also supported
 dependencies: ['auxl'],
@@ -3457,7 +4655,7 @@ remove: function () {
 });
 //
 //Raycast Teleportation
-const raycastTeleportSelect = AFRAME.registerComponent('raycast-teleportation', {
+AFRAME.registerComponent('raycast-teleportation', {
 //Uses Player's Scene Transition Type to Teleport
 //Locomotion Teleportation also supported 
 init: function () {},
@@ -3539,5 +4737,1706 @@ remove: function () {
 });
 
 //
-//Export
-export {locomotion, gimbal, teleportation, raycastTeleport, raycastTeleportSelect};
+//Universal Controls
+//Customizable Controls and Methods, Defaults for Locomotion and Snap Turning
+AFRAME.registerComponent('universal-controls', {
+dependencies: ['auxl'],
+schema: {
+	update: {type: 'number', default: 0},
+},
+init: function () {
+
+//Controls to Configure for :
+//Desktop : Mouse & Keyboard
+//Mobile : Touchscreen
+//VR Advanced : Dual 6DoF Controllers
+//VR Basic : Single 3DoF Button Controller - Need to Finish
+//VR Mobile : Headset Only - Need to Add
+//Hand Tracking : Dual Hand Movements - Need to Add
+//Game Controller - Need To Add
+
+//Control Actions :
+//Main Click - Triggers, Mouse Click, Screen Tap
+//Alt Click - Grip, Mouse Right Click, HTML Alt
+//Directional Movement - Locomotion Joystick, Key WASD/Arrows, HTML Direction Buttons
+//Rotational Movement - Headset, Mouse, Gyro
+//Action 1 - Button X, Key Q, HTML A
+//Action 2 - Button Y, Key E, HTML B
+//Action 3 - Button A, Key R, HTML C
+//Action 4 - Button B, Key T, HTML D
+//Action 5 - Other Joystick Down, Key C, HTML E
+//Action 6 - Other Joystick Up, Key V, HTML F
+//Action 7 - Other Joystick Left, Key Z, HTML <-
+//Action 8 - Other Joystick Right, Key X, HTML ->
+
+this.aScene = document.querySelector('a-scene');
+this.auxl = document.querySelector('a-scene').systems.auxl;
+//Locomotion Component
+this.locomotion;
+this.gimbal;
+//VR Controllers
+this.vrController1;
+this.vrController2;
+
+//Gimbal Disabled
+
+//Remappable Desktop Controls
+this.controls = {
+directionForwardKeys: ['w','W'],
+directionLeftKeys: ['a','A'],
+directionBackwardKeys: ['s','S'],
+directionRightKeys: ['d','D'],
+//rotationForwardKeys: ['ArrowUp'],
+rotationForwardKeys: [null],
+//rotationLeftKeys: ['ArrowLeft'],
+rotationLeftKeys: [null],
+//rotationBackwardKeys: ['ArrowDown'],
+rotationBackwardKeys: [null],
+//rotationRightKeys: ['ArrowRight'],
+rotationRightKeys: [null],
+action1Keys: ['q','Q'],
+action2Keys: ['e','E'],
+action3Keys: ['r','R'],
+action4Keys: ['t','T'],
+action5Keys: ['c','C'],
+action6Keys: ['v','V'],
+action7Keys: ['z','Z'],
+action8Keys: ['x','X'],
+};
+this.auxl.controlConfig = this.controls;
+
+//Mobile HTML Buttons
+this.mobileUpLeft = document.getElementById('upLeft');
+this.mobileUp = document.getElementById('up');
+this.mobileUpRight = document.getElementById('upRight');
+this.mobileLeft = document.getElementById('left');
+this.mobileCenter = document.getElementById('center');
+this.mobileRight = document.getElementById('right');
+this.mobileDownLeft = document.getElementById('downLeft');
+this.mobileDown = document.getElementById('down');
+this.mobileDownRight = document.getElementById('downRight');
+this.mobileSelect = document.getElementById('select');
+this.mobileStart = document.getElementById('start');
+this.mobileA = document.getElementById('a');
+this.mobileB = document.getElementById('b');
+this.mobileC = document.getElementById('c');
+this.mobileD = document.getElementById('d');
+this.mobileE = document.getElementById('e');
+this.mobileF = document.getElementById('f');
+this.mobileL = document.getElementById('l');
+this.mobileR = document.getElementById('r');
+
+//Customizable Action Controls
+this.altDownFunc = false;
+this.altDownParams = false;
+this.altUpFunc = false;
+this.altUpParams = false;
+this.action1DownFunc = false;
+this.action1DownParams = false;
+this.action1UpFunc = false;
+this.action1UpParams = false;
+this.action2DownFunc = false;
+this.action2DownParams = false;
+this.action2UpFunc = false;
+this.action2UpParams = false;
+this.action3DownFunc = false;
+this.action3DownParams = false;
+this.action3UpFunc = false;
+this.action3UpParams = false;
+this.action4DownFunc = false;
+this.action4DownParams = false;
+this.action4UpFunc = false;
+this.action4UpParams = false;
+this.action5DownFunc = false;
+this.action5DownParams = false;
+this.action5UpFunc = false;
+this.action5UpParams = false;
+this.action6DownFunc = false;
+this.action6DownParams = false;
+this.action6UpFunc = false;
+this.action6UpParams = false;
+this.action7DownFunc = false;
+this.action7DownParams = false;
+this.action7UpFunc = false;
+this.action7UpParams = false;
+this.action8DownFunc = false;
+this.action8DownParams = false;
+this.action8UpFunc = false;
+this.action8UpParams = false;
+
+//
+//Control Events
+
+//Main Click
+this.mainClickDetail = {info: 'Main Click', click: null};
+this.mainClickEvent = new CustomEvent('mainClick', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.mainClickDetail,
+});
+//Alt Click
+this.altClickDetail = {info: 'Alt Click', click: null};
+this.altClickEvent = new CustomEvent('altClick', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.altClickDetail,
+});
+//Directional Movement
+this.directionEventDetail = {info: 'Direction', direction: null};
+this.directionEvent = new CustomEvent('direction', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.directionEventDetail,
+});
+//Rotational Movement
+this.rotationEventDetail = {info: 'Rotation', rotation: null};
+this.rotationEvent = new CustomEvent('rotation', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.rotationEventDetail,
+});
+//Action 1
+this.action1EventDetail = {info: 'Action 1', action: null};
+this.action1Event = new CustomEvent('action1', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action1EventDetail,
+});
+//Action 2
+this.action2EventDetail = {info: 'Action 2', action: null};
+this.action2Event = new CustomEvent('action2', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action2EventDetail,
+});
+//Action 3
+this.action3EventDetail = {info: 'Action 3', action: null};
+this.action3Event = new CustomEvent('action3', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action3EventDetail,
+});
+//Action 4
+this.action4EventDetail = {info: 'Action 4', action: null};
+this.action4Event = new CustomEvent('action4', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action4EventDetail,
+});
+//Action 5
+this.action5EventDetail = {info: 'Action 5', action: null};
+this.action5Event = new CustomEvent('action5', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action5EventDetail,
+});
+//Action 6
+this.action6EventDetail = {info: 'Action 6', action: null};
+this.action6Event = new CustomEvent('action6', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action6EventDetail,
+});
+//Action 7
+this.action7EventDetail = {info: 'Action 7', action: null};
+this.action7Event = new CustomEvent('action7', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action7EventDetail,
+});
+//Action 8
+this.action8EventDetail = {info: 'Action 8', action: null};
+this.action8Event = new CustomEvent('action8', {
+	bubbles: false,
+	cancelable: true,
+	detail: this.action8EventDetail,
+});
+
+//Main Click
+this.mainClickHit = (e) => {
+	this.mainClick(e);
+}
+this.mainClickE = () => {
+	this.mainClickDetail.click = 'click';
+	document.dispatchEvent(this.mainClickEvent);
+}
+this.mainClickDown = () => {
+	this.mainClickDetail.click = 'clickDown';
+	document.dispatchEvent(this.mainClickEvent);
+}
+this.mainClickUp = () => {
+	this.mainClickDetail.click = 'clickUp';
+	document.dispatchEvent(this.mainClickEvent);
+}
+
+//Alt Click
+this.altClickHit = (e) => {
+	this.altClick(e);
+}
+this.altClickDown = () => {
+	this.altClickDetail.click = 'altClickHit';
+	document.dispatchEvent(this.altClickEvent);
+}
+this.altClickUp = () => {
+	this.altClickDetail.click = 'altClickRelease';
+	document.dispatchEvent(this.altClickEvent);
+}
+this.dispatchAlt = () => {
+	document.dispatchEvent(this.altClickEvent);
+}
+
+//Directional Movement
+this.directionHit = (e) => {
+	this.direction(e);
+}
+//Forward Left
+this.directionForwardLeftDown = () => {
+	this.directionForwardDown();
+	this.directionLeftDown();
+}
+this.directionForwardLeftUp = () => {
+	this.directionForwardUp();
+	this.directionLeftUp();
+}
+//Forward
+this.directionForwardDown = () => {
+	this.directionEventDetail.direction = 'forwardHit';
+	document.dispatchEvent(this.directionEvent);
+}
+this.directionForwardUp = () => {
+	this.directionEventDetail.direction = 'forwardRelease';
+	document.dispatchEvent(this.directionEvent);
+}
+//Forward Right
+this.directionForwardRightDown = () => {
+	this.directionForwardDown();
+	this.directionRightDown();
+}
+this.directionForwardRightUp = () => {
+	this.directionForwardUp();
+	this.directionRightUp();
+}
+//Left
+this.directionLeftDown = () => {
+	this.directionEventDetail.direction = 'leftHit';
+	document.dispatchEvent(this.directionEvent);
+}
+this.directionLeftUp = () => {
+	this.directionEventDetail.direction = 'leftRelease';
+	document.dispatchEvent(this.directionEvent);
+}
+//Backward Left
+this.directionBackwardLeftDown = () => {
+	this.directionBackwardDown();
+	this.directionLeftDown();
+}
+this.directionBackwardLeftUp = () => {
+	this.directionBackwardUp();
+	this.directionLeftUp();
+}
+//Backward
+this.directionBackwardDown = () => {
+	this.directionEventDetail.direction = 'backwardHit';
+	document.dispatchEvent(this.directionEvent);
+}
+this.directionBackwardUp = () => {
+	this.directionEventDetail.direction = 'backwardRelease';
+	document.dispatchEvent(this.directionEvent);
+}
+//Backward Right
+this.directionBackwardRightDown = () => {
+	this.directionBackwardDown();
+	this.directionRightDown();
+}
+this.directionBackwardRightUp = () => {
+	this.directionBackwardUp();
+	this.directionRightUp();
+}
+//Right
+this.directionRightDown = () => {
+	this.directionEventDetail.direction = 'rightHit';
+	document.dispatchEvent(this.directionEvent);
+}
+this.directionRightUp = () => {
+	this.directionEventDetail.direction = 'rightRelease';
+	document.dispatchEvent(this.directionEvent);
+}
+
+//Rotational Movement
+this.rotationHit = (e) => {
+	this.rotation(e);
+}
+/*
+this.dispatchRotation = () => {
+	document.dispatchEvent(this.rotationEvent);
+}
+*/
+//Forward Left
+this.rotationForwardLeftDown = () => {
+	this.rotationForwardDown();
+	this.rotationLeftDown();
+}
+this.rotationForwardLeftUp = () => {
+	this.rotationForwardUp();
+	this.rotationLeftUp();
+}
+//Forward
+this.rotationForwardDown = () => {
+	this.rotationEventDetail.rotation = 'forwardHit';
+	document.dispatchEvent(this.rotationEvent);
+}
+this.rotationForwardUp = () => {
+	this.rotationEventDetail.rotation = 'forwardRelease';
+	document.dispatchEvent(this.rotationEvent);
+}
+//Forward Right
+this.rotationForwardRightDown = () => {
+	this.rotationForwardDown();
+	this.rotationRightDown();
+}
+this.rotationForwardRightUp = () => {
+	this.rotationForwardUp();
+	this.rotationRightUp();
+}
+//Left
+this.rotationLeftDown = () => {
+	this.rotationEventDetail.rotation = 'leftHit';
+	document.dispatchEvent(this.rotationEvent);
+}
+this.rotationLeftUp = () => {
+	this.rotationEventDetail.rotation = 'leftRelease';
+	document.dispatchEvent(this.rotationEvent);
+}
+//Backward Left
+this.rotationBackwardLeftDown = () => {
+	this.rotationBackwardDown();
+	this.rotationLeftDown();
+}
+this.rotationBackwardLeftUp = () => {
+	this.rotationBackwardUp();
+	this.rotationLeftUp();
+}
+//Backward
+this.rotationBackwardDown = () => {
+	this.rotationEventDetail.rotation = 'backwardHit';
+	document.dispatchEvent(this.rotationEvent);
+}
+this.rotationBackwardUp = () => {
+	this.rotationEventDetail.rotation = 'backwardRelease';
+	document.dispatchEvent(this.rotationEvent);
+}
+//Backward Right
+this.rotationBackwardRightDown = () => {
+	this.rotationBackwardDown();
+	this.rotationRightDown();
+}
+this.rotationBackwardRightUp = () => {
+	this.rotationBackwardUp();
+	this.rotationRightUp();
+}
+//Right
+this.rotationRightDown = () => {
+	this.rotationEventDetail.rotation = 'rightHit';
+	document.dispatchEvent(this.rotationEvent);
+}
+this.rotationRightUp = () => {
+	this.rotationEventDetail.rotation = 'rightRelease';
+	document.dispatchEvent(this.rotationEvent);
+}
+
+
+
+
+//Action 1
+this.action1Hit = (e) => {
+	this.action1(e);
+}
+this.action1Down = () => {
+	this.action1EventDetail.action = 'action1Hit';
+	document.dispatchEvent(this.action1Event);
+}
+this.action1Up = () => {
+	this.action1EventDetail.action = 'action1Release';
+	document.dispatchEvent(this.action1Event);
+}
+//Action 2
+this.action2Hit = (e) => {
+	this.action2(e);
+}
+this.action2Down = () => {
+	this.action2EventDetail.action = 'action2Hit';
+	document.dispatchEvent(this.action2Event);
+}
+this.action2Up = () => {
+	this.action2EventDetail.action = 'action2Release';
+	document.dispatchEvent(this.action2Event);
+}
+//Action 3
+this.action3Hit = (e) => {
+	this.action3(e);
+}
+this.action3Down = () => {
+	this.action3EventDetail.action = 'action3Hit';
+	document.dispatchEvent(this.action3Event);
+}
+this.action3Up = () => {
+	this.action3EventDetail.action = 'action3Release';
+	document.dispatchEvent(this.action3Event);
+}
+//Action 4
+this.action4Hit = (e) => {
+	this.action4(e);
+}
+this.action4Down = () => {
+	this.action4EventDetail.action = 'action4Hit';
+	document.dispatchEvent(this.action4Event);
+}
+this.action4Up = () => {
+	this.action4EventDetail.action = 'action4Release';
+	document.dispatchEvent(this.action4Event);
+}
+//Action 5
+this.action5Hit = (e) => {
+	this.action5(e);
+}
+this.action5Down = () => {
+	this.action5EventDetail.action = 'action5Hit';
+	document.dispatchEvent(this.action5Event);
+}
+this.action5Up = () => {
+	this.action5EventDetail.action = 'action5Release';
+	document.dispatchEvent(this.action5Event);
+}
+//Action 6
+this.action6Hit = (e) => {
+	this.action6(e);
+}
+this.action6Down = () => {
+	this.action6EventDetail.action = 'action6Hit';
+	document.dispatchEvent(this.action6Event);
+}
+this.action6Up = () => {
+	this.action6EventDetail.action = 'action6Release';
+	document.dispatchEvent(this.action6Event);
+}
+//Action 7
+this.action7Hit = (e) => {
+	this.action7(e);
+}
+this.action7Down = () => {
+	this.action7EventDetail.action = 'action7Hit';
+	document.dispatchEvent(this.action7Event);
+}
+this.action7Up = () => {
+	this.action7EventDetail.action = 'action7Release';
+	document.dispatchEvent(this.action7Event);
+}
+//Action 8
+this.action8Hit = (e) => {
+	this.action8(e);
+}
+this.action8Down = () => {
+	this.action8EventDetail.action = 'action8Hit';
+	document.dispatchEvent(this.action8Event);
+}
+this.action8Up = () => {
+	this.action8EventDetail.action = 'action8Release';
+	document.dispatchEvent(this.action8Event);
+}
+
+//
+//Keyboard Events
+this.keyboardDownHit = (e) => {
+	this.keyboardDown(e);
+}
+this.keyboardUpHit = (e) => {
+	this.keyboardUp(e);
+}
+
+//
+//Blank
+this.blankHit = (e) => {
+	this.blank(e);
+}
+
+//
+//Controller Events
+
+//Left
+//Main Trigger
+this.questLeftMainClickDown = () => {
+	this.mainClickDetail.click = 'leftClickDown';
+	document.dispatchEvent(this.mainClickEvent);
+}
+this.questLeftMainClickUp = () => {
+	this.mainClickDetail.click = 'leftClickUp';
+	document.dispatchEvent(this.mainClickEvent);
+}
+//Secondary Trigger
+this.questLeftAltClickDown = () => {
+	this.altClickDetail.click = 'leftAltClickDown';
+	document.dispatchEvent(this.altClickEvent);
+}
+this.questLeftAltClickUp = () => {
+	this.altClickDetail.click = 'leftAltClickUp';
+	document.dispatchEvent(this.altClickEvent);
+}
+//Joystick
+this.questJoystickLocomotionEvent = (e) => {
+	if(auxl.joystickLoco === 1){
+		//this.questJoystick1Locomotion(e);
+	} else if(auxl.joystickLoco === 4){
+		this.questJoystick4Locomotion(e);
+	} else if(auxl.joystickLoco === 8){
+		this.questJoystick8Locomotion(e);
+	}
+}
+//Locomotion Joystick
+this.deadzoneLoco = 0.1;
+this.xNumLoco = 0;
+this.yNumLoco = 0;
+this.angleLoco = 0;
+this.angleDegLoco = 0;
+
+//Right
+//Main Trigger
+this.questRightMainClickDown = () => {
+	this.mainClickDetail.click = 'rightClickDown';
+	document.dispatchEvent(this.mainClickEvent);
+}
+this.questRightMainClickUp = () => {
+	this.mainClickDetail.click = 'rightClickUp';
+	document.dispatchEvent(this.mainClickEvent);
+}
+//Secondary Trigger
+this.questRightAltClickDown = () => {
+	this.altClickDetail.click = 'rightAltClickDown';
+	document.dispatchEvent(this.altClickEvent);
+}
+this.questRightAltClickUp = () => {
+	this.altClickDetail.click = 'rightAltClickUp';
+	document.dispatchEvent(this.altClickEvent);
+}
+//Joystick
+this.questJoystickOtherEvent = (e) => {
+	this.questJoystick4Other(e);
+}
+//Other Joystick
+this.deadzoneOther = 0.1;
+this.xNumOther = 0;
+this.yNumOther = 0;
+this.angleOther = 0;
+this.angleDegOther = 0;
+
+//Joystick Rotation
+this.questJoystickRotationEvent = (e) => {
+	if(auxl.joystickRotation === 1){
+		//this.questJoystick1Locomotion(e);
+	} else if(auxl.joystickRotation === 4){
+		this.questJoystick4Rotation(e);
+	} else if(auxl.joystickRotation === 8){
+		this.questJoystick8Rotation(e);
+	}
+}
+//Locomotion Joystick
+this.deadzoneRot = 0.1;
+this.xNumRot = 0;
+this.yNumRot = 0;
+this.angleRot = 0;
+this.angleDegRot = 0;
+
+
+    },
+//Dev Input Display
+updateInput: function (input){
+	//console.log(input)
+	//Enable A-Frame Entity to use below
+	//Display Inputs - DEV Testing
+	/*
+	const displayInput = document.querySelector('#displayInput');
+	let displayInputText = {value: 'No Input', color: 'white', align: 'center'}
+	displayInputText.value = input;
+	displayInput.setAttribute('text',displayInputText);
+	*/
+},
+//Change Action function
+updateAction: function (actionObj){
+	//console.log(actionObj);
+	for(let action in actionObj){
+		//console.log(action);//actionName
+		//console.log(actionObj[action]);//object
+		let actionFunc;
+		let actionParams;
+		let actionCommand;
+		if(action === 'altDown'){
+			actionFunc = 'altDownFunc';
+			actionParams = 'altDownParams';
+		} else if(action === 'altUp'){
+			actionFunc = 'altUpFunc';
+			actionParams = 'altUpParams';
+		} else if(action === 'action1Down'){
+			actionFunc = 'action1DownFunc';
+			actionParams = 'action1DownParams';
+		} else if(action === 'action1Up'){
+			actionFunc = 'action1UpFunc';
+			actionParams = 'action1UpParams';
+		} else if(action === 'action2Down'){
+			actionFunc = 'action2DownFunc';
+			actionParams = 'action2DownParams';
+		} else if(action === 'action2Up'){
+			actionFunc = 'action2UpFunc';
+			actionParams = 'action2UpParams';
+		} else if(action === 'action3Down'){
+			actionFunc = 'action3DownFunc';
+			actionParams = 'action3DownParams';
+		} else if(action === 'action3Up'){
+			actionFunc = 'action3UpFunc';
+			actionParams = 'action3UpParams';
+		} else if(action === 'action4Down'){
+			actionFunc = 'action4DownFunc';
+			actionParams = 'action4DownParams';
+		} else if(action === 'action4Up'){
+			actionFunc = 'action4UpFunc';
+			actionParams = 'action4UpParams';
+		} else if(action === 'action5Down'){
+			actionFunc = 'action5DownFunc';
+			actionParams = 'action5DownParams';
+		} else if(action === 'action5Up'){
+			actionFunc = 'action5UpFunc';
+			actionParams = 'action5UpParams';
+		} else if(action === 'action6Down'){
+			actionFunc = 'action6DownFunc';
+			actionParams = 'action6DownParams';
+		} else if(action === 'action6Up'){
+			actionFunc = 'action6UpFunc';
+			actionParams = 'action6UpParams';
+		} else if(action === 'action7Down'){
+			actionFunc = 'action7DownFunc';
+			actionParams = 'action7DownParams';
+		} else if(action === 'action7Up'){
+			actionFunc = 'action7UpFunc';
+			actionParams = 'action7UpParams';
+		} else if(action === 'action8Down'){
+			actionFunc = 'action8DownFunc';
+			actionParams = 'action8DownParams';
+		} else if(action === 'action8Up'){
+			actionFunc = 'action8UpFunc';
+			actionParams = 'action8UpParams';
+		} else {
+			console.log('Failed to identify action')
+			return;
+		}
+		if(actionObj[action]){
+			let auxlObj = actionObj[action].auxlObj;
+			let component = false;
+			if(actionObj[action].component){
+				component = actionObj[action].component;
+			}
+			let func = actionObj[action].func;
+			//Assign Parameters if Required
+			this[actionParams] = false;
+			if(actionObj[action].params){
+				this[actionParams] = actionObj[action].params;
+			}
+			if(component){
+				//if component is not auxl, then the object is a dom entity and the component is attached to that object and the func is in that component
+				//if component is true, then
+//Bind function to the component itself
+this[actionFunc] = document.getElementById(auxlObj).components[component][func].bind(document.getElementById(auxlObj).components[component]);
+			} else {
+				//if component is false, then
+				//this.auxl[auxlObj][func]
+				this[actionFunc] = this.auxl[auxlObj][func];
+			}
+			//Update Control Text
+			if(actionObj[action].name){
+				//this.auxl.controlsInfo[actionObj[action].name] = actionObj[action].info;
+				//this.auxl.controlsInfo[action] = {name: actionObj[action].name, info: actionObj[action].info};
+				this.auxl.controlsInfo[action] = {name: actionObj[action].name, info: actionObj[action].info};
+			}
+		} else {
+			this[actionFunc] = false;
+			this[actionParams] = false;
+		}
+	}
+},
+//Disable Action function
+disableAction: function (actionObj){
+	//console.log(actionObj);
+	for(let action in actionObj){
+		//console.log(action);//actionName
+		//console.log(actionObj[action]);//params
+		let actionFunc;
+		let actionParams;
+		if(action === 'altDown'){
+			actionFunc = 'altDownFunc';
+			actionParams = 'altDownParams';
+		} else if(action === 'altUp'){
+			actionFunc = 'altUpFunc';
+			actionParams = 'altUpParams';
+		} else if(action === 'action1Down'){
+			actionFunc = 'action1DownFunc';
+			actionParams = 'action1DownParams';
+		} else if(action === 'action1Up'){
+			actionFunc = 'action1UpFunc';
+			actionParams = 'action1UpParams';
+		} else if(action === 'action2Down'){
+			actionFunc = 'action2DownFunc';
+			actionParams = 'action2DownParams';
+		} else if(action === 'action2Up'){
+			actionFunc = 'action2UpFunc';
+			actionParams = 'action2UpParams';
+		} else if(action === 'action3Down'){
+			actionFunc = 'action3DownFunc';
+			actionParams = 'action3DownParams';
+		} else if(action === 'action3Up'){
+			actionFunc = 'action3UpFunc';
+			actionParams = 'action3UpParams';
+		} else if(action === 'action4Down'){
+			actionFunc = 'action4DownFunc';
+			actionParams = 'action4DownParams';
+		} else if(action === 'action4Up'){
+			actionFunc = 'action4UpFunc';
+			actionParams = 'action4UpParams';
+		} else if(action === 'action5Down'){
+			actionFunc = 'action5DownFunc';
+			actionParams = 'action5DownParams';
+		} else if(action === 'action5Up'){
+			actionFunc = 'action5UpFunc';
+			actionParams = 'action5UpParams';
+		} else if(action === 'action6Down'){
+			actionFunc = 'action6DownFunc';
+			actionParams = 'action6DownParams';
+		} else if(action === 'action6Up'){
+			actionFunc = 'action6UpFunc';
+			actionParams = 'action6UpParams';
+		} else if(action === 'action7Down'){
+			actionFunc = 'action7DownFunc';
+			actionParams = 'action7DownParams';
+		} else if(action === 'action7Up'){
+			actionFunc = 'action7UpFunc';
+			actionParams = 'action7UpParams';
+		} else if(action === 'action8Down'){
+			actionFunc = 'action8DownFunc';
+			actionParams = 'action8DownParams';
+		} else if(action === 'action8Up'){
+			actionFunc = 'action8UpFunc';
+			actionParams = 'action8UpParams';
+		} else {
+			console.log('Failed to identify action')
+			console.log(action)
+			console.log(actionObj[action])
+			return;
+		}
+		//Update Control Text
+		if(actionObj[action].name){
+			delete this.auxl.controlsInfo[action];
+		}
+		this[actionFunc] = false;
+		this[actionParams] = false;
+	}
+},
+//Main Click
+mainClick: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+},
+//Alt Click
+altClick: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	if(e.detail.action === 'altClickHit'){
+		if(this.altDownFunc){
+			if(this.altDownParams){
+				this.altDownFunc(this.altDownParams);
+			} else {
+				this.altDownFunc();
+			}
+		}
+	} else if(e.detail.action === 'altClickRelease'){
+		if(this.altUpFunc){
+			if(this.altUpParams){
+				this.altUpFunc(this.altUpParams);
+			} else {
+				this.altUpFunc();
+			}
+		}
+	}
+},
+//Directional Movement
+direction: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	//Direction Movement Unlocked
+	if(e.detail.direction === 'forwardHit'){
+		this.locomotion.movingForward();
+	} else if(e.detail.direction === 'forwardRelease'){
+		this.locomotion.cancelForward();
+	} else if(e.detail.direction === 'leftHit'){
+		this.locomotion.movingLeft();
+	} else if(e.detail.direction === 'leftRelease'){
+		this.locomotion.cancelLeft();
+	} else if(e.detail.direction === 'backwardHit'){
+		this.locomotion.movingReverse();
+	} else if(e.detail.direction === 'backwardRelease'){
+		this.locomotion.cancelReverse();
+	} else if(e.detail.direction === 'rightHit'){
+		this.locomotion.movingRight();
+	} else if(e.detail.direction === 'rightRelease'){
+		this.locomotion.cancelRight();
+	}
+},
+//Rotational Movement
+rotation: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	if(e.detail.rotation === 'forwardHit'){
+		this.gimbal.movingForward();
+	} else if(e.detail.rotation === 'forwardRelease'){
+		this.gimbal.cancelForward();
+	} else if(e.detail.rotation === 'leftHit'){
+		this.gimbal.movingLeft();
+	} else if(e.detail.rotation === 'leftRelease'){
+		this.gimbal.cancelLeft();
+	} else if(e.detail.rotation === 'backwardHit'){
+		this.gimbal.movingReverse();
+	} else if(e.detail.rotation === 'backwardRelease'){
+		this.gimbal.cancelReverse();
+	} else if(e.detail.rotation === 'rightHit'){
+		this.gimbal.movingRight();
+	} else if(e.detail.rotation === 'rightRelease'){
+		this.gimbal.cancelRight();
+	} 
+},
+//Action 1
+action1: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	if(e.detail.action === 'action1Hit'){
+		if(this.action1DownFunc){
+			if(this.action1DownParams){
+				this.action1DownFunc(this.action1DownParams);
+			} else {
+				this.action1DownFunc();
+			}
+		}
+	} else if(e.detail.action === 'action1Release'){
+		if(this.action1UpFunc){
+			if(this.action1UpParams){
+				this.action1UpFunc(this.action1UpParams);
+			} else {
+				this.action1UpFunc();
+			}
+		}
+	}
+},
+//Action 2
+action2: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	if(e.detail.action === 'action2Hit'){
+		if(this.action2DownFunc){
+			if(this.action2DownParams){
+				this.action2DownFunc(this.action2DownParams);
+			} else {
+				this.action2DownFunc();
+			}
+		}
+	} else if(e.detail.action === 'action2Release'){
+		if(this.action2UpFunc){
+			if(this.action2UpParams){
+				this.action2UpFunc(this.action2UpParams);
+			} else {
+				this.action2UpFunc();
+			}
+		}
+	}
+},
+//Action 3
+action3: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	if(e.detail.action === 'action3Hit'){
+		if(this.action3DownFunc){
+			if(this.action3DownParams){
+				this.action3DownFunc(this.action3DownParams);
+			} else {
+				this.action3DownFunc();
+			}
+		}
+	} else if(e.detail.action === 'action3Release'){
+		if(this.action3UpFunc){
+			if(this.action3UpParams){
+				this.action3UpFunc(this.action3UpParams);
+			} else {
+				this.action3UpFunc();
+			}
+		}
+	}
+},
+//Action 4
+action4: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	if(e.detail.action === 'action4Hit'){
+		if(this.action4DownFunc){
+			if(this.action4DownParams){
+				this.action4DownFunc(this.action4DownParams);
+			} else {
+				this.action4DownFunc();
+			}
+		}
+	} else if(e.detail.action === 'action4Release'){
+		if(this.action4UpFunc){
+			if(this.action4UpParams){
+				this.action4UpFunc(this.action4UpParams);
+			} else {
+				this.action4UpFunc();
+			}
+		}
+	}
+},
+//Action 5
+action5: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	if(e.detail.action === 'action5Hit'){
+		if(this.action5DownFunc){
+			if(this.action5DownParams){
+				this.action5DownFunc(this.action5DownParams);
+			} else {
+				this.action5DownFunc();
+			}
+		}
+	} else if(e.detail.action === 'action5Release'){
+		if(this.action5UpFunc){
+			if(this.action5UpParams){
+				this.action5UpFunc(this.action5UpParams);
+			} else {
+				this.action5UpFunc();
+			}
+		}
+	}
+},
+//Action 6
+action6: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	if(e.detail.action === 'action6Hit'){
+		if(this.action6DownFunc){
+			if(this.action6DownParams){
+				this.action6DownFunc(this.action6DownParams);
+			} else {
+				this.action6DownFunc();
+			}
+		}
+	} else if(e.detail.action === 'action6Release'){
+		if(this.action6UpFunc){
+			if(this.action6UpParams){
+				this.action6UpFunc(this.action6UpParams);
+			} else {
+				this.action6UpFunc();
+			}
+		}
+	}
+},
+//Action 7
+action7: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	if(e.detail.action === 'action7Hit'){
+		if(this.action7DownFunc){
+			if(this.action7DownParams){
+				this.action7DownFunc(this.action7DownParams);
+			} else {
+				this.action7DownFunc();
+			}
+		}
+	} else if(e.detail.action === 'action7Release'){
+		if(this.action7UpFunc){
+			if(this.action7UpParams){
+				this.action7UpFunc(this.action7UpParams);
+			} else {
+				this.action7UpFunc();
+			}
+		}
+	}
+},
+//Action 8
+action8: function (e){
+	//console.log(e.detail);
+	//this.updateInput(e.detail.info);
+	if(e.detail.action === 'action8Hit'){
+		if(this.action8DownFunc){
+			if(this.action8DownParams){
+				this.action8DownFunc(this.action8DownParams);
+			} else {
+				this.action8DownFunc();
+			}
+		}
+	} else if(e.detail.action === 'action8Release'){
+		if(this.action8UpFunc){
+			if(this.action8UpParams){
+				this.action8UpFunc(this.action8UpParams);
+			} else {
+				this.action8UpFunc();
+			}
+		}
+	}
+},
+//Keyboard Controls
+keyboardDown: function (e){
+	if(this.controls.directionForwardKeys.includes(e.key)) {
+		//Direction : Forward
+		this.directionForwardDown();
+	} else if(this.controls.directionLeftKeys.includes(e.key)){
+		//Direction : Left
+		this.directionLeftDown();
+	} else if(this.controls.directionBackwardKeys.includes(e.key)){
+		//Direction : Backward
+		this.directionBackwardDown();
+	} else if(this.controls.directionRightKeys.includes(e.key)){
+		//Direction : Right
+		this.directionRightDown();
+	} else if(this.controls.rotationForwardKeys.includes(e.key)) {
+		//Rotation : Forward
+		this.rotationForwardDown();
+	} else if(this.controls.rotationLeftKeys.includes(e.key)){
+		//Rotation : Left
+		this.rotationLeftDown();
+	} else if(this.controls.rotationBackwardKeys.includes(e.key)){
+		//Rotation : Backward
+		this.rotationBackwardDown();
+	} else if(this.controls.rotationRightKeys.includes(e.key)){
+		//Rotation : Right
+		this.rotationRightDown();
+	} else if(this.controls.action1Keys.includes(e.key)){
+		//Action 1
+		this.action1Down();
+	} else if(this.controls.action2Keys.includes(e.key)){
+		//Action 2
+		this.action2Down();
+	} else if(this.controls.action3Keys.includes(e.key)){
+		//Action 3
+		this.action3Down();
+	} else if(this.controls.action4Keys.includes(e.key)){
+		//Action 4
+		this.action4Down();
+	} else if(this.controls.action5Keys.includes(e.key)){
+		//Action 5
+		this.action5Down();
+	} else if(this.controls.action6Keys.includes(e.key)){
+		//Action 6
+		this.action6Down();
+	} else if(this.controls.action7Keys.includes(e.key)){
+		//Action 7
+		this.action7Down();
+	} else if(this.controls.action8Keys.includes(e.key)){
+		//Action 8
+		this.action8Down();
+	}
+
+},
+keyboardUp: function (e){
+	if(this.controls.directionForwardKeys.includes(e.key)) {
+		//Direction : Forward
+		this.directionForwardUp();
+	} else if(this.controls.directionLeftKeys.includes(e.key)){
+		//Direction : Left
+		this.directionLeftUp();
+	} else if(this.controls.directionBackwardKeys.includes(e.key)){
+		//Direction : Backward
+		this.directionBackwardUp();
+	} else if(this.controls.directionRightKeys.includes(e.key)){
+		//Direction : Right
+		this.directionRightUp();
+	} else if(this.controls.rotationForwardKeys.includes(e.key)) {
+		//Rotation : Forward
+		this.rotationForwardUp();
+	} else if(this.controls.rotationLeftKeys.includes(e.key)){
+		//Rotation : Left
+		this.rotationLeftUp();
+	} else if(this.controls.rotationBackwardKeys.includes(e.key)){
+		//Rotation : Backward
+		this.rotationBackwardUp();
+	} else if(this.controls.rotationRightKeys.includes(e.key)){
+		//Rotation : Right
+		this.rotationRightUp();
+	} else if(this.controls.action1Keys.includes(e.key)){
+		//Action 1
+		this.action1Up();
+	} else if(this.controls.action2Keys.includes(e.key)){
+		//Action 2
+		this.action2Up();
+	} else if(this.controls.action3Keys.includes(e.key)){
+		//Action 3
+		this.action3Up();
+	} else if(this.controls.action4Keys.includes(e.key)){
+		//Action 4
+		this.action4Up();
+	} else if(this.controls.action5Keys.includes(e.key)){
+		//Action 5
+		this.action5Up();
+	} else if(this.controls.action6Keys.includes(e.key)){
+		//Action 6
+		this.action6Up();
+	} else if(this.controls.action7Keys.includes(e.key)){
+		//Action 7
+		this.action7Up();
+	} else if(this.controls.action8Keys.includes(e.key)){
+		//Action 8
+		this.action8Up();
+	}
+},
+//Joystick 4 Locomotion
+questJoystick4Locomotion: function (e){
+	//Update this.locomotion.func into this.directionEvent
+	this.xNumLoco = e.detail.x;
+	this.yNumLoco = e.detail.y;
+	this.angleLoco = Math.atan2(this.xNumLoco,this.yNumLoco);
+	function radToDeg(rad) {
+	  return rad / (Math.PI / 180);
+	}
+	this.angleDegLoco = radToDeg(this.angleLoco);
+
+	if(this.yNumLoco < this.deadzoneLoco && this.yNumLoco > this.deadzoneLoco*-1 && this.xNumLoco > this.deadzoneLoco*-1 && this.xNumLoco < this.deadzoneLoco){
+		this.locomotion.clearMovement();
+		this.updateInput('Locomotion Clear');
+	} else if(this.yNumLoco > this.deadzoneLoco || this.yNumLoco < this.deadzoneLoco*-1 || this.xNumLoco < this.deadzoneLoco*-1 || this.xNumLoco > this.deadzoneLoco) {
+		if(this.angleDegLoco > -45 && this.angleDegLoco < 45){
+			//Backward : -45 -> 45
+			this.locomotion.clearMovement();
+			this.locomotion.movingReverse();
+			//this.updateInput('Backward');
+		} else if(this.angleDegLoco > 45 && this.angleDegLoco < 135){
+			//Right : 45 -> 135
+			this.locomotion.clearMovement();
+			this.locomotion.movingRight();
+			//this.updateInput('Right');
+		} else if(this.angleDegLoco > 135 || this.angleDegLoco < -135){
+			//Forward : 135 -> 180 or -135 -> -180
+			this.locomotion.clearMovement();
+			this.locomotion.movingForward();
+			//this.updateInput('Forward');
+		} else if(this.angleDegLoco < -45 && this.angleDegLoco > -135){
+			//Left : -45 -> -135
+			this.locomotion.clearMovement();
+			this.locomotion.movingLeft();
+			//this.updateInput('Left');
+		}
+	} else {
+		this.locomotion.clearMovement();
+		//this.updateInput('Locomotion Clear');
+	}
+},
+//Joystick 8 Locomotion
+questJoystick8Locomotion: function (e){
+	//Update this.locomotion.func into this.directionEvent
+	this.xNumLoco = e.detail.x;
+	this.yNumLoco = e.detail.y;
+	this.angleLoco = Math.atan2(this.xNumLoco,this.yNumLoco);
+	function radToDeg(rad) {
+	  return rad / (Math.PI / 180);
+	}
+	this.angleDegLoco = radToDeg(this.angleLoco);
+
+	if(this.yNumLoco < this.deadzoneLoco && this.yNumLoco > this.deadzoneLoco*-1 && this.xNumLoco > this.deadzoneLoco*-1 && this.xNumLoco < this.deadzoneLoco){
+		this.locomotion.clearMovement();
+		this.updateInput('Locomotion Clear');
+	} else if(this.yNumLoco > this.deadzoneLoco || this.yNumLoco < this.deadzoneLoco*-1 || this.xNumLoco < this.deadzoneLoco*-1 || this.xNumLoco > this.deadzoneLoco) {
+		if(this.angleDegLoco > -22.5 && this.angleDegLoco < 22.5){
+			//Backward : -22.5 -> 22.5
+			this.locomotion.clearMovement();
+			this.locomotion.movingReverse();
+			//this.updateInput('Backward');
+		} else if(this.angleDegLoco > 22.5 && this.angleDegLoco < 67.5){
+			//BackwardRight : 22.5 -> 67.5
+			this.locomotion.clearMovement();
+			this.locomotion.movingReverse();
+			this.locomotion.movingRight();
+			//this.updateInput('Backward Right');
+		} else if(this.angleDegLoco > 67.5 && this.angleDegLoco < 112.5){
+			//Right : 67.5 -> 112.5
+			this.locomotion.clearMovement();
+			this.locomotion.movingRight();
+			//this.updateInput('Right');
+		} else if(this.angleDegLoco > 112.5 && this.angleDegLoco < 157.5){
+			//ForwardRight : 112.5 -> 157.5
+			this.locomotion.clearMovement();
+			this.locomotion.movingForward();
+			this.locomotion.movingRight();
+			//this.updateInput('Forward Right');
+		} else if(this.angleDegLoco > 157.5 || this.angleDegLoco < -157.5){
+			//Forward : 157.5 -> 180 or -157.5 -> -180
+			this.locomotion.clearMovement();
+			this.locomotion.movingForward();
+			//this.updateInput('Forward');
+		} else if(this.angleDegLoco < -112.5 && this.angleDegLoco > -157.5){
+			//ForwardLeft: -112.5 -> -157.5
+			this.locomotion.clearMovement();
+			this.locomotion.movingForward();
+			this.locomotion.movingLeft();
+			//this.updateInput('Forward Left');
+		} else if(this.angleDegLoco < -67.5 && this.angleDegLoco > -112.5){
+			//Left : -67.5 -> -112.5
+			this.locomotion.clearMovement();
+			this.locomotion.movingLeft();
+			//this.updateInput('Left');
+		} else if(this.angleDegLoco < -22.5 && this.angleDegLoco > -67.5){
+			//BackwardLeft: -22.5 -> -67.5 
+			this.locomotion.clearMovement();
+			this.locomotion.movingReverse();
+			this.locomotion.movingLeft();
+			//this.updateInput('Backward Left');
+		}
+	} else {
+		this.locomotion.clearMovement();
+		//this.updateInput('Locomotion Clear');
+	}
+},
+//Joystick 4 Rotation
+questJoystick4Rotation: function (e){
+	//Update this.gimbal.func into this.rotationEvent
+	this.xNumRot = e.detail.x;
+	this.yNumRot = e.detail.y;
+	this.angleRot = Math.atan2(this.xNumRot,this.yNumRot);
+	function radToDeg(rad) {
+	  return rad / (Math.PI / 180);
+	}
+	this.angleDegRot = radToDeg(this.angleRot);
+
+	if(this.yNumRot < this.deadzoneRot && this.yNumRot > this.deadzoneRot*-1 && this.xNumRot > this.deadzoneRot*-1 && this.xNumRot < this.deadzoneRot){
+		this.gimbal.clearMovement();
+		this.updateInput('Rotation Clear');
+	} else if(this.yNumRot > this.deadzoneRot || this.yNumRot < this.deadzoneRot*-1 || this.xNumRot < this.deadzoneRot*-1 || this.xNumRot > this.deadzoneRot) {
+		if(this.angleDegRot > -45 && this.angleDegRot < 45){
+			//Backward : -45 -> 45
+			this.gimbal.clearMovement();
+			this.gimbal.movingReverse();
+			//this.updateInput('Backward');
+		} else if(this.angleDegRot > 45 && this.angleDegRot < 135){
+			//Right : 45 -> 135
+			this.gimbal.clearMovement();
+			this.gimbal.movingRight();
+			//this.updateInput('Right');
+		} else if(this.angleDegRot > 135 || this.angleDegRot < -135){
+			//Forward : 135 -> 180 or -135 -> -180
+			this.gimbal.clearMovement();
+			this.gimbal.movingForward();
+			//this.updateInput('Forward');
+		} else if(this.angleDegRot < -45 && this.angleDegRot > -135){
+			//Left : -45 -> -135
+			this.gimbal.clearMovement();
+			this.gimbal.movingLeft();
+			//this.updateInput('Left');
+		}
+	} else {
+		this.gimbal.clearMovement();
+		//this.updateInput('Locomotion Clear');
+	}
+},
+//Joystick 8 Rotation
+questJoystick8Rotation: function (e){
+	//Update this.gimbal.func into this.rotationEvent
+	this.xNumRot = e.detail.x;
+	this.yNumRot = e.detail.y;
+	this.angleRot = Math.atan2(this.xNumRot,this.yNumRot);
+	function radToDeg(rad) {
+	  return rad / (Math.PI / 180);
+	}
+	this.angleDegRot = radToDeg(this.angleRot);
+
+	if(this.yNumRot < this.deadzoneRot && this.yNumRot > this.deadzoneRot*-1 && this.xNumRot > this.deadzoneRot*-1 && this.xNumRot < this.deadzoneRot){
+		this.gimbal.clearMovement();
+		this.updateInput('Rotation Clear');
+	} else if(this.yNumRot > this.deadzoneRot || this.yNumRot < this.deadzoneRot*-1 || this.xNumRot < this.deadzoneRot*-1 || this.xNumRot > this.deadzoneRot) {
+		if(this.angleDegRot > -22.5 && this.angleDegRot < 22.5){
+			//Backward : -22.5 -> 22.5
+			this.gimbal.clearMovement();
+			this.gimbal.movingReverse();
+			//this.updateInput('Backward');
+		} else if(this.angleDegRot > 22.5 && this.angleDegRot < 67.5){
+			//BackwardRight : 22.5 -> 67.5
+			this.gimbal.clearMovement();
+			this.gimbal.movingReverse();
+			this.gimbal.movingRight();
+			//this.updateInput('Backward Right');
+		} else if(this.angleDegRot > 67.5 && this.angleDegRot < 112.5){
+			//Right : 67.5 -> 112.5
+			this.gimbal.clearMovement();
+			this.gimbal.movingRight();
+			//this.updateInput('Right');
+		} else if(this.angleDegRot > 112.5 && this.angleDegRot < 157.5){
+			//ForwardRight : 112.5 -> 157.5
+			this.gimbal.clearMovement();
+			this.gimbal.movingForward();
+			this.gimbal.movingRight();
+			//this.updateInput('Forward Right');
+		} else if(this.angleDegRot > 157.5 || this.angleDegRot < -157.5){
+			//Forward : 157.5 -> 180 or -157.5 -> -180
+			this.gimbal.clearMovement();
+			this.gimbal.movingForward();
+			//this.updateInput('Forward');
+		} else if(this.angleDegRot < -112.5 && this.angleDegRot > -157.5){
+			//ForwardLeft: -112.5 -> -157.5
+			this.gimbal.clearMovement();
+			this.gimbal.movingForward();
+			this.gimbal.movingLeft();
+			//this.updateInput('Forward Left');
+		} else if(this.angleDegRot < -67.5 && this.angleDegRot > -112.5){
+			//Left : -67.5 -> -112.5
+			this.gimbal.clearMovement();
+			this.gimbal.movingLeft();
+			//this.updateInput('Left');
+		} else if(this.angleDegRot < -22.5 && this.angleDegRot > -67.5){
+			//BackwardLeft: -22.5 -> -67.5 
+			this.gimbal.clearMovement();
+			this.gimbal.movingReverse();
+			this.gimbal.movingLeft();
+			//this.updateInput('Backward Left');
+		}
+	} else {
+		this.gimbal.clearMovement();
+		//this.updateInput('Locomotion Clear');
+	}
+},
+//Joystick 4 Other
+questJoystick4Other: function (e){
+	this.xNumOther = e.detail.x;
+	this.yNumOther = e.detail.y;
+	this.angleOther = Math.atan2(this.xNumOther,this.yNumOther);
+	function radToDeg(rad) {
+	  return rad / (Math.PI / 180);
+	}
+	this.angleDegOther = radToDeg(this.angleOther);
+
+	if(this.yNumOther < this.deadzoneOther && this.yNumOther > this.deadzone*-1 && this.xNumOther > this.deadzoneOther*-1 && this.xNumOther < this.deadzoneOther){
+		this.updateInput('Rotation|Duck Clear');
+	} else if(this.yNumOther > this.deadzoneOther || this.yNumOther < this.deadzoneOther*-1 || this.xNumOther < this.deadzoneOther*-1 || this.xNumOther > this.deadzoneOther) {
+		if(this.angleDegOther > -45 && this.angleDegOther < 45){
+			//Backward : -45 -> 45
+			//this.updateInput('Duck');
+			this.action5Down();
+		} else if(this.angleDegOther > 45 && this.angleDegOther < 135){
+			//Right : 45 -> 135
+			//this.updateInput('Rotate Right');
+			//this.snapRightHit();
+			this.action7Down();
+		} else if(this.angleDegOther > 135 || this.angleDegOther < -135){
+			//Forward : 135 -> 180 or -135 -> -180
+			//this.updateInput('Stand');
+			this.action6Down();
+		} else if(this.angleDegOther < -45 && this.angleDegOther > -135){
+			//Left : -45 -> -135
+			//this.updateInput('Rotate Left');
+			//this.snapLeftHit();
+			this.action8Down();
+		}
+	} else {
+		//this.updateInput('Rotation|Duck Clear');
+	}
+},
+//Temp Blank
+blank: function (e){
+	console.log(e);
+	//this.updateInput('Blank Button');
+},
+update: function () {
+
+	//Universal Events
+	document.addEventListener('mainClick', this.mainClickHit);
+	document.addEventListener('altClick', this.altClickHit);
+	document.addEventListener('direction', this.directionHit);
+	document.addEventListener('rotation', this.rotationHit);
+	document.addEventListener('action1', this.action1Hit);
+	document.addEventListener('action2', this.action2Hit);
+	document.addEventListener('action3', this.action3Hit);
+	document.addEventListener('action4', this.action4Hit);
+	document.addEventListener('action5', this.action5Hit);
+	document.addEventListener('action6', this.action6Hit);
+	document.addEventListener('action7', this.action7Hit);
+	document.addEventListener('action8', this.action8Hit);
+
+	//Desktop
+	document.addEventListener('click', this.mainClickE);
+	document.addEventListener('contextmenu', this.dispatchAlt);
+	document.addEventListener('keydown', this.keyboardDownHit);
+	document.addEventListener('keyup', this.keyboardUpHit);
+
+	//Joystick Locomotion
+	this.questJoystickLocomotionEvent = (e) => {
+		if(auxl.joystickLoco === 1){
+			//this.questJoystick1Locomotion(e);
+		} else if(auxl.joystickLoco === 4){
+			this.questJoystick4Locomotion(e);
+		} else if(auxl.joystickLoco === 8){
+			this.questJoystick8Locomotion(e);
+		}
+	}
+
+	//Joystick Rotation
+	this.questJoystickRotationEvent = (e) => {
+		if(auxl.joystickRotation === 1){
+			//this.questJoystick1Locomotion(e);
+		} else if(auxl.joystickRotation === 4){
+			this.questJoystick4Rotation(e);
+		} else if(auxl.joystickRotation === 8){
+			this.questJoystick8Rotation(e);
+		}
+	}
+
+//Allow elements to spawn before grabbing/assigning
+let initTimeout = setTimeout(() => {
+
+	//Locomotion Component
+	this.locomotion = document.getElementById('playerRig').components.locomotion;
+
+	//Gimbal Component
+	this.gimbal = document.getElementById('playerRig').components.gimbal;	
+
+	//Quest
+	this.vrController1 = document.getElementById('vrController1');
+	this.vrController2 = document.getElementById('vrController2');
+
+	//Left
+	//Main Trigger
+	this.vrController1.addEventListener('triggerdown', this.questLeftMainClickDown);
+	this.vrController1.addEventListener('triggerup', this.questLeftMainClickUp);
+	//Secondary Trigger
+	this.vrController1.addEventListener('gripdown', this.questLeftAltClickDown);
+	this.vrController1.addEventListener('gripup', this.questLeftAltClickUp);
+	//Button 1 (X)
+	this.vrController1.addEventListener('xbuttondown', this.action1Down);
+	this.vrController1.addEventListener('xbuttonup', this.action1Up);
+	//Button 2 (Y)
+	this.vrController1.addEventListener('ybuttondown', this.action2Down);
+	this.vrController1.addEventListener('ybuttonup', this.action2Up);
+
+	//Right
+	//Main Trigger
+	this.vrController2.addEventListener('triggerdown', this.questRightMainClickDown);
+	this.vrController2.addEventListener('triggerup', this.questRightMainClickUp);
+	//Secondary Trigger
+	this.vrController2.addEventListener('gripdown', this.questRightAltClickDown);
+	this.vrController2.addEventListener('gripup', this.questRightAltClickUp);
+	//Button 1 (A)
+	this.vrController2.addEventListener('abuttondown', this.action3Down);
+	this.vrController2.addEventListener('abuttonup', this.action3Up);
+	//Button 2 (B)
+	this.vrController2.addEventListener('bbuttondown', this.action4Down);
+	this.vrController2.addEventListener('bbuttonup', this.action4Up);
+
+	//Joysticks
+	if(this.auxl.vrHand === 'bothRight' || this.auxl.vrHand === 'bothLeftLoco'){
+		//Left Locomotion
+		this.vrController1.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		//Right Other
+		//this.vrController2.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+		this.vrController2.addEventListener('thumbstickmoved', this.questJoystickRotationEvent);
+	} else if(this.auxl.vrHand === 'bothLeft' || this.auxl.vrHand === 'bothRightLoco'){
+		//Right Locomotion
+		this.vrController2.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		//Left Other
+		//this.vrController1.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+		this.vrController1.addEventListener('thumbstickmoved', this.questJoystickRotationEvent);
+	} else {
+		//Left Locomotion
+		this.vrController1.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		//Right Other
+		//this.vrController2.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+		this.vrController2.addEventListener('thumbstickmoved', this.questJoystickRotationEvent);
+	}
+}, 100);
+
+
+	//Mobile
+	this.mobileUpLeft.addEventListener('touchstart', this.directionForwardLeftDown);
+	this.mobileUpLeft.addEventListener('touchend', this.directionForwardLeftUp);
+	this.mobileUp.addEventListener('touchstart', this.directionForwardDown);
+	this.mobileUp.addEventListener('touchend', this.directionForwardUp);
+	this.mobileUpRight.addEventListener('touchstart', this.directionForwardRightDown);
+	this.mobileUpRight.addEventListener('touchend', this.directionForwardRightUp);
+	this.mobileLeft.addEventListener('touchstart', this.directionLeftDown);
+	this.mobileLeft.addEventListener('touchend', this.directionLeftUp);
+	this.mobileCenter.addEventListener('touchstart', this.blankHit);
+	this.mobileCenter.addEventListener('touchend', this.blankHit);
+	this.mobileRight.addEventListener('touchstart', this.directionRightDown);
+	this.mobileRight.addEventListener('touchend', this.directionRightUp);
+	this.mobileDownLeft.addEventListener('touchstart', this.directionBackwardLeftDown);
+	this.mobileDownLeft.addEventListener('touchend', this.directionBackwardLeftUp);
+	this.mobileDown.addEventListener('touchstart', this.directionBackwardDown);
+	this.mobileDown.addEventListener('touchend', this.directionBackwardUp);
+	this.mobileDownRight.addEventListener('touchstart', this.directionBackwardRightDown);
+	this.mobileDownRight.addEventListener('touchend', this.directionBackwardRightUp);
+	this.mobileSelect.addEventListener('touchstart', this.blankHit);
+	//this.mobileSelect.addEventListener('touchend', this.blankHit);
+	this.mobileStart.addEventListener('touchstart', this.blankHit);
+	//this.mobileStart.addEventListener('touchend', this.blankHit);
+	this.mobileA.addEventListener('touchstart', this.action1Down);
+	this.mobileA.addEventListener('touchend', this.action1Up);
+	this.mobileB.addEventListener('touchstart', this.action2Down);
+	this.mobileB.addEventListener('touchend', this.action2Up);
+	this.mobileC.addEventListener('touchstart', this.action3Down);
+	this.mobileC.addEventListener('touchend', this.action3Up);
+	this.mobileD.addEventListener('touchstart', this.action4Down);
+	this.mobileD.addEventListener('touchend', this.action4Up);
+	this.mobileE.addEventListener('touchstart', this.action5Down);
+	this.mobileE.addEventListener('touchend', this.action5Up);
+	this.mobileF.addEventListener('touchstart', this.action6Down);
+	this.mobileF.addEventListener('touchend', this.action6Up);
+	this.mobileL.addEventListener('touchstart', this.action7Down);
+	this.mobileL.addEventListener('touchend', this.action7Up);
+	this.mobileR.addEventListener('touchstart', this.action8Down);
+	this.mobileR.addEventListener('touchend', this.action8Up);
+
+
+	//document.addEventListener('mousedown', this.mainClickDown);
+	//document.addEventListener('mouseup', this.mainClickUp);
+	//Both the mouseCursor and Canvas element fire mousedown and mouseup resulting in 2 events firing at the same time
+	/*
+	mousedown { target: a-entity#mouseCursor, isTrusted: false, detail: {…}, srcElement: a-entity#mouseCursor, currentTarget: HTMLDocument http://localhost/auxl/test.html, eventPhase: 3, bubbles: true, cancelable: false, returnValue: true, defaultPrevented: false, … }
+
+	mousedown { target: canvas.a-canvas.a-grab-cursor, buttons: 1, clientX: 1245, clientY: 326, layerX: 1245, layerY: 326 }
+
+		document.addEventListener('mousedown', function(e){
+			//e.stopImmediatePropagation();
+			//e.stopPropagation();
+			//e.preventDefault();
+			console.log('Mouse Down')
+		});
+	*/
+
+},
+remove: function () {
+
+	//Universal Events
+	document.removeEventListener('mainClick', this.mainClickHit);
+	document.removeEventListener('altClick', this.altClickHit);
+	document.removeEventListener('direction', this.directionHit);
+	document.removeEventListener('rotation', this.rotationHit);
+	document.removeEventListener('action1', this.action1Hit);
+	document.removeEventListener('action2', this.action2Hit);
+	document.removeEventListener('action3', this.action3Hit);
+	document.removeEventListener('action4', this.action4Hit);
+	document.removeEventListener('action5', this.action5Hit);
+	document.removeEventListener('action6', this.action6Hit);
+	document.removeEventListener('action7', this.action7Hit);
+	document.removeEventListener('action8', this.action8Hit);
+	//Desktop
+	document.removeEventListener('click', this.mainClickE);
+	document.removeEventListener('contextmenu', this.dispatchAlt);
+	document.removeEventListener('keydown', this.keyboardDownHit);
+	document.removeEventListener('keyup', this.keyboardUpHit);
+
+	//VR Controllers
+	this.vrController1.removeEventListener('triggerdown', this.questLeftMainClickDown);
+	this.vrController1.removeEventListener('triggerup', this.questLeftMainClickUp);
+	this.vrController1.removeEventListener('gripdown', this.questLeftAltClickDown);
+	this.vrController1.removeEventListener('gripup', this.questLeftAltClickUp);
+	this.vrController1.removeEventListener('xbuttondown', this.action1Down);
+	this.vrController1.removeEventListener('xbuttonup', this.action1Up);
+	this.vrController1.removeEventListener('ybuttondown', this.action2Down);
+	this.vrController1.removeEventListener('ybuttonup', this.action2Up);
+	this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+	this.vrController2.removeEventListener('triggerdown', this.questRightMainClickDown);
+	this.vrController2.removeEventListener('triggerup', this.questRightMainClickUp);
+	this.vrController2.removeEventListener('gripdown', this.questRightAltClickDown);
+	this.vrController2.removeEventListener('gripup', this.questRightAltClickUp);
+	this.vrController2.removeEventListener('abuttondown', this.action3Down);
+	this.vrController2.removeEventListener('abuttonup', this.action3Up);
+	this.vrController2.removeEventListener('bbuttondown', this.action4Down);
+	this.vrController2.removeEventListener('bbuttonup', this.action4Up);
+	this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+	//Joysticks
+	if(this.auxl.vrHand === 'bothRight' || this.auxl.vrHand === 'bothLeftLoco'){
+		this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+	} else if(this.auxl.vrHand === 'bothLeft' || this.auxl.vrHand === 'bothRightLoco'){
+		this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+	} else {
+		this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
+		this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
+	}
+
+	//Mobile
+	this.mobileUpLeft.removeEventListener('mousedown', this.directionForwardLeftDown);
+	this.mobileUpLeft.removeEventListener('mouseup', this.directionForwardLeftUp);
+	this.mobileUp.removeEventListener('mousedown', this.directionForwardDown);
+	this.mobileUp.removeEventListener('mouseup', this.directionForwardUp);
+	this.mobileUpRight.removeEventListener('mousedown', this.directionForwardRightDown);
+	this.mobileUpRight.removeEventListener('mouseup', this.directionForwardRightUp);
+	this.mobileLeft.removeEventListener('mousedown', this.directionLeftDown);
+	this.mobileLeft.removeEventListener('mouseup', this.directionLeftUp);
+	this.mobileCenter.removeEventListener('mousedown', this.blankHit);
+	this.mobileCenter.removeEventListener('mouseup', this.blankHit);
+	this.mobileRight.removeEventListener('mousedown', this.directionRightDown);
+	this.mobileRight.removeEventListener('mouseup', this.directionRightUp);
+	this.mobileDownLeft.removeEventListener('mousedown', this.directionBackwardLeftDown);
+	this.mobileDownLeft.removeEventListener('mouseup', this.directionBackwardLeftUp);
+	this.mobileDown.removeEventListener('mousedown', this.directionBackwardDown);
+	this.mobileDown.removeEventListener('mouseup', this.directionBackwardUp);
+	this.mobileDownRight.removeEventListener('mousedown', this.directionBackwardRightDown);
+	this.mobileDownRight.removeEventListener('mouseup', this.directionBackwardRightUp);
+	this.mobileSelect.removeEventListener('mousedown', this.blankHit);
+	//this.mobileSelect.removeEventListener('mouseup', this.blankHit);
+	this.mobileStart.removeEventListener('mousedown', this.blankHit);
+	//this.mobileStart.removeEventListener('mouseup', this.blankHit);
+	this.mobileA.removeEventListener('mousedown', this.action1Down);
+	this.mobileA.removeEventListener('mouseup', this.action1Up);
+	this.mobileB.removeEventListener('mousedown', this.action2Down);
+	this.mobileB.removeEventListener('mouseup', this.action2Up);
+	this.mobileC.removeEventListener('mousedown', this.action3Down);
+	this.mobileC.removeEventListener('mouseup', this.action3Up);
+	this.mobileD.removeEventListener('mousedown', this.action4Down);
+	this.mobileD.removeEventListener('mouseup', this.action4Up);
+	this.mobileE.removeEventListener('mousedown', this.action5Down);
+	this.mobileE.removeEventListener('mouseup', this.action5Up);
+	this.mobileF.removeEventListener('mousedown', this.action6Down);
+	this.mobileF.removeEventListener('mouseup', this.action6Up);
+	this.mobileL.removeEventListener('touchstart', this.action7Down);
+	this.mobileL.removeEventListener('touchend', this.action7Up);
+	this.mobileR.removeEventListener('touchstart', this.action8Down);
+	this.mobileR.removeEventListener('touchend', this.action8Up);
+},
+});
+
+//
+//External Components
+//
+
+//
+//threeColorGradientShader shader - https://github.com/tlaukkan/aframe-three-color-gradient-shader
+/**/
+AFRAME.registerShader('threeColorGradientShader', {
+    schema: {
+        topColor: {type: 'color', default: '1 0 0', is: 'uniform'},
+        middleColor: {type: 'color', default: '0 1 0', is: 'uniform'},
+        bottomColor: {type: 'color', default: '0 0 1', is: 'uniform'}
+    },
+
+    vertexShader: [
+        'varying vec3 vWorldPosition;',
+        'void main() {',
+        ' vec4 worldPosition = modelMatrix * vec4( position, 1.0 );',
+        ' vWorldPosition = worldPosition.xyz;',
+        ' gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );',
+        '}'
+    ].join('\n'),
+
+    fragmentShader: [
+        'uniform vec3 bottomColor;',
+        'uniform vec3 middleColor;',
+        'uniform vec3 topColor;',
+        'uniform float offset;',
+        'varying vec3 vWorldPosition;',
+        'void main() {',
+        ' float h = normalize( vWorldPosition ).y;',
+        ' if (h>0.0) {',
+        '   gl_FragColor = vec4( mix( middleColor, topColor, max( pow( max(h, 0.0 ), 0.8 ), 0.0 ) ), 1.0 );',
+        ' } else {',
+        '   gl_FragColor = vec4( mix( middleColor, bottomColor, max( pow( max(-h, 0.0 ), 0.8 ), 0.0 ) ), 1.0 );',
+        ' }',
+        '}'
+    ].join('\n')
+});

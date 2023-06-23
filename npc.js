@@ -12,11 +12,18 @@
 //NPC
 //InfoBubble
 //Creature
+//
+AFRAME.registerComponent('npc', {
+dependencies: ['auxl'],
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
+
 
 //
 //Story Book
 //Linear, Tree, Quests, Jump, Menu, Conditionals, Flags...
-const Book = (auxl, bookData, npc) => {
+auxl.Book = (bookData, npc) => {
 	let progress = 0;
 	let currentPage = 0;
 	let currentPageIdle = 0;
@@ -373,7 +380,7 @@ const Book = (auxl, bookData, npc) => {
 //
 //Speech System
 //Speaking Textbubble
-const SpeechSystem = (auxl, core, npc, fixed) => {
+auxl.SpeechSystem = (core, npc, fixed) => {
 	core.on = false;
 	core.speaking = false;
 	core.blinking = false;
@@ -637,7 +644,7 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 //
 //NPC
 //Core Object w/ Book|Pages & Textbubble
-const NPC = (auxl, id, object, bookData, textDisplay, special) => {
+auxl.NPC = (id, object, bookData, textDisplay, special) => {
 	let npc = {};
 	npc.avatar = Object.assign({}, object);
 	npc.avatarType;
@@ -1147,7 +1154,7 @@ return {npc, GetAllNPCEl, GetMainNPCEl, AddNPCEventsAll, RemoveNPCEventsAll, Spa
 //
 //Info Bubble
 //Display an Emote or Alert Bubble
-const InfoBubble = (auxl, id, object, offset, color) => {
+auxl.InfoBubble = (id, object, offset, color) => {
 	//Not in Tracker as it is controlled via component
 	//Set up for Core parent only at the moment
 	let infoBubble = {};
@@ -1553,7 +1560,7 @@ return {infoBubble, AddEmotes, RemoveEmotes, NewBubble};
 //
 //CreatureGen
 //Generate a creature object
-const Creature = (auxl, id, attach, customizations) => {
+auxl.Creature = (id, attach, customizations) => {
 
 //No longer will this be an creature, but a creature generator
 //Weave in the ghost body and allow for legs/arms to be added
@@ -2612,7 +2619,5 @@ const Shy = () => {
 return {creature, SpawnCreature, DespawnCreature, Emote};
 
 }
-
-//
-//Export
-export {Book, SpeechSystem, NPC, InfoBubble, Creature};
+},
+});

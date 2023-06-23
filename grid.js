@@ -10,12 +10,19 @@
 //Collision
 //GridLayout
 //Gate
+//
+AFRAME.registerComponent('grid', {
+dependencies: ['auxl'],
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
+
 
 //
 //Collision
 //Build a collision map in 0.5 meter sections 
 //Allow or Deny moving outside of collision map
-const Collision = (auxl) => {
+auxl.Collision = () => {
 //lower to higher number
 //0.5 increments per grid square
 //start cube grid position
@@ -1867,7 +1874,7 @@ console.log(auxl[obj.id])
 //
 //Grid Layout
 //Spawn coreData, Core, layerData or Layer Objects at Grid Layouts
-const GridLayout = (auxl, gridLayoutData) => {
+auxl.GridLayout = (gridLayoutData) => {
 	let gridLayout = Object.assign({}, gridLayoutData);
 	gridLayout.inScene = false;
 	gridLayout.current = false;
@@ -2090,7 +2097,7 @@ if(repeatX || repeatZ){
 //
 //Gates
 //Grid Based One Direction Close Behind Player
-const Gate = (auxl, id, object, direction) => {
+auxl.Gate = (id, object, direction) => {
 
 	let gate = {};
 	gate.id = id;
@@ -2228,7 +2235,5 @@ clearTimeout(timeout);
 
 	return {gate, SpawnGate, DespawnGate, CloseGate, OpenGate,  ResetGate};
 }
-
-//
-//Export
-export {Collision, GridLayout, Gate};
+},
+});

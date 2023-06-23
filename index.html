@@ -17,19 +17,27 @@
 <meta property="og:title" content="A-Frame UX Library | v0.3 Engine Example by Minty Crisp">
 <meta property="og:type" content="XR">
 <meta property="og:url" content="auxlibrary.com">
-<!-- A-Frame official release 1.4.2 -->
-<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-<!-- local
-<script src="./assets/js/aframe-v1.4.2.min.js"></script> -->
+<!-- A-Frame official release 1.4.2
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script> -->
+<!-- local -->
+<script src="./assets/js/aframe-v1.4.2.min.js"></script>
+
 <!-- MVP.css -->
 <link rel="stylesheet" href="./assets/css/mvp.css">
 <!-- CSS -->
 <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 <!-- A-Frame UX Library Engine v0.3 -->
-<script src="./auxl.js"></script>
-<script src="./demo.js"></script>
-<!-- HTML -->
+<script src="./system.js"></script>
+<script src="./world.js"></script>
+<script src="./menu.js"></script>
+<script src="./environment.js"></script>
+<script src="./npc.js"></script>
+<script src="./grid.js"></script>
+<script src="./build.js"></script>
+<script src="./support.js"></script>
+<script src="./scenes.js"></script>
+
 <body id="htmlBody">
 <!-- Sticky -->
 <div id="stickyBar" class="sticky flexRow">
@@ -75,6 +83,12 @@
 <main>
 <a-scene
 auxl
+world
+menu
+environment
+npc
+grid
+build
 library
 scene-library
 scenes
@@ -84,10 +98,15 @@ renderer="antialias: true; colorManagement: true; sortObjects: true"
 >
 <!-- - - - - - - - - - - Assets - - - - - - - - - - -->
 <a-assets timeout="3000">
+
 <!-- - - - - - - - - - - Import - - - - - - - - - - -->
+
 <!-- - - - - - - - - - - Timeline - - - - - - - - - - -->
+
 <!-- - - - - - - - - - - Mixins - - - - - - - - - - -->
+
 </a-assets>
+
 <!-- - - - - - - - - - - Player Controls - - - - - - - - - - -->
 <a-entity id="playerRig" position="0 0 0.5"
 ><a-entity id="playerBody" position="0 0 0"
@@ -127,8 +146,10 @@ text="value: No Input; color: white; align: center;"
 value="Display Input"
 color="white" align="center" width="1.4" position="0 0.225 0"
 ></a-text></a-entity> -->
+
 </a-scene>
 </main>
+
 <!-- - - - - - - - - - - HTML Controller - - - - - - - - - - -->
 <div id="controllerBlock">
 <!-- Directional Buttons -->
@@ -172,6 +193,7 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 <!-- Column 3 -->
 <div id="abc-buttons" class="column col3">
 <div id="" class="abcdef">
+
 <div id="" class="ad">
 <div id="" class="a">
 <button id="a" class="actionButtons">A</button>
@@ -180,6 +202,7 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 <button id="d" class="actionButtons">D</button>
 </div>
 </div>
+
 <div id="" class="be">
 <div id="" class="b">
 <button id="b" class="actionButtons">B</button>
@@ -188,6 +211,7 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 <button id="e" class="actionButtons">E</button>
 </div>
 </div>
+
 <div id="" class="cf">
 <div id="" class="c">
 <button id="c" class="actionButtons">C</button>
@@ -196,9 +220,11 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 <button id="f" class="actionButtons">F</button>
 </div>
 </div>
+
 </div>
 <!-- End ABC Buttons -->
 </div>
+
 <!-- End Controller -->
 </div>
 <!-- - - - - - - - - - - End - - - - - - - - - - -->

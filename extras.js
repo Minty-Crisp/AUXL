@@ -4,15 +4,22 @@
 //https://github.com/Minty-Crisp/AUXL
 //
 //Created by Minty-Crisp (mintycrisp.com)
+
+//AUXL v0.3 Beta - Extras
+
 //
-//Images
-//
-//ImageSwapper
-//ImageCarousel
+//AUXL Blog
+//2D site like blog style ObjGens
+AFRAME.registerComponent('auxl-blog', {
+dependencies: ['auxl'],
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
+
 
 //
 //Image Swapper
-const ImageSwapper = (id,mainData,buttonData,...materials) => {
+auxl.ImageSwapper = (id,mainData,buttonData,...materials) => {
 //ToDo
 //Add autoplay and pause on hovering
 //Controls either left/right or thumbnails for each
@@ -121,9 +128,44 @@ const ImageSwapper = (id,mainData,buttonData,...materials) => {
 	return {imageSwapper, Click, SpawnImgSwap, DespawnImgSwap, ToggleSpawn, SetFlag, GetFlag};
 }
 
+//ImageSwapper Main View
+auxl.imageSwapperViewData = {
+data: 'imageSwapperViewData',
+id:'imageSwapperView',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.1, width: 1, height: 1},
+material: false,
+position: new THREE.Vector3(2,1.5,0.25),
+rotation: new THREE.Vector3(0,-90,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//ImageSwapper Thumbnail Button Previews
+auxl.imageSwapperButtonData = {
+data: 'imageSwapperButtonData',
+id:'imageSwapperButton',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.1, width: 0.2, height: 0.2},
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: {clickfunc: {clickObj: 'imageSwapper1'}},
+};
+//ImageSwapper Example
+auxl.imageSwapper1 = auxl.ImageSwapper('imageSwapper1',auxl.imageSwapperViewData, auxl.imageSwapperButtonData, auxl.mat0, auxl.mat1, auxl.mat2, auxl.mat3, auxl.mat4);
+
 //
 //ImageCarousel
-const ImageCarousel = (carouselData) => {
+auxl.ImageCarousel = (carouselData) => {
 //ToDo
 //Allow the amount of frames to be adjusted
 //Add 180 view non-movement functions
@@ -925,5 +967,116 @@ const ImageCarousel = (carouselData) => {
 }
 
 //
-//Export
-export {ImageSwapper, ImageCarousel};
+//ImageCarousel Testing
+auxl.carouselTestingData = {
+id: 'carouselTesting',
+description: 'Browse through an example carousel. Control the image frames with a handful of buttons to jump to a random page, go back a page, go back a few images, view info, play the slideshow, go forward a few images, go to the next page and switch between 2 frame sizings.',
+images: [
+	{image: auxl.pattern01, text: 'Example1'},
+	{image: auxl.pattern02, text: 'Example2'},
+	{image: auxl.pattern03, text: 'Example3'},
+	{image: auxl.pattern04, text: 'Example4'},
+	{image: auxl.pattern05, text: 'Example5'},
+	{image: auxl.pattern06, text: 'Example6'},
+	{image: auxl.pattern07, text: 'Example7'},
+	{image: auxl.pattern08, text: 'Example8'},
+	{image: auxl.pattern09, text: 'Example9'},
+	{image: auxl.pattern10, text: 'Example10'},
+	{image: auxl.pattern11, text: 'Example11'},
+	{image: auxl.pattern12, text: 'Example12'},
+	{image: auxl.pattern13, text: 'Example13'},
+	{image: auxl.pattern14, text: 'Example14'},
+	{image: auxl.pattern15, text: 'Example15'},
+	{image: auxl.pattern16, text: 'Example16'},
+	{image: auxl.pattern17, text: 'Example17'},
+	{image: auxl.pattern18, text: 'Example18'},
+	{image: auxl.pattern19, text: 'Example19'},
+	{image: auxl.pattern20, text: 'Example20'},
+	{image: auxl.pattern21, text: 'Example21'},
+	{image: auxl.pattern22, text: 'Example22'},
+	{image: auxl.pattern23, text: 'Example23'},
+	{image: auxl.pattern24, text: 'Example24'},
+],
+};
+auxl.carouselTesting = auxl.ImageCarousel(auxl.carouselTestingData);
+
+
+//Build Blog Objects
+auxl.buildBlog = () => {
+
+auxl.imageSwapper1 = auxl.ImageSwapper('imageSwapper1',auxl.imageSwapperViewData, auxl.imageSwapperButtonData, auxl.mat0, auxl.mat1, auxl.mat2, auxl.mat3, auxl.mat4);
+auxl.carouselTesting = auxl.ImageCarousel(auxl.carouselTestingData);
+
+}
+auxl.toBeRebuilt('buildBlog');
+
+},
+});
+
+//
+//AUXL Third Party
+//Externally built ObjGen testing example
+AFRAME.registerComponent('auxl-third-party', {
+dependencies: ['auxl'],
+init: function () {
+//AUXL System Connection
+const auxl = document.querySelector('a-scene').systems.auxl;
+
+
+//
+//Testing Object Custom
+auxl.TestObj = (id) => {
+
+	let testObj = {};
+	testObj.id = id;
+	//Cube
+	testObj.testData = {
+	data:'testData',
+	id:'test',
+	sources: false,
+	text: false,
+	geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
+	material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#52a539", emissive: '#52a539', emissiveIntensity: 0.25, opacity: 1},
+	position: new THREE.Vector3(-1.5,2.5,-1.5),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable','a-ent'],
+	components: {
+		doorway:{zone: 'zone0', to: 'connect0'},
+	},
+	};
+	testObj.test = auxl.Core(testObj.testData);
+
+	const SpawnTest = () => {
+		testObj.test.SpawnCore();
+	}
+
+	const DespawnTest = () => {
+		testObj.test.DespawnCore();
+	}
+
+	const TestMethod = (params) => {
+		console.log(params);
+	}
+
+	return {testObj, SpawnTest, DespawnTest, TestMethod};
+}
+//Dynamically Add to Tracker
+//name of the object inside of the ObjGen
+//name of the Spawn and Despawn methods, must be unique
+auxl.AddObjGenToTracker('testObj', 'SpawnTest', 'DespawnTest');
+auxl.test = auxl.TestObj('test');
+
+//Build Extra Objects
+auxl.buildExtra = () => {
+
+auxl.test = auxl.TestObj('test');
+
+}
+auxl.toBeRebuilt('buildExtra');
+
+
+},
+});
