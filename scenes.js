@@ -4705,6 +4705,11 @@ auxl.TestingWorldData = {
 		id: 'testingWorld',
 		name: 'Testing World',
 		description: 'A world containing various test scenarios.',
+		maxLoadtime: 5000,
+		dayTime: 360000,
+		inventory: true,
+		collision: true,
+		physics: false,
 	},
 	scenarios:[
 		auxl.v03TestingScenario,

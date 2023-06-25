@@ -16,7 +16,6 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
-
 //
 //Menu
 //Single Menu | Vertical/Horizontal
@@ -372,14 +371,18 @@ auxl.MultiMenu = (multiMenuData) => {
 			multiMenu.inScene = true;
 		}
 	}
-
+	//New Menu Parent
 	const UpdateParent = (parent) => {
 		let newParent = parent || false;
 		if(multiMenu.inScene){}else{
 			multiMenu.parent = newParent;
 		}
 	}
-
+	//Update Button Styles
+	const UpdateButtons = (changes) => {
+		console.log(multiMenu.cores)
+	}
+	//Update a Menu
 	const UpdateSubMenu = (menu,buttons) => {
 		if(multiMenu.currentMenu === menu){}else{
 			//Purge and Rebuild SubMenu
@@ -520,7 +523,7 @@ auxl.MultiMenu = (multiMenuData) => {
 			clearTimeout(multiMenu.switchingTimeout);
 		}, despawnDelay*2);
 	}
-
+	//Toggle Menu
 	const ToggleMenu = () => {
 		if(multiMenu.switching){}else{
 			if(multiMenu.menuOpen){
@@ -534,13 +537,13 @@ auxl.MultiMenu = (multiMenuData) => {
 			}
 		}
 	}
-
+	//Default Menu
 	const DefaultMenu = () => {
 		multiMenu.currentMenu = 'menu0';
 		multiMenu.menuPath = ['menu0'];
 		multiMenu.menuOpen = false;
 	}
-
+	//Reset Menu
 	const ResetMenu = (instant) => {
 		multiMenu.cores.main.ChangeSelf({property: 'text', value:{value:'Open'}});
 		let despawnDelay;
@@ -559,7 +562,7 @@ auxl.MultiMenu = (multiMenuData) => {
 			}
 		}
 	}
-
+	//Open a Sub Menu
 	const SubMenu = (newMenu) => {
 		if(multiMenu.switching){}else{
 			DespawnMenu();
@@ -572,7 +575,7 @@ auxl.MultiMenu = (multiMenuData) => {
 			SpawnMenu();
 		}
 	}
-
+	//Despawn Menu
 	const DespawnMultiMenu = () => {
 		if(multiMenu.inScene){
 			ResetMenu(true);
@@ -591,7 +594,7 @@ auxl.MultiMenu = (multiMenuData) => {
 
 		}
 	}
-
+	//Display Description
 	const SpawnDescription = (button) => {
 		if(multiMenu.descriptionOpen){}else{
 			multiMenu.buttonHover = button;
@@ -601,7 +604,7 @@ auxl.MultiMenu = (multiMenuData) => {
 			multiMenu.descriptionOpen = true;
 		}
 	}
-
+	//Despawn Description
 	const DespawnDescription = (button) => {
 		if(multiMenu.descriptionOpen){
 			let spawnParent = multiMenu.cores[multiMenu.currentMenu][button].GetEl();
@@ -611,7 +614,7 @@ auxl.MultiMenu = (multiMenuData) => {
 		}
 	}
 
-	return {multiMenu, SpawnMultiMenu, DespawnMultiMenu, ToggleMenu, UpdateParent, UpdateSubMenu, SubMenu, ResetMenu, SpawnDescription, DespawnDescription};
+	return {multiMenu, SpawnMultiMenu, DespawnMultiMenu, ToggleMenu, UpdateParent, UpdateButtons, UpdateSubMenu, SubMenu, ResetMenu, SpawnDescription, DespawnDescription};
 }
 
 //
@@ -997,9 +1000,5 @@ auxl.HoverMenu = (hoverMenuData) => {
 
 	return {hoverMenu, SpawnHoverMenu, DespawnHoverMenu, UpdateParent, UpdateSubMenu, ResetMenu, SpawnDescription, DespawnDescription};
 }
-
-
-
-
 },
 });

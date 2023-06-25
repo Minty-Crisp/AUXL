@@ -14,8 +14,8 @@
 AFRAME.registerComponent('gltfmat', {
 dependencies: ['auxl'],
 schema: {
-	colors: {type: 'array', default: ['#FFFFFF']},
-	emissive: {type: 'array', default: [0]},
+	colors: {type: 'array', default: [false]},
+	emissive: {type: 'array', default: [false]},
 	textures: {type: 'array', default: [false]},
 	repeats: {type: 'array', default: [false]},
 	random: {type: 'boolean', default: false},
@@ -29,15 +29,20 @@ schema: {
 		this.materials = [];
 		this.data.colors.forEach(color => {
 			//Color
-			if(color || color !== 'false'){
-				this.materials[this.current] = new THREE.MeshStandardMaterial({color});
+			if(color){
+				//Base Color
+				if(color === 'random'){
+					this.materials[this.current] = new THREE.MeshStandardMaterial({color: auxl.colorTheoryGen().base});
+				} else {
+					this.materials[this.current] = new THREE.MeshStandardMaterial({color});
+				}
 				//Emissive
-				if(!this.data.emissive[this.current] || this.data.emissive[this.current] === '0'){} else {
+				if(this.data.emissive[this.current]){
 					this.materials[this.current].emissive = this.materials[this.current].color;
 					this.materials[this.current].emissiveIntensity = this.data.emissive[this.current];
 				}
 				//Texture
-				if(!this.data.textures[this.current] || this.data.textures[this.current] === 'false'){} else {
+				if(this.data.textures[this.current]){
 					this.materials[this.current].texture = new THREE.TextureLoader().load(this.data.textures[this.current]);
 					if(!this.data.repeats[this.current] || this.data.repeats[this.current] === 'false'){} else {
 						this.materials[this.current].texture.wrapS = THREE.RepeatWrapping;
@@ -45,8 +50,6 @@ schema: {
 						this.materials[this.current].texture.repeat.set(this.data.repeats[this.current]);
 					}
 				}
-			} else if(color === 'random'){
-				this.materials[this.current] = new THREE.MeshStandardMaterial({color: auxl.colorTheoryGen().base});
 			} else {
 				this.materials[this.current] = false;
 			}
@@ -341,8 +344,8 @@ Stop Moving
 });
 
 //
-//Attach
-AFRAME.registerComponent('attach', {
+//Sync Pos
+AFRAME.registerComponent('sync-pos', {
 	dependencies: ['auxl'],
     schema: {
         idname: {type: 'string', default: 'ui'},
@@ -504,7 +507,6 @@ events: {
 	}
 },
 });
-
 //Attach to run specified method from Object on fusing event
 AFRAME.registerComponent('fusingrun', {
 dependencies: ['auxl'],
@@ -696,6 +698,30 @@ events: {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);
 				}
 			}
+		}
+	}
+},
+});
+
+//Run AUXL Function on Click
+AFRAME.registerComponent('clickrunfunc', {
+dependencies: ['auxl'],
+multiple: true,
+//multiple: true,
+schema: {
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+events: {
+	click: function (evt) {
+		if(this.data.params === 'null'){
+			this.auxl[this.data.method](evt.target);
+		} else {
+			this.auxl[this.data.method](this.data.params);
 		}
 	}
 },

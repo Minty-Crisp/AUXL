@@ -498,6 +498,7 @@ gridLayout:{type:'gridLayout', spawn: 'SpawnGridLayout', despawn: 'DespawnGridLa
 gate:{type:'gate', spawn: 'SpawnGate', despawn: 'DespawnGate'},
 imageSwapper:{type:'imageSwapper', spawn: 'SpawnImgSwap', despawn: 'DespawnImgSwap'},
 imageCarousel:{type:'imageCarousel', spawn: 'SpawnImgCarousel', despawn: 'DespawnImgCarousel'},
+//gameMenu:{type:'gameMenu', spawn: 'SpawnGameMenu', despawn: 'DespawnGameMenu'},
 memory:{type:'memory', spawn: 'SpawnMemGame', despawn: 'DespawnMemGame'},
 swipeLaunch:{type:'swipeLaunch', spawn: 'SpawnSLGame', despawn: 'DespawnSLGame'},
 guessHit:{type:'guessHit', spawn: 'SpawnGHGame', despawn: 'DespawnGHGame'},
@@ -539,6 +540,10 @@ this.spawnTracker = (obj, spawnLocation, bookName) => {
 			}
 		}
 		if(type){}else{
+			console.log(obj)
+			console.log(spawnLocation)
+			console.log(tracker)
+			console.log(type)
 			console.log('Tracker type error');
 		}
 	}
@@ -1582,6 +1587,63 @@ this.layerFromTemplate = (layer, id, changeParent, updateLayer, assign) => {
 	}
 }
 
+//
+//DOM Scene
+
+//Find Entity in Scene
+this.findInScene = (item) => {
+	let self = item;
+	if(self.core){
+		//console.log('Core');
+		if(self.core.inScene){
+			self = self.GetEl();
+		} else {
+			self = false;
+		}
+	} else if(self.layer){
+		//console.log('Layer');
+		if(self.layer.inScene){
+			self = self.GetParentEl();
+		} else {
+			self = false;
+		}
+	} else if(self.id){
+		//console.log('Entity');
+	} else if(typeof self === 'string'){
+		//console.log('ID');
+		if(document.getElementById(self)){
+			self = document.getElementById(self);
+		} else {
+			self = false;
+		}
+	}
+	return self;
+}
+
+//Parent DOM Ent to other DOM Ent
+this.attach = (child, parent) => {
+	//Self
+	let item = auxl.findInScene(child);
+	//Parent
+	let to = auxl.findInScene(parent);
+	//Attach
+	if(!item || !to){
+		console.log('Failed to find Child or Parent');
+	} else {
+		to.appendChild(item);
+	}
+}
+//Remove DOM Ent from parent DOM ent
+this.detach = (child) => {
+	//Self
+	let item = auxl.findInScene(child);
+	//Detach
+	if(!item){
+		console.log('Failed to find Child')
+	} else {
+		auxl.sceneEl.appendChild(item);
+	}
+}
 
 //
 //Object Generators
@@ -1593,6 +1655,8 @@ this.Core = (data) => {
 	let core = JSON.parse(JSON.stringify(data));
 	core.inScene = false;
 	core.el = {};
+	core.dom = false;
+	core.domTimeout;
 	core.events = {};
 	core.parent = false;
 	core.gridSpawned = false;
@@ -1858,6 +1922,13 @@ this.Core = (data) => {
 			if(loadMat){
 				core.el.addEventListener('loaded', loaded);
 			}
+			//Link to DOM
+			core.domTimeout = setTimeout(() => {
+				core.dom = document.getElementById(core.id);
+				//console.log(core.dom)
+				clearTimeout(core.domTimeout);
+			}, 100);
+
 			core.inScene = true;
 		}
 	}
@@ -1865,6 +1936,7 @@ this.Core = (data) => {
 	const DespawnCore = () => {
 		if(core.inScene){
 			//Clear Core Timeout/Intervals
+			clearTimeout(core.domTimeout);
 			clearTimeout(core.gridPathTimeout);
 			clearInterval(core.gridPathInterval);
 			//Loaded Events
@@ -1900,6 +1972,7 @@ this.Core = (data) => {
 			if(auxl.ExistsInTracker(core.id)){
 				auxl.RemoveFromTracker(core.id);
 			}
+			core.dom = false;
 			core.inScene = false;
 		}
 	}
@@ -2535,6 +2608,17 @@ this.Core = (data) => {
 			GetEl().setAttribute(propertyValue.property, propertyValue.value);
 		}
 	}
+	//Change Core - Single or Array
+	const ChangeCore = (propertyValue) => {
+		if(Array.isArray(propertyValue)){
+			core.el[propertyValue[each].property] = propertyValue[each].value;
+		} else {
+			core.el[propertyValue.property] = propertyValue.value;
+		}
+		if(core.inScene){
+			ChangeSelf(propertyValue);
+		}
+	}
 	//Remove Element Component
 	const RemoveComponent = (property) => {
 		if(Array.isArray(property)){
@@ -2784,7 +2868,7 @@ console.log(update)
 		GetEl().removeEventListener('click', openClose);
 	}
 
-	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, PhysPos, UpdatePhys, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
+	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, ChangeCore, PhysPos, UpdatePhys, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
 }
 
 //
@@ -4373,11 +4457,11 @@ this.Player = (id,layer) => {
 			connectPos.y += offset.y;
 			connectPos.z += offset.z;
 		}
-		element.setAttribute('attach',{idname: layer.id, position: connectPos});
+		element.setAttribute('sync-pos',{idname: layer.id, position: connectPos});
 	}
 	//Deattach from user
 	const DetachFromPlayer = (element) => {
-		element.removeAttribute('attach');
+		element.removeAttribute('sync-pos');
 	}
 	//Equip Object|Tool
 	const Equip = (object) => {
@@ -4434,7 +4518,7 @@ this.Player = (id,layer) => {
 		div.y = axisY;
 		div.z = axisZ;
 
-		player.ChangeSelf({property: 'rotation', value: div});
+		auxl.playerBody.ChangeSelf({property: 'rotation', value: div});
 
 
 
@@ -4470,6 +4554,23 @@ this.Player = (id,layer) => {
 		auxl.playerRig.ChangeSelf({property: 'position', value: pos});
 		layer.gridPos.copy(pos);
 	}
+	//Player Twist
+	const TwistTo = (yRot) => {
+
+		//Reset Rotation via playerBody
+		let y = auxl.camera.GetEl().getAttribute('rotation').y;
+		if(y > 0){
+			if(y<360){
+				y = y % 360;
+			}
+		} else if(y < 0){
+			if(y < -360){
+				y = y % 360;
+			}
+		}
+		let rot = new THREE.Vector3(0,((y*-1)+1)+yRot,0);
+		auxl.playerBody.ChangeSelf({property:'rotation',value:rot});
+	}
 	//Player Forward Position
 	//going forward will be a trigger / grip action
 	const Forward = (speed, div) => {
@@ -4486,7 +4587,7 @@ this.Player = (id,layer) => {
 		console.log(params);
 	}
 
-	return {layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, UpdatePlayerPosition, TestFunc}
+	return {layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, UpdatePlayerPosition, TwistTo, TestFunc}
 }
 
 //
@@ -4983,7 +5084,6 @@ this.Companion = (id, object, inventory) => {
 		};
 	}
 
-
 	auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
 	/*
 	Main Menu
@@ -5282,6 +5382,68 @@ console.log(comp.shapes)
 			comp.viewConfig = true;
 		}
 	}
+	//Update Main Menu
+	const UpdateMainMenu = (updates) => {
+		let restart = false;
+		if(auxl.mainMenu.inScene){
+			auxl.mainMenu.DespawnMultiMenu();
+			restart = true;
+		}
+		Object.keys(updates).forEach(section => {
+			if(comp.mainMenuData[section]){
+				comp.mainMenuData[section][updates[section].id] = updates[section];
+			} else {
+				comp.mainMenuData[section] = updates[section];
+			}
+		});
+		auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
+		UpdateInventoryMenu();
+		if(restart){
+			auxl.mainMenu.SpawnMultiMenu();
+		}
+	}
+	//Update Main Menu Style
+	const UpdateMainMenuStyle = (core) => {
+		let restart = false;
+		if(auxl.mainMenu.inScene){
+			auxl.mainMenu.DespawnMultiMenu();
+			restart = true;
+		}
+		comp.mainMenuData.info.buttonData = core;
+		auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
+		UpdateInventoryMenu();
+		if(restart){
+			auxl.mainMenu.SpawnMultiMenu();
+		}
+	}
+	//Enable Inventory
+	const EnableInventory = () => {
+		comp.enableInventory = true;
+		comp.mainMenuData.menu0.button0 = {
+			id: 'subMenu1',
+			style: false,
+			title: 'Inventory',
+			description: 'View your inventory.',
+			subMenu: 'inventory',
+			action: false,
+		};
+		comp.mainMenuData.menu0.button4 = {
+			id: 'subMenu5',
+			style: false,
+			title: 'Unequip',
+			description: 'Unequip your held object.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'Unequip',
+				params: null,
+				menu: 'stay',
+			},
+		};
+		auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
+		UpdateInventoryMenu();
+	}
 	//Add To Inventory
 	const AddToInventory = ({item, hide}) => {
 		function inventoryAdd(item){
@@ -5439,7 +5601,6 @@ console.log(comp.shapes)
 			} else {
 				currNum++;
 			}
-
 			if(pages > 1){
 				if(currNum % 7 === 0){
 					currPage++;
@@ -5463,7 +5624,7 @@ console.log(comp.shapes)
 		UpdateInventoryMenuCategory('specials');
 	}
 
-	return{comp, TestFunc, UpdateShape, SpawnComp, DespawnComp, SetFlag, GetFlag, UpdatePosition, ToggleControlView, AddToInventory, ClearInventoryNotifications, RemoveFromInventory, CheckInventory, CheckForKey, UpdateInventoryMenu};
+	return{comp, TestFunc, UpdateShape, SpawnComp, DespawnComp, SetFlag, GetFlag, UpdatePosition, ToggleControlView, UpdateMainMenu, UpdateMainMenuStyle, EnableInventory, AddToInventory, ClearInventoryNotifications, RemoveFromInventory, CheckInventory, CheckForKey, UpdateInventoryMenu};
 }
 
 },
@@ -5517,5 +5678,4 @@ tick: function (time, timeDelta) {
 	}
 
 },
-
 });

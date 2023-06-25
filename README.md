@@ -148,6 +148,12 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Zone method to change scenes using zone and scene names without key checks
 - Updated HTML menu to a state machine and synced control configuration to save profile
 - Added volume control to html system menu and syncing to profile
+- Core now has core.dom which stores the document element which can be used instead of GetEl() to avoid additional overhead
+- World Object Data can now configure day time length, max scene load time, enable inventory, collision or physics(physics to be added)
+- Event and Interaction Instructions now support a relay which links a different auxlObject and methods to run on defined object's event/interaction.
+- EdgeUpdate now accepts a new material to be used on Edges
+- Added companion UpdateMainMenu method to dynamically update the Main Menu and added to World Info via menuOption
+- Added companion UpdateMainMenuStyle method to dynamically update the Main Menu style and added to World Info via menuStyle
 
 # v0.3 Currently In-Progress Updates : :cherries:
 - Grid Enhancements & Features

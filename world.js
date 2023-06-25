@@ -144,9 +144,15 @@ auxl.SceneNode = (sceneData) => {
 				clearInterval(auxl.intervals[auxl.running[ran].nameId]);
 				delete auxl.intervals[auxl.running[ran].nameId];
 			} else if (auxl.running[ran].type === 'interaction' || auxl.running[ran].type === 'event'){
-auxl[auxl.running[ran].name].GetEl().removeEventListener(auxl.running[ran].event, function(){
-auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran].params);
-});
+if(auxl[auxl.running[ran].name].GetEl){
+	auxl[auxl.running[ran].name].GetEl().removeEventListener(auxl.running[ran].event, function(){
+	auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran].params);
+	});
+} else if(auxl[auxl.running[ran].name].GetParentEl){
+	auxl[auxl.running[ran].name].GetParentEl().removeEventListener(auxl.running[ran].event, function(){
+	auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran].params);
+	});
+}
 			}
 			RemoveFromTimeIntEvtTracker(ran);
 		}
@@ -287,33 +293,71 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 						let object;
 						let method;
 						let params;
+						let relay;
 						if(b === 'IfElse'){
 							for(let c in core[time][line][a][b]){
 								object = a;
 								params = core[time][line][a][b][c];
 
 								AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
-								auxl[object].GetEl().addEventListener(line, function(){
-									IfElse(object,c,params);
-								});
+								if(auxl[object].GetEl){
+									auxl[object].GetEl().addEventListener(line, function(){
+										IfElse(object,c,params);
+									});
+								} else if(auxl[object].GetParentEl){
+									auxl[object].GetParentEl().addEventListener(line, function(){
+										IfElse(object,c,params);
+									});
+								}
 							}
 						} else if(b === 'Switch'){
 							for(let c in core[time][line][a][b]){
 								object = a;
 								params = core[time][line][a][b][c];
 								AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
-								auxl[object].GetEl().addEventListener(line, function(){
-									Switch(object,c,params);
-								});
+								if(auxl[object].GetEl){
+									auxl[object].GetEl().addEventListener(line, function(){
+										Switch(object,c,params);
+									});
+								} else if(auxl[object].GetParentEl){
+									auxl[object].GetParentEl().addEventListener(line, function(){
+										Switch(object,c,params);
+									});
+								}
+							}
+						} else if(b === 'relay'){
+							for(let c in core[time][line][a][b]){
+								for(let d in core[time][line][a][b][c]){
+									object = a;
+									relay = c;
+									method = d;
+									params = core[time][line][a][b][c][d];
+									AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
+									if(auxl[object].GetEl){
+										auxl[object].GetEl().addEventListener(line, function(){
+											auxlObjMethod(relay,method,params);
+										});
+									} else if(auxl[object].GetParentEl){
+										auxl[object].GetParentEl().addEventListener(line, function(){
+											auxlObjMethod(relay,method,params);
+										});
+									}
+								}
 							}
 						} else {
 							object = a;
 							method = b;
 							params = core[time][line][a][b];
 							AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
-							auxl[object].GetEl().addEventListener(line, function(){
-								auxlObjMethod(object,method,params);
-							});
+							if(auxl[object].GetEl){
+								auxl[object].GetEl().addEventListener(line, function(){
+									auxlObjMethod(object,method,params);
+								});
+							} else if(auxl[object].GetParentEl){
+								auxl[object].GetParentEl().addEventListener(line, function(){
+									auxlObjMethod(object,method,params);
+								});
+							}
 						}
 					}
 				}
@@ -323,33 +367,71 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 						let object;
 						let method;
 						let params;
+						let relay;
 						if(b === 'IfElse'){
 							for(let c in core[time][line][a][b]){
 								object = a;
 								params = core[time][line][a][b][c];
 
 								AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
-								auxl[object].GetEl().addEventListener(line, function(){
-									IfElse(object,c,params);
-								});
+								if(auxl[object].GetEl){
+									auxl[object].GetEl().addEventListener(line, function(){
+										IfElse(object,c,params);
+									});
+								} else if(auxl[object].GetParentEl){
+									auxl[object].GetParentEl().addEventListener(line, function(){
+										IfElse(object,c,params);
+									});
+								}
 							}
 						} else if(b === 'Switch'){
 							for(let c in core[time][line][a][b]){
 								object = a;
 								params = core[time][line][a][b][c];
 								AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
-								auxl[object].GetEl().addEventListener(line, function(){
-									Switch(object,c,params);
-								});
+								if(auxl[object].GetEl){
+									auxl[object].GetEl().addEventListener(line, function(){
+										Switch(object,c,params);
+									});
+								} else if(auxl[object].GetParentEl){
+									auxl[object].GetParentEl().addEventListener(line, function(){
+										Switch(object,c,params);
+									});
+								}
+							}
+						} else if(b === 'relay'){
+							for(let c in core[time][line][a][b]){
+								for(let d in core[time][line][a][b][c]){
+									object = a;
+									relay = c;
+									method = d;
+									params = core[time][line][a][b][c][d];
+									AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
+									if(auxl[object].GetEl){
+										auxl[object].GetEl().addEventListener(line, function(){
+											auxlObjMethod(relay,method,params);
+										});
+									} else if(auxl[object].GetParentEl){
+										auxl[object].GetParentEl().addEventListener(line, function(){
+											auxlObjMethod(relay,method,params);
+										});
+									}
+								}
 							}
 						} else {
 							object = a;
 							method = b;
 							params = core[time][line][a][b];
 							AddToTimeIntEvtTracker({name: object, type: 'event', id: a, method, params, event: line});
-							auxl[object].GetEl().addEventListener(line, function(){
-								auxlObjMethod(object,method,params);
-							});
+							if(auxl[object].GetEl){
+								auxl[object].GetEl().addEventListener(line, function(){
+									auxlObjMethod(object,method,params);
+								});
+							} else if(auxl[object].GetParentEl){
+								auxl[object].GetParentEl().addEventListener(line, function(){
+									auxlObjMethod(object,method,params);
+								});
+							}
 						}
 					}
 				}
@@ -442,11 +524,8 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		if(core.info.map){
 			auxl.map.BuildMap(core.info.map.size, core.info.map.height);
 			auxl.mapEdge = core.info.map.edge || false;
-			if(core.info.map.edgeUpdate){
-				auxl.map.UpdateEdge(core.info.map.edgeUpdate);
-			}
 			if(auxl.mapEdge && core.info.map.spawnEdge){
-				auxl.map.SpawnEdges();
+				auxl.map.SpawnEdges(core.info.map.edgeUpdate);
 			}
 		}
 	}
@@ -476,7 +555,6 @@ auxlObjMethod(auxl.running[ran].object,auxl.running[ran].method,auxl.running[ran
 		} else {
 			auxl.player.UpdatePlayerPosition(new THREE.Vector3(0,0,0));
 		}
-
 	}
 	//NodeScene Start
 	const StartScene = () => {
@@ -1082,6 +1160,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		}
 	}
 	//Change Scene
+	//Not running Exit instructions correctly, possibly others
 	const Change = (zone,scene) => {
 		//No Key Checks
 		timeout = setTimeout(() => {
@@ -1089,7 +1168,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 				core.mapMenu.DespawnMenu();
 			}
 			ClearScene();
-			if(core.id === zone ){
+			if(core.id === zone){
 				StartScene(scene);
 			} else {
 				ClearZone();
@@ -1598,6 +1677,7 @@ auxl.World = (worldData) => {
 	}
 	//Start World at Default Scenario
 	const StartWorld = () => {
+		WorldSettings();
 		StartScenario(world.current);
 		auxl.currentWorld = auxl[world.id];
 		auxl.worldLoaded = true;
@@ -1607,6 +1687,47 @@ auxl.World = (worldData) => {
 	const StopWorld = () => {
 		ClearScenario(world.current);
 		auxl.worldLoaded = false;
+	}
+	//World Settings
+	const WorldSettings = () => {
+		//Max Load Time
+		if(world.data.info.maxLoadtime){
+			auxl.maxLoadTime = world.data.info.maxLoadtime;
+		} else {
+			auxl.maxLoadTime = 5000;
+		}
+		//Day Time Length
+		if(world.data.info.dayTime){
+			auxl.timeInDay = world.data.info.dayTime;
+		} else {
+			auxl.timeInDay = 360000;
+		}
+		//Inventory
+		if(world.data.info.inventory){
+			auxl.comp.EnableInventory();
+		} else {
+			auxl.comp.enableInventory = false;
+		}
+		//Collision
+		if(world.data.info.collision){
+			auxl.collision = world.data.info.collision;
+		} else {
+			auxl.collision = false;
+		}
+		//Physics
+		if(world.data.info.physics){
+			world.data.info.physics = auxl.physics;
+		} else {
+			auxl.physics = false;
+		}
+		//Main Menu Style
+		if(world.data.info.menuStyle){
+			auxl.comp.UpdateMainMenuStyle(world.data.info.menuStyle);
+		}
+		//Main Menu Options
+		if(world.data.info.menuOptions){
+			auxl.comp.UpdateMainMenu(world.data.info.menuOptions);
+		}
 	}
 	//Start a Scenario
 	const StartScenario = (num) => {

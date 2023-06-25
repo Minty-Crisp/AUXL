@@ -17,7 +17,6 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
-
 //
 //Collision
 //Build a collision map in 0.5 meter sections 
@@ -1630,26 +1629,23 @@ original.splice(original.indexOf(each), 1);
 
 	//
 	//Edges
-	//Update Edge Core
-	const UpdateEdge = (core) => {
-		grid.edge = core;
-	}
 	//Spawn Map Edge Object
-	const SpawnEdges = () => {
+	const SpawnEdges = (update) => {
 		let pos = (grid.size/4) +1;
 		let length = (grid.size/2) +2.5;
+		let material = update || {shader: "standard", color: "#6c4646", opacity: 1};
 
 		//North
-		grid.edges.northEdge = auxl.coreFromTemplate(grid.edge,{id: 'northEdge', geometry: {primitive: 'box', depth: 0.5, width: length, height: 0.5}, position: new THREE.Vector3(0,0.25,pos*-1)}, true);
+		grid.edges.northEdge = auxl.coreFromTemplate(grid.edge,{id: 'northEdge', geometry: {primitive: 'box', depth: 0.5, width: length, height: 0.5}, position: new THREE.Vector3(0,0.25,pos*-1), material}, true);
 		grid.edges.northEdge.SpawnCore();
 		//South
-		grid.edges.southEdge = auxl.coreFromTemplate(grid.edge,{id: 'southEdge', geometry: {primitive: 'box', depth: 0.5, width: length, height: 0.5}, position: new THREE.Vector3(0,0.25,pos)}, true);
+		grid.edges.southEdge = auxl.coreFromTemplate(grid.edge,{id: 'southEdge', geometry: {primitive: 'box', depth: 0.5, width: length, height: 0.5}, position: new THREE.Vector3(0,0.25,pos), material}, true);
 		grid.edges.southEdge.SpawnCore();
 		//West
-		grid.edges.westEdge = auxl.coreFromTemplate(grid.edge,{id: 'westEdge', geometry: {primitive: 'box', depth: length, width: 0.5, height: 0.5}, position: new THREE.Vector3(pos*-1,0.25,0)}, true);
+		grid.edges.westEdge = auxl.coreFromTemplate(grid.edge,{id: 'westEdge', geometry: {primitive: 'box', depth: length, width: 0.5, height: 0.5}, position: new THREE.Vector3(pos*-1,0.25,0), material}, true);
 		grid.edges.westEdge.SpawnCore();
 		//East
-		grid.edges.eastEdge = auxl.coreFromTemplate(grid.edge,{id: 'eastEdge', geometry: {primitive: 'box', depth: length, width: 0.5, height: 0.5}, position: new THREE.Vector3(pos,0.25,0)}, true);
+		grid.edges.eastEdge = auxl.coreFromTemplate(grid.edge,{id: 'eastEdge', geometry: {primitive: 'box', depth: length, width: 0.5, height: 0.5}, position: new THREE.Vector3(pos,0.25,0), material}, true);
 		grid.edges.eastEdge.SpawnCore();
 
 		grid.edgeSpawned = true;
@@ -1668,7 +1664,6 @@ original.splice(original.indexOf(each), 1);
 
 		grid.edgeSpawned = false;
 	}
-
 	//
 	//Wait to Spawn
 	//Objects that need to wait to be Spawned
@@ -1867,7 +1862,7 @@ console.log(auxl[obj.id])
 
 	}
 
-	return {grid, BuildMap, BlankMap, UpdateMap, UpdateMapArea, EnableCollision, DisableCollision, CheckMapObstacles, CheckMapObstaclesDiagonal, CheckMapObstaclesArea, CheckMapAreaSansArea, SpawnEdges, DespawnEdges, UpdateEdge, BlankMapTrigger, OnMapTrigger, OffMapTrigger, CheckMapOverlapTrigger, UpdateMapAreaTrigger, UpdateMapTrigger, CheckMapTriggers, TriggerEnterHit, CheckActiveTriggers, ClearTriggers, WaitToSpawn, WaitingToSpawn, ClearWaiting, MoveToGrid, PathOnGrid,};
+	return {grid, BuildMap, BlankMap, UpdateMap, UpdateMapArea, EnableCollision, DisableCollision, CheckMapObstacles, CheckMapObstaclesDiagonal, CheckMapObstaclesArea, CheckMapAreaSansArea, SpawnEdges, DespawnEdges, BlankMapTrigger, OnMapTrigger, OffMapTrigger, CheckMapOverlapTrigger, UpdateMapAreaTrigger, UpdateMapTrigger, CheckMapTriggers, TriggerEnterHit, CheckActiveTriggers, ClearTriggers, WaitToSpawn, WaitingToSpawn, ClearWaiting, MoveToGrid, PathOnGrid,};
 
 }
 
