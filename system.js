@@ -1073,6 +1073,20 @@ function resetReload(){
 //resetData.addEventListener('click', resetReload);
 
 
+//
+//Toggle HTML
+this.ToggleHTML = (id, display) => {
+	if(display){
+		if(id === 'l' || id === 'r'){
+			document.getElementById(id).style.display = 'block';
+		} else {
+			document.getElementById(id).style.display = 'flex';
+		}
+	} else {
+		document.getElementById(id).style.display = 'none';
+	}
+}
+
 
 //
 //Support
@@ -4221,7 +4235,7 @@ this.Player = (id,layer) => {
 	const EnableVRLocomotion = () => {
 		RemoveBelt();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'vr'});
-		UnlockLocomotion();
+		//UnlockLocomotion();
 	}
 	//Enable VR Belt UI Locomotion
 	const EnableVRHoverLocomotion = (vrHand) => {
@@ -4229,19 +4243,19 @@ this.Player = (id,layer) => {
 			auxl.locomotionUILayer.SpawnLayer();
 		}
 		playerRig.setAttribute('locomotion',{uiid: 'beltUIParent', courserid: 'mouseController', movetype: 'vrHover'});
-		UnlockLocomotion();
+		//UnlockLocomotion();
 	}
 	//Enable Desktop Locomotion
 	const EnableDesktopLocomotion = () => {
 		RemoveBelt();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'desktop'});
-		UnlockLocomotion();
+		//UnlockLocomotion();
 	}
 	//Enable Mobile Locomotion
 	const EnableMobileLocomotion = () => {
 		RemoveBelt();
 		playerRig.setAttribute('locomotion',{uiid: false, courserid: 'mouseController', movetype: 'mobile'});
-		UnlockLocomotion();
+		//UnlockLocomotion();
 	}
 	//Change Locomotion Type
 	const ChangeLocomotionType = (type) => {
@@ -4594,19 +4608,26 @@ this.Player = (id,layer) => {
 //Companion
 //System Menu & Inventory
 this.Companion = (id, object, inventory) => {
+
 	let comp = {};
 	comp.avatarType = '';
 	comp.menuParentId;
+	let defaultAvatar;
 	if(object.SpawnCore){
 		comp.avatarType = 'core';
 		comp.menuParentId = object.core.id;
+		defaultAvatar = object.core.id;
 	} else if(object.SpawnLayer){
 		comp.avatarType = 'layer';
 		comp.menuParentId = object.layer.all.parent.core.core.id;
+		defaultAvatar = object.layer.id;
 	}
 	comp.avatar = Object.assign({}, object);
 	comp.shapes = {
-		default: object,
+		default: defaultAvatar,
+		['Cube']: 'compCubeLayer',
+		['Sphere']: 'compSphereLayer',
+		//['Ghost']: 'ghost',
 	};
 
 	comp.id = id;
@@ -4731,7 +4752,8 @@ this.Companion = (id, object, inventory) => {
 			style: false,
 			title: 'Companion Avatar',
 			description: 'Change the companion avatar shape.',
-			subMenu: 'menu7',
+			//subMenu: 'menu7',
+			subMenu: 'compShape1',
 			action: false,
 		},
 		button2:{
@@ -4975,50 +4997,7 @@ this.Companion = (id, object, inventory) => {
 			},
 		},
 	},
-	menu7:{
-		button0:{
-			id: 'action1',
-			style: false,
-			title: 'Ghost',
-			description: 'Change to a ghost avatar.',
-			subMenu: false,
-			action: {
-				auxlObj: 'comp',
-				component: false,
-				method: 'UpdateShape',
-				params: 'ghost',
-				menu: 'close',
-			},
-		},
-		button1:{
-			id: 'action2',
-			style: false,
-			title: 'Cube',
-			description: 'Change to a cube avatar.',
-			subMenu: false,
-			action: {
-				auxlObj: 'comp',
-				component: false,
-				method: 'UpdateShape',
-				params: 'compCubeLayer',
-				menu: 'close',
-			},
-		},
-		button2:{
-			id: 'action3',
-			style: false,
-			title: 'Sphere',
-			description: 'Change to a sphere avatar.',
-			subMenu: false,
-			action: {
-				auxlObj: 'comp',
-				component: false,
-				method: 'UpdateShape',
-				params: 'compSphereLayer',
-				menu: 'close',
-			},
-		},
-	},
+	compShape1:{},
 	inventory:{
 		button0:{
 			id: 'subMenu1',
@@ -5183,12 +5162,12 @@ this.Companion = (id, object, inventory) => {
 	const BuildAvatarMenu = () => {
 		comp.shapeButtons = {};
 		let buttonTemplate = {};
+		let moreTemplate = {};
 		let currNum = 1;
 		let currPage = 1;
 		let total = Object.keys(comp.shapes).length;
 		let pages = Math.ceil(total/8);
 		let subMenuName = 'compShape' + currPage;
-console.log(comp.shapes)
 		for(let each in comp.shapes){
 			buttonTemplate = {
 				id: 'action'+currNum,
@@ -5204,9 +5183,6 @@ console.log(comp.shapes)
 					menu: 'close',
 				},
 			};
-			if(comp.shapes[each].action){} else {
-				buttonTemplate.action = false;
-			}
 			moreTemplate = {
 				id: 'action'+currNum,
 				style: false,
@@ -5221,7 +5197,6 @@ console.log(comp.shapes)
 			} else {
 				currNum++;
 			}
-
 			if(pages > 1){
 				if(currNum % 7 === 0){
 					currPage++;
@@ -5236,35 +5211,26 @@ console.log(comp.shapes)
 			}
 		}
 	}
-	//Update Shape
+	//Update Shape - Strings Only
 	const UpdateShape = (newObj) => {
 		let respawn = false;
 		if(comp.inScene){
 			respawn = true;
 			DespawnComp();
 		}
+
 		let rebuildTimeout = setTimeout(() => {
-			if(newObj.SpawnCore){
+			if(auxl[newObj].SpawnCore){
 				comp.avatarType = 'core';
-				comp.menuParentId = newObj.core.id;
-				comp.avatar = Object.assign({}, newObj);
-			} else if(newObj.SpawnLayer){
+				comp.menuParentId = auxl[newObj].core.id;
+			} else if(auxl[newObj].SpawnLayer){
 				comp.avatarType = 'layer';
-				comp.menuParentId = newObj.layer.all.parent.core.core.id;
-				comp.avatar = Object.assign({}, newObj);
+				comp.menuParentId = auxl[newObj].layer.all.parent.core.core.id;
 			} else {
-				if(auxl[newObj].SpawnCore){
-					comp.avatarType = 'core';
-					comp.menuParentId = auxl[newObj].core.id;
-				} else if(auxl[newObj].SpawnLayer){
-					comp.avatarType = 'layer';
-					comp.menuParentId = auxl[newObj].layer.all.parent.core.core.id;
-				} else {
-					console.log(newObj);
-					console.log('failed to detect type');
-				}
-				comp.avatar = Object.assign({}, auxl[newObj]);
+				console.log(newObj);
+				console.log('failed to detect type');
 			}
+			comp.avatar = Object.assign({}, auxl[newObj]);
 			auxl.compNPC = auxl.NPC('compNPC', comp.avatar, auxl.compBookData, auxl.compBubbleLayer, true);
 			if(respawn){
 				SpawnComp();
@@ -5384,6 +5350,7 @@ console.log(comp.shapes)
 	}
 	//Update Main Menu
 	const UpdateMainMenu = (updates) => {
+		//Building New Menu Resets any Temp things like UpdateSubMenu
 		let restart = false;
 		if(auxl.mainMenu.inScene){
 			auxl.mainMenu.DespawnMultiMenu();
@@ -5398,6 +5365,7 @@ console.log(comp.shapes)
 		});
 		auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
 		UpdateInventoryMenu();
+		BuildAvatarMenu();
 		if(restart){
 			auxl.mainMenu.SpawnMultiMenu();
 		}
@@ -5412,6 +5380,7 @@ console.log(comp.shapes)
 		comp.mainMenuData.info.buttonData = core;
 		auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
 		UpdateInventoryMenu();
+		BuildAvatarMenu();
 		if(restart){
 			auxl.mainMenu.SpawnMultiMenu();
 		}
@@ -5624,7 +5593,7 @@ console.log(comp.shapes)
 		UpdateInventoryMenuCategory('specials');
 	}
 
-	return{comp, TestFunc, UpdateShape, SpawnComp, DespawnComp, SetFlag, GetFlag, UpdatePosition, ToggleControlView, UpdateMainMenu, UpdateMainMenuStyle, EnableInventory, AddToInventory, ClearInventoryNotifications, RemoveFromInventory, CheckInventory, CheckForKey, UpdateInventoryMenu};
+	return{comp, TestFunc, AddAvatar, UpdateShape, SpawnComp, DespawnComp, SetFlag, GetFlag, UpdatePosition, ToggleControlView, UpdateMainMenu, UpdateMainMenuStyle, EnableInventory, AddToInventory, ClearInventoryNotifications, RemoveFromInventory, CheckInventory, CheckForKey, UpdateInventoryMenu};
 }
 
 },

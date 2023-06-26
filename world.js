@@ -1032,6 +1032,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		if(core.displayBasicTravelMenu){
 			MoveSpawnMenu();
 		}
+		auxl.player.UnlockLocomotion();
 	}
 	//Exit & Clear NodeScene
 	const ClearScene = () => {
@@ -1132,6 +1133,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	}
 	//Move Scenes
 	const Move = (connect) => {
+		auxl.player.LockLocomotion();
 		newNode = core.map[core.currentNode][connect];
 		//Check for Lock & Keys
 		if(newNode.locked && !auxl.comp.CheckForKey(newNode.keyId)){

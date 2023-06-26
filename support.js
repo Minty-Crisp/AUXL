@@ -5394,60 +5394,79 @@ updateAction: function (actionObj){
 		let actionFunc;
 		let actionParams;
 		let actionCommand;
+		let htmlDisplay;
 		if(action === 'altDown'){
 			actionFunc = 'altDownFunc';
 			actionParams = 'altDownParams';
+			htmlDisplay = 'center';
 		} else if(action === 'altUp'){
 			actionFunc = 'altUpFunc';
 			actionParams = 'altUpParams';
+			htmlDisplay = 'center';
 		} else if(action === 'action1Down'){
 			actionFunc = 'action1DownFunc';
 			actionParams = 'action1DownParams';
+			htmlDisplay = 'a';
 		} else if(action === 'action1Up'){
 			actionFunc = 'action1UpFunc';
 			actionParams = 'action1UpParams';
+			htmlDisplay = 'a';
 		} else if(action === 'action2Down'){
 			actionFunc = 'action2DownFunc';
 			actionParams = 'action2DownParams';
+			htmlDisplay = 'b';
 		} else if(action === 'action2Up'){
 			actionFunc = 'action2UpFunc';
 			actionParams = 'action2UpParams';
+			htmlDisplay = 'b';
 		} else if(action === 'action3Down'){
 			actionFunc = 'action3DownFunc';
 			actionParams = 'action3DownParams';
+			htmlDisplay = 'c';
 		} else if(action === 'action3Up'){
 			actionFunc = 'action3UpFunc';
 			actionParams = 'action3UpParams';
+			htmlDisplay = 'c';
 		} else if(action === 'action4Down'){
 			actionFunc = 'action4DownFunc';
 			actionParams = 'action4DownParams';
+			htmlDisplay = 'd';
 		} else if(action === 'action4Up'){
 			actionFunc = 'action4UpFunc';
 			actionParams = 'action4UpParams';
+			htmlDisplay = 'd';
 		} else if(action === 'action5Down'){
 			actionFunc = 'action5DownFunc';
 			actionParams = 'action5DownParams';
+			htmlDisplay = 'e';
 		} else if(action === 'action5Up'){
 			actionFunc = 'action5UpFunc';
 			actionParams = 'action5UpParams';
+			htmlDisplay = 'e';
 		} else if(action === 'action6Down'){
 			actionFunc = 'action6DownFunc';
 			actionParams = 'action6DownParams';
+			htmlDisplay = 'f';
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
 			actionParams = 'action6UpParams';
+			htmlDisplay = 'f';
 		} else if(action === 'action7Down'){
 			actionFunc = 'action7DownFunc';
 			actionParams = 'action7DownParams';
+			htmlDisplay = 'l';
 		} else if(action === 'action7Up'){
 			actionFunc = 'action7UpFunc';
 			actionParams = 'action7UpParams';
+			htmlDisplay = 'l';
 		} else if(action === 'action8Down'){
 			actionFunc = 'action8DownFunc';
 			actionParams = 'action8DownParams';
+			htmlDisplay = 'r';
 		} else if(action === 'action8Up'){
 			actionFunc = 'action8UpFunc';
 			actionParams = 'action8UpParams';
+			htmlDisplay = 'r';
 		} else {
 			console.log('Failed to identify action')
 			return;
@@ -5480,6 +5499,8 @@ this[actionFunc] = document.getElementById(auxlObj).components[component][func].
 				//this.auxl.controlsInfo[action] = {name: actionObj[action].name, info: actionObj[action].info};
 				this.auxl.controlsInfo[action] = {name: actionObj[action].name, info: actionObj[action].info};
 			}
+			//Display Mobile HTML
+			this.auxl.ToggleHTML(htmlDisplay, true);
 		} else {
 			this[actionFunc] = false;
 			this[actionParams] = false;
@@ -5494,60 +5515,79 @@ disableAction: function (actionObj){
 		//console.log(actionObj[action]);//params
 		let actionFunc;
 		let actionParams;
+		let htmlDisplay;
 		if(action === 'altDown'){
 			actionFunc = 'altDownFunc';
 			actionParams = 'altDownParams';
+			htmlDisplay = 'center';
 		} else if(action === 'altUp'){
 			actionFunc = 'altUpFunc';
 			actionParams = 'altUpParams';
+			htmlDisplay = 'center';
 		} else if(action === 'action1Down'){
 			actionFunc = 'action1DownFunc';
 			actionParams = 'action1DownParams';
+			htmlDisplay = 'a';
 		} else if(action === 'action1Up'){
 			actionFunc = 'action1UpFunc';
 			actionParams = 'action1UpParams';
+			htmlDisplay = 'a';
 		} else if(action === 'action2Down'){
 			actionFunc = 'action2DownFunc';
 			actionParams = 'action2DownParams';
+			htmlDisplay = 'b';
 		} else if(action === 'action2Up'){
 			actionFunc = 'action2UpFunc';
 			actionParams = 'action2UpParams';
+			htmlDisplay = 'b';
 		} else if(action === 'action3Down'){
 			actionFunc = 'action3DownFunc';
 			actionParams = 'action3DownParams';
+			htmlDisplay = 'c';
 		} else if(action === 'action3Up'){
 			actionFunc = 'action3UpFunc';
 			actionParams = 'action3UpParams';
+			htmlDisplay = 'c';
 		} else if(action === 'action4Down'){
 			actionFunc = 'action4DownFunc';
 			actionParams = 'action4DownParams';
+			htmlDisplay = 'd';
 		} else if(action === 'action4Up'){
 			actionFunc = 'action4UpFunc';
 			actionParams = 'action4UpParams';
+			htmlDisplay = 'd';
 		} else if(action === 'action5Down'){
 			actionFunc = 'action5DownFunc';
 			actionParams = 'action5DownParams';
+			htmlDisplay = 'e';
 		} else if(action === 'action5Up'){
 			actionFunc = 'action5UpFunc';
 			actionParams = 'action5UpParams';
+			htmlDisplay = 'e';
 		} else if(action === 'action6Down'){
 			actionFunc = 'action6DownFunc';
 			actionParams = 'action6DownParams';
+			htmlDisplay = 'f';
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
 			actionParams = 'action6UpParams';
+			htmlDisplay = 'f';
 		} else if(action === 'action7Down'){
 			actionFunc = 'action7DownFunc';
 			actionParams = 'action7DownParams';
+			htmlDisplay = 'l';
 		} else if(action === 'action7Up'){
 			actionFunc = 'action7UpFunc';
 			actionParams = 'action7UpParams';
+			htmlDisplay = 'l';
 		} else if(action === 'action8Down'){
 			actionFunc = 'action8DownFunc';
 			actionParams = 'action8DownParams';
+			htmlDisplay = 'r';
 		} else if(action === 'action8Up'){
 			actionFunc = 'action8UpFunc';
 			actionParams = 'action8UpParams';
+			htmlDisplay = 'r';
 		} else {
 			console.log('Failed to identify action')
 			console.log(action)
@@ -5558,6 +5598,8 @@ disableAction: function (actionObj){
 		if(actionObj[action].name){
 			delete this.auxl.controlsInfo[action];
 		}
+		//Display Mobile HTML
+		this.auxl.ToggleHTML(htmlDisplay, false);
 		this[actionFunc] = false;
 		this[actionParams] = false;
 	}
