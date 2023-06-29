@@ -1000,5 +1000,185 @@ auxl.HoverMenu = (hoverMenuData) => {
 
 	return {hoverMenu, SpawnHoverMenu, DespawnHoverMenu, UpdateParent, UpdateSubMenu, ResetMenu, SpawnDescription, DespawnDescription};
 }
+
+//
+//Combo Lock
+//Enter Correct Sequence to Run Func
+auxl.ComboLock = (id, seq, run, position) => {
+
+	let comboLock = {};
+	comboLock.id = id;
+	let layerId = comboLock.id + 'layer';
+	let combo0Id = comboLock.id + 'combo0';
+	let combo1Id = comboLock.id + 'combo1';
+	let combo2Id = comboLock.id + 'combo2';
+	let combo3Id = comboLock.id + 'combo3';
+	let combo4Id = comboLock.id + 'combo4';
+	comboLock.sequence = seq;
+	comboLock.run = run;
+	comboLock.current = 0;
+	comboLock.locked = true;
+	comboLock.lockedTimeout;
+	comboLock.unlockedTimeout;
+	comboLock.position = position || new THREE.Vector3(0,0,0);
+
+	//Combo Parent
+	comboLock.comboParentData = {
+	data:'comboParentData',
+	id:'comboParent',
+	sources: false,
+	text: false,
+	geometry: false,
+	material: false,
+	position: comboLock.position,
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	comboLock.comboParent = auxl.Core(comboLock.comboParentData);
+	//Combo 0
+	comboLock.combo0Data = {
+	data:'combo0Data',
+	id:combo0Id,
+	sources: false,
+	text: false,
+	geometry: {primitive: 'box', depth: 0.1, width: 0.2, height: 0.3},
+	material: {shader: "standard", color: "#e02574", emissive: '#e02574', emissiveIntensity: 0.25, opacity: 1},
+	position: new THREE.Vector3(-0.4,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations:{
+		click: {property: 'material.emissiveIntensity', from: '0.25', to: '1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+		locked: {property: 'material.emissiveIntensity', from: '0.25', to: '1', dur: 250, delay: 0, loop: false, dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'locked'},
+		locked2: {property: 'material.emissiveIntensity', from: '1', to: '0.25', dur: 250, delay: 1750, loop: false, dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'locked'},
+		unlocked: {property: 'material.emissiveIntensity', from: '0.25', to: '1', dur: 250, delay: 0, loop: '8', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'unlocked'},
+	},
+	mixins: false,
+	classes: ['clickable','a-ent'],
+	components: {
+		clickrun:{
+			cursorObj: comboLock.id,
+			component: 'null',
+			method: 'KeyClick',
+			params: '0',
+		},
+	},
+	};
+	comboLock[combo0Id] = auxl.Core(comboLock.combo0Data);
+	//Combo 1
+	comboLock.combo1Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo1Id, position: new THREE.Vector3(-0.2,0,0), material: {shader: "standard", color: "#66e025", emissive: '#66e025', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '1',},},}, true);
+	comboLock[combo1Id] = auxl.Core(comboLock.combo1Data);
+	//Combo 2
+	comboLock.combo2Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo2Id, position: new THREE.Vector3(0,0,0), material: {shader: "standard", color: "#256de0", emissive: '#256de0', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '2',},},}, true);
+	comboLock[combo2Id] = auxl.Core(comboLock.combo2Data);
+	//Combo 3
+	comboLock.combo3Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo3Id, position: new THREE.Vector3(0.2,0,0), material: {shader: "standard", color: "#e0e025", emissive: '#e0e025', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '3',},},}, true);
+	comboLock[combo3Id] = auxl.Core(comboLock.combo3Data);
+	//Combo 4
+	comboLock.combo4Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo4Id, position: new THREE.Vector3(0.4,0,0), material: {shader: "standard", color: "#e09825", emissive: '#e09825', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '4',},},}, true);
+	comboLock[combo4Id] = auxl.Core(comboLock.combo4Data);
+
+	comboLock.comboAll = {
+		parent: {core: comboLock.comboParent}, 
+		child0: {core: comboLock[combo0Id]}, 
+		child1: {core: comboLock[combo1Id]},
+		child2: {core: comboLock[combo2Id]},
+		child3: {core: comboLock[combo3Id]},
+		child4: {core: comboLock[combo4Id]},
+	}
+	comboLock[layerId] = auxl.Layer(layerId,comboLock.comboAll);
+
+
+	//Key Click
+	const KeyClick = (key) => {
+		console.log('Key Click');
+		console.log(key);
+		if(comboLock.locked){
+			CheckSeq(key);
+		}
+	}
+	//Check Sequence
+	const CheckSeq = (key) => {
+		if(key === comboLock.sequence[comboLock.current]){
+//console.log('Correct Key');
+			comboLock.current++;
+			if(comboLock.current >= comboLock.sequence.length){
+//console.log('Code Correct');
+				Unlock();
+			}
+		} else {
+//console.log('Incorrect Key. Reset.');
+			comboLock.current = 0;
+			LockedAnim();
+			ToggleClick();
+			comboLock.unlockedTimeout = setTimeout(() => {
+				ToggleClick();
+				clearTimeout(comboLock.unlockedTimeout)
+			}, 2000);
+		}
+	}
+	//Run
+	const Run = () => {
+		if(comboLock.run.component && comboLock.run.component !== 'null'){
+			let domEnt = document.getElementById(comboLock.run.cursorObj);
+			domEnt.components[comboLock.run.component][comboLock.run.method](comboLock.run.params);
+
+		} else {
+			auxl[comboLock.run.cursorObj][comboLock.run.method](comboLock.run.params);
+		}
+	}
+	//Unlock
+	const Unlock = () => {
+//console.log('Unlocked');
+		comboLock.locked = false;
+		UnlockAnim();
+		ToggleClick();
+		comboLock.unlockedTimeout = setTimeout(() => {
+			Run();
+			ToggleClick();
+			DespawnComboLock();
+			clearTimeout(comboLock.lockedTimeout)
+		}, 2250);
+	}
+	//Unlock Anim
+	const UnlockAnim = () => {
+		comboLock[layerId].EmitEventAll('unlocked');
+	}
+	//Locked Anim
+	const LockedAnim = () => {
+		comboLock[layerId].EmitEventAll('locked');
+	}
+	//Toggle Clickable
+	const ToggleClick = () => {
+		comboLock[layerId].GetAllChildEl().forEach(each => each.classList.toggle('clickable'))
+	}
+	//Update Sequence
+	const NewSequence = (newSeq) => {
+		clearTimeout(comboLock.lockedTimeout)
+		clearTimeout(comboLock.unlockedTimeout)
+		comboLock.locked = true;
+		comboLock.current = 0;
+		comboLock.sequence = newSeq;
+	}
+
+	//Spawn Combo Lock
+	const SpawnComboLock = () => {
+		comboLock.locked = true;
+		comboLock[layerId].SpawnLayer();
+	}
+	//Despawn Combo Lock
+	const DespawnComboLock = () => {
+		clearTimeout(comboLock.lockedTimeout)
+		clearTimeout(comboLock.unlockedTimeout)
+		comboLock[layerId].DespawnLayer();
+	}
+
+	return {comboLock, SpawnComboLock, DespawnComboLock, KeyClick, NewSequence};
+
+}
+
 },
 });

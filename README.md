@@ -154,6 +154,11 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - EdgeUpdate now accepts a new material to be used on Edges
 - Added companion UpdateMainMenu method to dynamically update the Main Menu and added to World Info via menuOption
 - Added companion UpdateMainMenuStyle method to dynamically update the Main Menu style and added to World Info via menuStyle
+- Mobile HTML UI will be hidden unless actions are assigned to them
+- Player movement is locked until world is loaded, locked when scene is changes and unlocked when scene is loaded
+- Add custom Avatar Core/Layers to Settings menu via auxl.comp.AddAvatar('Display Name','auxlObjectName');
+- VR Controller UI turned off by default and is toggleable via player method.
+- Color Lock Combination ObjGen. Generate a lock and combonation to run an AUXL Obj Method on correct input.
 
 # v0.3 Currently In-Progress Updates : :cherries:
 - Grid Enhancements & Features
