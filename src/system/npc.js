@@ -12,17 +12,11 @@
 //NPC
 //InfoBubble
 //Creature
-//
-AFRAME.registerComponent('npc', {
-dependencies: ['auxl'],
-init: function () {
-//AUXL System Connection
-const auxl = document.querySelector('a-scene').systems.auxl;
 
 //
 //Story Book
 //Linear, Tree, Quests, Jump, Menu, Conditionals, Flags...
-auxl.Book = (bookData, npc) => {
+const Book = (auxl, bookData, npc) => {
 	let progress = 0;
 	let currentPage = 0;
 	let currentPageIdle = 0;
@@ -228,6 +222,8 @@ auxl.Book = (bookData, npc) => {
 	}
 	//Init Book
 	const Init = () => {
+		//Jump to 1st Line
+		book.done = book.next().done;
 		book.done = book.next().done;
 		npc.loadingTimeline = false;
 	}
@@ -379,7 +375,7 @@ auxl.Book = (bookData, npc) => {
 //
 //Speech System
 //Speaking Textbubble
-auxl.SpeechSystem = (core, npc, fixed) => {
+const SpeechSystem = (auxl, core, npc, fixed) => {
 	core.on = false;
 	core.speaking = false;
 	core.blinking = false;
@@ -523,7 +519,8 @@ auxl.SpeechSystem = (core, npc, fixed) => {
 		let currText = startText;
 		let currChar = 0;
 		if(core.type === 'core'){
-			core.GetEl().setAttribute('text',{value: currText});
+			//Scene text which uses a Core to display has an issue with re-using core.dom, so a forced refresh is needed with GetEl(true)
+			core.GetEl(true).setAttribute('text',{value: currText});
 		} else {
 			core.GetParentEl().setAttribute('text',{value: currText});
 		}
@@ -641,7 +638,7 @@ auxl.SpeechSystem = (core, npc, fixed) => {
 //
 //NPC
 //Core Object w/ Book|Pages & Textbubble
-auxl.NPC = (id, object, bookData, textDisplay, special) => {
+const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 	let npc = {};
 	npc.avatar = Object.assign({}, object);
 	npc.avatarType;
@@ -913,7 +910,7 @@ auxl.NPC = (id, object, bookData, textDisplay, special) => {
 		ClearBookSpawn();
 		book = auxl.Book(bookData, npc);
 		book.Init()
-		book.Next()
+		//book.Next()
 	}
 	//Reset NPC Book
 	const ResetBookRandom = (force, timeline) => {
@@ -1157,7 +1154,7 @@ return {npc, GetAllNPCEl, GetMainNPCEl, AddNPCEventsAll, RemoveNPCEventsAll, Spa
 //
 //Info Bubble
 //Display an Emote or Alert Bubble
-auxl.InfoBubble = (id, object, offset, color) => {
+const InfoBubble = (auxl, id, object, offset, color) => {
 	//Not in Tracker as it is controlled via component
 	//Set up for Core parent only at the moment
 	let infoBubble = {};
@@ -1563,7 +1560,7 @@ return {infoBubble, AddEmotes, RemoveEmotes, NewBubble};
 //
 //CreatureGen
 //Generate a creature object
-auxl.Creature = (id, attach, customizations) => {
+const Creature = (auxl, id, attach, customizations) => {
 
 //No longer will this be an creature, but a creature generator
 //Weave in the ghost body and allow for legs/arms to be added
@@ -2622,5 +2619,7 @@ const Shy = () => {
 return {creature, SpawnCreature, DespawnCreature, Emote};
 
 }
-},
-});
+
+//
+//Export
+export {Book, SpeechSystem, NPC, InfoBubble, Creature};

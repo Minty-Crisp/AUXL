@@ -12,17 +12,11 @@
 //ObjsGenRing
 //MultiAssetGen
 //Teleport
-//
-AFRAME.registerComponent('environment', {
-dependencies: ['auxl'],
-init: function () {
-//AUXL System Connection
-const auxl = document.querySelector('a-scene').systems.auxl;
 
 //
 //SkyBox
 //Lights, Sky, Space
-auxl.SkyBox = (skyBoxData) => {
+const SkyBox = (auxl, skyBoxData) => {
 	let skyBox = Object.assign({}, skyBoxData);
 	skyBox.inScene = false;
 	skyBox.time = 5.5;
@@ -251,11 +245,14 @@ auxl.SkyBox = (skyBoxData) => {
 
 		//Set Sun
 		let sunRotX = (skyBox.time * 15) -90;
-		auxl.sunLayer.GetChild('sunOuter').ChangeSelf({property: 'rotation', value: new THREE.Vector3(sunRotX,45,0)});
-
+		if(auxl.sunLayer.layer.inScene){
+			auxl.sunLayer.GetChild('sunOuter').ChangeSelf({property: 'rotation', value: new THREE.Vector3(sunRotX,45,0)});
+		}
 		//Set Moon
 		let moonRotX = (skyBox.time * 15) + 90;
-		auxl.moonLayer.GetChild('moonOuter').ChangeSelf({property: 'rotation', value: new THREE.Vector3(moonRotX,45,0)});
+		if(auxl.moonLayer.layer.inScene){
+			auxl.moonLayer.GetChild('moonOuter').ChangeSelf({property: 'rotation', value: new THREE.Vector3(moonRotX,45,0)});
+		}
 		//ResumeDayNight();
 
 
@@ -303,7 +300,7 @@ from: new THREE.Vector3(1,1,-1), to: new THREE.Vector3(-1,1,-1)
 //
 //Horizon
 //Mountains, Hills, Buildings, Cylinder/Square Wall
-auxl.Horizon = (horizonData) => {
+const Horizon = (auxl, horizonData) => {
 	let horizon = Object.assign({}, horizonData);
 	horizon.inScene = false;
 
@@ -571,7 +568,7 @@ auxl.Horizon = (horizonData) => {
 //
 //Ring of Objects
 //Randomize Set of Objects from Single in a Ring Radius
-auxl.ObjsGenRing = (objRingData) => {
+const ObjsGenRing = (auxl, objRingData) => {
 	let singleGen = Object.assign({}, objRingData);
 	singleGen.inScene = false;
 	let ogData = Object.assign({}, objRingData.objData);
@@ -738,7 +735,7 @@ auxl.ObjsGenRing = (objRingData) => {
 //
 //Multi Asset Generator
 //Randomize Sets of Various Sized Objects in various Ring Radius'
-auxl.MultiAssetGen = (multiGenData) =>{
+const MultiAssetGen = (auxl, multiGenData) => {
 //Add the ability to read an array of different objects for same size
 //Need to better optimize each size's radius
 	let multiGen = Object.assign({}, multiGenData);
@@ -1196,7 +1193,7 @@ if(a === 0){
 //
 //Teleport
 //Generate Teleport Points at Array of Locations
-auxl.Teleport = (id, locations) => {
+const Teleport = (auxl, id, locations) => {
 //Allow to select mutli-interactino circle, light beam and more.
 	let teleport = {};
 	teleport.id = id;
@@ -1291,5 +1288,6 @@ auxl.Teleport = (id, locations) => {
 	return {teleport, SpawnTeleport, DespawnTeleport, ToggleSpawn, SetFlag, GetFlag,};
 }
 
-},
-});
+//
+//Export
+export {SkyBox, Horizon, ObjsGenRing, MultiAssetGen, Teleport};

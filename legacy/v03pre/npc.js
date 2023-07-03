@@ -19,7 +19,6 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
-
 //
 //Story Book
 //Linear, Tree, Quests, Jump, Menu, Conditionals, Flags...
@@ -677,6 +676,7 @@ auxl.NPC = (id, object, bookData, textDisplay, special) => {
 	if(bookData.idle){
 		npc.idleSpeech = true;
 	}
+	let spawnTimeout;
 	let idleTimeout;
 	let idleDelayTime = bookData.info.idleDelay || 7000;
 	let idleInterval;
@@ -759,11 +759,15 @@ auxl.NPC = (id, object, bookData, textDisplay, special) => {
 			} else {
 				npc.avatar.SpawnLayer(spawnParent);
 			}
-			if(npc.special){
-				AddNPCEventsChildren('mouseenter', EnableSpeech);
-			} else {
-				AddNPCEventsAll('mouseenter', EnableSpeech);
-			}
+			//Spawn Timeout fix for Companion if spawned at mouse location
+			spawnTimeout = setTimeout(() => {
+				if(npc.special){
+					AddNPCEventsChildren('mouseenter', EnableSpeech);
+				} else {
+					AddNPCEventsAll('mouseenter', EnableSpeech);
+				}
+				clearTimeout(spawnTimeout);
+			}, 25);
 			if(npc.idleSpeech){
 				idleTimeout = setTimeout(() => {
 					EnableIdleSpeech()
@@ -792,6 +796,7 @@ auxl.NPC = (id, object, bookData, textDisplay, special) => {
 				}
 			}
 			ClearBookSpawn();
+			clearTimeout(spawnTimeout);
 			clearTimeout(idleTimeout);
 			DisableSpeech();
 			DisableIdleSpeech();

@@ -159,6 +159,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Add custom Avatar Core/Layers to Settings menu via auxl.comp.AddAvatar('Display Name','auxlObjectName');
 - VR Controller UI turned off by default and is toggleable via player method.
 - Color Lock Combination ObjGen. Generate a lock and combonation to run an AUXL Obj Method on correct input.
+- Organized all scripts and utilized webpack to export into a single used script.
 
 # v0.3 Currently In-Progress Updates : :cherries:
 - Grid Enhancements & Features

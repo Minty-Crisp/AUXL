@@ -344,10 +344,8 @@ auxl.layerDupeTestCopy0.SpawnLayer();
 */
 
 auxl.layerDataTest = auxl.layerDataFromTemplate(auxl.layerDupeTestData, 'layerTest',{position: new THREE.Vector3(0,3,-12)}, true);
-
 auxl.layerTest = auxl.Layer('layerTest',auxl.layerDataTest);
 auxl.layerTest.SpawnLayer();
-console.log(auxl.layerTest.layer.all)
 
 
 //Collision Spawn Testing
@@ -383,33 +381,35 @@ auxl.collisionTest9 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTes
 
 
 
-auxl.collisionTest10 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest10', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3, y:0, z:-4}, end: {x:3.5, y:1, z:-3.5}, yOffset: 1, collide: true}}, true);
-
-auxl.collisionTest11 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest11', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:5, y:0, z:-4}, end: {x:5.5, y:1, z:-3.5}, yOffset: 1, collide: true}}, true);
 
 
 
 //TriggerTesting 1
 //Trigger In and Out Once Only
-auxl.triggerTest1 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'triggerTest1', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#e6f257", emissive: '#e6f257', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), components: {oneventrun__triggerin:{event: 'triggerEnter', cursorObj: 'comp', component: 'null', method: 'TestFunc', params: 'Trigger In', once: true}, oneventrun__triggerout:{event: 'triggerExit', cursorObj: 'comp', component: 'null', method: 'TestFunc', params: 'Trigger Out', once: true},},grid: {start:{x:5, z:-2}, end: {x:6.5, z:-0.5}, yOffset: 0.5, trigger: true}}, true);
+auxl.triggerTest1 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'triggerTest1', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#e6f257", emissive: '#e6f257', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), animations: {in: {property: 'object3D.scale.y', from: '1', to: '2', dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'in'}, out: {property: 'object3D.scale.y', from: '2', to: '1', dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'out'},}, components: {oneventrun__triggerin:{event: 'triggerEnter', cursorObj: 'triggerTest1', component: 'null', method: 'EmitEvent', params: 'in', once: true}, oneventrun__triggerout:{event: 'triggerExit', cursorObj: 'triggerTest1', component: 'null', method: 'EmitEvent', params: 'out', once: true},},grid: {start:{x:5, z:-2}, end: {x:6.5, z:-0.5}, yOffset: 0.5, trigger: true}}, true);
 
 
 //TriggerTesting 2
 //Trigger In and Out Always
-auxl.triggerTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'triggerTest2', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#f28757", emissive: '#f28757', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), components: {oneventrun__triggerin:{event: 'triggerEnter', cursorObj: 'comp', component: 'null', method: 'TestFunc', params: 'Trigger In',}, oneventrun__triggerout:{event: 'triggerExit', cursorObj: 'comp', component: 'null', method: 'TestFunc', params: 'Trigger Out',},},grid: {start:{x:5, z:6}, yOffset: 0.5, end: {x:6.5, z:7.5}, trigger: true}}, true);
+auxl.triggerTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'triggerTest2', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#f28757", emissive: '#f28757', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), animations: {in: {property: 'object3D.scale.y', from: '1', to: '2', dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'in'}, out: {property: 'object3D.scale.y', from: '2', to: '1', dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'out'},}, components: {oneventrun__triggerin:{event: 'triggerEnter', cursorObj: 'triggerTest2', component: 'null', method: 'EmitEvent', params: 'in',}, oneventrun__triggerout:{event: 'triggerExit', cursorObj: 'triggerTest2', component: 'null', method: 'EmitEvent', params: 'out',},},grid: {start:{x:5, z:6}, yOffset: 0.5, end: {x:6.5, z:7.5}, trigger: true}}, true);
 
 
 //
 //Gates
 
 //Gate 1
-auxl.gate1Base = auxl.coreFromTemplate(auxl.eventTesting,{id: 'gate1Base', geometry: {primitive: 'box', depth: 0.5, width: 1.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a58c", emissive: '#39a58c', emissiveIntensity: 0.25, opacity:0}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3.5, y:0, z:-4}, end: {x:5, y:1, z:-3.5}, yOffset: 1, trigger: true}}, true);
+auxl.gate1Base = auxl.coreFromTemplate(auxl.eventTesting,{id: 'gate1Base', geometry: {primitive: 'box', depth: 0.5, width: 1.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a58c", emissive: '#39a58c', emissiveIntensity: 0.25, opacity:0}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3.5, y:0, z:-8}, end: {x:5, y:1, z:-7.5}, yOffset: 1, trigger: true}}, true);
 
 auxl.gate1 = auxl.Gate('gate1', auxl.gate1Base, 'forward');
 
+//Gate Poles
+auxl.collisionTest10 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest10', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3, y:0, z:-8}, end: {x:3.5, y:1, z:-7.5}, yOffset: 1, collide: true}}, true);
+
+auxl.collisionTest11 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest11', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:5, y:0, z:-8}, end: {x:5.5, y:1, z:-7.5}, yOffset: 1, collide: true}}, true);
+
 
 //Collision Layer
-auxl.layerFromTemplate(auxl.ghost, 'ghostCollision', {position: new THREE.Vector3(0,0,0)},{grid: {start:{x:3, y:0, z:-5}, end: {x:4, y:0, z:-4}, yOffset: 1.5, collide: true}});
+auxl.ghostCollision = auxl.layerFromTemplate(auxl.ghost, 'ghostCollision', {position: new THREE.Vector3(0,0,0)},{grid: {start:{x:3, y:0, z:-5}, end: {x:4, y:0, z:-4}, yOffset: 1.5, collide: true}}, true);
 
 auxl.ghostCollision.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'anim', path:[{z:-2,x:2,}, {z:2,x:-2,},]});
 
@@ -1976,7 +1976,7 @@ components: {
 };
 auxl.doorway2 = auxl.Core(auxl.doorway2Data);
 
-
+//Hover Menu Test
 auxl.testHoverMenuData = {
 info:{
 	id: 'testHoverMenu',
@@ -2197,13 +2197,18 @@ components: false,
 };
 
 
+//Combo Lock Test
 auxl.testUnlock = {
 	cursorObj: 'player',
 	component: 'null',
 	method: 'TestFunc',
 	params: 'Unlock Run',
 };
-auxl.testLock = auxl.ComboLock('testLock', ['0','1','2','3','4'], auxl.testUnlock, new THREE.Vector3(0,1.5,-2));
+auxl.testLock = auxl.ComboLock('testLock', ['0','1','2','3','4'], auxl.testUnlock, new THREE.Vector3(3,1.5,-2.5));
+
+//Scroll Menu Test
+auxl.testScroll = auxl.ScrollMenu('testScroll');
+
 
 
 //Build Scene Library Objects
@@ -2261,9 +2266,7 @@ auxl.keyGiverBubbleParent = auxl.Core(auxl.keyGiverBubbleParentData);
 auxl.keyGiverBubbleClose = auxl.Core(auxl.keyGiverBubbleCloseData);
 auxl.keyGiverBubbleReset = auxl.Core(auxl.keyGiverBubbleResetData);
 auxl.keyGiverBubbleLayer = auxl.Layer('keyGiverBubbleLayer',auxl.keyGiverBubbleLayerData);
-auxl.npcKeyGiver = auxl.NPC('npcKeyGiver', auxl.npcKeyBody, auxl.npcKeyBookData, auxl.keyGiverBubbleLayer);
-//auxl.npcKeyBubble = auxl.Core(auxl.npcKeyBubbleData);
-//auxl.npcKeyGiver = auxl.NPC('npcKeyGiver', auxl.npcKeyBody, auxl.npcKeyBookData, auxl.npcKeyBubble);
+auxl.npcKeyGiver = auxl.NPC('npcKeyGiver', auxl.npcKeyRig, auxl.npcKeyBookData, auxl.keyGiverBubbleLayer, true);
 //Minty
 auxl.npcMintyTextBubble = auxl.Core(auxl.npcMintyTextBubbleData);
 auxl.npcMintyCore = auxl.Core(auxl.npcMintyData);
@@ -2316,7 +2319,6 @@ auxl.zone0Data = {
 	start:{
 		switchCube:{SpawnCore:null},
 		cubeCore:{SpawnCore:null},
-		//faceTest:{SpawnLayerOnGrid:{start:{x:0, z:-4}, end: {x:0, z:-4}, collide: true},},
 		creatureTesting1:{SpawnCreature:null},
 		creatureTesting2:{SpawnCreature:null},
 	},
@@ -2370,7 +2372,7 @@ auxl.zone0Scene0Data = {
 			size: 64,
 			height: {top: 10, bottom: 4},
 			edge: true,
-			spawnEdge: false,
+			spawnEdge: true,
 			edgeUpdate: false,
 		},
 		spawnPos:{x:0,y:0,z:1},
@@ -2399,10 +2401,10 @@ auxl.zone0Scene0Data = {
 		collisionTest10:{SpawnCoreOnGrid:null},
 		collisionTest11:{SpawnCoreOnGrid:null},
 		gate1:{SpawnGate:null},
-		//triggerTest1:{SpawnCoreOnGrid:null},
-		//triggerTest2:{SpawnCoreOnGrid:null},
+		triggerTest1:{SpawnCoreOnGrid:null},
+		triggerTest2:{SpawnCoreOnGrid:null},
 		//ghostCollision:{SpawnLayerOnGrid:null, WalkPath: null},
-		//testGrid2:{SpawnGridLayout:'grid1'},
+		testGrid2:{SpawnGridLayout:'grid1'},
 	},
 	delay:{
 		3000:{
@@ -2576,6 +2578,7 @@ auxl.zone1Scene0Data = {
 		testGrid2:{SpawnGridLayout:'grid2'},
 		//build:{SpawnBuild:null},
 		testLock:{SpawnComboLock:null},
+		testScroll:{SpawnScrollMenu:null},
 	},
 	delay:{
 	},
@@ -2627,8 +2630,8 @@ auxl.v03TestingScenarioData = {
 		},
 	},
 	controls:{
+		action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
 		action2Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
-		action3Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
 		action4Down:{auxlObj: 'testHoverMenu', func: 'SpawnHoverMenu', name: 'Quick Menu', info: 'Spawn Quick Menu', params: 'true'},
 		action4Up:{auxlObj: 'testHoverMenu', func: 'DespawnHoverMenu', name: 'Quick Menu', info: 'Despawn Quick Menu'},
 		action5Down:{auxlObj: 'player', func: 'ToggleCrouch', name: 'Toggle Crouch/Stand', info: 'Change your position speed between crouch and standing.'},
@@ -2638,7 +2641,6 @@ auxl.v03TestingScenarioData = {
 	start:{
 		skyBox0:{SpawnSkyBox: null},
 		comp:{SpawnComp: null, AddToInventory:{item:[ auxl.testItem1, auxl.testItem2, auxl.flashlightTool, auxl.testTool1, auxl.testTool2, auxl.testKey1, auxl.testKey2, auxl.testKey3, auxl.testKey4, auxl.testKey5, auxl.testKey6, auxl.testKey7, auxl.testKey8, auxl.testKey9, auxl.testSpecial1, auxl.testSpecial2,], hide: true}},
-		//comp:{SpawnComp: null, AddToInventory:{item:[ auxl.testItem1, auxl.testItem2,], hide: true}},
 		floor:{SpawnCore: null},
 		clouds:{SpawnLayer: null},
 	},

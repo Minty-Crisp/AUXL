@@ -9,17 +9,14 @@
 //
 //Menu
 //MultiMenu
-//
-AFRAME.registerComponent('menu', {
-dependencies: ['auxl'],
-init: function () {
-//AUXL System Connection
-const auxl = document.querySelector('a-scene').systems.auxl;
+//HoverMenu
+//ComboLock
+//ScrollMenu
 
 //
 //Menu
 //Single Menu | Vertical/Horizontal
-auxl.Menu = (menuData) => {
+const Menu = (auxl, menuData) => {
 	let menu = {};
 	menu.inScene = false;
 	menu.data = Object.assign({}, menuData.data);
@@ -38,7 +35,7 @@ auxl.Menu = (menuData) => {
 	menu.clickrun = {};
 	menu.clickrun.cursorObj = menuData.cursorObj || false;
 	menu.clickrun.method = menuData.method || 'Click';
-	menu.clickrun.params = menuData.params || 'null';
+	menu.clickrun.params = menuData.params || 'target';
 	//Menu Style
 	menu.layout = menuData.layout;
 	//Default Start Position
@@ -108,30 +105,6 @@ auxl.Menu = (menuData) => {
 			menu.inScene = false;
 		}
 	}
-	//Set Flag & Value to Object - Single or Array
-	const SetFlag = (flagValue) => {
-		if(Array.isArray(flagValue)){
-			for(let each in flagValue){
-				menu[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: menu.id, type: 'menu', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
-			}
-		} else {
-			menu[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: menu.id, type: 'menu', sub: false, name: flagValue.flag, data: flagValue.value});
-		}
-	}
-	//Retreive Flag Value from Object - Single or Array
-	const GetFlag = (flag) => {
-		if(Array.isArray(flag)){
-			let flagArray = [];
-			for(let each in flag){
-				flagArray.push(menu(flag[each]));
-			}
-			return flagArray;
-		} else {
-			return menu[flag];
-		}
-	}
 	//Attach Menu to Tracker matching object generator 
 	const AddToParentSpawnTracker = (obj, parent) => {
 		if(auxl.scenarioSpawned[parent.id]){
@@ -157,13 +130,13 @@ auxl.Menu = (menuData) => {
 		}
 	}
 
-	return {menu, SpawnMenu, DespawnMenu, SetFlag, GetFlag, AddToParentSpawnTracker, RemoveMenuFromSceneTracker};
+	return {menu, SpawnMenu, DespawnMenu, AddToParentSpawnTracker, RemoveMenuFromSceneTracker};
 }
 
 //
 //MultiMenu
 //Multi Sub Menus | Circle/Vertical/Horizontal
-auxl.MultiMenu = (multiMenuData) => {
+const MultiMenu = (auxl, multiMenuData) => {
 	let multiMenu = {};
 	multiMenu.data = Object.assign({}, multiMenuData);
 	multiMenu.inScene = false;
@@ -207,11 +180,7 @@ auxl.MultiMenu = (multiMenuData) => {
 		classes: ['a-ent'],
 		components: false,
 	};
-/*
-	if(multiMenu.stare){
-		multiMenu.nullParentData.components['look-at-xyz'] = {match: multiMenu.stare.id, x: multiMenu.stare.x, y: multiMenu.stare.y, z: multiMenu.stare.z}
-	}
-*/
+
 	if(multiMenu.stare){
 		multiMenu.nullParentData.components['stare'] = {id: multiMenu.stare.id, twist: multiMenu.stare.twist,}
 	}
@@ -579,11 +548,6 @@ auxl.MultiMenu = (multiMenuData) => {
 	const DespawnMultiMenu = () => {
 		if(multiMenu.inScene){
 			ResetMenu(true);
-/*
-			multiMenu.menuLayer.GetChildEl('null0').removeEventListener('click',ToggleMenu);
-			multiMenu.menuLayer.DespawnLayer();
-			multiMenu.inScene = false;
-*/
 			let resetTimeout = setTimeout(() => {
 				multiMenu.menuLayer.GetChildEl(multiMenu.id+'null0').removeEventListener('click',ToggleMenu);
 				multiMenu.menuLayer.DespawnLayer();
@@ -617,10 +581,9 @@ auxl.MultiMenu = (multiMenuData) => {
 	return {multiMenu, SpawnMultiMenu, DespawnMultiMenu, ToggleMenu, UpdateParent, UpdateButtons, UpdateSubMenu, SubMenu, ResetMenu, SpawnDescription, DespawnDescription};
 }
 
-//
 //Quick Hover Menu :
 //Hold down button to spawn circle menu, hover on option and let go of button. Active hover selection on button up happens and menu closes
-auxl.HoverMenu = (hoverMenuData) => {
+const HoverMenu = (auxl, hoverMenuData) => {
 	let hoverMenu = {};
 	hoverMenu.data = Object.assign({}, hoverMenuData);
 	hoverMenu.inScene = false;
@@ -795,7 +758,7 @@ auxl.HoverMenu = (hoverMenuData) => {
 		position.copy(auxl.camera.GetEl().object3D.position).add(new THREE.Vector3(direction.x, direction.y, direction.z).normalize().multiplyScalar(hoverMenu.posOffset.z));
 		return position;
 	}
-
+	//Run AUXL Method
 	function run(action){
 		if(!action.component || action.component === 'null'){
 			if(auxl[action.auxlObj][action.method]){
@@ -817,7 +780,6 @@ auxl.HoverMenu = (hoverMenuData) => {
 			}
 		}
 	}
-
 	//Spawn Menu
 	const SpawnHoverMenu = () => {
 		if(hoverMenu.inScene){}else{
@@ -828,14 +790,14 @@ auxl.HoverMenu = (hoverMenuData) => {
 			hoverMenu.inScene = true;
 		}
 	}
-
+	//Update Parent
 	const UpdateParent = (parent) => {
 		let newParent = parent || false;
 		if(hoverMenu.inScene){}else{
 			hoverMenu.parent = newParent;
 		}
 	}
-
+	//Update Sub Menu
 	const UpdateSubMenu = (menu,buttons) => {
 		if(hoverMenu.currentMenu === menu){}else{
 			//Purge and Rebuild SubMenu
@@ -943,7 +905,7 @@ auxl.HoverMenu = (hoverMenuData) => {
 			clearTimeout(hoverMenu.switchingTimeout);
 		}, despawnDelay*2);
 	}
-
+	//Reset Menu
 	const ResetMenu = (instant) => {
 		let despawnDelay;
 		if(instant){
@@ -960,7 +922,7 @@ auxl.HoverMenu = (hoverMenuData) => {
 			}
 		}
 	}
-
+	//Despawn Menu
 	const DespawnHoverMenu = () => {
 		if(hoverMenu.inScene){
 			//check which one is hovering if any to activate
@@ -978,7 +940,7 @@ auxl.HoverMenu = (hoverMenuData) => {
 
 		}
 	}
-
+	//Spawn Description
 	const SpawnDescription = (button) => {
 		if(hoverMenu.descriptionOpen){}else{
 			hoverMenu.buttonHover = button;
@@ -988,7 +950,7 @@ auxl.HoverMenu = (hoverMenuData) => {
 			hoverMenu.descriptionOpen = true;
 		}
 	}
-
+	//Despawn Description
 	const DespawnDescription = (button) => {
 		if(hoverMenu.descriptionOpen){
 			let spawnParent = hoverMenu.cores[hoverMenu.currentMenu][button].GetEl();
@@ -1004,7 +966,7 @@ auxl.HoverMenu = (hoverMenuData) => {
 //
 //Combo Lock
 //Enter Correct Sequence to Run Func
-auxl.ComboLock = (id, seq, run, position) => {
+const ComboLock = (auxl, id, seq, run, position) => {
 
 	let comboLock = {};
 	comboLock.id = id;
@@ -1180,5 +1142,150 @@ auxl.ComboLock = (id, seq, run, position) => {
 
 }
 
-},
-});
+//
+//Scroll Multi Menu
+//Infinite Scroll of Options
+const ScrollMenu = (auxl, id) => {
+
+//2 Types
+//Objects scroll vertically/horizontally over a flat plane. Flat plane handles scroll clicks
+//
+//Objects scroll vertically/horizontally over a rotated cylinder. Cylinder handles scroll clicks
+
+//Menu Options
+//Menu Size
+//Options to display
+//Options Size
+//Option Spacing Size
+
+
+	let scrollMenu = {};
+	scrollMenu.id = id;
+
+	//All Parent
+	scrollMenu.AllParentData = {
+	data:'AllParentData',
+	id:'allParent',
+	sources: false,
+	text: false,
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0,1.5,-1.5),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	scrollMenu.allParent = auxl.Core(scrollMenu.AllParentData);
+	//Scroll Bkgd Clickable
+	scrollMenu.scrollBkgdData = {
+	data:'scrollBkgdData',
+	id:'scrollBkgd',
+	sources: false,
+	text: false,
+	geometry: {primitive: 'box', depth: 0.1, width: 0.5, height: 1.4},
+	material: {shader: "standard", color: "#e02574", emissive: '#e02574', emissiveIntensity: 0.25, opacity: 0.5},
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable','a-ent'],
+	components: {
+		scroll: {type: 'plane', axis: 'vertical', parent: 'scrollParent', length: 1, options: 5, elements: ['scroll0','scroll1','scroll2','scroll3','scroll4','scroll5','scroll6','scroll7']},
+	},
+	};
+	scrollMenu.scrollBkgd = auxl.Core(scrollMenu.scrollBkgdData);
+	//Scroll Parent
+	scrollMenu.scrollParentData = {
+	data:'scrollParentData',
+	id:'scrollParent',
+	sources: false,
+	text: false,
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+	};
+	scrollMenu.scrollParent = auxl.Core(scrollMenu.scrollParentData);
+	//Scroll 0
+	scrollMenu.scroll0Data = {
+	data:'scroll0Data',
+	id: 'scroll0',
+	sources: false,
+	text: false,
+	geometry: {primitive: 'box', depth: 0.025, width: 0.1, height: 0.1},
+	material: {shader: "standard", color: "#e02574", emissive: '#e02574', opacity: 0},
+	position: new THREE.Vector3(0,-0.6,0.1),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations:{
+		click: {property: 'material.emissiveIntensity', from: '0.25', to: '1', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+	},
+	mixins: false,
+	classes: ['clickable','a-ent'],
+	components: false,
+	};
+	scrollMenu.scroll0 = auxl.Core(scrollMenu.scroll0Data);
+	//Scroll 1
+	scrollMenu.scroll1Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll1', position: new THREE.Vector3(0,-0.4,0.1), material: {shader: "standard", color: "#66e025", emissive: '#66e025', opacity: 1},}, true);
+	scrollMenu.scroll1 = auxl.Core(scrollMenu.scroll1Data);
+	//Scroll 2
+	scrollMenu.scroll2Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll2', position: new THREE.Vector3(0,-0.2,0.1), material: {shader: "standard", color: "#256de0", emissive: '#256de0', opacity: 1},}, true);
+	scrollMenu.scroll2 = auxl.Core(scrollMenu.scroll2Data);
+	//Scroll 3
+	scrollMenu.scroll3Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll3', position: new THREE.Vector3(0,0,0.1), material: {shader: "standard", color: "#e0e025", emissive: '#e0e025', opacity: 1},}, true);
+	scrollMenu.scroll3 = auxl.Core(scrollMenu.scroll3Data);
+	//Scroll 4
+	scrollMenu.scroll4Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll4', position: new THREE.Vector3(0,0.2,0.1), material: {shader: "standard", color: "#e09825", emissive: '#e09825', opacity: 1},}, true);
+	scrollMenu.scroll4 = auxl.Core(scrollMenu.scroll4Data);
+	//Scroll 5
+	scrollMenu.scroll5Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll5', position: new THREE.Vector3(0,0.4,0.1), material: {shader: "standard", color: "#e02525", emissive: '#e02525', opacity: 1},}, true);
+	scrollMenu.scroll5 = auxl.Core(scrollMenu.scroll5Data);
+	//Scroll 6
+	scrollMenu.scroll6Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll6', position: new THREE.Vector3(0,0.6,0.1), material: {shader: "standard", color: "#25e0d9", emissive: '#25e0d9', opacity: 0},}, true);
+	scrollMenu.scroll6 = auxl.Core(scrollMenu.scroll6Data);
+	//Scroll 7
+	scrollMenu.scroll7Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll7', position: new THREE.Vector3(0,0.8,0.1), material: {shader: "standard", color: "#ffffff", emissive: '#ffffff', opacity: 0},}, true);
+	scrollMenu.scroll7 = auxl.Core(scrollMenu.scroll7Data);
+
+	scrollMenu.scrollAllData = {
+		parent: {core: scrollMenu.allParent}, 
+		child0: {core: scrollMenu.scrollBkgd}, 
+		child1: {
+			parent: {core: scrollMenu.scrollParent}, 
+			child0: {core: scrollMenu.scroll0}, 
+			child1: {core: scrollMenu.scroll1},
+			child2: {core: scrollMenu.scroll2},
+			child3: {core: scrollMenu.scroll3},
+			child4: {core: scrollMenu.scroll4},
+			child5: {core: scrollMenu.scroll5},
+			child6: {core: scrollMenu.scroll6},
+			child7: {core: scrollMenu.scroll7},
+		},
+	}
+	scrollMenu.scrollAll = auxl.Layer('scrollAll',scrollMenu.scrollAllData);
+
+	//Spawn Scroll
+	const SpawnScrollMenu = () => {
+		scrollMenu.scrollAll.SpawnLayer();
+	}
+
+	//Despawn Scroll
+	const DespawnScrollMenu = () => {
+		scrollMenu.scrollAll.DespawnLayer();
+	}
+
+	return {scrollMenu, SpawnScrollMenu, DespawnScrollMenu};
+};
+
+//
+//Export
+export {Menu, MultiMenu, HoverMenu, ComboLock, ScrollMenu};

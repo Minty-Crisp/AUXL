@@ -5,23 +5,17 @@
 //
 //Created by Minty-Crisp (mintycrisp.com)
 //
-//World
+//Scenes
 //
 //SceneNode
 //MapZone
 //Scenario
 //World
-//
-AFRAME.registerComponent('world', {
-dependencies: ['auxl'],
-init: function () {
-//AUXL System Connection
-const auxl = document.querySelector('a-scene').systems.auxl;
 
 //
 //Scene Node ObjGen
 //scenePlaceTownBuildingCastleLabrynthLevelAreaOfInterest
-auxl.SceneNode = (sceneData) => {
+const SceneNode = (auxl, sceneData) => {
 	let core = Object.assign({}, sceneData);
 	//Scene Text Support
 	let textBubble = auxl.Core(auxl.sceneTextData);
@@ -541,8 +535,8 @@ if(auxl[auxl.running[ran].name].GetEl){
 	const SceneTextDisplay = () => {
 		if(core.info.sceneText){
 			sceneText.Start();
-			sceneText.DisplaySpeech({role: core.info.name,speech: '...'});
-			let sceneTextTimeout = setTimeout(function () {
+			sceneText.DisplaySpeech({role: core.info.name,speech: '... ... ...'});
+			let sceneTextTimeout = setTimeout(() => {
 				sceneText.DisplaySpeech({role: core.info.name,speech: core.info.description});
 				clearTimeout(sceneTextTimeout);
 			}, 1250);
@@ -587,7 +581,7 @@ if(auxl[auxl.running[ran].name].GetEl){
 //
 //Map Zone Gen & reader
 //mapRegionDistrictTerritoryZoneSection
-auxl.MapZone = (mapZoneData) => {
+const MapZone = (auxl, mapZoneData) => {
 	let core = Object.assign({}, mapZoneData);
 	core.mapMenuData = false;
 	core.mapMainMenuData = false;
@@ -1198,7 +1192,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 //
 //Scenario Gen
 //entireScenarioSpawnLocationAlwaysDisplay
-auxl.Scenario = (scenarioData) => {
+const Scenario = (auxl, scenarioData) => {
 	let core = Object.assign({}, scenarioData);
 	core.scenarioLoaded = false;
 	let startTimeout;
@@ -1662,7 +1656,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 //
 //World Gen
 //containAllScenarios
-auxl.World = (worldData) => {
+const World = (auxl, worldData) => {
 
 	let world = {};
 	world.data = Object.assign({}, worldData);
@@ -1730,6 +1724,13 @@ auxl.World = (worldData) => {
 		if(world.data.info.menuOptions){
 			auxl.comp.UpdateMainMenu(world.data.info.menuOptions);
 		}
+		//Background Audio
+		if(world.data.info.backgroundAudio){
+			auxl.playerAudio.core.sounds = {};
+			auxl.playerAudio.core.sounds.background = {src: world.data.info.backgroundAudio, autoplay: true, loop: true, volume: 1,};
+			auxl.playerAudio.SpawnCore(auxl.playerRig);
+			auxl.backgroundAudio = true;
+		}
 	}
 	//Start a Scenario
 	const StartScenario = (num) => {
@@ -1758,5 +1759,6 @@ auxl.World = (worldData) => {
 	return {world, SetAsDefault, StartWorld, StopWorld, StartScenario, ClearScenario, NextScenario, LoadScenario}
 }
 
-},
-});
+//
+//Export
+export {SceneNode, MapZone, Scenario, World};

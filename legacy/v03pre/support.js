@@ -7,54 +7,76 @@
 
 //AUXL v0.3 Beta - Support
 
+
 //
-//Arcade Cabinet
-//Testing
-//Altering GLTF Materials & Toon Shader
-AFRAME.registerComponent('modify-cabinet', {
+//Altering GLTF Materials
+//Instead of a set of arrays for each setting, could do a single array for objects that have setting keys
+AFRAME.registerComponent('gltfmat', {
 dependencies: ['auxl'],
+schema: {
+	colors: {type: 'array', default: [false]},
+	emissive: {type: 'array', default: [false]},
+	textures: {type: 'array', default: [false]},
+	repeats: {type: 'array', default: [false]},
+	random: {type: 'boolean', default: false},
+},
 	init: function () {
+		//AUXL System
 		const auxl = document.querySelector('a-scene').systems.auxl;
+		//Mesh Name
+		this.meshName = false;
+		this.current = 0;
+		this.materials = [];
+		this.data.colors.forEach(color => {
+			//Color
+			if(color){
+				//Base Color
+				if(color === 'random'){
+					this.materials[this.current] = new THREE.MeshStandardMaterial({color: auxl.colorTheoryGen().base});
+				} else {
+					this.materials[this.current] = new THREE.MeshStandardMaterial({color});
+				}
+				//Emissive
+				if(this.data.emissive[this.current]){
+					this.materials[this.current].emissive = this.materials[this.current].color;
+					this.materials[this.current].emissiveIntensity = this.data.emissive[this.current];
+				}
+				//Texture
+				if(this.data.textures[this.current]){
+					this.materials[this.current].texture = new THREE.TextureLoader().load(this.data.textures[this.current]);
+					if(!this.data.repeats[this.current] || this.data.repeats[this.current] === 'false'){} else {
+						this.materials[this.current].texture.wrapS = THREE.RepeatWrapping;
+						this.materials[this.current].texture.wrapT = THREE.RepeatWrapping;
+						this.materials[this.current].texture.repeat.set(this.data.repeats[this.current]);
+					}
+				}
+			} else {
+				this.materials[this.current] = false;
+			}
+			this.current++;
+		})
+		//console.log(this.materials)
+		this.current = -2;
 		// Wait for model to load. GLTF/OBJ Event
 		this.el.addEventListener('model-loaded', () => {
 			// Grab the mesh / scene.
 			const obj = this.el.getObject3D('mesh');
-
-const texture = new THREE.TextureLoader().load('./assets/img/tiles/kenny/pattern_01.png');
-texture.wrapS = THREE.RepeatWrapping;
-texture.wrapT = THREE.RepeatWrapping;
-texture.repeat.set( 4, 4 );
-const material = new THREE.MeshBasicMaterial({map: texture, color: 0xc92fd6});
-
-//const sprite = new THREE.Sprite( material );
-//sprite.scale.set(200, 200, 1)
-//scene.add( sprite );
-
 			obj.traverse(node => {
-/*
-each material in use is it's own node
-base_1 - glossy black - joystick, top, info, bottom
-base_2 - matte black - slots, around screen
-base_3 - dual buttons
-base_4 - single button
-base_5 - body
-base_6 - screen
-base_7 - marquee
-base_8 - base
-
-*/
-
 				//console.log(node.name)
-				if(node.name.indexOf('base_5') !== -1) {
-					//node.material.color.set('yellow');
-					node.material = material;
+				if(this.current < 0){} else {
+					if(this.data.random){
+						node.material = new THREE.MeshStandardMaterial({color: auxl.colorTheoryGen().base});
+					} else {
+						if(this.materials[this.current]){
+							node.material = this.materials[this.current];
+						}
+					}
 				}
-
+				this.current++;
 			});
 		});
 	}
 });
-
 
 //
 //Click to Add to Inventory
@@ -181,7 +203,7 @@ events: {
 });
 
 //Testing
-//Altering GLTF Materials & Toon Shader
+//Gradient & Toon Shader
 AFRAME.registerComponent('modify-materials', {
 dependencies: ['auxl'],
 	init: function () {
@@ -322,8 +344,8 @@ Stop Moving
 });
 
 //
-//Attach
-AFRAME.registerComponent('attach', {
+//Sync Pos
+AFRAME.registerComponent('sync-pos', {
 	dependencies: ['auxl'],
     schema: {
         idname: {type: 'string', default: 'ui'},
@@ -485,7 +507,6 @@ events: {
 	}
 },
 });
-
 //Attach to run specified method from Object on fusing event
 AFRAME.registerComponent('fusingrun', {
 dependencies: ['auxl'],
@@ -677,6 +698,30 @@ events: {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);
 				}
 			}
+		}
+	}
+},
+});
+
+//Run AUXL Function on Click
+AFRAME.registerComponent('clickrunfunc', {
+dependencies: ['auxl'],
+multiple: true,
+//multiple: true,
+schema: {
+	method: {type: 'string', default: 'Click'},
+	params: {type: 'string', default: 'null'}
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+events: {
+	click: function (evt) {
+		if(this.data.params === 'null'){
+			this.auxl[this.data.method](evt.target);
+		} else {
+			this.auxl[this.data.method](this.data.params);
 		}
 	}
 },
@@ -5349,60 +5394,79 @@ updateAction: function (actionObj){
 		let actionFunc;
 		let actionParams;
 		let actionCommand;
+		let htmlDisplay;
 		if(action === 'altDown'){
 			actionFunc = 'altDownFunc';
 			actionParams = 'altDownParams';
+			htmlDisplay = 'center';
 		} else if(action === 'altUp'){
 			actionFunc = 'altUpFunc';
 			actionParams = 'altUpParams';
+			htmlDisplay = 'center';
 		} else if(action === 'action1Down'){
 			actionFunc = 'action1DownFunc';
 			actionParams = 'action1DownParams';
+			htmlDisplay = 'a';
 		} else if(action === 'action1Up'){
 			actionFunc = 'action1UpFunc';
 			actionParams = 'action1UpParams';
+			htmlDisplay = 'a';
 		} else if(action === 'action2Down'){
 			actionFunc = 'action2DownFunc';
 			actionParams = 'action2DownParams';
+			htmlDisplay = 'b';
 		} else if(action === 'action2Up'){
 			actionFunc = 'action2UpFunc';
 			actionParams = 'action2UpParams';
+			htmlDisplay = 'b';
 		} else if(action === 'action3Down'){
 			actionFunc = 'action3DownFunc';
 			actionParams = 'action3DownParams';
+			htmlDisplay = 'c';
 		} else if(action === 'action3Up'){
 			actionFunc = 'action3UpFunc';
 			actionParams = 'action3UpParams';
+			htmlDisplay = 'c';
 		} else if(action === 'action4Down'){
 			actionFunc = 'action4DownFunc';
 			actionParams = 'action4DownParams';
+			htmlDisplay = 'd';
 		} else if(action === 'action4Up'){
 			actionFunc = 'action4UpFunc';
 			actionParams = 'action4UpParams';
+			htmlDisplay = 'd';
 		} else if(action === 'action5Down'){
 			actionFunc = 'action5DownFunc';
 			actionParams = 'action5DownParams';
+			htmlDisplay = 'e';
 		} else if(action === 'action5Up'){
 			actionFunc = 'action5UpFunc';
 			actionParams = 'action5UpParams';
+			htmlDisplay = 'e';
 		} else if(action === 'action6Down'){
 			actionFunc = 'action6DownFunc';
 			actionParams = 'action6DownParams';
+			htmlDisplay = 'f';
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
 			actionParams = 'action6UpParams';
+			htmlDisplay = 'f';
 		} else if(action === 'action7Down'){
 			actionFunc = 'action7DownFunc';
 			actionParams = 'action7DownParams';
+			htmlDisplay = 'l';
 		} else if(action === 'action7Up'){
 			actionFunc = 'action7UpFunc';
 			actionParams = 'action7UpParams';
+			htmlDisplay = 'l';
 		} else if(action === 'action8Down'){
 			actionFunc = 'action8DownFunc';
 			actionParams = 'action8DownParams';
+			htmlDisplay = 'r';
 		} else if(action === 'action8Up'){
 			actionFunc = 'action8UpFunc';
 			actionParams = 'action8UpParams';
+			htmlDisplay = 'r';
 		} else {
 			console.log('Failed to identify action')
 			return;
@@ -5435,6 +5499,8 @@ this[actionFunc] = document.getElementById(auxlObj).components[component][func].
 				//this.auxl.controlsInfo[action] = {name: actionObj[action].name, info: actionObj[action].info};
 				this.auxl.controlsInfo[action] = {name: actionObj[action].name, info: actionObj[action].info};
 			}
+			//Display Mobile HTML
+			this.auxl.ToggleHTML(htmlDisplay, true);
 		} else {
 			this[actionFunc] = false;
 			this[actionParams] = false;
@@ -5449,60 +5515,79 @@ disableAction: function (actionObj){
 		//console.log(actionObj[action]);//params
 		let actionFunc;
 		let actionParams;
+		let htmlDisplay;
 		if(action === 'altDown'){
 			actionFunc = 'altDownFunc';
 			actionParams = 'altDownParams';
+			htmlDisplay = 'center';
 		} else if(action === 'altUp'){
 			actionFunc = 'altUpFunc';
 			actionParams = 'altUpParams';
+			htmlDisplay = 'center';
 		} else if(action === 'action1Down'){
 			actionFunc = 'action1DownFunc';
 			actionParams = 'action1DownParams';
+			htmlDisplay = 'a';
 		} else if(action === 'action1Up'){
 			actionFunc = 'action1UpFunc';
 			actionParams = 'action1UpParams';
+			htmlDisplay = 'a';
 		} else if(action === 'action2Down'){
 			actionFunc = 'action2DownFunc';
 			actionParams = 'action2DownParams';
+			htmlDisplay = 'b';
 		} else if(action === 'action2Up'){
 			actionFunc = 'action2UpFunc';
 			actionParams = 'action2UpParams';
+			htmlDisplay = 'b';
 		} else if(action === 'action3Down'){
 			actionFunc = 'action3DownFunc';
 			actionParams = 'action3DownParams';
+			htmlDisplay = 'c';
 		} else if(action === 'action3Up'){
 			actionFunc = 'action3UpFunc';
 			actionParams = 'action3UpParams';
+			htmlDisplay = 'c';
 		} else if(action === 'action4Down'){
 			actionFunc = 'action4DownFunc';
 			actionParams = 'action4DownParams';
+			htmlDisplay = 'd';
 		} else if(action === 'action4Up'){
 			actionFunc = 'action4UpFunc';
 			actionParams = 'action4UpParams';
+			htmlDisplay = 'd';
 		} else if(action === 'action5Down'){
 			actionFunc = 'action5DownFunc';
 			actionParams = 'action5DownParams';
+			htmlDisplay = 'e';
 		} else if(action === 'action5Up'){
 			actionFunc = 'action5UpFunc';
 			actionParams = 'action5UpParams';
+			htmlDisplay = 'e';
 		} else if(action === 'action6Down'){
 			actionFunc = 'action6DownFunc';
 			actionParams = 'action6DownParams';
+			htmlDisplay = 'f';
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
 			actionParams = 'action6UpParams';
+			htmlDisplay = 'f';
 		} else if(action === 'action7Down'){
 			actionFunc = 'action7DownFunc';
 			actionParams = 'action7DownParams';
+			htmlDisplay = 'l';
 		} else if(action === 'action7Up'){
 			actionFunc = 'action7UpFunc';
 			actionParams = 'action7UpParams';
+			htmlDisplay = 'l';
 		} else if(action === 'action8Down'){
 			actionFunc = 'action8DownFunc';
 			actionParams = 'action8DownParams';
+			htmlDisplay = 'r';
 		} else if(action === 'action8Up'){
 			actionFunc = 'action8UpFunc';
 			actionParams = 'action8UpParams';
+			htmlDisplay = 'r';
 		} else {
 			console.log('Failed to identify action')
 			console.log(action)
@@ -5513,6 +5598,8 @@ disableAction: function (actionObj){
 		if(actionObj[action].name){
 			delete this.auxl.controlsInfo[action];
 		}
+		//Display Mobile HTML
+		this.auxl.ToggleHTML(htmlDisplay, false);
 		this[actionFunc] = false;
 		this[actionParams] = false;
 	}

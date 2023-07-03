@@ -8,16 +8,10 @@
 //Build
 //
 //BuildIn3D
-//
-AFRAME.registerComponent('build', {
-dependencies: ['auxl'],
-init: function () {
-//AUXL System Connection
-const auxl = document.querySelector('a-scene').systems.auxl;
 
 //
 //Build Core/Layer/Other objects in the 3D environment
-auxl.BuildIn3D = () => {
+const BuildIn3D = (auxl) => {
 
 	let one = {};
 	one.id = 'build';
@@ -668,5 +662,6 @@ components: false,
 
 }
 
-},
-});
+//
+//Export
+export default BuildIn3D;

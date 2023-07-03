@@ -1290,5 +1290,6 @@ auxl.Teleport = (id, locations) => {
 
 	return {teleport, SpawnTeleport, DespawnTeleport, ToggleSpawn, SetFlag, GetFlag,};
 }
+
 },
 });
