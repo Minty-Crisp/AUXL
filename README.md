@@ -163,12 +163,12 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
 # v0.3 Currently In-Progress Updates : :cherries:
 - Grid Enhancements & Features
-- Large & Personal Vehicle
+- Large & Personal Vehicle Modes
 - Color Lock Combination
+- Infinite Scroll Menu
 - Locomotion movements such as flying, 3rd Person POV & more
 - Dungeon Wall Maze Generator
 - Creature Generator
-- Mini Games
 
 # v0.4+ Features
 - RPG System
