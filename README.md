@@ -55,7 +55,6 @@ A few cool features of AUXL to highlight : :first_quarter_moon_with_face:
 
 Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki) to Learn More!!!
 ---
-
 # v0.3 Brief Overview of Major Updates So Far : :fire:
 ## System
 - Added Save/Load/Reset system to store profile, date/time/visit, location, support of auxl object flags and more.
@@ -160,6 +159,9 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - VR Controller UI turned off by default and is toggleable via player method.
 - Color Lock Combination ObjGen. Generate a lock and combonation to run an AUXL Obj Method on correct input.
 - Organized all scripts and utilized webpack to export into a single used script.
+- Added book update method to NPC and ability to update in World data to override default basic text.
+- Color Lock ObjGen now accepts an array of characters to display if needed on top of colors and to wait till full password length input to display incorrect animation and reset
+- Added support for more then 7 options in the Quick Travel Menu 
 
 # v0.3 Currently In-Progress Updates : :cherries:
 - Grid Enhancements & Features
