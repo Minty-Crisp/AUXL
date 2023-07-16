@@ -203,4 +203,4 @@ If you have made it this far, let me just say Thank You! AUXL has been a dream o
 - You can also check me out on a few other places like [dev.to](https://dev.to/mintycrisp) or where I spend most of my free time [reddit](https://www.reddit.com/user/Minty-Crisp/).
 - I am available for Web XR work if you are interested in hiring me or collaborating on future projects.
 - You can reach me via socials or email : minty-crisp @ proton . me
-- If you really enjoy my work and want to support me making more of these types of projects, you can help me out with a [kofi](https://ko-fi.com/mintycrisp) or just by sharing my work.
+- If you really enjoy my work and want to support me making more of these types of projects, you can help me out with a Github Sponder, [ko-fi](https://ko-fi.com/mintycrisp), [Liberapay](https://liberapay.com/mintycrisp/) or just by sharing my work.
