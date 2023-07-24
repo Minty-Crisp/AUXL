@@ -44,11 +44,16 @@ schema: {
 				}
 				//Texture
 				if(this.data.textures[this.current]){
-					this.materials[this.current].texture = new THREE.TextureLoader().load(this.data.textures[this.current]);
+					this.materials[this.current].map = new THREE.TextureLoader().load(this.data.textures[this.current]);
+					this.materials[this.current].map.center.set(.5, .5);
+					this.materials[this.current].map.rotation = THREE.MathUtils.degToRad(180);
+					this.materials[this.current].map.wrapS = THREE.RepeatWrapping;
+					this.materials[this.current].map.wrapT = THREE.RepeatWrapping;
+					this.materials[this.current].map.repeat.set(-1,1);
 					if(!this.data.repeats[this.current] || this.data.repeats[this.current] === 'false'){} else {
-						this.materials[this.current].texture.wrapS = THREE.RepeatWrapping;
-						this.materials[this.current].texture.wrapT = THREE.RepeatWrapping;
-						this.materials[this.current].texture.repeat.set(this.data.repeats[this.current]);
+						this.materials[this.current].map.wrapS = THREE.RepeatWrapping;
+						this.materials[this.current].map.wrapT = THREE.RepeatWrapping;
+						this.materials[this.current].map.repeat.set(this.data.repeats[this.current]);
 					}
 				}
 			} else {

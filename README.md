@@ -6,6 +6,8 @@
 
 [v0.3 In-Progress Demo Scenario](https://minty-crisp.github.io/AUXL/)
 
+[v0.3 Physics Testing Demo Integration](https://minty-crisp.github.io/AUXL/physics.html)
+
 ### v0.3 Wiki Update and Starter Coming Soon!!!
 Learn how to build your first AUXL Scenario with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
 
@@ -161,23 +163,32 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Organized all scripts and utilized webpack to export into a single used script.
 - Added book update method to NPC and ability to update in World data to override default basic text.
 - Color Lock ObjGen now accepts an array of characters to display if needed on top of colors and to wait till full password length input to display incorrect animation and reset
-- Added support for more then 7 options in the Quick Travel Menu 
+- Added support for more then 7 options in the Quick Travel Menu
+- New component teleportation-to that takes in a specific XYZ coords to move the player to on specified event.
+- Basic Physics integration from c-frame/aframe-physics-system using CANNON.js
+- Physics Support components added such as camerasync, collision, trigger, bodymaterial, auxconstraint, auxspring, ungravity
+- Basic Physics Demo added
+
+
+
 
 # v0.3 Currently In-Progress Updates : :cherries:
+- Support function to read any ObjGen data
+- AUXLObject Pool
+- Demo Rework & Expand
+- Wiki and Starter JS Updates
+
+# v0.4+ Features
 - Grid Enhancements & Features
 - Large & Personal Vehicle Modes
-- Color Lock Combination
 - Infinite Scroll Menu
 - Locomotion movements such as flying, 3rd Person POV & more
 - Dungeon Wall Maze Generator
 - Creature Generator
-
-# v0.4+ Features
-- RPG System
 - In 3D Object Builder
 - VRM Asset Support for NPC's with Reaction Animations
 - Additional Locomotion Styles and Gimbal Player Control
-- Cannon JS Physics
+- Enhanced Cannon JS Physics Integration
 - Physics Based Movement & Unique Power System
 - System Function, Component & ObjGen Updates
 - Additional Control Configurations and Enhancements

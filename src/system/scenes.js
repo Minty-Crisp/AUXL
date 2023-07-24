@@ -1071,9 +1071,15 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	const MoveMainMenuUpdate = () => {
 		core.mapMainMenuData = {};
 		let buttonTemplate = {};
-		let currNum = 0;
+		let moreTemplate = {};
+		//let currNum = 0;
+		let currNum = 1;
+		let currPage = 1;
 		let moveToNode;
 		let nodeName;
+		let total = Object.keys(core.map[core.currentNode]).length;
+		let pages = Math.ceil(total/7);
+		let subMenuName = 'travel' + currPage;
 		//scenario UpdateZoneMap
 		if(auxl.local.location.load){}else{
 			if(auxl.local.location.scenario === ''){}else{
@@ -1081,9 +1087,6 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			}
 		}
 		for(let connect in core.map[core.currentNode]){
-			//console.log(connect)
-			//console.log(core[core.currentNode][connect])
-			//In Zone Node or Out of Zone Node
 			if(core.nodes[core.map[core.currentNode][connect].node]){
 				moveToNode = core.nodes[core.map[core.currentNode][connect].node];
 			} else {
@@ -1112,13 +1115,35 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 					menu: 'close',
 				},
 			};
+			moreTemplate = {
+				id: 'action'+currNum,
+				style: false,
+				title: 'More',
+				description: 'Next Page',
+				subMenu: false,
+				action: false,
+			};
 			core.mapMainMenuData['button'+currNum] = buttonTemplate;
-			currNum++;
+			if(currNum === total){
+				//Update Companion main menu
+				auxl.mainMenu.UpdateSubMenu(subMenuName,core.mapMainMenuData);
+			} else {
+				currNum++;
+			}
+			if(pages > 1){
+				if(currNum % 7 === 0){
+					currPage++;
+					//build more button
+					moreTemplate.id = 'action'+currNum;
+					moreTemplate.subMenu = 'travel' + currPage;
+					core.mapMainMenuData['button'+currNum] = moreTemplate;
+					//Update Companion main menu
+					auxl.mainMenu.UpdateSubMenu(subMenuName,core.mapMainMenuData);
+					core.mapMainMenuData = {};
+					subMenuName = 'travel' + currPage;
+				}
+			}
 		}
-		//Update Companion main menu
-		auxl.mainMenu.UpdateSubMenu('menu1',core.mapMainMenuData);
-		//console.log(auxl.mainMenu.multiMenu.cores.menu1)
-		//auxl.mainMenu.multiMenu.cores.menu1
 	}
 	//MapZone Menu Click
 	const MenuMoveClick = (el) => {
@@ -1712,9 +1737,10 @@ const World = (auxl, worldData) => {
 		}
 		//Physics
 		if(world.data.info.physics){
-			world.data.info.physics = auxl.physics;
+			auxl.worldPhysics = world.data.info.physics;
+			auxl.player.EnablePhysics();
 		} else {
-			auxl.physics = false;
+			auxl.worldPhysics = false;
 		}
 		//Main Menu Style
 		if(world.data.info.menuStyle){
@@ -1730,6 +1756,10 @@ const World = (auxl, worldData) => {
 			auxl.playerAudio.core.sounds.background = {src: world.data.info.backgroundAudio, autoplay: true, loop: true, volume: 1,};
 			auxl.playerAudio.SpawnCore(auxl.playerRig);
 			auxl.backgroundAudio = true;
+		}
+		//Companion Book Update
+		if(world.data.info.compBookUpdate){
+			auxl.comp.UpdateBook(world.data.info.compBookUpdate);
 		}
 	}
 	//Start a Scenario

@@ -485,6 +485,7 @@ update: function () {
 	this.axis = this.data.axis;
 	//3rd Person Config
 	let initDelay = setTimeout(()=> {
+		this.mouseController = document.getElementById('mouseController');
 		if(this.pov === '3rd'){
 			this.auxl.avatar.SpawnLayer(true);
 			this.player.object3D.position.copy(new THREE.Vector3(0,5,10));
@@ -783,6 +784,7 @@ directionXZ: function (action, speed) {
 	this.velocity = speed;
 	this.directionVector = new THREE.Vector3();
 	this.directionObject.object3D.getWorldDirection(this.directionVector);
+	this.moveForce = new THREE.Vector3();
 	this.positionNew = new THREE.Vector3();
 	this.positionPlayer.copy(this.player.object3D.position);
 	//Math out the Angle of Camera
@@ -963,12 +965,26 @@ directionXZ: function (action, speed) {
 			this.positionNew.z = this.positionPlayer.z;
 		}
 	}
-
+	//Y Height Position is unchanged
 	this.positionNew.y = this.positionPlayer.y;
 
 	//Physics, Grid Collision or No Clip
-	if(this.auxl.physics){
-		this.player.body.position.copy(this.positionNew);
+	if(this.auxl.player.layer.playerPhysics){
+		if(this.auxl.player.layer.physMove === 'position'){
+			//Body
+			this.player.body.position.copy(this.positionNew);
+			//Hands
+			//this.mouseController.body.position.copy(this.positionNew);
+		} else if(this.auxl.player.layer.physMove === 'impulse'){
+			//Calculate directional difference
+			if(!this.positionNew.equals(this.positionPlayer)){
+				this.moveForce.copy(this.positionNew);
+				this.moveForce.sub(this.positionPlayer);
+				this.player.body.applyLocalImpulse(this.moveForce,new THREE.Vector3(0,0,0));
+			}
+		}
+		//Update AABB
+		this.player.body.computeAABB();
 	} else if(this.auxl.collision){
 		//Locomotion with Collision every 0.5 meter on XZ and 1 meter on Y
 		this.newPosRound.x = this.roundHalf(this.positionNew.x);
@@ -3455,9 +3471,11 @@ remove: function () {
 	this.el.removeEventListener('click', this.spawnSelectEvent);
 },
 });
+
 //
 //Raycast Teleportation
 const raycastTeleportSelect = AFRAME.registerComponent('raycast-teleportation', {
+dependencies: ['auxl'],
 //Uses Player's Scene Transition Type to Teleport
 //Locomotion Teleportation also supported 
 init: function () {},
@@ -3539,5 +3557,110 @@ remove: function () {
 });
 
 //
+//Teleportation To
+const teleportto = AFRAME.registerComponent('teleportation-to', {
+dependencies: ['auxl'],
+schema: {
+	x: {type: 'number', default: 0},
+	y: {type: 'number', default: 0},
+	z: {type: 'number', default: 0},
+},
+//Uses Player's Scene Transition Type to Teleport
+//Locomotion Teleportation also supported 
+init: function () {},
+clickToTeleport: function (event) {
+	let user = document.getElementById('playerRig');
+	let userView = document.getElementById('camera');
+	let auxl = document.querySelector('a-scene').systems.auxl;
+	let userPos = user.getAttribute('position');
+	let teleportType = auxl.player.layer.transition.teleport;
+	let newPosition = new THREE.Vector3();
+	//let teleportPos = event.detail.intersection.point;
+	let teleportPos = new THREE.Vector3(this.data.x,this.data.y,this.data.z);
+	let allTeleportors = document.querySelectorAll('.teleporter');
+	let posTimeout;
+	let animTimeout;
+
+	//Prepare Movement
+	function prepMove(newPos, telePos){
+		//Clone current entity's position User
+		newPos.copy(telePos);
+		//Reset User's Y back to 0 - Flat Mode
+		//newPos.y = 0;
+	}
+	function move(pos){
+		if(auxl.player.layer.playerPhysics){
+			user.body.position.copy(pos);
+			user.body.computeAABB();
+		} else {
+			user.object3D.position.copy(newPosition);
+		}
+	}
+	//Teleportation Based on Player Transition Type
+	if(teleportType === 'instant') {
+		prepMove(newPosition, teleportPos);
+		posTimeout = setTimeout(function () {
+			//user.object3D.position.copy(newPosition);
+			move(newPosition);
+			clearTimeout(posTimeout);
+		}, 250);
+	} else if(teleportType === 'fade') {
+		auxl.player.PlayerTeleportAnim();
+		prepMove(newPosition, teleportPos);
+		posTimeout = setTimeout(function () {
+			//user.object3D.position.copy(newPosition);
+			move(newPosition);
+			clearTimeout(posTimeout);
+		}, 600);
+	} else if(teleportType === 'locomotion') {
+		//Create locomotion animation based on teleported Pos
+		if(auxl.player.layer.playerPhysics){
+			console.log('Configure Physics Locomotion Teleportation')
+		} else {
+			let travelParams = {
+				property: 'position',
+				from: {x: userPos.x, y: 0, z: userPos.z},
+				to: {x: teleportPos.x, y: 0, z: teleportPos.z},
+				dur: 1000,
+				delay: 0,
+				loop: 'false',
+				dir: 'normal',
+				easing:'easeInOutSine',
+				elasticity: 400,
+				autoplay: 'true',
+				enabled: 'true',
+				};
+			user.setAttribute('animation__locomotion', travelParams);
+		}
+	} else if(teleportType === 'sphere') {
+		auxl.player.PlayerTeleportAnim();
+		prepMove(newPosition, teleportPos);
+		posTimeout = setTimeout(function () {
+			//user.object3D.position.copy(newPosition);
+			move(newPosition);
+			clearTimeout(posTimeout);
+		}, 600);
+	} else if(teleportType === 'blink') {
+		auxl.player.PlayerTeleportAnim();
+		prepMove(newPosition, teleportPos);
+		posTimeout = setTimeout(function () {
+			//user.object3D.position.copy(newPosition);
+			move(newPosition);
+			clearTimeout(posTimeout);
+		}, 600);
+	}
+},
+update: function () {
+	this.raycastTeleport = (event) => {
+		this.clickToTeleport(event);
+	}
+	this.el.addEventListener('click', this.raycastTeleport);
+},
+remove: function () {
+	this.el.removeEventListener('click', this.raycastTeleport);
+},
+});
+
+//
 //Export
-export {locomotion, gimbal, teleportation, raycastTeleport, raycastTeleportSelect};
+export {locomotion, gimbal, teleportation, raycastTeleport, raycastTeleportSelect, teleportto};

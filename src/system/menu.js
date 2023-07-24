@@ -966,7 +966,7 @@ const HoverMenu = (auxl, hoverMenuData) => {
 //
 //Combo Lock
 //Enter Correct Sequence to Run Func
-const ComboLock = (auxl, id, seq, run, position) => {
+const ComboLock = (auxl, id, display, seq, run, position) => {
 
 	let comboLock = {};
 	comboLock.id = id;
@@ -980,9 +980,26 @@ const ComboLock = (auxl, id, seq, run, position) => {
 	comboLock.run = run;
 	comboLock.current = 0;
 	comboLock.locked = true;
+	comboLock.correctSoFar = true;
 	comboLock.lockedTimeout;
 	comboLock.unlockedTimeout;
 	comboLock.position = position || new THREE.Vector3(0,0,0);
+
+	comboLock.texts = [];
+
+	if(display){
+		for(let each in display){
+			comboLock.texts[each] = {value:display[each], color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.051, side: 'front', wrapCount: 2, baseline: 'center'}
+		}
+	} else {
+		comboLock.texts[0] = false;
+		comboLock.texts[1] = false;
+		comboLock.texts[2] = false;
+		comboLock.texts[3] = false;
+		comboLock.texts[4] = false;
+	}
+
+
 
 	//Combo Parent
 	comboLock.comboParentData = {
@@ -1006,7 +1023,7 @@ const ComboLock = (auxl, id, seq, run, position) => {
 	data:'combo0Data',
 	id:combo0Id,
 	sources: false,
-	text: false,
+	text: comboLock.texts[0],
 	geometry: {primitive: 'box', depth: 0.1, width: 0.2, height: 0.3},
 	material: {shader: "standard", color: "#e02574", emissive: '#e02574', emissiveIntensity: 0.25, opacity: 1},
 	position: new THREE.Vector3(-0.4,0,0),
@@ -1031,16 +1048,16 @@ const ComboLock = (auxl, id, seq, run, position) => {
 	};
 	comboLock[combo0Id] = auxl.Core(comboLock.combo0Data);
 	//Combo 1
-	comboLock.combo1Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo1Id, position: new THREE.Vector3(-0.2,0,0), material: {shader: "standard", color: "#66e025", emissive: '#66e025', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '1',},},}, true);
+	comboLock.combo1Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo1Id, text: comboLock.texts[1], position: new THREE.Vector3(-0.2,0,0), material: {shader: "standard", color: "#66e025", emissive: '#66e025', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '1',},},}, true);
 	comboLock[combo1Id] = auxl.Core(comboLock.combo1Data);
 	//Combo 2
-	comboLock.combo2Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo2Id, position: new THREE.Vector3(0,0,0), material: {shader: "standard", color: "#256de0", emissive: '#256de0', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '2',},},}, true);
+	comboLock.combo2Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo2Id, text: comboLock.texts[2], position: new THREE.Vector3(0,0,0), material: {shader: "standard", color: "#256de0", emissive: '#256de0', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '2',},},}, true);
 	comboLock[combo2Id] = auxl.Core(comboLock.combo2Data);
 	//Combo 3
-	comboLock.combo3Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo3Id, position: new THREE.Vector3(0.2,0,0), material: {shader: "standard", color: "#e0e025", emissive: '#e0e025', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '3',},},}, true);
+	comboLock.combo3Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo3Id, text: comboLock.texts[3], position: new THREE.Vector3(0.2,0,0), material: {shader: "standard", color: "#e0e025", emissive: '#e0e025', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '3',},},}, true);
 	comboLock[combo3Id] = auxl.Core(comboLock.combo3Data);
 	//Combo 4
-	comboLock.combo4Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo4Id, position: new THREE.Vector3(0.4,0,0), material: {shader: "standard", color: "#e09825", emissive: '#e09825', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '4',},},}, true);
+	comboLock.combo4Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo4Id, text: comboLock.texts[4], position: new THREE.Vector3(0.4,0,0), material: {shader: "standard", color: "#e09825", emissive: '#e09825', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '4',},},}, true);
 	comboLock[combo4Id] = auxl.Core(comboLock.combo4Data);
 
 	comboLock.comboAll = {
@@ -1052,34 +1069,37 @@ const ComboLock = (auxl, id, seq, run, position) => {
 		child4: {core: comboLock[combo4Id]},
 	}
 	comboLock[layerId] = auxl.Layer(layerId,comboLock.comboAll);
-
-
 	//Key Click
 	const KeyClick = (key) => {
-		console.log('Key Click');
-		console.log(key);
 		if(comboLock.locked){
 			CheckSeq(key);
 		}
 	}
 	//Check Sequence
 	const CheckSeq = (key) => {
-		if(key === comboLock.sequence[comboLock.current]){
-//console.log('Correct Key');
-			comboLock.current++;
-			if(comboLock.current >= comboLock.sequence.length){
-//console.log('Code Correct');
-				Unlock();
+		if(comboLock.correctSoFar){
+			if(key === comboLock.sequence[comboLock.current]){
+				comboLock.correctSoFar = true;
+			} else {
+				comboLock.correctSoFar = false;
 			}
-		} else {
-//console.log('Incorrect Key. Reset.');
-			comboLock.current = 0;
-			LockedAnim();
-			ToggleClick();
-			comboLock.unlockedTimeout = setTimeout(() => {
+		}
+		//Continue
+		comboLock.current++;
+		if(comboLock.current >= comboLock.sequence.length){
+			if(comboLock.correctSoFar){
+				//Correct Sequence
+				Unlock();
+			} else {
+				//Incorrect Sequence
+				Reset();
+				LockedAnim();
 				ToggleClick();
-				clearTimeout(comboLock.unlockedTimeout)
-			}, 2000);
+				comboLock.unlockedTimeout = setTimeout(() => {
+					ToggleClick();
+					clearTimeout(comboLock.unlockedTimeout)
+				}, 2000);
+			}
 		}
 	}
 	//Run
@@ -1094,7 +1114,6 @@ const ComboLock = (auxl, id, seq, run, position) => {
 	}
 	//Unlock
 	const Unlock = () => {
-//console.log('Unlocked');
 		comboLock.locked = false;
 		UnlockAnim();
 		ToggleClick();
@@ -1121,11 +1140,15 @@ const ComboLock = (auxl, id, seq, run, position) => {
 	const NewSequence = (newSeq) => {
 		clearTimeout(comboLock.lockedTimeout)
 		clearTimeout(comboLock.unlockedTimeout)
-		comboLock.locked = true;
-		comboLock.current = 0;
 		comboLock.sequence = newSeq;
+		Reset();
 	}
-
+	//Reset Lock
+	const Reset = () => {
+		comboLock.current = 0;
+		comboLock.correctSoFar = true;
+		comboLock.locked = true;
+	}
 	//Spawn Combo Lock
 	const SpawnComboLock = () => {
 		comboLock.locked = true;

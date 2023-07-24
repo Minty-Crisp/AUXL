@@ -289,10 +289,10 @@ const Core = (auxl, data) => {
 			//Link to DOM
 			core.domTimeout = setTimeout(() => {
 				core.dom = document.getElementById(core.id);
+				auxl.el.emit(core.id+'spawned',{});
 				//console.log(core.dom)
 				clearTimeout(core.domTimeout);
 			}, 100);
-
 			core.inScene = true;
 		}
 	}
@@ -338,10 +338,11 @@ const Core = (auxl, data) => {
 			}
 			core.dom = false;
 			core.inScene = false;
+			auxl.el.emit(core.id+'despawned',{});
 		}
 	}
 	//Toggle Spawn
-	const ToggleSpawn = (parent) => {
+	const ToggleSpawn = (parent, track) => {
 		let newParent = parent || false;
 		if(newParent){
 			core.parent = newParent;
@@ -350,6 +351,9 @@ const Core = (auxl, data) => {
 			DespawnCore();
 		} else {
 			SpawnCore(core.parent);
+			if(track){
+				auxl.spawnTracker(core.id, track);
+			}
 		}
 	}
 	//PosOnGrid
@@ -993,6 +997,45 @@ const Core = (auxl, data) => {
 			GetEl().removeAttribute(property);
 		}
 	}
+	//Physics
+	//Enable Physics
+	const EnablePhysics = (bodyShape) => {
+		if(bodyShape?.body){
+			core.body = bodyShape.body;
+			if(!core.body.type){
+				core.body.shape = 'dynamic';
+			}
+			if(!core.body.mass){
+				core.body.mass = 1;
+			}
+			core.body.shape = 'none';
+		} else if(!core.body){
+			core.body = {type: 'dynamic', shape: 'none', mass: 1};
+		}
+		if(bodyShape?.shape){
+			core.shape = bodyShape.shape;
+		} else if(core.shape){
+			if(core.data.geometry){
+				core.shape = core.data.geometry;
+				if(core.data.geometry.height){
+					core.shape.offset = new THREE.Vector3(0,core.data.geometry.height/2,0);
+				} else if(core.data.geometry.radius){
+					core.shape.offset = new THREE.Vector3(0,core.data.geometry.radius/2,0);
+				}
+			} else {
+				core.shape = {shape: 'box', height: 0.5, width: 0.5, depth: 0.5, offset: '0 0.25 0',};
+			}
+		}
+		//Add Physics Body
+		GetEl().setAttribute('body',core.body);
+		GetEl().setAttribute('shape__core',core.shape);
+
+		//Disable Rotation
+		//GetEl().body.fixedRotation = true;
+		//GetEl().body.updateMassProperties();
+
+//console.log(auxl.playerRig.GetEl().body)
+	}
 	//Physics Position
 	const PhysPos = (pos) => {
 		//Requires Dynamic or Static Body
@@ -1232,7 +1275,7 @@ console.log(update)
 		GetEl().removeEventListener('click', openClose);
 	}
 
-	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, ChangeCore, PhysPos, UpdatePhys, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
+	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, ChangeCore, EnablePhysics, PhysPos, UpdatePhys, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
 }
 //
 //Generate new Core Data from Template

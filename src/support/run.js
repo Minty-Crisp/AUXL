@@ -8,8 +8,9 @@
 //Run
 //Event Listener Components to run Auxl.Object.Methods()
 //
-//clickfunc
+//clickfunc - Outdated
 //clickrun
+//clickrunfunc
 //fusingrun
 //mousedownrun
 //mouseenterrun
@@ -18,6 +19,7 @@
 //menurun
 //hoverrun
 //onspawnrun
+//onspawnfunc
 //ondespawnrun
 //oneventrun
 //ondelayrun
@@ -76,6 +78,8 @@ events: {
 			if(document.getElementById(this.data.cursorObj)){
 				this.domEnt = document.getElementById(this.data.cursorObj);
 				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method]();
+				} else if(this.data.params === 'target'){
 					this.domEnt.components[this.data.component][this.data.method](evt.target);
 				} else {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);
@@ -103,6 +107,8 @@ init: function () {
 events: {
 	click: function (evt) {
 		if(this.data.params === 'null'){
+			this.auxl[this.data.method]();
+		} else if(this.data.params === 'target'){
 			this.auxl[this.data.method](evt.target);
 		} else {
 			this.auxl[this.data.method](this.data.params);
@@ -132,6 +138,8 @@ events: {
 		if(this.data.component === 'null'){
 			if(this.auxl[this.data.cursorObj][this.data.method]){
 				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method]();
+				} else if(this.data.params === 'target'){
 					this.auxl[this.data.cursorObj][this.data.method](evt.target);
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
@@ -142,6 +150,8 @@ events: {
 			if(document.getElementById(this.data.cursorObj)){
 				this.domEnt = document.getElementById(this.data.cursorObj);
 				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method]();
+				} else if(this.data.params === 'target'){
 					this.domEnt.components[this.data.component][this.data.method](evt.target);
 				} else {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);
@@ -173,6 +183,8 @@ events: {
 		if(this.data.component === 'null'){
 			if(this.auxl[this.data.cursorObj][this.data.method]){
 				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method]();
+				} else if(this.data.params === 'target'){
 					this.auxl[this.data.cursorObj][this.data.method](evt.target);
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
@@ -183,6 +195,8 @@ events: {
 			if(document.getElementById(this.data.cursorObj)){
 				this.domEnt = document.getElementById(this.data.cursorObj);
 				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method]();
+				} else if(this.data.params === 'target'){
 					this.domEnt.components[this.data.component][this.data.method](evt.target);
 				} else {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);
@@ -214,6 +228,8 @@ events: {
 		if(this.data.component === 'null'){
 			if(this.auxl[this.data.cursorObj][this.data.method]){
 				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method]();
+				} else if(this.data.params === 'target'){
 					this.auxl[this.data.cursorObj][this.data.method](evt.target);
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
@@ -224,6 +240,8 @@ events: {
 			if(document.getElementById(this.data.cursorObj)){
 				this.domEnt = document.getElementById(this.data.cursorObj);
 				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method]();
+				} else if(this.data.params === 'target'){
 					this.domEnt.components[this.data.component][this.data.method](evt.target);
 				} else {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);
@@ -255,6 +273,8 @@ events: {
 		if(this.data.component === 'null'){
 			if(this.auxl[this.data.cursorObj][this.data.method]){
 				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method]();
+				} else if(this.data.params === 'target'){
 					this.auxl[this.data.cursorObj][this.data.method](evt.target);
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
@@ -265,6 +285,8 @@ events: {
 			if(document.getElementById(this.data.cursorObj)){
 				this.domEnt = document.getElementById(this.data.cursorObj);
 				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method]();
+				} else if(this.data.params === 'target'){
 					this.domEnt.components[this.data.component][this.data.method](evt.target);
 				} else {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);
@@ -296,6 +318,8 @@ events: {
 		if(this.data.component === 'null'){
 			if(this.auxl[this.data.cursorObj][this.data.method]){
 				if(this.data.params === 'null'){
+					this.auxl[this.data.cursorObj][this.data.method]();
+				} else if(this.data.params === 'target'){
 					this.auxl[this.data.cursorObj][this.data.method](evt.target);
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
@@ -306,6 +330,8 @@ events: {
 			if(document.getElementById(this.data.cursorObj)){
 				this.domEnt = document.getElementById(this.data.cursorObj);
 				if(this.data.params === 'null'){
+					this.domEnt.components[this.data.component][this.data.method]();
+				} else if(this.data.params === 'target'){
 					this.domEnt.components[this.data.component][this.data.method](evt.target);
 				} else {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);

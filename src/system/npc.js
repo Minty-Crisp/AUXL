@@ -515,7 +515,7 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 	//Speaking Controls
 	const DisplaySpeech = ({role,speech}) => {
 		KillBlink();
-		let startText = role + ' :\n';
+		let startText = role + ' : ';
 		let currText = startText;
 		let currChar = 0;
 		if(core.type === 'core'){
@@ -610,6 +610,8 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 				if(core.type === 'core'){
 					core.GetEl().setAttribute('text',{value: core.blinkText0});
 				} else {
+//BUG - Issue here sometimes on idle speech
+//core.GetParentEl() is null
 					core.GetParentEl().setAttribute('text',{value: core.blinkText0});
 				}
 				core.blinking = true;
@@ -777,6 +779,11 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 	//Despawn NPC
 	const DespawnNPC = () => {
 		if(npc.inScene){
+			ClearBookSpawn();
+			clearTimeout(spawnTimeout);
+			clearTimeout(idleTimeout);
+			DisableSpeech();
+			DisableIdleSpeech();
 			if(npc.speaking){
 				if(npc.special){
 					RemoveNPCEventsChildren('mouseenter',NextTimeline);
@@ -792,11 +799,6 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 					RemoveNPCEventsAll('mouseenter',EnableSpeech);
 				}
 			}
-			ClearBookSpawn();
-			clearTimeout(spawnTimeout);
-			clearTimeout(idleTimeout);
-			DisableSpeech();
-			DisableIdleSpeech();
 			if(npc.avatarType === 'core'){
 				npc.avatar.DespawnCore();
 			} else {

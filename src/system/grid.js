@@ -1627,8 +1627,15 @@ original.splice(original.indexOf(each), 1);
 	const UpdateEdge = (core) => {
 		grid.edge = core;
 	}
+	//Update Edge Core Material
+	const UpdateEdgeMaterial = (material) => {
+		grid.edge.core.material = material;
+	}
 	//Spawn Map Edge Object
-	const SpawnEdges = () => {
+	const SpawnEdges = (updates) => {
+		if(updates){
+			UpdateEdgeMaterial(updates);
+		}
 		let pos = (grid.size/4) +1;
 		let length = (grid.size/2) +2.5;
 

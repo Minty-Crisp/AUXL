@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A-Frame UX Library | v0.3 Engine Example</title>
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="16x16" crossorigin="anonymous" href="./assets/img/favicon/favicon.ico"/>
+<link rel="icon" type="image/png" sizes="16x16" href="./assets/img/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="./assets/img/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="76x76" href="./assets/img/favicon/apple-touch-icon.png">
+<link rel="mask-icon" href="./assets/img/favicon/safari-pinned-tab.svg" color="#5bbad5">
+<!-- Search Info -->
+<meta name="description" content="A-Frame UX Library | v0.3 Engine Example by Minty Crisp">
+<meta name="keywords" content="A-Frame,aframe,xr,webxr,vr,webvr,ar, webar,html,css,javascript,3d,blender,virtual,reality,virtualreality,auxl,ux,library,aframeux,aframeuxlibrary,engine,aframeuxlibraryengine,minty,crisp,mintycrisp,minty-crisp,minty_crisp,justin,ekema,justinekema">
+<!-- Social Media Share -->
+<meta property="og:title" content="A-Frame UX Library | v0.3 Engine Example by Minty Crisp">
+<meta property="og:type" content="XR">
+<meta property="og:url" content="auxlibrary.com">
+<!-- A-Frame official release 1.4.2
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script> -->
+<!-- local -->
+<script src="./assets/js/aframe-v1.4.2.min.js"></script>
+<!-- Physics
+<script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script> -->
+<script src="./assets/js/aframe-physics-system.min.js"></script>
+<!-- MVP.css -->
+<link rel="stylesheet" href="./assets/css/mvp.css">
+<!-- CSS -->
+<link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<!-- A-Frame UX Library Engine v0.3 -->
+<script src="./auxl.js"></script>
+<script src="./demo-physics.js"></script>
+
+<body id="htmlBody">
+<!-- Sticky -->
+<div id="stickyBar" class="sticky flexRow">
+	<span class="flexRow flexStart">
+		<img id="stickyIcon" src="./assets/img/favicon/favicon-32x32.png" alt="site-icon" / class="flexCol">
+		<span id="stickyTitle" class="flexCol"><h3 id='systemText'> A-Frame UX Library | v0.3</h3></span>
+	</span>
+	<span class="flexRow">
+		<span class="flexCol"><h4 id="scenarioHeaderTitle"></h4></span>
+		<button id="stickyMenu" class="flexCol">Menu</button>
+	</span>
+</div>
+<!-- Begin Experience -->
+<div id="beginDiv">
+<span class="flexCol"><h4 id="scenarioMenuTitle"></h4></span>
+<li><button class="menu" id="startButton">Start</button></li>
+<li><button id="menuModeButton" class="flexCol">Mode : Desktop</button></li>
+<li><button id="vrHandButton" class="flexCol">2 Hands : Right Ray | Left Move</button></li>
+<li><button id="vrLocomotionType" class="flexCol">Direction : Camera</button></li>
+<li><button id="audioButton" class="flexCol">Sound : Disabled</button></li>
+<li><div id='audioVolume' class="flexRow"><button id="volDownButton">-</button><h2 id="volume">1</h2><button id="volUpButton">+</button></div></li>
+<li><button id="viewInfo" class="flexCol">View Instructions</button></li>
+<li><button id="viewData" class="flexCol">Reset Data</button></li>
+</div>
+<!-- Experience Instructions -->
+<div id="expInfo">
+<li><button id="infoClose" class="flexCol">Close</button></li>
+<li id="instructions">Scenario Instructions.</li>
+<li>- - - - - - -</li>
+<li>Controls :</li>
+<li>Desktop -> Move : WASD or Arrows | Speed Toggle : E</li>
+<li>Mobile -> Move : Buttons | Speed Toggle : B</li>
+<li>VR -> Move : Hover on Belt or Joystick | Speed Toggle : Bottom Belt</li>
+<li>- - - - - - -</li>
+<li><a href="https://mintycrisp.com">More by Minty Crisp</a></li>
+</div>
+<!-- Data -->
+<div id="dataInfo">
+<li><button id="dataClose" class="flexCol">Close</button></li>
+<li id="manageData">Manage Data</li>
+<li><button id="resetData" class="flexCol">Confirm Reset</button>
+</div>
+<main>
+<a-scene
+physics="debug: true;"
+auxl
+library
+scene-library
+scenes
+vr-mode-ui="enabled: true;"
+device-orientation-permission-ui="enabled: true; deviceMotionMessage: Allow access to Motion and Orientation?"
+renderer="antialias: true; colorManagement: true; sortObjects: true"
+>
+<!-- - - - - - - - - - - Assets - - - - - - - - - - -->
+<a-assets timeout="3000">
+
+<!-- - - - - - - - - - - Import - - - - - - - - - - -->
+
+<!-- - - - - - - - - - - Timeline - - - - - - - - - - -->
+
+<!-- - - - - - - - - - - Mixins - - - - - - - - - - -->
+
+</a-assets>
+
+<!-- - - - - - - - - - - Player Controls - - - - - - - - - - -->
+<a-entity id="playerRig" position="0 0 0.5"
+><a-entity id="playerBody" position="0 0 0"
+><a-camera id="camera"
+position="0 1.6 0"
+look-controls="enabled: true; reverseMouseDrag: false; reverseTouchDrag: false; touchEnabled: true; mouseEnabled: true; pointerLockEnabled: false; magicWindowTrackingEnabled: true"
+wasd-controls="enabled: false;"
+></a-camera></a-entity></a-entity>
+<!-- - - - - - - - - - - Lights - - - - - - - - - - -->
+<!-- Directional -->
+<a-entity id="directionalLight"
+light="type: directional; intensity: 0.1; castShadow: false" position="-1 1 -1"
+></a-entity>
+<a-entity id="ambientLight"
+light="type: ambient; color: #99154E; intensity: 0.7"
+></a-entity>
+<!-- - - - - - - - - - - Debug - - - - - - - - - - -->
+<!--
+<a-sphere material="shader:displacement-offset"
+myoffset-updater
+scale="1 1 1"
+radius="0.2"
+position="0 1.5 -2"
+segments-height="128"
+segments-width="128">
+<a-animation attribute="scale" direction="alternate-reverse" dur="5000" from="1 1 1" to="4 4 4" repeat="indefinite"></a-animation>
+</a-sphere>
+-->
+<!-- Display Input
+<a-entity id="displayInput" 
+position="0 3.5 -3" rotation="45 0 0"
+geometry="primitive: plane; width: 1.5; height: 0.6;"
+material="color: #304a39; shader: flat; opacity: 1; side: double"
+text="value: No Input; color: white; align: center;"
+>
+<a-text
+value="Display Input"
+color="white" align="center" width="1.4" position="0 0.225 0"
+></a-text></a-entity> -->
+
+</a-scene>
+</main>
+
+<!-- - - - - - - - - - - HTML Controller - - - - - - - - - - -->
+<div id="controllerBlock">
+<!-- Directional Buttons -->
+<!-- Column 1 -->
+<div id="directional-buttons" class="column col1">
+<!-- Row 1 -->
+<div id="" class="directions">
+<button id="upLeft" class="directionButtons">&#8598;</button>
+<button id="up" class="directionButtons">&#8593;</button>
+<button id="upRight" class="directionButtons">&#8599;</button>
+</div>
+<!-- Row 2 -->
+<div id="" class="directions">
+<button id="left" class="directionButtons">&#8592;</button>
+<button id="center" class="directionButtons">.</button>
+<button id="right" class="directionButtons">&#8594;</button>
+</div>
+<!-- Row 3 -->
+<div id="" class="directions">
+<button id="downLeft" class="directionButtons">&#8601;</button>
+<button id="down" class="directionButtons">&#8595;</button>
+<button id="downRight" class="directionButtons">&#8600;</button>
+</div>
+<!-- End Directional Buttons -->
+</div>
+<!-- L/R -->
+<div id="" class="snapView">
+<button id="l" class="snapButtons">&#8592;</button>
+<button id="r" class="snapButtons">&#8594;</button>
+</div>
+<!-- Start | Select Buttons -->
+<!-- Column 2 -->
+<div id="start-select-buttons" class="column col2">
+<div id="" class="startselect">
+<button id="select" class="startSelectButtons">Select</button>
+<button id="start" class="startSelectButtons">Start</button>
+</div>
+<!-- End Start | Select Buttons -->
+</div>
+<!-- A | B Buttons -->
+<!-- Column 3 -->
+<div id="abc-buttons" class="column col3">
+<div id="" class="abcdef">
+
+<div id="" class="ad">
+<div id="" class="a">
+<button id="a" class="actionButtons">A</button>
+</div>
+<div id="" class="d">
+<button id="d" class="actionButtons">D</button>
+</div>
+</div>
+
+<div id="" class="be">
+<div id="" class="b">
+<button id="b" class="actionButtons">B</button>
+</div>
+<div id="" class="e">
+<button id="e" class="actionButtons">E</button>
+</div>
+</div>
+
+<div id="" class="cf">
+<div id="" class="c">
+<button id="c" class="actionButtons">C</button>
+</div>
+<div id="" class="f">
+<button id="f" class="actionButtons">F</button>
+</div>
+</div>
+
+</div>
+<!-- End ABC Buttons -->
+</div>
+
+<!-- End Controller -->
+</div>
+<!-- - - - - - - - - - - End - - - - - - - - - - -->
+</body>
+</html>

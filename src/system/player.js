@@ -40,6 +40,7 @@ const Player = (auxl, id,layer) => {
 	layer.move = false;
 	//Locomotion Type
 	layer.moveType = {pov : '1st', axis : 'posXYZ', style : 'free'}
+	//layer.moveType = {pov : '1st', axis : 'posXZ', style : 'free'}
 	//Sitting or Standing Mode
 	layer.stand = true;
 	//Duck | Standing
@@ -107,6 +108,25 @@ const Player = (auxl, id,layer) => {
 
 	//Menu Toggle
 	layer.menuToggle = true;
+
+	//Physics
+	layer.playerPhysics = false;
+
+	layer.physMove = 'impulse';
+	//impulse
+	//position
+
+	layer.body = {type: 'dynamic', shape: 'none', mass: 1, angularDamping: 0.5, linearDamping: 0.5};
+	//layer.shape = {shape: 'cylinder', height: 1.8, radiusTop: 0.5, radiusBottom: 0.5, offset: '0 0.9 0',};
+	layer.shape = {shape: 'cylinder', height: 1.8, radiusTop: 0.5, radiusBottom: 0.5, offset: '0 0.9 0',};
+
+	layer.handBody = {type: 'dynamic', shape: 'none', mass: 0.1};
+	//layer.handShape = {shape: 'box', height: 0.01, width: 0.01, depth: 0.01, offset: '0 1 -0.5',};
+	layer.hand1Shape = {shape: 'box', halfExtents: '0.1 0.1 0.1', offset: '0.5 1 -0.5',};
+	layer.hand2Shape = {shape: 'box', halfExtents: '0.1 0.1 0.1', offset: '-0.5 1 -0.5',};
+
+	layer.jumping = false;
+	layer.jumpTimeout;
 
 	//Spawn Player
 	layer.SpawnLayer();
@@ -655,6 +675,102 @@ const Player = (auxl, id,layer) => {
 		}
 	}
 
+	//Physics
+	//Enable Physics
+	const EnablePhysics = (bodyShape) => {
+		if(bodyShape?.body){
+			layer.body = bodyShape.body;
+		}
+		if(bodyShape?.shape){
+			layer.shape = bodyShape.shape;
+		}
+		//Add Avatar Body
+		auxl.playerRig.EnablePhysics({body: layer.body, shape: layer.shape});
+
+		auxl.playerRig.GetEl().setAttribute('shape__hand1',layer.handShape);
+		auxl.playerRig.GetEl().setAttribute('shape__hand2',layer.hand2Shape);
+		layer.playerPhysics = true;
+
+		auxl.playerRig.ChangeSelf({property:'bodymaterial', value: {friction:0.01, restitution:0.01}});
+		auxl.playerRig.ChangeSelf({property:'collision', value: null});
+
+		//Disable Rotation for now
+		auxl.playerRig.GetEl().body.fixedRotation = true;
+		auxl.playerRig.GetEl().body.updateMassProperties();
+
+		//Add Hand
+		//auxl.camera.EnablePhysics({body: layer.handBody, shape: layer.handShape});
+
+		//Sync Camera Movement to Phys
+		//auxl.camera.ChangeSelf({property: 'camerasync', value: null});
+
+		//Connect Hand to Body
+		//auxl.camera.ChangeSelf({property: 'auxconstraint__hand', value: {type: 'pointToPoint', pivotB: new THREE.Vector3(0,1.6,0), connectTo: 'playerRig', maxForce: 1e6, collideConnected: false}});
+
+	}
+	//Phys Jump
+	const PhysJump = (velocity) => {
+		if(!layer.jumping){
+			layer.jumping = true;
+			if(!velocity){
+				velocity = 5;
+			}
+			auxl.playerRig.GetEl().body.velocity.y = velocity;
+		}
+	}
+	//Phys Jump Reset
+    auxl.playerRig.GetEl().addEventListener("collide",function(e){
+    	const contactNormal = new CANNON.Vec3();
+    	const upAxis = new CANNON.Vec3(0,1,0);
+        const contact = e.detail.contact;
+        if(contact.bi.id == auxl.playerRig.GetEl().body.id){
+            contact.ni.negate(contactNormal);
+		} else {
+            contactNormal.copy(contact.ni);
+		}
+        if(contactNormal.dot(upAxis) > 0.5){
+			layer.jumping = false;
+		}
+    });
+	//Phys Boost
+	const PhysBoost = (velocity) => {
+		if(!velocity){
+			velocity = 10;
+		}
+		auxl.playerRig.GetEl().body.velocity.y = velocity;
+	}
+	//Phys Dash
+	const PhysDash = (direction,velocity) => {
+		if(!direction){
+			direction = 'reverse';
+		}
+		if(!velocity){
+			velocity = 10;
+		}
+		//Works the best with friction
+		auxl.playerRig.GetEl().body.applyLocalImpulse(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
+
+		//auxl.playerRig.GetEl().body.applyImpulse(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
+		//auxl.playerRig.GetEl().body.applyForce(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
+		//auxl.playerRig.GetEl().body.applyLocalForce(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
+		//auxl.playerRig.GetEl().components.locomotion.directionXZ(direction, velocity,)
+	}
+	//Low Grav
+	const LowGrav = () => {
+		auxl.playerRig.GetEl().body.applyLocalForce(new THREE.Vector3(0,4.8,0),new THREE.Vector3(0,0,0));
+//applying a small (less than gravity) upward force every tick. 
+	}
+
+	//Phys Pickup
+	const PhysPickup = (object) => {
+		//auxl.camera.ChangeSelf({property: 'auxconstraint__'+object, value: {type: 'lock', connectTo: object, maxForce: 1e6, collideConnected: false}});
+	}
+
+	//Phys Drop
+	const PhysDrop = (object) => {
+		//auxl.camera.RemoveComponent('auxconstraint__'+object);
+	}
+
 	//Assign to each joystick, 
 	//Player Rotation
 	const UpdatePlayerRotation = (axisX,axisY,axisZ) => {
@@ -722,18 +838,26 @@ const Player = (auxl, id,layer) => {
 	const Forward = (speed, div) => {
 		return div += layer.speed;
 	}
-
+	//Speed
 	const Speed = (velocity) => {
 		layer.speed = velocity;
 
 	}
-
+	//Toggle Background Audio
+	const ToggleBackgroundAudio = () => {
+		auxl.backgroundAudio = !auxl.backgroundAudio;
+		if(auxl.backgroundAudio){
+			auxl.playerAudio.SpawnCore(auxl.playerRig);
+		} else {
+			auxl.playerAudio.DespawnCore();
+		}
+	}
 	//Testing Function
 	const TestFunc = (params) => {
 		console.log(params);
 	}
 
-	return {layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, UpdatePlayerPosition, TwistTo, TestFunc};
+	return {layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, PhysJump, PhysBoost, PhysDash, LowGrav, PhysPickup, PhysDrop, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, TestFunc};
 }
 
 //
@@ -774,7 +898,9 @@ const Companion = (auxl, id, object, inventory) => {
 
 	//NPC
 	//auxl.compNPC = auxl.NPC('compNPC', comp.avatar, auxl.compBookData, auxl.compBubble, true);
-	auxl.compNPC = auxl.NPC('compNPC', comp.avatar, auxl.compBookData, auxl.compBubbleLayer, true);
+	//Basic Book Data
+	comp.bookData = auxl.compBookData;
+	auxl.compNPC = auxl.NPC('compNPC', comp.avatar, comp.bookData, auxl.compBubbleLayer, true);
 
 	//Inventory
 	comp.enableInventory = inventory || false;
@@ -804,7 +930,7 @@ const Companion = (auxl, id, object, inventory) => {
 			style: false,
 			title: 'Travel to',
 			description: 'Select your next travel destination.',
-			subMenu: 'menu1',
+			subMenu: 'travel1',
 			action: false,
 		},
 		button2:{
@@ -830,7 +956,7 @@ const Companion = (auxl, id, object, inventory) => {
 			},
 		},
 	},
-	menu1:{
+	travel1:{
 		button0:{
 			id: 'subMenu4',
 			style: false,
@@ -1168,6 +1294,26 @@ const Companion = (auxl, id, object, inventory) => {
 	tools1:{},
 	keys1:{},
 	specials1:{},
+/*
+	menu1:{
+		button0:{
+			id: 'subMenu4',
+			style: false,
+			title: 'Sub Menu 4 Test',
+			description: 'A test sub menu.',
+			subMenu: 'menu4',
+			action: false,
+		},
+		button1:{
+			id: 'subMenu5',
+			style: false,
+			title: 'Sub Menu 5 Test',
+			description: 'A test sub menu.',
+			subMenu: 'menu5',
+			action: false,
+		},
+	},
+*/
 	};
 
 	if(comp.enableInventory){
@@ -1237,12 +1383,10 @@ const Companion = (auxl, id, object, inventory) => {
 		position.y = comp.height;
 		return position;
 	}
-
 	//Testing Function
 	const TestFunc = (params) => {
 		console.log(params);
 	}
-
 	//Emoti Prep
 	let speechIntervalB;
 	let speechTimeoutB;
@@ -1350,7 +1494,6 @@ const Companion = (auxl, id, object, inventory) => {
 			respawn = true;
 			DespawnComp();
 		}
-
 		let rebuildTimeout = setTimeout(() => {
 			if(auxl[newObj].SpawnCore){
 				comp.avatarType = 'core';
@@ -1369,7 +1512,22 @@ const Companion = (auxl, id, object, inventory) => {
 			}
 		clearTimeout(rebuildTimeout);
 		}, 400);
-
+	}
+	//Update Book
+	const UpdateBook = (bookData) => {
+		let respawn = false;
+		if(comp.inScene){
+			respawn = true;
+			DespawnComp();
+		}
+		comp.bookData = bookData;
+		let rebuildTimeout = setTimeout(() => {
+			auxl.compNPC = auxl.NPC('compNPC', comp.avatar, comp.bookData, auxl.compBubbleLayer, true);
+			if(respawn){
+				SpawnComp();
+			}
+		clearTimeout(rebuildTimeout);
+		}, 400);
 	}
 	//Toggle playerFloor Clickable Class
 	const ToggleSpawnClick = () => {
@@ -1757,7 +1915,7 @@ const Companion = (auxl, id, object, inventory) => {
 		UpdateInventoryMenuCategory('specials');
 	}
 
-	return{comp, TestFunc, AddAvatar, UpdateShape, SpawnComp, DespawnComp, SetFlag, GetFlag, UpdatePosition, ToggleControlView, UpdateMainMenu, UpdateMainMenuStyle, EnableInventory, AddToInventory, ClearInventoryNotifications, RemoveFromInventory, CheckInventory, CheckForKey, UpdateInventoryMenu};
+	return{comp, TestFunc, AddAvatar, UpdateShape, UpdateBook, SpawnComp, DespawnComp, SetFlag, GetFlag, UpdatePosition, ToggleControlView, UpdateMainMenu, UpdateMainMenuStyle, EnableInventory, AddToInventory, ClearInventoryNotifications, RemoveFromInventory, CheckInventory, CheckForKey, UpdateInventoryMenu};
 }
 
 //

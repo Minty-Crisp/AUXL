@@ -18,6 +18,12 @@ init: function () {
 const auxl = document.querySelector('a-scene').systems.auxl;
 
 
+//Fonts
+//
+//auxl.exo2Bold = './assets/fonts/Exo2Bold.fnt';
+//Even when only using this font and locally, still get an error for Roboto font
+//Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://cdn.aframe.io/fonts/Roboto-msdf.png. (Reason: CORS request did not succeed). Status code: (null).
+
 //Colors
 //
 
@@ -156,7 +162,7 @@ text: false,
 geometry: false,
 material: false,
 position: new THREE.Vector3(0,0,1),
-rotation: new THREE.Vector3(0,0	,0),
+rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
@@ -395,8 +401,11 @@ rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent','player', 'clickable'],
-components: false,
+//classes: ['a-ent','player', 'clickable'],
+classes: ['a-ent','player'],
+components: {
+visible: false,
+},
 };
 auxl.playerFloor = auxl.Core(auxl.playerFloorData);
 //Player Audio
@@ -1281,7 +1290,7 @@ auxl.compBubbleParentData = {
 data:'compBubbleParentData',
 id:'compBubbleParent',
 sources:false,
-text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.75, zOffset: 0.025, side: 'front', wrapCount: 30, baseline: 'center'},
+text: {value:'... ... ...', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.75, zOffset: 0.025, side: 'front', wrapCount: 35, baseline: 'center'},
 geometry: {primitive: 'box', depth: 0.025, width: 0.8, height: 0.15},
 material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
 position: new THREE.Vector3(0,0.45,-0.05),

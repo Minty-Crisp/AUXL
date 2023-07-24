@@ -41,6 +41,7 @@ init: function () {
 /*************************************************************/
 //System
 const auxl = this;
+this.auxl = auxl;
 this.expStarted = false;
 this.defaultWorld;
 this.currentWorld;
@@ -502,11 +503,6 @@ gate:{type:'gate', spawn: 'SpawnGate', despawn: 'DespawnGate'},
 imageSwapper:{type:'imageSwapper', spawn: 'SpawnImgSwap', despawn: 'DespawnImgSwap'},
 imageCarousel:{type:'imageCarousel', spawn: 'SpawnImgCarousel', despawn: 'DespawnImgCarousel'},
 comboLock:{type:'comboLock', spawn: 'SpawnComboLock', despawn: 'DespawnComboLock'},
-//gameMenu:{type:'gameMenu', spawn: 'SpawnGameMenu', despawn: 'DespawnGameMenu'},
-memory:{type:'memory', spawn: 'SpawnMemGame', despawn: 'DespawnMemGame'},
-swipeLaunch:{type:'swipeLaunch', spawn: 'SpawnSLGame', despawn: 'DespawnSLGame'},
-guessHit:{type:'guessHit', spawn: 'SpawnGHGame', despawn: 'DespawnGHGame'},
-dragDiffuse:{type:'dragDiffuse', spawn: 'SpawnDDGame', despawn: 'DespawnDDGame'},
 };
 //Add Custom Built Object to Tracker
 this.AddObjGenToTracker = (type, spawn, despawn, altSpawn) => {
@@ -623,7 +619,7 @@ this.events = {};
 //Day|Night Time Length
 this.timeInDay = 360000;
 //Physics
-this.physics = false;
+this.worldPhysics = false;
 //Collision Maps
 this.collisionMap = [[],[]];
 this.triggerMap = [[],[]];
@@ -789,28 +785,30 @@ function enableMobileControls(){
 }
 //Controls Menu
 function controlsMenu(state){
-	//Old
-	if(auxl.controls === 'Desktop'){
-		disableVRControls();
-	} else if(auxl.controls === 'Mobile'){
-		disableMobileControls();
-	} else if(auxl.controls === 'VR'){
-		vrHandButton.style.display = 'none';
-		vrLocomotionType.style.display = 'none';
-		disableVRControls();
-	}
-	//New
-	if(state === 'Desktop'){
-		menuModeButton.innerHTML = 'Mode : Desktop'
-		enableDesktopControls();
-	} else if(state === 'Mobile'){
-		menuModeButton.innerHTML = 'Mode : Mobile';
-		enableMobileControls();
-	} else if(state === 'VR'){
-		menuModeButton.innerHTML = 'Mode : VR';
-		vrHandButton.style.display = 'flex';
-		vrLocomotionType.style.display = 'flex';
-		enableVRControls();
+	if(auxl.controls === state){}else{
+		//Old
+		if(auxl.controls === 'Desktop'){
+			disableDesktopControls();
+		} else if(auxl.controls === 'Mobile'){
+			disableMobileControls();
+		} else if(auxl.controls === 'VR'){
+			vrHandButton.style.display = 'none';
+			vrLocomotionType.style.display = 'none';
+			disableVRControls();
+		}
+		//New
+		if(state === 'Desktop'){
+			menuModeButton.innerHTML = 'Mode : Desktop'
+			enableDesktopControls();
+		} else if(state === 'Mobile'){
+			menuModeButton.innerHTML = 'Mode : Mobile';
+			enableMobileControls();
+		} else if(state === 'VR'){
+			menuModeButton.innerHTML = 'Mode : VR';
+			vrHandButton.style.display = 'flex';
+			vrLocomotionType.style.display = 'flex';
+			enableVRControls();
+		}
 	}
 	//Update State
 	auxl.controls = state;
@@ -1110,6 +1108,18 @@ this.ToggleHTML = (id, display) => {
 
 //
 //Support
+
+//
+//Links
+
+//Open a Link
+this.OpenLink = (link, newTab) => {
+	let target = false;
+	if(newTab){
+		target = '_blank';
+	}
+	open(link, target);
+}
 
 //
 //DOM Scene
@@ -1629,8 +1639,8 @@ this.HoverMenu = (hoverMenuData) => {
 //
 //Combo Lock
 //Enter Correct Sequence to Run Func
-this.ComboLock = (id, seq, run, position) => {
-	return ComboLock(auxl, id, seq, run, position);
+this.ComboLock = (id, display, seq, run, position) => {
+	return ComboLock(auxl, id, display, seq, run, position);
 }
 
 //
@@ -1805,6 +1815,7 @@ checkSceneLoad: function (time, timeDelta) {
 			this.player.layer.teleporting = false;
 			this.player.EnableClick();
 		}
+		this.auxl.el.emit('sceneLoaded',{});
 	}
 },
 //AUXL Tick - Running Throttled checkSceneLoad()
