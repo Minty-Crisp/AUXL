@@ -91,6 +91,7 @@ const Player = (auxl, id,layer) => {
 	layer.infoText = 'Player :\n'
 
 	//Collision
+	layer.position = new THREE.Vector3(0,0,0);
 	layer.gridPos = new THREE.Vector3(0,0,0);
 	layer.gridDirection = 'still';
 	//forwardRight
@@ -112,21 +113,81 @@ const Player = (auxl, id,layer) => {
 	//Physics
 	layer.playerPhysics = false;
 
-	layer.physMove = 'impulse';
-	//impulse
-	//position
+	//Joystick Movement Type
+	layer.physMove = true;
+	//impulse affetect by physics engine
+	//position, not affected by physics engine
 
-	layer.body = {type: 'dynamic', shape: 'none', mass: 1, angularDamping: 0.5, linearDamping: 0.5};
-	//layer.shape = {shape: 'cylinder', height: 1.8, radiusTop: 0.5, radiusBottom: 0.5, offset: '0 0.9 0',};
-	layer.shape = {shape: 'cylinder', height: 1.8, radiusTop: 0.5, radiusBottom: 0.5, offset: '0 0.9 0',};
+	//Rig Attributes
 
+	//Test Backup
+	let bodyBackup = {
+		name: 'testingBodyv0.1',
+		type: 'dynamic', 
+		shape: 'none',
+		mass: 1,
+		angularDamping: 0.5,
+		linearDamping: 0.5,
+		friction : 0.1,
+		restitution : 1
+	};
+	//Test Body 1
+	let playerTestBody1 = {
+		name: 'playerTestBody0.1',
+		type: 'dynamic', 
+		shape: 'none',
+		mass: 3,
+		angularDamping: 0.2,
+		linearDamping: 0.2,
+		friction : 0.1,
+		restitution : 1
+	};
+	//All Player Body Styles
+	let bodyStyles = {};
+	bodyStyles.default = playerTestBody1;
+	//Assign current body type
+	layer.body = bodyStyles.default;
+
+	//Test Backup
+	let shapeBackup = {
+		name: 'testingShapev0.1',
+		type: 'dynamic', 
+		shape: 'none',
+		mass: 1,
+		angularDamping: 0.5,
+		linearDamping: 0.5,
+		friction : 0.1,
+		restitution : 1
+	};
+	//Test Shape 1
+	let testShape1 = {
+		name: 'testingShapev0.1',
+		shape: 'cylinder',
+		height: 1.8,
+		radiusTop: 0.5,
+		radiusBottom: 0.5,
+		offset: '0 0.9 0',
+	};
+	//All
+	let shapeStyles = {};
+	shapeStyles.default = testShape1;
+	//Assign current body type
+	layer.shape = shapeStyles.default;
+
+	//Avatar
+
+	//Hands
 	layer.handBody = {type: 'dynamic', shape: 'none', mass: 0.1};
 	//layer.handShape = {shape: 'box', height: 0.01, width: 0.01, depth: 0.01, offset: '0 1 -0.5',};
 	layer.hand1Shape = {shape: 'box', halfExtents: '0.1 0.1 0.1', offset: '0.5 1 -0.5',};
 	layer.hand2Shape = {shape: 'box', halfExtents: '0.1 0.1 0.1', offset: '-0.5 1 -0.5',};
 
+	//Allow Jump
 	layer.jumping = false;
 	layer.jumpTimeout;
+
+	//Link
+	//layer.distance = 25;
 
 	//Spawn Player
 	layer.SpawnLayer();
@@ -251,6 +312,21 @@ const Player = (auxl, id,layer) => {
 		auxl.sphereScreen.ChangeSelf({property: 'material', value:{color: newColor}});
 		auxl.blink1Screen.ChangeSelf({property: 'material', value:{color: newColor}});
 		auxl.blink2Screen.ChangeSelf({property: 'material', value:{color: newColor}});
+	}
+	//Get Camera Direction
+	const GetCameraDirection = () => {
+		//Get the direction vector in world space
+		let direction = new THREE.Vector3();
+		camera.object3D.getWorldDirection(direction);
+		return direction;
+/*
+		//Calculate the position based on the direction and distance
+		let distance = 1;
+		let position = new THREE.Vector3();
+		position.copy(camera.object3D.position).add(new THREE.Vector3(direction.x, direction.y, direction.z).normalize().multiplyScalar(distance));
+console.log(position)
+		return position;
+*/
 	}
 	//Toggle Belt Text
 	const ToggleBeltText = () => {
@@ -675,8 +751,826 @@ const Player = (auxl, id,layer) => {
 		}
 	}
 
+
+	//Distance from Player
+	const DistanceFromPlayer = (position) => {
+		let distance = position.distanceTo(GetPlayerInfo().pos);
+		return distance;
+	}
+
+//
+//Interaction States
+//on tick, check wether to run interaction update
+
+//Indv Racyaster Inputs
+//4 Button/Trigger Combo
+//8 Button Configs
+//Position | Rotation | Raycaster | El
+
+//12 Base info
+
+//2 Hover menus per raycaster
+//Quick Powers / Layouts
+//Menu
+
+//17 conditions
+
+//Rotation
+//Joystick/Cursor
+//Position
+//Collision
+
+//Button Events & Combos :
+//Free
+//Main Button
+//Alt Button
+//Main Trigger
+//Alt Trigger
+
+
+
+
+
+//6DoF Cursor Actions :
+//Select Point - Main Index Raycaster Distance or Instersection
+//Select Point Alt - Main Index Racaster Aim Rotation Offset Distance or Instersection
+//Grab - start, hold, release, postional, collision
+//Hold - hold, release, postional, rotational
+//Drop - release, postional
+//Throw - start, hold, release, postional, rotational, velocity
+//Catch - start, hold, release, postional, rotational
+//Poke - start, release, collision, postitional, rotational
+//Punch - start, release, collision, postitional, rotational
+//Extend - start, release, collision, postitional, rotational
+//Slingshot - hold, release, postional, rotational
+//Yo Yo / Plumball - start, release, collision, postitional, rotational
+//Drive - start, hold, release, xypostional, rotational
+//Joystick - start, hold, release, xzpostional, rotational
+//Trackball - start, hold, release, xyzpostional, rotational
+//Duals : Dual machine controller, wheel and stick, keyboard with trackpad, etc...
+//Keysl - tap, press, hold, release, match, pattern,
+//Drum - Rythym
+//Flick - build power, launch
+//Wack - positional, collision
+//Swing (Bat) - collision
+//Hold and Pull (Bow) - collision
+//Gun - collision
+//Custom
+//
+//Combo - multiple actions activating at once
+//Advanced - multiple actions in sequence and timing
+
+//Styles :
+//Arc / Straight / Boost / Fall / Pulse / Pattern / Lock / Custom
+//Speed / Boost / Build / 
+
+
+
+	//,etc...
+
+	//Rotation/Raycaster Required
+	//Position Required
+	//Trigger Main
+	//Trigger Alt
+	//Button Main
+	//Button Alt
+
+	//Set up stacked events for each such as mousedown
+
+	//6 Inputs
+	//2 Buttons
+	//2 Triggers
+	//1 Position (collision)
+	//1 Rotation {raycaster direction}
+
+	//6 Modes
+	//Free
+	//Start
+	//Tap
+	//Hold
+	//Release
+	//Double
+
+
+
+//Retreive tick based
+//Button Updates
+//Button Combos
+//Rotation
+//Joystick/Cursor
+//Position
+//Collision
+
+//Raycaster
+
+	layer.raycaster = {};
+	layer.raycaster.name = 'minty0';
+	layer.raycaster.powers = {};
+	layer.raycaster.power = 'rubberband';
+
+	//Add to playerRig a support component for updating important info
+	//Power Controller
+	const PowerController = (event) => {
+console.log({event: 'Power Controller Running', event})
+		//depending on the event input run power section
+
+		//Connect to and run powers main controller for tick based controls
+
+		//Temp
+		//
+		//Rubber Band
+		if(layer.raycaster.power === 'rubberband'){
+			RubberbandController();
+		}
+
+	}
+
+
+	//Power Obj Gen
+	const Power = (powerData) => {
+		//Base Class
+		let raycaster = {}
+		raycaster.data = powerData; 
+		raycaster.last = false;
+		raycaster.localHome = false;
+		raycaster.worldHome = false;
+		return raycaster;
+
+	}
+	//Toggles
+	layer.toggle0 = false;
+	layer.toggle1 = false;
+
+//Temp
+//Hold down space button to activate rubberband
+//Key Down
+document.body.addEventListener('keydown', (e) => {
+	if (e.key === ' ') {
+		//Start moving player
+		layer.toggle0 = true;
+	} else if (e.key === 'b' || e.key === 'B') {
+		//Start moving player
+		layer.toggle1 = true;
+	}
+
+});
+//Key Up
+document.body.addEventListener('keyup', (e) => {
+
+	if (e.key === ' ') {
+		//Start moving player
+		layer.toggle0 = false;
+		Delink();
+	} else if (e.key === 'b' || e.key === 'B') {
+		//Start moving player
+		layer.toggle1 = false;
+		Delink();
+	}
+
+});
+
+
+	//Cursor|Link
+	//VR Dual 6Dof Controller Raycaster
+	//
+	//Extend from raycaster
+	//Object Intersecting
+	//Object synced attached to raycaster movement/rotation
+	const Link = (data) => {
+		//Currently setup for a single link to player
+		//Link
+		layer.distance = 25;
+		//Need a system for building link to self, link to link and link to links
+		//Link Controller
+		auxl.linkHoverMenuData = {
+		info:{
+			id: 'linkHoverMenu',
+			buttonData: auxl.menuCylinderData,
+			hoverData: auxl.menuHoverData,
+			title: 'Link Hover Menu',
+			description: 'A link hover menu for quick access.',
+			layout:'circleUp',
+			offset: -1,
+			attached: false,
+			parent: 'playerBody',
+			posOffset: new THREE.Vector3(0,1.5,-2),
+		},
+		menu:{
+			button0:{
+				id: 'action1',
+				style: false,
+				title: 'Rubber',
+				description: 'Launch yourself at link.',
+				subMenu: false,
+				action: {
+					auxlObj: 'player',
+					component: false,
+					method: 'LinkControls',
+					params: 'rubber',
+					menu: 'close',
+				},
+			},
+			button1:{
+				id: 'action2',
+				style: false,
+				title: 'Power',
+				description: 'Swing from a far current distance',
+				subMenu: false,
+				action: {
+					auxlObj: 'player',
+					component: false,
+					method: 'LinkControls',
+					params: 'power',
+					menu: 'close',
+				},
+			},
+	/*
+			button2:{
+				id: 'action3',
+				style: false,
+				title: 'Weak',
+				description: 'Connect from short current distance',
+				subMenu: false,
+				action: {
+					auxlObj: 'player',
+					component: false,
+					method: 'LinkControls',
+					params: 'weak',
+					menu: 'close',
+				},
+			},
+	*/
+	/*
+			button3:{
+				id: 'action4',
+				style: false,
+				title: 'Mid',
+				description: 'Connect from mid current distance',
+				subMenu: false,
+				action: {
+					auxlObj: 'player',
+					component: false,
+					method: 'LinkControls',
+					params: 'mid',
+					menu: 'close',
+				},
+			},
+	*/
+			button4:{
+				id: 'action5',
+				style: false,
+				title: 'Swing',
+				description: 'Swing from current distance',
+				subMenu: false,
+				action: {
+					auxlObj: 'player',
+					component: false,
+					method: 'LinkControls',
+					params: 'swing',
+					menu: 'close',
+				},
+			},
+		},
+		};
+		auxl.linkHoverMenu = auxl.HoverMenu(auxl.linkHoverMenuData);
+
+
+
+		let maxLinkLength = 30;
+		layer.linkLength = 1;
+		//2 Modes 
+		//Link to Self
+		//Link to Other
+
+		//Get 1 link tp self working for now
+
+		//Link
+		let linkData = {
+			data:'linkData',
+			id: 'linkCore',
+			sources: false,
+			text: false,
+			geometry: {primitive: 'sphere', radius: 0.25,},
+			material: {shader: "standard", color: "#ebd107", emissive: '#ebd107', emissiveIntensity: 0.25, opacity: 0.75},
+			position: new THREE.Vector3(0,0,0),
+			rotation: new THREE.Vector3(0,0,0),
+			scale: new THREE.Vector3(1,1,1),
+			animations: false,
+			mixins: false,
+			classes: ['a-ent'],
+			components: {
+				body:{type: 'static', shape: 'none', mass: 0,},
+				bodymaterial: {friction: 0, restitution: 0},
+	/*
+				auxspring:{
+					connectTo: 'playerRig',
+					restLength: 1,
+					damping: 0.5,
+					stiffness: 10,
+					collideConnected: false,
+					always: true,
+				},
+				*/
+			},
+		};
+		//let name = 'magLink' + Object.keys(layer.links).length;
+		layer.linkCore = auxl.Core(auxl.coreDataFromTemplate(linkData, false, true));
+		layer.linkConfig = {
+			type: 'auxspring',
+			to: 'playerRig',
+			minOneLength: 0,
+			maxOneLength: 30,
+			restLength: 1,
+			damping: 0.5,
+			stiffness: 10,
+		};
+		layer.linkCoreConstraint = auxl.Constraints(layer.linkCore, layer.linkConfig, false)
+		layer.linkCoreType = 'rubber';
+
+		const LinkControls = (template) => {
+			layer.linkCoreType = template;
+			if(layer.linkCoreType === 'rubber'){
+				layer.linkConfig = {
+					type: 'auxspring',
+					to: 'playerRig',
+					minOneLength: 0,
+					maxOneLength: 20,
+					restLength: 0,
+					damping: 0.0001,
+					stiffness: 1000,
+				}
+			} else if(layer.linkCoreType === 'power'){
+				layer.linkConfig = {
+					type: 'auxspring',
+					to: 'playerRig',
+					minOneLength: 0,
+					maxOneLength: 40,
+					restLength: 3,
+					damping: 0.5,
+					stiffness: 100,
+				}
+			} else if(layer.linkCoreType === 'swing'){
+				layer.linkConfig = {
+					type: 'auxspring',
+					to: 'playerRig',
+					minOneLength: 0,
+					maxOneLength: 100,
+					restLength: 1,
+					damping: 0.3,
+					stiffness: 100,
+				}
+			}
+			layer.linkCoreConstraint.Update(layer.linkConfig);
+		}
+
+		layer.linkInterval;
+	}
+
+	//Pointing
+	const ActionPoint = (event) => {
+		//Use default raycaster for intersection interaction
+		//Raycaster Pointing
+		//Direction
+		//Intersection
+
+	}
+
+
+	//
+	//Actions
+
+	//Both need to connect to closest intersection object if instead
+
+	//Rubber Controller
+	const RubberbandController = (event) => {
+		//Rubber Tick Controls
+console.log('Rubberband running')
+	}
+	//Rubberband
+	const RubberbandUp = (event) => {
+		if(layer.toggle0){
+			//console.log(event)
+			//console.log('Link')
+			//console.log(this.data.type)
+			//console.log(event)
+			console.log('click')
+			clearInterval(layer.playerLinkInt);
+	//instead of event.detail.intersection.point
+	//get camera/hand direction and multiple by distance
+	//always a set distance?
+
+	//if the mouseup hits somewhere else first within the max distance of the link, use those coords instead
+
+			layer.building = false;
+			layer.power /= 1000;
+			layer.positionNew = new THREE.Vector3();
+			layer.position = new THREE.Vector3();
+			layer.quaternion = new THREE.Quaternion();
+			//layer.position.copy(GetCameraDirection());
+			layer.object3D = auxl.camera.GetEl().object3D;
+			layer.quaternion.copy(layer.object3D.quaternion);
+			layer.position.copy(auxl.playerRig.GetEl().body.position);
+
+	//console.log(auxl.camera.GetEl().Object3D.getWorldDirection())
+	//layer.position.copy(auxl.camera.GetEl().object3D.getLocalDirection()));
+	console.log(layer.quaternion)
+	console.log(layer.position)
+			//layer.position.negate();
+	//console.log(layer.position)
+		// Step 1: Get the Object3D's rotation as a Quaternion
+		const rotationQuaternion = layer.quaternion.clone();
+		// Step 2: Create a direction vector pointing towards the positive Z-axis
+		const direction = new THREE.Vector3(0, 0, -1);
+	console.log(direction)
+		// Step 3: Apply the object's rotation to the direction vector
+		direction.applyQuaternion(rotationQuaternion);
+	console.log(direction)
+	console.log(layer.distance)
+		// Step 4: Scale the direction vector to the desired distance
+		direction.multiplyScalar(layer.distance);
+	console.log(direction)
+		// Step 5: Add the scaled direction vector to the Object3D's position
+		layer.positionNew = layer.position.clone().add(direction);
+			//layer.positionNew.copy(layer.position.multiplyScalar(layer.distance));
+	console.log(layer.positionNew)
+	console.log(layer.distance)
+	console.log(layer.power)
+			auxl.player.LinkTo(layer.positionNew, layer.power);
+		}
+	}
+	//Rubberband
+	const RubberbandDown = (event) => {
+		if(layer.toggle0){
+			console.log(event)
+			auxl.player.Delink();
+			layer.power = 1000;
+			clearInterval(layer.playerLinkInt)
+			//Get Charge
+			layer.playerLinkInt = setInterval(() => {
+				if(!layer.linking){
+					//Rubberband
+					if(layer.power > 30){
+						layer.power -= 15;
+			console.log(layer.power)
+					} else {
+						clearInterval(layer.playerLinkInt);
+					}
+				} else {
+					clearInterval(layer.playerLinkInt);
+				}
+
+			}, 1);
+		}
+	}
+	//Rubber Start
+	const RubberbandStart = (event) => {
+		//Trigger 1
+		auxl.mouseController.GetEl().addEventListener('mousedown',RubberbandDown);
+		auxl.mouseController.GetEl().addEventListener('mouseup',RubberbandUp);
+	}
+
+	//Rubber Stop
+	const RubberbandStop = (event) => {
+		auxl.mouseController.GetEl().removeEventListener('mousedown',RubberbandDown);
+		auxl.mouseController.GetEl().removeEventListener('mouseup',RubberbandUp);
+	}
+
+
+	//
+	//A Rubber Band Slam
+	//Quick pull towards the point and decrease the restLength
+	//Rubber Controller
+	const RubberbandSlamController = (event) => {
+		//Rubber Tick Controls
+console.log('Rubberband Slam running')
+	}
+	//Rubberband
+	const RubberbandSlamUp = (event) => {
+if(layer.toggle1){
+	//console.log(event)
+	//console.log('Link')
+	//console.log(this.data.type)
+	//console.log(event)
+	console.log('click')
+	clearInterval(layer.playerLinkInt);
+//instead of event.detail.intersection.point
+//get camera/hand direction and multiple by distance
+//always a set distance?
+
+//if the mouseup hits somewhere else first within the max distance of the link, use those coords instead
+
+	layer.building = false;
+	layer.power /= 1000;
+	layer.positionNew = new THREE.Vector3();
+	layer.position = new THREE.Vector3();
+	layer.quaternion = new THREE.Quaternion();
+	//layer.position.copy(GetCameraDirection());
+	layer.object3D = auxl.camera.GetEl().object3D;
+	layer.quaternion.copy(layer.object3D.quaternion);
+	layer.position.copy(auxl.playerRig.GetEl().body.position);
+
+//console.log(auxl.camera.GetEl().Object3D.getWorldDirection())
+//layer.position.copy(auxl.camera.GetEl().object3D.getLocalDirection()));
+console.log(layer.quaternion)
+console.log(layer.position)
+	//layer.position.negate();
+//console.log(layer.position)
+// Step 1: Get the Object3D's rotation as a Quaternion
+const rotationQuaternion = layer.quaternion.clone();
+// Step 2: Create a direction vector pointing towards the positive Z-axis
+const direction = new THREE.Vector3(0, 0, -1);
+console.log(direction)
+// Step 3: Apply the object's rotation to the direction vector
+direction.applyQuaternion(rotationQuaternion);
+console.log(direction)
+console.log(layer.distance)
+// Step 4: Scale the direction vector to the desired distance
+direction.multiplyScalar(layer.distance);
+console.log(direction)
+// Step 5: Add the scaled direction vector to the Object3D's position
+layer.positionNew = layer.position.clone().add(direction);
+	//layer.positionNew.copy(layer.position.multiplyScalar(layer.distance));
+console.log(layer.positionNew)
+console.log(layer.distance)
+console.log(layer.power)
+	auxl.player.SlamTo(layer.positionNew, layer.power, layer.distance);
+
+
+
+		}
+	}
+	//Rubberband
+	const RubberbandSlamDown = (event) => {
+		if(layer.toggle1){
+			console.log(event)
+			auxl.player.Delink();
+			layer.power = 1000;
+			clearInterval(layer.playerLinkInt)
+			//Get Charge
+			layer.playerLinkInt = setInterval(() => {
+				if(!layer.linking){
+					//Rubberband
+					if(layer.power > 30){
+						layer.power -= 15;
+			console.log(layer.power)
+					} else {
+						clearInterval(layer.playerLinkInt);
+					}
+				} else {
+					clearInterval(layer.playerLinkInt);
+				}
+
+			}, 1);
+		}
+	}
+	//Rubber Start
+	const RubberbandSlamStart = (event) => {
+		//Trigger 1
+		auxl.mouseController.GetEl().addEventListener('mousedown',RubberbandSlamDown);
+		auxl.mouseController.GetEl().addEventListener('mouseup',RubberbandSlamUp);
+	}
+
+	//Rubber Stop
+	const RubberbandSlamStop = (event) => {
+		auxl.mouseController.GetEl().removeEventListener('mousedown',RubberbandSlamDown);
+		auxl.mouseController.GetEl().removeEventListener('mouseup',RubberbandSlamUp);
+	}
+
+
+
+
+	//Link To Hit
+/*
+	const LinkToHit = (position) => {
+console.log('LinkToHit')
+console.log(position)
+let positionTest = new THREE.Vector3();
+positionTest.copy(position)
+console.log(positionTest)
+		//if the distance between this point and the player is less then the distance then set it to this
+
+console.log(length)
+if(length > layer.distance){
+console.log('connect to object')
+	positionTest = false;
+}
+LinkTo(positionTest, layer.power)
+	}
+//let length = positionTest.distanceTo(auxl.playerRig.GetEl().body.position);
+*/
+
+	//Get Object Instersection overriding
+
+	//Link To
+	const LinkTo = (position, power, distance) => {
+		if(!layer.linking){
+		console.log('Link To');
+		console.log(position);
+		console.log(power);
+
+		layer.linking = true;
+		let timeout = setTimeout(() => {
+			layer.linking = false;
+		}, 250);
+		//Try instead of spawning on on clickable items, just have on mousedown start building power and on mouseup connect
+
+		if(!position){
+			//Calculate the position based on the direction and distance
+			position = new THREE.Vector3();
+			position.copy(GetCameraDirection());
+			position.copy(position).add(new THREE.Vector3(distance, distance, distance).normalize().multiplyScalar(distance));
+		} else {
+console.log(position)
+		}
+		let distance = DistanceFromPlayer(position);
+
+		//Sping
+		//Spring Point
+		//Jump to Distance aka power
+		//Spawn, spring, despawn
+		//Closer to 0, the greater the power
+		layer.linkLength = distance * power;
+		//layer.linkCoreConstraint.Connect({restLength: layer.linkLength});
+		layer.linkCoreConstraint.Connect({type: 'auxspring', restLength: layer.linkLength, damping: 0.5, stiffness: 10, maxForce: 1e6});
+		//Display Link
+		if(layer.linkCore.core.inScene){
+			layer.linkCore.PhysPos(position);
+		} else {
+//console.log('Spawn')
+			layer.linkCore.core.position = position;
+			layer.linkCore.SpawnCore();
+		}
+//Swing
+/*
+		if(above){
+			//Swing
+			//Display Hook on falling, but disable constraint
+			layer.linkCoreConstraint.Disable();
+			clearInterval(layer.linkInterval)
+			let connect = new THREE.Vector3();
+			connect.copy(position)
+			layer.linkInterval = setInterval(() => {
+	console.log('link checking')
+				if(position.y >= GetPlayerInfo().pos.y){
+	console.log('link hit')
+					layer.linkLength = distance;
+					layer.linkCoreConstraint.Connect({restLength: layer.linkLength});
+					layer.linking = false;
+					//layer.linkCoreConstraint.Connect({type: 'pointToPoint'});
+					clearInterval(layer.linkInterval)
+				}
+			}, 1);
+		} else {
+			layer.linkLength = distance * power;
+		}
+*/
+		}
+	}
+
+	//Slam To
+	const SlamTo = (position, power, distance) => {
+		if(!layer.linking){
+		console.log('Slamming To');
+		console.log(position);
+		console.log(power);
+
+		layer.linking = true;
+		let timeout = setTimeout(() => {
+			layer.linking = false;
+		}, 250);
+		//Try instead of spawning on on clickable items, just have on mousedown start building power and on mouseup connect
+
+		if(!position){
+			//Calculate the position based on the direction and distance
+			position = new THREE.Vector3();
+			position.copy(GetCameraDirection());
+			position.copy(position).add(new THREE.Vector3(distance, distance, distance).normalize().multiplyScalar(distance));
+		} else {
+console.log(position)
+		}
+		let distance = DistanceFromPlayer(position);
+
+		//Sping
+		//Spring Point
+		//Jump to Distance aka power
+		//Spawn, spring, despawn
+		//Closer to 0, the greater the power
+		layer.linkLength = 0;
+/*
+	type: 'auxspring',
+	to: 'playerRig',
+	minOneLength: 0,
+	maxOneLength: 30,
+	restLength: 1,
+	damping: 0.5,
+	stiffness: 10,
+*/
+		layer.linkCoreConstraint.Connect({type: 'distance', distance: layer.linkLength, maxForce: 1e6});
+
+	//Change Damping
+
+	console.log(auxl.playerRig.GetEl().body)
+	let slamTimeout = setTimeout(() => {
+		auxl.playerRig.GetEl().body.linearDamping = 1;
+		let slamTimeout2 = setTimeout(() => {
+			auxl.playerRig.GetEl().body.linearDamping = 0.2;
+		}, 1000);
+	}, 1000);
+		//layer.linkCoreConstraint.Connect({type: 'auxspring', restLength: layer.linkLength, damping: 100, stiffness: 100, maxForce: 1e6});
+console.log(layer.linkCoreConstraint)
+/*
+	let slamTimeout = setTimeout(() => {
+		layer.linkCoreConstraint.Disconnect();
+		layer.linkCoreConstraint.Connect({type: 'lock', distance: layer.linkLength, damping: 1, stiffness: 1, maxForce: 1e6});
+		let slamTimeout2 = setTimeout(() => {
+			layer.linkCoreConstraint.Disconnect();
+		}, 3000);
+	}, 1500);
+*/
+
+		//Display Link
+		if(layer.linkCore.core.inScene){
+			layer.linkCore.PhysPos(position);
+		} else {
+//console.log('Spawn')
+			layer.linkCore.core.position = position;
+			layer.linkCore.SpawnCore();
+		}
+
+
+		}
+	}
+	//Delink
+	const Delink = () => {
+		if(layer.linkCore.core.inScene){
+//console.log('Delink');
+			layer.linkCore.DespawnCore();
+		}
+	}
+	//Link Up
+	const LinkUp = () => {
+		if(layer.linkCore.core.inScene){
+//console.log('Link Up');
+			if(layer.linkLength < maxLinkLength){
+				layer.linkLength++;
+			}
+			layer.linkCoreConstraint.Connect({restLength: layer.linkLength});
+		}
+	}
+	//Link Dowm
+	const LinkDown = () => {
+		if(layer.linkCore.core.inScene){
+//console.log('Link Down');
+			if(layer.linkLength > 1){
+				layer.linkLength--;
+			}
+			layer.linkCoreConstraint.Connect({restLength: layer.linkLength});
+		}
+	}
+	//Link Grab
+	const LinkGrab = (link, el) => {
+console.log('Link Grab');
+console.log(el)
+
+//Instead of contraint, anim body to player holding point
+
+/*
+auxl.playerRig.ChangeSelf({property: 'body', value:{mass: 0}});
+el.setAttribute('auxconstraint', {type: 'distance', connectTo: 'playerRig', distance: 1,})
+
+let grabTimeout = setTimeout(() => {
+auxl.playerRig.ChangeSelf({property: 'body', value:{mass: bodyWeight}});
+clearTimeout(grabTimeout)
+}, 1000);
+*/
+	}
+	//Link Drop
+	const LinkDrop = (link, name) => {
+console.log('Link Drop');
+console.log(name)
+	}
+	//Link Shoot
+	const LinkShoot = (link, name) => {
+console.log('Link Shoot');
+console.log(name)
+	}
+	//Link Hit
+	const LinkHit = (link, event) => {
+console.log('Link Hit');
+console.log(event.target)
+console.log(event.detail)
+console.log(event.detail.intersection.point)
+		//Apply directional impulse force at point of intersection
+		let impulse = GetCameraDirection();
+		impulse.x *= -2;
+		impulse.y *= -2;
+		impulse.z *= -2;
+		event.target.body.applyLocalImpulse(impulse,new THREE.Vector3(0,0,0));
+		}
+
 	//Physics
 	//Enable Physics
+	//Enable Powers
 	const EnablePhysics = (bodyShape) => {
 		if(bodyShape?.body){
 			layer.body = bodyShape.body;
@@ -686,11 +1580,22 @@ const Player = (auxl, id,layer) => {
 		}
 		//Add Avatar Body
 		auxl.playerRig.EnablePhysics({body: layer.body, shape: layer.shape});
+		//Temp
+		//Load at start of power with power related data
+		Link();
+		RubberbandStart();
+		RubberbandSlamStart();
+		Power();
+		//Linked component
+		//auxl.mouseController.GetEl().setAttribute('playerlink');
+
+//console.log(auxl.mouseController.GetEl())
+
+
 
 		auxl.playerRig.GetEl().setAttribute('shape__hand1',layer.handShape);
-		auxl.playerRig.GetEl().setAttribute('shape__hand2',layer.hand2Shape);
+		//auxl.playerRig.GetEl().setAttribute('shape__hand2',layer.hand2Shape);
 		layer.playerPhysics = true;
-
 		auxl.playerRig.ChangeSelf({property:'bodymaterial', value: {friction:0.01, restitution:0.01}});
 		auxl.playerRig.ChangeSelf({property:'collision', value: null});
 
@@ -706,7 +1611,6 @@ const Player = (auxl, id,layer) => {
 
 		//Connect Hand to Body
 		//auxl.camera.ChangeSelf({property: 'auxconstraint__hand', value: {type: 'pointToPoint', pivotB: new THREE.Vector3(0,1.6,0), connectTo: 'playerRig', maxForce: 1e6, collideConnected: false}});
-
 	}
 	//Phys Jump
 	const PhysJump = (velocity) => {
@@ -760,7 +1664,6 @@ const Player = (auxl, id,layer) => {
 		auxl.playerRig.GetEl().body.applyLocalForce(new THREE.Vector3(0,4.8,0),new THREE.Vector3(0,0,0));
 //applying a small (less than gravity) upward force every tick. 
 	}
-
 	//Phys Pickup
 	const PhysPickup = (object) => {
 		//auxl.camera.ChangeSelf({property: 'auxconstraint__'+object, value: {type: 'lock', connectTo: object, maxForce: 1e6, collideConnected: false}});
@@ -857,7 +1760,7 @@ const Player = (auxl, id,layer) => {
 		console.log(params);
 	}
 
-	return {layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, PhysJump, PhysBoost, PhysDash, LowGrav, PhysPickup, PhysDrop, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, TestFunc};
+	return {layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, PowerController, LinkTo, SlamTo, Delink, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, PhysBoost, PhysDash, LowGrav, PhysPickup, PhysDrop, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, TestFunc};
 }
 
 //

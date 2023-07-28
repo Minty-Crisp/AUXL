@@ -7,7 +7,337 @@
 //
 //Build
 //
+//Link
+//Gen Phys Object
 //BuildIn3D
+
+
+//Link Phys Objects
+const Constraints = (auxl, core, linkData, atStart) => {
+	let constraint = {}
+	constraint.on = atStart || false;
+	constraint.core = core;
+	constraint.type = linkData.type || 'auxspring';
+	constraint.to = linkData.to || 'playerRig';
+	constraint.id = 'constraint' + core.id +  Math.floor(Math.random().toFixed(8)*10000000);
+	constraint.minLength = 0;
+	constraint.maxLength = 20;
+	constraint.pivotA = new THREE.Vector3(0,0,0);
+	constraint.pivotB = new THREE.Vector3(0,0,0);
+	constraint.axisA = new THREE.Vector3(0,0,0);
+	constraint.axisB = new THREE.Vector3(0,0,0);
+	constraint.maxForce = 1e6;
+	constraint.restLength = linkData.restLength || 1;
+	constraint.damping =  linkData.damping || 0.5;
+	constraint.stiffness =  linkData.stiffness || 10;
+	constraint.collideConnected = true;
+	constraint.always = true;
+
+	//Build
+	const Build = () => {
+		//Type
+		if(constraint.type === 'lock'){
+			//Lock
+			constraint.connect = {
+				name: 'auxconstraint__'+constraint.id,
+				type: constraint.type,
+				connectTo: constraint.to,
+				maxForce: 1e6,
+				collideConnected: constraint.collideConnected,
+				always: constraint.always,
+			};
+		} else if(constraint.type === 'pointToPoint'){
+			//pointToPoint
+			constraint.connect = {
+				name : 'auxconstraint__'+constraint.id,
+				type: constraint.type,
+				connectTo: constraint.to,
+				pivotA:  constraint.pivotA,
+				pivotB:  constraint.pivotB,
+				maxForce: constraint.maxForce,
+				collideConnected: constraint.collideConnected,
+				always: constraint.always,
+			};
+		} else if(constraint.type === 'coneTwist'){
+			//coneTwist
+			constraint.connect = {
+				name : 'auxconstraint__'+constraint.id,
+				type: constraint.type,
+				connectTo: constraint.to,
+				pivotA: constraint.pivotA,
+				pivotB: constraint.pivotB,
+				axisA: constraint.axisA,
+				axisB: constraint.axisB,
+				maxForce: constraint.maxForce,
+				collideConnected: constraint.collideConnected,
+				always: constraint.always,
+			};
+		} else if(constraint.type === 'hinge'){
+			//hinge
+			constraint.connect = {
+				name : 'auxconstraint__'+constraint.id,
+				type: constraint.type,
+				connectTo: constraint.to,
+				pivotA: constraint.pivotA,
+				pivotB: constraint.pivotB,
+				axisA: constraint.axisA,
+				axisB: constraint.axisB,
+				maxForce: constraint.maxForce,
+				collideConnected: constraint.collideConnected,
+				always: constraint.always,
+			};
+		} else if(constraint.type === 'auxspring'){
+			//auxspring
+			constraint.connect = {
+				name : 'auxspring__'+constraint.id,
+				connectTo: constraint.to,
+				restLength: constraint.restLength,
+				damping: constraint.damping,
+				stiffness: constraint.stiffness,
+				collideConnected: constraint.collideConnected,
+				always: constraint.always,
+			};
+		}
+	}
+
+	//Update
+	const Update = (data) => {
+		if(data){
+			if(data.type){
+				constraint.type = data.type;
+			}
+			if(data.restLength){
+				constraint.restLength = data.restLength;
+			}
+			if(data.damping){
+				constraint.damping = data.damping;
+			}
+			if(data.stiffness){
+				constraint.stiffness = data.stiffness;
+			}
+			if(data.maxForce){
+				constraint.maxForce = data.maxForce;
+			}
+/*
+			for(let each in data){
+				if(typeof each[each] !== "undefined"){
+					constraint[each] = each[data];
+				}
+			}
+*/
+		}
+		Build();
+
+	}
+	//Update Self
+//console.log({event: 'constraint prebuild', base: constraint, update: linkData})
+	Update(linkData);
+//console.log({event: 'constraint updated', base: constraint})
+	//Connect To
+	const Connect = (data) => {
+//console.log(core)
+//console.log({event: 'constraint ostbuild', base: constraint, update: data || false})
+		//Setup with non physics component attach as well
+		Update(data);
+console.log({core: constraint, update: data})
+		constraint.core.core.components[constraint.connect.name] = constraint.connect;
+		constraint.core.ChangeSelf({property: constraint.connect.name, value: constraint.connect}, true);
+	}
+	//Disconnect Self
+	const Disable = () => {
+		delete constraint.core.core.components[constraint.connect.name];
+//console.log({event: 'constraint disconnet', base: constraint})
+	}
+	//Disconnect Self
+	const Disconnect = () => {
+		constraint.core.RemoveComponent(constraint.connect.name);
+//console.log({event: 'constraint disconnet', base: constraint})
+	}
+
+	//Connect Right Away if On
+	if(constraint.on){
+		Connect();
+	}
+
+	return {constraint, Update, Connect, Disconnect, Disable};
+}
+
+
+//Gen a Phys Object 
+const One = (auxl, objGen, oneData) => {
+//Phys objects pertain to a single core wether that be solo or the parent (core/layer)
+	//one
+	let one = {};
+	one.objGen = objGen;
+	one.core = false;
+	one.layer = false;
+	if(objGen.core){
+		one.core = objGen;
+	} else if(objGen.layer){
+		one.core = objGen.layer.all.parent.core;
+		one.layer = objGen;
+	}
+	one.num = Math.random().toFixed(8);
+	one.name = one.core.id + 'Phys' || 'objPhys';
+	one.id = one.name + one.num;
+
+	//Physc Settings
+	one.loaded = false;
+	one.type = 'static';
+	one.shape = 'box';
+	one.mass = 0;
+	one.friction = 0;
+	one.restitution = 0;
+	one.connectTo = 0;
+	//one.restLength = 0;
+	one.length = 0;
+	one.damping = 0;
+	one.stiffness = 0;
+	//Body
+	one.body = {
+		type: one.type,
+		mass: one.mass,
+		shape: 'none',
+	};
+	//Default shape if none
+	one.shapes = {};
+	//Shapes
+	one.shapes.cylinder = {shape: 'cylinder', height: 1, radiusTop: 1, radiusBottom: 1, offset: '0 0 0',};
+	one.shapes.box =  {shape: 'box', height: 1, width: 1, depth: 1, offset: '0 0 0',};
+	one.shapes.sphere = {shape: 'sphere', radius: 1, width: 1, depth: 1, offset: '0 0 0',};
+	//Total shape of phys layer
+	one.avatar = [one.shapes.sphere,];
+
+	one.bodymaterial = {
+		friction: one.friction, 
+		restitution: one.restitution
+	};
+	one.connections = [];
+
+	//Update Phys Data
+	const UpdatePhys = (data) => {
+		if(data){
+			for(let each in data){
+				one[each] = data[each];
+			}
+		}
+		//Prep Core Components
+		if(!one.core.core.components){
+			one.core.core.components = {};
+		}
+		//Add all bodies to data
+		for(let each in one.avatar){
+			one.core.core.components['shapes__'+ each] = one.avatar[each];
+		}
+		one.core.core.components.body = {property: 'body', value: one.body};
+		one.core.core.components.bodymaterial = {property: 'bodymaterial', value: one.bodymaterial};
+		if(one.loaded){
+			one.core.ChangeSelf(one.avatar);
+			one.core.ChangeSelf([{property: 'body', value: one.body}, {property: 'bodymaterial', value: one.bodymaterial}]);
+		}
+	}
+console.log(one)
+	UpdatePhys(oneData);
+console.log(one)
+	//Load Phys to Core
+	const TogglePhys = () => {
+		if(one.loaded){
+			for(let each in one.avatar){
+				one.core.core.RemoveComponent('shapes__'+ each);
+			}
+			one.core.RemoveComponent(['body','bodymaterial']);
+			one.loaded = false;
+		} else {
+			UpdatePhys(data);
+			one.core.ChangeSelf(one.avatar);
+			one.core.ChangeSelf([{property: 'body', value: one.body}, {property: 'bodymaterial', value: one.bodymaterial}]);
+			one.loaded = true;
+		}
+	}
+	//Spawn Object
+	const SpawnOne = () => {
+		UpdatePhys();
+		if(one.layer){
+			one.layer.SpawnLayer();
+		} else {
+			one.core.SpawnCore();
+		}
+	}
+	//Despawn Object
+	const DespawnOne = () => {
+		if(one.layer){
+			one.layer.DespawnLayer();
+		} else {
+			one.core.DespawnCore();
+		}
+		one.loaded = false;
+	}
+
+	//Constraints
+	one.constraint = {};
+//layer.linkMain.Link('linkMain',{position, type: 'auxspring', restLength: DistanceFromPlayer(position)});
+	//Link
+	const Link = (distance) => {
+		//one.constraint = constraint(auxl, one, true, data);
+		//one.constraint.constraint.type = data.type;
+		//one.constraint.constraint.position = data.position;
+		//one.constraint.constraint.length = data.length;
+//console.log(one.constraint)
+		//one.constraint.Connect();
+		one.core.ChangeSelf({property: 'auxspring__'+one.id, value: {
+			connectTo: one.to,
+			restLength: one.length,
+			damping: one.damping,
+			stiffness: one.stiffness,
+			collideConnected: one.collideConnected,
+			always: one.always,
+		}})
+
+	}
+	//Unlink
+	const Unlink = () => {
+		one.core.RemoveComponent('auxspring__'+one.id)
+	}
+	//Unlink All
+	const UnlinkAll = () => {
+		for(let each of one.constraint){
+			one.constraint[each].Disconnect(one);
+		}
+		one.constraint = {};
+	}
+/*
+	//Link
+	const Link = (id, data) => {
+console.log(id)
+console.log(data)
+		data.name = id;
+		one.constraints[id] = constraint(auxl, one, true, data);
+
+console.log(one.constraints[id])
+		one.constraints[id].Connect(one);
+	}
+	//Unlink
+	const Unlink = (id) => {
+		one.constraints[id].Disconnect(one);
+		delete one.constraints[id];
+	}
+	//Unlink All
+	const UnlinkAll = () => {
+		for(let each of one.constraints){
+			one.constraints[each].Disconnect(one);
+		}
+		one.constraints = {};
+	}
+*/
+
+	return {one, SpawnOne, DespawnOne, UpdatePhys, TogglePhys, Link, Unlink, UnlinkAll};
+
+}
+
+
+
+
+
 
 //
 //Build Core/Layer/Other objects in the 3D environment
@@ -95,6 +425,7 @@ components: false,
 };
 
 */
+	//attach look-at with buffer
 	one.buildMenuData = {
 	info:{
 		id: 'buildMenu',
@@ -103,9 +434,10 @@ components: false,
 		title: 'Build Mode',
 		description: 'Build objects.',
 		layout:'circleUp',
-		posOffset: new THREE.Vector3(0,1.5,1.5),
+		posOffset: new THREE.Vector3(0,1.5,-1.5),
 		offset: -1,
-		parent: false,
+		parent: 'playerRig',
+		look: {buffer: 0.65, drag: 0.25, match: 'camera', x:false, y:true, z:false},
 		stare: false,
 	},
 	menu0:{
@@ -544,6 +876,12 @@ components: false,
 
 	};
 	auxl.buildMenu = auxl.MultiMenu(one.buildMenuData);
+	//auxl.buildMenu.menuLayer.layer;
+/*
+	components: {
+		['look-at-xyz']:},
+	},
+*/
 
 	one.building.geometry = {};
 	one.building.geometry.plane = {primitive: 'plane', width: 0.5, height: 0.5};
@@ -664,4 +1002,4 @@ components: false,
 
 //
 //Export
-export default BuildIn3D;
+export {Constraints, One, BuildIn3D};

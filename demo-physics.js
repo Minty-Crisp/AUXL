@@ -43,7 +43,7 @@ mid2:{property: 'material.middleColor', from: '#fffb96', to: '#99154E', dur: aux
 
 },
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: false,
 };
 auxl.skyGrad1 = auxl.Core(auxl.skyGrad1Data);
@@ -89,6 +89,47 @@ auxl.skyBox1 = auxl.SkyBox(auxl.skyBox1Data);
 auxl.world = auxl.el.systems.physics.driver.world;
 //console.log(auxl.world)
 
+//Build
+auxl.build = auxl.BuildIn3D();
+/*
+//Testing One Phys Object
+auxl.oneTest0Data = {
+data:'oneTest0Data',
+id:'oneTest0',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 0.25, depth: 0.25, height: 0.25},
+material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '4 4'},
+position: new THREE.Vector3(0,10,-3),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: false,
+};
+auxl.oneTest0 = auxl.Core(auxl.oneTest0Data);
+
+auxl.phys1Data = {
+	type : 'dynamic',
+	shape : 'box',
+	mass : 0.1,
+	friction : 0,
+	restitution : 0,
+	connectTo : false,
+	restLength : 0,
+	damping : 0,
+	stiffness : 0,
+}
+
+//auxl.oneTest0One = auxl.One(auxl.oneTest0, auxl.phys1Data);
+//console.log(auxl.oneTest0One)
+*/
+
+
+
+
+
 //
 //Static
 
@@ -98,7 +139,7 @@ data:'physicalFloorData',
 id:'physicalFloor',
 sources:false,
 text: false,
-geometry: {primitive: 'box', width: 200, depth: 200, height: 1},
+geometry: {primitive: 'box', width: 300, depth: 300, height: 1},
 material: {shader: "standard", color: "#1e7e5d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#1e7e5d", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '150 150'},
 position: new THREE.Vector3(0,-0.5,0),
 rotation: new THREE.Vector3(0,0,0),
@@ -136,6 +177,72 @@ components: {
 };
 auxl.trampoline = auxl.Core(auxl.trampolineData);
 
+//Ceiling
+//
+//Building 4
+auxl.ceiling1Data = {
+data:'ceiling1Data',
+id:'ceiling1',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 500, depth: 500, height: 0.1},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '50 50'},
+position: new THREE.Vector3(0,50,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	body:{type: 'static', shape: 'none', mass: 0,},
+	bodymaterial: {friction: 0, restitution: 0},
+	//linkcable: {type: 'to'},
+},
+};
+auxl.ceiling1 = auxl.Core(auxl.ceiling1Data);
+//Ceiling 2
+auxl.ceiling2Data = {
+data:'ceiling2Data',
+id:'ceiling2',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 500, depth: 500, height: 0.1},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '50 50'},
+position: new THREE.Vector3(0,150,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	body:{type: 'static', shape: 'none', mass: 0,},
+	bodymaterial: {friction: 0, restitution: 0},
+	//linkcable: {type: 'to'},
+},
+};
+auxl.ceiling2 = auxl.Core(auxl.ceiling2Data);
+//Ceiling 3
+auxl.ceiling3Data = {
+data:'ceiling3Data',
+id:'ceiling3',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 500, depth: 500, height: 0.1},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '50 50'},
+position: new THREE.Vector3(0,250,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	body:{type: 'static', shape: 'none', mass: 0,},
+	bodymaterial: {friction: 0, restitution: 0},
+	//linkcable: {type: 'to'},
+},
+};
+auxl.ceiling3 = auxl.Core(auxl.ceiling3Data);
+
 //Buildings & Doors
 //
 
@@ -152,10 +259,11 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'static', shape: 'box', mass: 0,},
 	bodymaterial: {friction: 0.01, restitution: 0.01},
+	//linkcable: {type: 'to'},
 },
 };
 auxl.building1 = auxl.Core(auxl.building1Data);
@@ -191,10 +299,11 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'static', shape: 'box', mass: 0,},
 	bodymaterial: {friction: 0.01, restitution: 0.01},
+	//linkcable: {type: 'to'},
 },
 };
 auxl.building2 = auxl.Core(auxl.building2Data);
@@ -230,10 +339,11 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'static', shape: 'box', mass: 0,},
 	bodymaterial: {friction: 0.01, restitution: 0.01},
+	//linkcable: {type: 'to'},
 },
 };
 auxl.building3 = auxl.Core(auxl.building3Data);
@@ -273,6 +383,7 @@ classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'static', shape: 'box', mass: 0,},
 	bodymaterial: {friction: 0.01, restitution: 0.01},
+	//linkcable: {type: 'to'},
 },
 };
 auxl.building4 = auxl.Core(auxl.building4Data);
@@ -305,17 +416,18 @@ data:'boundingwall1Data',
 id:'boundingwall1',
 sources:false,
 text: false,
-geometry: {primitive: 'box', width: 100, depth: 1, height: 10},
-material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern13, repeat: '100 10'},
-position: new THREE.Vector3(0,5,-50),
+geometry: {primitive: 'box', width: 300, depth: 1, height: 300},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.8, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern13, repeat: '300 300'},
+position: new THREE.Vector3(0,150,-150),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'static', shape: 'box', mass: 0,},
 	bodymaterial: {friction: 0.01, restitution: 0.01},
+	//linkcable: {type: 'to'},
 },
 };
 auxl.boundingwall1 = auxl.Core(auxl.boundingwall1Data);
@@ -326,17 +438,18 @@ data:'boundingwall2Data',
 id:'boundingwall2',
 sources:false,
 text: false,
-geometry: {primitive: 'box', width: 100, depth: 1, height: 10},
-material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern13, repeat: '100 10'},
-position: new THREE.Vector3(0,5,50),
+geometry: {primitive: 'box', width: 300, depth: 1, height: 300},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.8, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern13, repeat: '30 30'},
+position: new THREE.Vector3(0,150,150),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'static', shape: 'box', mass: 0,},
 	bodymaterial: {friction: 0.01, restitution: 0.01},
+	//linkcable: {type: 'to'},
 },
 };
 auxl.boundingwall2 = auxl.Core(auxl.boundingwall2Data);
@@ -347,17 +460,18 @@ data:'boundingwall3Data',
 id:'boundingwall3',
 sources:false,
 text: false,
-geometry: {primitive: 'box', width: 1, depth: 100, height: 10},
-material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern13, repeat: '100 10'},
-position: new THREE.Vector3(-50,5,0),
+geometry: {primitive: 'box', width: 1, depth: 300, height: 300},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.8, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern13, repeat: '30 30'},
+position: new THREE.Vector3(-150,150,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'static', shape: 'box', mass: 0,},
 	bodymaterial: {friction: 0.01, restitution: 0.01},
+	//linkcable: {type: 'to'},
 },
 };
 auxl.boundingwall3 = auxl.Core(auxl.boundingwall3Data);
@@ -368,41 +482,43 @@ data:'boundingwall4Data',
 id:'boundingwall4',
 sources:false,
 text: false,
-geometry: {primitive: 'box', width: 1, depth: 100, height: 10},
-material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern13, repeat: '100 10'},
-position: new THREE.Vector3(50,5,0),
+geometry: {primitive: 'box', width: 1, depth: 300, height: 300},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.8, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern13, repeat: '30 30'},
+position: new THREE.Vector3(150,150,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'static', shape: 'box', mass: 0,},
 	bodymaterial: {friction: 0.01, restitution: 0.01},
+	//linkcable: {type: 'to'},
 },
 };
 auxl.boundingwall4 = auxl.Core(auxl.boundingwall4Data);
 
 
 //Test 1
-auxl.staticTest1Data = {
-data:'staticTest1Data',
-id:'staticTest1',
+auxl.dynamicTest0Data = {
+data:'dynamicTest0Data',
+id:'dynamicTest0',
 sources: false,
 text: false,
-geometry: {primitive: 'box', depth: 0.25, width: 2, height: 1},
+geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
 material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(10,0.5,-12),
+position: new THREE.Vector3(0,10,-4),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
-	['static-body']:null,
+	['dynamic-body']:null,
+	linkcable: null,
 },
 };
-auxl.staticTest1 = auxl.Core(auxl.staticTest1Data);
+auxl.dynamicTest0 = auxl.Core(auxl.dynamicTest0Data);
 
 //
 //Dynamic
@@ -517,7 +633,7 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
 	bodymaterial: {friction: 0, restitution: 0},
@@ -526,6 +642,7 @@ components: {
 		connectTo: 'lock1a',
 		maxForce: 1e6,
 	},
+	//linkcable: {type: 'hit'},
 },
 };
 auxl.lock1b = auxl.Core(auxl.lock1bData);
@@ -565,7 +682,7 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
 	bodymaterial: {friction: 0, restitution: 0},
@@ -575,6 +692,7 @@ components: {
 		distance: 4,
 		maxForce: 1e6,
 	},
+	//linkcable: {type: 'hit'},
 },
 };
 auxl.distance1b = auxl.Core(auxl.distance1bData);
@@ -614,7 +732,7 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
 	bodymaterial: {friction: 0, restitution: 0},
@@ -625,6 +743,7 @@ components: {
 		pivotB: new THREE.Vector3(0,-0.5,0),
 		maxForce: 1e6,
 	},
+	//linkcable: {type: 'hit'},
 },
 };
 auxl.ptp1b = auxl.Core(auxl.ptp1bData);
@@ -664,7 +783,7 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
 	bodymaterial: {friction: 0, restitution: 0},
@@ -677,6 +796,7 @@ components: {
 		axisB: new THREE.Vector3(0,0,0),
 		maxForce: 1e6,
 	},
+	//linkcable: {type: 'hit'},
 },
 };
 auxl.coneTwist1b = auxl.Core(auxl.coneTwist1bData);
@@ -716,7 +836,7 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
 	bodymaterial: {friction: 0, restitution: 0},
@@ -729,6 +849,7 @@ components: {
 		axisB: new THREE.Vector3(0,0,0),
 		maxForce: 1e6,
 	},
+	//linkcable: {type: 'hit'},
 },
 };
 auxl.hinge1b = auxl.Core(auxl.hinge1bData);
@@ -770,7 +891,7 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
 	bodymaterial: {friction: 0, restitution: 0},
@@ -780,6 +901,7 @@ components: {
 		damping: 0.5,
 		stiffness: 10,
 	},
+	//linkcable: {type: 'hit'},
 },
 };
 auxl.spring1b = auxl.Core(auxl.spring1bData);
@@ -821,23 +943,6 @@ components: {
 auxl.pickup1 = auxl.Core(auxl.pickup1Data);
 
 
-
-//Testing Timeout
-let testTimeout = setTimeout(() => {
-	//console.log(auxl.playerRig.GetEl().body);
-	/*
-	auxl.playerRig.GetEl().body.shapeOffsets.forEach(offset => {
-		//offset.x += 1;
-		//offset.y += 1;
-		//offset.z += 1;
-	})
-	*/
-	//console.log(auxl.el.systems.physics)
-	clearTimeout(testTimeout);
-}, 5000);
-
-
-
 //Dynamic Spring 
 auxl.dynSpringAData = {
 data:'dynSpringAData',
@@ -851,10 +956,11 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'dynamic', shape: 'sphere', mass: 1, linearDamping: 0.01,},
 	bodymaterial: {friction: 0, restitution: 0},
+	//linkcable: {type: 'grab'},
 },
 };
 auxl.dynSpringA = auxl.Core(auxl.dynSpringAData);
@@ -870,19 +976,43 @@ rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'dynamic', shape: 'sphere', mass: 2, linearDamping: 0.01,},
 	bodymaterial: {friction: 0, restitution: 0},
 	auxspring:{
 		connectTo: 'dynSpringA',
-		restLength: 2,
+		restLength: 1.5,
 		damping: 0.5,
 		stiffness: 10,
 	},
+	//linkcable: {type: 'hit'},
 },
 };
 auxl.dynSpringB = auxl.Core(auxl.dynSpringBData);
+
+
+//Testing Timeout
+let testTimeout = setTimeout(() => {
+	//console.log(auxl.playerRig.GetEl().body);
+	/*
+	auxl.playerRig.GetEl().body.shapeOffsets.forEach(offset => {
+		//offset.x += 1;
+		//offset.y += 1;
+		//offset.z += 1;
+	})
+	*/
+	//console.log(auxl.el.systems.physics)
+	//auxl.dynSpringB.ChangeSelf({property: 'body', value: {mass:0}})
+	auxl.dynSpringB.ChangeSelf({property: 'body', value: {type:'static'}})
+	clearTimeout(testTimeout);
+}, 10000);
+let testTimeout2 = setTimeout(() => {
+	//auxl.dynSpringB.ChangeSelf({property: 'body', value: {mass:1}})
+	auxl.dynSpringB.ChangeSelf({property: 'body', value: {type:'dynamic'}})
+	clearTimeout(testTimeout2);
+}, 13000);
+
 
 //
 //Ramp Testing
@@ -1039,18 +1169,24 @@ auxl.zone0Scene0Data = {
 		building3Door:{SpawnCore:null},
 		building4:{SpawnCore:null},
 		building4Door:{SpawnCore:null},
-		boundingwall1:{SpawnCore:null},
-		boundingwall2:{SpawnCore:null},
-		boundingwall3:{SpawnCore:null},
-		boundingwall4:{SpawnCore:null},
+		//ceiling1:{SpawnCore:null},
+		//ceiling2:{SpawnCore:null},
+		//ceiling3:{SpawnCore:null},
+		//boundingwall1:{SpawnCore:null},
+		//boundingwall2:{SpawnCore:null},
+		//boundingwall3:{SpawnCore:null},
+		//boundingwall4:{SpawnCore:null},
 		trampoline:{SpawnCore:null},
-		staticTest1:{SpawnCore:null},
+		dynamicTest0:{SpawnCore:null},
 		dynamicTest1:{SpawnCore:null},
 		dynamicTest2:{SpawnCore:null},
 		triggerTest1:{SpawnCore:null},
 		pickup1:{SpawnCore:null},
 		dynSpringA:{SpawnCore:null},
 		dynSpringB:{SpawnCore:null},
+
+
+		//oneTest0One:{SpawnOne:null},
 	},
 	delay:{
 		3000:{
@@ -1118,10 +1254,15 @@ auxl.v03TestingScenarioData = {
 		action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
 		action2Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
 		action3Down:{auxlObj: 'player', func: 'LowGrav', name: 'Low Gravity', info: 'Lower Gravity.'},
-		action5Down:{auxlObj: 'player', func: 'PhysBoost', name: 'Vertical Boost', info: 'Fly upwards.'},
-		action6Down:{auxlObj: 'player', func: 'PhysJump', name: 'Jump', info: 'Jump Up'},
-		action7Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
-		action8Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},
+		action4Down:{auxlObj: 'player', func: 'PhysBoost', name: 'Vertical Boost', info: 'Fly upwards.'},
+		action5Down:{auxlObj: 'player', func: 'PhysJump', name: 'Jump', info: 'Jump Up'},
+		//action5Down:{auxlObj: 'player', func: 'Delink', name: 'Detach Link Cable', info: 'Detach Link Cable'},
+		action7Up:{auxlObj: 'player', func: 'LinkUp', name: 'Increase Link Length', info: 'Increase Link Length'},
+		action8Up:{auxlObj: 'player', func: 'LinkDown', name: 'Decrease Link Length', info: 'Decrease Link Length'},
+		//action7Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
+		//action8Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},
+		action6Down:{auxlObj: 'linkHoverMenu', func: 'SpawnHoverMenu', name: 'Link Menu', info: 'Spawn Link Menu', params: 'true'},
+		action6Up:{auxlObj: 'linkHoverMenu', func: 'DespawnHoverMenu', name: 'Link Menu', info: 'Despawn Link Menu'},
 	},
 	start:{
 		skyBox1:{SpawnSkyBox: null},
@@ -1129,6 +1270,7 @@ auxl.v03TestingScenarioData = {
 		physicalFloor:{SpawnCore: null},
 		ramp1:{SpawnCore: null},
 		playerRig:{PhysPos: new THREE.Vector3(0,10,1)},
+		build:{SpawnBuild:null},
 	},
 	delay:{
 /*

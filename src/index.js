@@ -23,7 +23,7 @@ import auxl from './system/auxl.js';
 //Support
 //
 //Controls
-import controls from './support/controls.js';
+import {controls, universalraycaster} from './support/controls.js';
 //
 //Movement
 import {locomotion, gimbal, teleportation, raycastTeleport, raycastTeleportSelect, teleportto} from './support/movement.js';
@@ -47,7 +47,7 @@ import {doorway, doorwayTrigger} from './support/doors.js';
 import {clickaddinventory, acceptobject} from './support/inventory.js';
 //
 //Import Physics
-import {camerasync, collision, trigger, bodymaterial, auxconstraint, auxspring, ungravity} from './support/physics.js';
+import {playerlink, linkcable, camerasync, collision, trigger, bodymaterial, auxconstraint, auxspring, ungravity} from './support/physics.js';
 
 //
 //External

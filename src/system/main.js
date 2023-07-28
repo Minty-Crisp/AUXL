@@ -944,12 +944,38 @@ const Core = (auxl, data) => {
 		}, core.pathSpeed + core.pathWait);
 */
 	}
-	//Change Element - Single or Array
-	const ChangeSelf = (propertyValue) => {
+	//Change Core - Single or Array
+	const ChangeCore = (propertyValue) => {
 		if(Array.isArray(propertyValue)){
-			for(let each in propertyValue){
-				if(propertyValue[each].value){
-					if(propertyValue[each].value.src){
+			core.el[propertyValue[each].property] = propertyValue[each].value;
+		} else {
+			core.el[propertyValue.property] = propertyValue.value;
+		}
+	}
+	//Change Element - Single or Array
+	const ChangeSelf = (propertyValue, update) => {
+		if(update){
+			ChangeCore(propertyValue)
+		}
+		if(core.inScene){
+			if(Array.isArray(propertyValue)){
+				for(let each in propertyValue){
+					if(propertyValue[each].value){
+						if(propertyValue[each].value.src){
+							if(auxl.loadingScene){
+								if(loadNewMat){}else{
+									loadNewMat = true;
+									loading();
+									core.el.addEventListener('loaded', loaded);
+								}
+							}
+						}
+					}
+					GetEl().setAttribute(propertyValue[each].property, propertyValue[each].value);
+				}
+			} else {
+				if(propertyValue.value){
+					if(propertyValue.value.src){
 						if(auxl.loadingScene){
 							if(loadNewMat){}else{
 								loadNewMat = true;
@@ -959,32 +985,8 @@ const Core = (auxl, data) => {
 						}
 					}
 				}
-				GetEl().setAttribute(propertyValue[each].property, propertyValue[each].value);
+				GetEl().setAttribute(propertyValue.property, propertyValue.value);
 			}
-		} else {
-			if(propertyValue.value){
-				if(propertyValue.value.src){
-					if(auxl.loadingScene){
-						if(loadNewMat){}else{
-							loadNewMat = true;
-							loading();
-							core.el.addEventListener('loaded', loaded);
-						}
-					}
-				}
-			}
-			GetEl().setAttribute(propertyValue.property, propertyValue.value);
-		}
-	}
-	//Change Core - Single or Array
-	const ChangeCore = (propertyValue) => {
-		if(Array.isArray(propertyValue)){
-			core.el[propertyValue[each].property] = propertyValue[each].value;
-		} else {
-			core.el[propertyValue.property] = propertyValue.value;
-		}
-		if(core.inScene){
-			ChangeSelf(propertyValue);
 		}
 	}
 	//Remove Element Component
@@ -1038,14 +1040,23 @@ const Core = (auxl, data) => {
 	}
 	//Physics Position
 	const PhysPos = (pos) => {
+		if(core.el.body){
+			if(core.inScene){
+				core.el.body.position.copy(pos);
+				core.el.object3D.position.copy(pos);
+			}
+		}
+
+/*
 		//Requires Dynamic or Static Body
- 		if(typeof core.el.getAttribute('static-body') === 'object' || typeof core.el.getAttribute('dynamic-body') === 'object'){
+ 		if(typeof core.el.getAttribute('static-body') === 'object' || typeof core.el.getAttribute('dynamic-body') === 'object' || typeof core.el.getAttribute('body') === 'object'){
 			if(core.inScene){
 				core.el.body.position.copy(pos);
 			}
 		} else {
 			console.log('No physics body attached!');
 		}
+*/
 	}
 	//Update Physics
 	const UpdatePhys = (update) => {
@@ -1274,8 +1285,40 @@ console.log(update)
 	const DisableDetail = () => {
 		GetEl().removeEventListener('click', openClose);
 	}
+	//Link Start
+	const LinkStart = (event) =>{
+		//console.log({event: 'Link Start', value: event});
+	}
+	//Link End
+	const LinkEnd = (event) =>{
+		//console.log({event: 'Link End', value: event});
+	}
+	//Physics Collision
+	const Collide = (event) =>{
+		//console.log({event: 'Physics Collision', value: event});
+	}
+	//Raycaster Click
+	const Click = (event) =>{
+		//console.log({event: 'Raycaster Click', value: event});
+	}
+	//Raycaster AltClick
+	const AltClick = (event) =>{
+		//console.log({event: 'Raycaster Alt Click', value: event});
+	}
+	//Raycaster Enter
+	const Enter = (event) =>{
+		//console.log({event: 'Raycaster Enter', value: event});
+	}
+	//Raycaster Exit
+	const Exit = (event) =>{
+		//console.log({event: 'Raycaster Exit', value: event});
+	}
+	//Tick
+	const Tick = (event) =>{
+		//console.log({event: 'Tick', value: event});
+	}
 
-	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, ChangeCore, EnablePhysics, PhysPos, UpdatePhys, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail};
+	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, ChangeCore, EnablePhysics, PhysPos, UpdatePhys, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail, LinkStart, LinkEnd, Collide, Click, Enter, Exit, Tick};
 }
 //
 //Generate new Core Data from Template

@@ -778,6 +778,10 @@ togglePOV: function (){
 
 },
 //Default
+rayDirection: function (){},
+
+
+
 //1st POV Walk along XZ Floor relative to Direction View
 directionXZ: function (action, speed) {
 	this.allow = false;
@@ -968,100 +972,113 @@ directionXZ: function (action, speed) {
 	//Y Height Position is unchanged
 	this.positionNew.y = this.positionPlayer.y;
 
-	//Physics, Grid Collision or No Clip
-	if(this.auxl.player.layer.playerPhysics){
-		if(this.auxl.player.layer.physMove === 'position'){
-			//Body
-			this.player.body.position.copy(this.positionNew);
-			//Hands
-			//this.mouseController.body.position.copy(this.positionNew);
-		} else if(this.auxl.player.layer.physMove === 'impulse'){
-			//Calculate directional difference
-			if(!this.positionNew.equals(this.positionPlayer)){
-				this.moveForce.copy(this.positionNew);
-				this.moveForce.sub(this.positionPlayer);
-				this.player.body.applyLocalImpulse(this.moveForce,new THREE.Vector3(0,0,0));
+
+	//Position locked?
+	if(this.auxl.player.layer.move){
+		//Physics, Grid Collision or No Clip
+		if(this.auxl.player.layer.playerPhysics){
+			if(this.auxl.player.layer.physMove){
+				//gravity based movement
+				//Calculate directional difference
+				if(!this.positionNew.equals(this.positionPlayer)){
+					this.moveForce.copy(this.positionNew);
+					this.moveForce.sub(this.positionPlayer);
+					this.player.body.applyLocalImpulse(this.moveForce,new THREE.Vector3(0,0,0));
+				}
+			} else {
+				//position based 
+				this.player.body.position.copy(this.positionNew);
+				//Hands
+				//this.mouseController.body.position.copy(this.positionNew);
 			}
-		}
-		//Update AABB
-		this.player.body.computeAABB();
-	} else if(this.auxl.collision){
-		//Locomotion with Collision every 0.5 meter on XZ and 1 meter on Y
-		this.newPosRound.x = this.roundHalf(this.positionNew.x);
-		this.newPosRound.y = this.round(this.positionNew.y);
-		this.newPosRound.z = this.roundHalf(this.positionNew.z);
-		this.posRound.x = this.roundHalf(this.positionPlayer.x);
-		this.posRound.y = this.round(this.positionPlayer.y);
-		this.posRound.z = this.roundHalf(this.positionPlayer.z);
-		//Check for Obstacles
-		if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
-			if(this.auxl.player.layer.standing){
-				this.newPosStandRound.copy(this.newPosRound);
-				this.newPosStandRound.y+=1;
-				if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosStandRound, this.posRound)){
+			//Update AABB
+			this.player.body.computeAABB();
+		} else if(this.auxl.collision){
+			//Locomotion with Collision every 0.5 meter on XZ and 1 meter on Y
+			this.newPosRound.x = this.roundHalf(this.positionNew.x);
+			this.newPosRound.y = this.round(this.positionNew.y);
+			this.newPosRound.z = this.roundHalf(this.positionNew.z);
+			this.posRound.x = this.roundHalf(this.positionPlayer.x);
+			this.posRound.y = this.round(this.positionPlayer.y);
+			this.posRound.z = this.roundHalf(this.positionPlayer.z);
+			//Check for Obstacles
+			if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
+				if(this.auxl.player.layer.standing){
+					this.newPosStandRound.copy(this.newPosRound);
+					this.newPosStandRound.y+=1;
+					if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosStandRound, this.posRound)){
+						this.allow = true;
+					} else {
+						this.allow = false;
+					}
+				} else {
+					this.allow = true;
+				}
+			}
+			//Atempt to move parallel
+			if(!this.allow){
+				//Backup
+				this.newPosTemp.copy(this.newPosRound);
+				//Test X
+				this.newPosRound.x = this.posRound.x;
+				if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
+					//X is blocked
+					this.positionNew.x = this.positionPlayer.x;
 					this.allow = true;
 				} else {
-					this.allow = false;
+					//Test Z
+					this.newPosRound.z = this.posRound.z;
+					//Reset X
+					this.newPosRound.x = this.newPosTemp.x;
+					if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
+						//Z is blocked
+						this.positionNew.z = this.positionPlayer.z;
+						this.allow = true;
+					} 
 				}
-			} else {
-				this.allow = true;
 			}
-		}
-		//Atempt to move parallel
-		if(!this.allow){
-			//Backup
-			this.newPosTemp.copy(this.newPosRound);
-			//Test X
-			this.newPosRound.x = this.posRound.x;
-			if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
-				//X is blocked
-				this.positionNew.x = this.positionPlayer.x;
-				this.allow = true;
-			} else {
-				//Test Z
-				this.newPosRound.z = this.posRound.z;
-				//Reset X
-				this.newPosRound.x = this.newPosTemp.x;
-				if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
-					//Z is blocked
-					this.positionNew.z = this.positionPlayer.z;
-					this.allow = true;
-				} 
-			}
-		}
-		//Move
-		if(this.allow){
-			this.player.object3D.position.copy(this.positionNew);
-			this.auxl.player.layer.gridPos.copy(this.newPosRound);
+			//Move
+			if(this.allow){
+				this.player.object3D.position.copy(this.positionNew);
+				this.auxl.player.layer.gridPos.copy(this.newPosRound);
 
-			let direction = '';
-			if(this.newPosRound.z < this.posRound.z){
-				direction += 'forward'
-			} else if(this.newPosRound.z > this.posRound.z){
-				direction += 'reverse'
-			}
-			if(this.newPosRound.x > this.posRound.x){
-				direction += 'right'
-			} else if(this.newPosRound.x < this.posRound.x){
-				direction += 'left'
-			}
-			this.auxl.player.layer.gridDirection = direction;
-			//Check for Triggers on New Coords
-			if(this.newPosRound.x === this.posRound.x && this.newPosRound.z === this.posRound.z){} else {
-				//Check for Trigger Enter
-				if(this.auxl.map.CheckMapTriggers(this.newPosRound)){
-					this.auxl.map.TriggerEnterHit(this.newPosRound);
+				let direction = '';
+				if(this.newPosRound.z < this.posRound.z){
+					direction += 'forward'
+				} else if(this.newPosRound.z > this.posRound.z){
+					direction += 'reverse'
 				}
-				//Check for Trigger Exits
-				this.auxl.map.CheckActiveTriggers(this.newPosRound);
-				//Check for Cleared Spawn Collision Conditions
-				this.auxl.map.WaitingToSpawn();
+				if(this.newPosRound.x > this.posRound.x){
+					direction += 'right'
+				} else if(this.newPosRound.x < this.posRound.x){
+					direction += 'left'
+				}
+				this.auxl.player.layer.gridDirection = direction;
+				//Check for Triggers on New Coords
+				if(this.newPosRound.x === this.posRound.x && this.newPosRound.z === this.posRound.z){} else {
+					//Check for Trigger Enter
+					if(this.auxl.map.CheckMapTriggers(this.newPosRound)){
+						this.auxl.map.TriggerEnterHit(this.newPosRound);
+					}
+					//Check for Trigger Exits
+					this.auxl.map.CheckActiveTriggers(this.newPosRound);
+					//Check for Cleared Spawn Collision Conditions
+					this.auxl.map.WaitingToSpawn();
+				}
 			}
+		} else {
+			//Free Locomotion No Clip
+			this.player.object3D.position.copy(this.positionNew);
 		}
-	} else {
-		//Free Locomotion No Collision
-		this.player.object3D.position.copy(this.positionNew);
 	}
+
+
+
+
+
+
+
+
 },
 //1st POV Walk with Fly Buttons relative to Direction View
 directionXZY: function (action, speed) {
@@ -3564,11 +3581,12 @@ schema: {
 	x: {type: 'number', default: 0},
 	y: {type: 'number', default: 0},
 	z: {type: 'number', default: 0},
+	event: {type: 'string', default: 'click'},
 },
 //Uses Player's Scene Transition Type to Teleport
 //Locomotion Teleportation also supported 
 init: function () {},
-clickToTeleport: function (event) {
+eventToTeleport: function (event) {
 	let user = document.getElementById('playerRig');
 	let userView = document.getElementById('camera');
 	let auxl = document.querySelector('a-scene').systems.auxl;
@@ -3652,12 +3670,12 @@ clickToTeleport: function (event) {
 },
 update: function () {
 	this.raycastTeleport = (event) => {
-		this.clickToTeleport(event);
+		this.eventToTeleport(event);
 	}
-	this.el.addEventListener('click', this.raycastTeleport);
+	this.el.addEventListener(this.data.event, this.raycastTeleport);
 },
 remove: function () {
-	this.el.removeEventListener('click', this.raycastTeleport);
+	this.el.removeEventListener(this.data.event, this.raycastTeleport);
 },
 });
 

@@ -1714,6 +1714,75 @@ remove: function () {
 },
 });
 
+
+//Universal Raycaster
+const universalraycaster = AFRAME.registerComponent('universal-raycaster', {
+dependencies: ['auxl'],
+schema: {
+    type: {type: 'string', default: "to", oneOf: ["to", "grab", "hit", 'launch', 'fling', 'flying',]},
+},
+init: function () {
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+//tick: function (time, timeDelta) {},
+events: {
+	//Raycaster Events
+	mouseenter: function (event) {
+		console.log({event: 'mouseenter', data: event})
+		this.auxl[this.el.id].Enter(event);
+	},
+	mousedown: function (event) {
+		console.log({event: 'mousedown', data: event})
+		this.Measure();
+		this.auxl[this.el.id].LinkStart(event);
+	},
+	mouseup: function (event) {
+		//console.log('Link')
+		//console.log(this.data.type)
+		console.log({event: 'mouseup', data: event})
+		this.auxl[this.el.id].LinkEnd(event);
+		this.Measure(true);
+	},
+	mouseleave: function (event) {
+		console.log({event: 'mouseleave', data: event})
+		this.auxl[this.el.id].Exit(event);
+	},
+   //Collision Events
+	collide: function (event) {
+		//console.log({event: 'collision', data: event})
+		this.auxl[this.el.id].Collide(event);
+	},
+   //Other Events
+	click: function (event) {
+		console.log({event: 'click', data: event})
+		this.auxl[this.el.id].Click(event);
+	},
+	altclick: function (event) {
+		console.log({event: 'altclick', data: event})
+		this.auxl[this.el.id].AltClick(event);
+	},
+},
+
+//Tick
+tick: function (time, timeDelta) {
+	if(this.measure){
+		if(this.time > 1){
+			this.time --;
+console.log(this.time)
+		} else {
+			this.time = 0;
+			this.Measure(true);
+		}
+	} else {
+		this.time = 1;
+	}
+	this.auxl[this.el.id].Tick(this.time);
+},
+Measure: function (toggle) {
+	this.measure = !toggle;
+},
+});
+
 //
 //Export
-export default controls;
+export {controls, universalraycaster};

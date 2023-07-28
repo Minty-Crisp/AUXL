@@ -12,6 +12,234 @@
 //
 //Physics System
 
+//one
+const one = AFRAME.registerComponent('one', {
+dependencies: ['auxl'],
+schema: {
+    id: {type: 'string', default: "auxlId",},
+    state: {type: 'string', default: "play", oneOf: ["play", "edit", "hit",]},
+},
+init: function () {
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+//tick: function (time, timeDelta) {},
+events: {
+	click: function () {
+		//console.log('Link')
+		//console.log(this.data.type)
+		//console.log(event)
+
+/*
+		if(this.data.type === 'to'){
+			this.auxl.player.LinkTo(event.detail.intersection.point);
+		} else if(this.data.type === 'grab'){
+			this.auxl.player.LinkGrab(event.target);
+		} else if(this.data.type === 'hit'){
+			this.auxl.player.LinkHit(event);
+		}
+*/
+	}
+},
+});
+
+//DISABLED
+/*
+const playerlink = AFRAME.registerComponent('playerlink', {
+dependencies: ['auxl'],
+
+schema: {
+    type: {type: 'string', default: "to", oneOf: ["to", "grab", "hit",]},
+},
+
+init: function () {
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.position = new THREE.Vector3()
+	this.distance = 50;
+	this.power = 1000;
+},
+//tick: function (time, timeDelta) {},
+events: {
+	mousedown: function () {
+		//console.log('Link')
+		//console.log(this.data.type)
+		console.log(event)
+		this.power = 1000;
+		this.building = true;
+	},
+	mouseup: function () {
+		//console.log('Link')
+		//console.log(this.data.type)
+		console.log(event)
+		console.log('playerlink')
+		if(!auxl.player.layer.linking){
+			this.building = false;
+			this.power /= 1000;
+			this.auxl.player.LinkTo(false, this.power);
+		}
+
+//instead of event.detail.intersection.point
+//get camera/hand direction and multiple by distance
+//always a set distance?
+
+
+	},
+},
+tick: function (time, timeDelta) {
+	if(this.building){
+		if(this.power > 30){
+			this.power -= 15;
+console.log(this.power)
+		}
+	}
+},
+});
+*/
+/*
+		this.position.copy(this.auxl.player.GetCameraDirection());
+
+		//Calculate the position based on the direction and distance
+		this.position = new THREE.Vector3();
+		this.position.copy(this.position).add(new THREE.Vector3(this.distance, this.distance, this.distance).normalize().multiplyScalar(this.distance));
+*/
+//Player Link
+const playerlink = AFRAME.registerComponent('playerlink', {
+dependencies: ['auxl'],
+/*
+schema: {
+    type: {type: 'string', default: "to", oneOf: ["to", "grab", "hit",]},
+},
+*/
+init: function () {
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.position = new THREE.Vector3()
+	this.distance = 50;
+	this.power = 1000;
+},
+//tick: function (time, timeDelta) {},
+events: {
+	//Raycaster Events
+	mousedown: function (event) {
+		console.log('mousedown')
+		console.log(event)
+		this.auxl[this.el.id].LinkStart(event);
+	},
+	mouseup: function (event) {
+		//console.log('Link')
+		//console.log(this.data.type)
+		console.log('mouseup')
+		console.log(event)
+		this.auxl[this.el.id].LinkEnd(event);
+//building = false;
+
+/*
+		if(this.data.type === 'launch'){
+			if(event?.detail?.intersection?.point){
+				this.auxl.player.LinkToHit(event.detail.intersection.point);
+			}
+		}
+*/
+	},
+   //Collision Events
+	collide: function (event) {
+		this.auxl[this.el.id].Collide(event);
+	},
+   //Other Events
+	click: function (event) {
+		this.auxl[this.el.id].Click(event);
+	},
+},
+tick: function (time, timeDelta) {
+	if(this.building){
+		if(this.power > 1){
+			this.power --;
+console.log(this.power)
+		} else {
+			this.power = 0;
+		}
+	} else {
+		this.power = 1;
+	}
+	this.auxl[this.el.id].Tick(this.power);
+},
+});
+
+//Link Cable
+const linkcable = AFRAME.registerComponent('linkcable', {
+dependencies: ['auxl'],
+schema: {
+    type: {type: 'string', default: "to", oneOf: ["to", "grab", "hit", 'launch', 'fling', 'flying',]},
+},
+init: function () {
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+//tick: function (time, timeDelta) {},
+events: {
+	//Raycaster Events
+	mouseenter: function (event) {
+		console.log({event: 'mouseenter', data: event})
+		this.auxl[this.el.id].Enter(event);
+	},
+	mousedown: function (event) {
+		console.log({event: 'mousedown', data: event})
+		this.Measure();
+		this.auxl[this.el.id].LinkStart(event);
+	},
+	mouseup: function (event) {
+		//console.log('Link')
+		//console.log(this.data.type)
+		console.log({event: 'mouseup', data: event})
+		this.auxl[this.el.id].LinkEnd(event);
+		this.Measure(true);
+
+/* Rubber Banding
+if(this.data.type === 'launch'){
+	if(event?.detail?.intersection?.point){
+		this.auxl.player.LinkToHit(event.detail.intersection.point);
+	}
+}
+*/
+	},
+	mouseleave: function (event) {
+		console.log({event: 'mouseleave', data: event})
+		this.auxl[this.el.id].Exit(event);
+	},
+   //Collision Events
+	collide: function (event) {
+		//console.log({event: 'collision', data: event})
+		this.auxl[this.el.id].Collide(event);
+	},
+   //Other Events
+	click: function (event) {
+		console.log({event: 'click', data: event})
+		this.auxl[this.el.id].Click(event);
+	},
+	altclick: function (event) {
+		console.log({event: 'altclick', data: event})
+		this.auxl[this.el.id].AltClick(event);
+	},
+},
+
+//Tick
+tick: function (time, timeDelta) {
+	if(this.measure){
+		if(this.power > 1){
+			this.power --;
+console.log(this.power)
+		} else {
+			this.power = 0;
+			this.Measure(true);
+		}
+	} else {
+		this.power = 1;
+	}
+	this.auxl[this.el.id].Tick(this.power);
+},
+Measure: function (toggle) {
+	this.measure = !toggle;
+},
+});
+
+
 //TESTING
 //For use with syncing camera rotation to physics rotation
 //Camera Sync
@@ -191,7 +419,7 @@ dependencies: ['auxl'],
 multiple: true,
 schema: {
 	connectTo: {type: 'string', default: 'auxlObj'},
-    type: {default: "lock", oneOf: ["coneTwist", "distance", "hinge", "lock", "pointToPoint"]},
+    type: {type: 'string', default: "lock", oneOf: ["coneTwist", "distance", "hinge", "lock", "pointToPoint"]},
     pivotA: {type: "vec3"},
     axisA: {type: "vec3"},
     pivotB: {type: "vec3"},
@@ -332,11 +560,13 @@ dependencies: ['auxl'],
 multiple: true,
 schema: {
 	connectTo: {type: 'string', default: 'auxlObj'},
+	name: {type: 'string', default: 'auxlConstraint'},
     localAnchorA: {type: "vec3"},
     localAnchorB: {type: "vec3"},
 	restLength: {type: 'number', default: 1, min: 0},
 	stiffness: {type: 'number', default: 100, min: 0},
 	damping: {type: 'number', default: 1, min: 0},
+    collideConnected: {type: 'boolean', default: true},
 	always: {type: 'boolean', default: true},
 },
 init: function () {
@@ -387,6 +617,7 @@ Connect: function (fresh) {
 			damping: this.data.damping,
 			localAnchorA: this.localAnchorA,
 			localAnchorB: this.localAnchorB,
+			collideConnected: this.collideConnected,
 		});
 		this.connected = true;
 	}
@@ -472,4 +703,4 @@ this.el.body.applyLocalForce(new THREE.Vector3(0,9.8,0),new THREE.Vector3(0,0,0)
 
 //
 //Export
-export {camerasync, collision, trigger, bodymaterial, auxconstraint, auxspring, ungravity};
+export {one, playerlink, linkcable, camerasync, collision, trigger, bodymaterial, auxconstraint, auxspring, ungravity};

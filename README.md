@@ -168,7 +168,8 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Basic Physics integration from c-frame/aframe-physics-system using CANNON.js
 - Physics Support components added such as camerasync, collision, trigger, bodymaterial, auxconstraint, auxspring, ungravity
 - Basic Physics Demo added
-
+- Power based interaction testing
+- Player Powers : Rubberband, Swing, Slam, Port, Dash,
 
 
 

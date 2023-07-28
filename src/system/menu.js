@@ -181,9 +181,16 @@ const MultiMenu = (auxl, multiMenuData) => {
 		components: false,
 	};
 
-	if(multiMenu.stare){
-		multiMenu.nullParentData.components['stare'] = {id: multiMenu.stare.id, twist: multiMenu.stare.twist,}
+	if(multiMenu.stare || multiMenu.look){
+		multiMenu.nullParentData.components = {};
+		if(multiMenu.stare){
+			multiMenu.nullParentData.components.stare = multiMenu.stare;
+		}
+		if(multiMenu.look){
+			multiMenu.nullParentData.components['look-at-xyz'] = multiMenu.look;
+		}
 	}
+
 	multiMenu.cores = {};
 	multiMenu.cores.hover = {};
 	//Main Menu Null

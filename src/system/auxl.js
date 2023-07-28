@@ -23,7 +23,7 @@ import {Book, SpeechSystem, NPC, InfoBubble, Creature} from './npc.js';
 //Grid : Collision, GridLayout, Gate
 import {Collision, GridLayout, Gate} from './grid.js';
 //Build : BuildIn3D
-import BuildIn3D from './build.js';
+import {Constraints, One, BuildIn3D} from './build.js';
 //Images
 import {ImageSwapper, ImageCarousel} from './images.js';
 
@@ -1752,6 +1752,18 @@ this.Gate = (id, object, direction) => {
 
 //
 //Build
+
+//Constraints
+this.Constraints = (objGen, linkData, atStart) => {
+	return Constraints(auxl, objGen, linkData, atStart);
+}
+
+
+//
+//Build a Phys to Attach to Core
+this.One = (objGen, oneData) => {
+	return One(auxl, objGen, oneData);
+}
 
 //
 //Build Core/Layer/Other objects in the 3D environment
