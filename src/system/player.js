@@ -7,13 +7,77 @@
 //
 //Player
 //
+//UniRay
 //Player
 //Companion
 
 //
+//UniRay
+const UniRay = (data) => {
+
+	let uniRayNew = {};
+	uniRayNew.name = 'uniRayDefault';
+	uniRayNew.pos = new THREE.Vector3(0,0,0);
+	uniRayNew.intersection = new THREE.Vector3(0,0,0);
+	uniRayNew.powers = {};
+	uniRayNew.power = 'select';
+
+	//Layer :
+		//Cores :
+			//ParentRig
+			//Camera with Raycaster & Cursor
+			//UI
+
+	//Avatar
+		//Head
+		//Tag
+
+	//One physics link
+		//body dynamic/static fluid state
+		//body static sync'd to main to pull in objects and set player barrier
+
+	//Raycast Trigger and Alt
+	//Modifier/Action Button
+
+	//Buttons
+	//Menu Button
+		//Quick Access Hover Menu press and hold, swupe
+		//Settings Menu - doubleClick
+	//or
+	//Button hold to activate power set
+	//Button triple tap to open hover quick menu
+	//
+	//that way there are 4 set of powers to be used at once
+	//No button Mode
+	//Button 1 Mode
+	//Button 2 Mode
+	//Button 1+2 Mode
+
+	//Joystick
+
+	//Combo to cycle through power presets
+
+	//Inputs
+	//Linked Functions
+	//Hardware layout
+	//Raycaster/Mouse | HMD | 2D Trackpad | Joystick | Keyboard
+
+	//In each of the layout's 3D depiction will include the itself as a head along with a body aka a tag that represents you as an entity. Who you are, what you are attached to such as an overall avatar as someone who has more then 1 UniRay device connected. That avatar could be made up of a single instance, or 2+ instances that allow additional controls to input access and thus what they can use in terms of powers they have access to. Since you can only assign so many powers to as many button modifiers as available, more hardware inputs more power access (I imagine just a bed full of controllers and 1 doofus in the middle either lazily swapping contorllers for different power/skills to with all haste quick grabbing new controllers to attend to matters in scene)
+
+
+	//Each action has 3 modes
+	//Trigger
+	//Alt
+	//Trigger & Alt
+
+
+}
+
+
+//
 //Player
 //User Controller, Settings and Actions
-const Player = (auxl, id,layer) => {
+const Player = (auxl,id,layer) => {
 	//Player Name
 	layer.id = id;
 
@@ -113,6 +177,18 @@ const Player = (auxl, id,layer) => {
 	//Physics
 	layer.playerPhysics = false;
 
+	//Players Gravity
+
+	//Earth Default
+	layer.worldGravity = new THREE.Vector3(0,-9.8,0);
+	layer.localAxis = new THREE.Vector3(0,0,0);
+	layer.worldAxis = new THREE.Vector3(0,-1,0);
+	//Float
+	//layer.worldGravity = new THREE.Vector3(0,0,0);
+	layer.gravity = new THREE.Vector3(0,0,0);
+	layer.axis = new THREE.Vector3(0,-1,0);
+	layer.gravity.copy(layer.worldGravity);
+
 	//Joystick Movement Type
 	layer.physMove = true;
 	//impulse affetect by physics engine
@@ -136,9 +212,13 @@ const Player = (auxl, id,layer) => {
 		name: 'playerTestBody0.1',
 		type: 'dynamic', 
 		shape: 'none',
-		mass: 3,
+		//mass: 3,
+		mass: 2,
+		//mass: 1,
+		//mass: 1,
+		//mass: 50,
 		angularDamping: 0.2,
-		linearDamping: 0.2,
+		linearDamping: 0.4,
 		friction : 0.1,
 		restitution : 1
 	};
@@ -176,18 +256,17 @@ const Player = (auxl, id,layer) => {
 
 	//Avatar
 
-	//Hands
+/*
+	//Hands - These will be UniRays that attach to parent vehicle
 	layer.handBody = {type: 'dynamic', shape: 'none', mass: 0.1};
 	//layer.handShape = {shape: 'box', height: 0.01, width: 0.01, depth: 0.01, offset: '0 1 -0.5',};
 	layer.hand1Shape = {shape: 'box', halfExtents: '0.1 0.1 0.1', offset: '0.5 1 -0.5',};
 	layer.hand2Shape = {shape: 'box', halfExtents: '0.1 0.1 0.1', offset: '-0.5 1 -0.5',};
+*/
 
 	//Allow Jump
 	layer.jumping = false;
 	layer.jumpTimeout;
-
-	//Link
-	//layer.distance = 25;
 
 	//Spawn Player
 	layer.SpawnLayer();
@@ -750,17 +829,17 @@ console.log(position)
 			}
 		}
 	}
-
-
 	//Distance from Player
 	const DistanceFromPlayer = (position) => {
 		let distance = position.distanceTo(GetPlayerInfo().pos);
 		return distance;
 	}
-
+/*
 //
 //Interaction States
 //on tick, check wether to run interaction update
+
+//On free, no button clicked down is a normal raycaster ready to interact/hover with things. Any button pressing to modify will take over that feature
 
 //Indv Racyaster Inputs
 //4 Button/Trigger Combo
@@ -786,10 +865,6 @@ console.log(position)
 //Alt Button
 //Main Trigger
 //Alt Trigger
-
-
-
-
 
 //6DoF Cursor Actions :
 //Select Point - Main Index Raycaster Distance or Instersection
@@ -825,33 +900,30 @@ console.log(position)
 //Speed / Boost / Build / 
 
 
+//,etc...
 
-	//,etc...
+//Rotation/Raycaster Required
+//Position Required
+//Trigger Main
+//Trigger Alt
+//Button Main
+//Button Alt
 
-	//Rotation/Raycaster Required
-	//Position Required
-	//Trigger Main
-	//Trigger Alt
-	//Button Main
-	//Button Alt
+//Set up stacked events for each such as mousedown
 
-	//Set up stacked events for each such as mousedown
+//6 Inputs
+//2 Buttons
+//2 Triggers
+//1 Position (collision)
+//1 Rotation {raycaster direction}
 
-	//6 Inputs
-	//2 Buttons
-	//2 Triggers
-	//1 Position (collision)
-	//1 Rotation {raycaster direction}
-
-	//6 Modes
-	//Free
-	//Start
-	//Tap
-	//Hold
-	//Release
-	//Double
-
-
+//6 Modes
+//Free
+//Start
+//Tap
+//Hold
+//Release
+//Double
 
 //Retreive tick based
 //Button Updates
@@ -860,13 +932,23 @@ console.log(position)
 //Joystick/Cursor
 //Position
 //Collision
+*/
 
 //Raycaster
+/*
+auxl.moonLayerData = {
+parent: {core: auxl.moonOuter},
+child0: {core: auxl.moon},
+}
+auxl.moonLayer = auxl.Layer('moonLayer', auxl.moonLayerData);
+*/
 
-	layer.raycaster = {};
-	layer.raycaster.name = 'minty0';
-	layer.raycaster.powers = {};
-	layer.raycaster.power = 'rubberband';
+//Sync another core to player body to act as a static with no body which has it's position updated via dynamic body to then link anything that has grab, rubberband, etc....
+
+
+
+
+
 
 	//Add to playerRig a support component for updating important info
 	//Power Controller
@@ -879,10 +961,11 @@ console.log({event: 'Power Controller Running', event})
 		//Temp
 		//
 		//Rubber Band
+/*
 		if(layer.raycaster.power === 'rubberband'){
 			RubberbandController();
 		}
-
+*/
 	}
 
 
@@ -897,20 +980,36 @@ console.log({event: 'Power Controller Running', event})
 		return raycaster;
 
 	}
-	//Toggles
-	layer.toggle0 = false;
-	layer.toggle1 = false;
+
+
+
 
 //Temp
+
+layer.raycaster = {};
+layer.raycaster.name = 'minty0';
+layer.raycaster.intersection = new THREE.Vector3(0,0,0);
+layer.raycaster.powers = {};
+layer.raycaster.power = 'rubberband';
+
 //Hold down space button to activate rubberband
+//Toggles
+layer.toggle0 = false;
+layer.toggle1 = false;
+layer.toggle2 = false;
+layer.toggle3 = false;
 //Key Down
 document.body.addEventListener('keydown', (e) => {
 	if (e.key === ' ') {
-		//Start moving player
 		layer.toggle0 = true;
 	} else if (e.key === 'b' || e.key === 'B') {
-		//Start moving player
 		layer.toggle1 = true;
+	} else if (e.key === 'g' || e.key === 'G') {
+		layer.toggle2 = true;
+		layer.localAxis.copy(layer.worldAxis);
+	} else if (e.key === 'h' || e.key === 'H') {
+		layer.toggle3 = true;
+
 	}
 
 });
@@ -925,10 +1024,15 @@ document.body.addEventListener('keyup', (e) => {
 		//Start moving player
 		layer.toggle1 = false;
 		Delink();
+	} else if (e.key === 'g' || e.key === 'G') {
+		layer.toggle2 = false;
+		layer.localAxis.copy(layer.worldAxis);
+	} else if (e.key === 'h' || e.key === 'H') {
+		layer.toggle3 = false;
+
 	}
 
 });
-
 
 	//Cursor|Link
 	//VR Dual 6Dof Controller Raycaster
@@ -939,7 +1043,7 @@ document.body.addEventListener('keyup', (e) => {
 	const Link = (data) => {
 		//Currently setup for a single link to player
 		//Link
-		layer.distance = 25;
+		layer.distance = 17.5;
 		//Need a system for building link to self, link to link and link to links
 		//Link Controller
 		auxl.linkHoverMenuData = {
@@ -1136,8 +1240,257 @@ document.body.addEventListener('keyup', (e) => {
 	}
 
 
+	//Support
+	//Intersection point check distance or not
+
+	const MoveDir = (distance) => {
+	//Calculate the position based on the direction and distance
+		let position = new THREE.Vector3();
+		position.copy(GetCameraDirection());
+		position.copy(position).add(new THREE.Vector3(layer.distance, layer.distance, layer.distance).normalize().multiplyScalar(layer.distance));
+		return position;
+	}
+
+	//Gravity Tick
+	//Get Object Instersection overriding
+	auxl.mouseController.GetEl().addEventListener('mouseenter',(event) => {
+		//console.log(event)
+		let intersection = new THREE.Vector3(0,0,0);
+		intersection.copy(event.detail.intersection.point)
+		//console.log(intersection)
+		Track2D(intersection);
+	});
+	auxl.mouseController.GetEl().addEventListener('mouseleave',(event) => {
+		//console.log(event)
+		clearInterval(layer.track2DInterval);
+	});
+
+	layer.tracking = false;
+	layer.tracked2D = false;
+	layer.track2DInterval;
+	//Track 2D Ground Floor
+	const Track2D = (intInit) => {
+//console.log('Tracking')
+//console.log(intInit)
+		let start = intInit || new THREE.Vector3(0,0,0);
+		let intersection = new THREE.Vector3(0,0,0);
+		//let getr = new THREE.Vector3(0,0,0);
+		//Now that we have the starter point determine the general direction be capture 1 additional point differnt that confirm the direction
+		let current = layer.tracked2D || false;
+		layer.tracking = true;
+
+		//Earth Default Axis
+		layer.worldAxis = new THREE.Vector3(0,-1,0);
+		layer.track2DInterval = setInterval(() => {
+			if(layer.tracking){
+				//grab raycaster information and grab intersection, if different then calc it's direction from and update player gravityAxis
+				intersection.copy(auxl.mouseController.GetEl().components.raycaster.intersections[0].point)
+				if(!start.equals(intersection)){
+					//calc out which variable is the same and determine its negative or positive direction based on the location offset of player
+					if(start.x.toFixed(2) === intersection.x.toFixed(2)){
+//console.log('X')
+						if(start.x > 0){
+//console.log('+X')
+							layer.worldAxis = new THREE.Vector3(1,0,0);
+						} else {
+//console.log('-X')
+							layer.worldAxis = new THREE.Vector3(-1,0,0);
+						}
+					} else if(start.y.toFixed(2) === intersection.y.toFixed(2)){
+//console.log('Y')
+						if(start.y > 0){
+//console.log('+Y')
+							layer.worldAxis = new THREE.Vector3(0,1,0);
+						} else {
+//console.log('-Y')
+							layer.worldAxis = new THREE.Vector3(0,-1,0);
+						}
+					} if(start.z.toFixed(2) === intersection.z.toFixed(2)){
+//console.log('Z')
+						if(start.z > 0){
+//console.log('+Z')
+							layer.worldAxis = new THREE.Vector3(0,0,1);
+						} else {
+//console.log('-Z')
+							layer.worldAxis = new THREE.Vector3(0,0,-1);
+						}
+					} else {
+						//console.log('Cannot Calculate')
+						//console.log(start)
+						//console.log(intersection)
+					}
+					//console.log(start)
+					//console.log(intersection)
+					//console.log(layer.worldAxis)
+					//layer.gravitys
+					//layer.worldAxis = 
+					layer.tracking = false;
+					clearInterval(layer.track2DInterval);
+				}
+				//auxl.mouseController.GetEl().components.raycaster.direction AXIS
+				//console.log(auxl.mouseController.GetEl().components.raycaster)
+			}
+		}, 1);
+
+	}
+
+	layer.gravityStyle = 'earth';
+	//layer.gravityStyle = 'jupiter';
+	//layer.gravityStyle = 'Custom';
+	//To be able to apply new gravity direction on playerRig
+	const Gravity = (gravityDir) => {
+		//first get current world gravity to negate and start with
+		//then add propery gravity offset this.el.body.applyLocalForce(new THREE.Vector3(0,9.8,0),new THREE.Vector3(0,0,0))
+		//in the direction of the currently calculated trajectory
+		//Reset current
+	//layer.gravity = new THREE.Vector3(0,0,0);
+	//layer.axis = new THREE.Vector3(0,-1,0);
+
+		//6 Directions & Free Roam
+		layer.gravitys = [
+			new THREE.Vector3(0,0,0),
+			new THREE.Vector3(0,-1,0),
+			new THREE.Vector3(-1,0,0),
+			new THREE.Vector3(0,0,-1),
+			new THREE.Vector3(0,1,0),
+			new THREE.Vector3(1,0,0),
+			new THREE.Vector3(0,0,1),
+		];
+
+		//Gravity Orientation Detection
+		//Grab start pos at mouseEnter
+		//Grab enough via tick to determine the axis direction between 1 of the 6
+		//Apply that to the player rig via tick unless float is enabled in whichcase, only apply the new gravity with just negateGravity
+
+		let playerPositionOld = new THREE.Vector3(0,0,0);
+		let playerPosition = new THREE.Vector3(0,0,0);
+		layer.velocity = new THREE.Vector3(0,0,0);
+		let velocityTick = 0
+let testVec = new THREE.Vector3(0,0,0);
+
+		layer.playerGravityInterval = setInterval(() => {
+			if(auxl.playerRig.GetEl() && auxl.playerRig.GetEl().body){
+
+				let negateGravity = new THREE.Vector3(0,0,0);
+				
+//Get Velocity Working on continual downward localAxis trajectory
+				playerPosition.copy(auxl.playerRig.GetEl().body.position)
+console.log({pos1: playerPosition.y, pos2 : playerPositionOld.y})
+				if(playerPosition.y < playerPositionOld.y){
+					//add velocity to fall
+console.log('Adding Velocity')
+					velocityTick++;
+					layer.velocity.sub(new THREE.Vector3(0,(velocityTick/190),0));
+					//layer.velocity.add(0.01)
+console.log(layer.velocity)
+				} else {
+					layer.velocity = new THREE.Vector3(0,0,0);
+					velocityTick = 0;
+				}
+				playerPositionOld.copy(playerPosition);
+				//let worldGravity = new THREE.Vector3(0,0,0);
+
+
+				//Apply Gravity
+				if(!negateGravity.equals(auxl.playerRig.GetEl().body.world.gravity)){
+					//update base gravity to build cancel out world defaults if any
+					negateGravity.copy(auxl.playerRig.GetEl().body.world.gravity);
+					//Calculate exact opposite to null out world defaults
+					negateGravity.negate();
+				}
+				//Gravity Adjustments
+				layer.gravityScale = new THREE.Vector3(1,1,1);
+
+				//Fresh to Apply Gravity
+				let gravityNew = new THREE.Vector3(0,0,0);
+				//Negate World Gravity if Any
+				gravityNew.copy(negateGravity);
+//console.log(gravityNew)
+		//console.log(auxl.playerRig.el.body.world.gravity)
+		//console.log(gravityNew)
+
+		//Earth 1g = 9.80665 m/s
+		//Moon 0.1657g
+		//Jupiter 2.528g
+		//IO 0.183g
+		//Mars 0.379g
+		//Uranus 0.886g
+		//Neptune 1.137g
+		//Sun 28.02g
+		//Pluto 0.063g
+		//Saturn 1.065g
+				let gravityAmount = 0;
+				if(layer.gravityStyle === 'float'){
+					//Negate World Gravity
+				} else if(layer.gravityStyle === 'earth'){
+					//Earth AU
+					//Apply -9.8 in 1 direction of axis
+//console.log(layer.gravityStyle)
+					gravityAmount = 9.8;
+				} else if(layer.gravityStyle === 'moon'){
+					//Moon AU 16.% of Earth
+					//Apply -1.6268 in 1 direction of axis
+					gravityAmount = 1.6268;
+				} else if(layer.gravityStyle === 'jupiter'){
+					//Jupiter AU
+					//Apply -24.7912112 in 1 direction of axis
+					gravityAmount = 24.7912112;
+				} else if(layer.gravityStyle === 'io'){
+
+				} else if(layer.gravityStyle === 'mars'){
+
+				} else if(layer.gravityStyle === 'Uranus'){
+
+				} else if(layer.gravityStyle === 'Neptune'){
+
+				} else if(layer.gravityStyle === 'Sun'){
+
+				} else if(layer.gravityStyle === 'Pluto'){
+
+				} else if(layer.gravityStyle === 'Saturn'){
+
+				} else if(layer.gravityStyle === 'Custom'){
+					//gravityAmount = 16;
+					gravityAmount = 12;
+				}
+
+
+
+//console.log(gravityAmount)
+				let gravityTemplate = new THREE.Vector3(0,0,0);
+				gravityTemplate = new THREE.Vector3(gravityAmount,gravityAmount,gravityAmount);
+//console.log(gravityTemplate)
+				gravityNew.add(gravityTemplate);
+//console.log(gravityNew)
+//console.log(layer.localAxis)
+				//Set gravity to worldVrctor from Axis
+				gravityNew.multiply(layer.localAxis);
+				//localAxis.multiply(layer.velocity);
+//console.log(gravityNew)
+				//Gravity Scale
+				gravityNew.multiply(layer.gravityScale);
+				//Add Up Velocity
+console.log(gravityNew)
+				gravityNew.add(layer.velocity);
+console.log(gravityNew)
+				//Apply Gravity
+				//auxl.playerRig.GetEl().body.applyLocalForce(gravityNew, new THREE.Vector3(0,0,0));
+				auxl.playerRig.GetEl().body.applyLocalForce(gravityNew, new THREE.Vector3(0,0,0));
+				//auxl.playerRig.GetEl().body.applyLocalForce(new THREE.Vector3(0,100,0), new THREE.Vector3(0,0,0));
+				layer.gravity.copy(gravityNew);
+//console.log(gravityNew)
+			}
+		}, 1);
+	}
+	Gravity();
+
 	//
 	//Actions
+
+	//Using raycaster, point click and hold to map out the 2D surface, just a flick basically to determine dual xyz coords to have a force applied to the object as if it wore normal gravity.
+
+	//Monkeyball Sphere Pin Float Vehicle
+	//Pin an object with low rubber band pool and float the user. Use can tug themselves in various directions with the environment sphere 
 
 	//Both need to connect to closest intersection object if instead
 
@@ -1149,11 +1502,12 @@ console.log('Rubberband running')
 	//Rubberband
 	const RubberbandUp = (event) => {
 		if(layer.toggle0){
+console.log(event)
 			//console.log(event)
 			//console.log('Link')
 			//console.log(this.data.type)
 			//console.log(event)
-			console.log('click')
+			console.log('RubberbandUp')
 			clearInterval(layer.playerLinkInt);
 	//instead of event.detail.intersection.point
 	//get camera/hand direction and multiple by distance
@@ -1171,30 +1525,30 @@ console.log('Rubberband running')
 			layer.quaternion.copy(layer.object3D.quaternion);
 			layer.position.copy(auxl.playerRig.GetEl().body.position);
 
-	//console.log(auxl.camera.GetEl().Object3D.getWorldDirection())
-	//layer.position.copy(auxl.camera.GetEl().object3D.getLocalDirection()));
-	console.log(layer.quaternion)
-	console.log(layer.position)
-			//layer.position.negate();
-	//console.log(layer.position)
-		// Step 1: Get the Object3D's rotation as a Quaternion
-		const rotationQuaternion = layer.quaternion.clone();
-		// Step 2: Create a direction vector pointing towards the positive Z-axis
-		const direction = new THREE.Vector3(0, 0, -1);
-	console.log(direction)
-		// Step 3: Apply the object's rotation to the direction vector
-		direction.applyQuaternion(rotationQuaternion);
-	console.log(direction)
-	console.log(layer.distance)
-		// Step 4: Scale the direction vector to the desired distance
-		direction.multiplyScalar(layer.distance);
-	console.log(direction)
-		// Step 5: Add the scaled direction vector to the Object3D's position
-		layer.positionNew = layer.position.clone().add(direction);
-			//layer.positionNew.copy(layer.position.multiplyScalar(layer.distance));
-	console.log(layer.positionNew)
-	console.log(layer.distance)
-	console.log(layer.power)
+		//console.log(auxl.camera.GetEl().Object3D.getWorldDirection())
+		//layer.position.copy(auxl.camera.GetEl().object3D.getLocalDirection()));
+		//console.log(layer.quaternion)
+		//console.log(layer.position)
+				//layer.position.negate();
+		//console.log(layer.position)
+			// Step 1: Get the Object3D's rotation as a Quaternion
+			const rotationQuaternion = layer.quaternion.clone();
+			// Step 2: Create a direction vector pointing towards the positive Z-axis
+			const direction = new THREE.Vector3(0, 0, -1);
+		//console.log(direction)
+			// Step 3: Apply the object's rotation to the direction vector
+			direction.applyQuaternion(rotationQuaternion);
+		//console.log(direction)
+		//console.log(layer.distance)
+			// Step 4: Scale the direction vector to the desired distance
+			direction.multiplyScalar(layer.distance);
+		//console.log(direction)
+			// Step 5: Add the scaled direction vector to the Object3D's position
+			layer.positionNew = layer.position.clone().add(direction);
+				//layer.positionNew.copy(layer.position.multiplyScalar(layer.distance));
+	//console.log(layer.positionNew)
+	//console.log(layer.distance)
+	//console.log(layer.power)
 			auxl.player.LinkTo(layer.positionNew, layer.power);
 		}
 	}
@@ -1337,6 +1691,104 @@ console.log(layer.power)
 	}
 
 
+	//Teleport
+	//teleportController Controller
+	const teleportController = (event) => {
+		//Rubber Tick Controls
+console.log('Rubberband running')
+	}
+	//teleportUp
+	const teleportUp = (event) => {
+		if(layer.toggle3){
+console.log(event)
+		//layer.distance = 50;
+			//console.log(event)
+			//console.log('Link')
+			//console.log(this.data.type)
+			//console.log(event)
+			console.log('teleportUp')
+			clearInterval(layer.playerLinkInt);
+	//instead of event.detail.intersection.point
+	//get camera/hand direction and multiple by distance
+	//always a set distance?
+
+	//if the mouseup hits somewhere else first within the max distance of the link, use those coords instead
+	//layer.worldAxis = new THREE.Vector3(0,-1,0);
+			layer.building = false;
+			layer.power /= 1000;
+			layer.positionNew = new THREE.Vector3();
+			layer.position = new THREE.Vector3();
+			layer.quaternion = new THREE.Quaternion();
+			//layer.position.copy(GetCameraDirection());
+			layer.object3D = auxl.camera.GetEl().object3D;
+			layer.quaternion.copy(layer.object3D.quaternion);
+			layer.position.copy(auxl.playerRig.GetEl().body.position);
+
+		//console.log(auxl.camera.GetEl().Object3D.getWorldDirection())
+		//layer.position.copy(auxl.camera.GetEl().object3D.getLocalDirection()));
+		//console.log(layer.quaternion)
+		//console.log(layer.position)
+				//layer.position.negate();
+		//console.log(layer.position)
+			// Step 1: Get the Object3D's rotation as a Quaternion
+			const rotationQuaternion = layer.quaternion.clone();
+			// Step 2: Create a direction vector pointing towards the positive Z-axis
+			const direction = new THREE.Vector3(0, 0, -1);
+			const tweak = new THREE.Vector3(0, 0, 0);
+		//console.log(direction)
+			// Step 3: Apply the object's rotation to the direction vector
+			direction.applyQuaternion(rotationQuaternion);
+		//console.log(direction)
+		//console.log(layer.distance)
+			// Step 4: Scale the direction vector to the desired distance
+			tweak.multiplyScalar(new THREE.Vector3(0, 0, 0));
+			direction.multiplyScalar(layer.distance/2);
+		//console.log(direction)
+			// Step 5: Add the scaled direction vector to the Object3D's position
+			layer.positionNew = layer.position.clone().add(direction);
+				//layer.positionNew.copy(layer.position.multiplyScalar(layer.distance));
+	//console.log(layer.positionNew)
+	//console.log(layer.distance)
+	//console.log(layer.power)
+			auxl.player.TeleportTo(layer.positionNew, layer.power);
+		}
+	}
+	//teleportDown
+	const teleportDown = (event) => {
+		if(layer.toggle3){
+			console.log(event)
+			auxl.player.Delink();
+			layer.power = 1000;
+			clearInterval(layer.playerLinkInt)
+			//Get Charge
+			layer.playerLinkInt = setInterval(() => {
+				if(!layer.linking){
+					//Rubberband
+					if(layer.power > 30){
+						layer.power -= 15;
+			console.log(layer.power)
+					} else {
+						clearInterval(layer.playerLinkInt);
+					}
+				} else {
+					clearInterval(layer.playerLinkInt);
+				}
+
+			}, 1);
+		}
+	}
+	//teleportStart
+	const teleportStart = (event) => {
+		//Trigger 1
+		auxl.mouseController.GetEl().addEventListener('mousedown',teleportDown);
+		auxl.mouseController.GetEl().addEventListener('mouseup',teleportUp);
+	}
+	//teleportStop
+	const teleportStop = (event) => {
+		auxl.mouseController.GetEl().removeEventListener('mousedown',teleportDown);
+		auxl.mouseController.GetEl().removeEventListener('mouseup',teleportUp);
+	}
+
 
 
 	//Link To Hit
@@ -1360,9 +1812,38 @@ LinkTo(positionTest, layer.power)
 */
 
 	//Get Object Instersection overriding
+auxl.mouseController.GetEl().addEventListener('mouseenter',(event) => {
+	//console.log(event)
+	layer.raycaster.intersection = new THREE.Vector3(0,0,0);
+	layer.raycaster.intersection.copy(event.detail.intersection.point)
+	//console.log(event.detail.intersection.point)
+});
+auxl.mouseController.GetEl().addEventListener('mouseup',(event) => {
+	//console.log(event)
+	if(event && event.detail && event.detail.intersection){
+		layer.raycaster.intersection = new THREE.Vector3(0,0,0);
+		layer.raycaster.intersection.copy(event.detail.intersection.point)
+   } else {
+	   layer.raycaster.intersection = false;
+   }
+
+	//console.log(event.detail.intersection.point)
+});
+auxl.mouseController.GetEl().addEventListener('mouseleave',(event) => {
+	//console.log(event)
+	layer.raycaster.intersection = false;
+});
+
+	//Freeze
+	const Freeze = () => {
+		auxl.playerRig.GetEl().body.linearDamping = 1;
+		let slamTimeout2 = setTimeout(() => {
+			auxl.playerRig.GetEl().body.linearDamping = 0.2;
+		}, 500);
+	}
 
 	//Link To
-	const LinkTo = (position, power, distance) => {
+	const LinkTo = (position, power) => {
 		if(!layer.linking){
 		console.log('Link To');
 		console.log(position);
@@ -1373,17 +1854,41 @@ LinkTo(positionTest, layer.power)
 			layer.linking = false;
 		}, 250);
 		//Try instead of spawning on on clickable items, just have on mousedown start building power and on mouseup connect
+//layer.raycaster.instersection
 
-		if(!position){
-			//Calculate the position based on the direction and distance
-			position = new THREE.Vector3();
-			position.copy(GetCameraDirection());
-			position.copy(position).add(new THREE.Vector3(distance, distance, distance).normalize().multiplyScalar(distance));
-		} else {
+//console.log(auxl.playerRig.GetEl().object3D.position)
+//console.log(layer.raycaster.intersection)
+if(!position){
+	//Calculate the position based on the direction and distance
+	position = new THREE.Vector3();
+	position.copy(GetCameraDirection());
+	position.copy(position).add(new THREE.Vector3(layer.distance * layer.power, layer.distance * layer.power, layer.distance * layer.power).normalize().multiplyScalar(layer.distance * layer.power));
+} 
+if(layer.raycaster.intersection){
+	//let rayCheck = layer.raycaster.intersection.distanceTo(auxl.playerRig.GetEl().object3D.position);
+	let rayCheck = DistanceFromPlayer(layer.raycaster.intersection)
+	console.log(rayCheck)
+	if(rayCheck <= layer.distance * layer.power){
+console.log('Attach to')
+		position = new THREE.Vector3();
+		position.copy(layer.raycaster.intersection);
+	}
+}
+
+let distance = DistanceFromPlayer(position);
+
+
+/*
+	if(!position){
+		//Calculate the position based on the direction and distance
+		position = new THREE.Vector3();
+		position.copy(GetCameraDirection());
+		position.copy(position).add(new THREE.Vector3(distance, distance, distance).normalize().multiplyScalar(distance));
+	} else {
 console.log(position)
-		}
-		let distance = DistanceFromPlayer(position);
-
+	}
+	distance = DistanceFromPlayer(position);
+*/
 		//Sping
 		//Spring Point
 		//Jump to Distance aka power
@@ -1428,7 +1933,7 @@ console.log(position)
 	}
 
 	//Slam To
-	const SlamTo = (position, power, distance) => {
+	const SlamTo = (position, power) => {
 		if(!layer.linking){
 		console.log('Slamming To');
 		console.log(position);
@@ -1439,67 +1944,93 @@ console.log(position)
 			layer.linking = false;
 		}, 250);
 		//Try instead of spawning on on clickable items, just have on mousedown start building power and on mouseup connect
+//console.log(auxl.playerRig.GetEl().object3D.position)
+//console.log(layer.raycaster.intersection)
+if(!position){
+	//Calculate the position based on the direction and distance
+	position = new THREE.Vector3();
+	position.copy(GetCameraDirection());
+	position.copy(position).add(new THREE.Vector3(layer.distance, layer.distance, layer.distance).normalize().multiplyScalar(layer.distance));
+} 
+if(layer.raycaster.intersection){
+	//let rayCheck = layer.raycaster.intersection.distanceTo(auxl.playerRig.GetEl().object3D.position);
+	let rayCheck = DistanceFromPlayer(layer.raycaster.intersection)
+	console.log(rayCheck)
+	if(rayCheck <= layer.distance){
+console.log('Attach to')
+		position = new THREE.Vector3();
+		position.copy(layer.raycaster.intersection);
+	}
+}
+		
+	//Distance
+	layer.linkLength = 0;
 
-		if(!position){
-			//Calculate the position based on the direction and distance
-			position = new THREE.Vector3();
-			position.copy(GetCameraDirection());
-			position.copy(position).add(new THREE.Vector3(distance, distance, distance).normalize().multiplyScalar(distance));
-		} else {
-console.log(position)
-		}
-		let distance = DistanceFromPlayer(position);
-
-		//Sping
-		//Spring Point
-		//Jump to Distance aka power
-		//Spawn, spring, despawn
-		//Closer to 0, the greater the power
-		layer.linkLength = 0;
-/*
-	type: 'auxspring',
-	to: 'playerRig',
-	minOneLength: 0,
-	maxOneLength: 30,
-	restLength: 1,
-	damping: 0.5,
-	stiffness: 10,
-*/
-		layer.linkCoreConstraint.Connect({type: 'distance', distance: layer.linkLength, maxForce: 1e6});
+	//Instead of constraint, update physMove
+	layer.linkCoreConstraint.Connect({type: 'distance', distance: layer.linkLength, maxForce: 1e6});
+console.log(layer.linkCoreConstraint)
 
 	//Change Damping
-
 	console.log(auxl.playerRig.GetEl().body)
 	let slamTimeout = setTimeout(() => {
 		auxl.playerRig.GetEl().body.linearDamping = 1;
 		let slamTimeout2 = setTimeout(() => {
 			auxl.playerRig.GetEl().body.linearDamping = 0.2;
-		}, 1000);
+		}, 250);
 	}, 1000);
-		//layer.linkCoreConstraint.Connect({type: 'auxspring', restLength: layer.linkLength, damping: 100, stiffness: 100, maxForce: 1e6});
-console.log(layer.linkCoreConstraint)
-/*
-	let slamTimeout = setTimeout(() => {
-		layer.linkCoreConstraint.Disconnect();
-		layer.linkCoreConstraint.Connect({type: 'lock', distance: layer.linkLength, damping: 1, stiffness: 1, maxForce: 1e6});
-		let slamTimeout2 = setTimeout(() => {
-			layer.linkCoreConstraint.Disconnect();
-		}, 3000);
-	}, 1500);
-*/
 
-		//Display Link
-		if(layer.linkCore.core.inScene){
-			layer.linkCore.PhysPos(position);
-		} else {
+	//Display Link
+	if(layer.linkCore.core.inScene){
+		layer.linkCore.PhysPos(position);
+	} else {
 //console.log('Spawn')
-			layer.linkCore.core.position = position;
-			layer.linkCore.SpawnCore();
-		}
+		layer.linkCore.core.position = position;
+		layer.linkCore.SpawnCore();
+	}
 
 
 		}
 	}
+
+	//Teleport To
+	const TeleportTo = (position, distance) => {
+		//Teleport
+//Calculate the position based on the direction and distance
+position = new THREE.Vector3();
+position.copy(GetCameraDirection());
+position.copy(position).add(new THREE.Vector3(distance, distance, distance).normalize().multiplyScalar(distance));
+
+if(layer.raycaster.intersection){
+	//let rayCheck = layer.raycaster.intersection.distanceTo(auxl.playerRig.GetEl().object3D.position);
+	let rayCheck = DistanceFromPlayer(layer.raycaster.intersection)
+	console.log(rayCheck)
+	if(rayCheck <= layer.distance){
+console.log('Attach to')
+		position = new THREE.Vector3();
+		position.copy(layer.raycaster.intersection);
+		let above = new THREE.Vector3();
+		above.copy(layer.worldAxis)
+		above.negate();
+		above.multiplyScalar(5);
+
+		position.add(above);
+	}
+}
+		//Instead of constraint, update physMove
+		auxl.playerRig.PhysPos(position)
+		auxl.playerRig.GetEl().body.linearDamping = 1;
+		//layer.linkCoreConstraint.Connect({type: 'distance', distance: layer.linkLength, maxForce: 1e6});
+	console.log(layer.linkCoreConstraint)
+
+		//Change Damping
+		console.log(auxl.playerRig.GetEl().body)
+		let slamTimeout = setTimeout(() => {
+			auxl.playerRig.GetEl().body.linearDamping = 0.2;
+			clearTimeout(slamTimeout)
+		}, 1000);
+	}
+
+
 	//Delink
 	const Delink = () => {
 		if(layer.linkCore.core.inScene){
@@ -1585,6 +2116,7 @@ console.log(event.detail.intersection.point)
 		Link();
 		RubberbandStart();
 		RubberbandSlamStart();
+		teleportStart();
 		Power();
 		//Linked component
 		//auxl.mouseController.GetEl().setAttribute('playerlink');
@@ -1661,7 +2193,7 @@ console.log(event.detail.intersection.point)
 	}
 	//Low Grav
 	const LowGrav = () => {
-		auxl.playerRig.GetEl().body.applyLocalForce(new THREE.Vector3(0,4.8,0),new THREE.Vector3(0,0,0));
+		//auxl.playerRig.GetEl().body.applyLocalForce(new THREE.Vector3(0,4.8,0),new THREE.Vector3(0,0,0));
 //applying a small (less than gravity) upward force every tick. 
 	}
 	//Phys Pickup
@@ -1760,7 +2292,7 @@ console.log(event.detail.intersection.point)
 		console.log(params);
 	}
 
-	return {layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, PowerController, LinkTo, SlamTo, Delink, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, PhysBoost, PhysDash, LowGrav, PhysPickup, PhysDrop, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, TestFunc};
+	return {layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, Gravity, PowerController, LinkTo, SlamTo, TeleportTo, Freeze, Delink, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, PhysBoost, PhysDash, LowGrav, PhysPickup, PhysDrop, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, TestFunc};
 }
 
 //
@@ -2823,4 +3355,4 @@ const Companion = (auxl, id, object, inventory) => {
 
 //
 //Export
-export {Player, Companion};
+export {UniRay, Player, Companion};
