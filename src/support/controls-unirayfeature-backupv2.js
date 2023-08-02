@@ -8,17 +8,16 @@
 //Controls
 
 //
-//UniRay
+//Universal Controls
 //Customizable Controls and Methods, Defaults for Locomotion and Snap Turning
-const uniray = AFRAME.registerComponent('uniray', {
+const controls = AFRAME.registerComponent('universal-controls', {
 dependencies: ['auxl'],
 schema: {
 	update: {type: 'number', default: 0},
-	id: {type: 'string', default: 'player'},
 },
 init: function () {
 
-//Currently configured to have a single instance of the entire scene.
+
 
 //Controls to Configure for :
 //Desktop : Mouse & Keyboard
@@ -42,33 +41,6 @@ init: function () {
 //Action 6 - Other Joystick Up, Key V, HTML F
 //Action 7 - Other Joystick Left, Key Z, HTML <-
 //Action 8 - Other Joystick Right, Key X, HTML ->
-
-
-
-//Need each UniRay (controller, hmd, mouse/keyboard, mobile screen)
-//Listen for events that happen on itself such a main trigger / click, but also buttons, rotation, position, joystick
-
-//Control Actions :
-//Main Click - Triggers, Mouse Click, Screen Tap
-//Alt Click - Grip, Mouse Right Click, HTML Alt, Shoulder Alts
-//Joystick - 2D Points
-//Action 1 - controller button1, Key, HTML DIV
-//Action 2 - controller button1, Key, HTML DIV
-//Action 3 - controller button1, Key, HTML DIV
-//Action 4 - controller button1, Key, HTML DIV
-//Action 5 - controller button1, Key, HTML DIV
-//Action 6 - controller button1, Key, HTML DIV
-//Action 7 - controller button1, Key, HTML DIV
-//Action 8 - controller button1, Key, HTML DIV
-
-
-
-
-//Self
-this.id = this.data.id;
-
-//Time
-this.time = 0;
 
 this.aScene = document.querySelector('a-scene');
 this.auxl = document.querySelector('a-scene').systems.auxl;
@@ -101,20 +73,10 @@ action1Keys: ['q','Q'],
 action2Keys: ['e','E'],
 action3Keys: ['r','R'],
 action4Keys: ['t','T'],
-action5Keys: ['x','X'],
-action6Keys: ['c','C'],
-action7Keys: ['v','V'],
-action8Keys: [' ',' '],
-/*
-action1Keys: ['q','Q'],
-action2Keys: ['e','E'],
-action3Keys: ['r','R'],
-action4Keys: ['t','T'],
 action5Keys: ['c','C'],
 action6Keys: ['v','V'],
 action7Keys: ['z','Z'],
 action8Keys: ['x','X'],
-*/
 };
 this.auxl.controlConfig = this.controls;
 
@@ -778,9 +740,6 @@ this[actionFunc] = document.getElementById(auxlObj).components[component][func].
 			} else {
 				//if component is false, then
 				//this.auxl[auxlObj][func]
-//console.log(actionFunc)
-//console.log(func)
-//console.log(auxlObj)
 				this[actionFunc] = this.auxl[auxlObj][func];
 			}
 			//Update Control Text
@@ -896,18 +855,8 @@ disableAction: function (actionObj){
 },
 //Main Click
 mainClick: function (e){
-	//console.log(e);
+	//console.log(e.detail);
 	//this.updateInput(e.detail.info);
-	if(e.click === 'click'){
-//console.log('click')
-	} else if(e.click === 'clickDown'){
-//console.log('clickDown')
-	} else if(e.click === 'clickUp'){
-//console.log('clickUp')
-	} else if(e.click === 'Click'){
-//console.log('Click')
-	}
-
 },
 //Alt Click
 altClick: function (e){
@@ -1510,8 +1459,6 @@ blank: function (e){
 	//this.updateInput('Blank Button');
 },
 update: function () {
-	//Self
-	this.id = this.data.id;
 
 	//Universal Events
 	document.addEventListener('mainClick', this.mainClickHit);
@@ -1559,12 +1506,10 @@ update: function () {
 let initTimeout = setTimeout(() => {
 
 	//Locomotion Component
-	//this.locomotion = document.getElementById('playerRig').components.locomotion;
-	this.locomotion = this.el.components.locomotion;
+	this.locomotion = document.getElementById('playerRig').components.locomotion;
 
 	//Gimbal Component
-	//this.gimbal = document.getElementById('playerRig').components.gimbal;	
-	this.gimbal = this.el.components.gimbal;	
+	this.gimbal = document.getElementById('playerRig').components.gimbal;	
 
 	//Quest
 	this.vrController1 = document.getElementById('vrController1');
@@ -1771,68 +1716,75 @@ remove: function () {
 	this.mobileR.removeEventListener('touchstart', this.action8Down);
 	this.mobileR.removeEventListener('touchend', this.action8Up);
 },
+});
+
+
+//Universal Raycaster
+const uniray = AFRAME.registerComponent('uniray', {
+dependencies: ['auxl'],
+schema: {
+    name: {type: 'string', default: "uniRay"},
+    type: {type: 'string', default: "to", oneOf: ["to", "grab", "hit", 'launch', 'fling', 'flying',]},
+},
+init: function () {
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
 //tick: function (time, timeDelta) {},
 events: {
 	//Raycaster Events
 	mouseenter: function (event) {
-		//console.log({event: 'mouseenter', data: event})
-		this.auxl[this.id].TriggerEnter(event);
+		console.log({event: 'mouseenter', data: event})
+		this.auxl[this.el.id].Enter(event);
 	},
 	mousedown: function (event) {
-		//console.log({event: 'mousedown', data: event})
+		console.log({event: 'mousedown', data: event})
 		this.Measure();
-		this.auxl[this.id].TriggerDown(event);
+		this.auxl[this.el.id].LinkStart(event);
 	},
 	mouseup: function (event) {
 		//console.log('Link')
 		//console.log(this.data.type)
-		//console.log({event: 'mouseup', data: event})
-		this.auxl[this.id].TriggerUp(event);
+		console.log({event: 'mouseup', data: event})
+		this.auxl[this.el.id].LinkEnd(event);
 		this.Measure(true);
 	},
 	mouseleave: function (event) {
-		//console.log({event: 'mouseleave', data: event})
-		this.auxl[this.id].TriggerLeave(event);
+		console.log({event: 'mouseleave', data: event})
+		this.auxl[this.el.id].Exit(event);
 	},
    //Collision Events
 	collide: function (event) {
 		//console.log({event: 'collision', data: event})
-		//this.auxl[this.id].Collide(event);
+		this.auxl[this.el.id].Collide(event);
 	},
    //Other Events
 	click: function (event) {
-		//console.log({event: 'click', data: event})
-		//this.auxl[this.id].Click(event);
+		console.log({event: 'click', data: event})
+		this.auxl[this.el.id].Click(event);
 	},
 	altclick: function (event) {
-		//console.log({event: 'altclick', data: event})
-		//this.auxl[this.id].AltClick(event);
+		console.log({event: 'altclick', data: event})
+		this.auxl[this.el.id].AltClick(event);
 	},
 //Key Events
 //Key Down 
 	keydown: function (event) {
-		//console.log({event: 'keydown', data: event})
-		//this.auxl[this.id].ButtonDown(event);
+		console.log({event: 'keydown', data: event})
+		this.auxl[this.el.id].Click(event);
 	},
 //Key Up
 	keyup: function (event) {
-		//console.log({event: 'keyup', data: event})
-		//this.auxl[this.id].ButtonUp(event);
+		console.log({event: 'keyup', data: event})
+		this.auxl[this.el.id].AltClick(event);
 	},
-//Joystick
-//Buttons
-//Position
-//Rotation
-
 },
-
 
 //Tick
 tick: function (time, timeDelta) {
 	if(this.measure){
 		if(this.time > 1){
 			this.time --;
-//console.log(this.time)
+console.log(this.time)
 		} else {
 			this.time = 0;
 			this.Measure(true);
@@ -1840,11 +1792,8 @@ tick: function (time, timeDelta) {
 	} else {
 		this.time = 1;
 	}
-	if(this.auxl[this.id]){
-		this.auxl[this.id].Ticker(this.time, this);
-	}
+	this.auxl[this.el.id].Tick(this.time);
 },
-//Measure
 Measure: function (toggle) {
 	this.measure = !toggle;
 },
@@ -1852,4 +1801,4 @@ Measure: function (toggle) {
 
 //
 //Export
-export default uniray;
+export {controls, uniray};

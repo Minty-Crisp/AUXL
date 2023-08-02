@@ -149,6 +149,7 @@ events: {
 	},
 },
 tick: function (time, timeDelta) {
+    if (!this.initialized || !dt) return;
 	if(this.building){
 		if(this.power > 1){
 			this.power --;

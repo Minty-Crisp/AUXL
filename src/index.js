@@ -23,7 +23,7 @@ import auxl from './system/auxl.js';
 //Support
 //
 //Controls
-import {controls, universalraycaster} from './support/controls.js';
+import {controls, uniray} from './support/controls.js';
 //
 //Movement
 import {locomotion, gimbal, teleportation, raycastTeleport, raycastTeleportSelect, teleportto} from './support/movement.js';

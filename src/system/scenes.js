@@ -170,7 +170,7 @@ if(auxl[auxl.running[ran].name].GetEl){
 	//Read NodeScene Data Timeline
 	function readTimeline(time){
 		if(time === 'controls'){
-			auxl.universalControls.updateAction(core[time]);
+			auxl.uniRay.updateAction(core[time]);
 			return;
 		}
 		//Fog
@@ -478,7 +478,7 @@ if(auxl[auxl.running[ran].name].GetEl){
 	}
 	//Remove NodeScene Controls
 	const RemoveControls = () => {
-		auxl.universalControls.disableAction(core['controls']);
+		auxl.uniRay.disableAction(core['controls']);
 	}
 	//Read NodeScene Start Section
 	const Start = () => {
@@ -747,7 +747,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	//Read MapZone Data Timeline
 	function readTimeline(time){
 		if(time === 'controls'){
-			auxl.universalControls.updateAction(core[time]);
+			auxl.uniRay.updateAction(core[time]);
 			return;
 		}
 		for(let line in core[time]){
@@ -968,7 +968,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	}
 	//Remove MapZone Controls
 	const RemoveControls = () => {
-		auxl.universalControls.disableAction(core['controls']);
+		auxl.uniRay.disableAction(core['controls']);
 	}
 	//Read MapZone Start Section
 	const Start = () => {
@@ -1360,7 +1360,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 	//Read Scenario Data Timeline
 	function readTimeline(time){
 		if(time === 'controls'){
-			auxl.universalControls.updateAction(core[time]);
+			auxl.uniRay.updateAction(core[time]);
 			return;
 		}
 		for(let line in core[time]){
@@ -1590,7 +1590,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 	}
 	//Remove Scenario Controls
 	const RemoveControls = () => {
-		auxl.universalControls.disableAction(core['controls']);
+		auxl.uniRay.disableAction(core['controls']);
 	}
 	//Read Scenario Start Section
 	const Start = () => {
@@ -1635,8 +1635,8 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 			//Update HTML
 			updateHTMLTitle();
 			updateHTMLInstructions();
-			//Get Universal Controls component
-			auxl.universalControls = document.getElementById('playerRig').components['universal-controls'];
+			//Get UniRay component
+			auxl.uniRay = document.getElementById('playerRig').components['uniray'];
 			//Start scene mid Player anim
 			startTimeout = setTimeout(() => {
 				//Load All Scenario Items
@@ -1738,7 +1738,10 @@ const World = (auxl, worldData) => {
 		//Physics
 		if(world.data.info.physics){
 			auxl.worldPhysics = world.data.info.physics;
+			//Apply directly to main player needs to be updated
 			auxl.player.EnablePhysics();
+			//not yet implemented
+			auxl.EnablePhysics();
 		} else {
 			auxl.worldPhysics = false;
 		}

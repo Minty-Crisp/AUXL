@@ -11,7 +11,17 @@
 //Player
 //Companion
 
-/*
+//
+//UniRay
+const UniRay = (data) => {
+
+	let uniRayNew = {};
+	uniRayNew.name = 'uniRayDefault';
+	uniRayNew.pos = new THREE.Vector3(0,0,0);
+	uniRayNew.intersection = new THREE.Vector3(0,0,0);
+	uniRayNew.powers = {};
+	uniRayNew.power = 'select';
+
 	//Primary, parent UniRay
 	//Secondary, connected to another
 
@@ -67,700 +77,13 @@
 	//Trigger & Alt
 
 
-
-
-	//AUX Entity
-	//
-	//Player
-
-	//Teleportation Animation should be its own camera extension
-
-	//return {uniRay, SpawnUniRay, DespawnUniRay, Activate, Deactivate, Toggle}
-
-
-//UniRay
-
-//Runs from AUXLObjs
-//One
-//Player
-
-//Needs the control changes from system
-//Need to autodetect controller to configure as well
-*/
+}
 
 
 //
 //Player
 //User Controller, Settings and Actions
-//const Player = (auxl,id,layer) => {
-//
-//UniRay
-const UniRay = (auxl, id, layer, data) => {
-console.log({auxl, id, layer, data})
-
-//Testing
-data.pos = new THREE.Vector3(0,1,0);
-
-	let uniRay = {};
-	uniRay.id = data.id || 'uniRayDefault';
-	uniRay.name = data.name || 'uniRayDefault';
-	uniRay.pos = data.pos || new THREE.Vector3(0,0,0);
-	uniRay.intersection = new THREE.Vector3(0,0,0);
-	uniRay.powers = data.powers || {};
-	uniRay.power = data.power || 'select';
-	uniRay.active = false;
-
-	//AUXL Entities
-
-	//A-Frame requires a camera, so unless one is defined in html, it will inject one.
-	//Remove or simplify html camera that will be taken over
-	//Take over html camera if uniray is the first one to init
-	//SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
-
-	//Ray Rig
-	uniRay.rigData = {
-	data: 'rigData',
-	id: uniRay.id + 'Rig',
-	sources: false,
-	text: false,
-	geometry: false,
-	material: false,
-	position: uniRay.pos,
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent','rig',uniRay.id,],
-	components: {
-	['wasd-controls']:{enabled: true},
-	//['universal-controls']:null,
-	//['locomotion']:{uiid: false, courserid: uniRay.id + 'CameraRay', movetype: 'desktop'},
-	//['gimbal']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
-	light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
-	},};
-	uniRay.rig = auxl.Core(uniRay.rigData);
-
-	//Ray Body
-	uniRay.bodyData = {
-	data: 'bodyData',
-	id:uniRay.id + 'Body',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'box', width: 0.5, height: 0.5, depth: 0.5},
-	material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,1,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: {
-	crouchdownstanding: {property: 'object3D.position.y', from: 0, to: -0.75, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchDownStanding'},
-	crouchupstanding: {property: 'object3D.position.y', from: -0.75, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchUpStanding'},
-
-	crouchdownsitting: {property: 'object3D.position.y', from: 0.75, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchDownSitting'},
-	crouchupsitting: {property: 'object3D.position.y', from: 0, to: 0.75, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchUpSitting'},
-
-	sit: {property: 'object3D.position.y', from: 0, to: 0.75, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sit'},
-	stand: {property: 'object3D.position.y', from: 0.75, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'stand'},
-
-	},
-	mixins: false,
-	classes: ['a-ent','body',uniRay.id,],
-	components: false,
-	};
-	uniRay.body = auxl.Core(uniRay.bodyData);
-
-	//Raycaster & Camera
-	uniRay.cameraRayData = {
-	data:'cameraRayData',
-	id:uniRay.id + 'CameraRay',
-	entity: 'a-camera',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'ring', radiusInner: 0.005, radiusOuter: 0.01},
-	material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,0,-0.5),
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent','cameraray',uniRay.id,],
-	components: {
-	active: false,
-
-	['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
-
-	['wasd-controls']:{enabled: false},
-
-	raycaster:{enabled: 'true', autoRefresh: 'true', objects: '.clickable', origin: new THREE.Vector3(0,0,0), direction: new THREE.Vector3(0,0,-1), far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'},
-
-	cursor: {fuse: 'false', rayOrigin: uniRay.id + 'CameraRay', mouseCursorStylesEnabled: 'true',},
-
-	},};
-	uniRay.cameraRay = auxl.Core(uniRay.cameraRayData);
-	//Ray Camera UI
-	uniRay.rayUIData = {
-	data:'rayUIData',
-	id:uniRay.id + 'RayUI',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'ring', radiusInner: 0.005, radiusOuter: 0.01},
-	material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-	//text: {value:'Message', width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold", side: 'double', opacity: 0},
-	//geometry: {primitive: 'plane', width: 0.3, height: 0.15},
-	//material: {shader: "flat", color: "#ac2d2d", opacity: 0.69, side: 'double'},
-	position: new THREE.Vector3(0,0,-0.5),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: {
-	opacinbk:{property: 'components.material.material.opacity', from: 0, to: 0.82, dur: 750, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',}, 
-	opacoutbk:{property: 'components.material.material.opacity', from: 0.82, to: 0, dur: 750, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',},
-	opacintxt:{property: 'text.opacity', from: 0, to: 0.82, dur: 750, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',}, 
-	opacouttxt:{property: 'text.opacity', from: 0.82, to: 0, dur: 750, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',},
-
-	click:{property: 'scale', from: '0.75 0.75 0.75', to: '0.4 0.4 0.4', dur: 100, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mousedown'},
-	clickreset:{property: 'scale', from: '0.4 0.4 0.4', to: '0.75 0.75 0.75', dur: 300, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseup'},
-	hoverenter:{property: 'material.color', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
-	hoverleave:{property: 'material.color', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
-	},
-	mixins: false,
-	classes: ['clickable', 'a-ent','rayui',uniRay.id,],
-	components: {
-	visible: true,
-	},
-	}
-	uniRay.rayUI = auxl.Core(uniRay.rayUIData);
-
-	//update look-at-xyz with specific current camera
-	//Belt UI
-	uniRay.rayBeltUIData = {
-	data:'rayBeltUIData',
-	id:uniRay.id + 'RayBeltUI',
-	sources:false,
-	text: false,
-	geometry: false,
-	material: false,
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent'],
-	components: {
-		['look-at-xyz']:{match: 'camera', x:false, y:true, z:false},
-	},
-	};
-	uniRay.rayBeltUI = auxl.Core(uniRay.rayBeltUIData);
-	//Belt Text
-	uniRay.rayBeltTextData = {
-	data:'rayBeltTextData',
-	id:uniRay.id + 'rayBeltText',
-	sources:false,
-	text: {value:'Hello World!', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.9, zOffset: 0.03, side: 'front', wrapCount: 45, baseline: 'center'},
-	geometry: {primitive: 'box', depth: 0.025, width: 1, height: 0.25},
-	material: {shader: "standard", color: "#4bb8c1", opacity: 0.75, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-	position: new THREE.Vector3(0,0.69,-0.8),
-	rotation: new THREE.Vector3(-30,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent'],
-	components: {
-	visible: false,
-	},
-	};
-	uniRay.rayBeltText = auxl.Core(uniRay.rayBeltTextData);
-
-
-	//Player Vehicle
-	uniRay.rayVehicleData = {
-	data:'rayVehicleData',
-	id:uniRay.id + 'RayVehicle',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'circle', radius: 1, segments: 32, thetaStart: 0, thetaLength: 360},
-	material: {shader: "flat", src: './assets/img/compass/compass.jpg', repeat: '1 1', color: "#3EB489", opacity: 0.42, side: 'double'},
-	position: new THREE.Vector3(0,0.05,0),
-	rotation: new THREE.Vector3(-90,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	//classes: ['a-ent','player', 'clickable'],
-	classes: ['a-ent','player'],
-	components: {
-	visible: true,
-	},
-	};
-	uniRay.rayVehicle = auxl.Core(uniRay.rayVehicleData);
-
-
-	//Raycaster Support
-
-	//Raycaster Configurations
-	//Mouse|Mobile Controller
-	uniRay.mouseControllerData = {
-	data:'mouseControllerData',
-	id:uniRay.id + 'MouseController',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'ring', radiusInner: 0.005, radiusOuter: 0.01},
-	material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,0,-0.5),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(0.75,0.75,0.75),
-	animations: {
-	click:{property: 'scale', from: '0.75 0.75 0.75', to: '0.4 0.4 0.4', dur: 100, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mousedown'},
-	clickreset:{property: 'scale', from: '0.4 0.4 0.4', to: '0.75 0.75 0.75', dur: 300, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseup'},
-	hoverenter:{property: 'material.color', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
-	hoverleave:{property: 'material.color', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
-	},
-	mixins: false,
-	classes: ['clickable', 'a-ent','player'],
-	components: {
-	raycaster:{enabled: 'true', autoRefresh: 'true', objects: '.clickable', origin: new THREE.Vector3(0,0,0), direction: new THREE.Vector3(0,0,-1), far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'},
-	cursor: {fuse: 'false', rayOrigin: uniRay.id + 'MouseController', mouseCursorStylesEnabled: 'true',},
-	},};
-	uniRay.mouseController = auxl.Core(uniRay.mouseControllerData);
-	//VR Controller 1
-	uniRay.vrController1Data = {
-	data:'vrController1Data',
-	id:'vrController1',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'ring', radiusInner: 0.02, radiusOuter: 0.03},
-	material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,0,-1),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(0.15,0.15,0.15),
-	animations: {
-	hoverenter:{property: 'raycaster.lineColor', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
-	hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
-	},
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {
-	//['vr-left-inputs']:{joystickEnabled: true},
-	visible: 'false',
-	},
-	};
-	uniRay.vrController1 = auxl.Core(uniRay.vrController1Data);
-	//VR Controller 1 UI
-	uniRay.vrController1UIData = {
-	data:'vrController1UIData',
-	id:'vrController1UI',
-	sources: false,
-	text: {value:'...', width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold"},
-	geometry: {primitive: 'plane', width: 0.25, height: 0.1},
-	material: {shader: "flat", color: "#ac2d2d", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,-0.25,-0.25),
-	rotation: new THREE.Vector3(-90,0,0),
-	scale: new THREE.Vector3(0.5,0.5,0.5),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {visible: 'false',},
-	};
-	uniRay.vrController1UI = auxl.Core(uniRay.vrController1UIData);
-	//VR Controller 2
-	uniRay.vrController2Data = {
-	data:'vrController2Data',
-	id:'vrController2',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'ring', radiusInner: 0.02, radiusOuter: 0.03},
-	material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,0,-1),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(0.15,0.15,0.15),
-	animations: {
-	hoverenter:{property: 'raycaster.lineColor', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
-	hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
-	},
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {
-	//['vr-right-inputs']:{joystickEnabled: true},
-	visible: 'false',
-	},
-	};
-	uniRay.vrController2 = auxl.Core(uniRay.vrController2Data);
-	//VR Controller 2 UI
-	uniRay.vrController2UIData = {
-	data:'vrController2UIData',
-	id:'vrController2UI',
-	sources: false,
-	text: {value:'...', width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold"},
-	geometry: {primitive: 'plane', width: 0.25, height: 0.1},
-	material: {shader: "flat", color: "#ac2d2d", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,-0.25,-0.25),
-	rotation: new THREE.Vector3(-90,0,0),
-	scale: new THREE.Vector3(0.5,0.5,0.5),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {visible: 'false',},
-	};
-	uniRay.vrController2UI = auxl.Core(uniRay.vrController2UIData);
-
-
-	//Animation Support
-
-	//Teleportation Fade
-	uniRay.fadeScreenData = {
-	data:'Fade Screen',
-	id:'fadeScreen',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'plane', width: 1, height: 0.5},
-	material: {shader: "flat", color: '#000000', opacity: 0},
-	position: new THREE.Vector3(0,0,-0.15),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: {
-	fadein:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fade'},
-
-	fadeout:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fade'},
-
-
-	fadeinscene:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadeScene1'},
-
-	fadeoutscene:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadeScene2'}, 
-
-	},
-	mixins: false,
-	classes: ['a-ent','player','clickable'],
-	components: {visible: false},
-	};
-	uniRay.fadeScreen = auxl.Core(uniRay.fadeScreenData);
-	//Teleportation Sphere
-	uniRay.sphereScreenData = {
-	data:'Sphere Screen',
-	id:'sphereScreen',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'sphere', radius: 0.125, segmentsWidth: 36, segmentsHeight: 18, phiLength: 360, phiStart: 0, thetaLength: 0, thetaStart: 90},
-	material: {shader: "flat", color: '#000000', opacity: 1, side: 'double'},
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations:{
-	spherein1:{property: 'geometry.thetaLength', from: 0, to: 180, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
-	spherein2: {property: 'geometry.thetaStart', from: 90, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
-
-	sphereout1:{property: 'geometry.thetaLength', from: 180, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
-	sphereout2: {property: 'geometry.thetaStart', from: 0, to: 90, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
-
-
-	spherein1scene:{property: 'geometry.thetaLength', from: 0, to: 180, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene1'},
-	spherein2scene: {property: 'geometry.thetaStart', from: 90, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene1'},
-
-	sphereout1scene:{property: 'geometry.thetaLength', from: 180, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene2'},
-	sphereout2scene: {property: 'geometry.thetaStart', from: 0, to: 90, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene2'},
-	},
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {visible: false},
-	};
-	uniRay.sphereScreen = auxl.Core(uniRay.sphereScreenData);
-	//Teleportation Blink 1
-	uniRay.blink1ScreenData = {
-	data:'Blink 1 Screen',
-	id:'blink1Screen',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'plane', width: 5, height: 2},
-	material: {shader: "flat", color: '#000000', opacity: 0, side: 'double'},
-	position: new THREE.Vector3(0,2.5,-0.15),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations:{
-	blinkin:{property: 'object3D.position.y', from: 2.5, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-	blinkopacin: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-
-	blinkout:{property: 'object3D.position.y', from: 1, to: 2.5, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-	blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-
-
-	blinkinscene:{property: 'object3D.position.y', from: 2.5, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
-	blinkopacinscene: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
-
-	blinkoutscene:{property: 'object3D.position.y', from: 1, to: 2.5, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene2'},
-	blinkopacoutscene: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene2'},
-	},
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {visible: false},
-	};
-	uniRay.blink1Screen = auxl.Core(uniRay.blink1ScreenData);
-	//Teleportation Blink 2
-	uniRay.blink2ScreenData = {
-	data:'Blink 2 Screen',
-	id:'blink2Screen',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'plane', width: 5, height: 2},
-	material: {shader: "flat", color: '#000000', opacity: 0, side: 'double'},
-	position: new THREE.Vector3(0,-2.5,-0.15),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations:{
-	blinkin:{property: 'object3D.position.y', from: -2.5, to: -1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-	blinkopacin: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-
-	blinkout:{property: 'object3D.position.y', from: -1, to: -2.5, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-	blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-
-
-	blinkinscene:{property: 'object3D.position.y', from: -2.5, to: -1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
-	blinkopacinscene: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
-
-	blinkoutscene:{property: 'object3D.position.y', from: -1, to: -2.5, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene2'},
-	blinkopacoutscene: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene2'},
-	},
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {visible: false},
-	};
-	uniRay.blink2Screen = auxl.Core(uniRay.blink2ScreenData);
-
-
-	//Layer
-	uniRay.uniRayAll = {
-	parent: {core: uniRay.rig},
-	child0: {
-		parent: {core: uniRay.body},
-		child0: {
-			parent: {core: uniRay.cameraRay},
-			child0: {core: uniRay.rayUI},
-			//child1: {core: uniRay.mouseController},
-			//child2: {core: uniRay.fadeScreen},
-			//child3: {core: uniRay.sphereScreen},
-			//child4: {core: uniRay.blink1Screen},
-			//child5: {core: uniRay.blink2Screen},
-		},
-		child1: {
-			parent: {core: uniRay.rayBeltUI},
-			child0: {core: uniRay.rayBeltText},
-		},
-	},
-	child1: {core: uniRay.rayVehicle},
-	}
-	uniRay.uniRayLayer = auxl.Layer('uniRayLayer', uniRay.uniRayAll);
-
-	//Player
-	//uniRay.player = auxl.Player('player',uniRay.playerLayer);
-
-
-	//Spawn UniRay
-	const SpawnUniRay = (parent) => {
-		uniRay.uniRayLayer.SpawnLayer(parent);
-	}
-	//Despawn UniRay
-	const DespawnUniRay = () => {
-		uniRay.uniRayLayer.DespawnLayer();
-	}
-	//Set As Active
-	const Activate = (camera) => {
-		//Check for systems currently active camera, to update
-		uniRay.active = true;
-		auxl.camera.ChangeSelf({property: 'active', value: false})
-		uniRay.cameraRay.ChangeSelf({property: 'active', value: true})
-	}
-	//Deactive
-	const Deactivate = (camera) => {
-		//Check for systems currently active camera, to update
-		uniRay.active = false;
-		uniRay.cameraRay.ChangeSelf({property: 'active', value: false})
-		auxl.camera.ChangeSelf({property: 'active', value: true})
-	}
-	//Toggle
-	const Toggle = (camera) => {
-		if(uniRay.active){
-			Deactivate(camera);
-		} else {
-			Activate(camera);
-		}
-	}
-
-//Ray Toggle
-const RayDisable = () => {
-	uniRay.cameraRay.GetEl().setAttribute('visible',false);
-	uniRay.cameraRay.GetEl().removeAttribute('raycaster');
-	uniRay.cameraRay.GetEl().removeAttribute('cursor');
-	controllerBlock.style.display = 'none';
-}
-const RayEnable = () => {
-	uniRay.cameraRay.GetEl().setAttribute('visible',true);
-	uniRay.cameraRay.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-	//uniRay.cameraRay.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
-	uniRay.cameraRay.GetEl().setAttribute('cursor',{fuse: 'false', mouseCursorStylesEnabled: 'true', rayOrigin: uniRay.id});
-	controllerBlock.style.display = 'flex';
-	auxl.playerRig.GetEl().setAttribute('uniray',{update: 6});
-	auxl.player.EnableMobileLocomotion();
-	auxl.locomotionText = 'Arrow Buttons';
-}
-
-//Ray Controls
-const RayControls = (controls) => {
-	controls = controls || '.clickable,';
-	uniRay.cameraRay.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: controls, far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-}
-
-//VR
-
-//HMD
-//No Trigger or button inputs, only up to 6DoF  
-
-//VR Right Config
-const ModeVRRight = (el) => {
-	el.setAttribute('laser-controls',{hand: 'right'});
-}
-//VR Left Config
-const ModeVRLeft = (el) => {
-	el.setAttribute('laser-controls',{hand: 'left'});
-}
-//VR Config Off
-const ModeVROff = (el) => {
-	el.removeAttribute('laser-controls');
-}
-
-
-
-
-//VR
-function disableVRControls(){
-	auxl.vrController1.GetEl().setAttribute('visible',false);
-	auxl.vrController2.GetEl().setAttribute('visible',false);
-	auxl.vrController1UI.GetEl().setAttribute('visible',false);
-	auxl.vrController2UI.GetEl().setAttribute('visible',false);
-	auxl.vrController1.GetEl().removeAttribute('cursor');
-	auxl.vrController2.GetEl().removeAttribute('cursor');
-	auxl.vrController1.GetEl().removeAttribute('laser-controls');
-	auxl.vrController2.GetEl().removeAttribute('laser-controls');
-}
-function enableVRControls(){
-	if(auxl.vrHand === 'bothRight'){
-		auxl.vrController1.GetEl().setAttribute('visible',true);
-		auxl.vrController2.GetEl().setAttribute('visible',true);
-		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
-		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
-		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
-		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
-		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
-		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 1});
-		auxl.player.EnableVRLocomotion();
-		auxl.locomotionText = 'Left Controller Joystick';
-	} else if(auxl.vrHand === 'bothLeft'){
-		auxl.vrController1.GetEl().setAttribute('visible',true);
-		auxl.vrController2.GetEl().setAttribute('visible',true);
-		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
-		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
-		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
-		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
-		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
-		auxl.vrController1.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 2});
-		auxl.player.EnableVRLocomotion();
-		auxl.locomotionText = 'Right Controller Joystick';
-	} else if(auxl.vrHand === 'bothRightLoco' || auxl.vrHand === 'bothLeftLoco'){
-		auxl.vrController1.GetEl().setAttribute('visible',true);
-		auxl.vrController2.GetEl().setAttribute('visible',true);
-		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
-		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
-		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
-		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
-		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: 'false'});
-		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		vrController1.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
-		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 3});
-		auxl.player.EnableVRLocomotion();
-		if(auxl.vrHand === 'bothLeftLoco'){
-			auxl.locomotionText = 'Left Controller Joystick';
-		} else if (auxl.vrHand === 'bothRightLoco'){
-			auxl.locomotionText = 'Right Controller Joystick';
-		}
-	} else if(auxl.vrHand === 'right'){
-		auxl.vrController2.GetEl().setAttribute('visible',true);
-		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
-		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
-		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 4});
-		auxl.player.EnableVRHoverLocomotion('vrController2');
-		auxl.locomotionText = 'Hover on Forward/Backward Belt.';
-	} else if(auxl.vrHand === 'left'){
-		auxl.vrController1.GetEl().setAttribute('visible',true);
-		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
-		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
-		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		auxl.vrController1.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 5});
-		auxl.player.EnableVRHoverLocomotion('vrController1');
-		auxl.locomotionText = 'Hover on Forward/Backward Belt.';
-	}
-}
-//Desktop
-function disableDesktopControls(){
-	uniRay.cameraRay.GetEl().setAttribute('visible',false);
-	uniRay.cameraRay.GetEl().removeAttribute('raycaster');
-	uniRay.cameraRay.GetEl().removeAttribute('cursor');
-}
-function enableDesktopControls(){
-	uniRay.cameraRay.GetEl().setAttribute('visible',true);
-	uniRay.cameraRay.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-	uniRay.cameraRay.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: uniRay.cameraRay.id, mouseCursorStylesEnabled: 'true',});
-	auxl.playerRig.GetEl().setAttribute('uniray',{update: 0});
-	auxl.player.EnableDesktopLocomotion();
-	auxl.locomotionText = 'WASD Keys';
-}
-//Mobile
-function disableMobileControls(){
-	uniRay.cameraRay.GetEl().setAttribute('visible',false);
-	uniRay.cameraRay.GetEl().removeAttribute('raycaster');
-	uniRay.cameraRay.GetEl().removeAttribute('cursor');
-	controllerBlock.style.display = 'none';
-}
-function enableMobileControls(){
-	/*
-	function mobilePermissionGrantedTrue(){
-		auxl.mobilePermissionGranted = true;
-	}
-	function mobilePermissionGrantedFalse(){
-		auxl.mobilePermissionGranted = false;
-	}*/
-	//deviceorientationpermissiongranted
-	//deviceorientationpermissionrejected
-	//deviceorientationpermissionrequested
-	//sceneEl.setAttribute('device-orientation-permission-ui', {enabled: true});
-	//sceneEl.addEventListener('deviceorientationpermissiongranted', mobilePermissionGrantedTrue);
-	//sceneEl.addEventListener('deviceorientationpermissionrejected', mobilePermissionGrantedFalse);
-	uniRay.cameraRay.GetEl().setAttribute('visible',true);
-	uniRay.cameraRay.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-	uniRay.cameraRay.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: uniRay.cameraRay.id, mouseCursorStylesEnabled: 'true'});
-	controllerBlock.style.display = 'flex';
-	auxl.playerRig.GetEl().setAttribute('uniray',{update: 6});
-	auxl.player.EnableMobileLocomotion();
-	auxl.locomotionText = 'Arrow Buttons';
-}
-
-//Controller Types
-//Desktop - Mouse & Keyboard
-//Mobile - Gyro, Touchscreen, camera, gps
-//VR - 6DoF Dual Inputs with HMD Inputes
-//soon Gamepad - Each 1/2 side of the gamepage is 1 UniRay controller for which combine into 1 controller and optionally hardware hand tracking to enable 6DoF updates.
-//eventually... Hands - Each hand would be a UniRay functional independantly and more dynamically with another connected and more.
-
-//Desktop - 1 UniRay - Mouse & Keyboard
-//Mobile - 1 UniRay - Gyro & Touchscreen
-//VR - 3 UniRay - HMD & 2x 6DoF Controllers
-//VR HMD
-//6DoF Controller
-
-
-	//Player Layer Legacy
+const Player = (auxl,id,layer) => {
 	//Player Name
 	layer.id = id;
 
@@ -788,19 +111,14 @@ function enableMobileControls(){
 	//Locomotion Type
 	layer.moveType = {pov : '1st', axis : 'posXYZ', style : 'free'}
 	//layer.moveType = {pov : '1st', axis : 'posXZ', style : 'free'}
-
 	//Sitting or Standing Mode
 	layer.stand = true;
 	//Duck | Standing
 	let crouchTimeout;
 	layer.standing = true;
 	layer.animating = false;
-
-	//Rig with camera
 	//Snap Rotation
 	layer.snapRotating = false;
-
-
 	let snapTimeout;
 	//Rotate 45
 	let anim45Data = {
@@ -861,9 +179,6 @@ function enableMobileControls(){
 
 	//Menu Toggle
 	layer.menuToggle = true;
-
-
-	//Migrate to a One Controlled Object
 
 	//Physics
 	layer.playerPhysics = false;
@@ -957,7 +272,6 @@ function enableMobileControls(){
 	layer.hand2Shape = {shape: 'box', halfExtents: '0.1 0.1 0.1', offset: '-0.5 1 -0.5',};
 */
 
-	//Belongs in One attached object and handled by that function
 	//Allow Jump
 	layer.jumping = false;
 	layer.jumpTimeout;
@@ -1085,6 +399,21 @@ function enableMobileControls(){
 		auxl.sphereScreen.ChangeSelf({property: 'material', value:{color: newColor}});
 		auxl.blink1Screen.ChangeSelf({property: 'material', value:{color: newColor}});
 		auxl.blink2Screen.ChangeSelf({property: 'material', value:{color: newColor}});
+	}
+	//Get Camera Direction
+	const GetCameraDirection = () => {
+		//Get the direction vector in world space
+		let direction = new THREE.Vector3();
+		camera.object3D.getWorldDirection(direction);
+		return direction;
+/*
+		//Calculate the position based on the direction and distance
+		let distance = 1;
+		let position = new THREE.Vector3();
+		position.copy(camera.object3D.position).add(new THREE.Vector3(direction.x, direction.y, direction.z).normalize().multiplyScalar(distance));
+console.log(position)
+		return position;
+*/
 	}
 	//Toggle Belt Text
 	const ToggleBeltText = () => {
@@ -1508,6 +837,11 @@ function enableMobileControls(){
 			}
 		}
 	}
+	//Distance from Player
+	const DistanceFromPlayer = (position) => {
+		let distance = position.distanceTo(GetPlayerInfo().pos);
+		return distance;
+	}
 /*
 //
 //Interaction States
@@ -1628,47 +962,17 @@ auxl.moonLayer = auxl.Layer('moonLayer', auxl.moonLayerData);
 //Charge
 //on mousedown spawn and start moving in the ray direction outwards. Until mouseup hits and stops it or an intersecting object overrides
 
-	//Distance from Player
-	const DistanceFromPlayer = (position) => {
-		let distance = position.distanceTo(GetPlayerInfo().pos);
-		return distance;
-	}
-	//Get Camera Direction
-	const GetCameraDirection = () => {
-		//Get the direction vector in world space
-		let direction = new THREE.Vector3();
-		camera.object3D.getWorldDirection(direction);
-		return direction;
+
+
+
 /*
-		//Calculate the position based on the direction and distance
-		let distance = 1;
-		let position = new THREE.Vector3();
-		position.copy(camera.object3D.position).add(new THREE.Vector3(direction.x, direction.y, direction.z).normalize().multiplyScalar(distance));
-console.log(position)
-		return position;
+auxl.mouseController.GetEl().addEventListener('mousedown',RubberbandDown);
+auxl.mouseController.GetEl().addEventListener('mouseup',RubberbandUp);
+RubberbandSlamDown
+RubberbandSlamUp
+teleportDown
+teleportUp
 */
-	}
-
-	//Point Along Axis
-	const PointAlongAxis = (rayRot,distance) => {
-		let position = new THREE.Vector3();
-		position.copy(rayRot).add(new THREE.Vector3(distance, distance, distance).normalize().multiplyScalar(distance));
-		return position;
-	}
-	//Ray Point along Axis
-	const RayDistanceTo = (point, distance) => {
-		let rayCheck = DistanceFromPlayer(point)
-		console.log(rayCheck)
-		if(rayCheck <= distance){
-			let position = new THREE.Vector3();
-			position.copy(point);
-			return position;
-		} else {
-			return false;
-		}
-	}
-
-
 	//Support
 	//Intersection point check distance or not
 
@@ -1779,9 +1083,6 @@ console.log(position)
 
 	}
 
-
-
-	//Make this its own component and use with One
 	//
 	//Gravity
 	layer.gravityStyle = 'earth';
@@ -1789,9 +1090,6 @@ console.log(position)
 	//layer.gravityStyle = 'Custom';
 	//To be able to apply new gravity direction on playerRig
 	//Gravity Loop Tick
-
-//I dont think I need to use localImpluse when I can just update it's velocity which is a world run function
-
 	const Gravity = (gravityDir) => {
 		//first get current world gravity to negate and start with
 		//then add propery gravity offset this.el.body.applyLocalForce(new THREE.Vector3(0,9.8,0),new THREE.Vector3(0,0,0))
@@ -1874,20 +1172,17 @@ let testVec = new THREE.Vector3(0,0,0);
 				}
 
 //Measure specific axis and greater and less then checks
-//Velocity will always be down Y
 				if(addVelocity){
 				//if(playerPosition.y < playerPositionOld.y){
 					//add velocity to fall
+console.log('Adding Velocity')
 					velocityTick++;
+					//layer.velocity.sub(new THREE.Vector3(0,(velocityTick/100),0));
+					//layer.velocity.add(0.01)
+					let velocityNew = new THREE.Vector3((velocityTick/150),(velocityTick/150),(velocityTick/150));
+					velocityNew.multiply(layer.localAxis)
+					layer.velocity.add(velocityNew);
 //console.log(layer.velocity)
-//console.log('Adding Velocity')
-//console.log(auxl.playerRig.GetEl().body.velocity)
-auxl.playerRig.GetEl().body.velocity.y -= velocityTick/250;
-//layer.velocity.sub(new THREE.Vector3(0,(velocityTick/100),0));
-//layer.velocity.add(0.01)
-//let velocityNew = new THREE.Vector3((velocityTick/100),(velocityTick/100),(velocityTick/100));
-//velocityNew.multiply(layer.localAxis)
-//layer.velocity.add(velocityNew);
 				} else {
 					layer.velocity = new THREE.Vector3(0,0,0);
 					velocityTick = 0;
@@ -1895,6 +1190,8 @@ auxl.playerRig.GetEl().body.velocity.y -= velocityTick/250;
 
 				playerPositionOld.copy(playerPosition);
 				//let worldGravity = new THREE.Vector3(0,0,0);
+
+
 				//Apply Gravity
 				if(!negateGravity.equals(auxl.playerRig.GetEl().body.world.gravity)){
 					//update base gravity to build cancel out world defaults if any
@@ -1969,32 +1266,24 @@ auxl.playerRig.GetEl().body.velocity.y -= velocityTick/250;
 //console.log(layer.localAxis)
 				//Set gravity to worldVrctor from Axis
 				gravityNew.multiply(layer.localAxis);
+				//localAxis.multiply(layer.velocity);
 //console.log(gravityNew)
 				//Gravity Scale
 				gravityNew.multiply(layer.gravityScale);
 				//Add Up Velocity
 //console.log(gravityNew)
-				//gravityNew.add(layer.velocity);
+				gravityNew.add(layer.velocity);
 //console.log(gravityNew)
 				//Apply Gravity
 				//auxl.playerRig.GetEl().body.applyLocalForce(gravityNew, new THREE.Vector3(0,0,0));
-				//auxl.playerRig.GetEl().body.applyLocalForce(gravityNew, new THREE.Vector3(0,0,0));
-				auxl.playerRig.GetEl().body.velocity.x += gravityNew.x/50;
-				auxl.playerRig.GetEl().body.velocity.y += gravityNew.y/50;
-				auxl.playerRig.GetEl().body.velocity.z += gravityNew.z/50;
-
-
+				auxl.playerRig.GetEl().body.applyLocalForce(gravityNew, new THREE.Vector3(0,0,0));
 				//auxl.playerRig.GetEl().body.applyLocalForce(new THREE.Vector3(0,100,0), new THREE.Vector3(0,0,0));
 				layer.gravity.copy(gravityNew);
 //console.log(gravityNew)
 			}
 		}, 1);
 	}
-
-	let testTimeoutGrav = setTimeout(() => {
-		Gravity();
-		clearTimeout(testTimeoutGrav)
-	}, 100);
+	Gravity();
 
 	//Cursor|Link
 	//VR Dual 6Dof Controller Raycaster
@@ -2005,7 +1294,7 @@ auxl.playerRig.GetEl().body.velocity.y -= velocityTick/250;
 	const Link = (data) => {
 		//Currently setup for a single link to player
 		//Link
-		layer.distance = 40;
+		layer.distance = 17.5;
 		//Need a system for building link to self, link to link and link to links
 		//Link Controller
 		auxl.linkHoverMenuData = {
@@ -2114,7 +1403,7 @@ auxl.playerRig.GetEl().body.velocity.y -= velocityTick/250;
 			id: 'linkCore',
 			sources: false,
 			text: false,
-			geometry: {primitive: 'sphere', radius: 0.5,},
+			geometry: {primitive: 'sphere', radius: 0.25,},
 			material: {shader: "standard", color: "#ebd107", emissive: '#ebd107', emissiveIntensity: 0.25, opacity: 0.75},
 			position: new THREE.Vector3(0,0,0),
 			rotation: new THREE.Vector3(0,0,0),
@@ -2150,24 +1439,6 @@ auxl.playerRig.GetEl().body.velocity.y -= velocityTick/250;
 		};
 		layer.linkCoreConstraint = auxl.Constraints(layer.linkCore, layer.linkConfig, false)
 		layer.linkCoreType = 'rubber';
-
-		//Anchor Core
-		let anchorData = {
-			data:'anchorData',
-			id: 'anchorCore',
-			sources: false,
-			text: false,
-			geometry: {primitive: 'sphere', radius: 0.5,},
-			material: {shader: "standard", color: "#eb07bf", emissive: '#eb07bf', emissiveIntensity: 0.25, opacity: 0.5},
-			position: new THREE.Vector3(0,0,0),
-			rotation: new THREE.Vector3(0,0,0),
-			scale: new THREE.Vector3(1,1,1),
-			animations: false,
-			mixins: false,
-			classes: ['a-ent'],
-			components: false,
-		};
-		uniRay.anchorCore = auxl.Core(anchorData);
 
 		const LinkControls = (template) => {
 			layer.linkCoreType = template;
@@ -2208,15 +1479,10 @@ auxl.playerRig.GetEl().body.velocity.y -= velocityTick/250;
 		layer.linkInterval;
 	}
 
-	uniRay.raycaster = {};
-	uniRay.raycaster.name = 'minty0';
-	uniRay.raycaster.intersection = new THREE.Vector3(0,0,0);
-	uniRay.raycaster.powers = {};
-	uniRay.raycaster.power = 'rubberband';
 	//Temp
 	layer.raycaster = {};
 	layer.raycaster.name = 'minty0';
-	layer.raycaster.intersection = uniRay.raycaster.intersection;
+	layer.raycaster.intersection = new THREE.Vector3(0,0,0);
 	layer.raycaster.powers = {};
 	layer.raycaster.power = 'rubberband';
 
@@ -2265,14 +1531,14 @@ console.log(power)
 }
 //TEmp
 Link();
+RubberbandStart();
+RubberbandSlamStart();
+teleportStart();
 	}
 
 
 	//
 	//Actions
-
-	//Main Input Function
-	//Get Ray Data
 
 	//Using raycaster, point click and hold to map out the 2D surface, just a flick basically to determine dual xyz coords to have a force applied to the object as if it wore normal gravity.
 
@@ -2289,12 +1555,12 @@ console.log('Rubberband running')
 	//Rubberband
 	const RubberbandUp = (event) => {
 		if(layer.toggle0){
-//console.log(event)
+console.log(event)
 			//console.log(event)
 			//console.log('Link')
 			//console.log(this.data.type)
 			//console.log(event)
-			//console.log('RubberbandUp')
+			console.log('RubberbandUp')
 			clearInterval(layer.playerLinkInt);
 	//instead of event.detail.intersection.point
 	//get camera/hand direction and multiple by distance
@@ -2342,27 +1608,49 @@ console.log('Rubberband running')
 	//Rubberband
 	const RubberbandDown = (event) => {
 		if(layer.toggle0){
-			//console.log(event)
-			Delink();
+			console.log(event)
+			auxl.player.Delink();
 			layer.power = 1000;
 			clearInterval(layer.playerLinkInt)
 			//Get Charge
 			layer.playerLinkInt = setInterval(() => {
 				if(!layer.linking){
 					//Rubberband
-					if(layer.power >= 15){
+					if(layer.power > 30){
 						layer.power -= 15;
-			//console.log(layer.power)
+			console.log(layer.power)
 					} else {
 						clearInterval(layer.playerLinkInt);
 					}
 				} else {
 					clearInterval(layer.playerLinkInt);
 				}
+
 			}, 1);
 		}
 	}
-//console.log(powerRubberband)
+	//Rubber Start
+	const RubberbandStart = (event) => {
+		//Changes or defaults required to run Power
+
+		auxl.mouseController.GetEl().addEventListener('mousedown',RubberbandDown);
+		auxl.mouseController.GetEl().addEventListener('mouseup',RubberbandUp);
+	}
+	//Rubber Stop
+	const RubberbandStop = (event) => {
+		auxl.mouseController.GetEl().removeEventListener('mousedown',RubberbandDown);
+		auxl.mouseController.GetEl().removeEventListener('mouseup',RubberbandUp);
+	}
+	//Rubber Power
+	const powerRubberband = Power({
+		name : 'powerRubberband',
+		start : RubberbandStart,
+		exit : RubberbandStop,
+		up : RubberbandUp,
+		down : RubberbandDown,
+		free : RubberbandController,
+	});
+console.log(powerRubberband)
 	//
 	//A Rubber Band Slam
 	//Quick pull towards the point and decrease the restLength
@@ -2378,7 +1666,7 @@ if(layer.toggle1){
 	//console.log('Link')
 	//console.log(this.data.type)
 	//console.log(event)
-	//console.log('click')
+	console.log('click')
 	clearInterval(layer.playerLinkInt);
 //instead of event.detail.intersection.point
 //get camera/hand direction and multiple by distance
@@ -2398,28 +1686,28 @@ if(layer.toggle1){
 
 //console.log(auxl.camera.GetEl().Object3D.getWorldDirection())
 //layer.position.copy(auxl.camera.GetEl().object3D.getLocalDirection()));
-//console.log(layer.quaternion)
-//console.log(layer.position)
+console.log(layer.quaternion)
+console.log(layer.position)
 	//layer.position.negate();
 //console.log(layer.position)
 // Step 1: Get the Object3D's rotation as a Quaternion
 const rotationQuaternion = layer.quaternion.clone();
 // Step 2: Create a direction vector pointing towards the positive Z-axis
 const direction = new THREE.Vector3(0, 0, -1);
-//console.log(direction)
+console.log(direction)
 // Step 3: Apply the object's rotation to the direction vector
 direction.applyQuaternion(rotationQuaternion);
-//console.log(direction)
-//console.log(layer.distance)
+console.log(direction)
+console.log(layer.distance)
 // Step 4: Scale the direction vector to the desired distance
 direction.multiplyScalar(layer.distance);
-//console.log(direction)
+console.log(direction)
 // Step 5: Add the scaled direction vector to the Object3D's position
 layer.positionNew = layer.position.clone().add(direction);
 	//layer.positionNew.copy(layer.position.multiplyScalar(layer.distance));
-//console.log(layer.positionNew)
-//console.log(layer.distance)
-//console.log(layer.power)
+console.log(layer.positionNew)
+console.log(layer.distance)
+console.log(layer.power)
 	auxl.player.SlamTo(layer.positionNew, layer.power, layer.distance);
 
 
@@ -2429,8 +1717,8 @@ layer.positionNew = layer.position.clone().add(direction);
 	//Rubberband
 	const RubberbandSlamDown = (event) => {
 		if(layer.toggle1){
-			//console.log(event)
-			Delink();
+			console.log(event)
+			auxl.player.Delink();
 			layer.power = 1000;
 			clearInterval(layer.playerLinkInt)
 			//Get Charge
@@ -2439,7 +1727,7 @@ layer.positionNew = layer.position.clone().add(direction);
 					//Rubberband
 					if(layer.power > 30){
 						layer.power -= 15;
-			//console.log(layer.power)
+			console.log(layer.power)
 					} else {
 						clearInterval(layer.playerLinkInt);
 					}
@@ -2450,7 +1738,17 @@ layer.positionNew = layer.position.clone().add(direction);
 			}, 1);
 		}
 	}
-
+	//Rubber Start
+	const RubberbandSlamStart = (event) => {
+		//Trigger 1
+		auxl.mouseController.GetEl().addEventListener('mousedown',RubberbandSlamDown);
+		auxl.mouseController.GetEl().addEventListener('mouseup',RubberbandSlamUp);
+	}
+	//Rubber Stop
+	const RubberbandSlamStop = (event) => {
+		auxl.mouseController.GetEl().removeEventListener('mousedown',RubberbandSlamDown);
+		auxl.mouseController.GetEl().removeEventListener('mouseup',RubberbandSlamUp);
+	}
 
 
 	//Teleport
@@ -2462,13 +1760,13 @@ console.log('Rubberband running')
 	//teleportUp
 	const teleportUp = (event) => {
 		if(layer.toggle3){
-//console.log(event)
+console.log(event)
 		//layer.distance = 50;
 			//console.log(event)
 			//console.log('Link')
 			//console.log(this.data.type)
 			//console.log(event)
-			//console.log('teleportUp')
+			console.log('teleportUp')
 			clearInterval(layer.playerLinkInt);
 	//instead of event.detail.intersection.point
 	//get camera/hand direction and multiple by distance
@@ -2518,8 +1816,8 @@ console.log('Rubberband running')
 	//teleportDown
 	const teleportDown = (event) => {
 		if(layer.toggle3){
-			//console.log(event)
-			Delink();
+			console.log(event)
+			auxl.player.Delink();
 			layer.power = 1000;
 			clearInterval(layer.playerLinkInt)
 			//Get Charge
@@ -2528,7 +1826,7 @@ console.log('Rubberband running')
 					//Rubberband
 					if(layer.power > 30){
 						layer.power -= 15;
-			//console.log(layer.power)
+			console.log(layer.power)
 					} else {
 						clearInterval(layer.playerLinkInt);
 					}
@@ -2538,6 +1836,17 @@ console.log('Rubberband running')
 
 			}, 1);
 		}
+	}
+	//teleportStart
+	const teleportStart = (event) => {
+		//Trigger 1
+		auxl.mouseController.GetEl().addEventListener('mousedown',teleportDown);
+		auxl.mouseController.GetEl().addEventListener('mouseup',teleportUp);
+	}
+	//teleportStop
+	const teleportStop = (event) => {
+		auxl.mouseController.GetEl().removeEventListener('mousedown',teleportDown);
+		auxl.mouseController.GetEl().removeEventListener('mouseup',teleportUp);
 	}
 
 	//Link To Hit
@@ -2559,46 +1868,39 @@ LinkTo(positionTest, layer.power)
 	}
 //let length = positionTest.distanceTo(auxl.playerRig.GetEl().body.position);
 */
+/*
+	//Get Object Instersection overriding
+auxl.mouseController.GetEl().addEventListener('mouseenter',(event) => {
+	//console.log(event)
+	layer.raycaster.intersection = new THREE.Vector3(0,0,0);
+	layer.raycaster.intersection.copy(event.detail.intersection.point)
+	//console.log(event.detail.intersection.point)
+});
 
+auxl.mouseController.GetEl().addEventListener('mouseup',(event) => {
+	//console.log(event)
+	if(event && event.detail && event.detail.intersection){
+		layer.raycaster.intersection = new THREE.Vector3(0,0,0);
+		layer.raycaster.intersection.copy(event.detail.intersection.point)
+   } else {
+	   layer.raycaster.intersection = false;
+   }
+
+	//console.log(event.detail.intersection.point)
+});
+
+auxl.mouseController.GetEl().addEventListener('mouseleave',(event) => {
+	//console.log(event)
+	layer.raycaster.intersection = false;
+});
+*/
 
 	//
 	//Events
 
-	//Sync Link To Intersection point
-
-	//Ticker
-	const Ticker = () => {
-		if(auxl.mouseController.GetEl()){
-			if(auxl.mouseController.GetEl().components.raycaster.intersections.length > 0){
-				layer.raycaster.intersection = new THREE.Vector3(0,0,0);
-				layer.raycaster.intersection.copy(auxl.mouseController.GetEl().components.raycaster.intersections[0].point)
-				if(layer.distance <= auxl.mouseController.GetEl().components.raycaster.intersections[0].distance){
-					//layer.raycaster.intersection
-				//generate point along axis as far as distance and update
-
-				}
-			} 
-		}
-		if(layer.raycaster.intersection){
-			//console.log(layer.raycaster.intersection)
-			uniRay.anchorCore.ChangeSelf({property: 'position', value: layer.raycaster.intersection})
-			if(!uniRay.anchorCore.core.inScene){
-				uniRay.anchorCore.SpawnCore();
-			}
-		}
-
-	}
-
 	//Raycaster Tick
 	const RayTick = (event) => {
-	//const RayTick = (event, el) => {
-/*
-if(event){
-console.log(event)
-}
-*/
-//console.log(el)
-		//this.activeEl = el || false;
+
 		//console.log(event)
 		if(event && event.detail && event.detail.intersection){
 			layer.raycaster.intersection = new THREE.Vector3(0,0,0);
@@ -2606,16 +1908,10 @@ console.log(event)
 	   } else {
 		   layer.raycaster.intersection = false;
 	   }
-if(layer.raycaster.intersection){
-	//console.log(layer.raycaster.intersection)
-	uniRay.anchorCore.ChangeSelf({property: 'position', value: layer.raycaster.intersection})
-	if(!uniRay.anchorCore.core.inScene){
-		uniRay.anchorCore.SpawnCore();
-	}
-}
+
 		//layer.power
 		//layer.power.Tick(event);
-/*
+
 		//Temp Power Loops
 		if(layer.toggle0){
 			RubberbandController();
@@ -2626,16 +1922,13 @@ if(layer.raycaster.intersection){
 		} else if(layer.toggle3){
 		} else {
 		}
-*/
 
 	}
 
 //Use component as tick runner instead
-/*
 layer.raycaster.interval = setInterval((event) => {
 	RayTick(event);
 }, 1);
-*/
 	//Trigger, Click, Mouse Enter
 	const TriggerFree = (event) => {
 		//layer.power.Free(event);
@@ -2767,23 +2060,6 @@ auxl.mouseController.GetEl().addEventListener('mouseup', TriggerUp(event));
 	}
 	KeyEvents();
 
-	//Toggle Actions
-	const ToggleAction = (toggle) => {
-		layer.toggle0 = false;
-		layer.toggle1 = false;
-		layer.toggle2 = false;
-		layer.toggle3 = false;
-		if(toggle === 0){
-			layer.toggle0 = true;
-		} else if(toggle === 1){
-			layer.toggle1 = true;
-		} else if(toggle === 2){
-			layer.toggle2 = true;
-		} else if(toggle === 3){
-			layer.toggle3 = true;
-		}
-	}
-
 	//Slow
 	const Slow = () => {
 		auxl.playerRig.GetEl().body.linearDamping = 0.8;
@@ -2827,7 +2103,6 @@ if(!position){
 	position.copy(position).add(new THREE.Vector3(layer.distance * layer.power, layer.distance * layer.power, layer.distance * layer.power).normalize().multiplyScalar(layer.distance * layer.power));
 } 
 if(layer.raycaster.intersection){
-console.log(layer.raycaster.intersection)
 	//let rayCheck = layer.raycaster.intersection.distanceTo(auxl.playerRig.GetEl().object3D.position);
 	let rayCheck = DistanceFromPlayer(layer.raycaster.intersection)
 	console.log(rayCheck)
@@ -2857,56 +2132,9 @@ console.log(position)
 		//Jump to Distance aka power
 		//Spawn, spring, despawn
 		//Closer to 0, the greater the power
-/*
-		if(power < 0.1){
-console.log('full power hit')
-console.log('full power hit')	
-			power = -1;
-		} else if(power > 0.7){
-console.log('quick hit power hit')
-			power = 0.4;
-		} else if(power < 0.7){
-console.log('long hit power hit')
-			power = -0.4;
-		}
-
-		if(power > 0.05){
-//Noodle Bamboo
-console.log('quick power hit')
-			power += 0.8;
-		} else if(power > 0.7){
-//Launch Swing
-console.log('quick power hit')
-			power *= 2;
-		}
- if(power < 0.6){
-//Launch Swing
-console.log('quick power hit')
-			power = 1;
-		}
- if(power < 0.7){
-//Launch Swing
-console.log('extra power hit')
-			power *= 2;
-		}
-*/
-//else
-//Swing
-		if(power > 0.85){
-//Noodle Bamboo
-console.log('quick hit')
-			power += 0.75;
-		} else if(power < 0.8){
-//Noodle Bamboo
-console.log('normal hit')
-			//power += 1.6;
-		}
-		layer.linkLength = 35 * power;
-		//layer.linkLength = distance * power;
-		//layer.linkLength = (distance * power)*-1;
-//console.log({length: layer.linkLength, distance, power})
+		layer.linkLength = distance * power;
 		//layer.linkCoreConstraint.Connect({restLength: layer.linkLength});
-		layer.linkCoreConstraint.Connect({type: 'auxspring', restLength: layer.linkLength, damping: 0.5, stiffness: 0, maxForce: 1e6});
+		layer.linkCoreConstraint.Connect({type: 'auxspring', restLength: layer.linkLength, damping: 0.5, stiffness: 10, maxForce: 1e6});
 		//Display Link
 		if(layer.linkCore.core.inScene){
 			layer.linkCore.PhysPos(position);
@@ -3045,11 +2273,11 @@ console.log('Attach to')
 	//Delink
 	const Delink = () => {
 		if(layer.linkCore.core.inScene){
-console.log('Delink');
+//console.log('Delink');
 			layer.linkCore.DespawnCore();
 		}
 	}
-	//Link Length Up restLength
+	//Link Up
 	const LinkUp = () => {
 		if(layer.linkCore.core.inScene){
 //console.log('Link Up');
@@ -3059,7 +2287,7 @@ console.log('Delink');
 			layer.linkCoreConstraint.Connect({restLength: layer.linkLength});
 		}
 	}
-	//Link Length Down restLength
+	//Link Dowm
 	const LinkDown = () => {
 		if(layer.linkCore.core.inScene){
 //console.log('Link Down');
@@ -3122,8 +2350,6 @@ console.log(event.detail.intersection.point)
 		}
 		//Add Avatar Body
 		auxl.playerRig.EnablePhysics({body: layer.body, shape: layer.shape});
-		//Update Easy Access Body for Changes
-		layer.worldBody = auxl.playerRig.GetEl().body;
 		//Temp
 		//Load at start of power with power related data
 		//Link();
@@ -3144,10 +2370,9 @@ console.log(event.detail.intersection.point)
 		auxl.playerRig.ChangeSelf({property:'bodymaterial', value: {friction:0.01, restitution:0.01}});
 		auxl.playerRig.ChangeSelf({property:'collision', value: null});
 
-		//Disable Rotation for now replace with Gimbal component
+		//Disable Rotation for now
 		auxl.playerRig.GetEl().body.fixedRotation = true;
 		auxl.playerRig.GetEl().body.updateMassProperties();
-		//when disabled, will need to move the main head/body when rotated
 
 		//Add Hand
 		//auxl.camera.EnablePhysics({body: layer.handBody, shape: layer.handShape});
@@ -3308,7 +2533,7 @@ console.log(event.detail.intersection.point)
 		console.log(params);
 	}
 
-	return {uniRay, SpawnUniRay, DespawnUniRay, Activate, Deactivate, Toggle, layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, Gravity, PowerController, ToggleAction, LinkTo, SlamTo, TeleportTo, Slow, UnSlow, Freeze, UnFreeze, Delink, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, PhysBoost, PhysDash, LowGrav, PhysPickup, PhysDrop, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, TestFunc};
+	return {layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, Gravity, PowerController, LinkTo, SlamTo, TeleportTo, Slow, UnSlow, Freeze, UnFreeze, Delink, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, PhysBoost, PhysDash, LowGrav, PhysPickup, PhysDrop, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, TestFunc};
 }
 
 //
@@ -4371,4 +3596,4 @@ const Companion = (auxl, id, object, inventory) => {
 
 //
 //Export
-export {UniRay, Companion};
+export {UniRay, Player, Companion};

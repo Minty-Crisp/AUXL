@@ -15,6 +15,15 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
+//UniRay Testing
+//console.log('pre uniraytest1')
+//auxl.uniRayTest1 = auxl.UniRay('uniRayTest1', auxl.ghost,{});
+
+
+
+
+
+
 //SkyBox
 auxl.skyGrad1Data = {
 data: 'skyGrad1Data',
@@ -74,6 +83,7 @@ auxl.skyGrad1,
 ],
 space:[
 auxl.sunLayer,
+auxl.moonLayer,
 ],
 };
 auxl.skyBox1 = auxl.SkyBox(auxl.skyBox1Data);
@@ -125,11 +135,6 @@ auxl.phys1Data = {
 //auxl.oneTest0One = auxl.One(auxl.oneTest0, auxl.phys1Data);
 //console.log(auxl.oneTest0One)
 */
-
-
-
-
-
 //
 //Static
 
@@ -139,14 +144,14 @@ data:'physicalFloorData',
 id:'physicalFloor',
 sources:false,
 text: false,
-geometry: {primitive: 'box', width: 300, depth: 300, height: 1},
-material: {shader: "standard", color: "#1e7e5d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#1e7e5d", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '150 150'},
+geometry: {primitive: 'box', width: 700, depth: 700, height: 1},
+material: {shader: "standard", color: "#1e7e5d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#1e7e5d", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern14, repeat: '100 100'},
 position: new THREE.Vector3(0,-0.5,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['clickable', 'a-ent'],
 components: {
 	//['static-body']: null,
 	body:{type: 'static', shape: 'box', mass: 0,},
@@ -177,16 +182,85 @@ components: {
 };
 auxl.trampoline = auxl.Core(auxl.trampolineData);
 
-//Ceiling
+//Wall
 //
-//Building 4
+//Wall Base
+auxl.wallBaseData = {
+data:'wallBaseData',
+id:'wallBase',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 250, depth: 250, height: 0.1},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '50 50'},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0, restitution: 0},
+	//linkcable: {type: 'to'},
+},
+};
+auxl.wallBase = auxl.Core(auxl.wallBaseData);
+
+//Generate 1 of each 6 cube offsets
+
+
+
+//Reference convert to dice walls
+//
+auxl.catwalk0Data = {
+data:'catwalk0Data',
+id:'catwalk',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 5, height: 1, depth: 50},
+material: {shader: "standard", color: "#169f5f", opacity: 0.9, metalness: 0.6, roughness: 0.4, emissive: "#169f5f", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern44, repeat: '50 50'},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 1, restitution: 0.1},
+	//linkcable: {type: 'to'},
+},
+};
+auxl.catwalk = auxl.Core(auxl.catwalk0Data);
+
+auxl.catwalk0 = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0', geometry: false, material: false, components: false, position: new THREE.Vector3(-55,99.5,-25)}, true);
+auxl.catwalk0A = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0A', geometry: {primitive: 'box', width: 10, height: 1, depth: 100},position: new THREE.Vector3(-25,0,0)}, true);
+auxl.catwalk0B = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0B', geometry: {primitive: 'box', width: 10, height: 1, depth: 100},position: new THREE.Vector3(25,0,0)}, true);
+auxl.catwalk0C = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0C', geometry: {primitive: 'box', width: 100, height: 1, depth: 10},position: new THREE.Vector3(0,-1,-25)}, true);
+auxl.catwalk0D = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0D', geometry: {primitive: 'box', width: 100, height: 1, depth: 10},position: new THREE.Vector3(0,-1,25)}, true);
+
+
+auxl.catwalk0LayerData = {
+	parent: {core: auxl.catwalk0},
+	child0: {core: auxl.catwalk0A},
+	child1: {core: auxl.catwalk0B},
+	child2: {core: auxl.catwalk0C},
+	child3: {core: auxl.catwalk0D},
+}
+auxl.catwalk0Layer = auxl.Layer('catwalk0Layer', auxl.catwalk0LayerData);
+
+
+
+
+
+//Building 1
 auxl.ceiling1Data = {
 data:'ceiling1Data',
 id:'ceiling1',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 500, depth: 500, height: 0.1},
-material: {shader: "standard", color: "#29b1c3", opacity: 0.1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '50 50'},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '50 50'},
 position: new THREE.Vector3(0,50,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -207,7 +281,7 @@ id:'ceiling2',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 500, depth: 500, height: 0.1},
-material: {shader: "standard", color: "#29b1c3", opacity: 0.1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '50 50'},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '50 50'},
 position: new THREE.Vector3(0,150,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -228,7 +302,7 @@ id:'ceiling3',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 500, depth: 500, height: 0.1},
-material: {shader: "standard", color: "#29b1c3", opacity: 0.1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '50 50'},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '50 50'},
 position: new THREE.Vector3(0,250,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -243,8 +317,503 @@ components: {
 };
 auxl.ceiling3 = auxl.Core(auxl.ceiling3Data);
 
-//Buildings & Doors
+/*
+auxl.coreDupeTestAssign = auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTestAssign', position: new THREE.Vector3(-2,2,-1)}, true);
+
+*/
+//Buildings, Trampolines, Doors
 //
+
+//Building Bsse
+auxl.buildingBaseData = {
+data:'buildingBaseData',
+id:'buildingBase',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 10, depth: 10, height: 100},
+material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '5 10'},
+position: new THREE.Vector3(0,50,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0.01, restitution: 0.01},
+	//linkcable: {type: 'to'},
+},
+};
+auxl.buildingBase = auxl.Core(auxl.buildingBaseData);
+
+auxl.buildingBaseTest0 = auxl.coreFromTemplate(auxl.buildingBase,{id: 'buildingBaseTest0', position: new THREE.Vector3(-20,50,20)}, true);
+
+auxl.buildingBaseDoorwayData = {
+data:'buildingBaseDoorwayData',
+id:'buildingBaseDoorway',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 0.5, depth: 1, height: 2},
+material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '1 1'},
+position: new THREE.Vector3(7,1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	['teleportation-to']: {x:0, y:100.5, z:0},
+},
+};
+auxl.buildingBaseDoorway = auxl.Core(auxl.buildingBaseDoorwayData);
+
+auxl.buildingBaseDoorwayTest0 = auxl.coreFromTemplate(auxl.buildingBaseDoorway,{id: 'buildingBaseDoorwayTest0', position: new THREE.Vector3(5.5,-50,0)}, true);
+
+//Triggers to animate a generated force on the player
+//Such as launching them
+
+
+//Trampoline Side
+auxl.slideBaseData = {
+data:'slideBaseData',
+id:'slideBaseData',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 3, depth: 10, height: 0.01},
+material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.8, side: 'front', src: auxl.pattern49, repeat: '1 4'},
+position: new THREE.Vector3(6,-50,0),
+rotation: new THREE.Vector3(0,0,-10),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0.01, restitution: 500},
+},
+};
+auxl.slideBase = auxl.Core(auxl.slideBaseData);
+
+//Could be better to do a trigger which then animates the object into existance	
+
+auxl.slideBaseTest0 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', position: new THREE.Vector3(6.35,-50.1,0), rotation: new THREE.Vector3(0,0,-10)}, true);
+auxl.slideBaseTest1 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', position: new THREE.Vector3(-6.35,-50.1,0), rotation: new THREE.Vector3(0,0,10)}, true);
+auxl.slideBaseTest2 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', geometry: {primitive: 'box', width: 10, depth: 3, height: 0.01}, position: new THREE.Vector3(0,-50.1,6.35), rotation: new THREE.Vector3(10,0,0)}, true);
+auxl.slideBaseTest3 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', geometry: {primitive: 'box', width: 10, depth: 3, height: 0.01}, position: new THREE.Vector3(0,-50.1,-6.35), rotation: new THREE.Vector3(-10,0,0)}, true);
+
+
+//Flip Side
+auxl.flipBaseData = {
+data:'flipBaseData',
+id:'flipBaseData',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 20, depth: 3, height: 0.01},
+material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.8, side: 'front', src: auxl.pattern49, repeat: '6 1'},
+position: new THREE.Vector3(6,5.01,0),
+rotation: new THREE.Vector3(0,0,-5),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0.01, restitution: 250},
+},
+};
+auxl.flipBase = auxl.Core(auxl.flipBaseData);
+
+auxl.flipBaseTest0 = auxl.coreFromTemplate(auxl.flipBase,{id: 'flipBaseTest0'}, true);
+
+
+
+//Trampoline Top 
+auxl.trampolineTwistData = {
+data:'trampolineTwistData',
+id:'trampolineTwist',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 2, depth: 10, height: 0.01},
+material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.8, side: 'front', src: auxl.pattern49, repeat: '1 4'},
+position: new THREE.Vector3(6,0.561,0),
+rotation: new THREE.Vector3(0,0,10),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0.01, restitution: 125},
+},
+};
+auxl.trampolineTop = auxl.Core(auxl.trampolineTwistData);
+
+auxl.trampolineTopBlockData = {
+data:'trampolineTopBlockData',
+id:'trampolineBase',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 4, depth: 10, height: 1},
+material: {shader: "standard", color: "#1515d8", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#1515d8", emissiveIntensity: 0.8, side: 'front', src: auxl.pattern49, repeat: '1 1'},
+position: new THREE.Vector3(7,1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0.01, restitution: 0},
+},
+};
+auxl.trampolineTopBlock = auxl.Core(auxl.trampolineTopBlockData);
+
+
+
+auxl.trampolineTopBlockTest0 = auxl.coreFromTemplate(auxl.trampolineTop,{id: 'trampolineTopBlockTest0'}, true);
+auxl.trampolineTopBlockTest1 = auxl.coreFromTemplate(auxl.trampolineTopBlock,{id: 'trampolineTopBlockTest1'}, true);
+
+
+
+auxl.baseTest0LayerData = {
+	parent: {core: auxl.buildingBaseTest0},
+	child0: {core: auxl.buildingBaseDoorwayTest0},
+	child1: {core: auxl.slideBaseTest0},
+	child2: {core: auxl.slideBaseTest1},
+	child3: {core: auxl.slideBaseTest2},
+	child4: {core: auxl.slideBaseTest3},
+	child5: {core: auxl.flipBaseTest0},
+	child6: {core: auxl.trampolineTopBlockTest0},
+	child7: {core: auxl.trampolineTopBlockTest1},
+	//child1: {core: auxl.trampolineTop},
+	//child2: {core: auxl.buildingBaseDoor},
+}
+auxl.baseTest0Layer = auxl.Layer('baseTest0Layer', auxl.baseTest0LayerData);
+//buildingBaseTest0
+//trampolineBaseTest0
+
+
+//Generate a pyramid of these building with slides
+
+//Assign Core Duplication
+//auxl.basePyramidTestLayer = auxl.layerFromTemplate(auxl.eventTesting,{id: 'coreDupeTestAssign', position: new THREE.Vector3(-2,2,-1)}, true);
+
+/*
+//Trampoline Base
+auxl.trampolineBaseData = {
+data:'trampolineBaseData',
+id:'trampolineBase',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 1, depth: 1, height: 0.01},
+material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.8, side: 'front', src: auxl.pattern49, repeat: '4 4'},
+position: new THREE.Vector3(0,50.01,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0.01, restitution: 500},
+},
+};
+auxl.trampolineBase = auxl.Core(auxl.trampolineBaseData);
+
+//Trampoline Ceiling 
+auxl.trampolineTopData = {
+data:'trampolineTopData',
+id:'trampolineTop',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 4, depth: 4, height: 0.01},
+material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '4 4'},
+position: new THREE.Vector3(0,5.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	//['static-body']: null,
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0.01, restitution: 200},
+},
+};
+auxl.trampolineTop = auxl.Core(auxl.trampolineTopData);
+//Building Door
+auxl.buildingBaseDoorData = {
+data:'buildingBaseDoorData',
+id:'buildingBaseDoor',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 0.5, depth: 1, height: 2},
+material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '1 1'},
+position: new THREE.Vector3(7,1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	['teleportation-to']: {x:0, y:10, z:0},
+},
+};
+auxl.buildingBaseDoor = auxl.Core(auxl.buildingBaseDoorData);
+//Building Layer
+auxl.buildingLayerData = {
+parent: {core: auxl.buildingBase},
+child0: {core: auxl.trampolineBase},
+child1: {core: auxl.trampolineTop},
+child2: {core: auxl.buildingBaseDoor},
+}
+auxl.buildingLayer = auxl.Layer('buildingLayer', auxl.buildingLayerData);
+*/
+//Build a template for the building, it size, position, scale ratio, height
+
+//Use to better build the street corner data of the 4 buildings better
+//Add All buildings to a layer as called a street corner
+
+
+//width
+//depth
+//height
+//position
+//rotation
+
+/*
+//Base 4 Building Example
+const BuildBuildings = (section) =>{
+	//Building 1
+	let buildingData = {
+	data:'building1Data',
+	id:'building1',
+	sources:false,
+	text: false,
+	geometry: {primitive: 'box', width: 5, depth: 5, height: 10},
+	material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '5 10'},
+	position: new THREE.Vector3(10,5,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable', 'a-ent'],
+	components: {
+		body:{type: 'static', shape: 'box', mass: 0,},
+		bodymaterial: {friction: 0.01, restitution: 0.01},
+		//linkcable: {type: 'to'},
+	},
+	};
+	auxl.['building'+section] = auxl.Core(buildingData);
+	//TrampolineBuilding
+	let trampolineData = {
+	data:'trampolineData',
+	id:'trampoline',
+	sources:false,
+	text: false,
+	geometry: {primitive: 'box', width: 4, depth: 4, height: 0.01},
+	material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '4 4'},
+	position: new THREE.Vector3(0,0.25,4),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: {
+		//['static-body']: null,
+		body:{type: 'static', shape: 'box', mass: 0,},
+		bodymaterial: {friction: 0.01, restitution: 200},
+	},
+	};
+	auxl.['trampoline'+section] = auxl.Core(trampolineData);
+	//Building 1 Door
+	let buildingDoorData = {
+	data:'building1DoorData',
+	id:'building1Door',
+	sources:false,
+	text: false,
+	geometry: {primitive: 'box', width: 0.5, depth: 1, height: 2},
+	material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '1 1'},
+	position: new THREE.Vector3(7,1,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable', 'a-ent'],
+	components: {
+		['teleportation-to']: {x:10, y:11, z:0},
+	},
+	};
+	auxl.['buildingDoor'+section] = auxl.Core(buildingDoorData);
+	//Building 2
+	let buildingData = {
+	data:'building2Data',
+	id:'building2',
+	sources:false,
+	text: false,
+	geometry: {primitive: 'box', width: 5, depth: 5, height: 20},
+	material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '5 10'},
+	position: new THREE.Vector3(-10,10,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable', 'a-ent'],
+	components: {
+		body:{type: 'static', shape: 'box', mass: 0,},
+		bodymaterial: {friction: 0.01, restitution: 0.01},
+		//linkcable: {type: 'to'},
+	},
+	};
+	auxl.['building'+section] = auxl.Core(buildingData);
+	//Building 2 Door
+	let buildingDoorData = {
+	data:'building2DoorData',
+	id:'building2Door',
+	sources:false,
+	text: false,
+	geometry: {primitive: 'box', width: 0.5, depth: 1, height: 2},
+	material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '1 1'},
+	position: new THREE.Vector3(-7,1,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable', 'a-ent'],
+	components: {
+		['teleportation-to']: {x:-10, y:21, z:0},
+	},
+	};
+	auxl.['buildingDoor'+section] = auxl.Core(buildingDoorData);
+	//Building 3
+	let buildingData = {
+	data:'building3Data',
+	id:'building3',
+	sources:false,
+	text: false,
+	geometry: {primitive: 'box', width: 5, depth: 5, height: 30},
+	material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '5 15'},
+	position: new THREE.Vector3(0,15,-10),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable', 'a-ent'],
+	components: {
+		body:{type: 'static', shape: 'box', mass: 0,},
+		bodymaterial: {friction: 0.01, restitution: 0.01},
+		//linkcable: {type: 'to'},
+	},
+	};
+	auxl.['building'+section] = auxl.Core(buildingData);
+	//Building 3 Door
+	let buildingDoorData = {
+	data:'building3DoorData',
+	id:'building3Door',
+	sources:false,
+	text: false,
+	geometry: {primitive: 'box', width: 1, depth: 0.5, height: 2},
+	material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '1 1'},
+	position: new THREE.Vector3(0,1,-7),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable', 'a-ent'],
+	components: {
+		['teleportation-to']: {x:0, y:31, z:-10},
+	},
+	};
+	auxl.['buildingDoor'+section] = auxl.Core(buildingDoorData);
+	//Building 4
+	let buildingData = {
+	data:'building4Data',
+	id:'building4',
+	sources:false,
+	text: false,
+	geometry: {primitive: 'box', width: 5, depth: 5, height: 40},
+	material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '5 20'},
+	position: new THREE.Vector3(0,20,10),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable', 'a-ent'],
+	components: {
+		body:{type: 'static', shape: 'box', mass: 0,},
+		bodymaterial: {friction: 0.01, restitution: 0.01},
+		//linkcable: {type: 'to'},
+	},
+	};
+	auxl.['building'+section] = auxl.Core(buildingData);
+	//Building 4 Door
+	let buildingDoorData = {
+	data:'building4DoorData',
+	id:'building4Door',
+	sources:false,
+	text: false,
+	geometry: {primitive: 'box', width: 1, depth: 0.5, height: 2},
+	material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '1 1'},
+	position: new THREE.Vector3(0,1,7),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['clickable', 'a-ent'],
+	components: {
+		['teleportation-to']: {x:0, y:41, z:10},
+	},
+	};
+	auxl.['buildingDoor'+section] = auxl.Core(buildingDoorData);
+
+
+	//Building Layer
+	auxl.buildingLayerData = {
+		parent: {core: auxl.building},
+		child0: {core: auxl.trampoline},
+		child1: {core: auxl.buildingDoor},
+		child2: {core: auxl.building},
+		child3: {core: auxl.buildingDoor},
+		child4: {core: auxl.building},
+		child5: {core: auxl.buildingDoor},
+		child6: {core: auxl.building},
+		child7: {core: auxl.buildingDoor},
+	}
+	auxl.buildingLayer = auxl.Layer('buildingLayer', auxl.buildingLayerData);
+
+	return auxl.buildingLayer;
+
+
+}
+*/
+
+
+
+
+
+
+
+//Base 4 Building Example
+//TrampolineBuilding
+auxl.trampoline0Data = {
+data:'trampoline0Data',
+id:'trampoline0',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 4, depth: 4, height: 0.01},
+material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '4 4'},
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0.01, restitution: 125},
+},
+};
+auxl.trampoline0 = auxl.Core(auxl.trampoline0Data);
 
 //Building 1
 auxl.building1Data = {
@@ -253,7 +822,7 @@ id:'building1',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 5, depth: 5, height: 10},
-material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '5 10'},
+material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '5 10'},
 position: new THREE.Vector3(10,5,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -267,6 +836,26 @@ components: {
 },
 };
 auxl.building1 = auxl.Core(auxl.building1Data);
+//TrampolineBuilding
+auxl.trampoline1Data = {
+data:'trampoline1Data',
+id:'trampoline1',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 1, depth: 1, height: 0.01},
+material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '4 4'},
+position: new THREE.Vector3(10,10.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0.01, restitution: 125},
+},
+};
+auxl.trampoline1 = auxl.Core(auxl.trampoline1Data);
 //Building 1 Door
 auxl.building1DoorData = {
 data:'building1DoorData',
@@ -274,7 +863,7 @@ id:'building1Door',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 0.5, depth: 1, height: 2},
-material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '1 1'},
+material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '1 1'},
 position: new THREE.Vector3(7,1,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -293,7 +882,7 @@ id:'building2',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 5, depth: 5, height: 20},
-material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '5 10'},
+material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '5 10'},
 position: new THREE.Vector3(-10,10,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -307,6 +896,25 @@ components: {
 },
 };
 auxl.building2 = auxl.Core(auxl.building2Data);
+auxl.trampoline2Data = {
+data:'trampoline2Data',
+id:'trampoline2',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 1, depth: 1, height: 0.01},
+material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern49, repeat: '4 4'},
+position: new THREE.Vector3(-10,20.1,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0.01, restitution: 125},
+},
+};
+auxl.trampoline2 = auxl.Core(auxl.trampoline2Data);
 //Building 2 Door
 auxl.building2DoorData = {
 data:'building2DoorData',
@@ -314,7 +922,7 @@ id:'building2Door',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 0.5, depth: 1, height: 2},
-material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '1 1'},
+material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '1 1'},
 position: new THREE.Vector3(-7,1,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -333,7 +941,7 @@ id:'building3',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 5, depth: 5, height: 30},
-material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '5 15'},
+material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '5 15'},
 position: new THREE.Vector3(0,15,-10),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -347,6 +955,26 @@ components: {
 },
 };
 auxl.building3 = auxl.Core(auxl.building3Data);
+//Trampoline 3
+auxl.trampoline3Data = {
+data:'trampoline3Data',
+id:'trampoline3',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 1, depth: 1, height: 0.01},
+material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern49, repeat: '4 4'},
+position: new THREE.Vector3(0,30.1,-10),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0.01, restitution: 125},
+},
+};
+auxl.trampoline3 = auxl.Core(auxl.trampoline3Data);
 //Building 3 Door
 auxl.building3DoorData = {
 data:'building3DoorData',
@@ -354,7 +982,7 @@ id:'building3Door',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 1, depth: 0.5, height: 2},
-material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '1 1'},
+material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '1 1'},
 position: new THREE.Vector3(0,1,-7),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -373,7 +1001,7 @@ id:'building4',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 5, depth: 5, height: 40},
-material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '5 20'},
+material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '5 20'},
 position: new THREE.Vector3(0,20,10),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -387,6 +1015,26 @@ components: {
 },
 };
 auxl.building4 = auxl.Core(auxl.building4Data);
+//Trampoline 4
+auxl.trampoline4Data = {
+data:'trampoline4Data',
+id:'trampoline4',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 1, depth: 1, height: 0.01},
+material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern49, repeat: '4 4'},
+position: new THREE.Vector3(0,40.1,10),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0.01, restitution: 125},
+},
+};
+auxl.trampoline4 = auxl.Core(auxl.trampoline4Data);
 //Building 4 Door
 auxl.building4DoorData = {
 data:'building4DoorData',
@@ -394,7 +1042,7 @@ id:'building4Door',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 1, depth: 0.5, height: 2},
-material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern13, repeat: '1 1'},
+material: {shader: "standard", color: "#c32994", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#c32994", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '1 1'},
 position: new THREE.Vector3(0,1,7),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -407,6 +1055,7 @@ components: {
 };
 auxl.building4Door = auxl.Core(auxl.building4DoorData);
 
+
 //Walls
 //
 
@@ -417,7 +1066,7 @@ id:'boundingwall1',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 300, depth: 1, height: 300},
-material: {shader: "standard", color: "#29b1c3", opacity: 0.8, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern13, repeat: '300 300'},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.8, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern74, repeat: '300 300'},
 position: new THREE.Vector3(0,150,-150),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -439,7 +1088,7 @@ id:'boundingwall2',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 300, depth: 1, height: 300},
-material: {shader: "standard", color: "#29b1c3", opacity: 0.8, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern13, repeat: '30 30'},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.8, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern74, repeat: '30 30'},
 position: new THREE.Vector3(0,150,150),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -461,7 +1110,7 @@ id:'boundingwall3',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 1, depth: 300, height: 300},
-material: {shader: "standard", color: "#29b1c3", opacity: 0.8, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern13, repeat: '30 30'},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.8, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern74, repeat: '30 30'},
 position: new THREE.Vector3(-150,150,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -483,7 +1132,7 @@ id:'boundingwall4',
 sources:false,
 text: false,
 geometry: {primitive: 'box', width: 1, depth: 300, height: 300},
-material: {shader: "standard", color: "#29b1c3", opacity: 0.8, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern13, repeat: '30 30'},
+material: {shader: "standard", color: "#29b1c3", opacity: 0.8, metalness: 0, roughness: 0.8, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern74, repeat: '30 30'},
 position: new THREE.Vector3(150,150,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -1075,6 +1724,199 @@ components: {
 auxl.ramp3 = auxl.Core(auxl.ramp3Data);
 
 
+
+//Biome
+/*
+trampoline0
+trampoline1
+trampoline2
+trampoline3
+trampoline4
+building1
+building1Door
+building2
+building2Door
+building3
+building3Door
+building4
+building4Door
+*/
+
+
+//Update MultiAssetGen to support layers
+//City
+/*
+	ranRotX: false,
+	ranRotY: false,
+	ranRotZ: false
+*/
+//City Hectic
+/*
+	ranRotX: false,
+	ranRotY: true,
+	ranRotZ: false
+*/
+//Apocolypse
+/*
+	ranRotX: true,
+	ranRotY: true,
+	ranRotZ: true
+*/
+
+//Biome
+auxl.biome1TinyData = {
+	data: 'biome1TinyData',
+	id: 'tiny',
+	type: 'tiny',
+	radius: 10,
+	min: 1,
+	max: 7,
+	rings: 1,
+	objs:[
+		auxl.building1Data,
+		auxl.building2Data,
+		auxl.building3Data,
+		auxl.building4Data,
+	],
+	ranYPos: false,
+	yPosFlex: 3,
+	ranScaleX: false,
+	ranScaleY: true,
+	ranScaleZ: false,
+	scaleFlex: 1,
+	ranRotX: false,
+	ranRotY: false,
+	ranRotZ: false,
+	ranColor: true,
+	ranTexture: false,
+	ranAnim: false,
+};
+auxl.biome1SmallData = {
+	data: 'biome1SmallData',
+	id: 'small',
+	type: 'small',
+	radius: 25,
+	min: 2,
+	max: 8,
+	rings: 2,
+	objs:[
+		auxl.building1Data,
+		auxl.building2Data,
+		auxl.building3Data,
+		auxl.building4Data,
+	],
+	ranYPos: false,
+	yPosFlex: 2,
+	ranScaleX: false,
+	ranScaleY: true,
+	ranScaleZ: false,
+	scaleFlex: 5,
+	ranRotX: false,
+	ranRotY: false,
+	ranRotZ: false,
+	ranColor: true,
+	ranTexture: false,
+	ranAnim: false,
+};
+auxl.biome1MediumData = {
+	data: 'biome1MediumData',
+	id: 'medium',
+	type: 'med',
+	radius: 35,
+	min: 15,
+	max: 25,
+	rings: 3,
+	objs:[
+		auxl.building1Data,
+		auxl.building2Data,
+		auxl.building3Data,
+		auxl.building4Data,
+	],
+	ranYPos: false,
+	yPosFlex: 1,
+	ranScaleX: true,
+	ranScaleY: true,
+	ranScaleZ: true,
+	scaleFlex: 7,
+	ranRotX: false,
+	ranRotY: false,
+	ranRotZ: false,
+	ranColor: true,
+	ranTexture: false,
+	ranAnim: false,
+};
+auxl.biome1LargeData = {
+	data: 'biome1LargeData',
+	id: 'large',
+	type: 'large',
+	radius: 50,
+	min: 7,
+	max: 15,
+	rings: 4,
+	objs:[
+		auxl.building1Data,
+		auxl.building2Data,
+		auxl.building3Data,
+		auxl.building4Data,
+	],
+	ranYPos: false,
+	yPosFlex: 4,
+	ranScaleX: true,
+	ranScaleY: true,
+	ranScaleZ: true,
+	scaleFlex: 9,
+	ranRotX: false,
+	ranRotY: false,
+	ranRotZ: false,
+	ranColor: true,
+	ranTexture: false,
+	ranAnim: false,
+};
+auxl.biome1HugeData = {
+	data: 'biome1HugeData',
+	id: 'huge',
+	type: 'huge',
+	radius: 80,
+	min: 10,
+	max: 20,
+	rings: 5,
+	objs:[
+		auxl.building1Data,
+		auxl.building2Data,
+		auxl.building3Data,
+		auxl.building4Data,
+	],
+	ranYPos: false,
+	yPosFlex: 1,
+	ranScaleX: false,
+	ranScaleY: true,
+	ranScaleZ: false,
+	scaleFlex: 11,
+	ranRotX: false,
+	ranRotY: false,
+	ranRotZ: false,
+	ranColor: true,
+	ranTexture: false,
+	ranAnim: false,
+};
+auxl.biome1Data = {
+data:'biome1Data',
+id:'biome',
+maxRadius: 500,
+tiny: auxl.biome1TinyData,
+small: auxl.biome1SmallData,
+med: auxl.biome1MediumData,
+large: auxl.biome1LargeData,
+huge: auxl.biome1HugeData,
+};
+auxl.biome1 = auxl.MultiAssetGen(auxl.biome1Data);
+
+
+
+
+
+
+
 //Build Scene Library Objects
 auxl.buildSceneLibrary = () => {
 
@@ -1146,6 +1988,7 @@ auxl.zone0Scene0Data = {
 
 	},
 	start:{
+		biome1:{SpawnMultiAsset:null},
 		ramp1:{SpawnCore:null},
 		ramp2:{SpawnCore:null},
 		ramp3:{SpawnCore:null},
@@ -1161,6 +2004,17 @@ auxl.zone0Scene0Data = {
 		hinge1b:{SpawnCore:null},
 		spring1a:{SpawnCore:null},
 		spring1b:{SpawnCore:null},
+		//buildingLayer:{SpawnLayer:null},
+
+		catwalk0Layer:{SpawnLayer:null},
+		baseTest0Layer:{SpawnLayer:null},
+
+		trampoline0:{SpawnCore:null},
+		trampoline1:{SpawnCore:null},
+		trampoline2:{SpawnCore:null},
+		trampoline3:{SpawnCore:null},
+		trampoline4:{SpawnCore:null},
+
 		building1:{SpawnCore:null},
 		building1Door:{SpawnCore:null},
 		building2:{SpawnCore:null},
@@ -1169,22 +2023,24 @@ auxl.zone0Scene0Data = {
 		building3Door:{SpawnCore:null},
 		building4:{SpawnCore:null},
 		building4Door:{SpawnCore:null},
+
+		//ceiling0:{SpawnCore:null},
 		//ceiling1:{SpawnCore:null},
 		//ceiling2:{SpawnCore:null},
 		//ceiling3:{SpawnCore:null},
+
 		//boundingwall1:{SpawnCore:null},
 		//boundingwall2:{SpawnCore:null},
 		//boundingwall3:{SpawnCore:null},
 		//boundingwall4:{SpawnCore:null},
-		trampoline:{SpawnCore:null},
+
 		dynamicTest0:{SpawnCore:null},
 		dynamicTest1:{SpawnCore:null},
 		dynamicTest2:{SpawnCore:null},
 		triggerTest1:{SpawnCore:null},
-		pickup1:{SpawnCore:null},
+		//pickup1:{SpawnCore:null},
 		dynSpringA:{SpawnCore:null},
 		dynSpringB:{SpawnCore:null},
-
 
 		//oneTest0One:{SpawnOne:null},
 	},
@@ -1253,29 +2109,48 @@ auxl.v03TestingScenarioData = {
 	controls:{
 		action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
 		action2Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
-		action3Down:{auxlObj: 'player', func: 'LowGrav', name: 'Low Gravity', info: 'Lower Gravity.'},
-		action4Down:{auxlObj: 'player', func: 'PhysBoost', name: 'Vertical Boost', info: 'Fly upwards.'},
-		action5Down:{auxlObj: 'player', func: 'PhysJump', name: 'Jump', info: 'Jump Up'},
+		//action3Down:{auxlObj: 'player', func: 'LowGrav', name: 'Low Gravity', info: 'Lower Gravity.'},
+		//action4Down:{auxlObj: 'player', func: 'PhysBoost', name: 'Vertical Boost', info: 'Fly upwards.'},
+		//action5Down:{auxlObj: 'player', func: 'PhysJump', name: 'Jump', info: 'Jump Up'},
 		//action5Down:{auxlObj: 'player', func: 'Delink', name: 'Detach Link Cable', info: 'Detach Link Cable'},
-		action7Up:{auxlObj: 'player', func: 'LinkUp', name: 'Increase Link Length', info: 'Increase Link Length'},
-		action8Up:{auxlObj: 'player', func: 'LinkDown', name: 'Decrease Link Length', info: 'Decrease Link Length'},
+		//action7Up:{auxlObj: 'player', func: 'LinkUp', name: 'Increase Link Length', info: 'Increase Link Length'},
+		//action7Down:{auxlObj: 'player', func: 'Freeze', name: 'Freeze Momentum', info: 'Stop in your tracks'},
+		//action7Up:{auxlObj: 'player', func: 'UnFreeze', name: 'UnFreeze Momentum', info: 'Release'},
+		//action6Down:{auxlObj: 'player', func: 'Slow', name: 'Slow Momentum', info: 'Stop in your tracks'},
+		//action6Up:{auxlObj: 'player', func: 'UnSlow', name: 'UnSlow Momentum', info: 'Release'},
+		//action8Up:{auxlObj: 'player', func: 'LinkDown', name: 'Decrease Link Length', info: 'Decrease Link Length'},
 		//action7Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
 		//action8Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},
-		action6Down:{auxlObj: 'linkHoverMenu', func: 'SpawnHoverMenu', name: 'Link Menu', info: 'Spawn Link Menu', params: 'true'},
-		action6Up:{auxlObj: 'linkHoverMenu', func: 'DespawnHoverMenu', name: 'Link Menu', info: 'Despawn Link Menu'},
+		//action6Down:{auxlObj: 'linkHoverMenu', func: 'SpawnHoverMenu', name: 'Link Menu', info: 'Spawn Link Menu', params: 'true'},
+		//action6Up:{auxlObj: 'linkHoverMenu', func: 'DespawnHoverMenu', name: 'Link Menu', info: 'Despawn Link Menu'},
+		//action6Down:{auxlObj: 'uniRayTest1', func: 'Activate', name: 'UniTestStart', info: 'Switch to UniRay Test', params: 'true'},
+		//action6Up:{auxlObj: 'uniRayTest1', func: 'Deactivate', name: 'UniTestStop', info: 'Disconnect from UniRay Test'},
+		//action6Up:{auxlObj: 'uniRayTest1', func: 'Toggle', name: 'UniRayTesting', info: 'Toggle the UniRay Test'},
+
+		action5Down:{auxlObj: 'player', func: 'ToggleAction', params: 0, name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
+		action5Up:{auxlObj: 'player', func: 'ToggleAction', params: false, name: 'Rubberband', info: 'Drop Web Sling.'},
+		action6Down:{auxlObj: 'player', func: 'Freeze', params: 0, name: 'Freeze', info: 'Freeze mid-air.'},
+		action6Up:{auxlObj: 'player', func: 'UnFreeze', params: false, name: 'UnFreeze', info: 'UnFreeze mid-air.'},
 	},
 	start:{
 		skyBox1:{SpawnSkyBox: null},
 		//comp:{SpawnComp: null},
 		physicalFloor:{SpawnCore: null},
 		ramp1:{SpawnCore: null},
-		playerRig:{PhysPos: new THREE.Vector3(0,10,1)},
-		build:{SpawnBuild:null},
+
+		//build:{SpawnBuild:null},
+		//player:{SpawnUniRay:null},
+//playerRig:{PhysPos: new THREE.Vector3(0,10,1)},
+		//uniRayTest1:{SpawnUniRay:null},
 	},
 	delay:{
+		100:{
+			skyBox1:{SetTime: 10},
+		},
 /*
 		100:{
 			skyBox0:{DayNightCycle: null},
+			skyBox0:{SetTime: 10},
 		},
 */
 	},

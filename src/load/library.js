@@ -268,6 +268,10 @@ components: false,
 //
 //Player
 
+//Teleportation Animation should be its own camera extension
+
+
+
 //Rig
 auxl.playerRigData = {
 data:'playerRigData',
@@ -284,7 +288,7 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-['universal-controls']:null,
+['uniray']:null,
 ['locomotion']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
 //['gimbal']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
 light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
@@ -383,7 +387,7 @@ mixins: false,
 classes: ['clickable', 'a-ent','player'],
 components: {
 raycaster:{enabled: 'true', autoRefresh: 'true', objects: '.clickable', origin: new THREE.Vector3(0,0,0), direction: new THREE.Vector3(0,0,-1), far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'},
-cursor: {fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'},
+cursor: {fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true', pointerLockEnabled: true},
 },};
 auxl.mouseController = auxl.Core(auxl.mouseControllerData);
 //VR Controller 1
@@ -691,8 +695,18 @@ child1: {core: auxl.playerFloor},
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
 auxl.playerLayer = auxl.Layer('playerLayer', auxl.playerAll);
 
+console.log('pre player uniray')
+
 //Player
-auxl.player = auxl.Player('player',auxl.playerLayer);
+//auxl.player = auxl.Player('player',auxl.playerLayer);
+let blankData = {};
+auxl.player = auxl.UniRay('player',auxl.playerLayer,blankData);
+//auxl.UniRay(id, layer, data)
+
+console.log('pre player uniray')
+
+
+
 
 //
 //Avatar
@@ -1897,7 +1911,7 @@ data:'moon',
 id:'moon',
 sources: false,
 text: false,
-geometry: {primitive: 'sphere', radius: 24,},
+geometry: {primitive: 'sphere', radius: 50,},
 material: {shader: "standard", color: "#5c2196", opacity: 1, side: 'front', emissive: '#5c2196', emissiveIntensity: 0.75, fog: false},
 position: new THREE.Vector3(0,0,-400),
 rotation: new THREE.Vector3(0,0,0),

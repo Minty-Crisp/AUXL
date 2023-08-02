@@ -740,6 +740,7 @@ const MultiAssetGen = (auxl, multiGenData) => {
 //Need to better optimize each size's radius
 	let multiGen = Object.assign({}, multiGenData);
 	multiGen.inScene = false;
+	multiGen.maxRadius = multiGenData.maxRadius || 500;
 	multiGen.assets = {}
 	multiGen.assets.tiny = [];
 	multiGen.assets.small = [];
@@ -755,6 +756,7 @@ const MultiAssetGen = (auxl, multiGenData) => {
 	multiGen.ring4 = [];
 	multiGen.ring5 = [];
 	//Multi Ring Inner/Outer Radius'
+/*
 	multiGen.ring = {
 		i0:0.5,
 		o0:4,
@@ -769,12 +771,44 @@ const MultiAssetGen = (auxl, multiGenData) => {
 		i5:18,
 		o5:150,
 	};
+
+//Using multiGen.maxRadius as a base radius gen ring sizes
+	multiGen.ring = {
+		i0:multiGen.maxRadius*0.003,
+		o0:multiGen.maxRadius*0.1,
+		i1:multiGen.maxRadius*0.05,
+		o1:multiGen.maxRadius*0.2,
+		i2:multiGen.maxRadius*0.15,
+		o2:multiGen.maxRadius*0.33,
+		i3:multiGen.maxRadius*0.25,
+		o3:multiGen.maxRadius*0.5,
+		i4:multiGen.maxRadius*0.35,
+		o4:multiGen.maxRadius*0.66,
+		i5:multiGen.maxRadius*0.75,
+		o5:multiGen.maxRadius,
+	};
+*/
 	//Ring 0 - user spawn area - tiny/small
 	//Ring 1 - immeadiately surrounding the spawn area - tiny/small/med
 	//Ring 2 - a bit farther from spawn area - small/med/large
 	//Ring 3 - medium distance from spawn - med/large
 	//Ring 4 - far distance from spawn - large/huge
 	//Ring 5 - super far distance from spawn - huge
+
+	multiGen.ring = {
+		i0:5,
+		o0:50,
+		i1:10,
+		o1:100,
+		i2:20,
+		o2:200,
+		i3:30,
+		o3:300,
+		i4:40,
+		o4:400,
+		i5:50,
+		o5:500,
+	};
 
 	//On every loop through the grid creator, it will always use the center to spawn one, allow that one a parent, but do not use it for a spawning location
 
@@ -985,7 +1019,10 @@ const MultiAssetGen = (auxl, multiGenData) => {
 		}
 		return goodGrid;
 	}
+
+	//Add support for layers to be imported and their parents being customizable,randomizable
 	//Generate Multi Objects Ring Cores w/ Randomization Support
+
 	const genCores = () => {
 		//Each Size
 		for(let type in sizes){
@@ -1127,6 +1164,156 @@ if(a === 0){
 			}
 		}
 	}
+
+//Make this a public function like coreFromTemplate
+//coreFromRandoms
+//LayerFromRandoms
+	const genCore = (id,data) => {
+		let ogData = Object.assign({}, data);
+		let objData = JSON.parse(JSON.stringify(data));
+		let posX;
+		let posY;
+		let posZ;
+		let positionVec3;
+		let scaleX;
+		let scaleY;
+		let scaleZ;
+		let rotX;
+		let rotY;
+		let rotZ;
+		let color;
+		objData.id = ogData.id + id;
+
+		//Color
+		if(size.ranColor){
+			color = auxl.colorTheoryGen().base;
+			objData.material.color = color;
+			if(objData.material.emissive){
+				objData.material.emissive = color;
+			}
+		}
+		//Texture
+		if(size.ranTexture){
+			objData.material.src = auxl.patterns[Math.floor(Math.random()*auxl.patterns.length)];
+		}
+		//Rotation
+		rotX = ogData.rotation.x;
+		rotY = ogData.rotation.y;
+		rotZ = ogData.rotation.z;
+		if(size.ranRotX){
+			rotX += Math.random() * 360;
+		}
+		if(size.ranRotY){
+			rotY += Math.random() * 360;
+		}
+		if(size.ranRotZ){
+			rotZ += Math.random() * 360;
+		}
+		objData.rotation = new THREE.Vector3(rotX, rotY, rotZ);
+		//Scale
+		scaleX = ogData.scale.x;
+		scaleY = ogData.scale.y;
+		scaleZ = ogData.scale.z;
+		if(size.ranScaleX){
+			scaleX += Math.random() * size.scaleFlex;
+		}
+		if(size.ranScaleY){
+			scaleY += Math.random() * size.scaleFlex;
+		}
+		if(size.ranScaleZ){
+			scaleZ += Math.random() * size.scaleFlex;
+		}
+		objData.scale = new THREE.Vector3(scaleX, scaleY, scaleZ);
+		//Position
+		posY = ogData.position.y;
+		if(size.ranYPos){
+			posY += Math.random() * size.yPosFlex;
+		}
+		//If ran out of predefined positions, choose random
+		if(size.rings === 0){
+			if(ring0Current < ring0.length){
+				posX = ring0[ring0Current][0];
+				posZ = ring0[ring0Current][1];
+				ring0Current++;
+			} else {
+				posX = (Math.random() * (multiGen.ring.o0*2) - multiGen.ring.o0) + multiGen.ring.i0;
+				posZ = (Math.random() * (multiGen.ring.o0*2) - multiGen.ring.o0) + multiGen.ring.i0;
+			}
+		} else if(size.rings === 1){
+			if(ring1Current < ring1.length){
+				posX = ring1[ring1Current][0];
+				posZ = ring1[ring1Current][1];
+				ring1Current++;
+			} else {
+				posX = (Math.random() * (multiGen.ring.o1*2) - multiGen.ring.o1) + multiGen.ring.i1;
+				posZ = (Math.random() * (multiGen.ring.o1*2) - multiGen.ring.o1) + multiGen.ring.i1;
+			}
+		} else if(size.rings === 2){
+			if(ring2Current < ring2.length){
+				posX = ring2[ring2Current][0];
+				posZ = ring2[ring2Current][1];
+				ring2Current++;
+			} else {
+				posX = (Math.random() * (multiGen.ring.o2*2) - multiGen.ring.o2) + multiGen.ring.i2;
+				posZ = (Math.random() * (multiGen.ring.o2*2) - multiGen.ring.o2) + multiGen.ring.i2;
+			}
+		} else if(size.rings === 3){
+			if(ring3Current < ring3.length){
+				posX = ring3[ring3Current][0];
+				posZ = ring3[ring3Current][1];
+				ring3Current++;
+			} else {
+				posX = (Math.random() * (multiGen.ring.o3*2) - multiGen.ring.o3) + multiGen.ring.i3;
+				posZ = (Math.random() * (multiGen.ring.o3*2) - multiGen.ring.o3) + multiGen.ring.i3;
+			}
+		} else if(size.rings === 4){
+			if(ring4Current < ring4.length){
+				posX = ring4[ring4Current][0];
+				posZ = ring4[ring4Current][1];
+				ring4Current++;
+			} else {
+				posX = (Math.random() * (multiGen.ring.o4*2) - multiGen.ring.o4) + multiGen.ring.i4;
+				posZ = (Math.random() * (multiGen.ring.o4*2) - multiGen.ring.o4) + multiGen.ring.i4;
+			}
+		} else if(size.rings === 5){
+			if(ring5Current < ring5.length){
+				posX = ring5[ring5Current][0];
+				posZ = ring5[ring5Current][1];
+				ring5Current++;
+			} else {
+				posX = (Math.random() * (multiGen.ring.o5*2) - multiGen.ring.o5) + multiGen.ring.i5;
+				posZ = (Math.random() * (multiGen.ring.o5*2) - multiGen.ring.o5) + multiGen.ring.i5;
+			}
+		} 
+		objData.position = new THREE.Vector3(posX, posY, posZ);
+		//Add randomized Core to All
+		return auxl.Core(objData);
+		//multiGen.assets[sizes[type]].push(auxl.Core(objData));
+//instanced-mesh="positioning: local"
+//instanced-mesh-member="mesh:#instanceTest1"
+
+	}
+	const genLayer = (id,layer) => {
+
+		//genCore
+		//Merge the 
+	}
+
+	const genAssets = () => {
+		for(let type in sizes){
+			//1 of 5 Types
+			let size = Object.assign({}, multiGen[sizes[type]]);
+
+			//Loop through 1 object to make duplicute
+			for(let a = 0; a < size.max/size.objs.length; a++){
+				if(size.core){
+					genCore(a,size);
+				} else if(size.layer){
+					genLayer(a,size);
+				}
+			}
+		}
+	}
 	//Spawn All Assets
 	const SpawnMultiAsset = () => {
 		if(multiGen.inScene){}else{
@@ -1134,7 +1321,11 @@ if(a === 0){
 			for(let type in sizes){
 				let size = multiGen.assets[sizes[type]];
 				for(let each in size){
-					size[each].SpawnCore();
+					if(size[each].core){
+						size[each].SpawnCore();
+					} else if(size[each].layer){
+						size[each].SpawnLayer();
+					}
 				}
 			}
 			multiGen.inScene = true;
@@ -1146,7 +1337,11 @@ if(a === 0){
 			for(let type in sizes){
 				let size = multiGen.assets[sizes[type]];
 				for(let each in size){
-					size[each].DespawnCore();
+					if(size[each].core){
+						size[each].DespawnCore();
+					} else if(size[each].layer){
+						size[each].DespawnLayer();
+					}
 				}
 			}
 			auxl.RemoveFromTracker(multiGen.id);

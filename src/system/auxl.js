@@ -11,7 +11,9 @@
 //Main : Core, Layer, Templates
 import {Core, coreDataFromTemplate, coreFromTemplate, Layer, layerDataFromTemplate, layerFromTemplate} from './main.js';
 //Player : Player, Companion
-import {Player, Companion} from './player.js';
+import {UniRay, Companion} from './player.js';
+//Powers
+import Powers from './powers.js';
 //Scenes : SceneNode, MapZone, Scenario, World
 import {SceneNode, MapZone, Scenario, World} from './scenes.js';
 //Menu : Menu, MultiMenu, HoverMenu
@@ -23,10 +25,11 @@ import {Book, SpeechSystem, NPC, InfoBubble, Creature} from './npc.js';
 //Grid : Collision, GridLayout, Gate
 import {Collision, GridLayout, Gate} from './grid.js';
 //Build : BuildIn3D
-import {Constraints, One, BuildIn3D} from './build.js';
+import {Constraints, One, Vehicle, BuildIn3D} from './build.js';
 //Images
 import {ImageSwapper, ImageCarousel} from './images.js';
-
+//Mirrors
+import Mirrors from './mirror.js';
 //AUXL System
 const auxl = AFRAME.registerSystem('auxl', {
 schema: {
@@ -620,6 +623,10 @@ this.events = {};
 this.timeInDay = 360000;
 //Physics
 this.worldPhysics = false;
+//EnablePhysics
+this.EnablePhysics = () => {
+console.log('Enable Physics')
+}
 //Collision Maps
 this.collisionMap = [[],[]];
 this.triggerMap = [[],[]];
@@ -686,7 +693,7 @@ function enableVRControls(){
 		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
 		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
 		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('universal-controls',{update: 1});
+		auxl.playerRig.GetEl().setAttribute('uniray',{update: 1});
 		auxl.player.EnableVRLocomotion();
 		auxl.locomotionText = 'Left Controller Joystick';
 	} else if(auxl.vrHand === 'bothLeft'){
@@ -699,7 +706,7 @@ function enableVRControls(){
 		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
 		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
 		auxl.vrController1.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('universal-controls',{update: 2});
+		auxl.playerRig.GetEl().setAttribute('uniray',{update: 2});
 		auxl.player.EnableVRLocomotion();
 		auxl.locomotionText = 'Right Controller Joystick';
 	} else if(auxl.vrHand === 'bothRightLoco' || auxl.vrHand === 'bothLeftLoco'){
@@ -713,7 +720,7 @@ function enableVRControls(){
 		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
 		vrController1.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
 		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('universal-controls',{update: 3});
+		auxl.playerRig.GetEl().setAttribute('uniray',{update: 3});
 		auxl.player.EnableVRLocomotion();
 		if(auxl.vrHand === 'bothLeftLoco'){
 			auxl.locomotionText = 'Left Controller Joystick';
@@ -726,7 +733,7 @@ function enableVRControls(){
 		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
 		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
 		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('universal-controls',{update: 4});
+		auxl.playerRig.GetEl().setAttribute('uniray',{update: 4});
 		auxl.player.EnableVRHoverLocomotion('vrController2');
 		auxl.locomotionText = 'Hover on Forward/Backward Belt.';
 	} else if(auxl.vrHand === 'left'){
@@ -735,7 +742,7 @@ function enableVRControls(){
 		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
 		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
 		auxl.vrController1.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('universal-controls',{update: 5});
+		auxl.playerRig.GetEl().setAttribute('uniray',{update: 5});
 		auxl.player.EnableVRHoverLocomotion('vrController1');
 		auxl.locomotionText = 'Hover on Forward/Backward Belt.';
 	}
@@ -750,7 +757,7 @@ function enableDesktopControls(){
 	auxl.mouseController.GetEl().setAttribute('visible',true);
 	auxl.mouseController.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 	auxl.mouseController.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true',});
-	auxl.playerRig.GetEl().setAttribute('universal-controls',{update: 0});
+	auxl.playerRig.GetEl().setAttribute('uniray',{update: 0});
 	auxl.player.EnableDesktopLocomotion();
 	auxl.locomotionText = 'WASD Keys';
 }
@@ -779,7 +786,7 @@ function enableMobileControls(){
 	auxl.mouseController.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 	auxl.mouseController.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
 	controllerBlock.style.display = 'flex';
-	auxl.playerRig.GetEl().setAttribute('universal-controls',{update: 6});
+	auxl.playerRig.GetEl().setAttribute('uniray',{update: 6});
 	auxl.player.EnableMobileLocomotion();
 	auxl.locomotionText = 'Arrow Buttons';
 }
@@ -1180,7 +1187,7 @@ this.detach = (child) => {
 
 //
 //Color Theory Generator
-//Generate a color theory palette from a given color, color family or a random color. Exported object contains Base, Complementary, Split-complementary, Triadic, Tetradic, Analagous & Monochrome(Not Yet)
+//Generate a color theory palette from a given color, color family or a random color. Exported object contains Base, Complementary, Split-complementary, Triadic, Tetradic,[ Analagous & Monochrome(]Not Yet)
 this.colorTheoryGen = (color, family) => {
 //color accepts Hex values only at the moment, more options coming soon
 let r;
@@ -1567,13 +1574,24 @@ this.layerFromTemplate = (layer, id, changeParent, updateLayer, assign) => {
 //
 //Player
 
+//UniRay
+this.UniRay = (id, layer, data) => {
+	return UniRay(auxl, id, layer, data);
+}
+
+//Powers
+this.Powers = (id, data, one, core, layer) => {
+	return Powers(auxl, id, data, one, core, layer);
+}
+
 //
 //Player
 //User Controller, Settings and Actions
+/*
 this.Player = (id,layer) => {
 	return Player (auxl, id, layer);
 }
-
+*/
 //
 //Companion
 //System Menu & Inventory
@@ -1751,7 +1769,7 @@ this.Gate = (id, object, direction) => {
 }
 
 //
-//Build
+//Physics
 
 //Constraints
 this.Constraints = (objGen, linkData, atStart) => {
@@ -1764,6 +1782,15 @@ this.Constraints = (objGen, linkData, atStart) => {
 this.One = (objGen, oneData) => {
 	return One(auxl, objGen, oneData);
 }
+
+//
+//Vehicle
+this.Vehicle = (vehicleData, coreLayer) => {
+	return Vehicle(auxl, vehicleData, coreLayer);
+}
+
+//
+//Build
 
 //
 //Build Core/Layer/Other objects in the 3D environment
@@ -1786,6 +1813,13 @@ this.ImageSwapper = (id, mainData, buttonData, ...materials) => {
 this.ImageCarousel = (carouselData) => {
 	return ImageCarousel(auxl, carouselData);
 }
+
+//
+//Mirror
+this.Mirror = (mirrorData) => {
+	return Mirror(auxl, mirrorData);
+}
+
 
 
 },
