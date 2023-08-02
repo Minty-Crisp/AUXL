@@ -2140,7 +2140,7 @@ auxl.v03TestingScenarioData = {
 
 		//build:{SpawnBuild:null},
 		//player:{SpawnUniRay:null},
-//playerRig:{PhysPos: new THREE.Vector3(0,10,1)},
+playerRig:{PhysPos: new THREE.Vector3(0,10,1)},
 		//uniRayTest1:{SpawnUniRay:null},
 	},
 	delay:{
