@@ -933,7 +933,9 @@ this.UpdateControlText = () => {
 			console.log('Failed to identify action')
 		}
 
-
+		if(actionCommand === '  Key'){
+			actionCommand = 'Space Key';
+		}
 		auxl.controlsText += actionCommand + ' | ' + auxl.controlsInfo[action].name + ' : ' + auxl.controlsInfo[action].info + '\n';
 	}
 	auxl.controlsText += 'Click to Close Window'
@@ -1183,6 +1185,12 @@ this.detach = (child) => {
 	} else {
 		auxl.sceneEl.appendChild(item);
 	}
+}
+
+//
+//Return Random from an array
+this.randomOfArray = (array) => {
+	return array[Math.floor(Math.random()*array.length)];
 }
 
 //

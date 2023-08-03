@@ -35,7 +35,7 @@ geometry: false,
 material: {shader: 'threeColorGradientShader', topColor: '#613381', middleColor: '#99154E', bottomColor: '#b967ff'},
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
+scale: new THREE.Vector3(8.046,8.046,8.046),
 animations: {
 
 top0:{property: 'material.topColor', from: '#01cdfe', to: '#01cdfe', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
@@ -138,15 +138,116 @@ auxl.phys1Data = {
 //
 //Static
 
+
+
+//mtnFloor
+auxl.mtnFloorData = {
+	data:'mtnFloorData',
+	id:'mtnFloor',
+	sources:false,
+	text: false,
+	geometry: false,
+	material: {shader: "standard", color: "#de22d0", opacity: 1, metalness: 0.7, roughness: 0.3, emissive: "#000000", emissiveIntensity: 1, side: 'double', src: auxl.pattern14, repeat: '1024 1024'},
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(10,10,10),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent', 'clickable'],
+	components: {
+	['obj-model']:{obj: './assets/3d/land/mtnFloor.obj'},
+	},
+};
+auxl.mtnFloor = auxl.Core(auxl.mtnFloorData);
+
+//Hills
+auxl.hillsData = {
+id: 'hills',
+type: 'hills',
+texture: false,
+baseColor: false,
+baseColorFamily: 'olive',
+radius: 400,
+density: 'high',
+height: 'high',
+width: 'high',
+};
+auxl.hills = auxl.Horizon(auxl.hillsData);
+//Building
+auxl.buildingsHorizonData = {
+id: 'buildingsHorizon',
+type: 'buildings',
+texture: false,
+baseColor: false,
+baseColorFamily: 'black',
+radius: 700,
+density: 'high',
+height: 'high',
+width: 'high',
+};
+auxl.buildingsHorizon = auxl.Horizon(auxl.buildingsHorizonData);
+
+
+//Building
+auxl.circularWallHorizonData = {
+id: 'cylinderWallHorizon',
+type: 'cylinderWall',
+texture: false,
+baseColor: false,
+baseColorFamily: 'black',
+height: 40,
+radius: 1200,
+density: 'high',
+height: 'high',
+width: 'high',
+};
+auxl.cylinderWallHorizon = auxl.Horizon(auxl.circularWallHorizonData);
+
+//Building
+auxl.mountainsHorizonData = {
+id: 'mountainsHorizon',
+type: 'mountains',
+texture: false,
+baseColor: false,
+baseColorFamily: 'black',
+radius: 1024,
+density: 'high',
+height: 'high',
+width: 'high',
+};
+auxl.mountainsHorizon = auxl.Horizon(auxl.mountainsHorizonData);
+
+//
+//Cloud Testing
+auxl.cloudData = {
+data:'cloudData',
+id:'cloud',
+sources:false,
+text: false,
+geometry: {primitive: 'sphere', radius: 2900, segmentsWidth: 36, segmentsHeight: 18, phiLength: 360, phiStart: 0, thetaLength: 180, thetaStart: 0},
+material: {shader: "standard", color: "#d4c6d3", opacity: 0.95, metalness: 0.7, roughness: 0.3, emissive: "#d4c6d3", emissiveIntensity: 0.1, side: 'double', src: auxl.pattern25, repeat: '1 7', blending: 'additive'},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: false,
+};
+auxl.cloud = auxl.Core(auxl.cloudData);
+auxl.cloud.SpawnCore();
+
+
 //Physical Floor
 auxl.physicalFloorData = {
 data:'physicalFloorData',
 id:'physicalFloor',
 sources:false,
 text: false,
-geometry: {primitive: 'box', width: 700, depth: 700, height: 1},
-material: {shader: "standard", color: "#1e7e5d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#1e7e5d", emissiveIntensity: 0.2, side: 'double', src: auxl.pattern14, repeat: '100 100'},
-position: new THREE.Vector3(0,-0.5,0),
+//geometry: {primitive: 'box', width: 8046, depth: 8046, height: 1},
+geometry: {primitive: 'box', width: 2000, depth: 2000, height: 1},
+material: {shader: "standard", color: "#de22d0", opacity: 0, metalness: 0.7, roughness: 0.3, emissive: "#000000", emissiveIntensity: 1, side: 'double', src: auxl.pattern14, repeat: '1024 1024'},
+position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -1741,8 +1842,86 @@ building3Door
 building4
 building4Door
 */
+/*
+auxl.cadeCabData = {
+	data:'cadeCabData',
+	id:'cadeCab',
+	sources: false,
+	text: false,
+	sounds: {
+		click: {src: auxl.drop1, autoplay: false, loop: false, volume: 1, on: 'click'},
+	},
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(0.45,0.45,0.45),
+	animations:false,
+	mixins: false,
+	classes: ['clickable','a-ent'],
+	components:{
+		['gltf-model']:'./assets/3d/XRcade/cabinet.glb',
+		gltfmat: {colors:['random','random','random','random','random', 'black','random','random','random','random'],},
+		hovertext:{value: 'Ready?\nPlayer One', hover: 'top', offset: 5, twist: true,},
+	},
+};
+auxl.cadeCab = auxl.Core(auxl.cadeCabData);
+
+{shape: 'box', halfExtents: '0.1 0.1 0.1', offset: '-0.5 1 -0.5',}
+
+*/
+/*
+let mat1 = auxl.randomOfArray(auxl.patterns);
+console.log(mat1)
+let mat2 = auxl.randomOfArray(auxl.patterns);
+console.log(mat2)
+let mat3 = auxl.randomOfArray(auxl.patterns);
+console.log(mat3)
+auxl.acubeBaseData = {
+data:'acubeBaseData',
+id:'acubeBaseData',
+sources:false,
+text: false,
+geometry: {primitive: 'box', width: 1, depth: 1, height: 1},
+material: {shader: "standard", color: "#29b1c3", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b1c3", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern74, repeat: '5 10'},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	['gltf-model']:'./assets/3d/city/cube-city.glb',
+	gltfmat: {
+		//colors:['black','black','random','random',],
+		//colors:['#4d4d4d','#4d4d4d','random','random',],
+		//colors:['white','black','random','random',],
+		//colors:['black','white','random','random',],
+		colors:['black','black','random','random',],
+		emissive:[1,1,1,],
+		textures:[mat1,mat2,mat3,],
+		repeats:['1 1','1 1','1 1',],
+	 },
+	body:{type: 'static', shape: 'box', mass: 0,},
+	//body:{type: 'static', shape: 'none', mass: 0,},
+	//shape:{shape: 'box', halfExtents: '1 1 1', offset: '0 1 0',},
+	//shape:{shape: 'box', halfExtents: '1 1 1', offset: '-0.15 0.7 0.15',},
+	bodymaterial: {friction: 0.01, restitution: 0.01},
+	//linkcable: {type: 'to'},
+},
+};
+
+auxl.acubeBase1Data = auxl.coreDataFromTemplate(auxl.acubeBaseData, {id: 'acubeBaseData2', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.acubeBase2Data = auxl.coreDataFromTemplate(auxl.acubeBaseData, {id: 'acubeBaseData2', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.acubeBase3Data = auxl.coreDataFromTemplate(auxl.acubeBaseData, {id: 'acubeBaseData3', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.acubeBase4Data = auxl.coreDataFromTemplate(auxl.acubeBaseData, {id: 'acubeBaseData4', rotation: new THREE.Vector3(0,270,0),}, true);
+*/
+
+//Animate the buildings colors for night time, day time and dusk/dawn
 
 
+//auxl.acubeBase = auxl.Core(auxl.acubeBaseData);
+//auxl.acubeBase.SpawnCore();
 //Update MultiAssetGen to support layers
 //City
 /*
@@ -1763,31 +1942,313 @@ building4Door
 	ranRotZ: true
 */
 
+//1
+auxl.citycube1Data = {
+data:'citycube1Data',
+id:'citycube1',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	['gltf-model']:'./assets/3d/city/cityCubeHQ1.glb',
+	gltfmat: {
+		colors:['black','black','random','random',],
+		emissive:[0.5,0.5,1,],
+		repeats:['1 1','1 1','1 1',],
+	 },
+	body:{type: 'static', shape: 'none', mass: 0,},
+	shape:{shape: 'box', halfExtents: '1 1 1', offset: '0 0 0',},
+	bodymaterial: {friction: 0.01, restitution: 0.01},
+},
+};
+
+auxl.citycube1AData = auxl.coreDataFromTemplate(auxl.citycube1Data, {id: 'citycube1A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube1BData = auxl.coreDataFromTemplate(auxl.citycube1Data, {id: 'citycube1B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube1CData = auxl.coreDataFromTemplate(auxl.citycube1Data, {id: 'citycube1C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube1DData = auxl.coreDataFromTemplate(auxl.citycube1Data, {id: 'citycube1D', rotation: new THREE.Vector3(0,270,0),}, true);
+//2
+auxl.citycube2Data = {
+data:'citycube2Data',
+id:'citycube2',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	['gltf-model']:'./assets/3d/city/cityCubeHQ2.glb',
+	gltfmat: {
+		colors:['black','black','random','random',],
+		emissive:[0.5,0.5,1,],
+		repeats:['1 1','1 1','1 1',],
+	 },
+	body:{type: 'static', shape: 'none', mass: 0,},
+	shape:{shape: 'box', halfExtents: '1 1 1', offset: '0 0 0',},
+	bodymaterial: {friction: 0.01, restitution: 0.01},
+},
+};
+
+auxl.citycube2AData = auxl.coreDataFromTemplate(auxl.citycube2Data, {id: 'citycube2A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube2BData = auxl.coreDataFromTemplate(auxl.citycube2Data, {id: 'citycube2B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube2CData = auxl.coreDataFromTemplate(auxl.citycube2Data, {id: 'citycube2C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube2DData = auxl.coreDataFromTemplate(auxl.citycube2Data, {id: 'citycube2D', rotation: new THREE.Vector3(0,270,0),}, true);
+//2
+auxl.citycube3Data = {
+data:'citycube3Data',
+id:'citycube3',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	['gltf-model']:'./assets/3d/city/cityCubeHQ3.glb',
+	gltfmat: {
+		colors:['black','black','random','random',],
+		emissive:[0.5,0.5,1,],
+		repeats:['1 1','1 1','1 1',],
+	 },
+	body:{type: 'static', shape: 'none', mass: 0,},
+	shape:{shape: 'box', halfExtents: '1 1 1', offset: '0 0 0',},
+	bodymaterial: {friction: 0.01, restitution: 0.01},
+},
+};
+
+auxl.citycube3AData = auxl.coreDataFromTemplate(auxl.citycube3Data, {id: 'citycube3A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube3BData = auxl.coreDataFromTemplate(auxl.citycube3Data, {id: 'citycube3B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube3CData = auxl.coreDataFromTemplate(auxl.citycube3Data, {id: 'citycube3C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube3DData = auxl.coreDataFromTemplate(auxl.citycube3Data, {id: 'citycube3D', rotation: new THREE.Vector3(0,270,0),}, true);
+//4
+auxl.citycube4Data = {
+data:'citycube4Data',
+id:'citycube4',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	['gltf-model']:'./assets/3d/city/cityCubeHQ4.glb',
+	gltfmat: {
+		colors:['black','black','random','random',],
+		emissive:[0.5,0.5,1,],
+		repeats:['1 1','1 1','1 1',],
+	 },
+	body:{type: 'static', shape: 'none', mass: 0,},
+	shape:{shape: 'box', halfExtents: '1 1 1', offset: '0 0 0',},
+	bodymaterial: {friction: 0.01, restitution: 0.01},
+},
+};
+auxl.citycube4AData = auxl.coreDataFromTemplate(auxl.citycube4Data, {id: 'citycube4A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube4BData = auxl.coreDataFromTemplate(auxl.citycube4Data, {id: 'citycube4B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube4CData = auxl.coreDataFromTemplate(auxl.citycube4Data, {id: 'citycube4C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube4DData = auxl.coreDataFromTemplate(auxl.citycube4Data, {id: 'citycube4D', rotation: new THREE.Vector3(0,270,0),}, true);
+//5
+auxl.citycube5Data = {
+data:'citycube5Data',
+id:'citycube5',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	['gltf-model']:'./assets/3d/city/cityCubeHQ5.glb',
+	gltfmat: {
+		colors:['black','black','random','random',],
+		emissive:[0.5,0.5,1,],
+		repeats:['1 1','1 1','1 1',],
+	 },
+	body:{type: 'static', shape: 'none', mass: 0,},
+	shape:{shape: 'box', halfExtents: '1 1 1', offset: '0 0 0',},
+	bodymaterial: {friction: 0.01, restitution: 0.01},
+},
+};
+auxl.citycube5AData = auxl.coreDataFromTemplate(auxl.citycube5Data, {id: 'citycube5A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube5BData = auxl.coreDataFromTemplate(auxl.citycube5Data, {id: 'citycube5B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube5CData = auxl.coreDataFromTemplate(auxl.citycube5Data, {id: 'citycube5C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube5DData = auxl.coreDataFromTemplate(auxl.citycube5Data, {id: 'citycube5D', rotation: new THREE.Vector3(0,270,0),}, true);
+//6
+auxl.citycube6Data = {
+data:'citycube6Data',
+id:'citycube6',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	['gltf-model']:'./assets/3d/city/cityCubeHQ6.glb',
+	gltfmat: {
+		colors:['black','black','random','random',],
+		emissive:[0.5,0.5,1,],
+		repeats:['1 1','1 1','1 1',],
+	 },
+	body:{type: 'static', shape: 'none', mass: 0,},
+	shape:{shape: 'box', halfExtents: '1 1 1', offset: '0 0 0',},
+	bodymaterial: {friction: 0.01, restitution: 0.01},
+},
+};
+auxl.citycube6AData = auxl.coreDataFromTemplate(auxl.citycube6Data, {id: 'citycube6A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube6BData = auxl.coreDataFromTemplate(auxl.citycube6Data, {id: 'citycube6B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube6CData = auxl.coreDataFromTemplate(auxl.citycube6Data, {id: 'citycube6C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube6DData = auxl.coreDataFromTemplate(auxl.citycube6Data, {id: 'citycube6D', rotation: new THREE.Vector3(0,270,0),}, true);
+//7
+auxl.citycube7Data = {
+data:'citycube7Data',
+id:'citycube7',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	['gltf-model']:'./assets/3d/city/cityCubeHQ7.glb',
+	gltfmat: {
+		colors:['black','black','random','random',],
+		emissive:[0.5,0.5,1,],
+		repeats:['1 1','1 1','1 1',],
+	 },
+	body:{type: 'static', shape: 'none', mass: 0,},
+	shape:{shape: 'box', halfExtents: '1 1 1', offset: '0 0 0',},
+	bodymaterial: {friction: 0.01, restitution: 0.01},
+},
+};
+auxl.citycube7AData = auxl.coreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube7BData = auxl.coreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube7CData = auxl.coreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube7DData = auxl.coreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7D', rotation: new THREE.Vector3(0,270,0),}, true);
+//2=8
+auxl.citycube8Data = {
+data:'citycube8Data',
+id:'citycube8',
+sources:false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	['gltf-model']:'./assets/3d/city/cityCubeHQ8.glb',
+	gltfmat: {
+		colors:['black','black','random','random',],
+		emissive:[0.5,0.5,1,],
+		repeats:['1 1','1 1','1 1',],
+	 },
+	body:{type: 'static', shape: 'none', mass: 0,},
+	shape:{shape: 'box', halfExtents: '1 1 1', offset: '0 0 0',},
+	bodymaterial: {friction: 0.01, restitution: 0.01},
+},
+};
+
+auxl.citycube8AData = auxl.coreDataFromTemplate(auxl.citycube8Data, {id: 'citycube8A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube8BData = auxl.coreDataFromTemplate(auxl.citycube8Data, {id: 'citycube8B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube8CData = auxl.coreDataFromTemplate(auxl.citycube8Data, {id: 'citycube8C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube8DData = auxl.coreDataFromTemplate(auxl.citycube8Data, {id: 'citycube8D', rotation: new THREE.Vector3(0,270,0),}, true);
+
+
 //Biome
 auxl.biome1TinyData = {
 	data: 'biome1TinyData',
 	id: 'tiny',
 	type: 'tiny',
-	radius: 10,
+	radius: 100,
 	min: 1,
 	max: 7,
 	rings: 1,
 	objs:[
-		auxl.building1Data,
-		auxl.building2Data,
-		auxl.building3Data,
-		auxl.building4Data,
+		auxl.citycube1AData,
+		auxl.citycube1BData,
+		auxl.citycube1CData,
+		auxl.citycube1DData,
+		auxl.citycube2AData,
+		auxl.citycube2BData,
+		auxl.citycube2CData,
+		auxl.citycube2DData,
+		auxl.citycube3AData,
+		auxl.citycube3BData,
+		auxl.citycube3CData,
+		auxl.citycube3DData,
+		auxl.citycube4AData,
+		auxl.citycube4BData,
+		auxl.citycube4CData,
+		auxl.citycube4DData,
+		auxl.citycube5AData,
+		auxl.citycube5BData,
+		auxl.citycube5CData,
+		auxl.citycube5DData,
+		auxl.citycube6AData,
+		auxl.citycube6BData,
+		auxl.citycube6CData,
+		auxl.citycube6DData,
+		auxl.citycube7AData,
+		auxl.citycube7BData,
+		auxl.citycube7CData,
+		auxl.citycube7DData,
+		auxl.citycube8AData,
+		auxl.citycube8BData,
+		auxl.citycube8CData,
+		auxl.citycube8DData,
+		//auxl.acubeBase1Data,
+		//auxl.acubeBase2Data,
+		//auxl.acubeBase3Data,
+		//auxl.acubeBase4Data,
+		//auxl.building1Data,
+		//auxl.building2Data,
+		//auxl.building3Data,
+		//auxl.building4Data,
 	],
 	ranYPos: false,
-	yPosFlex: 3,
-	ranScaleX: false,
+	yPosFlex: 20,
+	ranScaleX: true,
 	ranScaleY: true,
-	ranScaleZ: false,
-	scaleFlex: 1,
+	ranScaleZ: true,
+	scaleFlex: 20,
 	ranRotX: false,
 	ranRotY: false,
 	ranRotZ: false,
-	ranColor: true,
+	ranColor: false,
 	ranTexture: false,
 	ranAnim: false,
 };
@@ -1795,26 +2256,62 @@ auxl.biome1SmallData = {
 	data: 'biome1SmallData',
 	id: 'small',
 	type: 'small',
-	radius: 25,
+	radius: 150,
 	min: 2,
 	max: 8,
 	rings: 2,
 	objs:[
-		auxl.building1Data,
-		auxl.building2Data,
-		auxl.building3Data,
-		auxl.building4Data,
+		auxl.citycube1AData,
+		auxl.citycube1BData,
+		auxl.citycube1CData,
+		auxl.citycube1DData,
+		auxl.citycube2AData,
+		auxl.citycube2BData,
+		auxl.citycube2CData,
+		auxl.citycube2DData,
+		auxl.citycube3AData,
+		auxl.citycube3BData,
+		auxl.citycube3CData,
+		auxl.citycube3DData,
+		auxl.citycube4AData,
+		auxl.citycube4BData,
+		auxl.citycube4CData,
+		auxl.citycube4DData,
+		auxl.citycube5AData,
+		auxl.citycube5BData,
+		auxl.citycube5CData,
+		auxl.citycube5DData,
+		auxl.citycube6AData,
+		auxl.citycube6BData,
+		auxl.citycube6CData,
+		auxl.citycube6DData,
+		auxl.citycube7AData,
+		auxl.citycube7BData,
+		auxl.citycube7CData,
+		auxl.citycube7DData,
+		auxl.citycube8AData,
+		auxl.citycube8BData,
+		auxl.citycube8CData,
+		auxl.citycube8DData,
+		//auxl.acubeBase1Data,
+		//auxl.acubeBase2Data,
+		//auxl.acubeBase3Data,
+		//auxl.acubeBase4Data,
+		//auxl.building1Data,
+		//auxl.building2Data,
+		//auxl.building3Data,
+		//auxl.building4Data,
 	],
 	ranYPos: false,
-	yPosFlex: 2,
-	ranScaleX: false,
+	yPosFlex: 40,
+	ranScaleX: true,
 	ranScaleY: true,
-	ranScaleZ: false,
-	scaleFlex: 5,
+	ranScaleZ: true,
+	scaleFlex: 40,
 	ranRotX: false,
 	ranRotY: false,
 	ranRotZ: false,
-	ranColor: true,
+	ranColor: false,
 	ranTexture: false,
 	ranAnim: false,
 };
@@ -1822,26 +2319,62 @@ auxl.biome1MediumData = {
 	data: 'biome1MediumData',
 	id: 'medium',
 	type: 'med',
-	radius: 35,
+	radius: 100,
 	min: 15,
 	max: 25,
 	rings: 3,
 	objs:[
-		auxl.building1Data,
-		auxl.building2Data,
-		auxl.building3Data,
-		auxl.building4Data,
+		auxl.citycube1AData,
+		auxl.citycube1BData,
+		auxl.citycube1CData,
+		auxl.citycube1DData,
+		auxl.citycube2AData,
+		auxl.citycube2BData,
+		auxl.citycube2CData,
+		auxl.citycube2DData,
+		auxl.citycube3AData,
+		auxl.citycube3BData,
+		auxl.citycube3CData,
+		auxl.citycube3DData,
+		auxl.citycube4AData,
+		auxl.citycube4BData,
+		auxl.citycube4CData,
+		auxl.citycube4DData,
+		auxl.citycube5AData,
+		auxl.citycube5BData,
+		auxl.citycube5CData,
+		auxl.citycube5DData,
+		auxl.citycube6AData,
+		auxl.citycube6BData,
+		auxl.citycube6CData,
+		auxl.citycube6DData,
+		auxl.citycube7AData,
+		auxl.citycube7BData,
+		auxl.citycube7CData,
+		auxl.citycube7DData,
+		auxl.citycube8AData,
+		auxl.citycube8BData,
+		auxl.citycube8CData,
+		auxl.citycube8DData,
+		//auxl.acubeBase1Data,
+		//auxl.acubeBase2Data,
+		//auxl.acubeBase3Data,
+		//auxl.acubeBase4Data,
+		//auxl.building1Data,
+		//auxl.building2Data,
+		//auxl.building3Data,
+		//auxl.building4Data,
 	],
 	ranYPos: false,
-	yPosFlex: 1,
+	yPosFlex: 60,
 	ranScaleX: true,
 	ranScaleY: true,
 	ranScaleZ: true,
-	scaleFlex: 7,
+	scaleFlex: 60,
 	ranRotX: false,
 	ranRotY: false,
 	ranRotZ: false,
-	ranColor: true,
+	ranColor: false,
 	ranTexture: false,
 	ranAnim: false,
 };
@@ -1849,26 +2382,62 @@ auxl.biome1LargeData = {
 	data: 'biome1LargeData',
 	id: 'large',
 	type: 'large',
-	radius: 50,
+	radius: 125,
 	min: 7,
 	max: 15,
 	rings: 4,
 	objs:[
-		auxl.building1Data,
-		auxl.building2Data,
-		auxl.building3Data,
-		auxl.building4Data,
+		auxl.citycube1AData,
+		auxl.citycube1BData,
+		auxl.citycube1CData,
+		auxl.citycube1DData,
+		auxl.citycube2AData,
+		auxl.citycube2BData,
+		auxl.citycube2CData,
+		auxl.citycube2DData,
+		auxl.citycube3AData,
+		auxl.citycube3BData,
+		auxl.citycube3CData,
+		auxl.citycube3DData,
+		auxl.citycube4AData,
+		auxl.citycube4BData,
+		auxl.citycube4CData,
+		auxl.citycube4DData,
+		auxl.citycube5AData,
+		auxl.citycube5BData,
+		auxl.citycube5CData,
+		auxl.citycube5DData,
+		auxl.citycube6AData,
+		auxl.citycube6BData,
+		auxl.citycube6CData,
+		auxl.citycube6DData,
+		auxl.citycube7AData,
+		auxl.citycube7BData,
+		auxl.citycube7CData,
+		auxl.citycube7DData,
+		auxl.citycube8AData,
+		auxl.citycube8BData,
+		auxl.citycube8CData,
+		auxl.citycube8DData,
+		//auxl.acubeBase1Data,
+		//auxl.acubeBase2Data,
+		//auxl.acubeBase3Data,
+		//auxl.acubeBase4Data,
+		//auxl.building1Data,
+		//auxl.building2Data,
+		//auxl.building3Data,
+		//auxl.building4Data,
 	],
 	ranYPos: false,
-	yPosFlex: 4,
+	yPosFlex: 80,
 	ranScaleX: true,
 	ranScaleY: true,
 	ranScaleZ: true,
-	scaleFlex: 9,
+	scaleFlex: 80,
 	ranRotX: false,
 	ranRotY: false,
 	ranRotZ: false,
-	ranColor: true,
+	ranColor: false,
 	ranTexture: false,
 	ranAnim: false,
 };
@@ -1876,26 +2445,62 @@ auxl.biome1HugeData = {
 	data: 'biome1HugeData',
 	id: 'huge',
 	type: 'huge',
-	radius: 80,
+	radius: 150,
 	min: 10,
 	max: 20,
 	rings: 5,
 	objs:[
-		auxl.building1Data,
-		auxl.building2Data,
-		auxl.building3Data,
-		auxl.building4Data,
+		auxl.citycube1AData,
+		auxl.citycube1BData,
+		auxl.citycube1CData,
+		auxl.citycube1DData,
+		auxl.citycube2AData,
+		auxl.citycube2BData,
+		auxl.citycube2CData,
+		auxl.citycube2DData,
+		auxl.citycube3AData,
+		auxl.citycube3BData,
+		auxl.citycube3CData,
+		auxl.citycube3DData,
+		auxl.citycube4AData,
+		auxl.citycube4BData,
+		auxl.citycube4CData,
+		auxl.citycube4DData,
+		auxl.citycube5AData,
+		auxl.citycube5BData,
+		auxl.citycube5CData,
+		auxl.citycube5DData,
+		auxl.citycube6AData,
+		auxl.citycube6BData,
+		auxl.citycube6CData,
+		auxl.citycube6DData,
+		auxl.citycube7AData,
+		auxl.citycube7BData,
+		auxl.citycube7CData,
+		auxl.citycube7DData,
+		auxl.citycube8AData,
+		auxl.citycube8BData,
+		auxl.citycube8CData,
+		auxl.citycube8DData,
+		//auxl.acubeBase1Data,
+		//auxl.acubeBase2Data,
+		//auxl.acubeBase3Data,
+		//auxl.acubeBase4Data,
+		//auxl.building1Data,
+		//auxl.building2Data,
+		//auxl.building3Data,
+		//auxl.building4Data,
 	],
 	ranYPos: false,
-	yPosFlex: 1,
-	ranScaleX: false,
+	yPosFlex: 100,
+	ranScaleX: true,
 	ranScaleY: true,
-	ranScaleZ: false,
-	scaleFlex: 11,
+	ranScaleZ: true,
+	scaleFlex: 100,
 	ranRotX: false,
 	ranRotY: false,
 	ranRotZ: false,
-	ranColor: true,
+	ranColor: false,
 	ranTexture: false,
 	ranAnim: false,
 };
@@ -1903,6 +2508,7 @@ auxl.biome1Data = {
 data:'biome1Data',
 id:'biome',
 maxRadius: 500,
+style: 'tall',
 tiny: auxl.biome1TinyData,
 small: auxl.biome1SmallData,
 med: auxl.biome1MediumData,
@@ -1980,7 +2586,7 @@ auxl.zone0Scene0Data = {
 		name: 'Zone 0 | Scene 0',
 		description: 'Default scene to load on Scenario/Zone.',
 		sceneText: false,
-		fog: false,
+		fog: {type: 'exponential', color: '#000', density: 0.00025},
 		map: false,
 		spawnPos:{x:0,y:0,z:1},
 	},
@@ -1989,40 +2595,40 @@ auxl.zone0Scene0Data = {
 	},
 	start:{
 		biome1:{SpawnMultiAsset:null},
-		ramp1:{SpawnCore:null},
-		ramp2:{SpawnCore:null},
-		ramp3:{SpawnCore:null},
-		lock1a:{SpawnCore:null},
-		lock1b:{SpawnCore:null},
-		distance1a:{SpawnCore:null},
-		distance1b:{SpawnCore:null},
-		ptp1a:{SpawnCore:null},
-		ptp1b:{SpawnCore:null},
-		coneTwist1a:{SpawnCore:null},
-		coneTwist1b:{SpawnCore:null},
-		hinge1a:{SpawnCore:null},
-		hinge1b:{SpawnCore:null},
-		spring1a:{SpawnCore:null},
-		spring1b:{SpawnCore:null},
+		//ramp1:{SpawnCore:null},
+		//ramp2:{SpawnCore:null},
+		//ramp3:{SpawnCore:null},
+		//lock1a:{SpawnCore:null},
+		//lock1b:{SpawnCore:null},
+		//distance1a:{SpawnCore:null},
+		//distance1b:{SpawnCore:null},
+		//ptp1a:{SpawnCore:null},
+		//ptp1b:{SpawnCore:null},
+		//coneTwist1a:{SpawnCore:null},
+		//coneTwist1b:{SpawnCore:null},
+		//hinge1a:{SpawnCore:null},
+		//hinge1b:{SpawnCore:null},
+		//spring1a:{SpawnCore:null},
+		//spring1b:{SpawnCore:null},
 		//buildingLayer:{SpawnLayer:null},
 
-		catwalk0Layer:{SpawnLayer:null},
-		baseTest0Layer:{SpawnLayer:null},
+		//catwalk0Layer:{SpawnLayer:null},
+		//baseTest0Layer:{SpawnLayer:null},
 
-		trampoline0:{SpawnCore:null},
-		trampoline1:{SpawnCore:null},
-		trampoline2:{SpawnCore:null},
-		trampoline3:{SpawnCore:null},
-		trampoline4:{SpawnCore:null},
+		//trampoline0:{SpawnCore:null},
+		//trampoline1:{SpawnCore:null},
+		//trampoline2:{SpawnCore:null},
+		//trampoline3:{SpawnCore:null},
+		//trampoline4:{SpawnCore:null},
 
-		building1:{SpawnCore:null},
-		building1Door:{SpawnCore:null},
-		building2:{SpawnCore:null},
-		building2Door:{SpawnCore:null},
-		building3:{SpawnCore:null},
-		building3Door:{SpawnCore:null},
-		building4:{SpawnCore:null},
-		building4Door:{SpawnCore:null},
+		//building1:{SpawnCore:null},
+		//building1Door:{SpawnCore:null},
+		//building2:{SpawnCore:null},
+		//building2Door:{SpawnCore:null},
+		//building3:{SpawnCore:null},
+		//building3Door:{SpawnCore:null},
+		//building4:{SpawnCore:null},
+		//building4Door:{SpawnCore:null},
 
 		//ceiling0:{SpawnCore:null},
 		//ceiling1:{SpawnCore:null},
@@ -2034,17 +2640,18 @@ auxl.zone0Scene0Data = {
 		//boundingwall3:{SpawnCore:null},
 		//boundingwall4:{SpawnCore:null},
 
-		dynamicTest0:{SpawnCore:null},
-		dynamicTest1:{SpawnCore:null},
-		dynamicTest2:{SpawnCore:null},
-		triggerTest1:{SpawnCore:null},
+		//dynamicTest0:{SpawnCore:null},
+		//dynamicTest1:{SpawnCore:null},
+		//dynamicTest2:{SpawnCore:null},
+		//triggerTest1:{SpawnCore:null},
 		//pickup1:{SpawnCore:null},
-		dynSpringA:{SpawnCore:null},
-		dynSpringB:{SpawnCore:null},
+		//dynSpringA:{SpawnCore:null},
+		//dynSpringB:{SpawnCore:null},
 
 		//oneTest0One:{SpawnOne:null},
 	},
 	delay:{
+/*
 		3000:{
 			spring1b:{ChangeSelf:{property: 'auxspring', value:{restLength: 5}}},
 		},
@@ -2064,6 +2671,7 @@ auxl.zone0Scene0Data = {
 			hinge1a:{SpawnCore:null},
 			spring1a:{SpawnCore:null},
 		},
+*/
 	},
 	interval:{
 
@@ -2127,30 +2735,49 @@ auxl.v03TestingScenarioData = {
 		//action6Up:{auxlObj: 'uniRayTest1', func: 'Deactivate', name: 'UniTestStop', info: 'Disconnect from UniRay Test'},
 		//action6Up:{auxlObj: 'uniRayTest1', func: 'Toggle', name: 'UniRayTesting', info: 'Toggle the UniRay Test'},
 
-		action5Down:{auxlObj: 'player', func: 'ToggleAction', params: 0, name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
-		action5Up:{auxlObj: 'player', func: 'ToggleAction', params: false, name: 'Rubberband', info: 'Drop Web Sling.'},
+		//action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '2', name: 'Teleport', info: 'Teleport Player'},
+		//action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'TeleportDrop', info: 'Drop Teleport.'},
+		action4Down:{auxlObj: 'player', func: 'Track2D', params: 0, name: 'Pick New Gravity Axis', info: 'Aim and drag along any face of a flat floor cube object to start detecting new Axis.'},
+		//action7Down:{auxlObj: 'player', func: 'ToggleAction', params: '1', name: 'RubberbandSlam', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge. Auto Stop on second into pull.'},
+		//action7Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandSlamDrop', info: 'Drop Web Sling.'},
+		action5Down:{auxlObj: 'player', func: 'ToggleAction', params: '4', name: 'Boost', info: 'Build a boost in your gaze direction to fly.'},
+		action5Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Boost Stop', info: 'Drop Boost.'},
 		action6Down:{auxlObj: 'player', func: 'Freeze', params: 0, name: 'Freeze', info: 'Freeze mid-air.'},
 		action6Up:{auxlObj: 'player', func: 'UnFreeze', params: false, name: 'UnFreeze', info: 'UnFreeze mid-air.'},
+		action7Down:{auxlObj: 'player', func: 'ToggleAction', params: '3', name: 'Parachute', info: 'Open a parachute to float downward.'},
+		action7Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Parachute', info: 'Close parachute.'},
+		action8Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
+		action8Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Drop Web Sling.'},
 	},
 	start:{
-		skyBox1:{SpawnSkyBox: null},
+		skyBox0:{SpawnSkyBox: null},
 		//comp:{SpawnComp: null},
 		physicalFloor:{SpawnCore: null},
-		ramp1:{SpawnCore: null},
+		//ramp1:{SpawnCore: null},
+		mtnFloor:{SpawnCore: null},
+		//hills:{SpawnHorizon: null},
+		//buildingsHorizon:{SpawnHorizon: null},
+		//cylinderWallHorizon:{SpawnHorizon: null},
+		//mountainsHorizon:{SpawnHorizon: null},
+
+
 
 		//build:{SpawnBuild:null},
 		//player:{SpawnUniRay:null},
-playerRig:{PhysPos: new THREE.Vector3(0,10,1)},
+playerRig:{PhysPos: new THREE.Vector3(0,50,1)},
 		//uniRayTest1:{SpawnUniRay:null},
 	},
 	delay:{
 		100:{
-			skyBox1:{SetTime: 10},
+			skyBox0:{DayNightCycle: null},
 		},
 /*
 		100:{
 			skyBox0:{DayNightCycle: null},
-			skyBox0:{SetTime: 10},
+		},
+
+		100:{
+			skyBox1:{SetTime: 10},
 		},
 */
 	},

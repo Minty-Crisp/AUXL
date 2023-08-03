@@ -1637,7 +1637,7 @@ auxl.moonLayer = auxl.Layer('moonLayer', auxl.moonLayerData);
 	const GetCameraDirection = () => {
 		//Get the direction vector in world space
 		let direction = new THREE.Vector3();
-		camera.object3D.getWorldDirection(direction);
+		auxl.camera.GetEl().object3D.getWorldDirection(direction);
 		return direction;
 /*
 		//Calculate the position based on the direction and distance
@@ -1745,10 +1745,10 @@ console.log(position)
 //console.log('Y')
 						if(start.y > 0){
 //console.log('+Y')
-							layer.worldAxis = new THREE.Vector3(0,1,0);
+							layer.worldAxis = new THREE.Vector3(0,-1,0);
 						} else {
 //console.log('-Y')
-							layer.worldAxis = new THREE.Vector3(0,-1,0);
+							layer.worldAxis = new THREE.Vector3(0,1,0);
 						}
 					} if(start.z.toFixed(2) === intersection.z.toFixed(2)){
 //console.log('Z')
@@ -1769,6 +1769,10 @@ console.log(position)
 					//console.log(layer.worldAxis)
 					//layer.gravitys
 					//layer.worldAxis = 
+layer.localAxis.copy(layer.worldAxis);
+if(!layer.worldAxis.equals(new THREE.Vector3(0,0,0))){
+console.log({GravitationalAxisChange: layer.worldAxis})
+}
 					layer.tracking = false;
 					clearInterval(layer.track2DInterval);
 				}
@@ -1779,7 +1783,7 @@ console.log(position)
 
 	}
 
-
+		//Track2D();
 
 	//Make this its own component and use with One
 	//
@@ -1880,9 +1884,14 @@ let testVec = new THREE.Vector3(0,0,0);
 					//add velocity to fall
 					velocityTick++;
 //console.log(layer.velocity)
-//console.log('Adding Velocity')
+console.log('Adding Velocity')
 //console.log(auxl.playerRig.GetEl().body.velocity)
-auxl.playerRig.GetEl().body.velocity.y -= velocityTick/250;
+let velocityNew = new THREE.Vector3((velocityTick/25),(velocityTick/25),(velocityTick/25));
+velocityNew.multiply(layer.localAxis)
+auxl.playerRig.GetEl().body.velocity.x += velocityNew.x;
+auxl.playerRig.GetEl().body.velocity.y += velocityNew.y;
+auxl.playerRig.GetEl().body.velocity.z += velocityNew.z;
+//auxl.playerRig.GetEl().body.velocity.y -= velocityTick/25;
 //layer.velocity.sub(new THREE.Vector3(0,(velocityTick/100),0));
 //layer.velocity.add(0.01)
 //let velocityNew = new THREE.Vector3((velocityTick/100),(velocityTick/100),(velocityTick/100));
@@ -1892,7 +1901,11 @@ auxl.playerRig.GetEl().body.velocity.y -= velocityTick/250;
 					layer.velocity = new THREE.Vector3(0,0,0);
 					velocityTick = 0;
 				}
-
+if(layer.toggle3){
+	velocityTick = 0;
+}
+//if parachuting, then no velocity
+//add momentum
 				playerPositionOld.copy(playerPosition);
 				//let worldGravity = new THREE.Vector3(0,0,0);
 				//Apply Gravity
@@ -2263,10 +2276,11 @@ console.log({event: 'Power Controller Running', event})
 for(let power in layer.raycaster.powers){
 console.log(power)
 }
+
+	}
 //TEmp
 Link();
-	}
-
+console.log('Link ran')
 
 	//
 	//Actions
@@ -2560,7 +2574,99 @@ LinkTo(positionTest, layer.power)
 //let length = positionTest.distanceTo(auxl.playerRig.GetEl().body.position);
 */
 
+	const ChuteUp = () => {
+		if(layer.toggle3){
+			!layer.toggle3
+		}
+	}
+	const ChuteDown = () => {
+		if(!layer.toggle3){
+			layer.toggle3
+		}
+	}
 
+
+	//Boost
+	const BoostUp = (event) => {
+		if(layer.toggle4){
+//console.log(event)
+		//layer.distance = 50;
+			//console.log(event)
+			//console.log('Link')
+			//console.log(this.data.type)
+			//console.log(event)
+			//console.log('teleportUp')
+			clearInterval(layer.playerLinkInt);
+	//instead of event.detail.intersection.point
+	//get camera/hand direction and multiple by distance
+	//always a set distance?
+
+	//if the mouseup hits somewhere else first within the max distance of the link, use those coords instead
+	//layer.worldAxis = new THREE.Vector3(0,-1,0);
+			layer.building = false;
+			layer.power /= 1000;
+			layer.positionNew = new THREE.Vector3();
+			layer.position = new THREE.Vector3();
+			layer.quaternion = new THREE.Quaternion();
+			//layer.position.copy(GetCameraDirection());
+			layer.object3D = auxl.camera.GetEl().object3D;
+			layer.quaternion.copy(layer.object3D.quaternion);
+			layer.position.copy(auxl.playerRig.GetEl().body.position);
+
+		//console.log(auxl.camera.GetEl().Object3D.getWorldDirection())
+		//layer.position.copy(auxl.camera.GetEl().object3D.getLocalDirection()));
+		//console.log(layer.quaternion)
+		//console.log(layer.position)
+				//layer.position.negate();
+		//console.log(layer.position)
+			// Step 1: Get the Object3D's rotation as a Quaternion
+			const rotationQuaternion = layer.quaternion.clone();
+			// Step 2: Create a direction vector pointing towards the positive Z-axis
+			const direction = new THREE.Vector3(0, 0, -1);
+			const tweak = new THREE.Vector3(0, 0, 0);
+		//console.log(direction)
+			// Step 3: Apply the object's rotation to the direction vector
+			direction.applyQuaternion(rotationQuaternion);
+		//console.log(direction)
+		//console.log(layer.distance)
+			// Step 4: Scale the direction vector to the desired distance
+			tweak.multiplyScalar(new THREE.Vector3(0, 0, 0));
+			direction.multiplyScalar(layer.distance/2);
+		//console.log(direction)
+			// Step 5: Add the scaled direction vector to the Object3D's position
+			layer.positionNew = layer.position.clone().add(direction);
+				//layer.positionNew.copy(layer.position.multiplyScalar(layer.distance));
+	//console.log(layer.positionNew)
+	//console.log(layer.distance)
+	//console.log(layer.power)
+			//Power
+			layer.boostPower = 100;
+			auxl.player.BoostTo(layer.positionNew, layer.boostPower);
+		}
+	}
+	//BoostDown
+	const BoostDown = (event) => {
+		if(layer.toggle4){
+			//console.log(event)
+			layer.power = 1000;
+			clearInterval(layer.playerLinkInt)
+			//Get Charge
+			layer.playerLinkInt = setInterval(() => {
+				if(!layer.linking){
+					//Rubberband
+					if(layer.power > 30){
+						layer.power -= 15;
+			//console.log(layer.power)
+					} else {
+						clearInterval(layer.playerLinkInt);
+					}
+				} else {
+					clearInterval(layer.playerLinkInt);
+				}
+
+			}, 1);
+		}
+	}
 	//
 	//Events
 
@@ -2651,7 +2757,7 @@ layer.raycaster.interval = setInterval((event) => {
 		//console.log(intersection)
 
 		//Determine the 2D plane in 3D grid system as floor
-		Track2D();
+		//Track2D();
 
 		//console.log(event.detail.intersection.point)
 	}
@@ -2662,7 +2768,7 @@ layer.raycaster.interval = setInterval((event) => {
 		//console.log(event)
 		RayTick(event);
 		//console.log(event)
-		clearInterval(layer.track2DInterval);
+		//clearInterval(layer.track2DInterval);
 	}
 
 	//Trigger, Click, Mouse Down
@@ -2680,6 +2786,9 @@ layer.raycaster.interval = setInterval((event) => {
 		} else if(layer.toggle2){
 			teleportDown();
 		} else if(layer.toggle3){
+			ChuteDown()
+		} else if(layer.toggle4){
+			BoostDown()
 		} else {
 		}
 
@@ -2699,6 +2808,9 @@ layer.raycaster.interval = setInterval((event) => {
 		} else if(layer.toggle2){
 			teleportUp();
 		} else if(layer.toggle3){
+			ChuteUp()
+		} else if(layer.toggle4){
+			BoostUp()
 		} else {
 		}
 	}
@@ -2713,75 +2825,35 @@ auxl.mouseController.GetEl().addEventListener('mouseup', TriggerUp(event));
 	}
 	MouseEvents();
 
-	//Basic Testing Data Controls
-
-	//Key Down
-	//At least on keyboard, runs continuosly
-	//Is there already a solution built into universal controls, so may not be an issue
-	const KeyEventDown = (e) => {
-//console.log(e)
-		if (e.key === ' ') {
-			layer.toggle0 = true;
-		} else if (e.key === 'b' || e.key === 'B') {
-			layer.toggle1 = true;
-		} else if (e.key === 'g' || e.key === 'G') {
-			layer.toggle2 = true;
-			layer.localAxis.copy(layer.worldAxis);
-		} else if (e.key === 'h' || e.key === 'H') {
-			layer.toggle3 = true;
-		}
-	}
-	//Key Up
-	const KeyEventUp = (e) => {
-//console.log(e)
-		if (e.key === ' ') {
-			//Start moving player
-			layer.toggle0 = false;
-			Delink();
-		} else if (e.key === 'b' || e.key === 'B') {
-			//Start moving player
-			layer.toggle1 = false;
-			Delink();
-		} else if (e.key === 'g' || e.key === 'G') {
-			layer.toggle2 = false;
-			layer.localAxis.copy(layer.worldAxis);
-		} else if (e.key === 'h' || e.key === 'H') {
-			layer.toggle3 = false;
-
-		}
-	}
-
-	//Keyboard Triggers
-	const KeyEvents = (event) => {
-		//Hold down space button to activate rubberband
-		//Toggles
-		layer.toggle0 = false;
-		layer.toggle1 = false;
-		layer.toggle2 = false;
-		layer.toggle3 = false;
-
-		//Key Down
-		document.body.addEventListener('keydown', KeyEventDown);
-		//Key Up
-		document.body.addEventListener('keyup', KeyEventUp);
-	}
-	KeyEvents();
-
 	//Toggle Actions
 	const ToggleAction = (toggle) => {
 		layer.toggle0 = false;
 		layer.toggle1 = false;
 		layer.toggle2 = false;
 		layer.toggle3 = false;
-		if(toggle === 0){
+		layer.toggle4 = false;
+		if(toggle === '0'){
 			layer.toggle0 = true;
-		} else if(toggle === 1){
+		} else if(toggle === '1'){
 			layer.toggle1 = true;
-		} else if(toggle === 2){
+		} else if(toggle === '2'){
 			layer.toggle2 = true;
-		} else if(toggle === 3){
+		} else if(toggle === '3'){
 			layer.toggle3 = true;
+		} else if(toggle === '4'){
+			layer.toggle4 = true;
+		} else {
+			Delink();
 		}
+/*
+console.log({
+toggle,
+	tog0:layer.toggle0,
+	tog1:layer.toggle1,
+	tog2:layer.toggle2,
+	tog3:layer.toggle3,
+})
+*/
 	}
 
 	//Slow
@@ -3041,6 +3113,30 @@ console.log('Attach to')
 		}, 1000);
 	}
 
+	//Boost To
+	const BoostTo = (position, power) => {
+//Calculate the position based on the direction and power
+let camDir = new THREE.Vector3();
+camDir.copy(GetCameraDirection());
+//camDir.copy(camDir).add(new THREE.Vector3(power, power, power).normalize().multiplyScalar(power));
+
+
+let boostDir = new THREE.Vector3();
+//boostDir.copy(GetCameraDirection());
+boostDir.copy(camDir).add(new THREE.Vector3(power, power, power).normalize().multiplyScalar(power));
+boostDir.negate();
+console.log({imported: position, built: camDir, boost: boostDir})
+		//Instead of constraint, update physMove
+		auxl.playerRig.GetEl().body.applyLocalImpulse(boostDir,new THREE.Vector3(0,0,0));
+/*
+		auxl.playerRig.GetEl().body.linearDamping = 0;
+		let boost = setTimeout(() => {
+			auxl.playerRig.GetEl().body.linearDamping = 0.2;
+console.log({event: 'boosted', boostDir})
+			clearTimeout(boost)
+		}, 1000);
+*/
+	}
 
 	//Delink
 	const Delink = () => {
@@ -3308,7 +3404,7 @@ console.log(event.detail.intersection.point)
 		console.log(params);
 	}
 
-	return {uniRay, SpawnUniRay, DespawnUniRay, Activate, Deactivate, Toggle, layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, Gravity, PowerController, ToggleAction, LinkTo, SlamTo, TeleportTo, Slow, UnSlow, Freeze, UnFreeze, Delink, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, PhysBoost, PhysDash, LowGrav, PhysPickup, PhysDrop, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, TestFunc};
+	return {uniRay, SpawnUniRay, DespawnUniRay, Activate, Deactivate, Toggle, layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, Gravity, PowerController, ToggleAction, LinkTo, SlamTo, TeleportTo, BoostTo, ChuteUp, ChuteDown, Slow, UnSlow, Freeze, UnFreeze, Delink, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, PhysBoost, PhysDash, LowGrav, PhysPickup, PhysDrop, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, TestFunc};
 }
 
 //

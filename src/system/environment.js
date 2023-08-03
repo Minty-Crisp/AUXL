@@ -358,9 +358,10 @@ const Horizon = (auxl, horizonData) => {
 		geometry = {primitive: 'plane', width: 40*spawnWidth, height: height};
 	} else if(horizon.type === 'cylinderWall'){
 		height = 50*spawnHeight;
-		geometry = {primitive: 'cylinder', openEnded: true, radius: horizon.radius, height: height, segmentsHeight: 9, segmentsRadial: 32, thetaStart: 0, thetaLength: 360 };
+		geometry = {primitive: 'cylinder', openEnded: true, radius: horizon.radius, height: height, segmentsHeight: 10, segmentsRadial: 512, thetaStart: 0, thetaLength: 360 };
 		position.z = 0;
 		spawnAmount = 1;
+		scale = new THREE.Vector3(1,1,1);
 	} else if(horizon.type === 'squareWall'){
 		height = 40*spawnHeight;
 		geometry = {primitive: 'plane', width: horizon.radius*2, height: height};
@@ -438,7 +439,7 @@ const Horizon = (auxl, horizonData) => {
 			horizonChildData.scale.x = (1.5*spawnWidth) +(Math.random()*0.1-0.2);
 			horizonChildData.scale.y = 1 + (Math.random()*0.2-0.4);
 		}
-		if(horizon.type === 'mountains' || horizon.type === 'buildings' || horizon.type === 'cylinderWall' || horizon.type === 'squareWall'){
+		if(horizon.type === 'mountains' || horizon.type === 'buildings' || horizon.type === 'squareWall'){
 			horizonChildData.position.y = ((horizonChildData.scale.y*height)/2)-1;
 		} else if(horizon.type === 'hills'){
 			horizonChildData.position.y = -1;
@@ -505,6 +506,10 @@ const Horizon = (auxl, horizonData) => {
 			material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
 		}
 		horizonChildData.material = material;
+		//
+		if(horizon.type === 'cylinderWall'){
+			horizonChildData.scale = new THREE.Vector3(1,1,1);
+		}
 		//Core
 		horizonChildCores[a] = auxl.Core(horizonChildData);
 		//Layer
@@ -741,6 +746,7 @@ const MultiAssetGen = (auxl, multiGenData) => {
 	let multiGen = Object.assign({}, multiGenData);
 	multiGen.inScene = false;
 	multiGen.maxRadius = multiGenData.maxRadius || 500;
+	multiGen.style = multiGenData.style || 'normal';
 	multiGen.assets = {}
 	multiGen.assets.tiny = [];
 	multiGen.assets.small = [];
@@ -787,13 +793,6 @@ const MultiAssetGen = (auxl, multiGenData) => {
 		i5:multiGen.maxRadius*0.75,
 		o5:multiGen.maxRadius,
 	};
-*/
-	//Ring 0 - user spawn area - tiny/small
-	//Ring 1 - immeadiately surrounding the spawn area - tiny/small/med
-	//Ring 2 - a bit farther from spawn area - small/med/large
-	//Ring 3 - medium distance from spawn - med/large
-	//Ring 4 - far distance from spawn - large/huge
-	//Ring 5 - super far distance from spawn - huge
 
 	multiGen.ring = {
 		i0:5,
@@ -808,6 +807,28 @@ const MultiAssetGen = (auxl, multiGenData) => {
 		o4:400,
 		i5:50,
 		o5:500,
+	};
+*/
+	//Ring 0 - user spawn area - tiny/small
+	//Ring 1 - immeadiately surrounding the spawn area - tiny/small/med
+	//Ring 2 - a bit farther from spawn area - small/med/large
+	//Ring 3 - medium distance from spawn - med/large
+	//Ring 4 - far distance from spawn - large/huge
+	//Ring 5 - super far distance from spawn - huge
+
+	multiGen.ring = {
+		i0:75,
+		o0:700,
+		i1:150,
+		o1:700,
+		i2:200,
+		o2:700,
+		i3:325,
+		o3:700,
+		i4:350,
+		o4:700,
+		i5:375,
+		o5:700,
 	};
 
 	//On every loop through the grid creator, it will always use the center to spawn one, allow that one a parent, but do not use it for a spawning location
@@ -1085,6 +1106,9 @@ if(a === 0){
 					//Scale
 					scaleX = ogData.scale.x;
 					scaleY = ogData.scale.y;
+					if(multiGen.style === 'tall'){
+						scaleY *= 40;
+					}
 					scaleZ = ogData.scale.z;
 					if(size.ranScaleX){
 						scaleX += Math.random() * size.scaleFlex;
@@ -1157,7 +1181,7 @@ if(a === 0){
 							posZ = (Math.random() * (multiGen.ring.o5*2) - multiGen.ring.o5) + multiGen.ring.i5;
 						}
 					} 
-					objData.position = new THREE.Vector3(posX, posY, posZ);
+					objData.position = new THREE.Vector3(posX, scaleY, posZ);
 					//Add randomized Core to All
 					multiGen.assets[sizes[type]].push(auxl.Core(objData));
 				}
@@ -1225,10 +1249,12 @@ if(a === 0){
 		}
 		objData.scale = new THREE.Vector3(scaleX, scaleY, scaleZ);
 		//Position
-		posY = ogData.position.y;
 		if(size.ranYPos){
 			posY += Math.random() * size.yPosFlex;
+		} else {
+			posY = scaleY;
 		}
+console.log({posY, scaleY})
 		//If ran out of predefined positions, choose random
 		if(size.rings === 0){
 			if(ring0Current < ring0.length){
