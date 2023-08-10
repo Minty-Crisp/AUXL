@@ -808,14 +808,6 @@ const MultiAssetGen = (auxl, multiGenData) => {
 		i5:50,
 		o5:500,
 	};
-*/
-	//Ring 0 - user spawn area - tiny/small
-	//Ring 1 - immeadiately surrounding the spawn area - tiny/small/med
-	//Ring 2 - a bit farther from spawn area - small/med/large
-	//Ring 3 - medium distance from spawn - med/large
-	//Ring 4 - far distance from spawn - large/huge
-	//Ring 5 - super far distance from spawn - huge
-
 	multiGen.ring = {
 		i0:75,
 		o0:700,
@@ -829,6 +821,28 @@ const MultiAssetGen = (auxl, multiGenData) => {
 		o4:700,
 		i5:375,
 		o5:700,
+	};
+*/
+	//Ring 0 - user spawn area - tiny/small
+	//Ring 1 - immeadiately surrounding the spawn area - tiny/small/med
+	//Ring 2 - a bit farther from spawn area - small/med/large
+	//Ring 3 - medium distance from spawn - med/large
+	//Ring 4 - far distance from spawn - large/huge
+	//Ring 5 - super far distance from spawn - huge
+
+	multiGen.ring = {
+		i0:75,
+		o0:950,
+		i1:150,
+		o1:950,
+		i2:200,
+		o2:950,
+		i3:325,
+		o3:950,
+		i4:350,
+		o4:950,
+		i5:375,
+		o5:950,
 	};
 
 	//On every loop through the grid creator, it will always use the center to spawn one, allow that one a parent, but do not use it for a spawning location
@@ -1115,6 +1129,9 @@ if(a === 0){
 					}
 					if(size.ranScaleY){
 						scaleY += Math.random() * size.scaleFlex;
+						if(size.scaleFlexY){
+							scaleY += (Math.random() * size.scaleFlexY);
+						}
 					}
 					if(size.ranScaleZ){
 						scaleZ += Math.random() * size.scaleFlex;

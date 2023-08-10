@@ -1739,9 +1739,8 @@ const World = (auxl, worldData) => {
 		if(world.data.info.physics){
 			auxl.worldPhysics = world.data.info.physics;
 			//Apply directly to main player needs to be updated
-			auxl.player.EnablePhysics();
-			//not yet implemented
 			auxl.EnablePhysics();
+			auxl.player.EnablePhysics();
 		} else {
 			auxl.worldPhysics = false;
 		}

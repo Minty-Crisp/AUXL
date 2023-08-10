@@ -2204,7 +2204,7 @@ auxl.testUnlock = {
 	method: 'TestFunc',
 	params: 'Unlock Run',
 };
-auxl.testLock = auxl.ComboLock('testLock', ['0','1','2','3','4'], auxl.testUnlock, new THREE.Vector3(3,1.5,-2.5));
+auxl.testLock = auxl.ComboLock('testLock', ['0','1','2','3','4'], ['4','3','2','1','0'], auxl.testUnlock, new THREE.Vector3(3,1.5,-2.5));
 
 //Scroll Menu Test
 auxl.testScroll = auxl.ScrollMenu('testScroll');

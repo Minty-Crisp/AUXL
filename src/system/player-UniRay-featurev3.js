@@ -10,6 +10,260 @@
 //UniRay|Player
 //Companion
 
+/*
+	//Primary, parent UniRay
+	//Secondary, connected to another
+
+	//Build a new Component akin to Universal-Controls for accessing single UniRay's set of inputs
+
+
+	//Layer :
+		//Cores :
+			//ParentRig
+			//Camera with Raycaster & Cursor
+			//UI
+
+	//Avatar
+		//Head
+		//Tag
+
+	//One physics link
+		//body dynamic/static fluid state
+		//body static sync'd to main to pull in objects and set player barrier
+
+	//Raycast Trigger and Alt
+	//Modifier/Action Button
+
+	//Buttons
+	//Menu Button
+		//Quick Access Hover Menu press and hold, swupe
+		//Settings Menu - doubleClick
+	//or
+	//Button hold to activate power set
+	//Button triple tap to open hover quick menu
+	//
+	//that way there are 4 set of powers to be used at once
+	//No button Mode
+	//Button 1 Mode
+	//Button 2 Mode
+	//Button 1+2 Mode
+
+	//Joystick
+
+	//Combo to cycle through power presets
+
+	//Inputs
+	//Linked Functions
+	//Hardware layout
+	//Raycaster/Mouse | HMD | 2D Trackpad | Joystick | Keyboard
+
+	//In each of the layout's 3D depiction will include the itself as a head along with a body aka a tag that represents you as an entity. Who you are, what you are attached to such as an overall avatar as someone who has more then 1 UniRay device connected. That avatar could be made up of a single instance, or 2+ instances that allow additional controls to input access and thus what they can use in terms of powers they have access to. Since you can only assign so many powers to as many button modifiers as available, more hardware inputs more power access (I imagine just a bed full of controllers and 1 doofus in the middle either lazily swapping contorllers for different power/skills to with all haste quick grabbing new controllers to attend to matters in scene)
+
+
+	//Each action has 3 modes
+	//Trigger
+	//Alt
+	//Trigger & Alt
+
+
+
+
+	//AUX Entity
+	//
+	//Player
+
+	//Teleportation Animation should be its own camera extension
+
+	//return {uniRay, SpawnUniRay, DespawnUniRay, Activate, Deactivate, Toggle}
+
+
+//UniRay
+
+//Runs from AUXLObjs
+//One
+//Player
+
+//Needs the control changes from system
+//Need to autodetect controller to configure as well
+*/
+
+
+
+//UniRay | Raycaster & Camera
+//Rig | Locomotion & Avatar
+//Inventory | Pick ups, Use, Drop, etc...
+
+//Controller Style : Desktop, Mobile, VR 1/2 Hand, gamepad
+
+//One physics body controller with access to method/powers
+
+
+//Player | all of the above
+
+
+
+
+//Sync another core to player body to act as a static with no body which has it's position updated via dynamic body to then link anything that has grab, rubberband, etc....
+
+
+//Attach sphere to raycaster
+
+//Set
+//on mousedown, spawn sphere at set distance and move to closer intersection of available, lock on mouse up
+
+//Charge
+//on mousedown spawn and start moving in the ray direction outwards. Until mouseup hits and stops it or an intersecting object overrides
+//Desktop | Mobile
+//Main UniRay
+//Head Camera, Body locomotion
+
+//VR
+//Sub UniRays
+//Hand Camera
+//Hand Camera 2
+
+//Desktop
+//Mobile
+//VR Advanced 2 Controller
+//VR Simple 1 Controller
+//GamePad Controller
+//Hand Tracking
+
+
+//Head Ray Offset
+//Body dynamic
+
+//Hand Ray
+//Digital body attached to body
+//Body kinematic synced to body offset
+//kinematic position is updated via dynamic body tracking tick updates
+
+//Hand Ray
+//Digital body attached to body
+//Body kinematic synced to body offset
+
+//Hand
+//Static position updating on tick from a dynamic body
+
+//
+//Lock
+//Will remove all degrees of freedom between the bodies.
+//Point to Point
+//Connects two bodies at given offset points. Like a string/link, so it limits rotation.
+//Distance
+//Constrains two bodies to be at a constant distance from each others center of mass. Doesn't limit rotation.
+//Hinge
+//Think of it as a door hinge. It tries to keep the door in the correct place and with the correct orientation.
+//Cone Twist
+//Extends Point to Point and rotates like a joystick with varying tension.
+//Spring
+//Rubberband like connections
+
+
+//Bundle all Raycasting information and methods related into a single UniRay objectGen
+//Move all physics into One objGen  
+//assign each uniRay power into a player power controller (on trigger up/down)
+//build each power as controlling a one
+/*
+//
+//Interaction States
+//on tick, check wether to run interaction update
+
+//On free, no button clicked down is a normal raycaster ready to interact/hover with things. Any button pressing to modify will take over that feature
+
+//Indv Racyaster Inputs
+//4 Button/Trigger Combo
+//8 Button Configs
+//Position | Rotation | Raycaster | El
+
+//12 Base info
+
+//2 Hover menus per raycaster
+//Quick Powers / Layouts
+//Menu
+
+//17 conditions
+
+//Rotation
+//Joystick/Cursor
+//Position
+//Collision
+
+//Button Events & Combos :
+//Free
+//Main Button
+//Alt Button
+//Main Trigger
+//Alt Trigger
+
+//6DoF Cursor Actions :
+//Select Point - Main Index Raycaster Distance or Instersection
+//Select Point Alt - Main Index Racaster Aim Rotation Offset Distance or Instersection
+//Grab - start, hold, release, postional, collision
+//Hold - hold, release, postional, rotational
+//Drop - release, postional
+//Throw - start, hold, release, postional, rotational, velocity
+//Catch - start, hold, release, postional, rotational
+//Poke - start, release, collision, postitional, rotational
+//Punch - start, release, collision, postitional, rotational
+//Extend - start, release, collision, postitional, rotational
+//Slingshot - hold, release, postional, rotational
+//Yo Yo / Plumball - start, release, collision, postitional, rotational
+//Drive - start, hold, release, xypostional, rotational
+//Joystick - start, hold, release, xzpostional, rotational
+//Trackball - start, hold, release, xyzpostional, rotational
+//Duals : Dual machine controller, wheel and stick, keyboard with trackpad, etc...
+//Keys - tap, press, hold, release, match, pattern,
+//Drum - Rythym
+//Flick - build power, launch
+//Wack - positional, collision
+//Swing (Bat) - collision
+//Hold and Pull (Bow) - collision
+//Gun - collision
+//Custom
+//
+//Combo - multiple actions activating at once
+//Advanced - multiple actions in sequence and timing
+
+//Styles :
+//Arc / Straight / Boost / Fall / Pulse / Pattern / Lock / Custom
+//Speed / Boost / Build / 
+
+
+//,etc...
+
+//Rotation/Raycaster Required
+//Position Required
+//Trigger Main
+//Trigger Alt
+//Button Main
+//Button Alt
+
+//Set up stacked events for each such as mousedown
+
+//6 Inputs
+//2 Buttons
+//2 Triggers
+//1 Position (collision)
+//1 Rotation {raycaster direction}
+
+//6 Modes
+//Free
+//Start
+//Tap
+//Hold
+//Release
+//Double
+
+//Retreive tick based
+//Button Updates
+//Button Combos
+//Rotation
+//Joystick/Cursor
+//Position
+//Collision
+*/
+
 //
 //UniRay
 const UniRay = (auxl, id, layer, data) => {
@@ -705,12 +959,6 @@ return {uniRay, SpawnUniRay, DespawnUniRay, Activate, Deactivate, Toggle, RayDis
 //UniRay
 const Player = (auxl, id, layer, data) => {
 console.log({auxl, id, layer, data})
-//UniRay | Raycaster & Camera
-//Rig | Locomotion & Avatar
-//Controller Style : Desktop, Mobile, VR 1/2 Hand, gamepad
-//Inventory | Pick ups, Use, Drop, etc...
-//One physics body controller with access to method/powers
-//Player | all of the above
 
 	//Player Layer Legacy
 	//Player Name
@@ -796,24 +1044,11 @@ console.log(layer.uniRay0)
 	layer.beltDefaultText = 'Hello World!';
 	layer.beltText = 'Hello World!';
 
-
+	//Flashlight
+	layer.flashlight = false;
 	//Info Text
 	layer.infoText = 'Player :\n'
 
-
-
-	//Item|Tool|Key|Special Equipped
-	layer.equipped = false;
-	layer.equippedObject = 'none';
-
-	//Menu Toggle
-	layer.menuToggle = true;
-
-	//Start Player take over from default.
-	//Spawn Player
-	layer.SpawnLayer();
-	//Currently not tracking Player object as it should not be removed
-	//Will start using a One instead
 	//Collision
 	layer.position = new THREE.Vector3(0,0,0);
 	layer.gridPos = new THREE.Vector3(0,0,0);
@@ -826,6 +1061,20 @@ console.log(layer.uniRay0)
 	//reverse
 	//right
 	//left
+
+	//Item|Tool|Key|Special Equipped
+	layer.equipped = false;
+	layer.equippedObject = 'none';
+
+	//Menu Toggle
+	layer.menuToggle = true;
+
+
+	//Spawn Player
+	layer.SpawnLayer();
+	//Currently not tracking Player object as it should not be removed
+	//Will start using a One instead
+
 	//Update Current Position
 	layer.gridPos.copy(auxl.playerRig.GetEl().getAttribute('position'));
 
@@ -1089,7 +1338,6 @@ console.log(layer.uniRay0)
 		}
 	}
 	//Flashlight
-	layer.flashlight = false;
 	const ToggleFlashlight = () => {
 		if(layer.flashlight){
 			if(auxl.controls === 'Desktop' || auxl.controls === 'Mobile'){
@@ -1115,6 +1363,7 @@ console.log(layer.uniRay0)
 			layer.flashlight = true;
 		}
 	}
+
 	//UI
 	//Toggle Belt Text
 	const ToggleBeltText = () => {
@@ -1601,61 +1850,26 @@ console.log({GravitationalAxisChange: layer.worldAxis})
 	}
 
 	//Ticker
-	layer.mainHand
 	const Ticker = () => {
-//Check for controller type
-if(auxl.controls === 'Desktop'){
-	if(auxl.mouseController.GetEl()){
-		if(auxl.mouseController.GetEl().components.raycaster.intersections.length > 0){
-			layer.raycaster.intersection = new THREE.Vector3(0,0,0);
-			layer.raycaster.intersection.copy(auxl.mouseController.GetEl().components.raycaster.intersections[0].point)
-			if(layer.distance <= auxl.mouseController.GetEl().components.raycaster.intersections[0].distance){
-				//layer.raycaster.intersection
-			//generate point along axis as far as distance and update
+		if(auxl.mouseController.GetEl()){
+			if(auxl.mouseController.GetEl().components.raycaster.intersections.length > 0){
+				layer.raycaster.intersection = new THREE.Vector3(0,0,0);
+				layer.raycaster.intersection.copy(auxl.mouseController.GetEl().components.raycaster.intersections[0].point)
+				if(layer.distance <= auxl.mouseController.GetEl().components.raycaster.intersections[0].distance){
+					//layer.raycaster.intersection
+				//generate point along axis as far as distance and update
 
+				}
+			} 
+		}
+		if(layer.raycaster.intersection){
+			//console.log(layer.raycaster.intersection)
+			uniRay.anchorCore.ChangeSelf({property: 'position', value: layer.raycaster.intersection})
+			if(!uniRay.anchorCore.core.inScene){
+				uniRay.anchorCore.SpawnCore();
 			}
-		} 
-	}
-/*
-	if(layer.raycaster.intersection){
-		//console.log(layer.raycaster.intersection)
-		layer.anchorCore.ChangeSelf({property: 'position', value: layer.raycaster.intersection})
-		if(!layer.anchorCore.core.inScene){
-			layer.anchorCore.SpawnCore();
 		}
-	}
-*/
-} else if(auxl.controls === 'Mobile'){
-//welp
-} else if(auxl.controls === 'VR'){
-if(['bothLeft','bothLeftLoco','left'].includes(auxl.vrHand)){
-	//auxl.vrController1
-	if(auxl.vrController1.GetEl().components.raycaster.intersections.length > 0){
-		layer.raycaster.intersection = new THREE.Vector3(0,0,0);
-		layer.raycaster.intersection.copy(auxl.vrController1.GetEl().components.raycaster.intersections[0].point);
-		if(layer.distance <= auxl.vrController1.GetEl().components.raycaster.intersections[0].distance){
-			//layer.raycaster.intersection
-		//generate point along axis as far as distance and update
 
-		}
-	} 
-} else if(['bothRight', 'bothRightLoco', 'right'].includes(auxl.vrHand)){
-	//auxl.vrController2
-	if(auxl.vrController2.GetEl().components.raycaster.intersections.length > 0){
-		layer.raycaster.intersection = new THREE.Vector3(0,0,0);
-		layer.raycaster.intersection.copy(auxl.vrController2.GetEl().components.raycaster.intersections[0].point);
-		if(layer.distance <= auxl.vrController2.GetEl().components.raycaster.intersections[0].distance){
-			//layer.raycaster.intersection
-		//generate point along axis as far as distance and update
-
-		}
-	} 
-}
-/*
-locomotionText
-Left Controller Joystick
-*/
-}
 	}
 
 	//Raycaster Tick
@@ -1677,9 +1891,9 @@ console.log(event)
 	   }
 if(layer.raycaster.intersection){
 	//console.log(layer.raycaster.intersection)
-	layer.anchorCore.ChangeSelf({property: 'position', value: layer.raycaster.intersection})
-	if(!layer.anchorCore.core.inScene){
-		layer.anchorCore.SpawnCore();
+	uniRay.anchorCore.ChangeSelf({property: 'position', value: layer.raycaster.intersection})
+	if(!uniRay.anchorCore.core.inScene){
+		uniRay.anchorCore.SpawnCore();
 	}
 }
 		//layer.power
@@ -1699,6 +1913,12 @@ if(layer.raycaster.intersection){
 
 	}
 
+//Use component as tick runner instead
+/*
+layer.raycaster.interval = setInterval((event) => {
+	RayTick(event);
+}, 1);
+*/
 	//Trigger, Click, Mouse Enter
 	const TriggerFree = (event) => {
 		//layer.power.Free(event);
@@ -2051,6 +2271,53 @@ toggle,
 			layer.jumping = false;
 		}
     });
+	//Phys Boost
+	const PhysBoost = (velocity) => {
+		if(!velocity){
+			velocity = 10;
+		}
+		auxl.playerRig.GetEl().body.velocity.y = velocity;
+	}
+	//Phys Dash
+	const PhysDash = (direction,velocity) => {
+		if(!direction){
+			direction = 'reverse';
+		}
+		if(!velocity){
+			velocity = 10;
+		}
+		//Works the best with friction
+		auxl.playerRig.GetEl().body.applyLocalImpulse(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
+
+		//auxl.playerRig.GetEl().body.applyImpulse(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
+		//auxl.playerRig.GetEl().body.applyForce(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
+		//auxl.playerRig.GetEl().body.applyLocalForce(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
+		//auxl.playerRig.GetEl().components.locomotion.directionXZ(direction, velocity,)
+	}
+	//Outdated, controlled in Gravity()
+	//Low Grav
+	const LowGrav = () => {
+		//auxl.playerRig.GetEl().body.applyLocalForce(new THREE.Vector3(0,4.8,0),new THREE.Vector3(0,0,0));
+//applying a small (less than gravity) upward force every tick. 
+	}
+	//Phys Pickup
+	const PhysPickup = (object) => {
+		//auxl.camera.ChangeSelf({property: 'auxconstraint__'+object, value: {type: 'lock', connectTo: object, maxForce: 1e6, collideConnected: false}});
+	}
+	//Phys Drop
+	const PhysDrop = (object) => {
+		//auxl.camera.RemoveComponent('auxconstraint__'+object);
+	}
+
+	//Player Forward Position going forward will be a trigger / grip action
+	const Forward = (speed, div) => {
+		return div += layer.speed;
+	}
+	//Speed
+	const Speed = (velocity) => {
+		layer.speed = velocity;
+
+	}
 
 
 	//Make this its own component and use with One
@@ -2069,16 +2336,7 @@ toggle,
 
 	//layer.velocityStyle = 'float';
 	//layer.currentVelocity = 1000;
-
-
-//Gravity
-
 //I dont think I need to use localImpluse when I can just update it's velocity which is a world run function
-
-//Make an option to update cannon world gravity for entire scene
-
-//Ensure gravity compensates for world gravity
-
 
 	const Gravity = (gravityDir) => {
 		//first get current world gravity to negate and start with
@@ -2463,7 +2721,7 @@ if(layer.toggle3){
 			classes: ['a-ent'],
 			components: false,
 		};
-		layer.anchorCore = auxl.Core(anchorData);
+		uniRay.anchorCore = auxl.Core(anchorData);
 
 		const LinkControls = (template) => {
 			layer.linkCoreType = template;
@@ -2518,10 +2776,6 @@ console.log(power)
 
 	}
 
-	const PowerCircuits = (event) => {
-		//auxl.uniRay.updateAction({instructions:'inst'});
-		//auxl.uniRay.disableAction({instructions:'inst'});
-	}
 	//
 	//Actions
 
@@ -2797,7 +3051,26 @@ console.log('Rubberband running')
 		}
 	}
 
-	//Parachute
+	//Link To Hit
+/*
+	const LinkToHit = (position) => {
+console.log('LinkToHit')
+console.log(position)
+let positionTest = new THREE.Vector3();
+positionTest.copy(position)
+console.log(positionTest)
+		//if the distance between this point and the player is less then the distance then set it to this
+
+console.log(length)
+if(length > layer.distance){
+console.log('connect to object')
+	positionTest = false;
+}
+LinkTo(positionTest, layer.power)
+	}
+//let length = positionTest.distanceTo(auxl.playerRig.GetEl().body.position);
+*/
+
 	const ChuteUp = () => {
 		if(layer.toggle3){
 			!layer.toggle3
@@ -3378,8 +3651,9 @@ console.log(event.detail.intersection.point)
 		console.log(params);
 	}
 
-	return {player, uniRay, layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, Gravity, PowerController, ToggleAction, LinkTo, SlamTo, TeleportTo, BoostTo, BoostBack, ChuteUp, ChuteDown, Slow, UnSlow, Freeze, UnFreeze, Delink, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, TestFunc};
-	}
+	return {player, uniRay, layer, Reset, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot,GetPlayerInfo, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, Gravity, PowerController, ToggleAction, LinkTo, SlamTo, TeleportTo, BoostTo, BoostBack, ChuteUp, ChuteDown, Slow, UnSlow, Freeze, UnFreeze, Delink, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, PhysBoost, PhysDash, LowGrav, PhysPickup, PhysDrop, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, TestFunc};
+}
+
 //
 //Companion
 //System Menu & Inventory

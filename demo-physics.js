@@ -19,8 +19,31 @@ const auxl = document.querySelector('a-scene').systems.auxl;
 //console.log('pre uniraytest1')
 //auxl.uniRayTest1 = auxl.UniRay('uniRayTest1', auxl.ghost,{});
 
+//MonoRail
+/*
+<!-- Curve Component | Support for Along Path -->
+<!-- Requiring A-Frame 1.2.0 to operate -->
+<script src="https://rawgit.com/protyze/aframe-curve-component/master/dist/aframe-curve-component.min.js"></script>
+<!-- Along Path -->
+<script src="https://rawgit.com/protyze/aframe-alongpath-component/master/dist/aframe-alongpath-component.min.js"></script>
+*/
 
+/*
+<a-curve id="goldfish6tracksky" rotation="0 180 0">
+<a-curve-point position="-10 5 0"></a-curve-point>
+<a-curve-point position="-10 5 20"></a-curve-point>
+<a-curve-point position="0 10 30"></a-curve-point>
+<a-curve-point position="10 10 20"></a-curve-point>
+<a-curve-point position="20 10 0"></a-curve-point>
+<a-curve-point position="10 5 -10"></a-curve-point>
+<a-curve-point position="0 5 -20"></a-curve-point>
+<a-curve-point position="-10 5 -10"></a-curve-point>
+<a-curve-point position="-10 5 0"></a-curve-point>
+</a-curve>
 
+object attaching to track...
+alongpath="curve: #cloud3track; dur: 680000; loop: true; rotate: false"
+*/
 
 
 
@@ -37,7 +60,11 @@ position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(8.046,8.046,8.046),
 animations: {
-
+sunrisetop:{property: 'material.topColor', from: '#613381', to: '#01cdfe', dur: auxl.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},
+sunrisemid:{property: 'material.middleColor', from: '#99154E', to: '#fffb96', dur: auxl.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunrise', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'}, 
+sunsettop:{property: 'material.topColor', from: '#01cdfe', to: '#613381', dur: auxl.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunset', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'},
+sunsetmid:{property: 'material.middleColor', from: '#fffb96', to: '#99154E', dur: auxl.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sunset', pauseEvents: 'pauseDayNight', resumeEvents: 'resumeDayNight'}, 
+/*
 top0:{property: 'material.topColor', from: '#01cdfe', to: '#01cdfe', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
 
 mid0:{property: 'material.middleColor', from: '#fffb96', to: '#fffb96', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
@@ -49,7 +76,7 @@ mid1:{property: 'material.middleColor', from: '#99154E', to: '#fffb96', dur: aux
 top2:{property: 'material.topColor', from: '#01cdfe', to: '#613381', dur: auxl.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__top1', pauseEvents: 'pause', resumeEvents: 'resume'},
 
 mid2:{property: 'material.middleColor', from: '#fffb96', to: '#99154E', dur: auxl.timeInDay/6, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__mid1', pauseEvents: 'pause', resumeEvents: 'resume'},
-
+*/
 },
 mixins: false,
 classes: ['clickable', 'a-ent'],
@@ -93,24 +120,18 @@ auxl.skyBox1 = auxl.SkyBox(auxl.skyBox1Data);
 //shape:{shape: 'cylinder', height: 1.8, radiusTop: 0.5, radiusBottom: 0.5, offset: '0 0.9 0',};
 //shape:{shape: 'box', height: 1, width: 0.5, depth: 0.5, offset: '0 0.5 0',};
 
-
-//
-//Physics References
-auxl.world = auxl.el.systems.physics.driver.world;
-//console.log(auxl.world)
-
 //Build
-auxl.build = auxl.BuildIn3D();
-/*
+//auxl.build = auxl.BuildIn3D();
+
 //Testing One Phys Object
 auxl.oneTest0Data = {
 data:'oneTest0Data',
 id:'oneTest0',
 sources:false,
 text: false,
-geometry: {primitive: 'box', width: 0.25, depth: 0.25, height: 0.25},
+geometry: {primitive: 'box', width: 4, height: 4, depth: 4},
 material: {shader: "standard", color: "#f08f1d", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#f08f1d", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '4 4'},
-position: new THREE.Vector3(0,10,-3),
+position: new THREE.Vector3(0,30,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -120,10 +141,11 @@ components: false,
 };
 auxl.oneTest0 = auxl.Core(auxl.oneTest0Data);
 
-auxl.phys1Data = {
+auxl.phys0Data = {
 	type : 'dynamic',
 	shape : 'box',
-	mass : 0.1,
+ 	shapeData: {shape: 'box', height: 1, width: 1, depth: 1, offset: '0 1 0',},
+	mass : 1,
 	friction : 0,
 	restitution : 0,
 	connectTo : false,
@@ -132,9 +154,45 @@ auxl.phys1Data = {
 	stiffness : 0,
 }
 
-//auxl.oneTest0One = auxl.One(auxl.oneTest0, auxl.phys1Data);
+auxl.oneTest0One = auxl.One(auxl.oneTest0, auxl.phys0Data);
 //console.log(auxl.oneTest0One)
-*/
+
+
+//Test 1
+auxl.oneTest1 = auxl.coreFromTemplate(auxl.oneTest0,{id: 'oneTest1', geometry: {primitive: 'sphere', radius: 4}, material: {shader: "standard", color: "#29b479", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b479", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '4 4'}, position: new THREE.Vector3(10,30,0)}, true);
+auxl.phys1Data = {
+	type : 'dynamic',
+	shape : 'sphere',
+ 	shapeData: {shape: 'sphere', radius: 1, width: 1, depth: 1, offset: '0 1 0',},
+	mass : 1,
+	friction : 0,
+	restitution : 0,
+	connectTo : false,
+	restLength : 0,
+	damping : 0,
+	stiffness : 0,
+}
+
+auxl.oneTest1One = auxl.One(auxl.oneTest1, auxl.phys1Data);
+
+//Test 2
+auxl.oneTest2 = auxl.coreFromTemplate(auxl.oneTest0,{id: 'oneTest2', geometry: {primitive: 'cylinder', height:4, radius:4, segmentsHeight:2, segmentsRadial:32, openEnded:false, side:'double', thetaStart:0, thetaLength:360}, material: {shader: "standard", color: "#1193f2", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#1193f2", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '4 4'}, position: new THREE.Vector3(-10,30,0)}, true);
+auxl.phys1Data = {
+	type : 'dynamic',
+	shape : 'cylinder',
+ 	shapeData: {shape: 'cylinder', radius: 1, width: 1, depth: 1, offset: '0 1 0',},
+	mass : 1,
+	friction : 0,
+	restitution : 0,
+	connectTo : false,
+	restLength : 0,
+	damping : 0,
+	stiffness : 0,
+}
+
+auxl.oneTest2One = auxl.One(auxl.oneTest2, auxl.phys1Data);
+
+
 //
 //Static
 
@@ -147,8 +205,8 @@ auxl.mtnFloorData = {
 	sources:false,
 	text: false,
 	geometry: false,
-	material: {shader: "standard", color: "#de22d0", opacity: 1, metalness: 0.7, roughness: 0.3, emissive: "#000000", emissiveIntensity: 1, side: 'double', src: auxl.pattern14, repeat: '1024 1024'},
-	position: new THREE.Vector3(0,0,0),
+	material: {shader: "standard", color: "#de22d0", opacity: 1, metalness: 0.7, roughness: 0.3, emissive: "#000000", emissiveIntensity: 1, side: 'double', src: auxl.pattern14, repeat: '256 256'},
+	position: new THREE.Vector3(300,0,300),
 	rotation: new THREE.Vector3(0,0,0),
 	scale: new THREE.Vector3(10,10,10),
 	animations: false,
@@ -245,9 +303,9 @@ id:'physicalFloor',
 sources:false,
 text: false,
 //geometry: {primitive: 'box', width: 8046, depth: 8046, height: 1},
-geometry: {primitive: 'box', width: 2000, depth: 2000, height: 1},
+geometry: {primitive: 'box', width: 4000, depth: 4000, height: 100},
 material: {shader: "standard", color: "#de22d0", opacity: 0, metalness: 0.7, roughness: 0.3, emissive: "#000000", emissiveIntensity: 1, side: 'double', src: auxl.pattern14, repeat: '1024 1024'},
-position: new THREE.Vector3(0,0,0),
+position: new THREE.Vector3(300,-50,300),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -327,7 +385,7 @@ animations: false,
 mixins: false,
 classes: ['clickable', 'a-ent'],
 components: {
-	body:{type: 'static', shape: 'box', mass: 0,},
+	body:{type: 'dynamic', shape: 'box', mass: 1,},
 	bodymaterial: {friction: 1, restitution: 0.1},
 	//linkcable: {type: 'to'},
 },
@@ -2155,7 +2213,7 @@ auxl.citycube7AData = auxl.coreDataFromTemplate(auxl.citycube7Data, {id: 'citycu
 auxl.citycube7BData = auxl.coreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7B', rotation: new THREE.Vector3(0,90,0),}, true);
 auxl.citycube7CData = auxl.coreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7C', rotation: new THREE.Vector3(0,180,0),}, true);
 auxl.citycube7DData = auxl.coreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7D', rotation: new THREE.Vector3(0,270,0),}, true);
-//2=8
+//8
 auxl.citycube8Data = {
 data:'citycube8Data',
 id:'citycube8',
@@ -2245,6 +2303,7 @@ auxl.biome1TinyData = {
 	ranScaleY: true,
 	ranScaleZ: true,
 	scaleFlex: 20,
+	scaleFlexY: 80,
 	ranRotX: false,
 	ranRotY: false,
 	ranRotZ: false,
@@ -2308,6 +2367,7 @@ auxl.biome1SmallData = {
 	ranScaleY: true,
 	ranScaleZ: true,
 	scaleFlex: 40,
+	scaleFlexY: 160,
 	ranRotX: false,
 	ranRotY: false,
 	ranRotZ: false,
@@ -2371,6 +2431,7 @@ auxl.biome1MediumData = {
 	ranScaleY: true,
 	ranScaleZ: true,
 	scaleFlex: 60,
+	scaleFlexY: 240,
 	ranRotX: false,
 	ranRotY: false,
 	ranRotZ: false,
@@ -2434,6 +2495,7 @@ auxl.biome1LargeData = {
 	ranScaleY: true,
 	ranScaleZ: true,
 	scaleFlex: 80,
+	scaleFlexY: 320,
 	ranRotX: false,
 	ranRotY: false,
 	ranRotZ: false,
@@ -2497,6 +2559,7 @@ auxl.biome1HugeData = {
 	ranScaleY: true,
 	ranScaleZ: true,
 	scaleFlex: 100,
+	scaleFlexY: 400,
 	ranRotX: false,
 	ranRotY: false,
 	ranRotZ: false,
@@ -2517,6 +2580,35 @@ huge: auxl.biome1HugeData,
 };
 auxl.biome1 = auxl.MultiAssetGen(auxl.biome1Data);
 
+
+
+//Hands Testing
+auxl.handsTesting0Data = {
+data:'handsTesting0Data',
+id:'handsTesting0',
+sources: false,
+text: false,
+geometry: {primitive: 'sphere', radius: 0.5,},
+material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#d6de06", emissive: '#d6de06', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(1,1.5,-4),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	body:{type: 'static', shape: 'sphere', mass: 0,},
+	bodymaterial: {friction: 0, restitution: 0},
+	//linkcable: {type: 'grab'},
+	staticsync: {
+		type: 'other',
+		auxlObj: 'playerRig',
+		offset: new THREE.Vector3(1,1.5,-4),
+		sync: true,
+	},
+},
+};
+auxl.handsTesting0 = auxl.Core(auxl.handsTesting0Data);
 
 
 
@@ -2598,21 +2690,21 @@ auxl.zone0Scene0Data = {
 		//ramp1:{SpawnCore:null},
 		//ramp2:{SpawnCore:null},
 		//ramp3:{SpawnCore:null},
-		//lock1a:{SpawnCore:null},
-		//lock1b:{SpawnCore:null},
-		//distance1a:{SpawnCore:null},
-		//distance1b:{SpawnCore:null},
-		//ptp1a:{SpawnCore:null},
-		//ptp1b:{SpawnCore:null},
-		//coneTwist1a:{SpawnCore:null},
-		//coneTwist1b:{SpawnCore:null},
-		//hinge1a:{SpawnCore:null},
-		//hinge1b:{SpawnCore:null},
-		//spring1a:{SpawnCore:null},
-		//spring1b:{SpawnCore:null},
+		lock1a:{SpawnCore:null},
+		lock1b:{SpawnCore:null},
+		distance1a:{SpawnCore:null},
+		distance1b:{SpawnCore:null},
+		ptp1a:{SpawnCore:null},
+		ptp1b:{SpawnCore:null},
+		coneTwist1a:{SpawnCore:null},
+		coneTwist1b:{SpawnCore:null},
+		hinge1a:{SpawnCore:null},
+		hinge1b:{SpawnCore:null},
+		spring1a:{SpawnCore:null},
+		spring1b:{SpawnCore:null},
 		//buildingLayer:{SpawnLayer:null},
 
-		//catwalk0Layer:{SpawnLayer:null},
+		catwalk0Layer:{SpawnLayer:null},
 		//baseTest0Layer:{SpawnLayer:null},
 
 		//trampoline0:{SpawnCore:null},
@@ -2648,7 +2740,9 @@ auxl.zone0Scene0Data = {
 		//dynSpringA:{SpawnCore:null},
 		//dynSpringB:{SpawnCore:null},
 
-		//oneTest0One:{SpawnOne:null},
+		oneTest0One:{SpawnOne:null},
+		oneTest1One:{SpawnOne:null},
+		oneTest2One:{SpawnOne:null},
 	},
 	delay:{
 /*
@@ -2737,11 +2831,17 @@ auxl.v03TestingScenarioData = {
 
 		//action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '2', name: 'Teleport', info: 'Teleport Player'},
 		//action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'TeleportDrop', info: 'Drop Teleport.'},
-		action4Down:{auxlObj: 'player', func: 'Track2D', params: 0, name: 'Pick New Gravity Axis', info: 'Aim and drag along any face of a flat floor cube object to start detecting new Axis.'},
+
+
+		action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '5', name: 'BoostBack', info: 'Boost Dash Backwards in Space.'},
+		action4Down:{auxlObj: 'player', func: 'ToggleAction', params: '4', name: 'Boost Build', info: 'Build a boost in your gaze direction to fly.'},
+		action4Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Boost Stop', info: 'Drop Boost.'},
+
+		action5Down:{auxlObj: 'player', func: 'Track2D', params: 0, name: 'Pick New Gravity Axis', info: 'Aim and drag along any face of a flat floor cube object to start detecting new Axis.'},
 		//action7Down:{auxlObj: 'player', func: 'ToggleAction', params: '1', name: 'RubberbandSlam', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge. Auto Stop on second into pull.'},
 		//action7Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandSlamDrop', info: 'Drop Web Sling.'},
-		action5Down:{auxlObj: 'player', func: 'ToggleAction', params: '4', name: 'Boost', info: 'Build a boost in your gaze direction to fly.'},
-		action5Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Boost Stop', info: 'Drop Boost.'},
+
+
 		action6Down:{auxlObj: 'player', func: 'Freeze', params: 0, name: 'Freeze', info: 'Freeze mid-air.'},
 		action6Up:{auxlObj: 'player', func: 'UnFreeze', params: false, name: 'UnFreeze', info: 'UnFreeze mid-air.'},
 		action7Down:{auxlObj: 'player', func: 'ToggleAction', params: '3', name: 'Parachute', info: 'Open a parachute to float downward.'},
@@ -2750,11 +2850,12 @@ auxl.v03TestingScenarioData = {
 		action8Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Drop Web Sling.'},
 	},
 	start:{
-		skyBox0:{SpawnSkyBox: null},
+		skyBox1:{SpawnSkyBox: null},
 		//comp:{SpawnComp: null},
 		physicalFloor:{SpawnCore: null},
 		//ramp1:{SpawnCore: null},
 		mtnFloor:{SpawnCore: null},
+		handsTesting0:{SpawnCore: null},
 		//hills:{SpawnHorizon: null},
 		//buildingsHorizon:{SpawnHorizon: null},
 		//cylinderWallHorizon:{SpawnHorizon: null},
@@ -2769,7 +2870,7 @@ playerRig:{PhysPos: new THREE.Vector3(0,50,1)},
 	},
 	delay:{
 		100:{
-			skyBox0:{DayNightCycle: null},
+			skyBox1:{DayNightCycle: null},
 		},
 /*
 		100:{

@@ -11,7 +11,7 @@
 //Main : Core, Layer, Templates
 import {Core, coreDataFromTemplate, coreFromTemplate, Layer, layerDataFromTemplate, layerFromTemplate} from './main.js';
 //Player : Player, Companion
-import {UniRay, Companion} from './player.js';
+import {UniRay, Player, Companion} from './player.js';
 //Powers
 import Powers from './powers.js';
 //Scenes : SceneNode, MapZone, Scenario, World
@@ -626,6 +626,9 @@ this.worldPhysics = false;
 //EnablePhysics
 this.EnablePhysics = () => {
 console.log('Enable Physics')
+//Physics References
+auxl.physWorld = auxl.el.systems.physics.driver.world;
+console.log(auxl.physWorld)
 }
 //Collision Maps
 this.collisionMap = [[],[]];
@@ -1539,6 +1542,105 @@ this.pronoun = (sex) => {
 		}
 }
 
+//
+//Find ObjGen Type/Data Name
+this.objGenType = (auxlObj) => {
+	if(typeof auxlObj === 'string'){
+		return Object.keys(auxl[auxlObj])[0];
+	} else {
+		return Object.keys(auxlObj)[0]
+	}
+}
+
+
+//
+//Pool
+this.Pool = (poolData, auxlObj) => {
+	//template : auxlObj
+	//core or layer only currently
+	//duplicate core with basic settings and return an array to use
+	let pool = {};
+	pool.data = poolData || {};
+	pool.id = poolData.id || auxl.ranNameGen();
+	pool.size = poolData.size || 10;
+	pool.growth = poolData.growth || 10;
+	pool.auxlObj = auxlObj;
+	pool.cores = [];
+	pool.layers = [];
+	pool.in = {};
+	pool.out = {};
+	pool.type = 'core';
+	if(auxlObj.layer){
+		pool.type = 'layer';
+	}
+
+	//Parent Core that all belong to
+	pool.parent = auxl.Core({id:pool.id});
+console.log(pool.parent)
+
+	//Duplicate Core Data
+	const dupeCoreData = (data) => {
+//coreDataFromTemplate(data, edit, assign)
+	}
+	//Duplicate Core
+	const dupeCore = (core) => {
+//coreFromTemplate(core, edit, assign) 
+	}
+	//Duplicate Layer Data
+	const dupeLayerData = (data) => {
+//layerDataFromTemplate(layer, coreBaseName, changeParent, assign)
+	}
+	//Duplicate Layer
+	const dupeLayer = (layer) => {
+//layerFromTemplate(layer, id, changeParent, updateLayer, assign)
+	}
+
+//reusable pool of entities to avoid creating and destroying the same kind of entities in dynamic scenes. Object pooling helps reduce garbage collection pauses.
+
+//Projectiles
+//Environment
+//Creatures
+
+
+	//Build Core/Layers needed
+	const Build = (total) => {
+		for(let current = 0; current < total; current++){
+			if(pool.type === 'core'){
+				if(pool.auxlObj.core){
+					pool.cores.push(dupeLayer(pool.auxlObj, {id:pool.id+current}, true));
+				} else {
+					pool.cores.push(auxl.Core(dupeLayerData(pool.auxlObj, {id:pool.id+current}, true)));
+				}
+			} else if(pool.type === 'layer'){
+				if(pool.auxlObj.layer){
+					pool.layers.push(dupeLayer(pool.auxlObj, {id:pool.id+current}, true));
+				} else {
+					pool.layers.push(auxl.Core(dupeLayerData(pool.auxlObj, {id:pool.id+current}, true)));
+				}
+			}
+		}
+
+	}
+	//Spawn Pool
+	const SpawnPool = () => {
+
+	}
+	//Despawn Pool
+	const DespawnPool = () => {
+
+	}
+
+	//Spawn Drop
+	const SpawnDrop = () => {
+	//grab from available pool and add to scene
+	}
+	//Despawn Drop
+	const DespawnDrop = () => {
+	//remove restore to pool
+	}
+
+	return {pool, Build, SpawnPool, DespawnPool, SpawnDrop, DespawnDrop};
+}
 
 
 
@@ -1587,24 +1689,25 @@ this.UniRay = (id, layer, data) => {
 	return UniRay(auxl, id, layer, data);
 }
 
-//Powers
-this.Powers = (id, data, one, core, layer) => {
-	return Powers(auxl, id, data, one, core, layer);
-}
 
 //
 //Player
 //User Controller, Settings and Actions
-/*
 this.Player = (id,layer) => {
 	return Player (auxl, id, layer);
 }
-*/
+
 //
 //Companion
 //System Menu & Inventory
 this.Companion = (id, object, inventory) => {
 	return Companion(auxl, id, object, inventory);
+}
+
+
+//Powers
+this.Powers = (id, data, one, core, layer) => {
+	return Powers(auxl, id, data, one, core, layer);
 }
 
 //

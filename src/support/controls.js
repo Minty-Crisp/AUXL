@@ -105,16 +105,6 @@ action5Keys: ['x','X'],
 action6Keys: ['c','C'],
 action7Keys: ['v','V'],
 action8Keys: [' ',' '],
-/*
-action1Keys: ['q','Q'],
-action2Keys: ['e','E'],
-action3Keys: ['r','R'],
-action4Keys: ['t','T'],
-action5Keys: ['c','C'],
-action6Keys: ['v','V'],
-action7Keys: ['z','Z'],
-action8Keys: ['x','X'],
-*/
 };
 this.auxl.controlConfig = this.controls;
 
@@ -1564,7 +1554,7 @@ let initTimeout = setTimeout(() => {
 
 	//Gimbal Component
 	//this.gimbal = document.getElementById('playerRig').components.gimbal;	
-	this.gimbal = this.el.components.gimbal;	
+	//this.gimbal = this.el.components.gimbal;	
 
 	//Quest
 	this.vrController1 = document.getElementById('vrController1');
@@ -1774,6 +1764,30 @@ remove: function () {
 //tick: function (time, timeDelta) {},
 events: {
 	//Raycaster Events
+
+	//Mouse Events
+	['raycaster-intersected']: function (event) {
+		//console.log({event: 'raycaster-intersected', data: event})
+		this.auxl[this.id].TriggerEnter(event);
+	},
+	['raycaster-intersected-cleared']: function (event) {
+		//console.log({event: 'raycaster-intersected-cleared', data: event})
+		this.auxl[this.id].TriggerEnter(event);
+	},
+	['raycaster-intersection']: function (event) {
+		//console.log({event: 'raycaster-intersection', data: event})
+		this.auxl[this.id].TriggerEnter(event);
+	},
+	['raycaster-intersection-cleared']: function (event) {
+		//console.log({event: 'raycaster-intersection-cleared', data: event})
+		this.auxl[this.id].TriggerEnter(event);
+	},
+	['raycaster-closest-entity-changed']: function (event) {
+		//console.log({event: 'raycaster-closest-entity-changed', data: event})
+		this.auxl[this.id].TriggerEnter(event);
+	},
+
+	//Mouse Events
 	mouseenter: function (event) {
 		//console.log({event: 'mouseenter', data: event})
 		this.auxl[this.id].TriggerEnter(event);

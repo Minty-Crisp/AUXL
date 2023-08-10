@@ -262,6 +262,60 @@ this.el.body.quaternion.copy(this.el.object3D.getWorldQuaternion(new THREE.Quate
 //console.log(this.el.body.quaternion)
 },
 });
+//For use with syncing camera rotation to physics rotation
+//Static Sync
+const staticsync = AFRAME.registerComponent('staticsync', {
+dependencies: ['auxl'],
+schema: {
+    type: {type: 'string', default: "self", oneOf: ["self", "other", ,]},
+    auxlObj: {type: 'string', default: 'auxlObj',},
+    offset: {type: 'vec3'},
+    posSync: {type: 'vec3'},
+    sync: {type: 'bool', default: true},
+},
+init: function () {
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.offset = this.data.offset || new THREE.Vector3(0,0,0);
+	this.posSync = new THREE.Vector3(0,0,0);
+//console.log(this)
+},
+update: function () {
+	this.posSync.copy(this.data.posSync);
+},
+
+tick: function (time, timeDelta) {
+	//this.el.body.quaternion = this.el.object3D.rotation;
+	//this.el.body.quaternion.copy(this.el.object3D.rotation);
+//this.el.body.quaternion.copy(this.el.object3D.getWorldQuaternion(new THREE.Quaternion()));
+
+if(this.data.sync){
+
+	if(this.el.body && this.el.body.position){
+		//Self
+		if(this.data.type === 'self'){
+			if(this.el.object3D.position){
+				this.posSync.copy(this.el.object3D.position);
+//console.log({posSync: this.posSync, O3DPos: this.el.object3D.position})
+			}
+		} else if(this.data.type === 'other'){
+			//Other
+			this.posSync.copy(this.auxl[this.data.auxlObj].GetEl().object3D.position);
+//console.log({posSync: this.posSync, O3DPos: this.el.object3D.position})
+		}
+		//Offset
+		this.posSync.add(this.offset);
+		//Physics Body Update
+		this.el.body.position.copy(this.posSync);
+		this.el.object3D.position.copy(this.posSync);
+//console.log({staticsync: this.posSync, body: this.el.body.position, offset: this.offset})
+
+	}
+}
+//this.el.body.quaternion.setFromEuler(this.el.object3D.rotation);
+//console.log(this.el.object3D.rotation)
+//console.log(this.el.body.quaternion)
+},
+});
 
 //Collision
 const collision = AFRAME.registerComponent('collision', {
@@ -398,7 +452,7 @@ schema: {
 init: function () {
 	this.auxl = document.querySelector('a-scene').systems.auxl;
 	let material = new CANNON.Material({friction: this.data.friction, restitution: this.data.restitution});
-	this.auxl.world.addMaterial(material);
+	this.auxl.physWorld.addMaterial(material);
 	this.el.body.material = material;
 },
 });
@@ -414,7 +468,7 @@ init: function () {
 //Hinge
 //Think of it as a door hinge. It tries to keep the door in the correct place and with the correct orientation.
 //Cone Twist
-//Extends Point to Point. Needs testing to understand.
+//Extends Point to Point and rotates like a joystick with varying tension.
 const auxconstraint = AFRAME.registerComponent('auxconstraint', {
 dependencies: ['auxl'],
 multiple: true,
@@ -506,13 +560,13 @@ Connect: function (fresh) {
 			throw new Error("[constraint] Unexpected type: " + data.type);
 		}
     	this.constraint.collideConnected = this.data.collideConnected;
-		this.auxl.world.addConstraint(this.constraint);
+		this.auxl.physWorld.addConstraint(this.constraint);
 		this.connected = true;
 	}
 },
 //Prep to disconnect on connectTo despawn
 Disconnect: function () {
-	this.auxl.world.removeConstraint(this.constraint);
+	this.auxl.physWorld.removeConstraint(this.constraint);
 	this.connected = false;
 },
 //Reconnect
@@ -704,4 +758,4 @@ this.el.body.applyLocalForce(new THREE.Vector3(0,9.8,0),new THREE.Vector3(0,0,0)
 
 //
 //Export
-export {one, playerlink, linkcable, camerasync, collision, trigger, bodymaterial, auxconstraint, auxspring, ungravity};
+export {one, playerlink, linkcable, camerasync, staticsync, collision, trigger, bodymaterial, auxconstraint, auxspring, ungravity};

@@ -47,7 +47,7 @@ import {doorway, doorwayTrigger} from './support/doors.js';
 import {clickaddinventory, acceptobject} from './support/inventory.js';
 //
 //Import Physics
-import {playerlink, linkcable, camerasync, collision, trigger, bodymaterial, auxconstraint, auxspring, ungravity} from './support/physics.js';
+import {playerlink, linkcable, camerasync, staticsync, collision, trigger, bodymaterial, auxconstraint, auxspring, ungravity} from './support/physics.js';
 
 //
 //External

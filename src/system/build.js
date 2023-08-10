@@ -168,6 +168,11 @@ console.log({event: 'constraint disconnet', base: constraint})
 //Gen a Phys Object 
 const One = (auxl, objGen, oneData) => {
 //Phys objects pertain to a single core wether that be solo or the parent (core/layer)
+
+//static : infinite mass, collides with dynamic. Position/Rotation
+//kinematic : infinite mass, collides with dynamic. Velocity forces applied. Position/Rotation
+//dynamic : has mass, collides with all. All forces applied. Position/Rotation
+
 	//one
 	let one = {};
 	one.objGen = objGen;
@@ -180,8 +185,9 @@ const One = (auxl, objGen, oneData) => {
 		one.core = objGen.layer.all.parent.core;
 		one.layer = objGen;
 	}
+//console.log(one.core)
 	one.num = Math.random().toFixed(8);
-	one.name = one.core.id + 'Phys' || 'objPhys';
+	one.name = one.core.core.id + 'Phys' || 'objPhys';
 	one.id = one.name + one.num;
 
 	//Physc Settings
@@ -202,21 +208,23 @@ const One = (auxl, objGen, oneData) => {
 	one.worldAxis = new THREE.Vector3(0,-1,0);
 	one.worldGravityStyle = 'earth';
 	one.worldGravity = new THREE.Vector3(0,0,0);
-
 	//Body
 	one.body = {
 		type: one.type,
 		mass: one.mass,
 		shape: 'none',
 	};
-	//Default shape if none
+
+	//Shape
 	one.shapes = {};
-	//Shapes
+	//Building Blocks
 	one.shapes.cylinder = {shape: 'cylinder', height: 1, radiusTop: 1, radiusBottom: 1, offset: '0 0 0',};
-	one.shapes.box =  {shape: 'box', height: 1, width: 1, depth: 1, offset: '0 0 0',};
+	one.shapes.box =  {shape: 'box', height: 1, width: 1, depth: 1, offset: '0 1 0',};
 	one.shapes.sphere = {shape: 'sphere', radius: 1, width: 1, depth: 1, offset: '0 0 0',};
+	//Default shape if none
+	one.mainShape = objGen.shapeData || one.shapes.box;
 	//Total shape of phys layer
-	one.avatar = [one.shapes.sphere,];
+	one.avatar = [one.mainShape,];
 
 	one.bodymaterial = {
 		friction: one.friction, 
@@ -246,6 +254,7 @@ const One = (auxl, objGen, oneData) => {
 			one.core.ChangeSelf([{property: 'body', value: one.body}, {property: 'bodymaterial', value: one.bodymaterial}]);
 		}
 	}
+console.log(one.id)
 console.log(one)
 	UpdatePhys(oneData);
 console.log(one)
@@ -367,7 +376,7 @@ console.log(one.constraints[id])
 		//then add propery gravity offset this.el.body.applyLocalForce(new THREE.Vector3(0,9.8,0),new THREE.Vector3(0,0,0))
 		//in the direction of the currently calculated trajectory
 		//Reset current
-	//layer.gravity = new THREE.Vector3(0,0,0);
+	layer.gravity = new THREE.Vector3(0,0,0);
 	//layer.axis = new THREE.Vector3(0,-1,0);
 
 		//6 Directions & Free Roam
@@ -385,6 +394,9 @@ console.log(one.constraints[id])
 		//Grab start pos at mouseEnter
 		//Grab enough via tick to determine the axis direction between 1 of the 6
 		//Apply that to the player rig via tick unless float is enabled in whichcase, only apply the new gravity with just negateGravity
+		
+		layer.worldAxis = new THREE.Vector3(0,0,0);
+		layer.localAxis = new THREE.Vector3(0,0,0);
 
 		let playerPositionOld = new THREE.Vector3(0,0,0);
 		let playerPosition = new THREE.Vector3(0,0,0);
@@ -556,11 +568,6 @@ console.log('Adding Velocity')
 			}
 		}, 1);
 	}
-
-	let testTimeoutGrav = setTimeout(() => {
-		Gravity();
-		clearTimeout(testTimeoutGrav)
-	}, 100);
 
 	//Cursor|Link
 	//VR Dual 6Dof Controller Raycaster
@@ -926,15 +933,6 @@ console.log('Rubberband running')
 		auxl.mouseController.GetEl().removeEventListener('mousedown',RubberbandDown);
 		auxl.mouseController.GetEl().removeEventListener('mouseup',RubberbandUp);
 	}
-	//Rubber Power
-	const powerRubberband = Power({
-		name : 'powerRubberband',
-		start : RubberbandStart,
-		exit : RubberbandStop,
-		up : RubberbandUp,
-		down : RubberbandDown,
-		free : RubberbandController,
-	});
 //console.log(powerRubberband)
 	//
 	//A Rubber Band Slam

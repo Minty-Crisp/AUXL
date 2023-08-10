@@ -1155,7 +1155,6 @@ plane2D: function (axis, action, speed) {
 	return this.positionNew;
 },
 
-
 //1st POV Walk along XZ Floor relative to Direction View
 directionXZ: function (action, speed) {
 	this.allow = false;
@@ -1463,6 +1462,7 @@ directionXZ: function (action, speed) {
 directionXZY: function (action, speed) {
 	this.velocity = speed;
 	this.directionVector = new THREE.Vector3();
+	this.directionStep = new THREE.Vector3();
 	this.directionObject.object3D.getWorldDirection(this.directionVector);
 	this.positionNew = new THREE.Vector3();
 	this.positionPlayer.copy(this.player.object3D.position);
@@ -1997,6 +1997,9 @@ directionXZY: function (action, speed) {
 		if(this.auxl.map.CheckMapObstacles(this.newPosRound, this.posRound)){
 			this.player.object3D.position.copy(this.positionNew);
 		}
+	} else if(this.auxl.player.layer.playerPhysics){
+		//Move Static Body in Phys
+		this.player.body.position.copy(this.positionNew);
 	} else {
 		//Free Locomotion No Collision
 		this.player.object3D.position.copy(this.positionNew);

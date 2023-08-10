@@ -265,28 +265,42 @@ const Powers = (auxl, powerData, one, core, layer) => {
 
 export default Powers;
 
+
+
+
+//Challenges - Ways to use either all or specific physics powers to accomplish objective in a timed for high scores mode :
+//Get from A to B
+//Collect All
+//Objective(Shoot/Hit/Slash/etc) All
+//Solve Puzzle
+//Defeat Enemies
+//Mini Games : Reflexes, accuracy, timing, memory, etc...
+
+//Story
+//Adventure
+
+//VS
+//1+v1+
+//King of the Hill
+//Slayer
+//Defend|Attack Base
+
+//Power Layouts / Classes - A small set of powers 2-8 with various limitations of use, but combined in a themed way
+//Custom - Choose any 2-8 powers allowed
+
+
+
 //
 
 //Connect powers to UniRay via controls import instructions in scenario, zone, scene and dynamically.
-
-
-
-
 //an objgen to create powers.
-
 //each with their own unique components
-
 //What unique things would need to be imported?
 
 //Link Launch
 //follow raycaster distance while charging further away, intersect with linkable object within current distance is to spawn there instead
 
-
-
 //Physics Power
-
-
-
 
 //
 //Change World Scale Small(You are giant)/Normal/Large(You are small)
@@ -364,6 +378,18 @@ Pole, Reel & Magnetic Lure Hook
 */
 
 
+//Whats the hook?
+//Wide Range of easy 3D Traversal
+//Gravity & Velocity
+//Constraints
+//Build and Customize Templates
+
+
+//Is this going to be a gary's mod like game
+//or a mega-man, metroid, star fox, hero game
+
+
+
 //All Powers
 
 //UniRay handles View & HMD updates
@@ -378,6 +404,17 @@ Pole, Reel & Magnetic Lure Hook
 //2D Locomotion
 //3D Locomotion
 //Vehicle Locomotion
+
+
+//Think of it like a revolver with 6 different bullets of varying effects. 
+
+//Default slot
+//actions to be performed on 
+//off/start/on/end button
+//idle/enter/exit ray
+
+//Single hit for a Toggle shift over
+//Double hit for a Toggle swap over
 
 //Button On/Off & Button Toggle :
 //Powers...
@@ -397,6 +434,8 @@ Pole, Reel & Magnetic Lure Hook
 //Gen Obj
 //Gen Obj with force
 //Gen Mount Vehicle
+//Link Objects
+//Projectiles
 
 //Double Click within 1 second
 //Double Click & Hold for 1 second
@@ -405,6 +444,8 @@ Pole, Reel & Magnetic Lure Hook
 //Triple Click within 1 second
 //Triple Click & Hold for 1 second
 //Systems Multi Menu
+
+//
 
 //
 //Power Controls
