@@ -1454,7 +1454,6 @@ console.log(position)
 	layer.track2DInterval;
 	//Determine 2D Ground Floor
 	const Track2D = () => {
-//console.log('Tracking')
 //console.log(intInit)
 		let start = layer.raycaster.intersection || new THREE.Vector3(0,0,0);
 		if(start.equals(new THREE.Vector3(0,0,0))){
@@ -1462,10 +1461,11 @@ console.log(position)
 		}
 		let intersection = new THREE.Vector3(0,0,0);
 		//let getr = new THREE.Vector3(0,0,0);
-		//Now that we have the starter point determine the general direction be capture 1 additional point differnt that confirm the direction		layer.tracking = true;
+		//Now that we have the starter point determine the general direction be capture 1 additional point differnt that confirm the direction		
 
 		//Earth Default Axis
 		layer.worldAxis = new THREE.Vector3(0,-1,0);
+		layer.tracking = true;
 		layer.track2DInterval = setInterval(() => {
 			if(layer.tracking){
 				//grab raycaster information and grab intersection, if different then calc it's direction from and update player gravityAxis
@@ -1512,7 +1512,9 @@ console.log(position)
 layer.localAxis.copy(layer.worldAxis);
 //Rotate player rig body accordingly
 if(!layer.worldAxis.equals(new THREE.Vector3(0,0,0))){
-console.log({GravitationalAxisChange: layer.worldAxis})
+console.log({GravitationalAxisNew: layer.worldAxis})
+} else {
+console.log({GravitationalAxisFloat: layer.worldAxis})
 }
 					layer.tracking = false;
 					clearInterval(layer.track2DInterval);
@@ -1523,8 +1525,6 @@ console.log({GravitationalAxisChange: layer.worldAxis})
 		}, 1);
 
 	}
-
-		//Track2D();
 
 
 
@@ -1603,58 +1603,54 @@ console.log({GravitationalAxisChange: layer.worldAxis})
 	//Ticker
 	layer.mainHand
 	const Ticker = () => {
-//Check for controller type
-if(auxl.controls === 'Desktop'){
-	if(auxl.mouseController.GetEl()){
-		if(auxl.mouseController.GetEl().components.raycaster.intersections.length > 0){
-			layer.raycaster.intersection = new THREE.Vector3(0,0,0);
-			layer.raycaster.intersection.copy(auxl.mouseController.GetEl().components.raycaster.intersections[0].point)
-			if(layer.distance <= auxl.mouseController.GetEl().components.raycaster.intersections[0].distance){
-				//layer.raycaster.intersection
-			//generate point along axis as far as distance and update
+		//Check for controller type
+		if(auxl.controls === 'Desktop'){
+			if(auxl.mouseController.GetEl()){
+				if(auxl.mouseController.GetEl().components.raycaster.intersections.length > 0){
+					layer.raycaster.intersection = new THREE.Vector3(0,0,0);
+					layer.raycaster.intersection.copy(auxl.mouseController.GetEl().components.raycaster.intersections[0].point)
+					if(layer.distance <= auxl.mouseController.GetEl().components.raycaster.intersections[0].distance){
+						//layer.raycaster.intersection
+					//generate point along axis as far as distance and update
 
+					}
+				} 
 			}
-		} 
-	}
-/*
-	if(layer.raycaster.intersection){
-		//console.log(layer.raycaster.intersection)
-		layer.anchorCore.ChangeSelf({property: 'position', value: layer.raycaster.intersection})
-		if(!layer.anchorCore.core.inScene){
-			layer.anchorCore.SpawnCore();
-		}
-	}
-*/
-} else if(auxl.controls === 'Mobile'){
-//welp
-} else if(auxl.controls === 'VR'){
-if(['bothLeft','bothLeftLoco','left'].includes(auxl.vrHand)){
-	//auxl.vrController1
-	if(auxl.vrController1.GetEl().components.raycaster.intersections.length > 0){
-		layer.raycaster.intersection = new THREE.Vector3(0,0,0);
-		layer.raycaster.intersection.copy(auxl.vrController1.GetEl().components.raycaster.intersections[0].point);
-		if(layer.distance <= auxl.vrController1.GetEl().components.raycaster.intersections[0].distance){
-			//layer.raycaster.intersection
-		//generate point along axis as far as distance and update
+		} else if(auxl.controls === 'Mobile'){
+		//welp
+		} else if(auxl.controls === 'VR'){
+		if(['bothLeft','bothLeftLoco','left'].includes(auxl.vrHand)){
+			//auxl.vrController1
+			if(auxl.vrController1.GetEl().components.raycaster.intersections.length > 0){
+				layer.raycaster.intersection = new THREE.Vector3(0,0,0);
+				layer.raycaster.intersection.copy(auxl.vrController1.GetEl().components.raycaster.intersections[0].point);
+				if(layer.distance <= auxl.vrController1.GetEl().components.raycaster.intersections[0].distance){
+					//layer.raycaster.intersection
+				//generate point along axis as far as distance and update
 
-		}
-	} 
-} else if(['bothRight', 'bothRightLoco', 'right'].includes(auxl.vrHand)){
-	//auxl.vrController2
-	if(auxl.vrController2.GetEl().components.raycaster.intersections.length > 0){
-		layer.raycaster.intersection = new THREE.Vector3(0,0,0);
-		layer.raycaster.intersection.copy(auxl.vrController2.GetEl().components.raycaster.intersections[0].point);
-		if(layer.distance <= auxl.vrController2.GetEl().components.raycaster.intersections[0].distance){
-			//layer.raycaster.intersection
-		//generate point along axis as far as distance and update
+				}
+			} 
+		} else if(['bothRight', 'bothRightLoco', 'right'].includes(auxl.vrHand)){
+			//auxl.vrController2
+			if(auxl.vrController2.GetEl().components.raycaster.intersections.length > 0){
+				layer.raycaster.intersection = new THREE.Vector3(0,0,0);
+				layer.raycaster.intersection.copy(auxl.vrController2.GetEl().components.raycaster.intersections[0].point);
+				if(layer.distance <= auxl.vrController2.GetEl().components.raycaster.intersections[0].distance){
+					//layer.raycaster.intersection
+				//generate point along axis as far as distance and update
 
+				}
+			} 
 		}
-	} 
-}
-/*
-locomotionText
-Left Controller Joystick
-*/
+		if(layer.raycaster.display){
+			if(layer.raycaster.intersection){
+				//console.log(layer.raycaster.intersection)
+				layer.anchorCore.ChangeSelf({property: 'position', value: layer.raycaster.intersection})
+				if(!layer.anchorCore.core.inScene){
+					layer.anchorCore.SpawnCore();
+				}
+			}
+		}
 }
 	}
 
@@ -1675,13 +1671,16 @@ console.log(event)
 	   } else {
 		   layer.raycaster.intersection = false;
 	   }
-if(layer.raycaster.intersection){
-	//console.log(layer.raycaster.intersection)
-	layer.anchorCore.ChangeSelf({property: 'position', value: layer.raycaster.intersection})
-	if(!layer.anchorCore.core.inScene){
-		layer.anchorCore.SpawnCore();
+if(layer.raycaster.display){
+	if(layer.raycaster.intersection){
+		//console.log(layer.raycaster.intersection)
+		layer.anchorCore.ChangeSelf({property: 'position', value: layer.raycaster.intersection})
+		if(!layer.anchorCore.core.inScene){
+			layer.anchorCore.SpawnCore();
+		}
 	}
 }
+
 		//layer.power
 		//layer.power.Tick(event);
 /*
@@ -1713,9 +1712,6 @@ if(layer.raycaster.intersection){
 		RayTick(event);
 		//console.log(intersection)
 
-		//Determine the 2D plane in 3D grid system as floor
-		//Track2D();
-
 		//console.log(event.detail.intersection.point)
 	}
 
@@ -1725,7 +1721,6 @@ if(layer.raycaster.intersection){
 		//console.log(event)
 		RayTick(event);
 		//console.log(event)
-		//clearInterval(layer.track2DInterval);
 	}
 
 	//Trigger, Click, Mouse Down
@@ -1981,6 +1976,8 @@ toggle,
 		PowerController();
 		//Linked component
 		//auxl.mouseController.GetEl().setAttribute('playerlink');
+
+		layer.raycaster.display = true;
 
 //console.log(auxl.mouseController.GetEl())
 		//auxl.playerRig.GetEl().setAttribute('staticsync',{auxlObj: 'playerRig'});

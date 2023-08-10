@@ -97,14 +97,15 @@ rotationBackwardKeys: [null],
 rotationRightKeys: [null],
 //Link Current Keyboard Toggles
 //Allow customization here
-action1Keys: ['q','Q'],
-action2Keys: ['e','E'],
-action3Keys: ['r','R'],
-action4Keys: ['t','T'],
-action5Keys: ['x','X'],
-action6Keys: ['c','C'],
-action7Keys: ['v','V'],
-action8Keys: [' ',' '],
+action1Keys: [' ',' '],
+action2Keys: ['q','Q'],
+action3Keys: ['e','E'],
+action4Keys: ['r','R'],
+action5Keys: ['t','T'],
+action6Keys: ['x','X'],
+action7Keys: ['c','C'],
+action8Keys: ['v','V'],
+
 };
 this.auxl.controlConfig = this.controls;
 
