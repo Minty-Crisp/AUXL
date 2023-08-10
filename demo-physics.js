@@ -2809,8 +2809,19 @@ auxl.v03TestingScenarioData = {
 		},
 	},
 	controls:{
-		action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
-		action2Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
+		action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Drop Web Sling.'},
+		action2Down:{auxlObj: 'player', func: 'Freeze', params: 0, name: 'Freeze', info: 'Freeze mid-air.'},
+		action2Up:{auxlObj: 'player', func: 'UnFreeze', params: false, name: 'UnFreeze', info: 'UnFreeze mid-air.'},
+		action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '4', name: 'Boost Build', info: 'Build a boost in your gaze direction to fly.'},
+		action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Boost Stop', info: 'Drop Boost.'},
+		action4Down:{auxlObj: 'player', func: 'ToggleAction', params: '5', name: 'BoostBack', info: 'Boost Dash Backwards in Space.'},
+		action5Down:{auxlObj: 'player', func: 'Track2D', params: 0, name: 'Pick New Gravity Axis', info: 'Aim and drag along any face of a flat floor cube object to start detecting new Axis.'},
+		action6Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
+		action7Down:{auxlObj: 'player', func: 'ToggleAction', params: '3', name: 'Parachute', info: 'Open a parachute to float downward.'},
+		action7Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Parachute', info: 'Close parachute.'},
+		action8Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+/*
 		//action3Down:{auxlObj: 'player', func: 'LowGrav', name: 'Low Gravity', info: 'Lower Gravity.'},
 		//action4Down:{auxlObj: 'player', func: 'PhysBoost', name: 'Vertical Boost', info: 'Fly upwards.'},
 		//action5Down:{auxlObj: 'player', func: 'PhysJump', name: 'Jump', info: 'Jump Up'},
@@ -2831,23 +2842,10 @@ auxl.v03TestingScenarioData = {
 
 		//action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '2', name: 'Teleport', info: 'Teleport Player'},
 		//action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'TeleportDrop', info: 'Drop Teleport.'},
-
-
-		action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '5', name: 'BoostBack', info: 'Boost Dash Backwards in Space.'},
-		action4Down:{auxlObj: 'player', func: 'ToggleAction', params: '4', name: 'Boost Build', info: 'Build a boost in your gaze direction to fly.'},
-		action4Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Boost Stop', info: 'Drop Boost.'},
-
-		action5Down:{auxlObj: 'player', func: 'Track2D', params: 0, name: 'Pick New Gravity Axis', info: 'Aim and drag along any face of a flat floor cube object to start detecting new Axis.'},
 		//action7Down:{auxlObj: 'player', func: 'ToggleAction', params: '1', name: 'RubberbandSlam', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge. Auto Stop on second into pull.'},
 		//action7Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandSlamDrop', info: 'Drop Web Sling.'},
 
-
-		action6Down:{auxlObj: 'player', func: 'Freeze', params: 0, name: 'Freeze', info: 'Freeze mid-air.'},
-		action6Up:{auxlObj: 'player', func: 'UnFreeze', params: false, name: 'UnFreeze', info: 'UnFreeze mid-air.'},
-		action7Down:{auxlObj: 'player', func: 'ToggleAction', params: '3', name: 'Parachute', info: 'Open a parachute to float downward.'},
-		action7Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Parachute', info: 'Close parachute.'},
-		action8Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
-		action8Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Drop Web Sling.'},
+*/
 	},
 	start:{
 		skyBox1:{SpawnSkyBox: null},
