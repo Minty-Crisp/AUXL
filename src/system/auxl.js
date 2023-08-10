@@ -789,9 +789,10 @@ function enableMobileControls(){
 	auxl.mouseController.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 	auxl.mouseController.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
 	controllerBlock.style.display = 'flex';
-	auxl.playerRig.GetEl().setAttribute('uniray',{update: 6});
+	auxl.playerRig.GetEl().setAttribute('uniray',{update: Math.random()});
 	auxl.player.EnableMobileLocomotion();
 	auxl.locomotionText = 'Arrow Buttons';
+console.log(auxl.mouseController.GetEl())
 }
 //Controls Menu
 function controlsMenu(state){

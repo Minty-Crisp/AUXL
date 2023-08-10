@@ -1600,6 +1600,9 @@ console.log({GravitationalAxisFloat: layer.worldAxis})
 		}
 	}
 
+
+//Ideally sync to a specific hand/face otherwise monitor different for each layout
+
 	//Ticker
 	layer.mainHand
 	const Ticker = () => {
