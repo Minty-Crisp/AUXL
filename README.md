@@ -58,24 +58,20 @@ A few cool features of AUXL to highlight : :first_quarter_moon_with_face:
 Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki) to Learn More!!!
 ---
 # v0.3 Brief Overview of Major Updates So Far : :fire:
-## System
-- Added Save/Load/Reset system to store profile, date/time/visit, location, support of auxl object flags and more.
-- Generate new Core Data, Core or Layer from a previously existing object with overwrite protection and customization support via auxl.coreDataFromTemplate(), auxl.coreFromTemplate() and auxl.layerFromTemplate().
-- Each object generator component has a rebuild function to regenerate all defined objects upon system reset without reloading the webpage.
-- Various additional v0.2 Object Generator improvements and methods.
-- Support to add custom Object Generators to Scenario, Zone, Scene and Book trackers via auxl.AddObjGenToTracker('objectCoreName', 'SpawnMethodName', 'DespawnMethodName');
-- Max scene load time setting for transition animations.
+## Highlights
+
+
 
 ## Core & Layers
 - Layers now support unlimited depth of parent/child entities.
 - The connected parent for a Core/Layer can now be identified via a core, name of a core, html element or string name of the element.
-- Various other methods and minor improvements.
+- Some new support methods and lots of various optimizations and improvements.
 
 ## World, Scenario, Zone, Scene and Books
 - Instructions now support Switch statements.
 - Scenes now support Fog configuration.
 - Zone maps have been moved into Scenario objects and can be dynamically updated.
-- New main Object Generator, World which holds various Scenarios.
+- New ObjGen World : Main system loader that holds Scenarios. Allows for dynamically loading and unloading of the current Scenario with all of its attached Zones and Scenes as well as progressing to the next or a specific Scenario. It is also used to handle global controls for things like max load time, speed of the day/night cycle, enable an inventory, enable grid collision, enable physics, update companion and main menu as well as background audio. 
 
 ## Player
 - New player body entity added to the player rig.
@@ -85,6 +81,8 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Player flashlight attached to dominant hand or camera(mobile/desktop).
 - Player floor compass texture for better direction awareness.
 - Player body 45 & 90 degree snap turning.
+- Player movement is locked until world is loaded, locked when scene is changes and unlocked when scene is loaded
+- VR Controller UI turned off by default and is toggleable via player method.
 
 ## Companion
 - Updated main menu with Inventory, Fast Travel, Settings and View Current Control Configuration.
@@ -94,6 +92,10 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - - Control Configuration option to display an information window of all currently configured actions from the Scenario, Zone or Scene as well as the specific interactions for the current control type (i.e. Mobile, Desktop or VR).
 - Combined NPC Book functions into Companion.
 - Toggle spawn still configured to player floor, but can be repositioned without toggling via clicking on the Belt Text UI.
+- Added companion UpdateMainMenu method to dynamically update the Main Menu and added to World Info via menuOption
+- Added companion UpdateMainMenuStyle method to dynamically update the Main Menu style and added to World Info via menuStyle
+- Add custom Avatar Core/Layers to Settings menu via auxl.comp.AddAvatar('Display Name','auxlObjectName');
+- Action to control companion and menu. If menu if open, will go back 1 level. If menu is closed will despawn companion. If companion is despawned, will spawn companion.
 
 ## NPC
 - Now accepts an idle speech page to be displayed if not interacted for specified amount of time.
@@ -104,21 +106,58 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - Textbubbles emit a loadin/loadout event for animation support.
 - Various other minor improvements.
 
+## Inventory
+- clickaddinventory component to add an auxl object item/tool/special/etc... on click. Can be configured to use only once, despawn and delay to allow animation to play.
+- Player equipping and unequipping inventory objects with the acceptobject component to use player equipped object on entity
+
 ## Tile Map Grid Collision System
-- Scenes can now build blank collision based tile map grids of defined size for each scene at 0.5m increments.
-- Define the size of the map, block or allow movement beyond size edges and spawn specific cores to indicate edges for each scene map.
+- Scenes can now build blank collision based tile map grids of defined size for each scene at 0.5m increments xz and 1m increments y direction.
+- Define the size of the map, block or allow movement beyond size edges and spawn customizable cores to indicate edges for each scene map.
+- Grid objects can take up multiple height sections at a time. Player while standing will hit 2 height levels, but crouching will only hit 1 height level. When crouching under a collision object, player cannot stand until cleared.
 - Spawn Core/Layers on the grid coordinate system with SpawnCoreOnGrid() or SpawnLayerOnGrid() that uses the object.grid info such as {start: {x:1, z:1}, end: {x:2, z:2}, collide: true,} to define the area for which the object occupies. Each 0.5 increment is a single grid square.
 - Objects can be spawned with collision (collide: true) which will block the player and other collision objects from spawning/moving into that grid space. Any colliding object attempting to spawn in a location which is occupied will wait until the space is cleared before adding itself.
 - Objects can be spawned with a trigger (trigger: true) which will allow the player to collide and will fire an event upon entering the grid area 'triggerEnter' on the grid object as well as fire an event upon exiting the grid area 'triggerExit' on the grid object. Can be combined with the new support component oneventrun for further control of the trigger process to run any AUXL or component method on any object. Can always be set to (once: true) to only allow the trigger to fire In/Out one time.
 - Objects can be spawned without collision or trigger as well to utilize grid coordination system such as foley and decor.
 - Grid spawned objects can also walk along a defined path built with  GridPath() and started with WalkPath(). Paths are built with +/- XZ directions from it's current position. Many path attributes can be customized such as animation or jump to each 0.5 step position, how long each step takes, how long to pause in-between each step, how long to wait if path is blocked to reverse direction or to stubbornly wait, if path should be looped in a specific direction, any direction or to alternate back and forth from start to finish.
-- New ObjGen GridLayout to further support collision which builds a various tile map sections from a single or array of Core Data, Core, Layer Data or Layers to spawn in a scene.
+- Movement on collision now continues by skimming walls and floor/ceilings instead of stopping when at edge/collision including when flying.
+- GridLayout ObjGen : Spawn objects from a single or array of Core Data, Core, Layer Data or Layer templates and generate various defined Grid layouts. Spawn individual grid layouts in each scene using the same pool of prebuilt objects that all support the various Tile Map Grid Collision features.
+- New ObjGen Gate. Allow pass through in a specific direction to close the gate behind the user. Can otherwise trigger close or opening of Gate.
 
-## New Object Generators
-- World : Main system loader that holds Scenarios. Allows for dynamically loading and unloading of the current Scenario with all of its attached Zones and Scenes as well as progressing to the next or a specific Scenario. 
+## Physics Support
+- Basic Physics integration from c-frame/aframe-physics-system using CANNON.js
+- Physics support components added such as camerasync, staticsync, collision, trigger, bodymaterial, auxconstraint, auxspring and gravitycontrol
+- One ObjGen : Still in progress, universal physics objGen to hold and control all physics based info and functions as well as connections.
+- Constraints ObjGen : Create a physic based constraint, connect, disconnect, update, etc...
+- Player Physic Powers : Displayed in Physics Demo
+- - Personal Gravity Axis(Rotation) & Planet Type(Amount) w/ Velocity or Off/Float
+- - World Gravity Axis & Planet Type(Amount) w/ Velocity or Off/Float
+- - Jump
+- - Parachute
+- - Charge Boost Ray Forward
+- - Charge Boost Ray Reverse
+- - Freeze|UnFreeze
+- - Braking
+- - Charge Rubberband[Web Sling] (Pogo, Swing, Launch)
+- - Charge Teleport
+- - Charge Shoot
+
+
+## Other New Object Generators
 - Multi-Menu : Generates a navigatable menu from a main button with multiple generations of parent/child sub menus all containing actions to jump to a specific menu, run an AUXL Object Method w/Parameters or an AUXL Object Component Method w/Parameters. Button description texts are toggled on hover with Circle Up, Circle Down, Vertical and Horizontal Layouts. Menu can be dynamically updated as well.
+- Quick Hover Menu : Hold down button to spawn circle menu, hover on option and let go of button. Active hover selection on button up happens
 - InfoBubble : A bubble object that attaches to a parent object to act as either an Emote or Alert prompted by an event called on the parent. Emotes are temporarily displayed, while Alerts require interaction to dismiss. Preconfigured and custom text emote/alerts supported.
-- GridLayout : Spawn objects from a single or array of Core Data, Core, Layer Data or Layer templates and generate various defined Grid layouts. Spawn individual grid layouts in each scene using the same pool of prebuilt objects that all support the various Tile Map Grid Collision features.
+- Color Lock Combination ObjGen. Generate a lock and combination to run an AUXL Obj Method on correct input. Can also display a string over each color input from an imported array. The lock waits till full password length input to display correct/incorrect animation and open/reset.
+
+## In-Progress Object Generators
+- Infinite Scroll Multi Menu
+- Mirror
+- Creature
+- UniRay
+- One
+- Powers
+- Vehicle
+- Build In 3D
+
 
 ## New Support Components
 - hovertext : on mouse hover of attached object will display configured text either on top or in front of the object and rotates with user view.
@@ -130,54 +169,26 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - ondelayrun : Run auxl object method on delay.
 - onintervalrun : Run auxl object method on interval.
 - raycast-teleportation-select : spawn a teleport select button on click.
+- teleportation-to : Use specific XYZ coords to move the player to on specified event such as click object.
 
-# v0.3 Recent Updates (Not Added to Notes Yet) : :zap:
-- Collision & Trigger map expanded to support height levels. Height blocks every 1 meter. Grid objects can take up multiple height sections at a time. Player while standing will hit 2 height levels, but crouching will only hit 1 height level. When crouching under a collision object, player cannot stand until cleared.
-- New Collision based ObjGen Gate. Allow pass through in a specific direction to close the gate behind the user. Can otherwise trigger close or opening of Gate.
-- Movement on collision now continues by skimming walls and floor/ceilings instead of stopping when at edge/collision including when flying.
-- Fixed an issue regarding diagonal collision detection
-- Creature now has a body
+# A Few Misc Updates : :zap:
+- Max scene load time setting for max time under transition animation while assets load in-between scenes.
+- Event and Interaction Instructions now support a relay which links a different auxlObject and methods to run on defined object's event/interaction.
+- Added Save/Load/Reset system to store profile, date/time/visit, location, support of auxl object flags and more.
+- Generate new Core Data, Core or Layer from a previously existing object with overwrite protection and customization support via auxl.coreDataFromTemplate(), auxl.coreFromTemplate() and auxl.layerFromTemplate().
+- Added pagenation to support more than 7 options in the Quick Travel Menu
 - Scene Info can now take in a spawnPos object to set the default spawn position when loading into the scene
 - doorway component now accepts a delay amount to postpone before swapping scenes in-case an animation needs to play like a door that opens.
 - doorway-trigger component to activate scene transition on trigger collision
-- clickaddinventory component to add an auxl object item/tool/special/etc... on click. Can be configured to use only once, despawn and delay to allow animation to play.
-- player method to control companion and menu. If menu if open, will go back 1 level. If menu is closed will despawn companion. If companion is despawned, will spawn companion.
-- Quick Hover Menu : Hold down button to spawn circle menu, hover on option and let go of button. Active hover selection on button up happens
-- Player equipping and unequipping inventory objects
-- acceptobject component to use player equipped object on entity
 - Updated save data to load data on same domain only
-- Zone method to change scenes using zone and scene names without key checks
 - Updated HTML menu to a state machine and synced control configuration to save profile
 - Added volume control to html system menu and syncing to profile
-- Core now has core.dom which stores the document element which can be used instead of GetEl() to avoid additional overhead
-- World Object Data can now configure day time length, max scene load time, enable inventory, collision or physics(physics to be added)
-- Event and Interaction Instructions now support a relay which links a different auxlObject and methods to run on defined object's event/interaction.
 - EdgeUpdate now accepts a new material to be used on Edges
-- Added companion UpdateMainMenu method to dynamically update the Main Menu and added to World Info via menuOption
-- Added companion UpdateMainMenuStyle method to dynamically update the Main Menu style and added to World Info via menuStyle
 - Mobile HTML UI will be hidden unless actions are assigned to them
-- Player movement is locked until world is loaded, locked when scene is changes and unlocked when scene is loaded
-- Add custom Avatar Core/Layers to Settings menu via auxl.comp.AddAvatar('Display Name','auxlObjectName');
-- VR Controller UI turned off by default and is toggleable via player method.
-- Color Lock Combination ObjGen. Generate a lock and combonation to run an AUXL Obj Method on correct input.
-- Organized all scripts and utilized webpack to export into a single used script.
-- Added book update method to NPC and ability to update in World data to override default basic text.
-- Color Lock ObjGen now accepts an array of characters to display if needed on top of colors and to wait till full password length input to display incorrect animation and reset
-- Added support for more then 7 options in the Quick Travel Menu
-- New component teleportation-to that takes in a specific XYZ coords to move the player to on specified event.
-- Basic Physics integration from c-frame/aframe-physics-system using CANNON.js
-- Physics Support components added such as camerasync, collision, trigger, bodymaterial, auxconstraint, auxspring, ungravity
-- Basic Physics Demo added
-- Power based interaction testing
-- Player Powers : Rubberband, Swing, Slam, Port, Dash,
+- Organized all scripts and utilized webpack to export into a single used script. Base assets will now also include A-Frame min.js and C-Frame Physics min.js for locally linked reference.
+- Each object generator component has a rebuild function to regenerate all defined objects upon system reset without reloading the webpage.
+- Support to add custom Object Generators to Scenario, Zone, Scene and Book trackers via auxl.AddObjGenToTracker('objectCoreName', 'SpawnMethodName', 'DespawnMethodName');
 
-
-
-# v0.3 Currently In-Progress Updates : :cherries:
-- Support function to read any ObjGen data
-- AUXLObject Pool
-- Demo Rework & Expand
-- Wiki and Starter JS Updates
 
 # v0.4+ Features
 - Grid Enhancements & Features

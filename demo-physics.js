@@ -124,6 +124,7 @@ auxl.skyBox1 = auxl.SkyBox(auxl.skyBox1Data);
 //auxl.build = auxl.BuildIn3D();
 
 //Testing One Phys Object
+/*
 auxl.oneTest0Data = {
 data:'oneTest0Data',
 id:'oneTest0',
@@ -155,6 +156,7 @@ auxl.phys0Data = {
 }
 
 auxl.oneTest0One = auxl.One(auxl.oneTest0, auxl.phys0Data);
+
 //console.log(auxl.oneTest0One)
 
 
@@ -191,7 +193,7 @@ auxl.phys1Data = {
 }
 
 auxl.oneTest2One = auxl.One(auxl.oneTest2, auxl.phys1Data);
-
+*/
 
 //
 //Static
@@ -314,7 +316,7 @@ classes: ['clickable', 'a-ent'],
 components: {
 	//['static-body']: null,
 	body:{type: 'static', shape: 'box', mass: 0,},
-	bodymaterial: {friction: 0.01, restitution: 0.1},
+	bodymaterial: {friction: 0.0001, restitution: 0},
 },
 };
 auxl.physicalFloor = auxl.Core(auxl.physicalFloorData);
@@ -1406,106 +1408,8 @@ auxl.triggerTest1 = auxl.Core(auxl.triggerTest1Data);
 //
 //Constraints
 
-//Lock
-auxl.lock1aData = {
-data:'lock1aData',
-id:'lock1a',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
-material: {shader: "standard", src: auxl.pattern18, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(12,8,-12),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-movetest: {property: 'object3D.position.z', from: -12, to: -16, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
-rotatetest: {property: 'object3D.rotation.x', from: 0, to: 360, dur: 5000, delay: 0, loop: true, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
-},
-mixins: false,
-classes: ['a-ent'],
-components: {
-	body:{type: 'static', shape: 'box', mass: 0,},
-	bodymaterial: {friction: 0, restitution: 0},
-},
-};
-auxl.lock1a = auxl.Core(auxl.lock1aData);
-auxl.lock1bData = {
-data:'lock1bData',
-id:'lock1b',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
-material: {shader: "standard", src: auxl.pattern18, repeat: '1 1', color: "#13cccc", emissive: '#13cccc', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(12,5,-12),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:false,
-mixins: false,
-classes: ['clickable', 'a-ent'],
-components: {
-	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
-	bodymaterial: {friction: 0, restitution: 0},
-	auxconstraint:{
-		type: 'lock',
-		connectTo: 'lock1a',
-		maxForce: 1e6,
-	},
-	//linkcable: {type: 'hit'},
-},
-};
-auxl.lock1b = auxl.Core(auxl.lock1bData);
 
-//Distance
-auxl.distance1aData = {
-data:'distance1aData',
-id:'distance1a',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
-material: {shader: "standard", src: auxl.pattern17, repeat: '1 1', color: "#3789c6", emissive: '#3789c6', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(14,8,-14),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: {
-movetest: {property: 'object3D.position.z', from: -14, to: -18, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
-rotatetest: {property: 'object3D.rotation.x', from: 0, to: 360, dur: 5000, delay: 0, loop: true, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
-},
-mixins: false,
-classes: ['a-ent'],
-components: {
-	body:{type: 'static', shape: 'box', mass: 0,},
-	bodymaterial: {friction: 0, restitution: 0},
-},
-};
-auxl.distance1a = auxl.Core(auxl.distance1aData);
-auxl.distance1bData = {
-data:'distance1bData',
-id:'distance1b',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
-material: {shader: "standard", src: auxl.pattern17, repeat: '1 1', color: "#d1e01a", emissive: '#d1e01a', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(14,5,-14),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:false,
-mixins: false,
-classes: ['clickable', 'a-ent'],
-components: {
-	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
-	bodymaterial: {friction: 0, restitution: 0},
-	auxconstraint:{
-		type: 'distance',
-		connectTo: 'distance1a',
-		distance: 4,
-		maxForce: 1e6,
-	},
-	//linkcable: {type: 'hit'},
-},
-};
-auxl.distance1b = auxl.Core(auxl.distance1bData);
-
-//Point to Point
+//Point to Point - 1
 auxl.ptp1aData = {
 data:'ptp1aData',
 id:'ptp1a',
@@ -1556,19 +1460,19 @@ components: {
 };
 auxl.ptp1b = auxl.Core(auxl.ptp1bData);
 
-//Cone Twist
-auxl.coneTwist1aData = {
-data:'coneTwist1aData',
-id:'coneTwist1a',
+//Distance - 2
+auxl.distance1aData = {
+data:'distance1aData',
+id:'distance1a',
 sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
-material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#2c25e5", emissive: '#2c25e5', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(16,8,-16),
+material: {shader: "standard", src: auxl.pattern17, repeat: '1 1', color: "#3789c6", emissive: '#3789c6', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(14,8,-14),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: {
-movetest: {property: 'object3D.position.z', from: -16, to: -20, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
+movetest: {property: 'object3D.position.z', from: -14, to: -18, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
 rotatetest: {property: 'object3D.rotation.x', from: 0, to: 360, dur: 5000, delay: 0, loop: true, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
 },
 mixins: false,
@@ -1578,15 +1482,15 @@ components: {
 	bodymaterial: {friction: 0, restitution: 0},
 },
 };
-auxl.coneTwist1a = auxl.Core(auxl.coneTwist1aData);
-auxl.coneTwist1bData = {
-data:'coneTwist1bData',
-id:'coneTwist1b',
+auxl.distance1a = auxl.Core(auxl.distance1aData);
+auxl.distance1bData = {
+data:'distance1bData',
+id:'distance1b',
 sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
-material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#1ea356", emissive: '#1ea356', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(16,5,-16),
+material: {shader: "standard", src: auxl.pattern17, repeat: '1 1', color: "#d1e01a", emissive: '#d1e01a', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(14,5,-14),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
@@ -1596,20 +1500,118 @@ components: {
 	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
 	bodymaterial: {friction: 0, restitution: 0},
 	auxconstraint:{
-		type: 'coneTwist',
-		connectTo: 'coneTwist1a',
-		pivotA: new THREE.Vector3(0,6,0),
-		pivotB: new THREE.Vector3(0,-0.5,0),
-		axisA: new THREE.Vector3(0,0,0),
-		axisB: new THREE.Vector3(0,0,0),
+		type: 'distance',
+		connectTo: 'distance1a',
+		distance: 4,
 		maxForce: 1e6,
 	},
 	//linkcable: {type: 'hit'},
 },
 };
-auxl.coneTwist1b = auxl.Core(auxl.coneTwist1bData);
+auxl.distance1b = auxl.Core(auxl.distance1bData);
 
-//Hinge
+//
+//Springs - 3
+auxl.spring1aData = {
+data:'spring1aData',
+id:'spring1a',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
+material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(12,8,-8),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+movetest: {property: 'object3D.position.z', from: -8, to: -12, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
+rotatetest: {property: 'object3D.rotation.x', from: 0, to: 360, dur: 5000, delay: 0, loop: true, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0, restitution: 0},
+},
+};
+auxl.spring1a = auxl.Core(auxl.spring1aData);
+auxl.spring1bData = {
+data:'spring1bData',
+id:'spring1b',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
+material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#1acc13", emissive: '#1acc13', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(12,5,-8),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
+	bodymaterial: {friction: 0, restitution: 0},
+	auxspring:{
+		connectTo: 'spring1a',
+		restLength: 2,
+		damping: 0.5,
+		stiffness: 10,
+	},
+	//linkcable: {type: 'hit'},
+},
+};
+auxl.spring1b = auxl.Core(auxl.spring1bData);
+
+//Lock - 4
+auxl.lock1aData = {
+data:'lock1aData',
+id:'lock1a',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
+material: {shader: "standard", src: auxl.pattern18, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(12,8,-12),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: {
+movetest: {property: 'object3D.position.z', from: -12, to: -16, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
+rotatetest: {property: 'object3D.rotation.x', from: 0, to: 360, dur: 5000, delay: 0, loop: true, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
+},
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0, restitution: 0},
+},
+};
+auxl.lock1a = auxl.Core(auxl.lock1aData);
+auxl.lock1bData = {
+data:'lock1bData',
+id:'lock1b',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
+material: {shader: "standard", src: auxl.pattern18, repeat: '1 1', color: "#13cccc", emissive: '#13cccc', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(12,5,-12),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
+	bodymaterial: {friction: 0, restitution: 0},
+	auxconstraint:{
+		type: 'lock',
+		connectTo: 'lock1a',
+		maxForce: 1e6,
+	},
+	//linkcable: {type: 'hit'},
+},
+};
+auxl.lock1b = auxl.Core(auxl.lock1bData);
+
+
+//Hinge - 5
 auxl.hinge1aData = {
 data:'hinge1aData',
 id:'hinge1a',
@@ -1663,20 +1665,19 @@ components: {
 auxl.hinge1b = auxl.Core(auxl.hinge1bData);
 
 
-//
-//Springs
-auxl.spring1aData = {
-data:'spring1aData',
-id:'spring1a',
+//Cone Twist - 6
+auxl.coneTwist1aData = {
+data:'coneTwist1aData',
+id:'coneTwist1a',
 sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
-material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#8c39a5", emissive: '#8c39a5', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(12,8,-8),
+material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#2c25e5", emissive: '#2c25e5', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(16,8,-16),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: {
-movetest: {property: 'object3D.position.z', from: -8, to: -12, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
+movetest: {property: 'object3D.position.z', from: -16, to: -20, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
 rotatetest: {property: 'object3D.rotation.x', from: 0, to: 360, dur: 5000, delay: 0, loop: true, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
 },
 mixins: false,
@@ -1686,15 +1687,15 @@ components: {
 	bodymaterial: {friction: 0, restitution: 0},
 },
 };
-auxl.spring1a = auxl.Core(auxl.spring1aData);
-auxl.spring1bData = {
-data:'spring1bData',
-id:'spring1b',
+auxl.coneTwist1a = auxl.Core(auxl.coneTwist1aData);
+auxl.coneTwist1bData = {
+data:'coneTwist1bData',
+id:'coneTwist1b',
 sources: false,
 text: false,
 geometry: {primitive: 'box', depth: 1, width: 1, height: 1},
-material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#1acc13", emissive: '#1acc13', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(12,5,-8),
+material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#1ea356", emissive: '#1ea356', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(16,5,-16),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
@@ -1703,16 +1704,19 @@ classes: ['clickable', 'a-ent'],
 components: {
 	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
 	bodymaterial: {friction: 0, restitution: 0},
-	auxspring:{
-		connectTo: 'spring1a',
-		restLength: 2,
-		damping: 0.5,
-		stiffness: 10,
+	auxconstraint:{
+		type: 'coneTwist',
+		connectTo: 'coneTwist1a',
+		pivotA: new THREE.Vector3(0,6,0),
+		pivotB: new THREE.Vector3(0,-0.5,0),
+		axisA: new THREE.Vector3(0,0,0),
+		axisB: new THREE.Vector3(0,0,0),
+		maxForce: 1e6,
 	},
 	//linkcable: {type: 'hit'},
 },
 };
-auxl.spring1b = auxl.Core(auxl.spring1bData);
+auxl.coneTwist1b = auxl.Core(auxl.coneTwist1bData);
 
 
 //
@@ -2681,15 +2685,16 @@ auxl.zone0Scene0Data = {
 		fog: {type: 'exponential', color: '#000', density: 0.00025},
 		map: false,
 		spawnPos:{x:0,y:0,z:1},
+		physics : {gravity: 9.8, axis: new THREE.Vector3(0,-1,0),},
 	},
 	controls:{
 
 	},
 	start:{
 		biome1:{SpawnMultiAsset:null},
-		//ramp1:{SpawnCore:null},
-		//ramp2:{SpawnCore:null},
-		//ramp3:{SpawnCore:null},
+		ramp1:{SpawnCore:null},
+		ramp2:{SpawnCore:null},
+		ramp3:{SpawnCore:null},
 		lock1a:{SpawnCore:null},
 		lock1b:{SpawnCore:null},
 		distance1a:{SpawnCore:null},
@@ -2702,8 +2707,8 @@ auxl.zone0Scene0Data = {
 		hinge1b:{SpawnCore:null},
 		spring1a:{SpawnCore:null},
 		spring1b:{SpawnCore:null},
-		//buildingLayer:{SpawnLayer:null},
 
+		//buildingLayer:{SpawnLayer:null},
 		catwalk0Layer:{SpawnLayer:null},
 		//baseTest0Layer:{SpawnLayer:null},
 
@@ -2712,7 +2717,6 @@ auxl.zone0Scene0Data = {
 		//trampoline2:{SpawnCore:null},
 		//trampoline3:{SpawnCore:null},
 		//trampoline4:{SpawnCore:null},
-
 		//building1:{SpawnCore:null},
 		//building1Door:{SpawnCore:null},
 		//building2:{SpawnCore:null},
@@ -2740,9 +2744,9 @@ auxl.zone0Scene0Data = {
 		//dynSpringA:{SpawnCore:null},
 		//dynSpringB:{SpawnCore:null},
 
-		oneTest0One:{SpawnOne:null},
-		oneTest1One:{SpawnOne:null},
-		oneTest2One:{SpawnOne:null},
+		//oneTest0One:{SpawnOne:null},
+		//oneTest1One:{SpawnOne:null},
+		//oneTest2One:{SpawnOne:null},
 	},
 	delay:{
 /*
@@ -2809,43 +2813,68 @@ auxl.v03TestingScenarioData = {
 		},
 	},
 	controls:{
+		//Rubberband Sling
 		action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
 		action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Drop Web Sling.'},
+		//Freeze|UnFreeze
 		action2Down:{auxlObj: 'player', func: 'Freeze', params: 0, name: 'Freeze', info: 'Freeze mid-air.'},
 		action2Up:{auxlObj: 'player', func: 'UnFreeze', params: false, name: 'UnFreeze', info: 'UnFreeze mid-air.'},
-		action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '4', name: 'Boost Build', info: 'Build a boost in your gaze direction to fly.'},
-		action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Boost Stop', info: 'Drop Boost.'},
-		action4Down:{auxlObj: 'player', func: 'ToggleAction', params: '5', name: 'BoostBack', info: 'Boost Dash Backwards in Space.'},
-		action5Down:{auxlObj: 'player', func: 'Track2D', params: 0, name: 'Pick New Gravity Axis', info: 'Aim and drag along any face of a flat floor cube object to start detecting new Axis.'},
-		action6Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
-		action7Down:{auxlObj: 'player', func: 'ToggleAction', params: '3', name: 'Parachute', info: 'Open a parachute to float downward.'},
-		action7Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Parachute', info: 'Close parachute.'},
+
+		//Teleport
+		//action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '2', name: 'Teleport Start', info: 'Start charging of Teleport ray.'},
+		//action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Teleport Launch', info: 'Launch Teleport in aim direction from generated charge.'},
+
+		//Jump
+		//action3Down:{auxlObj: 'player', func: 'PhysJump', name: 'Jump', info: 'Jump up and forwards.'},
+
+		//Parachute
+		//action3Down:{auxlObj: 'player', func: 'ChuteDown', name: 'Open Parachute', info: 'Open your chute to suspend falling with velocity and float down.'},
+		//action3Up:{auxlObj: 'player', func: 'ChuteUp', name: 'Close Parachute', info: 'Close your chute to resume falling with velocity and fall down.'},
+
+
+		action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '1', name: 'Shoot Charge Start', info: 'Start charging of Shoot ray.'},
+		action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Shoot Charged Fire', info: 'Launch bullets from the Shoot ray from generated charge.'},
+
+
+		//Brake
+		//action3Down:{auxlObj: 'player', func: 'BrakeDown', name: 'Brake On', info: 'Engage your physics brake.'},
+		//action3Up:{auxlObj: 'player', func: 'BrakeUp', name: 'Brake Off', info: 'Disengage your physics brake.'},
+
+		//Boost
+		//action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '4', name: 'Boost Build', info: 'Build a boost in your gaze direction to fly.'},
+		//action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Boost Stop', info: 'Drop Boost.'},
+		//action4Down:{auxlObj: 'player', func: 'ToggleAction', params: '5', name: 'BoostBack', info: 'Boost Dash Backwards in Space.'},
+
+		//Track 2D
+		//action5Down:{auxlObj: 'player', func: 'Track2D', params: 0, name: 'Pick New Gravity Axis', info: 'Aim and drag along any face of a flat floor cube object to start detecting new Axis.'},
+
+		//World Gravity
+		action4Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleWorldAxis', name: 'Cycle World Gravity Direction', info: 'Cycle through all 7 gravity directions.'},
+		action5Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleWorldTypes', name: 'Cycle World Planetational Gravity', info: 'Cycle through all 12 types such as the planets, sun, a few moons, float and custom.'},
+		//Local Gravity
+		action6Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleAxis', name: 'Cycle Personal Gravity Direction', info: 'Cycle through all 7 gravity directions.'},
+		action7Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleTypes', name: 'Cycle Personal Planetational Gravity', info: 'Cycle through all 12 types such as the planets, sun, a few moons, float and custom.'},
+		//Random Types
+		//action8Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'randomTypes', name: 'Random Planetational Gravity', info: 'Randomly choose any of the 12 types such as the planets, sun, a few moons, float and custom.'},
+		//Stop All Physics
+		// action8Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'clearForces', name: 'Stop All', info: 'Stop every physics object.'},
+
+		//Main Menu
 		action8Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
-/*
-		//action3Down:{auxlObj: 'player', func: 'LowGrav', name: 'Low Gravity', info: 'Lower Gravity.'},
+
+		//Walk|Run
+		//action6Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
+
+		//Boost
 		//action4Down:{auxlObj: 'player', func: 'PhysBoost', name: 'Vertical Boost', info: 'Fly upwards.'},
-		//action5Down:{auxlObj: 'player', func: 'PhysJump', name: 'Jump', info: 'Jump Up'},
-		//action5Down:{auxlObj: 'player', func: 'Delink', name: 'Detach Link Cable', info: 'Detach Link Cable'},
-		//action7Up:{auxlObj: 'player', func: 'LinkUp', name: 'Increase Link Length', info: 'Increase Link Length'},
-		//action7Down:{auxlObj: 'player', func: 'Freeze', name: 'Freeze Momentum', info: 'Stop in your tracks'},
-		//action7Up:{auxlObj: 'player', func: 'UnFreeze', name: 'UnFreeze Momentum', info: 'Release'},
-		//action6Down:{auxlObj: 'player', func: 'Slow', name: 'Slow Momentum', info: 'Stop in your tracks'},
-		//action6Up:{auxlObj: 'player', func: 'UnSlow', name: 'UnSlow Momentum', info: 'Release'},
-		//action8Up:{auxlObj: 'player', func: 'LinkDown', name: 'Decrease Link Length', info: 'Decrease Link Length'},
-		//action7Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
-		//action8Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},
-		//action6Down:{auxlObj: 'linkHoverMenu', func: 'SpawnHoverMenu', name: 'Link Menu', info: 'Spawn Link Menu', params: 'true'},
-		//action6Up:{auxlObj: 'linkHoverMenu', func: 'DespawnHoverMenu', name: 'Link Menu', info: 'Despawn Link Menu'},
-		//action6Down:{auxlObj: 'uniRayTest1', func: 'Activate', name: 'UniTestStart', info: 'Switch to UniRay Test', params: 'true'},
-		//action6Up:{auxlObj: 'uniRayTest1', func: 'Deactivate', name: 'UniTestStop', info: 'Disconnect from UniRay Test'},
-		//action6Up:{auxlObj: 'uniRayTest1', func: 'Toggle', name: 'UniRayTesting', info: 'Toggle the UniRay Test'},
 
-		//action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '2', name: 'Teleport', info: 'Teleport Player'},
-		//action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'TeleportDrop', info: 'Drop Teleport.'},
-		//action7Down:{auxlObj: 'player', func: 'ToggleAction', params: '1', name: 'RubberbandSlam', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge. Auto Stop on second into pull.'},
-		//action7Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandSlamDrop', info: 'Drop Web Sling.'},
 
-*/
+		//Snap Turning
+		//action7Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left 45', info: 'Quick snap your view 45 degrees to the left.'},
+		//action8Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right 45', info: 'Quick snap your view 45 degrees to the right.'},
+		//action7Down:{auxlObj: 'player', func: 'SnapLeft90', name: 'Snap View Left 90', info: 'Quick snap your view 90 degrees to the left.'},
+		//action8Down:{auxlObj: 'player', func: 'SnapRight90', name: 'Snap View Right 90', info: 'Quick snap your view 90 degrees to the right.'},
+
 	},
 	start:{
 		skyBox1:{SpawnSkyBox: null},
@@ -2853,7 +2882,7 @@ auxl.v03TestingScenarioData = {
 		physicalFloor:{SpawnCore: null},
 		//ramp1:{SpawnCore: null},
 		mtnFloor:{SpawnCore: null},
-		handsTesting0:{SpawnCore: null},
+		//handsTesting0:{SpawnCore: null},
 		//hills:{SpawnHorizon: null},
 		//buildingsHorizon:{SpawnHorizon: null},
 		//cylinderWallHorizon:{SpawnHorizon: null},
