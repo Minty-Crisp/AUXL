@@ -2832,8 +2832,8 @@ auxl.v03TestingScenarioData = {
 		//action3Up:{auxlObj: 'player', func: 'ChuteUp', name: 'Close Parachute', info: 'Close your chute to resume falling with velocity and fall down.'},
 
 
-		action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '1', name: 'Shoot Charge Start', info: 'Start charging of Shoot ray.'},
-		action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Shoot Charged Fire', info: 'Launch bullets from the Shoot ray from generated charge.'},
+		//action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '1', name: 'Shoot Charge Start', info: 'Start charging of Shoot ray.'},
+		//action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Shoot Charged Fire', info: 'Launch bullets from the Shoot ray from generated charge.'},
 
 
 		//Brake
@@ -2841,8 +2841,8 @@ auxl.v03TestingScenarioData = {
 		//action3Up:{auxlObj: 'player', func: 'BrakeUp', name: 'Brake Off', info: 'Disengage your physics brake.'},
 
 		//Boost
-		//action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '4', name: 'Boost Build', info: 'Build a boost in your gaze direction to fly.'},
-		//action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Boost Stop', info: 'Drop Boost.'},
+		action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '4', name: 'Boost Build', info: 'Build a boost in your gaze direction to fly.'},
+		action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Boost Stop', info: 'Drop Boost.'},
 		//action4Down:{auxlObj: 'player', func: 'ToggleAction', params: '5', name: 'BoostBack', info: 'Boost Dash Backwards in Space.'},
 
 		//Track 2D
