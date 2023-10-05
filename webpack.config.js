@@ -7,8 +7,8 @@ module.exports = {
 	devtool: false,
 	//devtool: 'inline-source-map',
 	performance: {
-		maxEntrypointSize: 512000,
-		maxAssetSize: 512000
+		maxEntrypointSize: 1024000,
+		maxAssetSize: 1024000
 	},
 	output: {
 		path: path.resolve(__dirname, 'dist'),

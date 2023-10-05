@@ -15,6 +15,28 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
+//Planet
+auxl.planetData = {
+data:'planetData',
+id:'planet1',
+sources:false,
+text: false,
+geometry: {primitive: 'sphere', radius: 400, segmentsWidth: 200, segmentsHeight: 200,},
+material: {shader: "standard", src: auxl.pattern30, repeat: '10 10', color: "#3EB489", emissive: '#3EB489', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	//['static-body']: null,
+	body:{type: 'static', shape: 'sphere', mass: 0,},
+	bodymaterial: {friction: 0.05, restitution: 0},
+},
+};
+auxl.planet1 = auxl.Core(auxl.planetData);
+
 //UniRay Testing
 //console.log('pre uniraytest1')
 //auxl.uniRayTest1 = auxl.UniRay('uniRayTest1', auxl.ghost,{});
@@ -45,7 +67,31 @@ object attaching to track...
 alongpath="curve: #cloud3track; dur: 680000; loop: true; rotate: false"
 */
 
-
+/*
+//Pet Object
+auxl.petCoreData = {
+data:'petCoreData',
+id:'petCore',
+sources: false,
+text: false,
+geometry: {primitive: 'sphere', radius: 0.5},
+material: {shader: "standard", src: auxl.pattern30, repeat: '1 1', color: "#3EB489", emissive: '#3EB489', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,1,-0.5),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+auxl.petCore = auxl.Core(auxl.petCoreData);
+auxl.pet0Data = {
+id: 'pet0',
+name: 'Minty Pet',
+core: auxl.petCore,
+};
+let pet0 = auxl.Pet(auxl.pet0Data);
+*/
 
 //SkyBox
 auxl.skyGrad1Data = {
@@ -316,7 +362,7 @@ classes: ['clickable', 'a-ent'],
 components: {
 	//['static-body']: null,
 	body:{type: 'static', shape: 'box', mass: 0,},
-	bodymaterial: {friction: 0.0001, restitution: 0},
+	bodymaterial: {friction: 0.5, restitution: 0},
 },
 };
 auxl.physicalFloor = auxl.Core(auxl.physicalFloorData);
@@ -1803,7 +1849,6 @@ components: {
 };
 auxl.dynSpringB = auxl.Core(auxl.dynSpringBData);
 
-
 //Testing Timeout
 let testTimeout = setTimeout(() => {
 	//console.log(auxl.playerRig.GetEl().body);
@@ -2594,12 +2639,14 @@ sources: false,
 text: false,
 geometry: {primitive: 'sphere', radius: 0.5,},
 material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#d6de06", emissive: '#d6de06', emissiveIntensity: 0.25, opacity: 1},
-position: new THREE.Vector3(1,1.5,-4),
+position: new THREE.Vector3(5,5,-5),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations:false,
 mixins: false,
-classes: ['clickable', 'a-ent'],
+classes: ['a-ent'],
+components: false,
+/*
 components: {
 	body:{type: 'static', shape: 'sphere', mass: 0,},
 	bodymaterial: {friction: 0, restitution: 0},
@@ -2610,12 +2657,18 @@ components: {
 		offset: new THREE.Vector3(1,1.5,-4),
 		sync: true,
 	},
-},
+},*/
 };
 auxl.handsTesting0 = auxl.Core(auxl.handsTesting0Data);
+//auxl.handsTesting0.SpawnCore()
+
+//.worldToLocal ( vector : Vector3 ) : Vector3
+//let playRigTest = auxl.playerRig.GetEl().object3D.worldToLocal(auxl.handsTesting0.GetEl().object3D.position);
+//console.log(playRigTest)
 
 
-
+//let timeout = setTimeout(() => {}, 1000);
+//let interval = setInterval(() => {}, 1000);
 
 
 
@@ -2691,22 +2744,22 @@ auxl.zone0Scene0Data = {
 
 	},
 	start:{
-		biome1:{SpawnMultiAsset:null},
-		ramp1:{SpawnCore:null},
-		ramp2:{SpawnCore:null},
-		ramp3:{SpawnCore:null},
-		lock1a:{SpawnCore:null},
-		lock1b:{SpawnCore:null},
-		distance1a:{SpawnCore:null},
-		distance1b:{SpawnCore:null},
-		ptp1a:{SpawnCore:null},
-		ptp1b:{SpawnCore:null},
-		coneTwist1a:{SpawnCore:null},
-		coneTwist1b:{SpawnCore:null},
-		hinge1a:{SpawnCore:null},
-		hinge1b:{SpawnCore:null},
-		spring1a:{SpawnCore:null},
-		spring1b:{SpawnCore:null},
+		//biome1:{SpawnMultiAsset:null},
+		//ramp1:{SpawnCore:null},
+		//ramp2:{SpawnCore:null},
+		//ramp3:{SpawnCore:null},
+		//lock1a:{SpawnCore:null},
+		//lock1b:{SpawnCore:null},
+		//distance1a:{SpawnCore:null},
+		//distance1b:{SpawnCore:null},
+		//ptp1a:{SpawnCore:null},
+		//ptp1b:{SpawnCore:null},
+		//coneTwist1a:{SpawnCore:null},
+		//coneTwist1b:{SpawnCore:null},
+		//hinge1a:{SpawnCore:null},
+		//hinge1b:{SpawnCore:null},
+		//spring1a:{SpawnCore:null},
+		//spring1b:{SpawnCore:null},
 
 		//buildingLayer:{SpawnLayer:null},
 		catwalk0Layer:{SpawnLayer:null},
@@ -2828,21 +2881,29 @@ auxl.v03TestingScenarioData = {
 		//action3Down:{auxlObj: 'player', func: 'PhysJump', name: 'Jump', info: 'Jump up and forwards.'},
 
 		//Parachute
-		//action3Down:{auxlObj: 'player', func: 'ChuteDown', name: 'Open Parachute', info: 'Open your chute to suspend falling with velocity and float down.'},
-		//action3Up:{auxlObj: 'player', func: 'ChuteUp', name: 'Close Parachute', info: 'Close your chute to resume falling with velocity and fall down.'},
+		action3Down:{auxlObj: 'player', func: 'ChuteDown', name: 'Open Parachute', info: 'Open your chute to suspend falling with velocity and float down.'},
+		action3Up:{auxlObj: 'player', func: 'ChuteUp', name: 'Close Parachute', info: 'Close your chute to resume falling with velocity and fall down.'},
 
 
+		//Shoot
 		//action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '1', name: 'Shoot Charge Start', info: 'Start charging of Shoot ray.'},
 		//action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Shoot Charged Fire', info: 'Launch bullets from the Shoot ray from generated charge.'},
 
 
 		//Brake
-		//action3Down:{auxlObj: 'player', func: 'BrakeDown', name: 'Brake On', info: 'Engage your physics brake.'},
-		//action3Up:{auxlObj: 'player', func: 'BrakeUp', name: 'Brake Off', info: 'Disengage your physics brake.'},
+		//action3Down:{auxlObj: 'player', func: 'BrakeDown', name: 'Brake On', info: 'Engage your physics brake. Slow self to a stop, double tap for quick stop.'},
+		//action3Up:{auxlObj: 'player', func: 'BrakeUp', name: 'Brake Off', info: 'Release your physics brake.'},
+
+		//Redirect
+		//action3Down:{auxlObj: 'player', func: 'RedirectDown', name: 'Brake On', info: 'Engage your physics redirect. Use to slow, aim and launch self in new direction.'},
+		//action3Up:{auxlObj: 'player', func: 'RedirectUp', name: 'Brake Off', info: 'Release your redirect brake in the direction of your main raycaster.'},
+
+
+
 
 		//Boost
-		action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '4', name: 'Boost Build', info: 'Build a boost in your gaze direction to fly.'},
-		action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Boost Stop', info: 'Drop Boost.'},
+		//action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '4', name: 'Boost Build', info: 'Build a boost in your gaze direction to fly.'},
+		//action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Boost Stop', info: 'Drop Boost.'},
 		//action4Down:{auxlObj: 'player', func: 'ToggleAction', params: '5', name: 'BoostBack', info: 'Boost Dash Backwards in Space.'},
 
 		//Track 2D
@@ -2887,13 +2948,11 @@ auxl.v03TestingScenarioData = {
 		//buildingsHorizon:{SpawnHorizon: null},
 		//cylinderWallHorizon:{SpawnHorizon: null},
 		//mountainsHorizon:{SpawnHorizon: null},
-
-
-
 		//build:{SpawnBuild:null},
-		//player:{SpawnUniRay:null},
-playerRig:{PhysPos: new THREE.Vector3(0,50,1)},
-		//uniRayTest1:{SpawnUniRay:null},
+
+		//planet1:{SpawnCore: null},
+		//playerRig:{PhysPos: new THREE.Vector3(0,402,0)},
+		playerRig:{PhysPos: new THREE.Vector3(0,3,0)},
 	},
 	delay:{
 		100:{

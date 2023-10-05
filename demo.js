@@ -18,6 +18,33 @@ const auxl = document.querySelector('a-scene').systems.auxl;
 //
 //Testing Objects
 
+//Control Configuration View
+auxl.firingTestData = {
+data:'firingTestData',
+id:'firingTest',
+sources:false,
+text: {value:'Hit : 0', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.9, zOffset: 0.025, side: 'front', wrapCount: 10, baseline: 'center'},
+geometry: {primitive: 'box', depth: 0.025, width: 1, height: 0.5},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0,1.5,-2),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['clickable','a-ent'],
+components:{
+['stare']:{id: 'playerRig', twist: true},
+},
+};
+auxl.firingTest = auxl.Core(auxl.firingTestData);
+auxl.firingTest.SpawnCore();
+
+
+
+
+
+
+
 //Add To Inventory Test
 auxl.chest1Data = {
 data:'chest1Data',
@@ -343,8 +370,8 @@ auxl.layerFromTemplate(auxl.layerDupeTest, 'layerDupeTest', {position: new THREE
 auxl.layerDupeTestCopy0.SpawnLayer();
 */
 
-auxl.layerDataTest = auxl.layerDataFromTemplate(auxl.layerDupeTestData, 'layerTest',{position: new THREE.Vector3(0,3,-12)}, true);
-auxl.layerTest = auxl.Layer('layerTest',auxl.layerDataTest);
+auxl.layerDataTest = auxl.layerDataFromTemplate(auxl.layerDupeTestData, 'layerTest',{position: new THREE.Vector3(0,3,-12)}, false, true);
+auxl.layerTest = auxl.Layer('layerTest', auxl.layerDataTest);
 auxl.layerTest.SpawnLayer();
 
 
@@ -408,10 +435,15 @@ auxl.collisionTest10 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTe
 auxl.collisionTest11 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest11', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:5, y:0, z:-8}, end: {x:5.5, y:1, z:-7.5}, yOffset: 1, collide: true}}, true);
 
 
-//Collision Layer
-auxl.ghostCollision = auxl.layerFromTemplate(auxl.ghost, 'ghostCollision', {position: new THREE.Vector3(0,0,0)},{grid: {start:{x:3, y:0, z:-5}, end: {x:4, y:0, z:-4}, yOffset: 1.5, collide: true}}, true);
 
-auxl.ghostCollision.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'anim', path:[{z:-2,x:2,}, {z:2,x:-2,},]});
+//copy ghost body, add layer details
+
+//Collision Layer
+auxl.ghostCollisionData = auxl.layerDataFromTemplate(auxl.ghostLayerData, 'ghostCollisionData', {position: new THREE.Vector3(0,0,0)}, {grid: {start:{x:3, y:0, z:-5}, end: {x:4, y:1, z:-4}, yOffset: 1, collide: true},}, true);
+auxl.ghostCollision = auxl.Layer('ghostCollision', auxl.ghostCollisionData);
+auxl.ghostCollision.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'anim', path:[{z:-2,y:1,x:2,}, {z:2,y:-1,x:-2,},]});
+
+//auxl.ghostCollision.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 6, type: 'anim', path:[{z:-1,y:1,x:1,}, {z:1,y:-1,x:-1,},]});
 
 
 //Info Bubble
@@ -1869,7 +1901,11 @@ auxl.layerPage1Data = {
 		self:{Speak:{speech:'Hey there!'},},
 	},
 	timeline1:{
-		self:{Speak:{speech:'Having fun?'},},
+		self:{Speak:{speech:'Having fun? Lets test adding temp controls Action 7 and 8'},},
+		player:{
+			UpdateActions:{actions: {action7Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
+			action8Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},}, remove: false, tracker: 'layerNPC',},
+		},
 	},
 	timeline2:{
 		self:{Speak:{speech:'Lets look around.'},},
@@ -1881,7 +1917,10 @@ auxl.layerPage1Data = {
 		self:{Speak:{speech:'Now... where was that cookie I was eating?'}},
 	},
 	timeline5:{
-		self:{Speak:{speech:'Found it!'}},
+		self:{Speak:{speech:'Found it! And actions are gone'}},
+		player:{
+			UpdateActions:{actions: false, remove: true, tracker: 'layerNPC',},
+		},
 	},
 	timeline6:{
 		self: {ResetBook: true},
@@ -2214,6 +2253,9 @@ auxl.testScroll = auxl.ScrollMenu('testScroll');
 //Build Scene Library Objects
 auxl.buildSceneLibrary = () => {
 
+auxl.ghostCollision = auxl.Layer('ghostCollision', auxl.ghostCollisionData);
+auxl.ghostCollision.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'anim', path:[{z:-2,x:2,}, {z:2,x:-2,},]});
+
 //Testing
 //Testing
 auxl.eventTesting = auxl.Core(auxl.eventTestingData);
@@ -2378,7 +2420,7 @@ auxl.zone0Scene0Data = {
 		spawnPos:{x:0,y:0,z:1},
 	},
 	controls:{
-		action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn', name: 'Toggle Cube', info: 'Toggle an in-scene cube.'},
+		//action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn', name: 'Toggle Cube', info: 'Toggle an in-scene cube.'},
 	},
 	start:{
 		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#1e7e5d", emissive: "#1e7e5d",},}},
@@ -2392,7 +2434,7 @@ auxl.zone0Scene0Data = {
 		collisionTest1:{SpawnCoreOnGrid:null},
 		collisionTest2:{SpawnCoreOnGrid:null},
 		collisionTest3:{SpawnCoreOnGrid:null},
-		collisionTest4:{SpawnCoreOnGrid:null, WalkPath:null},
+		//collisionTest4:{SpawnCoreOnGrid:null, WalkPath:null},
 		collisionTest5:{SpawnCoreOnGrid:null},
 		collisionTest6:{SpawnCoreOnGrid:null},
 		collisionTest7:{SpawnCoreOnGrid:null},
@@ -2405,6 +2447,7 @@ auxl.zone0Scene0Data = {
 		triggerTest2:{SpawnCoreOnGrid:null},
 		//ghostCollision:{SpawnLayerOnGrid:null, WalkPath: null},
 		testGrid2:{SpawnGridLayout:'grid1'},
+		layerNPC:{SpawnNPC:null},
 	},
 	delay:{
 		3000:{
@@ -2589,6 +2632,8 @@ auxl.zone1Scene0Data = {
 	interaction:{
 	},
 	exit:{
+		testLock:{DespawnComboLock:null},
+		testScroll:{DespawnScrollMenu:null}
 	},
 	map:{
 		data: auxl.zone1Data.zone1Scene0,
@@ -2632,9 +2677,14 @@ auxl.v03TestingScenarioData = {
 	controls:{
 		action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
 		action2Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		//Testing
+		action3Down:{auxlObj: 'player', func: 'FiringTest', name: 'Dev Firing Test', info: 'Testing how button fires work on all hardware'},
+
+
 		action4Down:{auxlObj: 'testHoverMenu', func: 'SpawnHoverMenu', name: 'Quick Menu', info: 'Spawn Quick Menu', params: 'true'},
 		action4Up:{auxlObj: 'testHoverMenu', func: 'DespawnHoverMenu', name: 'Quick Menu', info: 'Despawn Quick Menu'},
-		action5Down:{auxlObj: 'player', func: 'ToggleCrouch', name: 'Toggle Crouch/Stand', info: 'Change your position speed between crouch and standing.'},
+		//action5Down:{auxlObj: 'player', func: 'ToggleCrouch', name: 'Toggle Crouch/Stand', info: 'Change your position between crouch and standing.'},
+		action5Down:{auxlObj: 'player', func: 'ToggleCrouch', name: 'Toggle Crouch/Stand', info: 'Change your position between crouch and standing.'},
 		action7Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
 		action8Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},
 	},
@@ -2670,7 +2720,7 @@ auxl.TestingWorldData = {
 		maxLoadtime: 5000,
 		dayTime: 360000,
 		inventory: true,
-		collision: true,
+		collision: {compass: true},
 		physics: false,
 		menuStyle: auxl.menuStyleData,
 		menuOptions: auxl.addToMainMenu,
