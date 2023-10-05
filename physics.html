@@ -17,10 +17,13 @@
 <meta property="og:title" content="A-Frame UX Library | v0.3 Engine Example by Minty Crisp">
 <meta property="og:type" content="XR">
 <meta property="og:url" content="auxlibrary.com">
-<!-- A-Frame official release 1.4.2 -->
-<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-<!-- Physics -->
-<script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
+<!-- A-Frame official release 1.4.2
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script> -->
+<!-- local -->
+<script src="./assets/js/aframe-v1.4.2.min.js"></script>
+<!-- Physics
+<script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script> -->
+<script src="./assets/js/aframe-physics-system.min.js"></script>
 <!-- MVP.css -->
 <link rel="stylesheet" href="./assets/css/mvp.css">
 <!-- CSS -->
@@ -73,6 +76,11 @@
 <li><button id="resetData" class="flexCol">Confirm Reset</button>
 </div>
 <main>
+<!-- physics="debug: false; gravity: 0" -->
+<!-- physics="debug: false;" -->
+<!-- physics="debug: false; gravity: -9.8" -->
+<!-- physics="debug: false; gravity: -9.80665"-->
+<!-- physics="debug: false; gravity: -4.9" -->
 <a-scene
 physics="debug: false; gravity: 0"
 auxl
@@ -111,6 +119,7 @@ light="type: directional; intensity: 0.1; castShadow: false" position="-1 1 -1"
 light="type: ambient; color: #99154E; intensity: 0.7"
 ></a-entity>
 <!-- - - - - - - - - - - Debug - - - - - - - - - - -->
+
 <!--
 <a-sphere material="shader:displacement-offset"
 myoffset-updater
