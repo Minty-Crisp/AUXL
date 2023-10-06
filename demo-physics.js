@@ -2881,13 +2881,17 @@ auxl.v03TestingScenarioData = {
 		//action3Down:{auxlObj: 'player', func: 'PhysJump', name: 'Jump', info: 'Jump up and forwards.'},
 
 		//Parachute
-		action3Down:{auxlObj: 'player', func: 'ChuteDown', name: 'Open Parachute', info: 'Open your chute to suspend falling with velocity and float down.'},
-		action3Up:{auxlObj: 'player', func: 'ChuteUp', name: 'Close Parachute', info: 'Close your chute to resume falling with velocity and fall down.'},
+		//action3Down:{auxlObj: 'player', func: 'ChuteDown', name: 'Open Parachute', info: 'Open your chute to suspend falling with velocity and float down.'},
+		//action3Up:{auxlObj: 'player', func: 'ChuteUp', name: 'Close Parachute', info: 'Close your chute to resume falling with velocity and fall down.'},
 
 
 		//Shoot
-		//action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '1', name: 'Shoot Charge Start', info: 'Start charging of Shoot ray.'},
-		//action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Shoot Charged Fire', info: 'Launch bullets from the Shoot ray from generated charge.'},
+		action3Down:{auxlObj: 'player', func: 'ToggleAction', params: '1', name: 'Shoot Charge Start', info: 'Start charging of Shoot ray.'},
+		action3Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Shoot Charged Fire', info: 'Launch bullets from the Shoot ray from generated charge.'},
+
+
+		//Main Menu
+		action4Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
 
 
 		//Brake
@@ -2910,18 +2914,16 @@ auxl.v03TestingScenarioData = {
 		//action5Down:{auxlObj: 'player', func: 'Track2D', params: 0, name: 'Pick New Gravity Axis', info: 'Aim and drag along any face of a flat floor cube object to start detecting new Axis.'},
 
 		//World Gravity
-		action4Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleWorldAxis', name: 'Cycle World Gravity Direction', info: 'Cycle through all 7 gravity directions.'},
-		action5Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleWorldTypes', name: 'Cycle World Planetational Gravity', info: 'Cycle through all 12 types such as the planets, sun, a few moons, float and custom.'},
+		action5Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleWorldAxis', name: 'Cycle World Gravity Direction', info: 'Cycle through all 7 gravity directions.'},
+		action6Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleWorldTypes', name: 'Cycle World Planetational Gravity', info: 'Cycle through all 12 types such as the planets, sun, a few moons, float and custom.'},
 		//Local Gravity
-		action6Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleAxis', name: 'Cycle Personal Gravity Direction', info: 'Cycle through all 7 gravity directions.'},
-		action7Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleTypes', name: 'Cycle Personal Planetational Gravity', info: 'Cycle through all 12 types such as the planets, sun, a few moons, float and custom.'},
+		action7Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleAxis', name: 'Cycle Personal Gravity Direction', info: 'Cycle through all 7 gravity directions.'},
+		action8Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleTypes', name: 'Cycle Personal Planetational Gravity', info: 'Cycle through all 12 types such as the planets, sun, a few moons, float and custom.'},
 		//Random Types
 		//action8Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'randomTypes', name: 'Random Planetational Gravity', info: 'Randomly choose any of the 12 types such as the planets, sun, a few moons, float and custom.'},
 		//Stop All Physics
 		// action8Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'clearForces', name: 'Stop All', info: 'Stop every physics object.'},
 
-		//Main Menu
-		action8Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
 
 		//Walk|Run
 		//action6Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},

@@ -18,32 +18,6 @@ const auxl = document.querySelector('a-scene').systems.auxl;
 //
 //Testing Objects
 
-//Control Configuration View
-auxl.firingTestData = {
-data:'firingTestData',
-id:'firingTest',
-sources:false,
-text: {value:'Hit : 0', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.9, zOffset: 0.025, side: 'front', wrapCount: 10, baseline: 'center'},
-geometry: {primitive: 'box', depth: 0.025, width: 1, height: 0.5},
-material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,1.5,-2),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['clickable','a-ent'],
-components:{
-['stare']:{id: 'playerRig', twist: true},
-},
-};
-auxl.firingTest = auxl.Core(auxl.firingTestData);
-auxl.firingTest.SpawnCore();
-
-
-
-
-
-
 
 //Add To Inventory Test
 auxl.chest1Data = {
@@ -2420,7 +2394,7 @@ auxl.zone0Scene0Data = {
 		spawnPos:{x:0,y:0,z:1},
 	},
 	controls:{
-		//action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn', name: 'Toggle Cube', info: 'Toggle an in-scene cube.'},
+		action3Down:{auxlObj: 'testCubeCore', func: 'ToggleSpawn', name: 'Toggle Cube', info: 'Toggle an in-scene cube.'},
 	},
 	start:{
 		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern49, repeat: '150 150',color: "#1e7e5d", emissive: "#1e7e5d",},}},
@@ -2675,18 +2649,15 @@ auxl.v03TestingScenarioData = {
 		},
 	},
 	controls:{
-		action1Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
+		action1Down:{auxlObj: 'testHoverMenu', func: 'SpawnHoverMenu', name: 'Quick Menu', info: 'Spawn Quick Menu', params: 'true'},
+		action1Up:{auxlObj: 'testHoverMenu', func: 'DespawnHoverMenu', name: 'Quick Menu', info: 'Despawn Quick Menu'},
 		action2Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
-		//Testing
-		action3Down:{auxlObj: 'player', func: 'FiringTest', name: 'Dev Firing Test', info: 'Testing how button fires work on all hardware'},
+		action3Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
 
-
-		action4Down:{auxlObj: 'testHoverMenu', func: 'SpawnHoverMenu', name: 'Quick Menu', info: 'Spawn Quick Menu', params: 'true'},
-		action4Up:{auxlObj: 'testHoverMenu', func: 'DespawnHoverMenu', name: 'Quick Menu', info: 'Despawn Quick Menu'},
-		//action5Down:{auxlObj: 'player', func: 'ToggleCrouch', name: 'Toggle Crouch/Stand', info: 'Change your position between crouch and standing.'},
 		action5Down:{auxlObj: 'player', func: 'ToggleCrouch', name: 'Toggle Crouch/Stand', info: 'Change your position between crouch and standing.'},
-		action7Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
-		action8Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},
+		action6Down:{auxlObj: 'player', func: 'ToggleSittingMode', name: 'Toggle Crouch/Stand', info: 'Change your position between crouch and standing.'},
+		action7Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},
+		action8Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
