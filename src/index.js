@@ -8,31 +8,19 @@
 import auxl from './system/auxl.js';
 
 //
-//Games
-//
-//Arcade
-//import arcade from './games/arcade.js';
-//
-//Pet
-//import pet from './games/pet.js';
-//
-//RPG
-//import rpg from './games/rpg.js';
-
-//
 //Support
 //
 //Controls
-import {controls, uniray} from './support/controls.js';
+import auxcontroller from './support/controls.js';
 //
 //Movement
-import {locomotion, gimbal, teleportation, raycastTeleport, raycastTeleportSelect, teleportto} from './support/movement.js';
+import {locomotion, teleportation, raycastTeleport, raycastTeleportSelect, teleportto} from './support/movement.js';
 //
 //Run
 import {clickfunc, clickrun, clickrunfunc, fusingrun, mousedownrun, mouseenterrun, mouseleaverun, mouseuprun, menurun, hoverrun, onspawnrun, onspawnfunc, ondespawnrun, oneventrun, ondelayrun, onintervalrun} from './support/run.js';
 //
 //Misc
-import {syncPos, lookAtXYZ, stare, hovertext} from './support/misc.js';
+import {syncPos, syncRot, lookAtXYZ, stare, hovertext} from './support/misc.js';
 //
 //Material
 import {gltfmat, modifyMaterials} from './support/material.js';
@@ -47,12 +35,15 @@ import {doorway, doorwayTrigger} from './support/doors.js';
 import {clickaddinventory, acceptobject} from './support/inventory.js';
 //
 //Import Physics
-import {playerlink, linkcable, camerasync, staticsync, collision, trigger, bodymaterial, auxconstraint, auxspring, ungravity} from './support/physics.js';
+import {linkcable, camerasync, staticsync, collision, trigger, bodymaterial, auxconstraint, auxspring, gravitycontrol} from './support/physics.js';
+//
+//Modified Sound
+import auxsound from './support/sound.js';
 
 //
 //External
 //
-//Third Party ObjGen
+//Third Party New ObjGen Support Demo
 import auxlthirdparty from './external/other.js';
 //
 //Three Grad Shader

@@ -170,7 +170,7 @@ if(auxl[auxl.running[ran].name].GetEl){
 	//Read NodeScene Data Timeline
 	function readTimeline(time){
 		if(time === 'controls'){
-			auxl.uniRay.updateAction(core[time]);
+			auxl.controller.updateAction(core[time]);
 			return;
 		}
 		//Fog
@@ -478,7 +478,7 @@ if(auxl[auxl.running[ran].name].GetEl){
 	}
 	//Remove NodeScene Controls
 	const RemoveControls = () => {
-		auxl.uniRay.disableAction(core['controls']);
+		auxl.controller.disableAction(core['controls']);
 	}
 	//Read NodeScene Start Section
 	const Start = () => {
@@ -505,6 +505,7 @@ if(auxl[auxl.running[ran].name].GetEl){
 		readTimeline('exit');
 		RemoveControls();
 		GridMapStop();
+		auxl.player.EmitEvent('sceneExit', true);
 		if(core.info.sceneText){
 			sceneText.KillStop();
 		}
@@ -530,6 +531,12 @@ if(auxl[auxl.running[ran].name].GetEl){
 		}
 		auxl.map.ClearWaiting();
 		auxl.map.ClearTriggers();
+	}
+	//Physics Updates
+	const PhysUpdates = (update) => {
+		//physics : {gravity: 9.8, axis: new THREE.Vector3(0,-1,0),},
+//auxl.playerRig.GetEl().body.world.gravity
+		//auxl.world
 	}
 	//Scene Text Support
 	const SceneTextDisplay = () => {
@@ -747,7 +754,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	//Read MapZone Data Timeline
 	function readTimeline(time){
 		if(time === 'controls'){
-			auxl.uniRay.updateAction(core[time]);
+			auxl.controller.updateAction(core[time]);
 			return;
 		}
 		for(let line in core[time]){
@@ -968,7 +975,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	}
 	//Remove MapZone Controls
 	const RemoveControls = () => {
-		auxl.uniRay.disableAction(core['controls']);
+		auxl.controller.disableAction(core['controls']);
 	}
 	//Read MapZone Start Section
 	const Start = () => {
@@ -994,6 +1001,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	const Exit = () => {
 		readTimeline('exit');
 		RemoveControls();
+		auxl.player.EmitEvent('zoneExit', true);
 		core.zoneLoaded = false;
 	}
 	//MapZone Start
@@ -1152,13 +1160,14 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	}
 	//Move Scenes
 	const Move = (connect) => {
-		auxl.player.LockLocomotion();
 		newNode = core.map[core.currentNode][connect];
 		//Check for Lock & Keys
 		if(newNode.locked && !auxl.comp.CheckForKey(newNode.keyId)){
 			clearTimeout(timeout2);
 			auxl.player.Notification({message:'Requires : ' + newNode.keyName});
 		} else {
+			auxl.player.LockLocomotion();
+			auxl.player.PlayerSceneAnim();
 			if(newNode.locked && auxl.comp.CheckForKey(newNode.keyId) && !newNode.keepKey){
 				auxl.comp.RemoveFromInventory(newNode.keyId);
 			}
@@ -1177,7 +1186,6 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 				}
 				clearTimeout(timeout);
 			}, 425);
-			auxl.player.PlayerSceneAnim();
 		}
 	}
 	//Change Scene
@@ -1360,7 +1368,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 	//Read Scenario Data Timeline
 	function readTimeline(time){
 		if(time === 'controls'){
-			auxl.uniRay.updateAction(core[time]);
+			auxl.controller.updateAction(core[time]);
 			return;
 		}
 		for(let line in core[time]){
@@ -1590,7 +1598,8 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 	}
 	//Remove Scenario Controls
 	const RemoveControls = () => {
-		auxl.uniRay.disableAction(core['controls']);
+		auxl.controller.disableAction(core['controls']);
+		//auxl.player.UpdateActions({actions, remove, tracker, limit})
 	}
 	//Read Scenario Start Section
 	const Start = () => {
@@ -1616,6 +1625,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 	const Exit = () => {
 		readTimeline('exit');
 		RemoveControls();
+		auxl.player.EmitEvent('scenarioExit', true);
 	}
 	//Load all Scenario Items
 	const Init = () => {
@@ -1635,8 +1645,8 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 			//Update HTML
 			updateHTMLTitle();
 			updateHTMLInstructions();
-			//Get UniRay component
-			auxl.uniRay = document.getElementById('playerRig').components['uniray'];
+			//Get auxcontroller component
+			//auxl.controller = document.getElementById('playerRig').components['auxcontroller'];
 			//Start scene mid Player anim
 			startTimeout = setTimeout(() => {
 				//Load All Scenario Items
@@ -1731,10 +1741,14 @@ const World = (auxl, worldData) => {
 		}
 		//Collision
 		if(world.data.info.collision){
-			auxl.collision = world.data.info.collision;
+			auxl.collision = true;
+			auxl.compassDisplay = world.data.info.collision.compass || false;
 		} else {
 			auxl.collision = false;
+			auxl.compassDisplay = false;
 		}
+		//Compass Display
+		auxl.playerFloor.ChangeSelf({property: 'visible', value: auxl.compassDisplay})
 		//Physics
 		if(world.data.info.physics){
 			auxl.worldPhysics = world.data.info.physics;
@@ -1743,6 +1757,8 @@ const World = (auxl, worldData) => {
 			auxl.player.EnablePhysics();
 		} else {
 			auxl.worldPhysics = false;
+			//auxl.DisablePhysics();
+			//auxl.player.DisablePhysics();
 		}
 		//Main Menu Style
 		if(world.data.info.menuStyle){

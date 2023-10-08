@@ -2919,6 +2919,7 @@ auxl.v03TestingScenarioData = {
 		//Local Gravity
 		action7Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleAxis', name: 'Cycle Personal Gravity Direction', info: 'Cycle through all 7 gravity directions.'},
 		action8Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'cycleTypes', name: 'Cycle Personal Planetational Gravity', info: 'Cycle through all 12 types such as the planets, sun, a few moons, float and custom.'},
+
 		//Random Types
 		//action8Down:{auxlObj: 'playerRig', component: 'gravitycontrol', func: 'randomTypes', name: 'Random Planetational Gravity', info: 'Randomly choose any of the 12 types such as the planets, sun, a few moons, float and custom.'},
 		//Stop All Physics

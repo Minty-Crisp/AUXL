@@ -11,7 +11,9 @@
 //doorwayTrigger
 
 //
-//Click
+//doorway
+//zone is the zone that the door is in
+//to is the key name connect# in the map data for the scene the door is in
 const doorway = AFRAME.registerComponent('doorway', {
 	dependencies: ['auxl'],
 schema: {

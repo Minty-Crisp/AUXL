@@ -268,10 +268,6 @@ components: false,
 //
 //Player
 
-//Teleportation Animation should be its own camera extension
-
-
-
 //Rig
 auxl.playerRigData = {
 data:'playerRigData',
@@ -288,7 +284,7 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-['uniray']:null,
+['auxcontroller']:null,
 ['locomotion']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
 //['gimbal']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
 light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
@@ -306,17 +302,7 @@ material: false,
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,1,0),
 scale: new THREE.Vector3(1,1,1),
-animations: {
-crouchdownstanding: {property: 'object3D.position.y', from: 0, to: -0.75, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchDownStanding'},
-crouchupstanding: {property: 'object3D.position.y', from: -0.75, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchUpStanding'},
-
-crouchdownsitting: {property: 'object3D.position.y', from: 0.75, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchDownSitting'},
-crouchupsitting: {property: 'object3D.position.y', from: 0, to: 0.75, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchUpSitting'},
-
-sit: {property: 'object3D.position.y', from: 0, to: 0.75, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sit'},
-stand: {property: 'object3D.position.y', from: 0.75, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'stand'},
-
-},
+animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: false,
@@ -338,7 +324,7 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-//['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: false, magicWindowTrackingEnabled: true},
+//['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
 ['wasd-controls']:{enabled: false},
 },};
 auxl.camera = auxl.Core(auxl.cameraData);
@@ -354,10 +340,11 @@ position: new THREE.Vector3(0,0.05,-0.5),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: {
-opacinbk:{property: 'components.material.material.opacity', from: 0, to: 0.82, dur: 750, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',}, 
-opacoutbk:{property: 'components.material.material.opacity', from: 0.82, to: 0, dur: 750, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',},
-opacintxt:{property: 'text.opacity', from: 0, to: 0.82, dur: 750, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',}, 
-opacouttxt:{property: 'text.opacity', from: 0.82, to: 0, dur: 750, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',},
+opacinbk:{property: 'components.material.material.opacity', from: 0, to: 0.82, dur: 500, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',}, 
+opacoutbk:{property: 'components.material.material.opacity', from: 0.82, to: 0, dur: 500, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsgFadeOut', pauseEvents: 'cameraMsg'},
+opacintxt:{property: 'text.opacity', from: 0, to: 0.82, dur: 500, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',}, 
+opacouttxt:{property: 'text.opacity', from: 0.82, to: 0, dur: 500, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsgFadeOut', pauseEvents: 'cameraMsg'},
+
 },
 mixins: false,
 classes: ['a-ent','player'],
@@ -384,7 +371,7 @@ hoverenter:{property: 'material.color', from: '#228da7', to: '#22a741', dur: 1, 
 hoverleave:{property: 'material.color', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
 },
 mixins: false,
-classes: ['clickable', 'a-ent','player'],
+classes: ['clickable', 'a-ent', 'player'],
 components: false,
 //raycaster:{enabled: 'true', autoRefresh: 'true', objects: '.clickable', origin: new THREE.Vector3(0,0,0), direction: new THREE.Vector3(0,0,-1), far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'},
 //cursor: {fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true', pointerLockEnabled: true},
@@ -409,6 +396,7 @@ mixins: false,
 classes: ['a-ent','player'],
 components: {
 //['vr-left-inputs']:{joystickEnabled: true},
+camera: {active: false},
 visible: 'false',
 },
 };
@@ -449,6 +437,7 @@ mixins: false,
 classes: ['a-ent','player'],
 components: {
 //['vr-right-inputs']:{joystickEnabled: true},
+camera: {active: false},
 visible: 'false',
 },
 };
@@ -561,6 +550,10 @@ fadein:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 4
 
 fadeout:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fade'},
 
+fadeinquick:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 200, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadequick'},
+
+fadeoutquick:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 200, delay: 300, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadequick'},
+
 
 fadeinscene:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadeScene1'},
 
@@ -589,6 +582,12 @@ spherein2: {property: 'geometry.thetaStart', from: 90, to: 0, dur: 400, delay: 0
 
 sphereout1:{property: 'geometry.thetaLength', from: 180, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
 sphereout2: {property: 'geometry.thetaStart', from: 0, to: 90, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
+
+spherein1quick:{property: 'geometry.thetaLength', from: 0, to: 180, dur: 200, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'spherequick'},
+spherein2quick: {property: 'geometry.thetaStart', from: 90, to: 0, dur: 200, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'spherequick'},
+
+sphereout1quick:{property: 'geometry.thetaLength', from: 180, to: 0, dur: 200, delay: 300, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'spherequick'},
+sphereout2quick: {property: 'geometry.thetaStart', from: 0, to: 90, dur: 200, delay: 300, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'spherequick'},
 
 
 spherein1scene:{property: 'geometry.thetaLength', from: 0, to: 180, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene1'},
@@ -620,6 +619,12 @@ blinkopacin: {property: 'components.material.material.opacity', from: 0, to: 1, 
 blinkout:{property: 'object3D.position.y', from: 1, to: 2.5, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
 blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
 
+blinkinquick:{property: 'object3D.position.y', from: 2.5, to: 1, dur: 200, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkquick'},
+blinkopacinquick: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 200, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkquick'},
+
+blinkoutquick:{property: 'object3D.position.y', from: 1, to: 2.5, dur: 200, delay: 300, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkquick'},
+blinkopacoutquick: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 200, delay: 300, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkquick'},
+
 
 blinkinscene:{property: 'object3D.position.y', from: 2.5, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
 blinkopacinscene: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
@@ -649,6 +654,13 @@ blinkopacin: {property: 'components.material.material.opacity', from: 0, to: 1, 
 
 blinkout:{property: 'object3D.position.y', from: -1, to: -2.5, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
 blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
+
+
+blinkinquick:{property: 'object3D.position.y', from: -2.5, to: -1, dur: 200, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkquick'},
+blinkopacinquick: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 200, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkquick'},
+
+blinkoutquick:{property: 'object3D.position.y', from: -1, to: -2.5, dur: 200, delay: 300, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkquick'},
+blinkopacoutquick: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 200, delay: 300, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkquick'},
 
 
 blinkinscene:{property: 'object3D.position.y', from: -2.5, to: -1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
@@ -696,10 +708,9 @@ child1: {core: auxl.playerFloor},
 auxl.playerLayer = auxl.Layer('playerLayer', auxl.playerAll);
 
 //Player
-//auxl.player = auxl.Player('player',auxl.playerLayer);
-let blankData = {};
-auxl.player = auxl.Player('player',auxl.playerLayer,blankData);
-console.log({plaerCreated: auxl.player})
+auxl.player = auxl.Player('player',auxl.playerLayer);
+//console.log({playerCreated: auxl.player})
+
 //
 //Avatar
 
@@ -979,9 +990,11 @@ scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
 classes: ['a-ent'],
-components: {
-['stare']:{id: 'playerRig'},
-},
+components: false,
+//components: {
+//['stare']:{id: 'playerRig'},
+//['look-at-xyz']:{match: 'playerRig', x:false, y:true, z:false},
+//},
 };
 auxl.ghostParent = auxl.Core(auxl.ghostParentData);
 //All
@@ -1510,8 +1523,7 @@ mixins: false,
 classes: ['clickable','a-ent'],
 components:{
 clickrun:{cursorObj: 'comp', method: 'ToggleControlView'}, 
-['look-at-xyz']:{match: 'camera', y:true},
-//['stare']:{id: 'playerRig', twist: true},
+['stare']:{id: 'playerRig', twist: true},
 },
 };
 auxl.configurationView = auxl.Core(auxl.configurationViewData);

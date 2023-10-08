@@ -16,7 +16,8 @@ const gltfmat = AFRAME.registerComponent('gltfmat', {
 dependencies: ['auxl'],
 schema: {
 	colors: {type: 'array', default: [false]},
-	emissive: {type: 'array', default: [false]},
+	emissives: {type: 'array', default: [false]},
+	opacities: {type: 'array', default: [false]},
 	textures: {type: 'array', default: [false]},
 	repeats: {type: 'array', default: [false]},
 	random: {type: 'boolean', default: false},
@@ -38,9 +39,16 @@ schema: {
 					this.materials[this.current] = new THREE.MeshStandardMaterial({color});
 				}
 				//Emissive
-				if(this.data.emissive[this.current]){
+				if(this.data.emissives[this.current]){
 					this.materials[this.current].emissive = this.materials[this.current].color;
-					this.materials[this.current].emissiveIntensity = this.data.emissive[this.current];
+					this.materials[this.current].emissiveIntensity = this.data.emissives[this.current];
+				}
+				//Opacity
+				if(this.data.opacities[this.current]){
+					if(this.data.opacities[this.current] < 1){
+						this.materials[this.current].transparent = true;
+						this.materials[this.current].opacity = this.data.opacities[this.current];
+					}
 				}
 				//Texture
 				if(this.data.textures[this.current]){

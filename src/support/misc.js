@@ -47,6 +47,41 @@ tick: function (time, timeDelta) {
 });
 
 //
+//Sync Rot
+const syncRot = AFRAME.registerComponent('sync-rot', {
+dependencies: ['auxl'],
+schema: {
+	idname: {type: 'string', default: 'ui'},
+	rotation: {type: 'vec4'},
+},
+init: function () {
+	//Thing To Attach
+	this.attachee = document.getElementById(this.data.idname);
+	this.offset = new THREE.Euler();
+	if(this.data.rotation){
+		this.offset.copy(this.data.rotation);
+	} else {
+		this.offset.copy(this.attachee.object3D.rotation);
+	}
+	this.newRotEuler = new THREE.Euler();
+},
+attached: function () {
+	//Clone current the entity this component is attached to's rotation
+	this.newRotEuler.copy(this.el.object3D.rotation);
+	//Offsets
+	this.newRotEuler.x += this.offset.x;
+	this.newRotEuler.y += this.offset.y;
+	this.newRotEuler.z += this.offset.z;
+	this.newRotEuler.w += this.offset.w;
+	//Set rotation for UI at 3js level for speed!
+	this.attachee.object3D.rotation.copy(this.newRotEuler);
+},
+tick: function (time, timeDelta) {
+	this.attached();
+},
+});
+
+//
 //Look At XYZ
 const lookAtXYZ = AFRAME.registerComponent('look-at-xyz', {
 dependencies: ['auxl'],
@@ -86,8 +121,6 @@ lookAtXYZ: function () {
 			} else {
 				this.rotation.y = this.matchRotation.y;
 			}
-
-
 /*
 			if(this.data.buffer > 0){
 				if(this.matchRotation.y > this.rotation.y){
@@ -99,9 +132,6 @@ lookAtXYZ: function () {
 				this.rotation.y = this.matchRotation.y;
 			}
 */
-
-
-
 		}
 	}
 	if(this.data.z){
@@ -245,4 +275,4 @@ remove: function () {
 
 //
 //Export
-export {syncPos, lookAtXYZ, stare, hovertext};
+export {syncPos, syncRot, lookAtXYZ, stare, hovertext};

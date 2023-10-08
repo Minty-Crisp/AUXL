@@ -136,22 +136,22 @@ const Constraints = (auxl, core, linkData, atStart) => {
 	//Connect To
 	const Connect = (data) => {
 //console.log(core)
-console.log({event: 'constraint ostbuild', base: constraint, update: data || false})
+//console.log({event: 'constraint ostbuild', base: constraint, update: data || false})
 		//Setup with non physics component attach as well
 		Update(data);
-console.log({core: constraint, update: data})
+//console.log({core: constraint, update: data})
 		constraint.core.core.components[constraint.connect.name] = constraint.connect;
 		constraint.core.ChangeSelf({property: constraint.connect.name, value: constraint.connect}, true);
 	}
 	//Disconnect Self
 	const Disable = () => {
 		delete constraint.core.core.components[constraint.connect.name];
-console.log({event: 'constraint disconnet', base: constraint})
+//console.log({event: 'constraint disconnet', base: constraint})
 	}
 	//Disconnect Self
 	const Disconnect = () => {
 		constraint.core.RemoveComponent(constraint.connect.name);
-console.log({event: 'constraint disconnet', base: constraint})
+//console.log({event: 'constraint disconnet', base: constraint})
 	}
 
 	//Connect Right Away if On
@@ -166,7 +166,7 @@ console.log({event: 'constraint disconnet', base: constraint})
 //Link all current powers to one equivialant
 
 //Gen a Phys Object 
-const One = (auxl, objGen, oneData) => {
+const One = (auxl, objGen, oneData, uniRay) => {
 //Phys objects pertain to a single core wether that be solo or the parent (core/layer)
 
 //static : infinite mass, collides with dynamic. Position/Rotation
@@ -179,12 +179,17 @@ const One = (auxl, objGen, oneData) => {
 	one.worldBody = false;
 	one.core = false;
 	one.layer = false;
+	one.bodyEl = false;
+	one.rayEl = false;
+	one.spawnControl = true;
+	//Build Core
 	if(objGen.core){
 		one.core = objGen;
 	} else if(objGen.layer){
 		one.core = objGen.layer.all.parent.core;
 		one.layer = objGen;
 	}
+
 //console.log(one.core)
 	one.num = Math.random().toFixed(8);
 	one.name = one.core.core.id + 'Phys' || 'objPhys';
@@ -215,6 +220,9 @@ const One = (auxl, objGen, oneData) => {
 		shape: 'none',
 	};
 
+	//Fixed Rotation
+	one.fixedRotation = oneData.fixedRotation || false;
+
 	//Shape
 	one.shapes = {};
 	//Building Blocks
@@ -222,15 +230,86 @@ const One = (auxl, objGen, oneData) => {
 	one.shapes.box =  {shape: 'box', height: 1, width: 1, depth: 1, offset: '0 1 0',};
 	one.shapes.sphere = {shape: 'sphere', radius: 1, width: 1, depth: 1, offset: '0 0 0',};
 	//Default shape if none
-	one.mainShape = objGen.shapeData || one.shapes.box;
+	one.mainShape = oneData.shapeData || one.shapes.box;
 	//Total shape of phys layer
 	one.avatar = [one.mainShape,];
-
+	one.avatarRemove = [];
+	//Material
 	one.bodymaterial = {
 		friction: one.friction, 
 		restitution: one.restitution
 	};
+
+	//Contraint Links
 	one.connections = [];
+
+
+	//Check Fixed Rotation
+	const CheckFixedRotation = () => {
+		//Toggle Fixed Rotation
+		if(one.fixedRotation && !one.bodyEl.body.fixedRotation){
+			one.bodyEl.body.fixedRotation = true;
+			one.bodyEl.body.updateMassProperties();
+		} else if(!one.fixedRotation && one.bodyEl.body.fixedRotation){
+			one.bodyEl.body.fixedRotation = false;
+			one.bodyEl.body.updateMassProperties();
+		}
+	}
+
+	//Update Elements
+	const UpdateElements = () => {
+		one.bodyEl = one.core.GetEl();
+		one.worldBody = one.bodyEl.body;
+		if(uniRay){
+			if(uniRay.core){
+				one.rayEl = uniRay.GetEl();
+			} else if(uniRay.layer){
+				one.rayEl = uniRay.GetParentEl();
+			}
+		} else {
+			one.rayEl = one.bodyEl;
+		}
+	}
+
+
+	//On Spawn
+	function onSpawn(){
+		one.loaded = true;
+		//Update internal dom links
+		UpdateElements();
+		//Reset Jump on collision
+		//one.bodyEl.addEventListener("collide",JumpReset);
+		//Check if Fixed Rotation needs updating
+		CheckFixedRotation();
+		//Add Phys
+		AddPhys();
+	}
+
+
+	//Add Physics
+	const AddPhys = () => {
+		//Add Avatar
+		one.core.ChangeSelf({property: 'shape', value: one.mainShape});
+		//Add Body and Material
+		one.core.ChangeSelf([{property: 'body', value: one.body}, {property: 'bodymaterial', value: one.bodymaterial}]);
+		//Update Fixed Rotation if needed
+		CheckFixedRotation();
+	}
+	//Remove Physics
+	const RemovePhys = () => {
+		//Remove Unneeded Old Shapes if Any
+		if(one.avatarRemove.length > 0){
+			for(let each in one.avatarRemove){
+				one.core.RemoveComponent('shapes__'+ each)
+			}
+			one.avatarRemove = [];
+		}
+		//Add Avatar
+		one.core.RemoveComponent(one.avatar);
+		//Add Body and Material
+		one.core.RemoveComponent(['body','bodymaterial']);
+	}	
+
 
 	//Update Phys Data
 	const UpdatePhys = (data) => {
@@ -239,58 +318,80 @@ const One = (auxl, objGen, oneData) => {
 				one[each] = data[each];
 			}
 		}
+/*
+    [position] Vec3 optional
+    [velocity] Vec3 optional
+    [angularVelocity] Vec3 optional
+    [quaternion] Quaternion optional
+    [mass] Number optional
+    [material] Material optional
+    [type] Number optional
+    [linearDamping=0.01] Number optional
+    [angularDamping=0.01] Number optional
+    [allowSleep=true] Boolean optional
+    [sleepSpeedLimit=0.1] Number optional
+    [sleepTimeLimit=1] Number optional
+    [collisionFilterGroup=1] Number optional
+    [collisionFilterMask=1] Number optional
+    [fixedRotation=false] Boolean optional
+    [shape] Body optional
+*/
 		//Prep Core Components
 		if(!one.core.core.components){
 			one.core.core.components = {};
 		}
-		//Add all bodies to data
+		//Remove Old Shapes
+		if(one.avatarRemove.length > 0){
+			for(let each in one.avatarRemove){
+				delete one.core.core.components['shapes__'+ each]
+			}
+		}
+		//Add all Shapes
 		for(let each in one.avatar){
 			one.core.core.components['shapes__'+ each] = one.avatar[each];
 		}
+		//Add Body
 		one.core.core.components.body = {property: 'body', value: one.body};
+		//Add Body Material
 		one.core.core.components.bodymaterial = {property: 'bodymaterial', value: one.bodymaterial};
+		//If in scene, then change 
 		if(one.loaded){
-			one.core.ChangeSelf(one.avatar);
-			one.core.ChangeSelf([{property: 'body', value: one.body}, {property: 'bodymaterial', value: one.bodymaterial}]);
-		}
-	}
-console.log(one.id)
-console.log(one)
-	UpdatePhys(oneData);
-console.log(one)
-	//Load Phys to Core
-	const TogglePhys = () => {
-		if(one.loaded){
-			for(let each in one.avatar){
-				one.core.core.RemoveComponent('shapes__'+ each);
+			//Remove Unneeded Shapes
+			if(one.avatarRemove.length > 0){
+				for(let each in one.avatarRemove){
+					one.core.RemoveComponent('shapes__'+ each)
+				}
+				one.avatarRemove = [];
 			}
-			one.core.RemoveComponent(['body','bodymaterial']);
-			one.loaded = false;
-		} else {
-			UpdatePhys(data);
-			one.core.ChangeSelf(one.avatar);
-			one.core.ChangeSelf([{property: 'body', value: one.body}, {property: 'bodymaterial', value: one.bodymaterial}]);
-			one.loaded = true;
+			AddPhys();
 		}
 	}
+	UpdatePhys(oneData);
+
 	//Spawn Object
 	const SpawnOne = () => {
-		UpdatePhys();
-		if(one.layer){
-			one.layer.SpawnLayer();
-			one.worldBody = one.layer.GetParentEl().body;
-		} else {
-			one.core.SpawnCore();
-			one.worldBody = one.core.GetEl().body;
+		if(one.spawnControl){
+			if(one.layer){
+				one.layer.SpawnLayer();
+			} else {
+				one.core.SpawnCore();
+			}
 		}
-		//connect one.worldBody to cannon body inside physics
+		let spawnTimeout = setTimeout(() => {
+			onSpawn();
+			clearTimeout(spawnTimeout)
+		}, 50);
 	}
 	//Despawn Object
 	const DespawnOne = () => {
-		if(one.layer){
-			one.layer.DespawnLayer();
+		if(one.spawnControl){
+			if(one.layer){
+				one.layer.DespawnLayer();
+			} else {
+				one.core.DespawnCore();
+			}
 		} else {
-			one.core.DespawnCore();
+			RemovePhys();
 		}
 		one.worldBody = false;
 		one.loaded = false;
@@ -362,7 +463,56 @@ console.log(one.constraints[id])
 
 	//Temp til all is integrated
 	let layer = {};
-	let uniRay = {};
+
+	//
+	//Physics
+	layer.playerPhysics = false;
+
+	//Players Gravity
+
+	//Earth Default
+	layer.worldGravity = new THREE.Vector3(0,-9.8,0);
+	layer.localAxis = new THREE.Vector3(0,0,0);
+	layer.worldAxis = new THREE.Vector3(0,-1,0);
+	//Float
+	//layer.worldGravity = new THREE.Vector3(0,0,0);
+	layer.gravity = new THREE.Vector3(0,0,0);
+	layer.axis = new THREE.Vector3(0,-1,0);
+	layer.gravity.copy(layer.worldGravity);
+
+	//Joystick Movement Type
+	layer.physMove = true;
+
+	//Jumping
+	layer.jumping = false;
+	layer.jumpTimeout;
+	//Phys Jump
+	const PhysJump = (velocity) => {
+		if(!layer.jumping){
+			layer.jumping = true;
+			if(!velocity){
+				velocity = 5;
+			}
+			one.bodyEl.body.velocity.y = velocity;
+			//use localAxis to multiple point the direction of the velocity which would be opposite if the current axis
+		}
+	}
+	//Jump Reset
+	const JumpReset = (e) => {
+		const contactNormal = new CANNON.Vec3();
+		const upAxis = new CANNON.Vec3(0,1,0);
+		const contact = e.detail.contact;
+		if(contact.bi.id == one.bodyEl.body.id){
+			contact.ni.negate(contactNormal);
+		} else {
+			contactNormal.copy(contact.ni);
+		}
+		if(contactNormal.dot(upAxis) > 0.5){
+			layer.jumping = false;
+		}
+	}
+
+	//Make this its own component and use with One
 	//
 	//Gravity
 	layer.gravityStyle = 'earth';
@@ -370,13 +520,108 @@ console.log(one.constraints[id])
 	//layer.gravityStyle = 'Custom';
 	//To be able to apply new gravity direction on playerRig
 	//Gravity Loop Tick
+	//Velocity
+	//layer.velocityStyle = 'anomaly';
+	//layer.currentVelocity = 7;
+	layer.velocityStyle = 'slam';
+	layer.currentVelocity = 30;
+
+	//layer.velocityStyle = 'float';
+	//layer.currentVelocity = 1000;
+
+
+
+	layer.tracking = false;
+	layer.track2DInterval;
+	//Determine 2D Ground Floor
+	const Track2D = () => {
+//console.log(intInit)
+		let start = layer.raycaster.intersection || new THREE.Vector3(0,0,0);
+		if(start.equals(new THREE.Vector3(0,0,0))){
+			return;
+		}
+		let intersection = new THREE.Vector3(0,0,0);
+		//let getr = new THREE.Vector3(0,0,0);
+		//Now that we have the starter point determine the general direction be capture 1 additional point differnt that confirm the direction		
+
+		//Earth Default Axis
+		layer.worldAxis = new THREE.Vector3(0,-1,0);
+		layer.tracking = true;
+		layer.track2DInterval = setInterval(() => {
+			if(layer.tracking){
+				//grab raycaster information and grab intersection, if different then calc it's direction from and update player gravityAxis
+				intersection.copy(auxl.mouseController.GetEl().components.raycaster.intersections[0].point)
+				if(!start.equals(intersection)){
+					//calc out which variable is the same and determine its negative or positive direction based on the location offset of player
+					if(start.x.toFixed(2) === intersection.x.toFixed(2)){
+//console.log('X')
+						if(start.x > 0){
+//console.log('+X')
+							layer.worldAxis = new THREE.Vector3(1,0,0);
+						} else {
+//console.log('-X')
+							layer.worldAxis = new THREE.Vector3(-1,0,0);
+						}
+					} else if(start.y.toFixed(2) === intersection.y.toFixed(2)){
+//console.log('Y')
+						if(start.y > 0){
+//console.log('+Y')
+							layer.worldAxis = new THREE.Vector3(0,-1,0);
+						} else {
+//console.log('-Y')
+							layer.worldAxis = new THREE.Vector3(0,1,0);
+						}
+					} if(start.z.toFixed(2) === intersection.z.toFixed(2)){
+//console.log('Z')
+						if(start.z > 0){
+//console.log('+Z')
+							layer.worldAxis = new THREE.Vector3(0,0,1);
+						} else {
+//console.log('-Z')
+							layer.worldAxis = new THREE.Vector3(0,0,-1);
+						}
+					} else {
+						//console.log('Cannot Calculate')
+						//console.log(start)
+						//console.log(intersection)
+					}
+					//console.log(start)
+					//console.log(intersection)
+					//console.log(layer.worldAxis)
+					//layer.gravitys
+					//layer.worldAxis = 
+layer.localAxis.copy(layer.worldAxis);
+//Rotate player rig body accordingly
+if(!layer.worldAxis.equals(new THREE.Vector3(0,0,0))){
+console.log({GravitationalAxisNew: layer.worldAxis})
+} else {
+console.log({GravitationalAxisFloat: layer.worldAxis})
+}
+					layer.tracking = false;
+					clearInterval(layer.track2DInterval);
+				}
+				//auxl.mouseController.GetEl().components.raycaster.direction AXIS
+				//console.log(auxl.mouseController.GetEl().components.raycaster)
+			}
+		}, 1);
+
+	}
+
+//Gravity
+
 //I dont think I need to use localImpluse when I can just update it's velocity which is a world run function
+
+//Make an option to update cannon world gravity for entire scene
+
+//Ensure gravity compensates for world gravity
+
+
 	const Gravity = (gravityDir) => {
 		//first get current world gravity to negate and start with
 		//then add propery gravity offset this.el.body.applyLocalForce(new THREE.Vector3(0,9.8,0),new THREE.Vector3(0,0,0))
 		//in the direction of the currently calculated trajectory
 		//Reset current
-	layer.gravity = new THREE.Vector3(0,0,0);
+	//layer.gravity = new THREE.Vector3(0,0,0);
 	//layer.axis = new THREE.Vector3(0,-1,0);
 
 		//6 Directions & Free Roam
@@ -394,9 +639,6 @@ console.log(one.constraints[id])
 		//Grab start pos at mouseEnter
 		//Grab enough via tick to determine the axis direction between 1 of the 6
 		//Apply that to the player rig via tick unless float is enabled in whichcase, only apply the new gravity with just negateGravity
-		
-		layer.worldAxis = new THREE.Vector3(0,0,0);
-		layer.localAxis = new THREE.Vector3(0,0,0);
 
 		let playerPositionOld = new THREE.Vector3(0,0,0);
 		let playerPosition = new THREE.Vector3(0,0,0);
@@ -405,12 +647,12 @@ console.log(one.constraints[id])
 let testVec = new THREE.Vector3(0,0,0);
 
 		layer.playerGravityInterval = setInterval(() => {
-			if(auxl.playerRig.GetEl() && auxl.playerRig.GetEl().body){
+			if(one.bodyEl && one.bodyEl.body){
 
 				let negateGravity = new THREE.Vector3(0,0,0);
 				
 //Get Velocity Working on continual downward localAxis trajectory
-				playerPosition.copy(auxl.playerRig.GetEl().body.position)
+				playerPosition.copy(one.bodyEl.body.position)
 //console.log({pos1: playerPosition.y, pos2 : playerPositionOld.y})
 
 //Check proper axis and amount
@@ -419,36 +661,36 @@ let testVec = new THREE.Vector3(0,0,0);
 				let addVelocity = false;
 				if(layer.worldAxis.x !== 0){
 					if(layer.worldAxis.x < 0){
-						if(playerPosition.x+0.01 < playerPositionOld.x){
+						if(playerPosition.x < playerPositionOld.x){
 							//Add velocity
 							addVelocity = true;
 						}
 					} else {
-						if(playerPosition.x-0.1 > playerPositionOld.x){
+						if(playerPosition.x > playerPositionOld.x){
 							//Add velocity
 							addVelocity = true;
 						}
 					}
 				} else if(layer.worldAxis.y !== 0){
 					if(layer.worldAxis.y < 0){
-						if(playerPosition.y+0.01 < playerPositionOld.y){
+						if(playerPosition.y < playerPositionOld.y){
 							//Add velocity
 							addVelocity = true;
 						}
 					} else {
-						if(playerPosition.y-0.01 > playerPositionOld.y){
+						if(playerPosition.y > playerPositionOld.y){
 							//Add velocity
 							addVelocity = true;
 						}
 					}
 				} else if(layer.worldAxis.z !== 0){
 					if(layer.worldAxis.z < 0){
-						if(playerPosition.z+0.01 < playerPositionOld.z){
+						if(playerPosition.z < playerPositionOld.z){
 							//Add velocity
 							addVelocity = true;
 						}
 					} else {
-						if(playerPosition.z-0.01 > playerPositionOld.z){
+						if(playerPosition.z > playerPositionOld.z){
 							//Add velocity
 							addVelocity = true;
 						}
@@ -456,30 +698,40 @@ let testVec = new THREE.Vector3(0,0,0);
 				}
 
 //Measure specific axis and greater and less then checks
+//Velocity will always be down Y
 				if(addVelocity){
 				//if(playerPosition.y < playerPositionOld.y){
 					//add velocity to fall
 					velocityTick++;
-					//layer.velocity.sub(new THREE.Vector3(0,(velocityTick/100),0));
-					//layer.velocity.add(0.01)
-					let velocityNew = new THREE.Vector3((velocityTick/150),(velocityTick/150),(velocityTick/150));
-					velocityNew.multiply(layer.localAxis)
-					layer.velocity.add(velocityNew);
 //console.log(layer.velocity)
-console.log('Adding Velocity')
+//console.log('Adding Velocity')
+//console.log(one.bodyEl.body.velocity)
+let velocityNew = new THREE.Vector3((velocityTick/layer.currentVelocity),(velocityTick/layer.currentVelocity),(velocityTick/layer.currentVelocity));
+velocityNew.multiply(layer.localAxis)
+one.bodyEl.body.velocity.x += velocityNew.x;
+one.bodyEl.body.velocity.y += velocityNew.y;
+one.bodyEl.body.velocity.z += velocityNew.z;
+//one.bodyEl.body.velocity.y -= velocityTick/25;
+//layer.velocity.sub(new THREE.Vector3(0,(velocityTick/100),0));
+//layer.velocity.add(0.01)
+//let velocityNew = new THREE.Vector3((velocityTick/100),(velocityTick/100),(velocityTick/100));
+//velocityNew.multiply(layer.localAxis)
+//layer.velocity.add(velocityNew);
 				} else {
 					layer.velocity = new THREE.Vector3(0,0,0);
 					velocityTick = 0;
 				}
-
+if(layer.toggle3){
+	velocityTick = 0;
+}
+//if parachuting, then no velocity
+//add momentum
 				playerPositionOld.copy(playerPosition);
 				//let worldGravity = new THREE.Vector3(0,0,0);
-
-
 				//Apply Gravity
-				if(!negateGravity.equals(auxl.playerRig.GetEl().body.world.gravity)){
+				if(!negateGravity.equals(one.bodyEl.body.world.gravity)){
 					//update base gravity to build cancel out world defaults if any
-					negateGravity.copy(auxl.playerRig.GetEl().body.world.gravity);
+					negateGravity.copy(one.bodyEl.body.world.gravity);
 					//Calculate exact opposite to null out world defaults
 					negateGravity.negate();
 				}
@@ -491,7 +743,7 @@ console.log('Adding Velocity')
 				//Negate World Gravity if Any
 				gravityNew.copy(negateGravity);
 //console.log(gravityNew)
-		//console.log(auxl.playerRig.el.body.world.gravity)
+		//console.log(one.core.el.body.world.gravity)
 		//console.log(gravityNew)
 
 		//Earth 1g = 9.80665 m/s
@@ -550,19 +802,22 @@ console.log('Adding Velocity')
 //console.log(layer.localAxis)
 				//Set gravity to worldVrctor from Axis
 				gravityNew.multiply(layer.localAxis);
-				//localAxis.multiply(layer.velocity);
 //console.log(gravityNew)
 				//Gravity Scale
 				gravityNew.multiply(layer.gravityScale);
 				//Add Up Velocity
 //console.log(gravityNew)
-				gravityNew.add(layer.velocity);
+				//gravityNew.add(layer.velocity);
 //console.log(gravityNew)
 				//Apply Gravity
-				//auxl.playerRig.GetEl().body.applyLocalForce(gravityNew, new THREE.Vector3(0,0,0));
-				//auxl.playerRig.GetEl().body.applyLocalForce(gravityNew, new THREE.Vector3(0,0,0));
-				auxl.playerRig.GetEl().body.velocity.copy(gravityNew,);
-				//auxl.playerRig.GetEl().body.applyLocalForce(new THREE.Vector3(0,100,0), new THREE.Vector3(0,0,0));
+				//one.bodyEl.body.applyLocalForce(gravityNew, new THREE.Vector3(0,0,0));
+				//one.bodyEl.body.applyLocalForce(gravityNew, new THREE.Vector3(0,0,0));
+				one.bodyEl.body.velocity.x += gravityNew.x/50;
+				one.bodyEl.body.velocity.y += gravityNew.y/50;
+				one.bodyEl.body.velocity.z += gravityNew.z/50;
+
+
+				//one.bodyEl.body.applyLocalForce(new THREE.Vector3(0,100,0), new THREE.Vector3(0,0,0));
 				layer.gravity.copy(gravityNew);
 //console.log(gravityNew)
 			}
@@ -724,6 +979,24 @@ console.log('Adding Velocity')
 		layer.linkCoreConstraint = auxl.Constraints(layer.linkCore, layer.linkConfig, false)
 		layer.linkCoreType = 'rubber';
 
+		//Anchor Core
+		let anchorData = {
+			data:'anchorData',
+			id: 'anchorCore',
+			sources: false,
+			text: false,
+			geometry: {primitive: 'sphere', radius: 0.5,},
+			material: {shader: "standard", color: "#eb07bf", emissive: '#eb07bf', emissiveIntensity: 0.25, opacity: 0.5},
+			position: new THREE.Vector3(0,0,0),
+			rotation: new THREE.Vector3(0,0,0),
+			scale: new THREE.Vector3(1,1,1),
+			animations: false,
+			mixins: false,
+			classes: ['a-ent'],
+			components: false,
+		};
+		layer.anchorCore = auxl.Core(anchorData);
+
 		const LinkControls = (template) => {
 			layer.linkCoreType = template;
 			if(layer.linkCoreType === 'rubber'){
@@ -762,52 +1035,8 @@ console.log('Adding Velocity')
 
 		layer.linkInterval;
 	}
-
-	uniRay.raycaster = {};
-	uniRay.raycaster.name = 'minty0';
-	uniRay.raycaster.intersection = new THREE.Vector3(0,0,0);
-	uniRay.raycaster.powers = {};
-	uniRay.raycaster.power = 'rubberband';
-	//Temp
-	layer.raycaster = {};
-	layer.raycaster.name = 'minty0';
-	layer.raycaster.intersection = uniRay.raycaster.intersection;
-	layer.raycaster.powers = {};
-	layer.raycaster.power = 'rubberband';
-
-	//Power Obj Gen
-	const Running = (powerData) => {
-		//Base Class
-		let power = {}
-		power.data = powerData || false; 
-		power.data = powerData.name || 'blank'; 
-		power.start = powerData.start || false;
-		power.exit = powerData.exit || false;
-		power.up = powerData.up || false;
-		power.down = powerData.down || false;
-		power.free = powerData.free || false;
-		//Trigger Free
-		const Free = () => {
-console.log('Free');
-		}
-		//Trigger Enter
-		const Enter = () => {
-console.log('Enter');
-		}
-		//Trigger Leave
-		const Leave = () => {
-console.log('Leave');
-		}
-		//Trigger Down
-		const Down = () => {
-console.log('Down');
-		}
-		//Trigger Up
-		const Up = () => {
-console.log('Up');
-		}
-		return {power, Free, Enter, Leave, Down, Up};
-	}
+	Link();
+	console.log('Link ran')
 
 	//Add to playerRig a support component for updating important info
 	//Power Controller
@@ -818,14 +1047,13 @@ console.log({event: 'Power Controller Running', event})
 for(let power in layer.raycaster.powers){
 console.log(power)
 }
-//TEmp
-Link();
-RubberbandStart();
-RubberbandSlamStart();
-teleportStart();
+
 	}
 
-
+	const PowerCircuits = (event) => {
+		//auxl.uniRay.updateAction({instructions:'inst'});
+		//auxl.uniRay.disableAction({instructions:'inst'});
+	}
 	//
 	//Actions
 
@@ -839,11 +1067,20 @@ teleportStart();
 
 	//Both need to connect to closest intersection object if instead
 
-	//Rubber Controller
-	const RubberbandController = (event) => {
-		//Rubber Tick Controls
-console.log('Rubberband running')
-	}
+	//spin object
+	//el.body.torque.y += 100;
+/*
+RubberbandDown
+RubberbandSlamDown
+teleportDown
+ChuteDown
+BoostDown
+BackBoostDown
+
+
+Use with any raycaster
+*/
+
 	//Rubberband
 	const RubberbandUp = (event) => {
 		if(layer.toggle0){
@@ -866,12 +1103,12 @@ console.log('Rubberband running')
 			layer.position = new THREE.Vector3();
 			layer.quaternion = new THREE.Quaternion();
 			//layer.position.copy(GetCameraDirection());
-			layer.object3D = auxl.camera.GetEl().object3D;
+			layer.object3D = one.rayEl.object3D;
 			layer.quaternion.copy(layer.object3D.quaternion);
-			layer.position.copy(auxl.playerRig.GetEl().body.position);
+			layer.position.copy(one.bodyEl.body.position);
 
-		//console.log(auxl.camera.GetEl().Object3D.getWorldDirection())
-		//layer.position.copy(auxl.camera.GetEl().object3D.getLocalDirection()));
+		//console.log(one.rayEl.Object3D.getWorldDirection())
+		//layer.position.copy(one.rayEl.object3D.getLocalDirection()));
 		//console.log(layer.quaternion)
 		//console.log(layer.position)
 				//layer.position.negate();
@@ -901,14 +1138,14 @@ console.log('Rubberband running')
 	const RubberbandDown = (event) => {
 		if(layer.toggle0){
 			//console.log(event)
-			auxl.player.Delink();
+			Delink();
 			layer.power = 1000;
 			clearInterval(layer.playerLinkInt)
 			//Get Charge
 			layer.playerLinkInt = setInterval(() => {
 				if(!layer.linking){
 					//Rubberband
-					if(layer.power > 30){
+					if(layer.power >= 15){
 						layer.power -= 15;
 			//console.log(layer.power)
 					} else {
@@ -917,31 +1154,13 @@ console.log('Rubberband running')
 				} else {
 					clearInterval(layer.playerLinkInt);
 				}
-
 			}, 1);
 		}
-	}
-	//Rubber Start
-	const RubberbandStart = (event) => {
-		//Changes or defaults required to run Power
-
-		auxl.mouseController.GetEl().addEventListener('mousedown',RubberbandDown);
-		auxl.mouseController.GetEl().addEventListener('mouseup',RubberbandUp);
-	}
-	//Rubber Stop
-	const RubberbandStop = (event) => {
-		auxl.mouseController.GetEl().removeEventListener('mousedown',RubberbandDown);
-		auxl.mouseController.GetEl().removeEventListener('mouseup',RubberbandUp);
 	}
 //console.log(powerRubberband)
 	//
 	//A Rubber Band Slam
 	//Quick pull towards the point and decrease the restLength
-	//Rubber Controller
-	const RubberbandSlamController = (event) => {
-		//Rubber Tick Controls
-console.log('Rubberband Slam running')
-	}
 	//Rubberband
 	const RubberbandSlamUp = (event) => {
 if(layer.toggle1){
@@ -963,12 +1182,12 @@ if(layer.toggle1){
 	layer.position = new THREE.Vector3();
 	layer.quaternion = new THREE.Quaternion();
 	//layer.position.copy(GetCameraDirection());
-	layer.object3D = auxl.camera.GetEl().object3D;
+	layer.object3D = one.rayEl.object3D;
 	layer.quaternion.copy(layer.object3D.quaternion);
-	layer.position.copy(auxl.playerRig.GetEl().body.position);
+	layer.position.copy(one.bodyEl.body.position);
 
-//console.log(auxl.camera.GetEl().Object3D.getWorldDirection())
-//layer.position.copy(auxl.camera.GetEl().object3D.getLocalDirection()));
+//console.log(one.rayEl.Object3D.getWorldDirection())
+//layer.position.copy(one.rayEl.object3D.getLocalDirection()));
 //console.log(layer.quaternion)
 //console.log(layer.position)
 	//layer.position.negate();
@@ -1001,7 +1220,7 @@ layer.positionNew = layer.position.clone().add(direction);
 	const RubberbandSlamDown = (event) => {
 		if(layer.toggle1){
 			//console.log(event)
-			auxl.player.Delink();
+			Delink();
 			layer.power = 1000;
 			clearInterval(layer.playerLinkInt)
 			//Get Charge
@@ -1021,25 +1240,10 @@ layer.positionNew = layer.position.clone().add(direction);
 			}, 1);
 		}
 	}
-	//Rubber Start
-	const RubberbandSlamStart = (event) => {
-		//Trigger 1
-		auxl.mouseController.GetEl().addEventListener('mousedown',RubberbandSlamDown);
-		auxl.mouseController.GetEl().addEventListener('mouseup',RubberbandSlamUp);
-	}
-	//Rubber Stop
-	const RubberbandSlamStop = (event) => {
-		auxl.mouseController.GetEl().removeEventListener('mousedown',RubberbandSlamDown);
-		auxl.mouseController.GetEl().removeEventListener('mouseup',RubberbandSlamUp);
-	}
+
 
 
 	//Teleport
-	//teleportController Controller
-	const teleportController = (event) => {
-		//Rubber Tick Controls
-console.log('Rubberband running')
-	}
 	//teleportUp
 	const teleportUp = (event) => {
 		if(layer.toggle3){
@@ -1063,12 +1267,12 @@ console.log('Rubberband running')
 			layer.position = new THREE.Vector3();
 			layer.quaternion = new THREE.Quaternion();
 			//layer.position.copy(GetCameraDirection());
-			layer.object3D = auxl.camera.GetEl().object3D;
+			layer.object3D = one.rayEl.object3D;
 			layer.quaternion.copy(layer.object3D.quaternion);
-			layer.position.copy(auxl.playerRig.GetEl().body.position);
+			layer.position.copy(one.bodyEl.body.position);
 
-		//console.log(auxl.camera.GetEl().Object3D.getWorldDirection())
-		//layer.position.copy(auxl.camera.GetEl().object3D.getLocalDirection()));
+		//console.log(one.rayEl.Object3D.getWorldDirection())
+		//layer.position.copy(one.rayEl.object3D.getLocalDirection()));
 		//console.log(layer.quaternion)
 		//console.log(layer.position)
 				//layer.position.negate();
@@ -1100,7 +1304,7 @@ console.log('Rubberband running')
 	const teleportDown = (event) => {
 		if(layer.toggle3){
 			//console.log(event)
-			auxl.player.Delink();
+			Delink();
 			layer.power = 1000;
 			clearInterval(layer.playerLinkInt)
 			//Get Charge
@@ -1120,61 +1324,203 @@ console.log('Rubberband running')
 			}, 1);
 		}
 	}
-	//teleportStart
-	const teleportStart = (event) => {
-		//Trigger 1
-		auxl.mouseController.GetEl().addEventListener('mousedown',teleportDown);
-		auxl.mouseController.GetEl().addEventListener('mouseup',teleportUp);
-	}
-	//teleportStop
-	const teleportStop = (event) => {
-		auxl.mouseController.GetEl().removeEventListener('mousedown',teleportDown);
-		auxl.mouseController.GetEl().removeEventListener('mouseup',teleportUp);
-	}
 
-	//Charge
-	const Charge = () => {
-		let power = 1000;
-		clearInterval(one.chargePowerInterval)
-		//Get Charge
-		one.chargePowerInterval = setInterval(() => {
-			//Rubberband
-			if(power > 30){
-				power -= 15;
-	//console.log(power)
-			} else {
-				clearInterval(one.chargePowerInterval);
-			}
-		}, 1);
+	//?????
+	//Parachute
+	const ChuteUp = () => {
+		if(layer.toggle3){
+			!layer.toggle3
+		}
+	}
+	const ChuteDown = () => {
+		if(!layer.toggle3){
+			layer.toggle3
+		}
 	}
 
 
-	//LinearDamping
-	const LinearDamping = (to) => {
-		one.worldBody.body.linearDamping = to || one.linearDamping;
+	//Boost
+	const BoostUp = (event) => {
+		if(layer.toggle4){
+console.log('BoostUp')
+			clearInterval(layer.playerLinkInt);
+			//Power
+			layer.boostPower = 100;
+			auxl.player.BoostTo(layer.positionNew, layer.boostPower);
+		}
 	}
+	//BoostDown
+	const BoostDown = (event) => {
+		if(layer.toggle4){
+console.log('Boost Down')
+			//console.log(event)
+			layer.power = 1000;
+			clearInterval(layer.playerLinkInt)
+			//Get Charge
+			layer.playerLinkInt = setInterval(() => {
+				if(!layer.linking){
+					//Rubberband
+					if(layer.power > 30){
+						layer.power -= 15;
+			//console.log(layer.power)
+					} else {
+						clearInterval(layer.playerLinkInt);
+					}
+				} else {
+					clearInterval(layer.playerLinkInt);
+				}
+
+			}, 1);
+		}
+	}
+
+
+	//BackBoostUp
+	const BackBoostUp = (event) => {
+		if(layer.toggle5){
+console.log('BackBoostUp')
+			clearInterval(layer.playerLinkInt);
+
+			//Power
+			layer.boostPower = 75;
+			auxl.player.BoostBack(layer.positionNew, layer.boostPower);
+		}
+	}
+	//BackBoostDown
+	const BackBoostDown = (event) => {
+		if(layer.toggle5){
+console.log('BackBoost Down')
+			//console.log(event)
+			layer.power = 1000;
+			clearInterval(layer.playerLinkInt)
+			//Get Charge
+			layer.playerLinkInt = setInterval(() => {
+				if(!layer.linking){
+					//Rubberband
+					if(layer.power > 30){
+						layer.power -= 15;
+			//console.log(layer.power)
+					} else {
+						clearInterval(layer.playerLinkInt);
+					}
+				} else {
+					clearInterval(layer.playerLinkInt);
+				}
+
+			}, 1);
+		}
+	}
+
+//Charge Jump
+//Boost affects are being added/messed with elsewhere. Look into to clear up.
+
+	layer.boostPower = 100;
+	//Boost Back
+	const BoostBack = (position, power) => {
+
+//Calculate the position based on the direction and power
+let camDir = new THREE.Vector3();
+camDir.copy(GetCameraDirection());
+		one.bodyEl.body.applyLocalImpulse(camDir.multiplyScalar(layer.boostPower),new THREE.Vector3(0,0,0));
+/*
+		one.bodyEl.body.linearDamping = 0;
+		let boost = setTimeout(() => {
+			one.bodyEl.body.linearDamping = 0.2;
+console.log({event: 'boosted', boostDir})
+			clearTimeout(boost)
+		}, 1000);
+*/
+	}
+
+	//Boost To
+	const BoostTo = (position, power,) => {
+
+//Calculate the position based on the direction and power
+let camDir = new THREE.Vector3();
+camDir.copy(GetCameraDirection());
+//camDir.copy(camDir).add(new THREE.Vector3(power, power, power).normalize().multiplyScalar(power));
+//let distance = power * DistanceFromPlayer(position)
+
+//let boostDir = new THREE.Vector3();
+//boostDir.copy(GetCameraDirection());
+//boostDir.copy(camDir).add(new THREE.Vector3(distance, distance, distance).normalize().multiplyScalar(distance));
+//boostDir.negate();
+//console.log({imported: position, distance, built: camDir, boost: boostDir})
+
+//
+		//Instead of constraint, update physMove
+		//one.bodyEl.body.applyLocalImpulse(boostDir,new THREE.Vector3(0,0,0));
+		one.bodyEl.body.applyLocalImpulse(camDir.multiplyScalar(layer.boostPower).negate(),new THREE.Vector3(0,0,0));
+/*
+		one.bodyEl.body.linearDamping = 0;
+		let boost = setTimeout(() => {
+			one.bodyEl.body.linearDamping = 0.2;
+console.log({event: 'boosted', boostDir})
+			clearTimeout(boost)
+		}, 1000);
+*/
+	}
+
+	//Boost Jump
+	const BoostJump = (position, power) => {
+
+//Calculate the position based on the direction and power
+let camDir = new THREE.Vector3();
+camDir.copy(GetCameraDirection());
+//camDir.multiply(new THREE.Vector3(0,1,0));
+camDir.multiply(layer.localAxis);
+		one.bodyEl.body.applyLocalImpulse(camDir.multiplyScalar(layer.boostPower),new THREE.Vector3(0,0,0));
+/*
+		one.bodyEl.body.linearDamping = 0;
+		let boost = setTimeout(() => {
+			one.bodyEl.body.linearDamping = 0.2;
+console.log({event: 'boosted', boostDir})
+			clearTimeout(boost)
+		}, 1000);
+*/
+	}
+
 
 	//Slow
 	const Slow = () => {
-		LinearDamping(0.8);
+		one.bodyEl.body.linearDamping = 0.8;
 	}
 	//UnSlow
 	const UnSlow = () => {
-		LinearDamping(0.2);
+		one.bodyEl.body.linearDamping = 0.15;
 	}
+
 	//Freeze
 	const Freeze = () => {
-		LinearDamping(1);
+		one.bodyEl.body.sleep();
 	}
 	//UnFreeze
 	const UnFreeze = () => {
-		LinearDamping(0.2);
+		one.bodyEl.body.wakeUp();
 	}
 
+	//Waiting
+	//Light Sword Down
+	const LightSwordDown = (event) => {
+console.log('Light Sword Down')
+//extract light sword and attach to hand rotation/position
+	}
+	//Light Sword Up
+	const LightSwordUp = (event) => {
+console.log('Light Sword Up')
+//Retract light sword and disconnect it
+	}
+	//Light Sword Effects
+	const LightSwordCollision = (event) => {
+console.log({log: 'Light sword collided with object', event})
+//4 Direction Types
+//0 1 0 : Straight up | Sword
+//0 0 -1 : Straight out | Claw
+//0 -1 0 : Straight out | Dagger
+//0 0 1 : Straight out | Shield
 
 
-
-	//Charge Jump
+	}
 
 	//Link To
 	const LinkTo = (position, power) => {
@@ -1190,7 +1536,7 @@ console.log('Rubberband running')
 		//Try instead of spawning on on clickable items, just have on mousedown start building power and on mouseup connect
 //layer.raycaster.instersection
 
-//console.log(auxl.playerRig.GetEl().object3D.position)
+//console.log(one.bodyEl.object3D.position)
 //console.log(layer.raycaster.intersection)
 if(!position){
 	//Calculate the position based on the direction and distance
@@ -1200,7 +1546,7 @@ if(!position){
 } 
 if(layer.raycaster.intersection){
 console.log(layer.raycaster.intersection)
-	//let rayCheck = layer.raycaster.intersection.distanceTo(auxl.playerRig.GetEl().object3D.position);
+	//let rayCheck = layer.raycaster.intersection.distanceTo(one.bodyEl.object3D.position);
 	let rayCheck = DistanceFromPlayer(layer.raycaster.intersection)
 	console.log(rayCheck)
 	if(rayCheck <= layer.distance * layer.power){
@@ -1229,9 +1575,56 @@ console.log(position)
 		//Jump to Distance aka power
 		//Spawn, spring, despawn
 		//Closer to 0, the greater the power
-		layer.linkLength = distance * power;
+/*
+		if(power < 0.1){
+console.log('full power hit')
+console.log('full power hit')	
+			power = -1;
+		} else if(power > 0.7){
+console.log('quick hit power hit')
+			power = 0.4;
+		} else if(power < 0.7){
+console.log('long hit power hit')
+			power = -0.4;
+		}
+
+		if(power > 0.05){
+//Noodle Bamboo
+console.log('quick power hit')
+			power += 0.8;
+		} else if(power > 0.7){
+//Launch Swing
+console.log('quick power hit')
+			power *= 2;
+		}
+ if(power < 0.6){
+//Launch Swing
+console.log('quick power hit')
+			power = 1;
+		}
+ if(power < 0.7){
+//Launch Swing
+console.log('extra power hit')
+			power *= 2;
+		}
+*/
+//else
+//Swing
+		if(power > 0.85){
+//Noodle Bamboo
+console.log('quick hit')
+			power += 0.75;
+		} else if(power < 0.8){
+//Noodle Bamboo
+console.log('normal hit')
+			//power += 1.6;
+		}
+		layer.linkLength = 35 * power;
+		//layer.linkLength = distance * power;
+		//layer.linkLength = (distance * power)*-1;
+//console.log({length: layer.linkLength, distance, power})
 		//layer.linkCoreConstraint.Connect({restLength: layer.linkLength});
-		layer.linkCoreConstraint.Connect({type: 'auxspring', restLength: layer.linkLength, damping: 0.5, stiffness: 10, maxForce: 1e6});
+		layer.linkCoreConstraint.Connect({type: 'auxspring', restLength: layer.linkLength, damping: 0.5, stiffness: 0, maxForce: 1e6});
 		//Display Link
 		if(layer.linkCore.core.inScene){
 			layer.linkCore.PhysPos(position);
@@ -1280,7 +1673,7 @@ console.log(position)
 			layer.linking = false;
 		}, 250);
 		//Try instead of spawning on on clickable items, just have on mousedown start building power and on mouseup connect
-//console.log(auxl.playerRig.GetEl().object3D.position)
+//console.log(one.bodyEl.object3D.position)
 //console.log(layer.raycaster.intersection)
 if(!position){
 	//Calculate the position based on the direction and distance
@@ -1289,7 +1682,7 @@ if(!position){
 	position.copy(position).add(new THREE.Vector3(layer.distance, layer.distance, layer.distance).normalize().multiplyScalar(layer.distance));
 } 
 if(layer.raycaster.intersection){
-	//let rayCheck = layer.raycaster.intersection.distanceTo(auxl.playerRig.GetEl().object3D.position);
+	//let rayCheck = layer.raycaster.intersection.distanceTo(one.bodyEl.object3D.position);
 	let rayCheck = DistanceFromPlayer(layer.raycaster.intersection)
 	console.log(rayCheck)
 	if(rayCheck <= layer.distance){
@@ -1307,11 +1700,11 @@ console.log('Attach to')
 console.log(layer.linkCoreConstraint)
 
 	//Change Damping
-	console.log(auxl.playerRig.GetEl().body)
+	console.log(one.bodyEl.body)
 	let slamTimeout = setTimeout(() => {
-		auxl.playerRig.GetEl().body.linearDamping = 1;
+		one.bodyEl.body.linearDamping = 1;
 		let slamTimeout2 = setTimeout(() => {
-			auxl.playerRig.GetEl().body.linearDamping = 0.2;
+			one.bodyEl.body.linearDamping = 0.15;
 		}, 250);
 	}, 1000);
 
@@ -1337,7 +1730,7 @@ position.copy(GetCameraDirection());
 position.copy(position).add(new THREE.Vector3(distance, distance, distance).normalize().multiplyScalar(distance));
 
 if(layer.raycaster.intersection){
-	//let rayCheck = layer.raycaster.intersection.distanceTo(auxl.playerRig.GetEl().object3D.position);
+	//let rayCheck = layer.raycaster.intersection.distanceTo(one.bodyEl.object3D.position);
 	let rayCheck = DistanceFromPlayer(layer.raycaster.intersection)
 	console.log(rayCheck)
 	if(rayCheck <= layer.distance){
@@ -1353,15 +1746,15 @@ console.log('Attach to')
 	}
 }
 		//Instead of constraint, update physMove
-		auxl.playerRig.PhysPos(position)
-		auxl.playerRig.GetEl().body.linearDamping = 1;
+		one.core.PhysPos(position)
+		one.bodyEl.body.linearDamping = 1;
 		//layer.linkCoreConstraint.Connect({type: 'distance', distance: layer.linkLength, maxForce: 1e6});
 	console.log(layer.linkCoreConstraint)
 
 		//Change Damping
-		console.log(auxl.playerRig.GetEl().body)
+		console.log(one.bodyEl.body)
 		let slamTimeout = setTimeout(() => {
-			auxl.playerRig.GetEl().body.linearDamping = 0.2;
+			one.bodyEl.body.linearDamping = 0.15;
 			clearTimeout(slamTimeout)
 		}, 1000);
 	}
@@ -1370,7 +1763,7 @@ console.log('Attach to')
 	//Delink
 	const Delink = () => {
 		if(layer.linkCore.core.inScene){
-//console.log('Delink');
+console.log('Delink');
 			layer.linkCore.DespawnCore();
 		}
 	}
@@ -1402,11 +1795,11 @@ console.log(el)
 //Instead of contraint, anim body to player holding point
 
 /*
-auxl.playerRig.ChangeSelf({property: 'body', value:{mass: 0}});
+one.core.ChangeSelf({property: 'body', value:{mass: 0}});
 el.setAttribute('auxconstraint', {type: 'distance', connectTo: 'playerRig', distance: 1,})
 
 let grabTimeout = setTimeout(() => {
-auxl.playerRig.ChangeSelf({property: 'body', value:{mass: bodyWeight}});
+one.core.ChangeSelf({property: 'body', value:{mass: bodyWeight}});
 clearTimeout(grabTimeout)
 }, 1000);
 */
@@ -1433,86 +1826,18 @@ console.log(event.detail.intersection.point)
 		impulse.y *= -2;
 		impulse.z *= -2;
 		event.target.body.applyLocalImpulse(impulse,new THREE.Vector3(0,0,0));
-	}
-
-	//Physics
-	//Enable Physics
-	//Enable Powers
-	const EnablePhysics = (bodyShape) => {
-		if(bodyShape?.body){
-			layer.body = bodyShape.body;
 		}
-		if(bodyShape?.shape){
-			layer.shape = bodyShape.shape;
-		}
-		//Add Avatar Body
-		auxl.playerRig.EnablePhysics({body: layer.body, shape: layer.shape});
-		//Temp
-		//Load at start of power with power related data
-		//Link();
-		//RubberbandStart();
-		//RubberbandSlamStart();
-		//teleportStart();
-		PowerController();
-		//Linked component
-		//auxl.mouseController.GetEl().setAttribute('playerlink');
-
-//console.log(auxl.mouseController.GetEl())
 
 
 
-		auxl.playerRig.GetEl().setAttribute('shape__hand1',layer.handShape);
-		//auxl.playerRig.GetEl().setAttribute('shape__hand2',layer.hand2Shape);
-		layer.playerPhysics = true;
-		auxl.playerRig.ChangeSelf({property:'bodymaterial', value: {friction:0.01, restitution:0.01}});
-		auxl.playerRig.ChangeSelf({property:'collision', value: null});
 
-		//Disable Rotation for now
-		auxl.playerRig.GetEl().body.fixedRotation = true;
-		auxl.playerRig.GetEl().body.updateMassProperties();
 
-		//Add Hand
-		//auxl.camera.EnablePhysics({body: layer.handBody, shape: layer.handShape});
-
-		//Sync Camera Movement to Phys
-		//auxl.camera.ChangeSelf({property: 'camerasync', value: null});
-
-		//Connect Hand to Body
-		//auxl.camera.ChangeSelf({property: 'auxconstraint__hand', value: {type: 'pointToPoint', pivotB: new THREE.Vector3(0,1.6,0), connectTo: 'playerRig', maxForce: 1e6, collideConnected: false}});
-	}
-	//Phys Jump
-	const PhysJump = (velocity) => {
-		if(!layer.jumping){
-			layer.jumping = true;
-			if(!velocity){
-				velocity = 5;
-			}
-			auxl.playerRig.GetEl().body.velocity.y = velocity;
-			//use localAxis to multiple point the direction of the velocity which would be opposite if the current axis
-		}
-	}
-	//Phys Jump Reset
-/*
-    auxl.playerRig.GetEl().addEventListener("collide",function(e){
-    	const contactNormal = new CANNON.Vec3();
-    	const upAxis = new CANNON.Vec3(0,1,0);
-        const contact = e.detail.contact;
-        if(contact.bi.id == auxl.playerRig.GetEl().body.id){
-            contact.ni.negate(contactNormal);
-		} else {
-            contactNormal.copy(contact.ni);
-		}
-        if(contactNormal.dot(upAxis) > 0.5){
-			layer.jumping = false;
-		}
-    });
-*/
 	//Phys Boost
 	const PhysBoost = (velocity) => {
 		if(!velocity){
 			velocity = 10;
 		}
-		auxl.playerRig.GetEl().body.velocity.y = velocity;
+		one.bodyEl.body.velocity.y = velocity;
 	}
 	//Phys Dash
 	const PhysDash = (direction,velocity) => {
@@ -1523,81 +1848,65 @@ console.log(event.detail.intersection.point)
 			velocity = 10;
 		}
 		//Works the best with friction
-		auxl.playerRig.GetEl().body.applyLocalImpulse(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
+		one.bodyEl.body.applyLocalImpulse(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
 
-		//auxl.playerRig.GetEl().body.applyImpulse(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
-		//auxl.playerRig.GetEl().body.applyForce(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
-		//auxl.playerRig.GetEl().body.applyLocalForce(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
-		//auxl.playerRig.GetEl().components.locomotion.directionXZ(direction, velocity,)
+		//one.bodyEl.body.applyImpulse(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
+		//one.bodyEl.body.applyForce(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
+		//one.bodyEl.body.applyLocalForce(new THREE.Vector3(30,0,0),new THREE.Vector3(0,0,0));
+		//one.bodyEl.components.locomotion.directionXZ(direction, velocity,)
 	}
 	//Outdated, controlled in Gravity()
 	//Low Grav
 	const LowGrav = () => {
-		//auxl.playerRig.GetEl().body.applyLocalForce(new THREE.Vector3(0,4.8,0),new THREE.Vector3(0,0,0));
+		//one.bodyEl.body.applyLocalForce(new THREE.Vector3(0,4.8,0),new THREE.Vector3(0,0,0));
 //applying a small (less than gravity) upward force every tick. 
 	}
 	//Phys Pickup
 	const PhysPickup = (object) => {
-		//auxl.camera.ChangeSelf({property: 'auxconstraint__'+object, value: {type: 'lock', connectTo: object, maxForce: 1e6, collideConnected: false}});
+		//one.uniRay.ChangeSelf({property: 'auxconstraint__'+object, value: {type: 'lock', connectTo: object, maxForce: 1e6, collideConnected: false}});
 	}
 
 	//Phys Drop
 	const PhysDrop = (object) => {
-		//auxl.camera.RemoveComponent('auxconstraint__'+object);
+		//one.uniRay.RemoveComponent('auxconstraint__'+object);
 	}
 
 	//Physics Position
-	const PhysPos = (pos) => {
+	const PhysPos = (core,pos) => {
 		if(core.el.body){
 			if(core.inScene){
 				core.el.body.position.copy(pos);
 				core.el.object3D.position.copy(pos);
 			}
 		}
-
-/*
-		//Requires Dynamic or Static Body
- 		if(typeof core.el.getAttribute('static-body') === 'object' || typeof core.el.getAttribute('dynamic-body') === 'object' || typeof core.el.getAttribute('body') === 'object'){
-			if(core.inScene){
-				core.el.body.position.copy(pos);
-			}
-		} else {
-			console.log('No physics body attached!');
-		}
-*/
 	}
-	//Update Physics
-	const UpdatePhys2 = (update) => {
-		//Requires Dynamic or Static Body
- 		if(typeof core.el.getAttribute('static-body') === 'object' || typeof core.el.getAttribute('dynamic-body') === 'object'){
-			if(core.inScene){
-				//core.el.body.position.copy(pos);
-console.log(update)
-/*
-    [position] Vec3 optional
-    [velocity] Vec3 optional
-    [angularVelocity] Vec3 optional
-    [quaternion] Quaternion optional
-    [mass] Number optional
-    [material] Material optional
-    [type] Number optional
-    [linearDamping=0.01] Number optional
-    [angularDamping=0.01] Number optional
-    [allowSleep=true] Boolean optional
-    [sleepSpeedLimit=0.1] Number optional
-    [sleepTimeLimit=1] Number optional
-    [collisionFilterGroup=1] Number optional
-    [collisionFilterMask=1] Number optional
-    [fixedRotation=false] Boolean optional
-    [shape] Body optional
-*/
-			}
+
+	//Toggle Actions
+	const ToggleAction = (toggle) => {
+		layer.toggle0 = false;
+		layer.toggle1 = false;
+		layer.toggle2 = false;
+		layer.toggle3 = false;
+		layer.toggle4 = false;
+		layer.toggle5 = false;
+		if(toggle === '0'){
+			layer.toggle0 = true;
+		} else if(toggle === '1'){
+			layer.toggle1 = true;
+		} else if(toggle === '2'){
+			layer.toggle2 = true;
+		} else if(toggle === '3'){
+			layer.toggle3 = true;
+		} else if(toggle === '4'){
+			layer.toggle4 = true;
+		} else if(toggle === '5'){
+			layer.toggle5 = true;
 		} else {
-			console.log('No physics body attached!');
+			Delink();
 		}
 	}
 
-	return {one, SpawnOne, DespawnOne, UpdatePhys, TogglePhys, Link, Unlink, UnlinkAll};
+	return {one, SpawnOne, DespawnOne, UpdatePhys, Link, Unlink, UnlinkAll, Track2D, Freeze, UnFreeze, ToggleAction};
 //UniRay Support
 //Ray Straight Line
 //Ray Arc Line
@@ -1649,42 +1958,7 @@ console.log(update)
 //Projectile Pitch/Lob Launch
 //Projectile Arc Launch
 
-}//End One
-
-
-//Vehicle
-const Vehicle = (auxl, vehicleData, coreLayer) => {
-	//one
-	let vehicle = {};
-	vehicle.id = vehicleData.id || 'blank';
-	vehicle.coreLayer = coreLayer;
-	vehicle.vehicleData = vehicleData;
-	vehicle.worldBody = false;
-	vehicle.core = false;
-	vehicle.layer = false;
-
-	//Linked Multiple distance constraints are 1 axis heavy rotational movement on frictioned floor with 1 axis stearing
-
-
 }
-
-//All
-const All = (auxl, allData) => {
-
-//combine all core components into 1 general template of a unifed object.
-
-//Holds a core or layer as it base
-//Custom mulimenu for settings
-//Custom hover menu for interactions
-//Builds a One to support physics and its constraints
-//Attach various powers :
-//Grid Walk/Flight, Physics Walk/Flight
-//
-
-
-}
-
-
 
 //
 //Build Core/Layer/Other objects in the 3D environment
@@ -2360,4 +2634,4 @@ components: false,
 
 //
 //Export
-export {Constraints, One, Vehicle, BuildIn3D};
+export {Constraints, One, BuildIn3D};

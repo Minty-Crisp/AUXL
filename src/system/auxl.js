@@ -11,7 +11,7 @@
 //Main : Core, Layer, Templates
 import {Core, coreDataFromTemplate, coreFromTemplate, Layer, layerDataFromTemplate, layerFromTemplate} from './main.js';
 //Player : Player, Companion
-import {UniRay, Player, Companion} from './player.js';
+import {Player, Companion, UniRay} from './player.js';
 //Powers
 import Powers from './powers.js';
 //Scenes : SceneNode, MapZone, Scenario, World
@@ -25,11 +25,9 @@ import {Book, SpeechSystem, NPC, InfoBubble, Creature} from './npc.js';
 //Grid : Collision, GridLayout, Gate
 import {Collision, GridLayout, Gate} from './grid.js';
 //Build : BuildIn3D
-import {Constraints, One, Vehicle, BuildIn3D} from './build.js';
+import {Constraints, One, BuildIn3D} from './build.js';
 //Images
 import {ImageSwapper, ImageCarousel} from './images.js';
-//Mirrors
-import Mirrors from './mirror.js';
 //AUXL System
 const auxl = AFRAME.registerSystem('auxl', {
 schema: {
@@ -73,6 +71,7 @@ this.jsAll = {
 /*************************************************************/
 //HTML Elements
 const sceneEl = document.querySelector('a-scene');
+auxl.sceneEl = sceneEl;
 const head = document.querySelector('head');
 const body = document.querySelector('body');
 const stickyMenu = document.getElementById('stickyMenu');
@@ -246,8 +245,8 @@ const newData = () => {
 	this.local.profile.vrHand = this.vrHand;
 	this.local.profile.volume = this.volume;
 	this.local.profile.time = {};
-	this.local.profile.time.creation = time();
-	this.local.profile.time.lastVisit = time();
+	this.local.profile.time.creation = auxl.Time();
+	this.local.profile.time.lastVisit = auxl.Time();
 	this.local.profile.colorScheme = auxl.colorTheoryGen();
 	this.local.profile.id = this.local.profile.colorScheme.base;
 	this.local.profile.color = this.local.profile.colorScheme.base;
@@ -292,9 +291,9 @@ const loadStorage = () => {
 	//Overwrite default profile
 	this.local = JSON.parse(window.localStorage.getItem(this.save));
 	ApplySettings();
-	this.local.profile.time.return = time();
+	this.local.profile.time.return = this.Time();
 
-	this.local.profile.time.span = timeDif(this.local.profile.time.lastVisit, this.local.profile.time.return);
+	this.local.profile.time.span = this.TimeDif(this.local.profile.time.lastVisit, this.local.profile.time.return);
 	console.log('Time since last visit :');
 	console.log(this.local.profile.time.span);
 	//Update new Last Visit Data
@@ -319,7 +318,6 @@ const loadStorage = () => {
 	this.volume = this.local.profile.volume;
 }
 //Set
-//If the value exists then we have already entered once, do not repeat link anims
 const setStorage = (reset) => {
   	if(reset){
 		newStorage();
@@ -329,7 +327,6 @@ const setStorage = (reset) => {
 		newStorage();
 	}
 }
-
 //Save to Profile and Local
 this.saveToProfile = (sync) => {
 //sync.auxlObject, sync.type, sync.sub, sync.name, sync.data
@@ -380,7 +377,7 @@ const UpdateFromLocal = () => {
 //Time
 /*************************************************************/
 //Get Time
-function time(){
+this.Time = () => {
 	let time = {};
 	time.time = new Date();
 	time.year = time.time.getFullYear();
@@ -394,7 +391,7 @@ function time(){
 	return time;
 }
 //Time Difference from returned time() object
-function timeDif(start, end){
+this.TimeDif = (start, end) => {
 	let timeDif = {};
 	let time = {};
 	//Time in MS
@@ -585,8 +582,8 @@ this.RemoveFromTracker = (id, bookname) => {
 		delete auxl.zoneSpawned[id];
 	} else if(auxl.nodeSpawned[id]){
 		delete auxl.nodeSpawned[id];
-	} else if(auxl.bookSpawned[id]){
-		delete auxl.bookSpawned[bookName][id];
+	} else if(auxl.bookSpawned[bookname]){
+		delete auxl.bookSpawned[bookname][id];
 	}
 }
 //Check if Exists in Tracker
@@ -611,6 +608,7 @@ this.ExistsInTracker = (id, bookname) => {
 	}
 }
 //Timeout, Interval, Interaction & Events currently running
+//Each instance of Instructions connects and uses this for tracking
 this.running = {};
 this.zoneRunning = {};
 this.scenarioRunning = {};
@@ -625,10 +623,11 @@ this.timeInDay = 360000;
 this.worldPhysics = false;
 //EnablePhysics
 this.EnablePhysics = () => {
-console.log('Enable Physics')
-//Physics References
-auxl.physWorld = auxl.el.systems.physics.driver.world;
-console.log(auxl.physWorld)
+	console.log('Enabling Physics')
+	//Physics References
+	auxl.physWorld = auxl.el.systems.physics.driver.world;
+	//auxl.physWorld.allowSleep = true;
+	console.log(auxl.physWorld)
 }
 //Collision Maps
 this.collisionMap = [[],[]];
@@ -674,6 +673,7 @@ startButton.addEventListener('click', startExp);
 //
 //Controls
 
+//
 //VR
 function disableVRControls(){
 	auxl.vrController1.GetEl().setAttribute('visible',false);
@@ -696,7 +696,7 @@ function enableVRControls(){
 		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
 		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
 		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 1});
+		auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 		auxl.player.EnableVRLocomotion();
 		auxl.locomotionText = 'Left Controller Joystick';
 	} else if(auxl.vrHand === 'bothLeft'){
@@ -709,7 +709,7 @@ function enableVRControls(){
 		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
 		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
 		auxl.vrController1.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 2});
+		auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 		auxl.player.EnableVRLocomotion();
 		auxl.locomotionText = 'Right Controller Joystick';
 	} else if(auxl.vrHand === 'bothRightLoco' || auxl.vrHand === 'bothLeftLoco'){
@@ -721,9 +721,9 @@ function enableVRControls(){
 		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
 		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: 'false'});
 		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		vrController1.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
+		auxl.vrController1.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
 		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 3});
+		auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 		auxl.player.EnableVRLocomotion();
 		if(auxl.vrHand === 'bothLeftLoco'){
 			auxl.locomotionText = 'Left Controller Joystick';
@@ -736,7 +736,7 @@ function enableVRControls(){
 		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
 		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
 		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 4});
+		auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 		auxl.player.EnableVRHoverLocomotion('vrController2');
 		auxl.locomotionText = 'Hover on Forward/Backward Belt.';
 	} else if(auxl.vrHand === 'left'){
@@ -745,7 +745,7 @@ function enableVRControls(){
 		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
 		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
 		auxl.vrController1.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 5});
+		auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 		auxl.player.EnableVRHoverLocomotion('vrController1');
 		auxl.locomotionText = 'Hover on Forward/Backward Belt.';
 	}
@@ -760,7 +760,7 @@ function enableDesktopControls(){
 	auxl.mouseController.GetEl().setAttribute('visible',true);
 	auxl.mouseController.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 	auxl.mouseController.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true',});
-	auxl.playerRig.GetEl().setAttribute('uniray',{update: 0});
+	auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 	auxl.player.EnableDesktopLocomotion();
 	auxl.locomotionText = 'WASD Keys';
 }
@@ -789,37 +789,36 @@ function enableMobileControls(){
 	auxl.mouseController.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 	auxl.mouseController.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
 	controllerBlock.style.display = 'flex';
-	auxl.playerRig.GetEl().setAttribute('uniray',{update: Math.random()});
+	auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 	auxl.player.EnableMobileLocomotion();
 	auxl.locomotionText = 'Arrow Buttons';
-console.log(auxl.mouseController.GetEl())
+	//console.log(auxl.mouseController.GetEl())
 }
 //Controls Menu
 function controlsMenu(state){
-	if(auxl.controls === state){}else{
-		//Old
-		if(auxl.controls === 'Desktop'){
-			disableDesktopControls();
-		} else if(auxl.controls === 'Mobile'){
-			disableMobileControls();
-		} else if(auxl.controls === 'VR'){
-			vrHandButton.style.display = 'none';
-			vrLocomotionType.style.display = 'none';
-			disableVRControls();
-		}
-		//New
-		if(state === 'Desktop'){
-			menuModeButton.innerHTML = 'Mode : Desktop'
-			enableDesktopControls();
-		} else if(state === 'Mobile'){
-			menuModeButton.innerHTML = 'Mode : Mobile';
-			enableMobileControls();
-		} else if(state === 'VR'){
-			menuModeButton.innerHTML = 'Mode : VR';
-			vrHandButton.style.display = 'flex';
-			vrLocomotionType.style.display = 'flex';
-			enableVRControls();
-		}
+
+	//Old
+	if(auxl.controls === 'Desktop'){
+		disableDesktopControls();
+	} else if(auxl.controls === 'Mobile'){
+		disableMobileControls();
+	} else if(auxl.controls === 'VR'){
+		vrHandButton.style.display = 'none';
+		vrLocomotionType.style.display = 'none';
+		disableVRControls();
+	}
+	//New
+	if(state === 'Desktop'){
+		menuModeButton.innerHTML = 'Mode : Desktop'
+		enableDesktopControls();
+	} else if(state === 'Mobile'){
+		menuModeButton.innerHTML = 'Mode : Mobile';
+		enableMobileControls();
+	} else if(state === 'VR'){
+		menuModeButton.innerHTML = 'Mode : VR';
+		vrHandButton.style.display = 'flex';
+		vrLocomotionType.style.display = 'flex';
+		enableVRControls();
 	}
 	//Update State
 	auxl.controls = state;
@@ -854,93 +853,159 @@ this.UpdateControlText = () => {
 	for(let action in auxl.controlsInfo){
 		if(action === 'altDown'){
 			if(auxl.controls === 'Desktop'){
-				actionCommand = 'Mouse Right Click';
+				actionCommand = 'Mouse Right Click Down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'Middle Directional Button';
+				actionCommand = 'Middle Directional Button Down';
 			} else if(auxl.controls === 'VR'){
-				actionCommand = 'Grip';
+				actionCommand = 'Grip Down';
 			}
 		} else if(action === 'altUp'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = 'Mouse Right Click up';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'Middle Directional Button up';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Grip up';
+			}
 		} else if(action === 'action1Down'){
 			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action1Keys[1] + ' Key';
+				//Special Spacebar
+				actionCommand = auxl.controlConfig.action1Keys[1] + ' down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'A Button';
+				actionCommand = 'A down';
 			} else if(auxl.controls === 'VR'){
-				actionCommand = 'X Button';
+				actionCommand = 'X down';
 			}
 		} else if(action === 'action1Up'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action1Keys[1] + ' up';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'A up';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'X up';
+			}
 		} else if(action === 'action2Down'){
 			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action2Keys[1] + ' Key';
+				actionCommand = auxl.controlConfig.action2Keys[1] + ' down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'B Button';
+				actionCommand = 'B down';
 			} else if(auxl.controls === 'VR'){
-				actionCommand = 'Y Button';
+				actionCommand = 'Y down';
 			}
 		} else if(action === 'action2Up'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action2Keys[1] + ' up';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'B up';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Y up';
+			}
 		} else if(action === 'action3Down'){
 			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action3Keys[1] + ' Key';
+				actionCommand = auxl.controlConfig.action3Keys[1] + ' down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'C Button';
+				actionCommand = 'C down';
 			} else if(auxl.controls === 'VR'){
-				actionCommand = 'A Button';
+				actionCommand = 'A down';
 			}
 		} else if(action === 'action3Up'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action3Keys[1] + ' up';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'C up';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'A up';
+			}
 		} else if(action === 'action4Down'){
 			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action4Keys[1] + ' Key';
+				actionCommand = auxl.controlConfig.action4Keys[1] + ' down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'D Button';
+				actionCommand = 'D down';
 			} else if(auxl.controls === 'VR'){
-				actionCommand = 'B Button';
+				actionCommand = 'B down';
 			}
 		} else if(action === 'action4Up'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action4Keys[1] + ' up';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'D up';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'B up';
+			}
 		} else if(action === 'action5Down'){
 			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action5Keys[1] + ' Key';
+				actionCommand = auxl.controlConfig.action5Keys[1] + ' down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'E Button';
+				actionCommand = 'E down';
 			} else if(auxl.controls === 'VR'){
-				actionCommand = 'Alt Joystick Down';
+				actionCommand = 'Action Joystick down';
 			}
 		} else if(action === 'action5Up'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action5Keys[1] + ' up';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'E up';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Action Joystick reset';
+			}
 		} else if(action === 'action6Down'){
 			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action6Keys[1] + ' Key';
+				actionCommand = auxl.controlConfig.action6Keys[1] + ' down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'F Button';
+				actionCommand = 'F down';
 			} else if(auxl.controls === 'VR'){
-				actionCommand = 'Alt Joystick Up';
+				actionCommand = 'Action Joystick up';
 			}
 		} else if(action === 'action6Up'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action6Keys[1] + ' up';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = 'F up';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Action Joystick reset';
+			}
 		} else if(action === 'action7Down'){
 			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action7Keys[1] + ' Key';
+				actionCommand = auxl.controlConfig.action7Keys[1] + ' down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = '<- Button';
+				actionCommand = '<- down';
 			} else if(auxl.controls === 'VR'){
-				actionCommand = 'Alt Joystick Left';
+				actionCommand = 'Action Joystick left';
 			}
 		} else if(action === 'action7Up'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action7Keys[1] + ' up';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = '<- up';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Action Joystick reset';
+			}
 		} else if(action === 'action8Down'){
 			if(auxl.controls === 'Desktop'){
-				actionCommand = auxl.controlConfig.action8Keys[1] + ' Key';
+				actionCommand = auxl.controlConfig.action8Keys[1] + ' down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = '-> Button';
+				actionCommand = '-> down';
 			} else if(auxl.controls === 'VR'){
-				actionCommand = 'Alt Joystick Right';
+				actionCommand = 'Action Joystick right';
 			}
 		} else if(action === 'action8Up'){
+			if(auxl.controls === 'Desktop'){
+				actionCommand = auxl.controlConfig.action8Keys[1] + ' up';
+			} else if(auxl.controls === 'Mobile'){
+				actionCommand = '-> up';
+			} else if(auxl.controls === 'VR'){
+				actionCommand = 'Action Joystick reset';
+			}
 		} else {
 			console.log('Failed to identify action')
 		}
 
-		if(actionCommand === '  Key'){
-			actionCommand = 'Space Key';
+		if(actionCommand === '  down'){
+			actionCommand = 'Spacebar down';
+		} else if(actionCommand === '  up'){
+			actionCommand = 'Spacebar up';
 		}
-		auxl.controlsText += actionCommand + ' | ' + auxl.controlsInfo[action].name + ' : ' + auxl.controlsInfo[action].info + '\n';
+		auxl.controlsText += '| ' + actionCommand + ' | ' + auxl.controlsInfo[action].name + ' : ' + auxl.controlsInfo[action].info + '\n';
 	}
 	auxl.controlsText += 'Click to Close Window'
 	//console.log(auxl.controlsText);
@@ -966,6 +1031,7 @@ function changeControls(){
 menuModeButton.addEventListener('click', changeControls);
 //Cycle VR Configurations
 function changeVRHand(){
+	disableVRControls();
 	if(auxl.vrHand === 'bothRight'){
 		vrHandMenu('bothLeft');
 	} else if(auxl.vrHand === 'bothLeft'){
@@ -980,6 +1046,7 @@ function changeVRHand(){
 		vrHandMenu('bothRight');
 	}
 	updateControls();
+	enableVRControls();
 }
 vrHandButton.addEventListener('click', changeVRHand);
 //Change Locomotion Direction Type
@@ -1195,6 +1262,17 @@ this.detach = (child) => {
 //Return Random from an array
 this.randomOfArray = (array) => {
 	return array[Math.floor(Math.random()*array.length)];
+}
+
+//
+//Shallow Copy object and omit Keys
+this.ShallowOmit = (obj, ...keys) => {
+	let copy = {...obj};
+	keys.forEach(key => {
+		const {[key]: omitted, ...breakdown} = copy;
+		copy = {...breakdown};
+	})
+  return copy;
 }
 
 //
@@ -1519,7 +1597,7 @@ this.ranNameGen = () => {
 	let alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
 	let nameLength = Math.floor(Math.random()*12)+4;
 	for(let letter = 0; letter < nameLength; letter++){
-		name += alphabet[Math.floor(Math.random()*alphabet.length)]
+		name += auxl.randomOfArray(alphabet);
 	}
 	return name;
 }
@@ -1553,98 +1631,6 @@ this.objGenType = (auxlObj) => {
 	}
 }
 
-
-//
-//Pool
-this.Pool = (poolData, auxlObj) => {
-	//template : auxlObj
-	//core or layer only currently
-	//duplicate core with basic settings and return an array to use
-	let pool = {};
-	pool.data = poolData || {};
-	pool.id = poolData.id || auxl.ranNameGen();
-	pool.size = poolData.size || 10;
-	pool.growth = poolData.growth || 10;
-	pool.auxlObj = auxlObj;
-	pool.cores = [];
-	pool.layers = [];
-	pool.in = {};
-	pool.out = {};
-	pool.type = 'core';
-	if(auxlObj.layer){
-		pool.type = 'layer';
-	}
-
-	//Parent Core that all belong to
-	pool.parent = auxl.Core({id:pool.id});
-console.log(pool.parent)
-
-	//Duplicate Core Data
-	const dupeCoreData = (data) => {
-//coreDataFromTemplate(data, edit, assign)
-	}
-	//Duplicate Core
-	const dupeCore = (core) => {
-//coreFromTemplate(core, edit, assign) 
-	}
-	//Duplicate Layer Data
-	const dupeLayerData = (data) => {
-//layerDataFromTemplate(layer, coreBaseName, changeParent, assign)
-	}
-	//Duplicate Layer
-	const dupeLayer = (layer) => {
-//layerFromTemplate(layer, id, changeParent, updateLayer, assign)
-	}
-
-//reusable pool of entities to avoid creating and destroying the same kind of entities in dynamic scenes. Object pooling helps reduce garbage collection pauses.
-
-//Projectiles
-//Environment
-//Creatures
-
-
-	//Build Core/Layers needed
-	const Build = (total) => {
-		for(let current = 0; current < total; current++){
-			if(pool.type === 'core'){
-				if(pool.auxlObj.core){
-					pool.cores.push(dupeLayer(pool.auxlObj, {id:pool.id+current}, true));
-				} else {
-					pool.cores.push(auxl.Core(dupeLayerData(pool.auxlObj, {id:pool.id+current}, true)));
-				}
-			} else if(pool.type === 'layer'){
-				if(pool.auxlObj.layer){
-					pool.layers.push(dupeLayer(pool.auxlObj, {id:pool.id+current}, true));
-				} else {
-					pool.layers.push(auxl.Core(dupeLayerData(pool.auxlObj, {id:pool.id+current}, true)));
-				}
-			}
-		}
-
-	}
-	//Spawn Pool
-	const SpawnPool = () => {
-
-	}
-	//Despawn Pool
-	const DespawnPool = () => {
-
-	}
-
-	//Spawn Drop
-	const SpawnDrop = () => {
-	//grab from available pool and add to scene
-	}
-	//Despawn Drop
-	const DespawnDrop = () => {
-	//remove restore to pool
-	}
-
-	return {pool, Build, SpawnPool, DespawnPool, SpawnDrop, DespawnDrop};
-}
-
-
-
 //
 //Main
 
@@ -1674,12 +1660,12 @@ this.Layer = (id, all, update) => {
 }
 
 //Generate new Layer from Layer Data Template
-this.layerDataFromTemplate = (layer, coreBaseName, changeParent, assign) => {
-	return layerDataFromTemplate(auxl, layer, coreBaseName, changeParent, assign);
+this.layerDataFromTemplate = (layer, coreBaseName, changeParent, layerConfig, assign) => {
+	return layerDataFromTemplate(auxl, layer, coreBaseName, changeParent, layerConfig, assign);
 }
 //Generate new Layer from Layer Template
-this.layerFromTemplate = (layer, id, changeParent, updateLayer, assign) => {
-	return layerFromTemplate(auxl, layer, id, changeParent, updateLayer, assign);
+this.layerFromTemplate = (layer, id, changeParent, layerConfig, assign) => {
+	return layerFromTemplate(auxl, layer, id, changeParent, layerConfig, assign);
 }
 
 //
@@ -1896,12 +1882,6 @@ this.One = (objGen, oneData) => {
 }
 
 //
-//Vehicle
-this.Vehicle = (vehicleData, coreLayer) => {
-	return Vehicle(auxl, vehicleData, coreLayer);
-}
-
-//
 //Build
 
 //
@@ -1925,14 +1905,6 @@ this.ImageSwapper = (id, mainData, buttonData, ...materials) => {
 this.ImageCarousel = (carouselData) => {
 	return ImageCarousel(auxl, carouselData);
 }
-
-//
-//Mirror
-this.Mirror = (mirrorData) => {
-	return Mirror(auxl, mirrorData);
-}
-
-
 
 },
 //Delay Player Load in Animation until Scene is Ready

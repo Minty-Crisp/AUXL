@@ -49,7 +49,6 @@ events: {
 const clickrun = AFRAME.registerComponent('clickrun', {
 dependencies: ['auxl'],
 multiple: true,
-//multiple: true,
 schema: {
 	cursorObj: {type: 'string', default: 'auxlObj'},
 	component: {type: 'string', default: 'null'},
@@ -95,7 +94,6 @@ events: {
 const clickrunfunc = AFRAME.registerComponent('clickrunfunc', {
 dependencies: ['auxl'],
 multiple: true,
-//multiple: true,
 schema: {
 	method: {type: 'string', default: 'Click'},
 	params: {type: 'string', default: 'null'}
@@ -347,7 +345,6 @@ events: {
 //Attach to run specified method from Object on click event
 const menurun = AFRAME.registerComponent('menurun', {
 dependencies: ['auxl'],
-//multiple: true,
 schema: {
 	cursorObj: {type: 'string', default: 'auxlObj'},
 	method: {type: 'string', default: 'Click'},

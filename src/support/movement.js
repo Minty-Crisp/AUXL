@@ -74,7 +74,17 @@ init: function () {
 //angleXYZ
 //directionAXYZ : 1st POV Orbit Rotate w/ Zoom In & Out
 //rigAXYZ : 3rd POV Orbit Rotate w/ Zoom In & Out
+/*
+//Move in Direction of Cam Forward along Floor
+//RaySpawnPoint(rayEl, spawnHeight, distance) 
+let cam = RaySpawnPoint(auxl.camera.GetEl(), 0, 1).clone();
+auxl.playerRig.GetEl().object3D.translateOnAxis(cam, -0.25);
 
+//Fly in Direction of Cam Forward
+let cam = new THREE.Vector3(0,0,0);
+auxl.camera.GetEl().object3D.getWorldDirection(cam);
+auxl.playerRig.GetEl().object3D.translateOnAxis(cam, -1);
+*/
 	//Movement Type
 	this.movetype = this.data.movetype;
 	//vr
@@ -528,7 +538,7 @@ update: function () {
 			} else {
 				this.directionObject = document.getElementById('vrController1');
 			}
-		}	
+		}
 	} else if(this.movetype === 'vrHover'){
 		if(this.auxl.directionType === 'camera'){
 			this.directionObject = this.camera;
@@ -791,38 +801,122 @@ togglePOV: function (){
 
 
 },
-//Default
-rayDirection: function (ray,rotation,distance){
-//Return Position Direction of Camera
+//Ray Dorection
+rayDirection: function (ray,action,distance){
+//Move angles for yaw, pitch, and roll example...
+/*
+// Define the angles for yaw, pitch, and roll
+const yawAngle = Math.PI / 4;   // 45 degrees
+const pitchAngle = Math.PI / 6; // 30 degrees
+const rollAngle = Math.PI / 3;  // 60 degrees
+
+// Calculate the individual rotation matrices
+const R_yaw = new THREE.Matrix3();
+R_yaw.set(
+  Math.cos(yawAngle), 0, Math.sin(yawAngle),
+  0, 1, 0,
+  -Math.sin(yawAngle), 0, Math.cos(yawAngle)
+);
+
+const R_pitch = new THREE.Matrix3();
+R_pitch.set(
+  1, 0, 0,
+  0, Math.cos(pitchAngle), -Math.sin(pitchAngle),
+  0, Math.sin(pitchAngle), Math.cos(pitchAngle)
+);
+
+const R_roll = new THREE.Matrix3();
+R_roll.set(
+  Math.cos(rollAngle), -Math.sin(rollAngle), 0,
+  Math.sin(rollAngle), Math.cos(rollAngle), 0,
+  0, 0, 1
+);
+
+// Combine the rotation matrices (in the order of roll, pitch, yaw)
+const combinedRotationMatrix = R_yaw.clone().multiply(R_pitch).multiply(R_roll);
+
+*/
 	//Get the direction vector in world space
 	//Calculate the position based on the direction and distance
 	//Support current local axis of uniray to apply height in
 	let rayDir = new THREE.Vector3();
 	ray.object3D.getWorldDirection(rayDir);
-/*
-	if(rotation !== new THREE.Vector3(0,0,0)){
-		rayDir.applyAxisAngle(new THREE.Vector3(1,0,0), 0.5);
+
+	//degrees in radians, starting from behind towards the left around to the front as 180m then to the right back around
+	const angle0 = 0;
+	//const angle30 = Math.PI / 6;
+	const angle45 = Math.PI / 4;
+	//const angle60 = Math.PI / 3;
+	const angle90 = Math.PI / 2;
+	//const angle120 = 2*Math.PI / 3;
+	const angle135 = 3*Math.PI / 4;
+	//const angle150 = 5*Math.PI / 6;
+	const angle180 = Math.PI;
+	//const angle210 = 7*Math.PI / 6;
+	const angle225 = 5*Math.PI / 4;
+	//const angle240 = 4*Math.PI / 3;
+	const angle270 = 3*Math.PI / 2;
+	//const angle300 = 5*Math.PI / 3;
+	const angle315 = 7*Math.PI / 4;
+	//const angle330 = 11*Math.PI / 6;
+
+	const matrixAxisRot = (axis, angle) => {
+		let rotationMatrix = new THREE.Matrix4();
+		let angleMath = 0;
+		switch (angle) {
+			case 0: angleMath = 0; break;
+			case 30: angleMath = Math.PI/6; break;
+			case 45: angleMath = Math.PI/4; break;
+			case 60: angleMath = Math.PI/3; break;
+			case 90: angleMath = Math.PI/2; break;
+			case 120: angleMath = 2*Math.PI/3; break;
+			case 135: angleMath = 3*Math.PI/4; break;
+			case 150: angleMath = 5*Math.PI/6; break;
+			case 180: angleMath = Math.PI; break;
+			case 210: angleMath = 7*Math.PI/6; break;
+			case 225: angleMath = 5*Math.PI/4; break;
+			case 240: angleMath = 4*Math.PI/3; break;
+			case 270: angleMath = 3*Math.PI/2; break;
+			case 300: angleMath = 5*Math.PI/3; break;
+			case 315: angleMath = 7*Math.PI/4; break;
+			case 330: angleMath = 11*Math.PI/6; break;
+			case 360: angleMath = 2*Math.PI; break;
+			default: angleMath = Math.PI;
+		}
+		if(axis === 'x'){
+			rotationMatrix.makeRotationX(angleMath);
+		} else if(axis === 'y'){
+			rotationMatrix.makeRotationY(angleMath);
+		} else if(axis === 'z'){
+			rotationMatrix.makeRotationZ(angleMath);
+		}
+		return rotationMatrix;
 	}
-*/
+
+
+	let rotationMatrix = new THREE.Matrix4();
 	//Adjust Raycaster Angle
+	if(action === 'forwardRight'){
+		rotationMatrix = matrixAxisRot('y', angle135);
+	} else if(action === 'forwardLeft'){
+		rotationMatrix = matrixAxisRot('y', angle225);
+	} else if(action === 'reverseRight'){
+		rotationMatrix = matrixAxisRot('y', angle45);
+	} else if(action === 'reverseLeft'){
+		rotationMatrix = matrixAxisRot('y', angle315);
+	} else if(action === 'forward'){
+		rotationMatrix = matrixAxisRot('y', angle180);
+	} else if(action === 'reverse'){
+		rotationMatrix = matrixAxisRot('y', angle0);
+	} else if(action === 'right'){
+		rotationMatrix = matrixAxisRot('y', angle90);
+	} else if(action === 'left'){
+		rotationMatrix = matrixAxisRot('y', angle270);
+	}
 
-	//Backward
-	//rayDir;
-	//Forward
-	rayDir.negate();
-	//Left
-	//rayDir.applyAxisAngle(new THREE.Vector3(0,1,0), 1);
-	//Right
-	//rayDir.applyAxisAngle(new THREE.Vector3(0,-1,0), 1);
-	//Up
-	//rayDir.applyAxisAngle(new THREE.Vector3(1,0,0), 1);
-	//Down
-	//rayDir.applyAxisAngle(new THREE.Vector3(-1,0,0), 1);
-
-	//ForwardRight
-	//ForwardLeft
-	//ForwardRight
-	//ForwardLeft
+	// Apply the rotation matrix
+	let pointM = new THREE.Vector3().copy(rayDir).applyMatrix4(rotationMatrix);
+	rayDir.copy(pointM)
 
 	//Calculate the position based on the direction and distance
 	let position = new THREE.Vector3();
@@ -830,6 +924,7 @@ rayDirection: function (ray,rotation,distance){
 	//Add normalized (-1 to 0 to 1) angle
 	//Distance to next point at angle
 	position.copy(this.rayBody.object3D.position).add(new THREE.Vector3(rayDir.x, rayDir.y, rayDir.z).normalize().multiplyScalar(distance));
+//console.log({rayDir,position,distance})
 	return position;
 
 /*
@@ -844,6 +939,8 @@ rayDirection: function (ray,rotation,distance){
 },
 //Movement
 movement: function (){
+//testing grounds, currently, but extract the finalized movement from RigXZ, modify it to account for x,y,z and apply to all other similar methods
+
 	//Position locked?
 	if(this.auxl.player.layer.move){
 		//Physics, Grid Collision or No Clip
@@ -1161,7 +1258,7 @@ directionXZ: function (action, speed) {
 	this.velocity = speed;
 	this.directionVector = new THREE.Vector3();
 	this.directionObject.object3D.getWorldDirection(this.directionVector);
-	this.moveForce = new THREE.Vector3();
+	this.moveForce = new THREE.Vector3(speed,speed,speed);
 	this.positionNew = new THREE.Vector3();
 	this.positionPlayer.copy(this.player.object3D.position);
 	//Math out the Angle of Camera
@@ -1343,13 +1440,16 @@ directionXZ: function (action, speed) {
 			this.positionNew.z = this.positionPlayer.z;
 		}
 	}
+
+
+
+	//rayDirection override testing
+	//console.log({facing: this.face, action, next: this.positionNew})
+	//this.positionNew = new THREE.Vector3();
+	//this.positionNew.copy(this.rayDirection(this.directionObject, action, this.velocity));
+
 	//Y Height Position is unchanged
 	this.positionNew.y = this.positionPlayer.y;
-
-	//Testing
-	this.positionNew = new THREE.Vector3();
-	let rotationTest = new THREE.Vector3(0,0,0);
-	this.positionNew.copy(this.rayDirection(this.ray, rotationTest, this.velocity));
 
 	//Position locked?
 	if(this.auxl.player.layer.move){
@@ -1357,11 +1457,23 @@ directionXZ: function (action, speed) {
 		if(this.auxl.player.layer.playerPhysics){
 			if(this.auxl.player.layer.physMove){
 				//gravity based movement
+				this.moveForce.copy(this.positionNew);
+				this.moveForce.sub(this.positionPlayer);
+/*
+let rotationMatrix = new THREE.Matrix4();
+rotationMatrix.makeRotationX(Math.PI);
+this.moveForce.applyMatrix4(rotationMatrix);
+*/
+//#return
 				//Calculate directional difference
-				if(!this.positionNew.equals(this.positionPlayer)){
-					this.moveForce.copy(this.positionNew);
-					this.moveForce.sub(this.positionPlayer);
-					this.player.body.applyLocalImpulse(this.moveForce,new THREE.Vector3(0,0,0));
+				if(!this.positionNew.equals(this.positionPlayer)) {
+					//this.player.body.applyLocalForce( this.moveForce.multiplyScalar(10), new THREE.Vector3(0,0,0));
+
+					this.player.body.applyLocalImpulse( this.moveForce, new THREE.Vector3(0,0,0));
+					//this.player.body.velocity.x += this.moveForce.x;
+					//this.player.body.velocity.y += this.moveForce.y;
+					//this.player.body.velocity.z += this.moveForce.z;
+					//Slow down movement only quick then friction, but limit it so things like slopes can take affect
 				}
 			} else {
 				//position based 
@@ -1449,14 +1561,6 @@ directionXZ: function (action, speed) {
 			this.player.object3D.position.copy(this.positionNew);
 		}
 	}
-
-
-
-
-
-
-
-
 },
 //1st POV Walk with Fly Buttons relative to Direction View
 directionXZY: function (action, speed) {
@@ -2679,894 +2783,6 @@ userDirection: function (){
 });
 
 //
-//Gimbal
-//1st/3rd Rotation X,Y and/or Z
-const gimbal = AFRAME.registerComponent('gimbal', {
-dependencies: ['auxl'],
-schema: {
-	uiid: {type: 'string', default: 'ui'},
-	courserid: {type: 'string', default: 'mouseCursor'},
-	movetype: {type: 'string', default: 'vr'},
-	pov: {type: 'string', default: '1st'},
-	style: {type: 'string', default: 'free'},
-	axis: {type: 'string', default: 'rotXZ'},
-},
-init: function () {
-	//AUXL System Connection
-	this.auxl = document.querySelector('a-scene').systems.auxl;
-	//Free Locomotion
-	this.freeStepThrottled = AFRAME.utils.throttle(this.freeStep, 30, this);
-	//Grid Locomotion
-	this.gridStepThrottled = AFRAME.utils.throttle(this.gridStep, 400, this);
-
-	//Schema Imoprt
-	//
-	//Cursor Element
-	this.mouseCursor = document.getElementById(this.data.courserid);
-	//UI to attach
-	if(this.data.uuid){
-		this.ui = document.getElementById(this.data.uiid);
-	}
-
-
-	//Movement Type
-	this.movetype = this.data.movetype;
-	//vr
-	//vrHover
-	//desktop
-	//mobile
-
-	//Point of View
-	this.pov = this.data.pov;
-	//1st
-	//3rd
-
-	//Free or Grid Locomotion Style
-	this.style = this.data.style;
-	//free
-	//grid
-
-	//Movement Coords
-	this.axis = this.data.axis;
-	//Rot XZ
-
-	//Camera Rotate Support
-	this.camera = document.getElementById('camera');
-	this.player = document.getElementById('playerRig');
-	//this.playerSphere = document.getElementById('playerSphere');
-	this.avatar;
-	this.avatarSphere;
-	this.ui = document.getElementById('beltUIParent');
-    this.rotationPlayer = new THREE.Vector3();
-    this.rotationAvatar = new THREE.Vector3();
-    this.rotationNew = new THREE.Vector3();
-    this.rotationTemp = new THREE.Vector3();
-	this.quaternion = new THREE.Quaternion();
-	this.vector;
-	this.angle;
-
-	//Collision
-	this.posRound = new THREE.Vector3();
-	this.newPosRound = new THREE.Vector3();
-	this.mapX;
-	this.mapZ;
-
-	//Attach to Player Support
-	this.elPosVec3New = new THREE.Vector3();
-
-	//User Direction Support
-	this.velocity;
-	this.userPreviousPos = this.player.getAttribute('rotation');
-	this.userPos;
-	this.userRot;
-	this.userPov;
-	this.userTravel;
-	this.userView;
-	this.newX;
-	this.newZ;
-
-	//Locomotion Support
-	//Brake Engaged by Default aka Slow Speed
-	this.moveTo = false;
-	this.moveBack = false;
-	this.moveRight = false;
-	this.moveLeft = false;
-	this.moveUp = false;
-	this.moveDown = false;
-	this.moveBrake = true;
-	this.brakeReady = true;
-	this.brakeToggle = false;
-	this.brakeReset; //Delay
-
-	//Free Locomotion Support
-	this.moveSpeedDefault;
-	this.moveSpeedSlow;
-
-	//Grid Locomotion Support
-	this.gridForwardTimeout;
-	this.gridReverseTimeout;
-	this.gridLeftTimeout;
-	this.gridRightTimeout;
-	this.gridUpTimeout;
-	this.gridDownTimeout;
-	this.gridMove = false;
-	//Movement is always 1 meter, so speed is in ms
-	this.gridSpeed = 400;
-
-	//3rd Person Config
-	let initDelay = setTimeout(()=> {
-		if(this.pov === '3rd'){
-			let initDelay = setTimeout(()=> {
-				this.avatar = document.getElementById('avatarRig');
-				this.avatarSphere = document.getElementById('avatarSphere');
-			},500)
-		}
-	},1000)
-},
-//0.5 Increments
-roundHalf: function (num){
-    return Math.round(num*2)/2;
-},
-//Move Forward
-movingForward: function (){
-	clearTimeout(this.gridForwardTimeout);
-	if(this.moveTo){}else{
-		this.moveTo = true;
-	}
-},
-//Cancel Forward
-cancelForward: function (){
-	if(this.moveTo){
-		if(this.style === 'grid'){
-			if(this.gridMove){
-				this.moveTo = false;
-			} else {
-				this.gridForwardTimeout = setTimeout(() => {
-					this.moveTo = false;
-				}, this.gridSpeed/1.25);
-			}
-		} else {
-			this.moveTo = false;
-		}
-	}
-},
-//Move Reverse
-movingReverse: function (){
-	clearTimeout(this.gridReverseTimeout);
-	if(this.moveBack){}else{
-		this.moveBack = true;
-	}
-},
-//Cancel Reverse
-cancelReverse: function (){
-	if(this.moveBack){
-		if(this.style === 'grid'){
-			if(this.gridMove){
-				this.moveBack = false;
-			} else {
-				this.gridReverseTimeout = setTimeout(() => {
-					this.moveBack = false;
-				}, this.gridSpeed/1.25);
-			}
-		} else {
-			this.moveBack = false;
-		}
-	}
-},
-//Move Left
-movingLeft: function (){
-	clearTimeout(this.gridLeftTimeout);
-	if(this.moveLeft){}else{
-		this.moveLeft = true;
-	}
-},
-//Cancel Left
-cancelLeft: function (){
-	if(this.moveLeft){
-		if(this.style === 'grid'){
-			if(this.gridMove){
-				this.moveLeft = false;
-			} else {
-				this.gridLeftTimeout = setTimeout(() => {
-					this.moveLeft = false;
-				}, this.gridSpeed/1.25);
-			}
-		} else {
-			this.moveLeft = false;
-		}
-	}
-},
-//Move Right
-movingRight: function (){
-	clearTimeout(this.gridRightTimeout);
-	if(this.moveRight){}else{
-		this.moveRight = true;
-	}
-},
-//Cancel Right
-cancelRight: function (){
-	if(this.moveRight){
-		if(this.style === 'grid'){
-			if(this.gridMove){
-				this.moveRight = false;
-			} else {
-				this.gridRightTimeout = setTimeout(() => {
-					this.moveRight = false;
-				}, this.gridSpeed/1.25);
-			}
-		} else {
-			this.moveRight = false;
-		}
-	}
-},
-//Move Up
-movingUp: function (){
-	clearTimeout(this.gridUpTimeout);
-	if(this.moveUp){}else{
-		this.moveUp = true;
-	}
-},
-//Cancel Up
-cancelUp: function (){
-	if(this.moveUp){
-		if(this.style === 'grid'){
-			if(this.gridMove){
-				this.moveUp = false;
-			} else {
-				this.gridUpTimeout = setTimeout(() => {
-					this.moveUp = false;
-				}, this.gridSpeed/1.25);
-			}
-		} else {
-			this.moveUp = false;
-		}
-	}
-},
-//Move Down
-movingDown: function (){
-	clearTimeout(this.gridDownTimeout);
-	if(this.moveDown){}else{
-		this.moveDown = true;
-	}
-},
-//Cancel Down
-cancelDown: function (){
-	if(this.moveDown){
-		if(this.style === 'grid'){
-			if(this.gridMove){
-				this.moveDown = false;
-			} else {
-				this.gridDownTimeout = setTimeout(() => {
-					this.moveDown = false;
-				}, this.gridSpeed/1.25);
-			}
-		} else {
-			this.moveDown = false;
-		}
-	}
-},
-//Clear All Movement
-clearMovement: function (){
-	this.cancelForward();
-	this.cancelReverse();
-	this.cancelLeft();
-	this.cancelRight();
-	this.cancelUp();
-	this.cancelDown();
-},
-//Clear All Grid Movement
-clearGridMovement: function (){
-	this.moveTo = false;
-	this.moveBack = false;
-	this.moveLeft = false;
-	this.moveRight = false;
-	clearTimeout(this.gridForwardTimeout);
-	clearTimeout(this.gridReverseTimeout);
-	clearTimeout(this.gridLeftTimeout);
-	clearTimeout(this.gridRightTimeout);
-},
-//Toggle Speed Change
-toggleSpeed: function (){
-	if(this.brakeReady){
-		if(this.brakeToggle){
-			//Set reset switch toggle
-			this.brakeToggle = false;
-			//Set reset timer switch toggle
-			this.brakeReady = false;
-			//Brake On
-			this.moveBrake = true;
-			//Slower Grid Move
-			this.gridSpeed = 400;
-			this.everyStepThrottled = AFRAME.utils.throttle(this.everyStep, this.gridSpeed, this);
-		} else {
-			//Set reset switch toggle
-			this.brakeToggle = true;
-			//Set reset timer switch toggle
-			this.brakeReady = false;
-			//Brake Off
-			this.moveBrake = false;
-			//Faster Grid Move
-			this.gridSpeed = 200;
-			this.everyStepThrottled = AFRAME.utils.throttle(this.everyStep, this.gridSpeed, this);
-		}
-		this.brakeReset = setTimeout(() => {
-			//Set reset switch toggle
-			this.brakeReady = true;
-			clearTimeout(this.brakeReset);
-		}, 250);
-	}
-},
-//Long Buffer for Toggling Speed Change
-brakeReadBufferLong: function (){
-	//This will start the reset timer to allow the brake to be re-engadged
-	this.brakeReset = setTimeout(() => {
-		this.brakeReady = true;
-		clearTimeout(this.brakeReset);
-	}, 2250);
-},
-//Update
-update: function () {
-	//Locomotion Support
-	//Brake Engaged by Default
-	this.moveTo = false;
-	this.moveBack = false;
-	this.moveRight = false;
-	this.moveLeft = false;
-	this.moveBrake = true;
-	this.brakeReady = true;
-	this.brakeToggle = false;
-	this.brakeReset; //Delay
-	this.moveSpeedDefault = 1;
-	this.moveSpeedSlow = 0.5;
-
-	//Grid Locomotion Support
-	this.gridForwardTimeout;
-	this.gridReverseTimeout;
-	this.gridLeftTimeout;
-	this.gridRightTimeout;
-	this.gridMove = false;
-	//Movement is always 1 meter, so speed is in ms
-	this.gridSpeed = 500;
-
-	//Schema Imoprt
-	//
-	//Cursor Element
-	this.mouseCursor = document.getElementById(this.data.courserid);
-	//UI to attach
-	if(this.data.uiid){
-		this.ui = document.getElementById(this.data.uiid);
-	}
-	//Movement Type
-	this.movetype = this.data.movetype;
-
-	//Keyboard Controller Event Listeners
-	if(this.movetype === 'desktop'){
-		//Controlled by Universal Controls
-	} else if(this.movetype === 'mobile'){
-		//Controlled by Universal Controls
-	} else if(this.movetype === 'vr'){
-		//Controlled by Universal Controls
-	} else if(this.movetype === 'vrHover'){
-		//Not Configured
-	}
-},
-//Remove
-remove: function () {
-	if(this.movetype === 'desktop'){
-		//Controlled by Universal Controls
-	} else if(this.movetype === 'mobile'){
-		//Controlled by Universal Controls
-	} else if(this.movetype === 'vr'){
-		//Controlled by Universal Controls
-	} else if(this.movetype === 'vrHover'){
-		//Not Configured
-	}
-},
-//Tick
-tick: function (time, timeDelta) {
-	//Locomotion Type
-	if(this.style === 'free'){
-		this.freeStepThrottled();
-	} else if(this.style === 'grid'){
-		this.gridStepThrottled();
-	}
-
-},
-//Free Locomotion Tick
-freeStep: function (time, timeDelta) {
-	if(this.moveBrake){
-		if(this.moveTo && this.moveRight) {
-			this.move('forwardRight', this.moveSpeedSlow);
-		} else if(this.moveTo && this.moveLeft) {
-			this.move('forwardLeft', this.moveSpeedSlow);
-		} else if(this.moveBack && this.moveRight) {
-			this.move('reverseRight', this.moveSpeedSlow);
-		} else if(this.moveBack && this.moveLeft) {
-			this.move('reverseLeft', this.moveSpeedSlow);
-		} else if(this.moveTo) {
-			this.move('forward', this.moveSpeedSlow);
-		} else if(this.moveBack) {
-			this.move('reverse', this.moveSpeedSlow);
-		} else if(this.moveRight) {
-			this.move('right', this.moveSpeedSlow);
-		} else if(this.moveLeft) {
-			this.move('left', this.moveSpeedSlow);
-		}
-	} else {
-		if(this.moveTo && this.moveRight) {
-			this.move('forwardRight', this.moveSpeedDefault);
-		} else if(this.moveTo && this.moveLeft) {
-			this.move('forwardLeft', this.moveSpeedDefault);
-		} else if(this.moveBack && this.moveRight) {
-			this.move('reverseRight', this.moveSpeedDefault);
-		} else if(this.moveBack && this.moveLeft) {
-			this.move('reverseLeft', this.moveSpeedDefault);
-		} else if(this.moveTo) {
-			this.move('forward', this.moveSpeedDefault);
-		} else if(this.moveBack) {
-			this.move('reverse', this.moveSpeedDefault);
-		} else if(this.moveRight) {
-			this.move('right', this.moveSpeedDefault);
-		} else if(this.moveLeft) {
-			this.move('left', this.moveSpeedDefault);
-		}
-	}
-},
-//Free Locomotion Tick
-freeStepPlus: function (time, timeDelta) {
-
-//Not Working
-//UpForwardLeft
-//UpReverseLeft
-//DownForwardRight
-//DownReverseRight
-	this.movement = '';
-	//Up|Down
-	if(this.moveUp && this.moveDown){} else {
-		if(this.moveUp){
-			this.movement += 'Up';
-		} else if(this.moveDown){
-			this.movement += 'Down';
-		}
-	}
-	//Forward|Reverse
-	if(this.moveTo && this.moveBack){} else {
-		if(this.moveTo){
-			this.movement += 'Forward';
-		} else if(this.moveBack){
-			this.movement += 'Reverse';
-		}
-	}
-	//Right|Left
-	if(this.moveRight && this.moveLeft){} else {
-		if(this.moveRight){
-			this.movement += 'Right';
-		} else if(this.moveLeft){
-			this.movement += 'Left';
-		}
-	}
-	console.log(this.movement)
-
-	//Speed
-	if(this.moveBrake){
-		this.moveFree(this.movement, this.moveSpeedSlow);
-	} else {
-		this.moveFree(this.movement, this.moveSpeedDefault);
-	}
-},
-//Grid Locomotion Tick
-gridStep: function (time, timeDelta) {
-	if(this.moveTo || this.moveBack || this.moveRight || this.moveLeft){
-		if(this.gridMove){} else {
-			this.gridMove = true;
-		}
-	} else {
-		this.gridMove = false;
-	}
-	if(this.moveTo && this.moveRight) {
-		this.move('forwardRight', 0.5);
-	} else if(this.moveTo && this.moveLeft) {
-		this.move('forwardLeft', 0.5);
-	} else if(this.moveBack && this.moveRight) {
-		this.move('reverseRight', 0.5);
-	} else if(this.moveBack && this.moveLeft) {
-		this.move('reverseLeft', 0.5);
-	} else if(this.moveTo) {
-		this.move('forward', 0.5);
-	} else if(this.moveBack) {
-		this.move('reverse', 0.5);
-	} else if(this.moveRight) {
-		this.move('right', 0.5);
-	} else if(this.moveLeft) {
-		this.move('left', 0.5);
-	}
-
-},
-//Function to calculate distance between two points
-distance: function(x1, y1, x2,  y2) {
-    //Calculating distance
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) * 1.0);
-},
-//Sync Belt UI
-uiSync: function () {
-	this.elPosVec3New.copy(this.el.object3D.rotation);
-	//No Offsets as UI Parent is at 0 0 0
-	this.ui.object3D.rotation.copy(this.elPosVec3New);
-},
-//Move
-move: function (direction, speed) {
-	if(this.pov === '1st'){
-		if(this.axis === 'rotXZ'){
-			this.directionXZ(direction, speed);
-		}
-	} else if(this.pov === '3rd'){
-		if(this.axis === 'rotXZ'){
-			this.rigXZ(direction, speed);
-		}
-	}
-},
-//1st POV Rotat along XZ relative to Camera View
-directionXZ: function (action, speed) {
-	this.velocity = speed;
-	this.cameraVector = new THREE.Vector3();
-	this.camera.object3D.getWorldDirection(this.cameraVector);
-	this.rotationNew = new THREE.Vector3();
-	//Euler
-	//this.rotationPlayer.copy(this.player.object3D.rotation);
-	this.rotationPlayer = this.player.getAttribute('rotation');
-	//Math out the Angle of Camera
-	this.angle = Math.atan2(this.cameraVector.x,this.cameraVector.z);
-	//Facing
-	this.face;
-	//Quadrant 1 : -x, -z
-	//Quadrant 2 : +x, -z
-	//Quadrant 3 : -x, +z
-	//Quadrant 4 : +x, +z
-	//Check Camera Angle Quadrant
-	if(this.angle > 0 && this.angle < Math.PI/2) {
-		//console.log('Forward Left');
-		this.face = 'frontLeft';
-	} else if(this.angle < 0 && this.angle > -Math.PI/2) {
-		//console.log('Forward Right');
-		this.face = 'frontRight';
-	} else if(this.angle > Math.PI/2 && this.angle < Math.PI) {
-		//console.log('Backward Left');
-		this.face = 'backLeft';
-	} else if(this.angle < -Math.PI/2 && this.angle > -Math.PI) {
-		//console.log('Backward Right');
-		this.face = 'backRight';
-	} else {
-		//console.log('Level');
-		this.face = 'level';
-	}
-	if(action === 'forwardRight'){
-		if(this.face === 'frontLeft') {
-			this.rotationNew.x = this.rotationPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.rotationNew.x = this.rotationPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.rotationNew.x = this.rotationPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.rotationNew.x = this.rotationPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.rotationNew.x = this.rotationPlayer.x + this.velocity;
-			this.rotationNew.z = this.rotationPlayer.z - this.velocity;
-		}
-	} else if(action === 'forwardLeft'){
-		if(this.face === 'frontLeft') {
-			this.rotationNew.x = this.rotationPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.rotationNew.x = this.rotationPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.rotationNew.x = this.rotationPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.rotationNew.x = this.rotationPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.rotationNew.x = this.rotationPlayer.x - this.velocity;
-			this.rotationNew.z = this.rotationPlayer.z - this.velocity;
-		}
-	} else if(action === 'reverseRight'){
-		if(this.face === 'frontLeft') {
-			this.rotationNew.x = this.rotationPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.rotationNew.x = this.rotationPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.rotationNew.x = this.rotationPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.rotationNew.x = this.rotationPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.rotationNew.x = this.rotationPlayer.x + this.velocity;
-			this.rotationNew.z = this.rotationPlayer.z + this.velocity;
-		}
-	} else if(action === 'reverseLeft'){
-		if(this.face === 'frontLeft') {
-			this.rotationNew.x = this.rotationPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.rotationNew.x = this.rotationPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.rotationNew.x = this.rotationPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.rotationNew.x = this.rotationPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.rotationNew.x = this.rotationPlayer.x - this.velocity;
-			this.rotationNew.z = this.rotationPlayer.z + this.velocity;
-		}
-	} else if(action === 'forward'){
-		if(this.face === 'frontLeft') {
-			this.rotationNew.x = this.rotationPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.rotationNew.x = this.rotationPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.rotationNew.x = this.rotationPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.rotationNew.x = this.rotationPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.rotationNew.x = this.rotationPlayer.x;
-			this.rotationNew.z = this.rotationPlayer.z - this.velocity;
-		}
-	} else if(action === 'reverse'){
-		if(this.face === 'frontLeft') {
-			this.rotationNew.x = this.rotationPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.rotationNew.x = this.rotationPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.rotationNew.x = this.rotationPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.rotationNew.x = this.rotationPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.rotationNew.x = this.rotationPlayer.x;
-			this.rotationNew.z = this.rotationPlayer.z + this.velocity;
-		}
-	} else if(action === 'right'){
-		if(this.face === 'frontLeft') {
-			this.rotationNew.x = this.rotationPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.rotationNew.x = this.rotationPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.rotationNew.x = this.rotationPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.rotationNew.x = this.rotationPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.rotationNew.x = this.rotationPlayer.x + this.velocity;
-			this.rotationNew.z = this.rotationPlayer.z;
-		}
-	} else if(action === 'left'){
-		if(this.face === 'frontLeft') {
-			this.rotationNew.x = this.rotationPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.rotationNew.x = this.rotationPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.rotationNew.x = this.rotationPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.rotationNew.x = this.rotationPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.rotationNew.z = this.rotationPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.rotationNew.x = this.rotationPlayer.x - this.velocity;
-			this.rotationNew.z = this.rotationPlayer.z;
-		}
-	}
-
-	this.rotationNew.y = this.rotationPlayer.y;
-
-
-
-	//Free Rotation No Collision
-	//Euler
-	//this.player.object3D.rotation.copy(this.rotationNew);
-	this.player.setAttribute('rotation',this.rotationNew)
-
-},
-//3rd POV Rotat along XZ
-rigXZ: function (action, speed) {
-	this.velocity = speed;
-	this.rotationNew = new THREE.Vector3();
-	//Euler
-	//this.rotationAvatar.copy(this.avatar.object3D.rotation);
-	this.rotationAvatar = this.avatar.getAttribute('rotation');
-
-	if(action === 'forwardRight'){
-		this.rotationNew.x = this.rotationAvatar.x + this.velocity;
-		this.rotationNew.z = this.rotationAvatar.z - this.velocity;
-	} else if(action === 'forwardLeft'){
-		this.rotationNew.x = this.rotationAvatar.x - this.velocity;
-		this.rotationNew.z = this.rotationAvatar.z - this.velocity;
-	} else if(action === 'reverseRight'){
-		this.rotationNew.x = this.rotationAvatar.x + this.velocity;
-		this.rotationNew.z = this.rotationAvatar.z + this.velocity;
-	} else if(action === 'reverseLeft'){
-		this.rotationNew.x = this.rotationAvatar.x - this.velocity;
-		this.rotationNew.z = this.rotationAvatar.z + this.velocity;
-	} else if(action === 'forward'){
-		this.rotationNew.x = this.rotationAvatar.x;
-		this.rotationNew.z = this.rotationAvatar.z - this.velocity;
-	} else if(action === 'reverse'){
-		this.rotationNew.x = this.rotationAvatar.x;
-		this.rotationNew.z = this.rotationAvatar.z + this.velocity;
-	} else if(action === 'right'){
-		this.rotationNew.x = this.rotationAvatar.x + this.velocity;
-		this.rotationNew.z = this.rotationAvatar.z;
-	} else if(action === 'left'){
-		this.rotationNew.x = this.rotationAvatar.x - this.velocity;
-		this.rotationNew.z = this.rotationAvatar.z;
-	}
-	this.rotationNew.y = this.rotationAvatar.y;
-
-	//Free Rotation No Collision
-	//Requires Euler
-	//this.avatar.object3D.rotation.copy(this.rotationNew);
-	this.avatar.setAttribute('rotation',this.rotationNew)
-},
-//Camera Direction to Spawn Assets In - Unused Currently
-userDirection: function (){
-	this.userPos = this.player.getAttribute('rotation');
-	this.userRot = this.camera.getAttribute('rotation');
-	//Check which direction the user is traveling
-	if((this.userPreviousPos.x + this.userPos.x < 0) && (this.userPreviousPos.z + this.userPos.z < 0)){
-		//northWest -x-z
-		this.userTravel = 'northWest';
-	} else if((this.userPreviousPos.x + this.userPos.x < 0) && (this.userPreviousPos.z + this.userPos.z > 0)){
-		//southWest -x +z
-		this.userTravel = 'southWest';
-	} else if((this.userPreviousPos.x + this.userPos.x > 0) && (this.userPreviousPos.z + this.userPos.z > 0)){
-		//southEast +x+z
-		this.userTravel = 'southEast';
-	} else if((this.userPreviousPos.x + this.userPos.x > 0) && (this.userPreviousPos.z + this.userPos.z < 0)){
-		//northEast +x-z
-		this.userTravel = 'northEast';
-	} else {
-		//Default
-		this.userTravel = 'northEast';
-	}
-	//After previous to current rotation check, update the previous rotation value to be compared against on the next run cycle
-	this.userPreviousPos = this.userPos;
-
-	//If POV Rotation is more then 360 or -360, divide it by sets of 360 to obtain 0-360 degrees to assign from
-	if( this.userRot.y > 360) {
-		let radials = this.userRot.y / 360;
-		this.userPov = ((Math.floor(radials)) * 360 ) - this.userRot.y;
-		this.userPov *= -1;
-	} else if(this.userRot.y < -360) {
-		let radials = this.userRot.y / 360;
-		this.userPov = ((Math.floor(radials)) * 360 ) - this.userRot.y;
-		this.userPov *= -1;
-	} else {
-		this.userPov = this.userRot.y;
-	}
-	//Check which direciton the User is facing
-	if ((this.userPov > 0 && this.userPov < 15) || (this.userPov > 345 && this.userPov < 360)) {
-			//North
-			this.userView = 'north';
-	   } else if (this.userPov > 255 && this.userPov > 285) {
-			//East
-			this.userView = 'east';
-		} else if (this.userPov > 75 && this.userPov < 105) {
-			//West
-			this.userView = 'west';
-		} else if (this.userPov > 165 && this.userPov < 195) {
-			//South
-			this.userView = 'south';
-		} else if ((this.userPov < 0 && this.userPov > -15) || (this.userPov < -345 && this.userPov > -360)) {
-			//North
-			this.userView = 'north';
-	   } else if (this.userPov < -255 && this.userPov > -285) {
-			//West
-			this.userView = 'west';
-		} else if (this.userPov < -75 && this.userPov > -105) {
-			//East
-			this.userView = 'east';
-		} else if (this.userPov < -165 && this.userPov > -195) {
-			//South
-			this.userView = 'south';
-		} else if (this.userPov > 15 && this.userPov < 75) {//
-			//North West
-			this.userView = 'northWest';
-	   } else if (this.userPov > 105 && this.userPov < 165) {//
-			//South West
-			this.userView = 'southWest';
-		} else if (this.userPov > 195 && this.userPov < 255) {//
-			//South East
-			this.userView = 'southEast';
-		} else if (this.userPov > 285 && this.userPov < 345) {//
-			//North East
-			this.userView = 'northEast';
-		} else if (this.userPov < -15 && this.userPov > -75 ) {//Negative direction
-			//North East
-			this.userView = 'northEast';
-	   } else if (this.userPov < -105 && this.userPov > -165) {
-			//South East
-			this.userView = 'southEast';
-		} else if (this.userPov < -195 && this.userPov > -255) {
-			//South West
-			this.userView = 'southWest';
-		} else if (this.userPov < -285 && this.userPov > -345) {
-			//North West
-			this.userView = 'northWest';
-		} else {
-			this.userView = 'north';
-		}
-	//Depending on the User's facing direction, spawn in that quadrant
-	if(this.userView === "northWest"){// -x -z
-		this.rotationTemp.x = (this.velocity + this.rotationPlayer.x) * -1;
-		this.rotationTemp.z = (this.velocity + this.rotationPlayer.z) * -1;
-		this.rotationTemp.z += this.rotationPlayer.z;
-	} else if(this.userView === "southWest"){// -x +z
-		this.rotationTemp.x = (this.velocity + this.rotationPlayer.x) * -1;
-		this.rotationTemp.z =(this.velocity + this.rotationPlayer.z);
-	} else if(this.userView === "southEast"){// +x +z
-		this.rotationTemp.x = (this.velocity + this.rotationPlayer.x);
-		this.rotationTemp.z =(this.velocity + this.rotationPlayer.z);
-	} else if(this.userView === "northEast"){// +x -z
-		this.rotationTemp.x = (this.velocity + this.rotationPlayer.x);
-		this.rotationTemp.z =(this.velocity + this.rotationPlayer.z) * -1;
-	} else if(this.userView === "north"){// +-x -z
-		this.rotationTemp.x = (this.velocity + this.rotationPlayer.x);
-		this.rotationTemp.z =(this.velocity + this.rotationPlayer.z) * -1;
-	} else if(this.userView === "west"){// -x +-z
-		this.rotationTemp.x = (this.velocity + this.rotationPlayer.x) * -1;
-		this.rotationTemp.z =(this.velocity + this.rotationPlayer.z);
-	} else if(this.userView === "east"){// +x +-z
-		this.rotationTemp.x = (this.velocity + this.rotationPlayer.x);
-		this.rotationTemp.z =(this.velocity + this.rotationPlayer.z);
-	} else if(this.userView === "south"){// +-x +z
-		this.rotationTemp.x = (this.velocity + this.rotationPlayer.x);
-		this.rotationTemp.z =(this.velocity + this.rotationPlayer.z);
-	} else {
-		this.rotationTemp.x = 0;
-		this.rotationTemp.z = 0;
-	}
-	this.rotationNew = new THREE.Vector3(this.rotationTemp.x, 0, this.rotationTemp.z);
-},
-
-});
-
-//
 //Teleportation
 //Component for Teleportation Points Object
 const teleportation = AFRAME.registerComponent('teleportation',{
@@ -4063,4 +3279,4 @@ remove: function () {
 
 //
 //Export
-export {locomotion, gimbal, teleportation, raycastTeleport, raycastTeleportSelect, teleportto};
+export {locomotion, teleportation, raycastTeleport, raycastTeleportSelect, teleportto};

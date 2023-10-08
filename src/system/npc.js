@@ -54,8 +54,17 @@ const Book = (auxl, bookData, npc) => {
 	//Yield Timeline
 	function* lineReader(book,time){
 		//Update and Check Book Progress
+		//This doesn't work with jumps
 		progress++;
 		if(progress >= pagesTimelineLength){
+			if(bookData.jumping){
+				//When jumping and not finding a match before reaching the end. Can't seem to start back over. Most likely going to need to build my own generator
+				//console.log({msg: 'still jumping', bookData})
+				console.log({msg: 'reset', npc, bookData})
+				//npc.ResetBook(true);
+				auxl[npc.id].BackwardJump();
+				return;
+			}
 			npc.bookEnd = true;
 		} else {
 			npc.bookEnd = false;
@@ -86,6 +95,15 @@ const Book = (auxl, bookData, npc) => {
 			//Skip|Ignore Data til timeline# reach if jumping
 			if(time === bookData.jumpTo){
 				bookData.jumping = false;
+/*
+console.log({
+jumping: bookData.jumping,
+time,
+to: bookData.jumpTo,
+book,
+page,
+})
+*/
 			}
 			if(bookData.jumping){}else{
 				yield* lineReader(book, page[time]);
@@ -221,10 +239,17 @@ const Book = (auxl, bookData, npc) => {
 		return;
 	}
 	//Init Book
-	const Init = () => {
+	const Init = (to) => {
 		//Jump to 1st Line
 		book.done = book.next().done;
-		book.done = book.next().done;
+		if(to){
+			let jumpTimeout = setTimeout(() => {
+				Jump({now: true, ...to});
+				clearTimeout(jumpTimeout);
+			}, 100);
+		} else {
+			book.done = book.next().done;
+		}
 		npc.loadingTimeline = false;
 	}
 	//Next
@@ -233,10 +258,10 @@ const Book = (auxl, bookData, npc) => {
 			Random(timeline);
 		}
 		book.done = book.next().done;
-		let nextTimeout = setTimeout(function () {
+		let nextTimeout = setTimeout(() => {
 			npc.loadingTimeline = false;
 			clearTimeout(nextTimeout);
-		}, 1000);
+		}, 750);
 	}
 	//New Page
 	const NewPage = ({page, timeline}) => {
@@ -326,17 +351,29 @@ const Book = (auxl, bookData, npc) => {
 		}
 	}
 	//Jump to Timeline
-	const Jump = ({timeline, page}) => {
+	const Jump = ({timeline, page, now}) => {
 		let toPage = page || bookData.currentPage;
 		bookData.jumpTo = timeline;
 		if(bookData.pages[toPage][bookData.jumpTo]){
 			bookData.jumping = true;
+			npc.jumpData = {timeline, page: toPage};
+		} else {
+			console.log({msg: 'Failed to jump to', page, timeline, now})
+		}
+		if(now){
+			book.done = book.next().done;
 		}
 	}
 	//Jump Menu
 	const SelectJump = (jumpOptions) => {
 		let selectedTime;
 		let selectedPage = false;
+		let spawnPos = new THREE.Vector3().copy(auxl[npc.id].GetMainNPCEl().getAttribute('position'));
+		let offset = new THREE.Vector3();
+		if(bookData.info.offset){
+			offset.copy(bookData.info.offset);
+		}
+		spawnPos.add(offset);
 		let selectJumpData = {
 			id: 'selectJumpMenu',
 			prompt: jumpOptions[0],
@@ -344,7 +381,8 @@ const Book = (auxl, bookData, npc) => {
 			actions: {},
 			data: auxl.menuBaseData,
 			cursorObj: npc.id,
-			pos: new THREE.Vector3(1,1.5,-0.5),
+			//pos: new THREE.Vector3(1,1.5,-0.5),
+			pos: spawnPos,
 			method: 'Click',
 		}
 		for(let a = 1; a < jumpOptions.length; a++){
@@ -419,6 +457,9 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 			}, 25);
 		} else {
 			core.SpawnLayer(spawnParent);
+//GetParentEl is Null
+//FFFFFIIIIIIIXXXXX!!!!!!!
+//Happens on spawn/despawn sometimes with mouseover
 			core.GetParentEl().addEventListener('mouseenter', Skip);
 			StartCloseReset();
 			bubbleSpawnTimeout = setTimeout(() => {
@@ -448,6 +489,9 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 					clearTimeout(bubbleDespawnTimeout);
 				}, 1000);
 			} else {
+//GetParentEl is Null
+//FFFFFIIIIIIIXXXXX!!!!!!!
+//Happens on spawn/despawn sometimes with mouseover
 				core.GetParentEl().removeEventListener('mouseenter', Skip);
 				core.EmitEventAll('loadout');
 				StopCloseReset();
@@ -522,7 +566,7 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 			//Scene text which uses a Core to display has an issue with re-using core.dom, so a forced refresh is needed with GetEl(true)
 			core.GetEl(true).setAttribute('text',{value: currText});
 		} else {
-			core.GetParentEl().setAttribute('text',{value: currText});
+			core.GetParentEl(true).setAttribute('text',{value: currText});
 		}
 		core.speaking = true;
 
@@ -656,6 +700,7 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 	npc.special = special || true;
 	npc.inScene = false;
 	npc.speaking = false;
+	npc.jumpData = {page:'page0', timeline:'timeline0'};
 	npc.bookEnd = false;
 	npc.idle = false;
 	npc.idleSpeech = false;
@@ -889,7 +934,23 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 		book.NewPage({page,timeline});
 	}
 	//Restart NPC Book
-	const ResetSpeech = (force) => {
+	const ResetSpeech = () => {
+		if(npc.selectJumpMenu.menu.inScene){
+			npc.selectJumpMenu.DespawnMenu();
+			if(npc.bubble.type === 'core'){
+				npc.bubble.GetEl().classList.toggle('clickable', true);
+			} else {
+				npc.bubble.GetParentEl().classList.toggle('clickable', true);
+			}
+			if(npc.avatarType === 'core'){
+				npc.avatar.GetEl().classList.toggle('clickable', true);
+			} else {
+				let all = npc.avatar.GetAllEl();
+				for(let each in all){
+					all[each].classList.toggle('clickable', true);
+				}
+			}
+		}
 		DisableSpeech();
 		ClearBookSpawn();
 		book = auxl.Book(bookData, npc);
@@ -987,9 +1048,9 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 		book.Next();
 		//Need to update after creating book control component
 		if(npc.bubble.type === 'core'){
-			npc.bubble.GetEl().classList.toggle('clickable', false);
+			npc.bubble.GetEl().classList.toggle('clickable', true);
 		} else {
-			npc.bubble.GetParentEl().classList.toggle('clickable', false);
+			npc.bubble.GetParentEl().classList.toggle('clickable', true);
 		}
 		if(npc.avatarType === 'core'){
 			npc.avatar.GetEl().classList.toggle('clickable', true);
@@ -1006,8 +1067,15 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 		}, 250);
 	}
 	//NPC Book Jump
-	const Jump = ({timeline, page}) => {
-		book.Jump({timeline, page})
+	const Jump = ({timeline, page, now}) => {
+		book.Jump({timeline, page, now})
+	}
+	//Backward Jump
+	const BackwardJump = (jumpOptions, clear) => {
+		if(jumpOptions){npc.jumpData = jumpOptions}
+		if(clear){ClearBookSpawn()}
+		book = auxl.Book(bookData, npc);
+		book.Init(npc.jumpData);
 	}
 	//NPC Book Menu Jump
 	const SelectJump = (jumpOptions) => {
@@ -1150,7 +1218,7 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 	}
 
 
-return {npc, GetAllNPCEl, GetMainNPCEl, AddNPCEventsAll, RemoveNPCEventsAll, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextTimeline, NewPage, ResetSpeech, ResetBook, ForceResetBook, ResetBookRandom, IdleNextTimeline, IdleReset, ResetIdleRandom, UpdateBook, Click, Jump, SelectJump, auxlObjMethod, IfElse, Switch, SetFlag, GetFlag}
+return {npc, GetAllNPCEl, GetMainNPCEl, AddNPCEventsAll, RemoveNPCEventsAll, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextTimeline, NewPage, ResetSpeech, ResetBook, ForceResetBook, ResetBookRandom, IdleNextTimeline, IdleReset, ResetIdleRandom, UpdateBook, Click, Jump, BackwardJump, SelectJump, auxlObjMethod, IfElse, Switch, SetFlag, GetFlag}
 }
 
 //

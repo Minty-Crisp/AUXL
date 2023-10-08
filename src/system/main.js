@@ -120,7 +120,8 @@ const Core = (auxl, data) => {
 					sound.volume = 1;
 				}
 				sound.volume *= auxl.volume;
-				core.el.setAttribute('sound', sound);
+				//core.el.setAttribute('sound', sound);
+				core.el.setAttribute('auxsound', sound);
 			};
 			if(core.sounds){
 				for(let each in core.sounds){
@@ -129,7 +130,8 @@ const Core = (auxl, data) => {
 						sound.volume = 1;
 					}
 					sound.volume *= auxl.volume;
-					core.el.setAttribute('sound__'+each, sound);
+					//core.el.setAttribute('sound__'+each, sound);
+					core.el.setAttribute('auxsound__'+each, sound);
 				}
 			};
 		}
@@ -165,9 +167,14 @@ const Core = (auxl, data) => {
 			core.el.setAttribute('mixins', core.mixins);
 		}
 		//Class
+		if(core.classes){
+			core.el.classList.add(...core.classes);
+		}
+/*
 		for (let key in core.classes) {
 			core.el.classList.add(core.classes[key]);
 		}
+*/
 		//Animations
 		let animationKeys = Object.keys(core.animations);
 		let animationValues = Object.values(core.animations);
@@ -205,17 +212,17 @@ const Core = (auxl, data) => {
 								//re-apply component
 								ChangeSelf({property:componentKeys[key], value:core.components[componentKeys[key]]});
 								for(let each in auxl.spawnedWaitingForJS[componentKeys[key]]){
-							let name = auxl.spawnedWaitingForJS[componentKeys[key]][each].id;
-							let properties = auxl.spawnedWaitingForJS[componentKeys[key]][each].properties;
-							document.getElementById(name).setAttribute(componentKeys[key],properties);
+									let name = auxl.spawnedWaitingForJS[componentKeys[key]][each].id;
+									let properties = auxl.spawnedWaitingForJS[componentKeys[key]][each].properties;
+									document.getElementById(name).setAttribute(componentKeys[key],properties);
 								}
-							//clear pending array after reapplications
-							delete auxl.spawnedWaitingForJS[componentKeys[key]];
+								//clear pending array after reapplications
+								delete auxl.spawnedWaitingForJS[componentKeys[key]];
 							}
 							getJsSrc(auxl.jsAll[componentKeys[key]]).then(doneImporting);
 								}
 					} else {
-						//Does not exist in jsAll, so it's an internal component or property
+						//Does not exist in jsAll, so it's an internal component/property or the js is attached seperately
 						core.el.setAttribute(componentKeys[key],componentValues[key]);
 					}
 				}
@@ -288,7 +295,7 @@ const Core = (auxl, data) => {
 			}
 			//Link to DOM
 			core.domTimeout = setTimeout(() => {
-				core.dom = document.getElementById(core.id);
+				GetEl(true);
 				auxl.el.emit(core.id+'spawned',{});
 				//console.log(core.dom)
 				clearTimeout(core.domTimeout);
@@ -355,6 +362,15 @@ const Core = (auxl, data) => {
 				auxl.spawnTracker(core.id, track);
 			}
 		}
+	}
+	//Return Element in Scene
+	const GetEl = (refresh) => {
+		if(refresh){
+			core.dom = document.getElementById(core.id);
+		} else if(core.dom){} else {
+			core.dom = document.getElementById(core.id);
+		}
+		return core.dom;
 	}
 	//PosOnGrid
 	function posOnGrid(grid){
@@ -427,7 +443,7 @@ const Core = (auxl, data) => {
 		}
 	}
 	//Move on Grid
-	const GridMove = (move, type) => {
+	const GridMove = (move) => {
 		//with new start/end coords, check if free, if so move, otherwise wait till it is cleared
 		//let gridMovement = {start:{x:0, z:-5}, end: {x:0, z:-5}};
 		let gridMovement = {start:{}, end: {}};
@@ -849,100 +865,6 @@ const Core = (auxl, data) => {
 			}
 
 		}, core.pathSpeed + core.pathWait);
-/*
-		core.gridPathInterval = setInterval(() => {
-			//Path Step Completed, Calc Next
-			if(movedX && movedZ){
-				//Path Direction
-				if(core.pathRoute === 'circuit'){
-					//forward();
-					if(alternate){
-						reverse();
-					} else {
-						forward();
-					}
-				} else if(core.pathRoute === 'alternate'){
-					if(alternate){
-						reverse();
-					} else {
-						forward();
-					}
-				} else if(core.pathRoute === 'any'){
-					if(alternate){
-						reverse();
-					} else {
-						forward();
-					}
-				}
-				//Reset Path Step
-				movedX = false;
-				movedZ = false;
-				//Step XZ Movement
-				if(core.gridPath[core.currentPath].x){
-					moveX = true;
-				} else {
-					moveX = false;
-				}
-				if(core.gridPath[core.currentPath].z){
-					moveZ = true;
-				} else {
-					moveZ = false;
-				}
-			}
-
-			//X than Z Movement
-			if(moveX){
-				if(alternate){
-					movedX = GridMove({x:core.gridPath[core.currentPath].x*-1});
-				} else {
-					movedX = GridMove({x:core.gridPath[core.currentPath].x});
-				}
-				if(movedX){
-					moveX = false;
-					stopped = 0;
-					//If X move only, ensure movedZ is reset
-					if(moveZ){}else{
-						movedZ = true;
-					}
-				} else {
-					//Patience before reversing direction if blocked
-					stopped++;
-					if(stopped >= core.pathPatience){
-						//reverse and restart
-						movedX = true;
-						movedZ = true;
-						changeDirection();
-					}
-				}
-			} else {
-				if(moveZ){
-					if(alternate){
-						movedZ = GridMove({z:core.gridPath[core.currentPath].z*-1});
-					} else {
-						movedZ = GridMove({z:core.gridPath[core.currentPath].z});
-					}
-					if(movedZ){
-						moveZ = false;
-						stopped = 0;
-						//If Z move only, ensure movedX is reset
-						if(moveX){}else{
-							movedX = true;
-						}
-					} else {
-						//Patience before reversing direction if blocked
-						stopped++;
-						if(stopped >= core.pathPatience){
-							//reverse and restart
-							movedX = true;
-							movedZ = true;
-							changeDirection();
-						}
-					}
-				}
-			}
-
-		}, core.pathSpeed + core.pathWait);
-*/
 	}
 	//Change Core - Single or Array
 	const ChangeCore = (propertyValue) => {
@@ -991,12 +913,14 @@ const Core = (auxl, data) => {
 	}
 	//Remove Element Component
 	const RemoveComponent = (property) => {
-		if(Array.isArray(property)){
-			for(let each in property){
-				GetEl().removeAttribute(property[each]);
+		if(core.inScene){
+			if(Array.isArray(property)){
+				for(let each in property){
+					GetEl().removeAttribute(property[each]);
+				}
+			} else {
+				GetEl().removeAttribute(property);
 			}
-		} else {
-			GetEl().removeAttribute(property);
 		}
 	}
 	//Physics
@@ -1046,54 +970,16 @@ const Core = (auxl, data) => {
 				core.el.object3D.position.copy(pos);
 			}
 		}
-
-/*
-		//Requires Dynamic or Static Body
- 		if(typeof core.el.getAttribute('static-body') === 'object' || typeof core.el.getAttribute('dynamic-body') === 'object' || typeof core.el.getAttribute('body') === 'object'){
-			if(core.inScene){
-				core.el.body.position.copy(pos);
-			}
-		} else {
-			console.log('No physics body attached!');
-		}
-*/
-	}
-	//Update Physics
-	const UpdatePhys = (update) => {
-		//Requires Dynamic or Static Body
- 		if(typeof core.el.getAttribute('static-body') === 'object' || typeof core.el.getAttribute('dynamic-body') === 'object'){
-			if(core.inScene){
-				//core.el.body.position.copy(pos);
-console.log(update)
-/*
-    [position] Vec3 optional
-    [velocity] Vec3 optional
-    [angularVelocity] Vec3 optional
-    [quaternion] Quaternion optional
-    [mass] Number optional
-    [material] Material optional
-    [type] Number optional
-    [linearDamping=0.01] Number optional
-    [angularDamping=0.01] Number optional
-    [allowSleep=true] Boolean optional
-    [sleepSpeedLimit=0.1] Number optional
-    [sleepTimeLimit=1] Number optional
-    [collisionFilterGroup=1] Number optional
-    [collisionFilterMask=1] Number optional
-    [fixedRotation=false] Boolean optional
-    [shape] Body optional
-*/
-			}
-		} else {
-			console.log('No physics body attached!');
-		}
 	}
 	//Prepare Animation Input for Animate()
 	function prepAnimation(animProps){
 		let name = 'animation__' + animProps.name || 'animation__customAnim';
 		let property = animProps.property;
+		//0 is falsy
 		let from = animProps.from || false;
+		if(animProps.from === 0){from = 0;}
 		let to = animProps.to || false;
+		if(animProps.to === 0){to = 0;}
 		let dur = animProps.dur || false;
 		let delay = animProps.delay || false;
 		let loop = animProps.loop || false;
@@ -1118,8 +1004,9 @@ console.log(update)
 			enabled: 'true',
 		};
 		if(property){anim.property = property};
-		if(from){anim.from = from};
-		if(to){anim.to = to};
+		//0 is falsy
+		if(from || from === 0){anim.from = from};
+		if(to || to === 0){anim.to = to};
 		if(dur){anim.dur = dur};
 		if(delay){anim.delay = delay};
 		if(loop){anim.loop = loop};
@@ -1146,23 +1033,16 @@ console.log(update)
 			GetEl().setAttribute(animation.name, animation.anim);
 		}
 	}
-	//Return Element in Scene
-	const GetEl = (refresh) => {
-		if(refresh){
-			core.dom = document.getElementById(core.id);
-		} else if(core.dom){} else {
-			core.dom = document.getElementById(core.id);
-		}
-		return core.dom;
-	}
 	//Emit Event from Entity Element - Single or Array
-	const EmitEvent = (eventName) => {
-		if(Array.isArray(eventName)){
-			for(let each in eventName){
-				GetEl().emit(eventName[each],{bubbles: false});
+	const EmitEvent = (eventName, bubbles) => {
+		if(core.inScene){
+			if(Array.isArray(eventName)){
+				for(let each in eventName){
+					GetEl().emit(eventName[each],{bubbles});
+				}
+			} else {
+				GetEl().emit(eventName,{bubbles});
 			}
-		} else {
-			GetEl().emit(eventName,{bubbles: false});
 		}
 	}
 	//Set Flag & Value to Object - Single or Array
@@ -1187,6 +1067,27 @@ console.log(update)
 			return flagArray;
 		} else {
 			return core[flag];
+		}
+	}
+	//Update Core Classes
+	const DomClass = (domClasses, wipe, update) => {
+		//Wipe
+		if(wipe){
+			core.el.classList.remove(...core.classes);
+			core.classes = [];
+		}
+		if(core.inScene){
+			if(Array.isArray(domClasses)){
+				core.el.classList.add(...domClasses)
+				if(update){
+					domClasses.forEach(each => core.classes.push(each))
+				}
+			} else {
+				core.el.classList.add(domClasses);
+				if(update){
+					core.classes.push(domClasses);
+				}
+			}
 		}
 	}
 	//Prep Details for Scene Display
@@ -1283,53 +1184,19 @@ console.log(update)
 	}
 	//Disable Details Window
 	const DisableDetail = () => {
+		if(core.isOpen){
+			core.isOpen = detailPrompt_close();
+		}
 		GetEl().removeEventListener('click', openClose);
 	}
-	//Link Start
-	const LinkStart = (event) =>{
-		//console.log({event: 'Link Start', value: event});
-	}
-	//Link End
-	const LinkEnd = (event) =>{
-		//console.log({event: 'Link End', value: event});
-	}
-	//Physics Collision
-	const Collide = (event) =>{
-		//console.log({event: 'Physics Collision', value: event});
-	}
-	//Raycaster Click
-	const Click = (event) =>{
-		//console.log({event: 'Raycaster Click', value: event});
-	}
-	//Raycaster AltClick
-	const AltClick = (event) =>{
-		//console.log({event: 'Raycaster Alt Click', value: event});
-	}
-	//Raycaster Enter
-	const Enter = (event) =>{
-		//console.log({event: 'Raycaster Enter', value: event});
-	}
-	//Raycaster Exit
-	const Exit = (event) =>{
-		//console.log({event: 'Raycaster Exit', value: event});
-	}
-	//Tick
-	const Tick = (event) =>{
-		//console.log({event: 'Tick', value: event});
-	}
 
-	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, ChangeCore, EnablePhysics, PhysPos, UpdatePhys, Animate, GetEl, EmitEvent, SetFlag, GetFlag, EnableDetail, DisableDetail, LinkStart, LinkEnd, Collide, Click, Enter, Exit, Tick};
+	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, GetEl, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, ChangeCore, EnablePhysics, PhysPos, Animate, EmitEvent, SetFlag, GetFlag, DomClass, EnableDetail, DisableDetail};
 }
 //
 //Generate new Core Data from Template
 const coreDataFromTemplate = (auxl, data, edit, assign) => {
-	//Omit 2 Keys from Object
-	function omit(key1, key2, obj) {
-	  const {[key1]: omitted1, [key2]: omitted2, ...rest} = obj;
-	  return rest;
-	}
-	//Omit element/parent key that contains reference to original Core
-	let newCoreData = omit('el', 'parent', data);
+	//Omit element & parent data that contains reference to original
+	let newCoreData = auxl.ShallowOmit(data, 'el', 'parent', );
 	newCoreData = JSON.parse(JSON.stringify(newCoreData));
 	//Apply Edits
 	if(edit){
@@ -1373,12 +1240,14 @@ const coreFromTemplate = (auxl, core, edit, assign) => {
 		auxl[newCoreData.id] = auxl.Core(newCoreData);
 	}
 }
-
 //
 //Layered Cores
 //Multiple Entity Cores Combined
-const Layer = (auxl, id, all, update) => {
-	let layer = {id, all};
+const Layer = (auxl, id, data, update) => {
+	let layer = {id};
+	layer.config = data.config || false;
+
+	layer.all = auxl.ShallowOmit(data, 'config');
 	layer.inScene = false;
 	layer.allNames = [];
 	layer.children = {};
@@ -1394,6 +1263,13 @@ const Layer = (auxl, id, all, update) => {
 	layer.currentPath = -1;
 	layer.gridPathInterval;
 	layer.gridPathTimeout;
+	//Layer Config
+	if(layer.config){
+		for(let each in layer.config){
+			layer[each] = layer.config[each];
+		}
+	}
+	//Manual Override Config
 	if(update){
 		for(let each in update){
 			layer[each] = update[each];
@@ -2070,10 +1946,10 @@ const Layer = (auxl, id, all, update) => {
 	const EmitEventParent = (eventName) => {
 		if(Array.isArray(eventName)){
 			for(let each in eventName){
-				all.parent.core.EmitEvent(eventName[each]);
+				layer.all.parent.core.EmitEvent(eventName[each]);
 			}
 		} else {
-			all.parent.core.EmitEvent(eventName);
+			layer.all.parent.core.EmitEvent(eventName);
 		}
 	}
 	//Emit Event from a Child Entity Element - Single or Array
@@ -2110,10 +1986,10 @@ const Layer = (auxl, id, all, update) => {
 	const ChangeParent = (propertyValue) => {
 		if(Array.isArray(propertyValue)){
 			for(let each in propertyValue){
-				all.parent.core.ChangeSelf(propertyValue[each]);
+				layer.all.parent.core.ChangeSelf(propertyValue[each]);
 			}
 		} else {
-			all.parent.core.ChangeSelf(propertyValue);
+			layer.all.parent.core.ChangeSelf(propertyValue);
 		}
 	}
 	//Change Child Element - Single or Array
@@ -2149,10 +2025,10 @@ const Layer = (auxl, id, all, update) => {
 	const RemoveComponentParent = (property) => {
 		if(Array.isArray(property)){
 			for(let each in property){
-				all.parent.core.RemoveComponent(property[each]);
+				layer.all.parent.core.RemoveComponent(property[each]);
 			}
 		} else {
-			all.parent.core.RemoveComponent(property);
+			layer.all.parent.core.RemoveComponent(property);
 		}
 	}
 	//Remove Child Element Component - Single or Array
@@ -2188,10 +2064,10 @@ const Layer = (auxl, id, all, update) => {
 	const AnimateParent = (animProps) => {
 		if(Array.isArray(animProps)){
 			for(let each in animProps){
-				all.parent.core.Animate(animProps[each]);
+				layer.all.parent.core.Animate(animProps[each]);
 			}
 		} else {
-			all.parent.core.Animate(animProps);
+			layer.all.parent.core.Animate(animProps);
 		}
 	}
 	//Add Animation to Child Element - Single or Array
@@ -2227,10 +2103,10 @@ const Layer = (auxl, id, all, update) => {
 	const SetFlagParent = (flagValue) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
-				all.parent.core.SetFlag(flagValue[each]);
+				layer.all.parent.core.SetFlag(flagValue[each]);
 			}
 		} else {
-			all.parent.core.SetFlag(flagValue);
+			layer.all.parent.core.SetFlag(flagValue);
 		}
 	}
 	//Set Flag & Value to Child Object - Single or Array
@@ -2267,11 +2143,11 @@ const Layer = (auxl, id, all, update) => {
 		if(Array.isArray(flag)){
 			let flagArray = [];
 			for(let each in flag){
-				flagArray.push(all.parent.core.GetFlag(flag[each]));
+				flagArray.push(layer.all.parent.core.GetFlag(flag[each]));
 			}
 			return flagArray;
 		} else {
-			return all.parent.core.GetFlag(flag);
+			return layer.all.parent.core.GetFlag(flag);
 		}
 	}
 	//Retreive Flag Value from Child Object - Single or Array
@@ -2310,9 +2186,26 @@ const Layer = (auxl, id, all, update) => {
 			return allObjects;
 		}
 	}
+	//Dom Class Parent
+	const DomClassParent = (domClasses, wipe, update) => {
+		layer.all.parent.core.DomClass(domClasses, wipe, update);
+	}
+	//Dom Class Child
+	const DomClassChild = (child, domClasses, wipe, update) => {
+		let childCore = GetChild(child);
+		childCore.DomClass(domClasses, wipe, update);
+	}
+	//Dom Class All
+	const DomClassAll = (domClasses, wipe, update) => {
+		for(let section of accessOrder){
+			for(let indv of section){
+				indv.DomClass(domClasses, wipe, update);
+			}
+		}
+	}
 	//Enable Details for Parent Object
 	const EnableDetailParent = (detailInfo) => {
-		all.parent.core.EnableDetail(detailInfo);
+		layer.all.parent.core.EnableDetail(detailInfo);
 	}
 	//Enable Details for Child Object
 	const EnableDetailChild = (child, detailInfo) => {
@@ -2328,7 +2221,7 @@ const Layer = (auxl, id, all, update) => {
 	}
 	//Disable Details for Parent Object
 	const DisableDetailParent = () => {
-		all.parent.core.DisableDetail();
+		layer.all.parent.core.DisableDetail();
 	}
 	//Disable Details for Child Object
 	const DisableDetailChild = (child) => {
@@ -2375,12 +2268,12 @@ const Layer = (auxl, id, all, update) => {
 		}
 	}
 
-	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, SpawnLayerOnGrid, ToggleLayerGridSpawn, GridMove, GridPath, WalkPath, GetParentEl, GetChildEl, GetAllChildEl, GetAllEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
+	return {layer, SpawnLayer, DespawnLayer, ToggleSpawn, SpawnLayerOnGrid, ToggleLayerGridSpawn, GridMove, GridPath, WalkPath, GetParentEl, GetChildEl, GetAllChildEl, GetAllEl, EmitEventParent, EmitEventChild, EmitEventAll, ChangeParent, ChangeChild, ChangeAll, RemoveComponentParent, RemoveComponentChild, RemoveComponentAll, AnimateParent, AnimateChild, AnimateAll, SetFlagParent, SetFlagChild, SetFlagAll, GetFlagParent, GetFlagChild, GetFlagAll, DomClassParent, DomClassChild, DomClassAll, EnableDetailParent, EnableDetailChild, EnableDetailAll, DisableDetailParent, DisableDetailChild, DisableDetailAll, GetChild};
 }
 //
 //Generate new Layer from Layer Data Template
-const layerDataFromTemplate = (auxl, layer, coreBaseName, changeParent, assign) => {
-	let id = coreBaseName || auxl.ranNameGen();
+const layerDataFromTemplate = (auxl, data, nameScheme, changeParent, layerConfig, assign) => {
+	let id = nameScheme || auxl.ranNameGen();
 	id = auxl.checkDupeName(id);
 	let newStruct = {};
 	let num = 0;
@@ -2411,12 +2304,16 @@ const layerDataFromTemplate = (auxl, layer, coreBaseName, changeParent, assign) 
 			}
 		}
 	}
-	layerTraverse(layer, newStruct);
+	layerTraverse(data, newStruct);
 	//Update Parent
 	if(changeParent){
 		for(let each in changeParent){
 			newStruct.parent.core.core[each] = changeParent[each];
 		}
+	}
+	//Add any Layer configs
+	if(layerConfig){
+		newStruct.config = {...layerConfig};
 	}
 	//Output
 	if(assign){
@@ -2426,7 +2323,7 @@ const layerDataFromTemplate = (auxl, layer, coreBaseName, changeParent, assign) 
 	}
 }
 //Generate new Layer from Layer Template
-const layerFromTemplate = (auxl, layer, id, changeParent, updateLayer, assign) => {
+const layerFromTemplate = (auxl, layer, id, changeParent, layerConfig, assign) => {
 	let struct;
 	let newStruct = {};
 	let num = 0;
@@ -2477,11 +2374,15 @@ const layerFromTemplate = (auxl, layer, id, changeParent, updateLayer, assign) =
 			newStruct.parent.core.core[each] = changeParent[each];
 		}
 	}
+	//Add any Layer configs
+	if(layerConfig){
+		newStruct.config = {...layerConfig}
+	}
 	//Output
 	if(assign){
-		return auxl.Layer(id, newStruct, updateLayer)
+		return auxl.Layer(id, newStruct)
 	} else {
-		auxl[id] = auxl.Layer(id, newStruct, updateLayer);
+		auxl[id] = auxl.Layer(id, newStruct);
 	}
 }
 

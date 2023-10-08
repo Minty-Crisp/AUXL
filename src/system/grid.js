@@ -1210,6 +1210,8 @@ if(mapLookup(newMap,3,newPos.x,newPos.y,newPos.z-1) !== 0 && mapLookup(newMap,3,
 		for(let each in grid.trigger){
 			if(each === obj.name){}else{
 				for(let space in grid.trigger[each]){
+					//Ignore active key
+					if(space === 'active'){return false}
 					if(grid.trigger[each][space].pos.x === obj.pos.x && grid.trigger[each][space].pos.y === obj.pos.y && grid.trigger[each][space].pos.z === obj.pos.z){
 						return false;
 					}
@@ -1933,7 +1935,7 @@ const GridLayout = (auxl, gridLayoutData) => {
 				obj = auxl.coreFromTemplate(gridLayout.core,{id: gridLayout.id+each}, true);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'layerData'){
-				data = auxl.layerDataFromTemplate(gridLayout.layerData,{id: gridLayout.id+each}, true);
+				data = auxl.layerDataFromTemplate(gridLayout.layerData,{id: gridLayout.id+each}, false, true);
 				obj = auxl.Layer(gridLayout.id+'layer', data);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'layer'){
@@ -1967,7 +1969,7 @@ const GridLayout = (auxl, gridLayoutData) => {
 				obj = auxl.coreFromTemplate(gridLayout.core[current],{id: gridLayout.id+each}, true);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'layerData'){
-				data = auxl.layerDataFromTemplate(gridLayout.layerData[current],{id: gridLayout.id+each}, true);
+				data = auxl.layerDataFromTemplate(gridLayout.layerData[current],{id: gridLayout.id+each}, false, true);
 				obj = auxl.Layer(gridLayout.id+'layer', data);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'layer'){
