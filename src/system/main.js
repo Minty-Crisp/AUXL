@@ -372,9 +372,80 @@ const Core = (auxl, data) => {
 		}
 		return core.dom;
 	}
+	//vec3 and vec3
+	const GridCalc = (objSize, gridStart, collide) => {
+		let grid = {};
+		let size = new THREE.Vector3();
+		//what about scaling?
+		if(!objSize) {
+			//3D Models - GLTF
+			if(!core.gridSize){
+				core.gridSize = {x:1, y:1, z:1};
+			}
+			size.x = core.gridSize.x;
+			size.y = core.gridSize.y;
+			size.z = core.gridSize.z;
+		} else if(objSize.width){
+			//box or plane
+			size.x = objSize.width;
+			size.y = objSize.height;
+			size.z = objSize.depth;
+		} else if(objSize.radius && !objSize.height){
+			//torus, torusknot, circle, sphere, d20,d10,etc...,
+			size.x = objSize.radius*2;
+			size.y = objSize.radius*2;
+			size.z = objSize.radius*2;
+		} else if(objSize.radius && objSize.height){
+			//cone, cylinder
+			size.x = objSize.radius*2;
+			size.y = objSize.height;
+			size.z = objSize.radius*2;
+		}
+		grid.yOffset = 0;
+		grid.start = new THREE.Vector3().copy(gridStart);
+		grid.end = new THREE.Vector3();
+		grid.collide = collide || false;
+
+		let looping = 0;
+		//X
+		grid.end.x = grid.start.x;
+		if(size.x > 0.5){
+			looping = size.x/0.5;
+			for(let a=0; a < looping; a++){
+				if(a !== 0){
+					grid.end.x += 0.5;
+				}
+			}
+		}
+		/*
+		//Y Grid is 1 instead of 0.5 like X and Z
+		grid.end.y = grid.start.y;
+		if(size.y > 0.5){
+			looping = size.y/0.5;
+			for(let a=0; a < looping; a++){
+				if(a !== 0){
+					grid.end.y += 0.5;
+				}
+			}
+		}
+		*/
+		grid.end.y = grid.start.y;
+		grid.yOffset = size.y/2;
+		//Z
+		grid.end.z = grid.start.z;
+		if(size.z > 0.5){
+			looping = size.z/0.5;
+			for(let a=0; a < looping; a++){
+				if(a !== 0){
+					grid.end.z += 0.5;
+				}
+			}
+		}
+		return grid;
+	}
 	//PosOnGrid
 	function posOnGrid(grid){
-		let pos = new THREE.Vector3(0,0,0);
+		let pos = new THREE.Vector3();
 		if(grid.start.x === grid.end.x && grid.start.z === grid.end.z){
 			pos.x = grid.start.x;
 			pos.z = grid.start.z;
@@ -400,6 +471,11 @@ const Core = (auxl, data) => {
 			if(grid){
 				core.grid = grid;
 			}
+			//Build end pos from geo size and start pos
+			//Does not work for 3D models, must manually build end
+			if(!core.grid.end){
+				core.grid = GridCalc(core.geometry, core.grid.start, core.grid.collide);
+			}
 			//Ensure Grid Y Level is Set
 			if(core.grid.start.y){} else {
 				core.grid.start.y = 0;
@@ -410,7 +486,13 @@ const Core = (auxl, data) => {
 			if(core.grid.yOffset){} else {
 				core.grid.yOffset = 0;
 			}
-			core.grid.height = Math.abs(core.grid.start.y) + Math.abs(core.grid.end.y) + 1;
+
+			//core.grid.height = Math.abs(core.grid.start.y) + Math.abs(core.grid.end.y) + 1;
+			if(core.grid.start.y === core.grid.end.y){
+				core.grid.height = 1;
+			} else {
+				core.grid.height = 1 + Math.ceil(Math.abs(Math.abs(core.grid.start.y) - Math.abs(core.grid.end.y)));
+			}
 			//Prevent Player Collision Overlap
 			let playerGrid = auxl.player.GetPlayerInfo().grid;
 			if(core.grid.start.x <= playerGrid.x && core.grid.end.x >= playerGrid.x && core.grid.start.y <= playerGrid.y && core.grid.end.y >= playerGrid.y && core.grid.start.z <= playerGrid.z && core.grid.end.z >= playerGrid.z){
@@ -869,9 +951,11 @@ const Core = (auxl, data) => {
 	//Change Core - Single or Array
 	const ChangeCore = (propertyValue) => {
 		if(Array.isArray(propertyValue)){
-			core.el[propertyValue[each].property] = propertyValue[each].value;
+			for(let each in propertyValue){
+				core[propertyValue[each].property] = Object.assign({}, propertyValue[each].value);
+			}
 		} else {
-			core.el[propertyValue.property] = propertyValue.value;
+			core[propertyValue.property] = Object.assign({}, propertyValue.value);
 		}
 	}
 	//Change Element - Single or Array

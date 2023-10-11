@@ -971,7 +971,7 @@ movement: function (){
 			this.posRound.z = this.roundHalf(this.positionPlayer.z);
 			//Check for Obstacles
 			if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
-				if(this.auxl.player.layer.standing){
+				if(!this.auxl.player.layer.bodyCrouch){
 					this.newPosStandRound.copy(this.newPosRound);
 					this.newPosStandRound.y+=1;
 					if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosStandRound, this.posRound)){
@@ -1493,7 +1493,7 @@ this.moveForce.applyMatrix4(rotationMatrix);
 			this.posRound.z = this.roundHalf(this.positionPlayer.z);
 			//Check for Obstacles
 			if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
-				if(this.auxl.player.layer.standing){
+				if(!this.auxl.player.layer.bodyCrouch){
 					this.newPosStandRound.copy(this.newPosRound);
 					this.newPosStandRound.y+=1;
 					if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosStandRound, this.posRound)){
@@ -1556,6 +1556,7 @@ this.moveForce.applyMatrix4(rotationMatrix);
 					this.auxl.map.WaitingToSpawn();
 				}
 			}
+
 		} else {
 			//Free Locomotion No Clip
 			this.player.object3D.position.copy(this.positionNew);
@@ -2419,7 +2420,7 @@ directionXYZ: function (action, speed) {
 
 		//Check for Obstacles
 		if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
-			if(this.auxl.player.layer.standing){
+			if(!this.auxl.player.layer.bodyCrouch){
 				this.newPosStandRound.copy(this.newPosRound);
 				this.newPosStandRound.y+=1;
 				if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosStandRound, this.posRound)){

@@ -283,9 +283,8 @@ const Collision = (auxl) => {
 			//Player Occupied
 			return false;
 		} else {
-			if(auxl.player.layer.standing){
-				playerGrid.y += 1;
-				if(grid.start.x <= playerGrid.x && grid.end.x >= playerGrid.x && grid.start.y <= playerGrid.y && grid.end.y >= playerGrid.y && grid.start.z <= playerGrid.z && grid.end.z >= playerGrid.z){
+			if(!auxl.player.layer.bodyCrouch){
+				if(grid.start.x <= playerGrid.x && grid.end.x >= playerGrid.x && grid.start.y <= playerGrid.y +1 && grid.end.y >= playerGrid.y +1 && grid.start.z <= playerGrid.z && grid.end.z >= playerGrid.z){
 					return false;
 				} else {
 					return true;
@@ -303,6 +302,13 @@ const Collision = (auxl) => {
 		newPos.y = pos.y || 0;
 		newPos.z = pos.z * 2;
 		let map;
+
+		//Height is weird, need to redo/streamline
+		if(Math.abs(newPos.y) - Math.floor(Math.abs(newPos.y)) > 0){
+//console.log('Array heights must be integers only')
+			newPos.y = Math.floor(newPos.y);
+		}
+
 		if(newPos.y >= 0){
 			//Top
 			map = 0;
@@ -364,6 +370,16 @@ const Collision = (auxl) => {
 			//Top Right - 1
 			//Loop 1 : -Z
 			//Loop 2 : +X
+/*
+console.log({
+pos,
+newPos,
+map,
+col: auxl.collisionMap,
+colMap: auxl.collisionMap[map],
+colMapLoc: auxl.collisionMap[map][newPos.y]
+})
+*/
 			if(auxl.collisionMap[map][newPos.y][1].length > newPos.z * -1){
 				if(auxl.collisionMap[map][newPos.y][1][newPos.z * -1].length > newPos.x){
 					//console.log('Within Map');
@@ -451,6 +467,7 @@ const Collision = (auxl) => {
 		}
 	}
 	//Check for Map Obstacles 0.5 Meter and block diagonal movement if forward and side are blocked, but not the actual diagonal spot
+	//Used in Locomotion for Player
 	const CheckMapObstaclesDiagonal = (goPos, atPos) => {
 
 		let pos = {};
@@ -2062,6 +2079,7 @@ if(repeatX || repeatZ){
 			}
 		}
 	}
+
 	//Spawn Grid Layout
 	const SpawnGridLayout = (name) =>{
 		if(gridLayout.inScene){}else{

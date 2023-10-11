@@ -1632,6 +1632,26 @@ this.objGenType = (auxlObj) => {
 }
 
 //
+//Positioning
+
+//Function to calculate distance between two points
+this.distance = (x1, z1, x2, z2) => {
+	return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(z2 - z1, 2) * 1.0);
+}
+//Return a random position within Ring radius
+this.randomPosition = (radius, yPos) => {
+	posX = Math.random() * (radius*2) - radius;
+	posZ = Math.random() * (radius*2) - radius;
+	return new THREE.Vector3(posX, yPos, posZ);
+}
+
+//
+//Pointing
+
+//Add player raycaster functions to be used with all
+
+
+//
 //Main
 
 //

@@ -615,6 +615,7 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 					core.GetEl().removeEventListener('skip',skipText);
 
 				} else {
+//Error
 					core.GetParentEl().removeEventListener('skip',skipText);
 				}
 				Kill();
@@ -645,6 +646,7 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 		auxl.intervals[id+'blink'] = setInterval(() => {
 			if(core.blinking){
 				if(core.type === 'core'){
+//Error
 					core.GetEl().setAttribute('text',{value: core.blinkText1});
 				} else {
 					core.GetParentEl().setAttribute('text',{value: core.blinkText1});

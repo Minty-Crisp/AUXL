@@ -673,11 +673,20 @@ const Player = (auxl, id, layer, data) => {
 				layer.animating = false;
 				clearTimeout(crouchTimeout);
 			}, 775);
+			if(layer.bodyCrouch){
+				let togglePos = new THREE.Vector3(0,0,0);
+				togglePos.copy(layer.gridPos);
+				togglePos.y += 1;
+				if(!auxl.map.CheckMapObstaclesDiagonal(togglePos, layer.gridPos)){
+					return;
+				}
+			}
+
 			let currHeight = auxl.playerBody.GetEl().getAttribute('position').y;
 			if(layer.bodyCrouch){
-				CamYTo(currHeight, currHeight-0.75)
-			} else {
 				CamYTo(currHeight, currHeight+0.75)
+			} else {
+				CamYTo(currHeight, currHeight-0.75)
 			}
 			layer.bodyCrouch = !layer.bodyCrouch;
 		}

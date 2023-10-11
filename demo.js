@@ -2330,7 +2330,7 @@ auxl.zone0Data = {
 		travelMenu: true,
 	},
 	controls:{
-		action6Down:{auxlObj: 'player', func: 'ToggleSittingMode', name: 'Toggle Sit/Stand', info: 'Change your height between sitting and standing mode.'},
+
 	},
 	start:{
 		switchCube:{SpawnCore:null},
@@ -2408,7 +2408,7 @@ auxl.zone0Scene0Data = {
 		collisionTest1:{SpawnCoreOnGrid:null},
 		collisionTest2:{SpawnCoreOnGrid:null},
 		collisionTest3:{SpawnCoreOnGrid:null},
-		//collisionTest4:{SpawnCoreOnGrid:null, WalkPath:null},
+		collisionTest4:{SpawnCoreOnGrid:null, WalkPath:null},
 		collisionTest5:{SpawnCoreOnGrid:null},
 		collisionTest6:{SpawnCoreOnGrid:null},
 		collisionTest7:{SpawnCoreOnGrid:null},
@@ -2655,7 +2655,7 @@ auxl.v03TestingScenarioData = {
 		action3Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
 
 		action5Down:{auxlObj: 'player', func: 'ToggleCrouch', name: 'Toggle Crouch/Stand', info: 'Change your position between crouch and standing.'},
-		action6Down:{auxlObj: 'player', func: 'ToggleSittingMode', name: 'Toggle Crouch/Stand', info: 'Change your position between crouch and standing.'},
+		//action6Down:{auxlObj: 'player', func: 'ToggleSittingMode', name: 'Toggle Roomscale Sit/Stand', info: 'Change your position between crouch and standing.'},
 		action7Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},
 		action8Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
 	},
