@@ -937,7 +937,7 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 	}
 	//Restart NPC Book
 	const ResetSpeech = () => {
-		if(npc.selectJumpMenu.menu.inScene){
+		if(npc.selectJumpMenu && npc.selectJumpMenu.menu.inScene){
 			npc.selectJumpMenu.DespawnMenu();
 			if(npc.bubble.type === 'core'){
 				npc.bubble.GetEl().classList.toggle('clickable', true);

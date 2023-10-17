@@ -187,6 +187,7 @@ schema: {
 	value: {type: 'string', default: 'TEXT'},
 	hover: {type: 'string', default: 'front'},
 	offset: {type: 'number', default: 1},
+	altOffset: {type: 'number', default: 0},
 	twist: {type: 'bool', default: true},
 	size: {type: 'number', default: 20},
 },
@@ -195,6 +196,7 @@ init: function () {
 	this.value = this.data.value;
 	this.hover = this.data.hover;
 	this.offset = this.data.offset;
+	this.altOffset = this.data.altOffset;
 	this.twist = this.data.twist;
 	this.size = this.data.size;
 	this.hoverSpawned = false;
@@ -202,9 +204,9 @@ init: function () {
 	this.position = new THREE.Vector3(0,0,0);
 
 	if(this.hover === 'top'){
-		this.position = new THREE.Vector3(0,this.offset,0);
+		this.position = new THREE.Vector3(0,this.offset,this.altOffset);
 	} else if(this.hover === 'front'){
-		this.position = new THREE.Vector3(0,0,this.offset);
+		this.position = new THREE.Vector3(0,this.altOffset,this.offset);
 	}
 
 	//

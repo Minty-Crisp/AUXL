@@ -37,6 +37,9 @@ import {clickaddinventory, acceptobject} from './support/inventory.js';
 //Import Physics
 import {linkcable, camerasync, staticsync, collision, trigger, bodymaterial, auxconstraint, auxspring, gravitycontrol} from './support/physics.js';
 //
+//Weather
+import {rain, raindrop, lightningbolt} from './support/weather.js';
+//
 //Modified Sound
 import auxsound from './support/sound.js';
 

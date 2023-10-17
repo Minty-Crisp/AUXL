@@ -23,6 +23,9 @@ const Core = (auxl, data) => {
 	core.domTimeout;
 	core.events = {};
 	core.parent = false;
+	if(!core.hasOwnProperty('defaultParent')){
+		core.defaultParent = false;
+	}
 	core.gridSpawned = false;
 	core.gridPath = [];
 	core.pathSpeed = 1000;
@@ -38,6 +41,55 @@ const Core = (auxl, data) => {
 	let loadMat = false;
 	let loadNewMat = false;
 
+	//Build Data Defaults
+	const DataDefaults = () => {
+		//Set defaults on empty data to avoid errors
+
+		//Position
+		if(!data.hasOwnProperty('position')){
+			data.position = new THREE.Vector3();
+		}
+		//Rotation
+		if(!data.hasOwnProperty('rotation')){
+			data.rotation = new THREE.Vector3();
+		}
+		//Scale
+		if(!data.hasOwnProperty('scale')){
+			data.scale = new THREE.Vector3(1,1,1);
+		}
+		//sources
+		if(!data.hasOwnProperty('sources')){
+			data.sources = false;
+		}
+		//text
+		if(!data.hasOwnProperty('text')){
+			data.text = false;
+		}
+		//geometry
+		if(!data.hasOwnProperty('geometry')){
+			data.geometry = false;
+		}
+		//material
+		if(!data.hasOwnProperty('material')){
+			data.material = false;
+		}
+		//animations
+		if(!data.hasOwnProperty('animations')){
+			data.animations = false;
+		}
+		//mixins
+		if(!data.hasOwnProperty('mixins')){
+			data.mixins = false;
+		}
+		//classes
+		if(!data.hasOwnProperty('classes')){
+			data.classes = ['a-ent',];
+		}
+		//components
+		if(!data.hasOwnProperty('components')){
+			data.components = false;
+		}
+	}
 	//Import external JS script
 	async function getJsSrc(url){
 		const response = await fetch(url)
@@ -169,6 +221,9 @@ const Core = (auxl, data) => {
 		//Class
 		if(core.classes){
 			core.el.classList.add(...core.classes);
+		} else {
+			//Defaults to adding a-ent aka auxl entity
+			core.el.classList.add('a-ent');
 		}
 /*
 		for (let key in core.classes) {
@@ -176,11 +231,13 @@ const Core = (auxl, data) => {
 		}
 */
 		//Animations
-		let animationKeys = Object.keys(core.animations);
-		let animationValues = Object.values(core.animations);
-		for (let key in animationKeys) {
-			if(key === 0){} else {
-				core.el.setAttribute('animation__'+animationKeys[key], animationValues[key]);
+		if(core.animations){
+			let animationKeys = Object.keys(core.animations);
+			let animationValues = Object.values(core.animations);
+			for (let key in animationKeys) {
+				if(key === 0){} else {
+					core.el.setAttribute('animation__'+animationKeys[key], animationValues[key]);
+				}
 			}
 		}
 		//Wait for Model to Load?
@@ -233,7 +290,7 @@ const Core = (auxl, data) => {
 	}
 	//Spawn Entity Object
 	const SpawnCore = (parent) => {
-		core.parent = parent || false;
+		core.parent = parent || core.defaultParent || false;
 		let preAdded = false;
 		if(core.inScene){}else{
 			//Generate Entity Element
@@ -404,6 +461,7 @@ const Core = (auxl, data) => {
 		grid.yOffset = 0;
 		grid.start = new THREE.Vector3().copy(gridStart);
 		grid.end = new THREE.Vector3();
+
 		grid.collide = collide || false;
 
 		let looping = 0;
@@ -443,7 +501,7 @@ const Core = (auxl, data) => {
 		}
 		return grid;
 	}
-	//PosOnGrid
+	//Exact Pos from Grid Pos
 	function posOnGrid(grid){
 		let pos = new THREE.Vector3();
 		if(grid.start.x === grid.end.x && grid.start.z === grid.end.z){
@@ -471,8 +529,11 @@ const Core = (auxl, data) => {
 			if(grid){
 				core.grid = grid;
 			}
+			//Collision on by default
+			if(!core.grid.hasOwnProperty('collide') && !core.grid.hasOwnProperty('trigger')){
+				core.grid.collide = true;
+			}
 			//Build end pos from geo size and start pos
-			//Does not work for 3D models, must manually build end
 			if(!core.grid.end){
 				core.grid = GridCalc(core.geometry, core.grid.start, core.grid.collide);
 			}
@@ -483,8 +544,20 @@ const Core = (auxl, data) => {
 			if(core.grid.end.y){} else {
 				core.grid.end.y = 0;
 			}
-			if(core.grid.yOffset){} else {
+			if(grid && grid.xOffset){
+				core.grid.xOffset = grid.xOffset;
+			} else if(core.grid.xOffset){} else {
+				core.grid.xOffset = 0;
+			}
+			if(grid && grid.yOffset){
+				core.grid.yOffset = grid.yOffset;
+			} else if(core.grid.yOffset){} else {
 				core.grid.yOffset = 0;
+			}
+			if(grid && grid.zOffset){
+				core.grid.zOffset = grid.zOffset;
+			} else if(core.grid.zOffset){} else {
+				core.grid.zOffset = 0;
 			}
 
 			//core.grid.height = Math.abs(core.grid.start.y) + Math.abs(core.grid.end.y) + 1;
@@ -501,9 +574,9 @@ const Core = (auxl, data) => {
 			} else {
 				//Grid Position
 				let startPos = posOnGrid(core.grid);
-				core.position.x = startPos.x;
+				core.position.x = core.grid.xOffset + startPos.x;
 				core.position.y = core.grid.yOffset + startPos.y;
-				core.position.z = startPos.z;
+				core.position.z = core.grid.zOffset + startPos.z;
 				//Spawn Core
 				SpawnCore();
 				//Collision or Trigger Map Update

@@ -762,6 +762,20 @@ const MultiAssetGen = (auxl, multiGenData) => {
 	multiGen.ring4 = [];
 	multiGen.ring5 = [];
 	//Multi Ring Inner/Outer Radius'
+	multiGen.ring = {
+		i0:5,
+		o0:20,
+		i1:15,
+		o1:40,
+		i2:30,
+		o2:60,
+		i3:60,
+		o3:100,
+		i4:80,
+		o4:150,
+		i5:100,
+		o5:200,
+	};
 /*
 	multiGen.ring = {
 		i0:0.5,
@@ -829,21 +843,6 @@ const MultiAssetGen = (auxl, multiGenData) => {
 	//Ring 3 - medium distance from spawn - med/large
 	//Ring 4 - far distance from spawn - large/huge
 	//Ring 5 - super far distance from spawn - huge
-
-	multiGen.ring = {
-		i0:75,
-		o0:950,
-		i1:150,
-		o1:950,
-		i2:200,
-		o2:950,
-		i3:325,
-		o3:950,
-		i4:350,
-		o4:950,
-		i5:375,
-		o5:950,
-	};
 
 	//On every loop through the grid creator, it will always use the center to spawn one, allow that one a parent, but do not use it for a spawning location
 
@@ -1077,6 +1076,20 @@ const MultiAssetGen = (auxl, multiGenData) => {
 				let rotY;
 				let rotZ;
 				let color;
+
+				//Position
+				if(!ogData.hasOwnProperty('position')){
+					ogData.position = new THREE.Vector3();
+				}
+				//Rotation
+				if(!ogData.hasOwnProperty('rotation')){
+					ogData.rotation = new THREE.Vector3();
+				}
+				//Scale
+				if(!ogData.hasOwnProperty('scale')){
+					ogData.scale = new THREE.Vector3(1,1,1);
+				}
+
 //instanced-mesh="positioning: local"
 //instanced-mesh-member="mesh:#instanceTest1"
 				//Each Object
@@ -1198,7 +1211,7 @@ if(a === 0){
 							posZ = (Math.random() * (multiGen.ring.o5*2) - multiGen.ring.o5) + multiGen.ring.i5;
 						}
 					} 
-					objData.position = new THREE.Vector3(posX, scaleY, posZ);
+					objData.position = new THREE.Vector3(posX, posY, posZ);
 					//Add randomized Core to All
 					multiGen.assets[sizes[type]].push(auxl.Core(objData));
 				}

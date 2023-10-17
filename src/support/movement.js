@@ -1441,8 +1441,6 @@ directionXZ: function (action, speed) {
 		}
 	}
 
-
-
 	//rayDirection override testing
 	//console.log({facing: this.face, action, next: this.positionNew})
 	//this.positionNew = new THREE.Vector3();
@@ -1467,19 +1465,14 @@ this.moveForce.applyMatrix4(rotationMatrix);
 //#return
 				//Calculate directional difference
 				if(!this.positionNew.equals(this.positionPlayer)) {
-					//this.player.body.applyLocalForce( this.moveForce.multiplyScalar(10), new THREE.Vector3(0,0,0));
-
 					this.player.body.applyLocalImpulse( this.moveForce, new THREE.Vector3(0,0,0));
-					//this.player.body.velocity.x += this.moveForce.x;
-					//this.player.body.velocity.y += this.moveForce.y;
-					//this.player.body.velocity.z += this.moveForce.z;
 					//Slow down movement only quick then friction, but limit it so things like slopes can take affect
 				}
 			} else {
 				//position based 
 				this.player.body.position.copy(this.positionNew);
 				//Hands
-				//this.mouseController.body.position.copy(this.positionNew);
+				//this.mouseController.body.position.copy( this.positionNew);
 			}
 			//Update AABB
 			this.player.body.computeAABB();

@@ -730,7 +730,9 @@ function enableVRControls(){
 		} else if (auxl.vrHand === 'bothRightLoco'){
 			auxl.locomotionText = 'Right Controller Joystick';
 		}
-	} else if(auxl.vrHand === 'right'){
+	}
+/*
+ else if(auxl.vrHand === 'right'){
 		auxl.vrController2.GetEl().setAttribute('visible',true);
 		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
 		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
@@ -749,6 +751,7 @@ function enableVRControls(){
 		auxl.player.EnableVRHoverLocomotion('vrController1');
 		auxl.locomotionText = 'Hover on Forward/Backward Belt.';
 	}
+*/
 }
 //Desktop
 function disableDesktopControls(){
@@ -835,11 +838,14 @@ function vrHandMenu(state){
 		vrHandButton.innerHTML = '2 Hands : Dual Ray | Left Move';
 	} else if(state === 'bothRightLoco'){
 		vrHandButton.innerHTML = '2 Hands : Dual Ray | Right Move';
-	} else if(state === 'right'){
+	}
+/*
+ else if(state === 'right'){
 		vrHandButton.innerHTML = '1 Hand : Right Ray | Belt Move';
 	} else if(state === 'left'){
 		vrHandButton.innerHTML = '1 Hand : Left Ray | Belt Move';
 	}
+*/
 	//Update State
 	auxl.vrHand = state;
 }
@@ -1039,12 +1045,16 @@ function changeVRHand(){
 	} else if(auxl.vrHand === 'bothLeftLoco'){
 		vrHandMenu('bothRightLoco');
 	} else if(auxl.vrHand === 'bothRightLoco'){
-		vrHandMenu('right');
-	} else if(auxl.vrHand === 'right'){
+		//vrHandMenu('right');
+		vrHandMenu('bothRight');
+	}
+/*
+ else if(auxl.vrHand === 'right'){
 		vrHandMenu('left');
 	} else if(auxl.vrHand = 'left') {
 		vrHandMenu('bothRight');
 	}
+*/
 	updateControls();
 	enableVRControls();
 }

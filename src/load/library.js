@@ -17,6 +17,26 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
+//
+//Bundled Assets
+
+
+//Weather
+//
+
+//Sounds
+//
+
+//Audio by White Noise Meditation | Loop by Minty Crisp
+auxl.weatherStormThunderLoop = './assets/audio/weather/thunder-loop.mp3';
+//Audio by https://freesound.org/people/parnellij/ 
+auxl.weatherStormLightningStrike = './assets/audio/weather/74892__parnellij__lightning-strike.wav';
+
+//3D Assets
+//
+
+auxl.cloud0 = './assets/3d/weather/cloud1.glb';
+
 
 //Fonts
 //
@@ -37,7 +57,6 @@ auxl.vaporBlue = '#01cdfe';
 auxl.vaporGreen = '#05ffa1';
 auxl.vaporPurple = '#b967ff';
 auxl.vaporYellow = '#fffb96';
-
 
 //Materials Library
 //
@@ -522,6 +541,10 @@ auxl.playerAudioData = {
 data:'playerAudioData',
 id:'playerAudio',
 sources: false,
+sounds:{
+	sound: {src: auxl.weatherStormThunderLoop, autoplay: true, loop: true, volume: 1,},
+	boltSound: {src: auxl.weatherStormLightningStrike, autoplay: false, loop: false, volume: 0.5, on: 'boltHit', poolSize: 2},
+},
 text: false,
 geometry: false,
 material: false,
@@ -1911,7 +1934,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.moonData = {
-data:'moon',
+data:'moonData',
 id:'moon',
 sources: false,
 text: false,

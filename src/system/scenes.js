@@ -1191,13 +1191,14 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	//Change Scene
 	//Not running Exit instructions correctly, possibly others
 	const Change = (zone,scene) => {
+		auxl.player.PlayerSceneAnim();
 		//No Key Checks
 		timeout = setTimeout(() => {
 			if(core.displayBasicTravelMenu){
 				core.mapMenu.DespawnMenu();
 			}
 			ClearScene();
-			if(core.id === zone){
+			if(core.info.id === zone){
 				StartScene(scene);
 			} else {
 				ClearZone();
@@ -1206,7 +1207,6 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			}
 			clearTimeout(timeout);
 		}, 425);
-		auxl.player.PlayerSceneAnim();
 	}
 	//Clear Zone on Move
 	const ClearZone = () => {
@@ -1770,7 +1770,9 @@ const World = (auxl, worldData) => {
 		}
 		//Background Audio
 		if(world.data.info.backgroundAudio){
-			auxl.playerAudio.core.sounds = {};
+			if(!auxl.playerAudio.core.sounds){
+				auxl.playerAudio.core.sounds = {};
+			}
 			auxl.playerAudio.core.sounds.background = {src: world.data.info.backgroundAudio, autoplay: true, loop: true, volume: 1,};
 			auxl.playerAudio.SpawnCore(auxl.playerRig);
 			auxl.backgroundAudio = true;

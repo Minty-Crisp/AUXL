@@ -22,9 +22,9 @@ schema: {
 	repeats: {type: 'array', default: [false]},
 	random: {type: 'boolean', default: false},
 },
-	init: function () {
+	update: function () {
 		//AUXL System
-		const auxl = document.querySelector('a-scene').systems.auxl;
+		this.auxl = document.querySelector('a-scene').systems.auxl;
 		//Mesh Name
 		this.meshName = false;
 		this.current = 0;
@@ -34,7 +34,7 @@ schema: {
 			if(color){
 				//Base Color
 				if(color === 'random'){
-					this.materials[this.current] = new THREE.MeshStandardMaterial({color: auxl.colorTheoryGen().base});
+					this.materials[this.current] = new THREE.MeshStandardMaterial({color: this.auxl.colorTheoryGen().base});
 				} else {
 					this.materials[this.current] = new THREE.MeshStandardMaterial({color});
 				}
@@ -71,25 +71,52 @@ schema: {
 		})
 		//console.log(this.materials)
 		this.current = -2;
-		// Wait for model to load. GLTF/OBJ Event
-		this.el.addEventListener('model-loaded', () => {
-			// Grab the mesh / scene.
-			const obj = this.el.getObject3D('mesh');
-			obj.traverse(node => {
-				//console.log(node.name)
-				if(this.current < 0){} else {
-					if(this.data.random){
-						node.material = new THREE.MeshStandardMaterial({color: auxl.colorTheoryGen().base});
-					} else {
-						if(this.materials[this.current]){
-							node.material = this.materials[this.current];
+		//Check if the model already is loaded/exists
+		if(this.el.getObject3D('mesh')){
+			this.apply();
+		} else {
+			// Wait for model to load. GLTF/OBJ Event
+			this.el.addEventListener('model-loaded', () => {
+				this.apply();
+	/*
+				// Grab the mesh / scene.
+				const obj = this.el.getObject3D('mesh');
+				obj.traverse(node => {
+					//console.log(node.name)
+					if(this.current < 0){} else {
+						if(this.data.random){
+							node.material = new THREE.MeshStandardMaterial({color: this.auxl.colorTheoryGen().base});
+						} else {
+							if(this.materials[this.current]){
+								node.material = this.materials[this.current];
+							}
 						}
 					}
-				}
-				this.current++;
+					this.current++;
+				});
+	*/
 			});
-		});
-	}
+		}
+
+	},
+apply: function (){
+	this.current = -2;
+	// Grab the mesh
+	const obj = this.el.getObject3D('mesh');
+	obj.traverse(node => {
+		//console.log(node.name)
+		if(this.current < 0){} else {
+			if(this.data.random){
+				node.material = new THREE.MeshStandardMaterial({color: this.auxl.colorTheoryGen().base});
+			} else {
+				if(this.materials[this.current]){
+					node.material = this.materials[this.current];
+				}
+			}
+		}
+		this.current++;
+	});
+},
 });
 
 //

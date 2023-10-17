@@ -1146,10 +1146,13 @@ const Player = (auxl, id, layer, data) => {
 		return camRigPoint;
 	}
 	//Ray with Rig Point at Distance - *****
+	//Ray Rotation is combined with Body Rotation
 	const RayDistanceDirection = (rayEl, dist, dir) => {
 
 		//let quaternion = new THREE.Quaternion().copy( auxl.camera.GetEl().object3D.quaternion);
 		let quaternion = new THREE.Quaternion().copy(rayEl.object3D.quaternion);
+		let bodyQuat = new THREE.Quaternion().copy(auxl.playerBody.GetEl().object3D.quaternion);
+		quaternion.multiply(bodyQuat);
 		let distance = dist || 1;
 		let direction = dir || new THREE.Vector3(0,0,-1);
 		//Rotate Aim
