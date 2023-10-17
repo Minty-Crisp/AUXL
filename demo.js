@@ -2595,7 +2595,7 @@ auxl.zone1Scene0Data = {
 		testGrid2:{SpawnGridLayout:'grid2'},
 		//build:{SpawnBuild:null},
 		testLock:{SpawnComboLock:null},
-		testScroll:{SpawnScrollMenu:null},
+		//testScroll:{SpawnScrollMenu:null},
 	},
 	delay:{
 	},
@@ -2607,7 +2607,7 @@ auxl.zone1Scene0Data = {
 	},
 	exit:{
 		testLock:{DespawnComboLock:null},
-		testScroll:{DespawnScrollMenu:null}
+		//testScroll:{DespawnScrollMenu:null}
 	},
 	map:{
 		data: auxl.zone1Data.zone1Scene0,
