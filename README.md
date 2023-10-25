@@ -5,11 +5,17 @@
 [View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
 [v0.3 In-Progress Demo Scenario](https://minty-crisp.github.io/AUXL/)
+![Grid Demo Preview](https://github.com/Minty-Crisp/AUXL/blob/main/assets/img/preview/mintycrisp-auxl-preview1.jpg)
 
 [v0.3 Physics Testing Demo Integration](https://minty-crisp.github.io/AUXL/physics.html)
+![Physics Demo Preview](https://github.com/Minty-Crisp/AUXL/blob/main/assets/img/preview/mintycrisp-auxl-preview2.jpg)
+
+#### Project's using AUXL
+[Minty's XRcade Repo](https://github.com/Minty-Crisp/XRcade)
+![Physics Demo Preview](https://github.com/Minty-Crisp/AUXL/blob/main/assets/img/preview/mintycrisp-auxl-preview1.jpg)
 
 ### v0.3 Wiki Update and Starter Coming Soon!!!
-Learn how to build your first AUXL Scenario with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
+Learn how to build your first v0.2 AUXL Scenario with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
 
 AUXL Summary : :star2:
 ---
@@ -222,9 +228,9 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
 If you have made it this far, let me just say Thank You! AUXL has been a dream of mine and a labor of love. I still have so much more to accomplish and it will far easier if I can get others to test, play with, contribute, donate or just offer words of encouragement to keep going. This all wouldn't be possible without the open source work of so many others as well especially the teams that have made A-Frame and Three.js! If you are interested in discussing AUXL further, have any questions or even interested in collaborating with me please reach out to me. You can find all my contact info on my [website](https://mintycrisp.com) or even my Github profile here. Thank You ^_^
 
-- If you want to see more work of mine playing with A-Frame, check out my site [mintycrisp.com](https://mintycrisp.com).
+- If you want to see more work of mine playing with A-Frame, check out my site [mintycrisp.com](https://mintycrisp.com) and my [Itch Store](https://mintycrisp.itch.io/).
 - You may also be interested in an arcade I built using AUXL as it's foundation filled with XR mini games called [Minty's XRcade](https://mintyxr.com).
-- You can also check me out on a few other places like [dev.to](https://dev.to/mintycrisp).
+- You can also check me out on a few other places like [Mastodon](https://mastodon.social/@mintycrisp) or [dev.to](https://dev.to/mintycrisp).
 - I am available for Web XR work if you are interested in hiring me or collaborating on future projects.
 - You can reach me via socials or email : minty-crisp @ proton . me
-- If you really enjoy my work and want to support me making more of these types of projects, you can help me out with a Github Sponder, [ko-fi](https://ko-fi.com/mintycrisp), [Liberapay](https://liberapay.com/mintycrisp/) or just by sharing my work.
+- If you really enjoy my work and want to support me making more of these types of projects, you can help me out with any kind of donation at [ko-fi](https://ko-fi.com/mintycrisp) or just by sharing my work.
