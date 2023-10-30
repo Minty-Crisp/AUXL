@@ -342,6 +342,14 @@ user-select: none;
 	background-color: transparent;
 }
 
+.stickyButtons {
+	background-color: transparent;
+}
+
+
+#menuModeButton {
+	background-color: red!Important;
+}
 
 
 /* Portrait */
