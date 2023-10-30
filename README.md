@@ -4,15 +4,20 @@
 
 [View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
-[v0.3 In-Progress Demo Scenario](https://minty-crisp.github.io/AUXL/)
+[Launch v0.3 In-Progress Demo Scenario](https://minty-crisp.github.io/AUXL/)
+
 ![Grid Demo Preview](https://github.com/Minty-Crisp/AUXL/blob/main/assets/img/preview/mintycrisp-auxl-preview1.jpg)
 
-[v0.3 Physics Testing Demo Integration](https://minty-crisp.github.io/AUXL/physics.html)
+[Launch v0.3 Physics Testing Demo Integration](https://minty-crisp.github.io/AUXL/physics.html)
+
 ![Physics Demo Preview](https://github.com/Minty-Crisp/AUXL/blob/main/assets/img/preview/mintycrisp-auxl-preview2.jpg)
 
 #### Project's using AUXL
 [Minty's XRcade Repo](https://github.com/Minty-Crisp/XRcade)
-![Physics Demo Preview](https://github.com/Minty-Crisp/AUXL/blob/main/assets/img/preview/mintycrisp-auxl-preview1.jpg)
+
+![Minty's XRcade Preview](https://github.com/Minty-Crisp/XRcade/blob/main/assets/img/previews/mintyxr-cade-revamp0.jpg)
+
+[Launch Minty's XRcade](https://mintyxr.com)
 
 ### v0.3 Wiki Update and Starter Coming Soon!!!
 Learn how to build your first v0.2 AUXL Scenario with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
