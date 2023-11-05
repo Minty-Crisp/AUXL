@@ -3187,8 +3187,8 @@ auxl.zonePhysSceneBasicData = {
 	},
 	controls:{
 		//Rubberband Sling
-		action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
-		action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Drop Web Sling.'},
+		action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Tap for Pole Vault, Press for Swing or Hold to build launch charge.'},
+		action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Activate Web Sling.'},
 		//Jump
 		action2Down:{auxlObj: 'player', func: 'PhysJump', name: 'Jump', info: 'Jump up and forwards.'},
 		//Brake
@@ -3305,8 +3305,8 @@ auxl.zonePhysSceneCityData = {
 	},
 	controls:{
 		//Rubberband Sling
-		action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
-		action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Drop Web Sling.'},
+		action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Tap for Pole Vault, Press for Swing or Hold to build launch charge.'},
+		action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Activate Web Sling.'},
 		//Boost
 		action2Down:{auxlObj: 'player', func: 'ToggleAction', params: '4', name: 'Forward Boost Build', info: 'Build power for forward boost launch in the direction of your ray.'},
 		action2Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Forward Boost Launch', info: 'Launch boost forward in the direction of your ray.'},
@@ -3425,8 +3425,8 @@ auxl.zonePhysSceneRoomData = {
 	},
 	controls:{
 		//Rubberband Sling
-		action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
-		action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Drop Web Sling.'},
+		action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Tap for Pole Vault, Press for Swing or Hold to build launch charge.'},
+		action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Activate Web Sling.'},
 		//Cycle World Gravity Axis
 		action2Down:{auxlObj: 'player', func: 'cycleWorldGravityAxis', name: 'Cycle World Gravity Axis', info: 'Cycle World Gravity Direction', info: 'Cycle through all 7 gravity directions.'},
 		//Brake
@@ -3496,8 +3496,8 @@ auxl.zonePhysScenePlanetData = {
 	},
 	controls:{
 		//Rubberband Sling
-		action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
-		action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Drop Web Sling.'},
+		action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Tap for Pole Vault, Press for Swing or Hold to build launch charge.'},
+		action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Activate Web Sling.'},
 		//Freeze|UnFreeze
 		action2Down:{auxlObj: 'player', func: 'Freeze', params: 0, name: 'Freeze', info: 'Freeze mid-air.'},
 		action2Up:{auxlObj: 'player', func: 'UnFreeze', params: false, name: 'UnFreeze', info: 'UnFreeze mid-air.'},
@@ -3625,8 +3625,8 @@ auxl.v03PhysTestingScenarioData = {
 		//action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'Shoot Charged Fire', info: 'Launch bullets from the Shoot ray from generated charge.'},
 
 		//Rubberband Sling
-		//action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
-		//action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Drop Web Sling.'},
+		//action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Tap for Pole Vault, Press for Swing or Hold to build launch charge.'},
+		//action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Activate Web Sling.'},
 
 		//Redirect
 		//action1Down:{auxlObj: 'player', func: 'RedirectDown', name: 'Brake On', info: 'Engage your physics redirect. Use to slow, aim and launch self in new direction.'},
