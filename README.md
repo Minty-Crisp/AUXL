@@ -4,13 +4,13 @@
 
 [View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 
+[Launch v0.3 Physics Testing Demo Integration](https://minty-crisp.github.io/AUXL/physics.html)
+
+![Physics Demo Preview](https://github.com/Minty-Crisp/AUXL/blob/main/assets/img/preview/mintycrisp-auxl-preview3.jpg)
+
 [Launch v0.3 In-Progress Demo Scenario](https://minty-crisp.github.io/AUXL/)
 
 ![Grid Demo Preview](https://github.com/Minty-Crisp/AUXL/blob/main/assets/img/preview/mintycrisp-auxl-preview1.jpg)
-
-[Launch v0.3 Physics Testing Demo Integration](https://minty-crisp.github.io/AUXL/physics.html)
-
-![Physics Demo Preview](https://github.com/Minty-Crisp/AUXL/blob/main/assets/img/preview/mintycrisp-auxl-preview2.jpg)
 
 #### Project's using AUXL
 [Minty's XRcade Repo](https://github.com/Minty-Crisp/XRcade)
