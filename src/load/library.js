@@ -1550,7 +1550,7 @@ mixins: false,
 classes: ['clickable','a-ent'],
 components:{
 clickrun:{cursorObj: 'comp', method: 'ToggleControlView'}, 
-['stare']:{id: 'playerRig', twist: true},
+//['stare']:{id: 'playerRig', twist: true},
 },
 };
 auxl.configurationView = auxl.Core(auxl.configurationViewData);

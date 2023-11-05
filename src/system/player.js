@@ -3623,7 +3623,7 @@ const Companion = (auxl, id, object, inventory) => {
 		}
 	}
 	//Display Current Control Configuration
-	const ToggleControlView = () => {
+	const ToggleControlViewOG = () => {
 		if(comp.viewConfig){
 			auxl.configurationView.DespawnCore();
 			comp.viewConfig = false;
@@ -3631,6 +3631,43 @@ const Companion = (auxl, id, object, inventory) => {
 			auxl.configurationView.SpawnCore(auxl.playerRig.GetEl());
 			auxl.configurationView.ChangeSelf({property: 'text', value: {value: auxl.controlsText}});
 			comp.viewConfig = true;
+		}
+	}
+
+	//Generalize these methods
+
+	//Fixed height Camera Ray
+	const ViewDir = (distance, height) => {
+		let direction = auxl.player.RayDistanceDirection(auxl.camera.GetEl());
+		direction.negate();
+		let position = new THREE.Vector3();
+		position = direction.clone().multiplyScalar(distance);
+		position.setY(height);
+		return position;
+	}
+	//Face Player
+	const FacePlayer = (el) => {
+		let position = new THREE.Vector3().copy(auxl.playerRig.GetEl().object3D.position);
+		let up = UpAxis().clone();
+		up.multiplyScalar(auxl.camera.GetEl().object3D.position.y)
+		position.add(up)
+		el.object3D.up.copy(up);
+		el.object3D.lookAt(position);
+	}
+
+	const ToggleControlView = () => {
+		if(comp.viewConfig){
+			auxl.configurationView.DespawnCore();
+			comp.viewConfig = false;
+		} else {
+			auxl.configurationView.SpawnCore(auxl.playerRig.GetEl());
+
+			auxl.configurationView.ChangeSelf([{property: 'text', value: {value: auxl.controlsText}}, {property: 'position', value: ViewDir(-1, 1.5)}, ]);
+			comp.viewConfig = true;
+			let spawnTimeoutTiny = setTimeout(() => {
+				FacePlayer(auxl.configurationView.GetEl());
+				clearTimeout(spawnTimeoutTiny);
+			}, 10);
 		}
 	}
 	//Update Main Menu
