@@ -2371,23 +2371,6 @@ auxl.citycube8DData = auxl.coreDataFromTemplate(auxl.citycube8Data, {id: 'citycu
 
 
 //City
-/*
-	ranRotX: false,
-	ranRotY: false,
-	ranRotZ: false
-*/
-//City Hectic
-/*
-	ranRotX: false,
-	ranRotY: true,
-	ranRotZ: false
-*/
-//Apocolypse
-/*
-	ranRotX: true,
-	ranRotY: true,
-	ranRotZ: true
-*/
 auxl.biome1TinyData = {
 	data: 'biome1TinyData',
 	id: 'tiny',
@@ -3126,8 +3109,122 @@ auxl.handsTesting0 = auxl.Core(auxl.handsTesting0Data);
 
 //Build Scene Library Objects
 auxl.buildSceneLibrary = () => {
-
-
+	auxl.planet1 = auxl.Core(auxl.planetData);
+	auxl.planetBuilding0 = auxl.Core(auxl.planetBuilding0Data);
+	auxl.planetBuilding1 = auxl.Core(auxl.planetBuilding1Data);
+	auxl.planetBuilding2 = auxl.Core(auxl.planetBuilding2Data);
+	auxl.planetBuilding3 = auxl.Core(auxl.planetBuilding3Data);
+	auxl.planetBuilding4 = auxl.Core(auxl.planetBuilding4Data);
+	auxl.planetBuilding5 = auxl.Core(auxl.planetBuilding5Data);
+	auxl.planetBuilding6 = auxl.Core(auxl.planetBuilding6Data);
+	auxl.planetBuilding7 = auxl.Core(auxl.planetBuilding7Data);
+	auxl.planetBuilding8 = auxl.Core(auxl.planetBuilding8Data);
+	auxl.planetBuilding9 = auxl.Core(auxl.planetBuilding9Data);
+	auxl.planetBuilding10 = auxl.Core(auxl.planetBuilding10Data);
+	auxl.planetBuilding11 = auxl.Core(auxl.planetBuilding11Data);
+	auxl.planetBuilding12 = auxl.Core(auxl.planetBuilding12Data);
+	auxl.planetBuilding13 = auxl.Core(auxl.planetBuilding13Data);
+	auxl.planetBuilding14 = auxl.Core(auxl.planetBuilding14Data);
+	auxl.planetBuilding15 = auxl.Core(auxl.planetBuilding15Data);
+	auxl.planetBuilding16 = auxl.Core(auxl.planetBuilding16Data);
+	auxl.planetBuilding17 = auxl.Core(auxl.planetBuilding17Data);
+	auxl.skyGrad1 = auxl.Core(auxl.skyGrad1Data);
+	auxl.skyBox1 = auxl.SkyBox(auxl.skyBox1Data);
+	auxl.mtnFloor = auxl.Core(auxl.mtnFloorData);
+	auxl.hills = auxl.Horizon(auxl.hillsData);
+	auxl.buildingsHorizon = auxl.Horizon(auxl.buildingsHorizonData);
+	auxl.Horizon(auxl.circularWallHorizonData);
+	auxl.mountainsHorizon = auxl.Horizon(auxl.mountainsHorizonData);
+	auxl.cloud = auxl.Core(auxl.cloudData);
+	auxl.physicalFloor = auxl.Core(auxl.physicalFloorData);
+	auxl.trampoline = auxl.Core(auxl.trampolineData);
+	auxl.wallBase = auxl.Core(auxl.wallBaseData);
+	auxl.catwalk = auxl.Core(auxl.catwalk0Data);
+	auxl.catwalk0 = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0', geometry: false, material: false, components: false, position: new THREE.Vector3(-55,199.5,-25)}, true);
+	auxl.catwalk0A = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0A', geometry: {primitive: 'box', width: 10, height: 1, depth: 100},position: new THREE.Vector3(-25,0,0)}, true);
+	auxl.catwalk0B = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0B', geometry: {primitive: 'box', width: 10, height: 1, depth: 100},position: new THREE.Vector3(25,0,0)}, true);
+	auxl.catwalk0C = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0C', geometry: {primitive: 'box', width: 100, height: 1, depth: 10},position: new THREE.Vector3(0,-1,-25)}, true);
+	auxl.catwalk0D = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0D', geometry: {primitive: 'box', width: 100, height: 1, depth: 10},position: new THREE.Vector3(0,-1,25)}, true);
+	auxl.catwalk0Layer = auxl.Layer('catwalk0Layer', auxl.catwalk0LayerData);
+	auxl.buildingBase = auxl.Core(auxl.buildingBaseData);
+	auxl.buildingBaseTest0 = auxl.coreFromTemplate(auxl.buildingBase,{id: 'buildingBaseTest0', position: new THREE.Vector3(-80,50,80)}, true);
+	auxl.buildingBaseDoorway = auxl.Core(auxl.buildingBaseDoorwayData);
+	auxl.buildingBaseDoorwayTest0 = auxl.coreFromTemplate(auxl.buildingBaseDoorway,{id: 'buildingBaseDoorwayTest0', position: new THREE.Vector3(5.5,-50,0)}, true);
+	auxl.slideBase = auxl.Core(auxl.slideBaseData);
+	auxl.slideBaseTest0 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', position: new THREE.Vector3(6.35,-49.5,0), rotation: new THREE.Vector3(0,0,-20)}, true);
+	auxl.slideBaseTest1 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', position: new THREE.Vector3(-6.35,-49.5,0), rotation: new THREE.Vector3(0,0,20)}, true);
+	auxl.slideBaseTest2 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', geometry: {primitive: 'box', width: 10, depth: 3, height: 0.01}, position: new THREE.Vector3(0,-49.5,6.35), rotation: new THREE.Vector3(20,0,0)}, true);
+	auxl.slideBaseTest3 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', geometry: {primitive: 'box', width: 10, depth: 3, height: 0.01}, position: new THREE.Vector3(0,-49.5,-6.35), rotation: new THREE.Vector3(-20,0,0)}, true);
+	auxl.flipBase = auxl.Core(auxl.flipBaseData);
+	auxl.flipBaseTest0 = auxl.coreFromTemplate(auxl.flipBase,{id: 'flipBaseTest0'}, true);
+	auxl.trampolineTop = auxl.Core(auxl.trampolineTwistData);
+	auxl.trampolineTopBlock = auxl.Core(auxl.trampolineTopBlockData);
+	auxl.trampolineTopBlockTest0 = auxl.coreFromTemplate(auxl.trampolineTop,{id: 'trampolineTopBlockTest0'}, true);
+	auxl.trampolineTopBlockTest1 = auxl.coreFromTemplate(auxl.trampolineTopBlock,{id: 'trampolineTopBlockTest1'}, true);
+	auxl.baseTest0Layer = auxl.Layer('baseTest0Layer', auxl.baseTest0LayerData);
+	auxl.trampoline0 = auxl.Core(auxl.trampoline0Data);
+	auxl.building1 = auxl.Core(auxl.building1Data);
+	auxl.trampoline1 = auxl.Core(auxl.trampoline1Data);
+	auxl.building1Door = auxl.Core(auxl.building1DoorData);
+	auxl.building2 = auxl.Core(auxl.building2Data);
+	auxl.trampoline2 = auxl.Core(auxl.trampoline2Data);
+	auxl.building2Door = auxl.Core(auxl.building2DoorData);
+	auxl.building3 = auxl.Core(auxl.building3Data);
+	auxl.trampoline3 = auxl.Core(auxl.trampoline3Data);
+	auxl.building3Door = auxl.Core(auxl.building3DoorData);
+	auxl.building4 = auxl.Core(auxl.building4Data);
+	auxl.trampoline4 = auxl.Core(auxl.trampoline4Data);
+	auxl.building4Door = auxl.Core(auxl.building4DoorData);
+	auxl.ceiling1 = auxl.Core(auxl.ceiling1Data);
+	auxl.ceiling2 = auxl.Core(auxl.ceiling2Data);
+	auxl.boundingwall1 = auxl.Core(auxl.boundingwall1Data);
+	auxl.boundingwall2 = auxl.Core(auxl.boundingwall2Data);
+	auxl.boundingwall3 = auxl.Core(auxl.boundingwall3Data);
+	auxl.boundingwall4 = auxl.Core(auxl.boundingwall4Data);
+	auxl.dynamicTest0 = auxl.Core(auxl.dynamicTest0Data);
+	auxl.dynamicTest1 = auxl.Core(auxl.dynamicTest1Data);
+	auxl.dynamicTest2 = auxl.Core(auxl.dynamicTest2Data);
+	auxl.balls0Ring = auxl.ObjsGenRing(auxl.balls0RingData);
+	auxl.cityBalls0Ring = auxl.ObjsGenRing(auxl.cityBalls0RingData);
+	auxl.balls1Ring = auxl.ObjsGenRing(auxl.balls1RingData);
+	auxl.cityBalls1Ring = auxl.ObjsGenRing(auxl.cityBalls1RingData);
+	auxl.balls2Ring = auxl.ObjsGenRing(auxl.balls2RingData);
+	auxl.cityBalls2Ring = auxl.ObjsGenRing(auxl.cityBalls2RingData);
+	auxl.boxes0Ring = auxl.ObjsGenRing(auxl.boxes0RingData);
+	auxl.cityBoxes0Ring = auxl.ObjsGenRing(auxl.cityBoxes0RingData);
+	auxl.boxes1Ring = auxl.ObjsGenRing(auxl.boxes1RingData);
+	auxl.cityBoxes1Ring = auxl.ObjsGenRing(auxl.cityBoxes1RingData);
+	auxl.boxes2Ring = auxl.ObjsGenRing(auxl.boxes2RingData);
+	auxl.cityBoxes2Ring = auxl.ObjsGenRing(auxl.cityBoxes2RingData);
+	auxl.triggerTest1 = auxl.Core(auxl.triggerTest1Data);
+	auxl.triggerAxis0 = auxl.Core(auxl.triggerAxis0Data);
+	auxl.triggerAxis1 = auxl.Core(auxl.triggerAxis1Data);
+	auxl.triggerAxis2 = auxl.Core(auxl.triggerAxis2Data);
+	auxl.triggerAxis3 = auxl.Core(auxl.triggerAxis3Data);
+	auxl.triggerAxis4 = auxl.Core(auxl.triggerAxis4Data);
+	auxl.triggerAxis5 = auxl.Core(auxl.triggerAxis5Data);
+	auxl.triggerAxis6 = auxl.Core(auxl.triggerAxis6Data);
+	auxl.ptp1a = auxl.Core(auxl.ptp1aData);
+	auxl.ptp1b = auxl.Core(auxl.ptp1bData);
+	auxl.distance1a = auxl.Core(auxl.distance1aData);
+	auxl.distance1b = auxl.Core(auxl.distance1bData);
+	auxl.spring1a = auxl.Core(auxl.spring1aData);
+	auxl.spring1b = auxl.Core(auxl.spring1bData);
+	auxl.lock1a = auxl.Core(auxl.lock1aData);
+	auxl.lock1b = auxl.Core(auxl.lock1bData);
+	auxl.hinge1a = auxl.Core(auxl.hinge1aData);
+	auxl.hinge1b = auxl.Core(auxl.hinge1bData);
+	auxl.coneTwist1a = auxl.Core(auxl.coneTwist1aData);
+	auxl.coneTwist1b = auxl.Core(auxl.coneTwist1bData);
+	auxl.pickup1 = auxl.Core(auxl.pickup1Data);
+	auxl.dynSpringA = auxl.Core(auxl.dynSpringAData);
+	auxl.dynSpringB = auxl.Core(auxl.dynSpringBData);
+	auxl.ramp1 = auxl.Core(auxl.ramp1Data);
+	auxl.ramp2 = auxl.Core(auxl.ramp2Data);
+	auxl.ramp3 = auxl.Core(auxl.ramp3Data);
+	auxl.biome1 = auxl.MultiAssetGen(auxl.biome1Data);
+	auxl.biome2 = auxl.MultiAssetGen(auxl.biome2Data);
+	auxl.handsTesting0 = auxl.Core(auxl.handsTesting0Data);
 }
 auxl.toBeRebuilt('buildSceneLibrary');
 
