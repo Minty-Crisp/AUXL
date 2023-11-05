@@ -407,8 +407,19 @@ axis: function () {
 		this.axisB.copy(this.data.axisB);
 	}
 },
+//Retry
+Retry: function (fresh) {
+	let bodyTimeout = setTimeout(() => {
+		this.Reconnect(fresh);
+		clearTimeout(bodyTimeout);
+	}, 500);
+},
 //Build & Add Constraint
 Connect: function (fresh) {
+	if(this.el.body === undefined){
+		this.Retry(fresh);
+		return;
+	}
 	if(!this.connected && this.link(fresh)){
 		switch (this.data.type) {
 		  case "lock":
@@ -537,8 +548,19 @@ localAnchors: function () {
 		this.localAnchorB.copy(this.data.localAnchorB);
 	}
 },
+//Retry
+Retry: function (fresh) {
+	let bodyTimeout = setTimeout(() => {
+		this.Reconnect(fresh);
+		clearTimeout(bodyTimeout);
+	}, 500);
+},
 //Build & Add Constraint
 Connect: function (fresh) {
+	if(this.el.body === undefined){
+		this.Retry(fresh);
+		return;
+	}
 	if(!this.connected && this.link(fresh)){
 		this.localAnchors();
     	this.spring = new CANNON.Spring(this.el.body, this.connectBody, {
@@ -591,13 +613,6 @@ update: function (oldData) {
 		if(this.data.always && !this.listenersEnabled){
 			this.addListeners(this.data.connectTo);
 		}
-	} else {
-		//Update various properties without reconnecting
-		this.spring.restLength = this.data.restLength;
-		this.spring.stiffness = this.data.stiffness;
-		this.spring.damping = this.data.damping;
-		this.spring.localAnchorA = this.data.localAnchorA;
-		this.spring.localAnchorB = this.data.localAnchorB;
 	}
 },
 remove: function () {
@@ -708,33 +723,32 @@ this.worldTypeCycleCount = 0;
 //Local/World Axis Change
 this.localAxisChange = false;
 this.worldAxisChange = false;
+//Cycle Sync
+this.worldAxisSet = 0;
+this.axisSet = 0;
 },
-
 //Update
-update: function () {
-	//Update Type
-	this.type = this.data.type;
-	//Update Axis
-	this.axis.x = this.data.axis.x;
-	this.axis.y = this.data.axis.y;
-	this.axis.z = this.data.axis.z;
+update: function (oldData) {
 	//Chute Open, Null Velocity
 	this.chuteOpen = this.data.chuteOpen;
 	//Center of Gravity
-	if(this.data.gravityObject !== 'none'){
+	if(this.data.gravityObject && this.data.gravityObject !== 'none'){
 		this.gravityObject = this.data.gravityObject;
 		if(document.getElementById( this.gravityObject)){
 			this.centerOfGravity.copy(document.getElementById( this.gravityObject).getAttribute('position'));
 		}
 	} else {
 		this.gravityObject = false;
+		this.clearForces();
 	}
 },
 //Cycle through all axis locally
 setAxis: function (axis) {
 if(!this.localAxisChange){
 	this.localAxisChange = true;
-	this.axis = this.allGravityDirection[axis];
+	this.axisSet = axis;
+	this.axisCycleCount = axis;
+	this.axis.copy(this.allGravityDirection[axis]);
 	this.axisTimeout1 = setTimeout(() => {
 		this.el.body.sleep();
 		this.newPosition = new THREE.Vector3();
@@ -763,7 +777,7 @@ if(!this.localAxisChange){
 	if(this.axisCycleCount >= this.allGravityDirection.length){
 		this.axisCycleCount = 0;
 	}
-	this.axis = this.allGravityDirection[this.axisCycleCount];
+	this.axis.copy(this.allGravityDirection[this.axisCycleCount]);
 	this.axisTimeout1 = setTimeout(() => {
 		this.el.body.sleep();
 		this.newPosition = new THREE.Vector3();
@@ -790,7 +804,7 @@ if(!this.localAxisChange){
 //Randomly choose any axis locally
 randomAxis: function () {
 	this.axisCycleCount = Math.floor(Math.random()*this.allGravityDirection.length)
-	this.axis = this.allGravityDirection[this.axisCycleCount]
+	this.axis.copy(this.allGravityDirection[this.axisCycleCount]);
 	this.axisTimeout1 = setTimeout(() => {
 		this.el.body.sleep();
 		this.newPosition = new THREE.Vector3();
@@ -837,6 +851,8 @@ gravityObjectAxis: function () {
 //Set World Axis
 setWorldAxis: function (axis) {
 	//Update World Gravity
+	this.worldAxisSet = axis;
+	this.worldAxisCycleCount = axis;
 	this.worldAxis.copy(this.allGravityDirection[axis]);
 	this.worldAxis.multiplyScalar(this.allGravityTypes[this.worldType])
 	this.el.body.world.gravity.copy(this.worldAxis)
@@ -850,6 +866,7 @@ cycleWorldAxis: function () {
 		this.worldAxisCycleCount = 0;
 	}
 	//Update World Gravity
+	this.worldAxisSet = this.worldAxisCycleCount;
 	this.worldAxis.copy(this.allGravityDirection[this.worldAxisCycleCount]);
 	this.worldAxis.multiplyScalar(this.allGravityTypes[this.worldType])
 	this.el.body.world.gravity.copy(this.worldAxis)
@@ -858,6 +875,7 @@ cycleWorldAxis: function () {
 },
 //Set Local
 setTypes: function (type) {
+	this.typeCycleCount = type;
 	this.type = Object.keys(this.allGravityTypes)[type]
 	this.auxl.player.Notification({message:'Local Gravity : ' + this.type, time: 2000});
 //console.log(this.type)
@@ -881,9 +899,10 @@ console.log(this.type)
 },
 //Cycle through all types globaly
 setWorldTypes: function (type) {
+	this.worldTypeCycleCount = type;
 	this.worldType = Object.keys(this.allGravityTypes)[type];
 	//Update World Gravity
-	this.worldAxis.copy(this.allGravityDirection[this.worldAxisCycleCount]);
+	this.worldAxis.copy(this.allGravityDirection[this.worldAxisSet]);
 	this.worldAxis.multiplyScalar(this.allGravityTypes[this.worldType])
 	this.el.body.world.gravity.copy(this.worldAxis)
 	this.auxl.player.Notification({message:'World Gravity : ' + this.worldType, time: 2000});
@@ -897,7 +916,7 @@ cycleWorldTypes: function () {
 	}
 	this.worldType = Object.keys(this.allGravityTypes)[this.worldTypeCycleCount]
 	//Update World Gravity
-	this.worldAxis.copy(this.allGravityDirection[this.worldAxisCycleCount]);
+	this.worldAxis.copy(this.allGravityDirection[this.worldAxisSet]);
 	this.worldAxis.multiplyScalar(this.allGravityTypes[this.worldType])
 	this.el.body.world.gravity.copy(this.worldAxis)
 	this.auxl.player.Notification({message:'World Gravity : ' + this.worldType, time: 2000});
@@ -905,7 +924,9 @@ cycleWorldTypes: function () {
 },
 //Clears all current system forces
 clearForces: function () {
-	this.el.body.world.clearForces();
+	if(this.el.body !== null && this.el.body.world !== null){
+		this.el.body.world.clearForces();
+	}
 },
 //Velocity
 gravityVelocity: function() {

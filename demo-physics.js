@@ -3204,7 +3204,7 @@ auxl.zonePhysSceneBasicData = {
 		physicalFloor:{SpawnCore: null},
 		mtnFloor:{SpawnCore: null},
 		playerRig:{PhysPos: new THREE.Vector3(0,14,0),},
-		player:{setAllGravity: {axis: 1, type: 1},},
+		player:{Freeze: null, setAllGravity: {axis: 1, type: 0},},
 		ramp1:{SpawnCore:null},
 		ramp2:{SpawnCore:null},
 		ramp3:{SpawnCore:null},
@@ -3241,7 +3241,7 @@ auxl.zonePhysSceneBasicData = {
 		dynamicTest0:{SpawnCore:null},
 		dynamicTest1:{SpawnCore:null},
 		dynamicTest2:{SpawnCore:null},
-		triggerTest1:{SpawnCore:null},
+		//triggerTest1:{SpawnCore:null},
 		pickup1:{SpawnCore:null},
 		dynSpringA:{SpawnCore:null},
 		dynSpringB:{SpawnCore:null},
@@ -3251,6 +3251,9 @@ auxl.zonePhysSceneBasicData = {
 		//oneTest2One:{SpawnOne:null},
 	},
 	delay:{
+		500:{
+			player:{UnFreeze:null,},
+		},
 		3000:{
 			spring1b:{ChangeSelf:{property: 'auxspring', value:{restLength: 5}}},
 		},
@@ -3260,9 +3263,12 @@ auxl.zonePhysSceneBasicData = {
 		13000:{
 			dynSpringB:{ChangeSelf:{property: 'body', value:{type: 'dynamic'}}},
 		},
+		20000:{
+			spring1b:{ChangeSelf:{property: 'auxspring', value:{restLength: 2}}},
+		},
 	},
 	interval:{
-		15000: {
+		10000: {
 			run: {
 				lock1a:{ToggleSpawn: null},
 				distance1a:{ToggleSpawn: null},
@@ -3272,7 +3278,6 @@ auxl.zonePhysSceneBasicData = {
 				spring1a:{ToggleSpawn: null},
 			}, loop: 'infinite'
 		},
-
 	},
 	event:{
 
@@ -3319,7 +3324,7 @@ auxl.zonePhysSceneCityData = {
 		physicalFloor:{SpawnCore: null},
 		mtnFloor:{SpawnCore: null},
 		playerRig:{PhysPos: new THREE.Vector3(0,400,0)},
-		player:{setAllGravity: {axis: 1, type: 0},},
+		player:{Freeze: null, setAllGravity: {axis: 1, type: 1},},
 		biome1:{SpawnMultiAsset:null},
 
 		cityBalls0Ring:{SpawnObjRing:null},
@@ -3330,6 +3335,9 @@ auxl.zonePhysSceneCityData = {
 		cityBoxes2Ring:{SpawnObjRing:null},
 	},
 	delay:{
+		500:{
+			player:{UnFreeze:null,},
+		},
 	},
 	interval:{
 	},
@@ -3376,7 +3384,7 @@ auxl.zonePhysSceneApocCityData = {
 		physicalFloor:{SpawnCore: null},
 		mtnFloor:{SpawnCore: null},
 		playerRig:{PhysPos: new THREE.Vector3(0,400,0)},
-		player:{setAllGravity: {axis: 1, type: 1},},
+		player:{Freeze: null, setAllGravity: {axis: 1, type: 1},},
 		biome2:{SpawnMultiAsset:null},
 
 		cityBalls0Ring:{SpawnObjRing:null},
@@ -3387,6 +3395,9 @@ auxl.zonePhysSceneApocCityData = {
 		cityBoxes2Ring:{SpawnObjRing:null},
 	},
 	delay:{
+		500:{
+			player:{UnFreeze:null,},
+		},
 	},
 	interval:{
 	},
@@ -3413,11 +3424,11 @@ auxl.zonePhysSceneRoomData = {
 		//physics : {gravity: 9.8, axis: new THREE.Vector3(0,-1,0),},
 	},
 	controls:{
-		//Cycle World Gravity Axis
-		action1Down:{auxlObj: 'player', func: 'cycleWorldGravityAxis', name: 'Cycle World Gravity Axis', info: 'Cycle World Gravity Direction', info: 'Cycle through all 7 gravity directions.'},
 		//Rubberband Sling
-		action2Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
-		action2Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Drop Web Sling.'},
+		action1Down:{auxlObj: 'player', func: 'ToggleAction', params: '0', name: 'Rubberband', info: 'Build Web Sling with rubberbands. Launch with main hold, build charge, release charge.'},
+		action1Up:{auxlObj: 'player', func: 'ToggleAction', params: 'false', name: 'RubberbandDrop', info: 'Drop Web Sling.'},
+		//Cycle World Gravity Axis
+		action2Down:{auxlObj: 'player', func: 'cycleWorldGravityAxis', name: 'Cycle World Gravity Axis', info: 'Cycle World Gravity Direction', info: 'Cycle through all 7 gravity directions.'},
 		//Brake
 		action3Down:{auxlObj: 'player', func: 'BrakeDown', name: 'Brake On', info: 'Engage your physics brake. Slow self to a stop, double tap for quick stop.'},
 		action3Up:{auxlObj: 'player', func: 'BrakeUp', name: 'Brake Off', info: 'Release your physics brake.'},
@@ -3430,7 +3441,7 @@ auxl.zonePhysSceneRoomData = {
 	},
 	start:{
 		playerRig:{PhysPos: new THREE.Vector3(0,0,0)},
-		player:{setAllGravityTypes: 0,},
+		player:{Freeze: null, setAllGravity: {axis: 0, type: 0},},
 		ceiling1:{SpawnCore:null},
 		ceiling2:{SpawnCore:null},
 
@@ -3455,6 +3466,9 @@ auxl.zonePhysSceneRoomData = {
 		boxes2Ring:{SpawnObjRing:null},
 	},
 	delay:{
+		500:{
+			player:{UnFreeze:null,},
+		},
 	},
 	interval:{
 	},
@@ -3499,7 +3513,7 @@ auxl.zonePhysScenePlanetData = {
 	},
 	start:{
 		playerRig:{PhysPos: new THREE.Vector3(0,0,0)},
-
+		player:{Freeze: null,},
 		planet1:{SpawnCore: null},
 		planetBuilding0:{SpawnCore: null},
 		planetBuilding1:{SpawnCore: null},
@@ -3523,7 +3537,9 @@ auxl.zonePhysScenePlanetData = {
 	delay:{
 		500:{
 			playerRig:{ChangeSelf: {property:'gravitycontrol', value: {gravityObject: 'planet1'}}},
-			player:{setAllGravityTypes: 1},
+		},
+		1000:{
+			player:{UnFreeze:null, setAllGravity: {axis: 1, type: 1},},
 		},
 	},
 	interval:{

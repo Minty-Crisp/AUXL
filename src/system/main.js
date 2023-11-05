@@ -106,6 +106,8 @@ const Core = (auxl, data) => {
 	//Asset Loaded
 	function loaded(){
 		auxl.loadingObjects.delete(core.id);
+		GetEl(true);
+		auxl.el.emit(core.id+'spawned',{});
 	}
 	//Generate Entity Element
 	const Generate = () => {
@@ -344,19 +346,28 @@ const Core = (auxl, data) => {
 				}
 			}
 			//Loaded Events
+			let loadingEvent = false;
 			if(load3D){
 				core.el.addEventListener('model-loaded', loaded);
+				loadingEvent = true;
 			}
 			if(loadMat){
 				core.el.addEventListener('loaded', loaded);
+				loadingEvent = true;
 			}
-			//Link to DOM
-			core.domTimeout = setTimeout(() => {
-				GetEl(true);
-				auxl.el.emit(core.id+'spawned',{});
-				//console.log(core.dom)
-				clearTimeout(core.domTimeout);
-			}, 100);
+			if(core.el.components && core.el.components.body){
+				core.el.addEventListener('body-loaded', loaded);
+				loadingEvent = true;
+			}
+			if(!loadingEvent){
+				//Link to DOM
+				core.domTimeout = setTimeout(() => {
+					GetEl(true);
+					auxl.el.emit(core.id+'spawned',{});
+					//console.log(core.dom)
+					clearTimeout(core.domTimeout);
+				}, 100);
+			}
 			core.inScene = true;
 		}
 	}
@@ -379,7 +390,10 @@ const Core = (auxl, data) => {
 				let componentKeys = Object.keys(core.components);
 				for (let key in componentKeys) {
 					if(key === 0){} else {
-						GetEl().removeAttribute(componentKeys[key])
+						if(!componentKeys[key].startsWith('shape')){
+							GetEl().removeAttribute(componentKeys[key])
+						}
+
 					}
 				}
 			}

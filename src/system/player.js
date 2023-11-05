@@ -120,7 +120,7 @@ const Player = (auxl, id, layer, data) => {
 
 	//
 	//Raycasters - 14 small
-	layer.linkDistance = 24;
+	layer.linkDistance = 18;
 
 	//Toggle Raycaster Helpers
 	//If false, all false, otherwise show config helper
@@ -2043,12 +2043,12 @@ angleXYZ
 
 	//Gravity
 	const setAllGravity = (axisType) => {
-		if(axisType.type){
+		if(axisType.type || axisType.type === 0){
 auxl.playerRig.GetEl().components.gravitycontrol.setTypes(axisType.type);
 
 auxl.playerRig.GetEl().components.gravitycontrol.setWorldTypes(axisType.type);
 		}
-		if(axisType.axis){
+		if(axisType.axis || axisType.axis === 0){
 auxl.playerRig.GetEl().components.gravitycontrol.setAxis(axisType.axis);
 
 auxl.playerRig.GetEl().components.gravitycontrol.setWorldAxis(axisType.axis);
@@ -2104,7 +2104,7 @@ auxl.playerRig.GetEl().components.gravitycontrol.cycleWorldAxis();
 		} else if(layer.toggle2){
 			teleportToDown(event);
 		} else if(layer.toggle3){
-			//
+			RedirectDown(event)
 		} else if(layer.toggle4){
 			BoostDown(event)
 		} else if(layer.toggle5){
@@ -2125,7 +2125,7 @@ auxl.playerRig.GetEl().components.gravitycontrol.cycleWorldAxis();
 		} else if(layer.toggle2){
 			teleportToUp(event);
 		} else if(layer.toggle3){
-			//
+			RedirectUp(event)
 		} else if(layer.toggle4){
 			BoostUp(event)
 		} else if(layer.toggle5){
@@ -2145,6 +2145,8 @@ auxl.playerRig.GetEl().components.gravitycontrol.cycleWorldAxis();
 			rubberRay = layer.raycasters.hand1;
 		} else if(rayId === 'vrController2'){
 			rubberRay = layer.raycasters.hand2;
+		} else {
+			return;
 		}
 		DelinkCore(rubberRay.linkCore);
 		rubberRay.power = 1000;
@@ -2160,12 +2162,13 @@ auxl.playerRig.GetEl().components.gravitycontrol.cycleWorldAxis();
 	}
 
 	//Parachute (Fall without Velocity)
+	//Spawn an object above the player
 	const ChuteUp = () => {
-console.log('chute up')
+//console.log('chute up')
 auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = false;
 	}
 	const ChuteDown = () => {
-console.log('chute down')
+//console.log('chute down')
 auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = true;
 	}
 
@@ -2187,6 +2190,8 @@ auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = true;
 				clearInterval(layer.raycasters.hand2.linkInterval);
 				rubberRayEl = auxl.vrController2.GetEl();
 				rubberRay = layer.raycasters.hand2;
+			} else {
+				return;
 			}
 			BoostTo(rubberRayEl, rubberRay);
 		}
@@ -2222,6 +2227,8 @@ auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = true;
 				clearInterval(layer.raycasters.hand2.linkInterval);
 				rubberRayEl = auxl.vrController2.GetEl();
 				rubberRay = layer.raycasters.hand2;
+			} else {
+				return;
 			}
 			BackBoost(rubberRayEl, rubberRay.power);
 		}
@@ -2286,14 +2293,27 @@ auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = true;
 
 	//Redirect
 	const RedirectUp = (event) => {
-		let ray = false;
-		let rayEl = false;
-		//Testing - All powers need to be integrated with commons
-		clearInterval(layer.raycasters.hmdmouse.linkInterval);
-		rayEl = auxl.camera.GetEl();
-		ray = layer.raycasters.hmdmouse;
-		Redirect(rayEl, ray)
-		clearInterval(layer.redirectInterval);
+		if(layer.toggle3){
+			let rubberRay = false;
+			let rubberRayEl = false;
+			if(event.target.id === 'mouseController'){
+				clearInterval(layer.raycasters.hmdmouse.linkInterval);
+				rubberRayEl = auxl.camera.GetEl();
+				rubberRay = layer.raycasters.hmdmouse;
+			} else if(event.target.id === 'vrController1'){
+				clearInterval(layer.raycasters.hand1.linkInterval);
+				rubberRayEl = auxl.vrController1.GetEl();
+				rubberRay = layer.raycasters.hand1;
+			} else if(event.target.id === 'vrController2'){
+				clearInterval(layer.raycasters.hand2.linkInterval);
+				rubberRayEl = auxl.vrController2.GetEl();
+				rubberRay = layer.raycasters.hand2;
+			} else {
+				return;
+			}
+			clearInterval(layer.redirectInterval);
+			Redirect(rubberRayEl, rubberRay)
+		}
 	}
 	const RedirectDown = (event) => {
 		//Base Speed Max
@@ -2343,6 +2363,8 @@ auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = true;
 				clearInterval(layer.raycasters.hand2.linkInterval);
 				rubberRayEl = auxl.vrController2.GetEl();
 				rubberRay = layer.raycasters.hand2;
+			} else {
+				return;
 			}
 			Rubberband(rubberRayEl, rubberRay)
 		}
@@ -2402,6 +2424,8 @@ auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = true;
 				clearInterval(layer.raycasters.hand2.linkInterval);
 				rubberRayEl = auxl.vrController2.GetEl();
 				rubberRay = layer.raycasters.hand2;
+			} else {
+				return;
 			}
 			TeleportTo(rubberRayEl, rubberRay);
 		}
@@ -2456,6 +2480,8 @@ auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = true;
 				clearInterval(layer.raycasters.hand2.linkInterval);
 				rubberRayEl = auxl.vrController2.GetEl();
 				rubberRay = layer.raycasters.hand2;
+			} else {
+				return;
 			}
 			Shoot(rubberRayEl, rubberRay);
 		}
@@ -2543,6 +2569,8 @@ auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = true;
 				clearInterval(layer.raycasters.hand2.linkInterval);
 				rayEl = auxl.vrController2.GetEl();
 				ray = layer.raycasters.hand2;
+			} else {
+				return;
 			}
 			Earthbend(rayEl, ray);
 		}
