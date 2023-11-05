@@ -3536,10 +3536,11 @@ auxl.zonePhysScenePlanetData = {
 	},
 	delay:{
 		500:{
+			player:{setAllGravity: {axis: 1, type: 1},},
 			playerRig:{ChangeSelf: {property:'gravitycontrol', value: {gravityObject: 'planet1'}}},
 		},
 		1000:{
-			player:{UnFreeze:null, setAllGravity: {axis: 1, type: 1},},
+			player:{UnFreeze:null},
 		},
 	},
 	interval:{
