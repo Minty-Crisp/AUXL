@@ -180,6 +180,23 @@ tick: function (time, timeDelta) {
 });
 
 //
+//Spawn in Front of Player Camera
+const cameraForward = AFRAME.registerComponent('camera-forward', {
+dependencies: ['auxl'],
+schema: {
+	distance: {type: 'number', default: 1},
+},
+init: function () {
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+forward: function () {
+	this.rayDir = this.auxl.player.RayDir(this.auxl.camera.GetEl(), this.data.distance);
+	this.el.object3D.position.copy(this.rayDir.position)
+	this.el.object3D.lookAt(this.auxl.playerRig.GetEl().object3D.position);
+},
+
+});
+//
 //Display Text Description on Hover
 const hovertext = AFRAME.registerComponent('hovertext', {
 dependencies: ['auxl'],
@@ -277,4 +294,4 @@ remove: function () {
 
 //
 //Export
-export {syncPos, syncRot, lookAtXYZ, stare, hovertext};
+export {syncPos, syncRot, lookAtXYZ, stare, cameraForward, hovertext};

@@ -410,6 +410,11 @@ page,
 	return {bookData, book, idleBook, Init, Next, NewPage, Random, IdleInit, IdleNext, RandomIdle, Jump, JumpIdle, SelectJump, readTimeline};
 }
 
+
+//Stop
+//DisplaySpeech
+//Blink
+
 //
 //Speech System
 //Speaking Textbubble
@@ -440,6 +445,16 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 			parent = 'layer';
 		}
 	}
+	//Active Speech Bubble
+	const Active = (refresh) => {
+		//Check if still exists, otherwise end.
+		if(core.type === 'core'){
+			return (core.GetEl(refresh)) ? true : false;
+		} else {
+			return (core.GetParentEl(refresh)) ? true : false;
+		}
+	}
+
 	//Start Textbubble
 	const Start = () => {
 		let spawnParent = false;
@@ -450,19 +465,16 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 		}
 		if(core.type === 'core'){
 			core.SpawnCore(spawnParent);
-			core.GetEl().addEventListener('mouseenter', Skip);
 			bubbleSpawnTimeout = setTimeout(() => {
+				core.GetEl().addEventListener('mouseenter', Skip);
 				core.EmitEvent('loadin');
 				clearTimeout(bubbleDespawnTimeout);
 			}, 25);
 		} else {
 			core.SpawnLayer(spawnParent);
-//GetParentEl is Null
-//FFFFFIIIIIIIXXXXX!!!!!!!
-//Happens on spawn/despawn sometimes with mouseover
-			core.GetParentEl().addEventListener('mouseenter', Skip);
-			StartCloseReset();
 			bubbleSpawnTimeout = setTimeout(() => {
+				StartCloseReset();
+				core.GetParentEl().addEventListener('mouseenter', Skip);
 				core.EmitEventAll('loadin');
 				clearTimeout(bubbleDespawnTimeout);
 			}, 25);
@@ -471,6 +483,10 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 	}
 	//Skip to end of speech
 	const Skip = () => {
+		if(!Active()){
+			console.log({core, npc, func: 'Skip()', msg: 'Failed to find speech bubble'})
+			return;
+		}
 		if(core.type === 'core'){
 			core.GetEl().emit('skip',{});
 		} else {
@@ -480,6 +496,10 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 	//Stop Textbubble
 	const Stop = () => {
 		if(core.on){
+			if(!Active()){
+				console.log({core, npc, func: 'Stop()', msg: 'Failed to find speech bubble'})
+				return;
+			}
 			if(core.type === 'core'){
 				core.GetEl().removeEventListener('mouseenter', Skip);
 				core.EmitEvent('loadout');
@@ -489,9 +509,6 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 					clearTimeout(bubbleDespawnTimeout);
 				}, 1000);
 			} else {
-//GetParentEl is Null
-//FFFFFIIIIIIIXXXXX!!!!!!!
-//Happens on spawn/despawn sometimes with mouseover
 				core.GetParentEl().removeEventListener('mouseenter', Skip);
 				core.EmitEventAll('loadout');
 				StopCloseReset();
@@ -537,6 +554,10 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 	}
 	//Change Textbubble - Single or Array
 	const ChangeCore = (setAlt) => {
+		if(!Active()){
+			console.log({core, npc, func: 'ChangeCore()', msg: 'Failed to find speech bubble'})
+			return;
+		}
 		if(core.type === 'core'){
 			if(Array.isArray(setAlt)){
 				for(let each in setAlt){
@@ -558,7 +579,12 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 	}
 	//Speaking Controls
 	const DisplaySpeech = ({role,speech}) => {
+		Kill();
 		KillBlink();
+		if(!Active()){
+			console.log({core, npc, func: 'DisplaySpeech()', msg: 'Failed to find speech bubble'})
+			return;
+		}
 		let startText = role + ' : ';
 		let currText = startText;
 		let currChar = 0;
@@ -604,7 +630,11 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 
 		AddToTimeIntEvtTracker({name: 'textDisplayInterval', type: 'interval', id: id});
 		auxl.intervals[id] = setInterval(() => {
-			//Interval Functions
+			if(!Active()){
+				Kill();
+				return;
+			}
+			//Next Character
 			if(currChar < speech.length){
 				currText += speech[currChar];
 				currChar++;
@@ -613,12 +643,9 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 				core.speaking = false;
 				if(core.type === 'core'){
 					core.GetEl().removeEventListener('skip',skipText);
-
 				} else {
-//Error
 					core.GetParentEl().removeEventListener('skip',skipText);
 				}
-				Kill();
 				if(core.blink){
 					core.blinkText0 = currText;
 					core.blinkText1 = currText;
@@ -630,6 +657,7 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 					core.blinkText1 += core.blinkNextText;
 					Blink();
 				}
+				Kill();
 			}
 			if(core.on){
 				if(core.type === 'core'){
@@ -644,9 +672,12 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 	const Blink = () => {
 		AddToTimeIntEvtTracker({name: 'blinkDisplayInterval', type: 'interval', id: id});
 		auxl.intervals[id+'blink'] = setInterval(() => {
+			if(!Active()){
+				KillBlink();
+				return;
+			}
 			if(core.blinking){
 				if(core.type === 'core'){
-//Error
 					core.GetEl().setAttribute('text',{value: core.blinkText1});
 				} else {
 					core.GetParentEl().setAttribute('text',{value: core.blinkText1});
@@ -656,8 +687,6 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 				if(core.type === 'core'){
 					core.GetEl().setAttribute('text',{value: core.blinkText0});
 				} else {
-//BUG - Issue here sometimes on idle speech
-//core.GetParentEl() is null
 					core.GetParentEl().setAttribute('text',{value: core.blinkText0});
 				}
 				core.blinking = true;
@@ -1260,8 +1289,8 @@ const InfoBubble = (auxl, id, object, offset, color) => {
 	id: bubbleId,
 	sources:false,
 	sounds: {
-	maximize:{src: auxl.maximize6, autoplay: true, loop: false, volume: 1,},
-	minimize:{src: auxl.minimize6, autoplay: false, loop: false, volume: 1, on: 'spawnOut'},
+	maximize:{src: auxl.maximize6, autoplay: true, loop: false, volume: 0.75,},
+	minimize:{src: auxl.minimize6, autoplay: false, loop: false, volume: 0.75, on: 'spawnOut'},
 	},
 	text: false,
 	geometry: {primitive: 'circle', radius: 0.3, segments: 32, thetaStart: 0, thetaLength: 360},

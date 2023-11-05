@@ -53,38 +53,46 @@ schema: {
 	cursorObj: {type: 'string', default: 'auxlObj'},
 	component: {type: 'string', default: 'null'},
 	method: {type: 'string', default: 'Click'},
-	params: {type: 'string', default: 'null'}
+	params: {type: 'string', default: 'null'},
+	delay: {type: 'number', default: 0},
 },
 init: function () {
 	//AUXL System Connection
 	this.auxl = document.querySelector('a-scene').systems.auxl;
 	this.domEnt;
 },
-events: {
-	click: function (evt) {
-		if(this.data.component === 'null'){
-			if(this.auxl[this.data.cursorObj][this.data.method]){
-				if(this.data.params === 'null'){
-					this.auxl[this.data.cursorObj][this.data.method]();
-				} else if(this.data.params === 'target'){
-					this.auxl[this.data.cursorObj][this.data.method](evt.target);
-				} else {
-					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
-				}
-			}
-		} else {
-			//object is a dom entity and the component is attached to that object and the func is in that component
-			if(document.getElementById(this.data.cursorObj)){
-				this.domEnt = document.getElementById(this.data.cursorObj);
-				if(this.data.params === 'null'){
-					this.domEnt.components[this.data.component][this.data.method]();
-				} else if(this.data.params === 'target'){
-					this.domEnt.components[this.data.component][this.data.method](evt.target);
-				} else {
-					this.domEnt.components[this.data.component][this.data.method](this.data.params);
-				}
+run: function(evt){
+	if(this.data.component === 'null'){
+		if(this.auxl[this.data.cursorObj][this.data.method]){
+			if(this.data.params === 'null'){
+				this.auxl[this.data.cursorObj][this.data.method]();
+			} else if(this.data.params === 'target'){
+				this.auxl[this.data.cursorObj][this.data.method](evt.target);
+			} else {
+				this.auxl[this.data.cursorObj][this.data.method](this.data.params);
 			}
 		}
+	} else {
+		//object is a dom entity and the component is attached to that object and the func is in that component
+		if(document.getElementById(this.data.cursorObj)){
+			this.domEnt = document.getElementById(this.data.cursorObj);
+			if(this.data.params === 'null'){
+				this.domEnt.components[this.data.component][this.data.method]();
+			} else if(this.data.params === 'target'){
+				this.domEnt.components[this.data.component][this.data.method](evt.target);
+			} else {
+				this.domEnt.components[this.data.component][this.data.method](this.data.params);
+			}
+		}
+	}
+},
+events: {
+	click: function (evt) {
+		//Set Timeout
+		this.timeout = setTimeout(() => {
+			this.run(evt);
+			clearTimeout(this.timeout);
+		}, this.data.delay);
 	}
 },
 });

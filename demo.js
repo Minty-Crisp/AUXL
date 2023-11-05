@@ -1504,7 +1504,6 @@ auxl.npcKeyBody = auxl.Core(auxl.npcKeyBodyData);
 auxl.npcKeyRigData = {
 	parent: {core: auxl.npcKeyParent}, 
 	child0: {core: auxl.npcKeyBody}, 
-
 }
 auxl.npcKeyRig = auxl.Layer('npcKeyRig',auxl.npcKeyRigData);
 //Book & Pages

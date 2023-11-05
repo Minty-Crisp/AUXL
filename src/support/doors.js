@@ -23,9 +23,6 @@ schema: {
     pos: {type: 'vec3'},
     twistTo: {type: 'boolean', default: false},
 	twist: {type: 'number', default: 0},
-
-
-
 	delay: {type: 'number', default: 0},
 },
 init: function () {

@@ -30,7 +30,7 @@ const auxl = document.querySelector('a-scene').systems.auxl;
 //Audio by White Noise Meditation | Loop by Minty Crisp
 auxl.weatherStormThunderLoop = './assets/audio/weather/thunder-loop.mp3';
 //Audio by https://freesound.org/people/parnellij/ 
-auxl.weatherStormLightningStrike = './assets/audio/weather/74892__parnellij__lightning-strike.wav';
+auxl.weatherStormLightningStrike = './assets/audio/weather/74892__parnellij__lightning-strike.mp3';
 
 //3D Assets
 //
@@ -336,6 +336,9 @@ sources: false,
 text: false,
 geometry: false,
 material: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", color: "#4bc166", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bc166", emissiveIntensity: 0.6},
+
 position: new THREE.Vector3(0,1.6,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -540,14 +543,10 @@ auxl.playerFloor = auxl.Core(auxl.playerFloorData);
 auxl.playerAudioData = {
 data:'playerAudioData',
 id:'playerAudio',
-sources: false,
 sounds:{
-	sound: {src: auxl.weatherStormThunderLoop, autoplay: true, loop: true, volume: 1,},
-	boltSound: {src: auxl.weatherStormLightningStrike, autoplay: false, loop: false, volume: 0.5, on: 'boltHit', poolSize: 2},
+	thunderstorm: {src: auxl.weatherStormThunderLoop, autoplay: false, loop: true, volume: 0.5, on: 'thunderstorm'},
+	boltsound: {src: auxl.weatherStormLightningStrike, autoplay: false, loop: false, volume: 0.35, on: 'boltHit', poolSize: 2},
 },
-text: false,
-geometry: false,
-material: false,
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -581,6 +580,10 @@ fadeoutquick:{property: 'components.material.material.opacity', from: 1, to: 0, 
 fadeinscene:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadeScene1'},
 
 fadeoutscene:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadeScene2'}, 
+
+fadein:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadein'},
+
+fadeout:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadeout'},
 
 },
 mixins: false,
@@ -724,7 +727,8 @@ child0: {
 		child0: {core: auxl.playerBeltText},
 	},
 },
-child1: {core: auxl.playerFloor},
+child1: {core: auxl.playerAudio},
+child2: {core: auxl.playerFloor},
 }
 
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it

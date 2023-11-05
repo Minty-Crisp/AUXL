@@ -231,7 +231,7 @@ const Core = (auxl, data) => {
 		}
 */
 		//Animations
-		if(core.animations){
+		if(core.hasOwnProperty('animations')){
 			let animationKeys = Object.keys(core.animations);
 			let animationValues = Object.values(core.animations);
 			for (let key in animationKeys) {
@@ -240,12 +240,12 @@ const Core = (auxl, data) => {
 				}
 			}
 		}
-		//Wait for Model to Load?
-		if(core.components['gltf-model'] || core.components['obj-model']){
-			load3D = true;
-		}
 		//Components with auxl.jsAll dynamic JS loading support
-		if(core.components){
+		if(core.hasOwnProperty('components')){
+			//Wait for Model to Load?
+			if(core.components['gltf-model'] || core.components['obj-model']){
+				load3D = true;
+			}
 			let componentKeys = Object.keys(core.components);
 			let componentValues = Object.values(core.components);
 			for (let key in componentKeys) {
@@ -375,10 +375,12 @@ const Core = (auxl, data) => {
 				core.el.removeEventListener('loaded', loaded);
 			}
 			//Remove all core.components to remove all event listeners before clearing from scene
-			let componentKeys = Object.keys(core.components);
-			for (let key in componentKeys) {
-				if(key === 0){} else {
-					GetEl().removeAttribute(componentKeys[key])
+			if(core.hasOwnProperty('components')){
+				let componentKeys = Object.keys(core.components);
+				for (let key in componentKeys) {
+					if(key === 0){} else {
+						GetEl().removeAttribute(componentKeys[key])
+					}
 				}
 			}
 			//Collision
@@ -1346,8 +1348,20 @@ const Core = (auxl, data) => {
 		}
 		GetEl().removeEventListener('click', openClose);
 	}
-
-	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, GetEl, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, ChangeCore, EnablePhysics, PhysPos, Animate, EmitEvent, SetFlag, GetFlag, DomClass, EnableDetail, DisableDetail};
+	//Change Material Src
+	const ChangeMatSrc = (src) => {
+		if(core.inScene){
+			if(auxl.loadingScene){
+				if(loadNewMat){}else{
+					loadNewMat = true;
+					loading();
+					core.el.addEventListener('loaded', loaded);
+				}
+			}
+			GetEl().setAttribute('material', {src});
+		}
+	}
+	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, GetEl, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, ChangeCore, EnablePhysics, PhysPos, Animate, EmitEvent, SetFlag, GetFlag, DomClass, EnableDetail, DisableDetail, ChangeMatSrc};
 }
 //
 //Generate new Core Data from Template
@@ -2140,17 +2154,17 @@ const Layer = (auxl, id, data, update) => {
 		}
 	}
 	//Change Parent Element - Single or Array
-	const ChangeParent = (propertyValue) => {
+	const ChangeParent = (propertyValue, update) => {
 		if(Array.isArray(propertyValue)){
 			for(let each in propertyValue){
-				layer.all.parent.core.ChangeSelf(propertyValue[each]);
+				layer.all.parent.core.ChangeSelf(propertyValue[each], update);
 			}
 		} else {
-			layer.all.parent.core.ChangeSelf(propertyValue);
+			layer.all.parent.core.ChangeSelf(propertyValue, update);
 		}
 	}
 	//Change Child Element - Single or Array
-	const ChangeChild = (child, propertyValue) => {
+	const ChangeChild = (child, propertyValue, update) => {
 		let childCore = GetChild(child);
 		if(Array.isArray(propertyValue)){
 			for(let each in propertyValue){
@@ -2161,19 +2175,19 @@ const Layer = (auxl, id, data, update) => {
 		}
 	}
 	//Change All Elements - Single or Array
-	const ChangeAll = (propertyValue) => {
+	const ChangeAll = (propertyValue, update) => {
 		if(Array.isArray(propertyValue)){
 			for(let each in propertyValue){
 				for(let section of accessOrder){
 					for(let indv of section){
-						indv.ChangeSelf(propertyValue[each]);
+						indv.ChangeSelf(propertyValue[each], update);
 					}
 				}
 			}
 		} else {
 			for(let section of accessOrder){
 				for(let indv of section){
-					indv.ChangeSelf(propertyValue);
+					indv.ChangeSelf(propertyValue, update);
 				}
 			}
 		}

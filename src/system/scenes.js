@@ -284,14 +284,14 @@ if(auxl[auxl.running[ran].name].GetEl){
 			} else if(time === 'interaction'){
 				for(let a in core[time][line]){
 					for(let b in core[time][line][a]){
-						let object;
-						let method;
-						let params;
-						let relay;
+						//let object;
+						//let method;
+						//let params;
+						//let relay;
 						if(b === 'IfElse'){
 							for(let c in core[time][line][a][b]){
-								object = a;
-								params = core[time][line][a][b][c];
+								let object = a;
+								let params = core[time][line][a][b][c];
 
 								AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
 								if(auxl[object].GetEl){
@@ -306,8 +306,8 @@ if(auxl[auxl.running[ran].name].GetEl){
 							}
 						} else if(b === 'Switch'){
 							for(let c in core[time][line][a][b]){
-								object = a;
-								params = core[time][line][a][b][c];
+								let object = a;
+								let params = core[time][line][a][b][c];
 								AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
 								if(auxl[object].GetEl){
 									auxl[object].GetEl().addEventListener(line, function(){
@@ -320,28 +320,29 @@ if(auxl[auxl.running[ran].name].GetEl){
 								}
 							}
 						} else if(b === 'relay'){
-							for(let c in core[time][line][a][b]){
-								for(let d in core[time][line][a][b][c]){
-									object = a;
-									relay = c;
-									method = d;
-									params = core[time][line][a][b][c][d];
-									AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
-									if(auxl[object].GetEl){
-										auxl[object].GetEl().addEventListener(line, function(){
-											auxlObjMethod(relay,method,params);
-										});
-									} else if(auxl[object].GetParentEl){
-										auxl[object].GetParentEl().addEventListener(line, function(){
-											auxlObjMethod(relay,method,params);
-										});
-									}
-								}
-							}
+for(let c in core[time][line][a][b]){
+	for(let d in core[time][line][a][b][c]){
+		let object = a;
+		let relay = c;
+		let method = d;
+		let params = core[time][line][a][b][c][d];
+		AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
+		if(auxl[object].GetEl){
+			auxl[object].GetEl().addEventListener(line, function(){
+				auxlObjMethod(relay,method,params);
+console.log({object, relay, method, params})
+			});
+		} else if(auxl[object].GetParentEl){
+			auxl[object].GetParentEl().addEventListener(line, function(){
+				auxlObjMethod(relay,method,params);
+			});
+		}
+	}
+}
 						} else {
-							object = a;
-							method = b;
-							params = core[time][line][a][b];
+							let object = a;
+							let method = b;
+							let params = core[time][line][a][b];
 							AddToTimeIntEvtTracker({name: object, type: 'interaction', id: a, method, params, event: line});
 							if(auxl[object].GetEl){
 								auxl[object].GetEl().addEventListener(line, function(){
@@ -1004,6 +1005,15 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		auxl.player.EmitEvent('zoneExit', true);
 		core.zoneLoaded = false;
 	}
+	//Zone Music
+	const ZoneMusic = () => {
+		if(auxl.audioEnabled && auxl.backgroundAudio && !auxl.isFalsey(core.info.backgroundAudio)){
+			//core.info.backgroundAudio
+			auxl.currentWorld.MusicPlaylist(core.info.backgroundAudio);
+		} else if(core.info.backgroundAudio === 'none'){
+			auxl.currentWorld.MusicPlaylist(false);
+		}
+	}
 	//MapZone Start
 	const StartZone = () => {
 		Start();
@@ -1012,6 +1022,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		Event();
 		Interaction();
 		AddControls();
+		ZoneMusic();
 	}
 	//Start NodeScene within MapZone
 	const StartScene = (nodeName) => {
@@ -1701,6 +1712,8 @@ const World = (auxl, worldData) => {
 	world.current = 0;
 	world.loaded = false;
 	world.scenarioLoaded = false;
+	world.soundtrack = false;
+	world.soundtracks = false;
 
 	//Set World as Default
 	const SetAsDefault = () => {
@@ -1770,11 +1783,11 @@ const World = (auxl, worldData) => {
 		}
 		//Background Audio
 		if(world.data.info.backgroundAudio){
-			if(!auxl.playerAudio.core.sounds){
-				auxl.playerAudio.core.sounds = {};
+			world.soundtracks = JSON.parse(JSON.stringify(world.data.info.backgroundAudio));
+			for(let each in world.soundtracks){
+				//auxl.playerAudio.ChangeSelf({property: 'auxauxsound__'+each, value: world.soundtracks[each]})
+				auxl.playerAudio.ChangeSelf({property: 'auxsound__'+each, value: world.soundtracks[each]})
 			}
-			auxl.playerAudio.core.sounds.background = {src: world.data.info.backgroundAudio, autoplay: true, loop: true, volume: 1,};
-			auxl.playerAudio.SpawnCore(auxl.playerRig);
 			auxl.backgroundAudio = true;
 		}
 		//Companion Book Update
@@ -1806,7 +1819,25 @@ const World = (auxl, worldData) => {
 		StartScenario(world.current);
 	}
 
-	return {world, SetAsDefault, StartWorld, StopWorld, StartScenario, ClearScenario, NextScenario, LoadScenario}
+	//Music Playlist
+	const MusicPlaylist = (track) => {
+		//Stop current
+		if(world.soundtrack){
+			auxl.playerAudio.GetEl().components['auxsound__'+world.soundtrack].stopSound();
+			world.soundtrack = false;
+		}
+		if(!auxl.isFalsey(track)){
+			//Play new if exists
+			if(world.soundtracks.hasOwnProperty(track)){
+				auxl.playerAudio.EmitEvent(track);
+				world.soundtrack = track;
+			} else {
+				console.log({world, track, msg: 'Unable to find track'})
+			}
+		}
+	}
+
+	return {world, SetAsDefault, StartWorld, StopWorld, StartScenario, ClearScenario, NextScenario, LoadScenario, MusicPlaylist}
 }
 
 //

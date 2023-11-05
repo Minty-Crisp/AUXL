@@ -15,10 +15,16 @@
 //Add Rain to the Scene
 const rain = AFRAME.registerComponent('rain', {
     schema: {
-        density: {type: 'number', default: 60},
+        density: {type: 'number', default: 30},
     },
     init: function () {
-        //Do something when component first attached.
+		this.auxl = document.querySelector('a-scene').systems.auxl;
+		//Audio
+		if(this.auxl.audioEnabled){
+        	this.playerAudio = document.querySelector('#playerAudio');
+			this.playerAudio.emit('thunderstorm', {bubbles: false});
+		}
+
         //Create Rain Entities
         let sceneEl = document.querySelector('a-scene'); 
         //Create rain Parent Entity to hold all
@@ -147,6 +153,9 @@ const rain = AFRAME.registerComponent('rain', {
 		let parentEl = document.getElementById(this.parentId);
 		//Remove All Particles
 		sceneEl.removeChild(parentEl);
+		if(this.auxl.audioEnabled && this.playerAudio.components.sound__thunderstorm){
+			this.playerAudio.components.sound__thunderstorm.stopSound();
+		}
 	},
 });//rain component
 //
@@ -222,6 +231,7 @@ const raindrop = AFRAME.registerComponent('raindrop', {
         }, randomDelay + randomDur);
     },
 	remove: function(){
+		//stop audio
 		clearTimeout(this.splashTimeout)
 	},
 });
@@ -244,7 +254,7 @@ const lightningbolt = AFRAME.registerComponent('lightningbolt', {
         //Time in between lightning strikes
         let intervalTime = Math.floor((Math.random() * 5000) + 15000 ); // 15 - 20 senconds
         //Test Logging
-        console.log("Bolt Interval Time: " + intervalTime);
+        //console.log("Bolt Interval Time: " + intervalTime);
         //Lightning bolt Parent wrapper
         let bolt = document.createElement('a-entity');
         bolt.setAttribute('position', {x:'0' , y: '0', z: '0'});

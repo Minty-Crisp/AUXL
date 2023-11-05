@@ -269,6 +269,7 @@ this.el.body.collisionResponse = false;
 
 },
 run: function (e) {
+console.log(this)
 	if(this.data.component === 'null'){
 		if(this.auxl[this.data.cursorObj][this.data.method]){
 			if(this.data.params === 'null'){
@@ -295,24 +296,25 @@ run: function (e) {
 },
 events: {
 	collide: function (e) {
-		console.log('This has collided with body #' + e.detail.body.id);
-		this.run(e)
+		//console.log('This has collided with body #' + e.detail.body.id);
+		this.run(e);
 	}
 },
 
 
 checkTrigger: function () {
 	if(this.el.body.aabb.overlaps(this.playerEl.body.aabb)){
-		console.log('overlap')
+		//console.log('overlap')
 	}
 	if(this.el.body.aabb.contains(this.playerEl.body.aabb)){
-		console.log('contains')
+		//console.log('contains')
 	}
 },
+/*
 tick: function (time, timeDelta) {
 	this.checkTriggerThrottled();
 },
-
+*/
 });
 
 //Body Material
@@ -728,26 +730,30 @@ update: function () {
 		this.gravityObject = false;
 	}
 },
-//Any Axis Gravity Direction
-gravityObjectAxis: function () {
-	//Get the planet/masses center position & player position
-	//Calc the difference between the two and normalize
-	if(this.gravityObject.y === 0.314){
-		if(document.getElementById( this.gravityObject)){
-			this.centerOfGravity.copy(document.getElementById( this.gravityObject).getAttribute('position'));
-		}
-	}
-	this.gravityDirAdjust.copy(this.centerOfGravity)
-	this.gravityDirAdjust.sub(this.playerPosition)
-	this.gravityDirAdjust.normalize();
-	//Rotate Self
-	this.gravityQuat = new THREE.Quaternion();
-	this.gravityQuat.setFromUnitVectors(new THREE.Vector3(0,-1,0), this.gravityDirAdjust);
-	//Update Gravity Axis
-	this.axis.copy(this.gravityDirAdjust)
-	//Update Self Axis Rotation to Match
-	this.el.body.quaternion.copy(this.gravityQuat);
-	this.el.object3D.quaternion.copy(this.gravityQuat);
+//Cycle through all axis locally
+setAxis: function (axis) {
+if(!this.localAxisChange){
+	this.localAxisChange = true;
+	this.axis = this.allGravityDirection[axis];
+	this.axisTimeout1 = setTimeout(() => {
+		this.el.body.sleep();
+		this.newPosition = new THREE.Vector3();
+		this.newPosition.copy(this.axis).add(this.el.body.position);
+		this.el.object3D.position.copy(this.newPosition)
+		this.el.body.position.copy(this.newPosition)
+		this.axisDir = axis;
+		this.el.body.quaternion.copy( this.allGravityRotation[this.axisDir])
+		this.el.object3D.quaternion.copy( this.allGravityRotation[this.axisDir])
+		this.axisTimeout2 = setTimeout(() => {
+			this.el.body.wakeUp();
+			this.localAxisChange = false;
+			clearTimeout(this.axisTimeout1);
+			clearTimeout(this.axisTimeout2);
+		}, 275);
+	}, 225);
+	this.auxl.player.PlayerQuickAnim();
+	this.auxl.player.Notification({message:'Local Axis Update', time: 2750});
+}
 },
 //Cycle through all axis locally
 cycleAxis: function () {
@@ -805,7 +811,37 @@ randomAxis: function () {
 	//}, 425);
 	this.auxl.player.PlayerQuickAnim();
 	this.auxl.player.Notification({message:'Local Axis Update', time: 2750});
-console.log({Local: this.axis})
+//console.log({Local: this.axis})
+},
+//Any Axis Gravity Direction
+gravityObjectAxis: function () {
+	//Get the planet/masses center position & player position
+	//Calc the difference between the two and normalize
+	if(this.gravityObject.y === 0.314){
+		if(document.getElementById( this.gravityObject)){
+			this.centerOfGravity.copy(document.getElementById( this.gravityObject).getAttribute('position'));
+		}
+	}
+	this.gravityDirAdjust.copy(this.centerOfGravity)
+	this.gravityDirAdjust.sub(this.playerPosition)
+	this.gravityDirAdjust.normalize();
+	//Rotate Self
+	this.gravityQuat = new THREE.Quaternion();
+	this.gravityQuat.setFromUnitVectors(new THREE.Vector3(0,-1,0), this.gravityDirAdjust);
+	//Update Gravity Axis
+	this.axis.copy(this.gravityDirAdjust)
+	//Update Self Axis Rotation to Match
+	this.el.body.quaternion.copy(this.gravityQuat);
+	this.el.object3D.quaternion.copy(this.gravityQuat);
+},
+//Set World Axis
+setWorldAxis: function (axis) {
+	//Update World Gravity
+	this.worldAxis.copy(this.allGravityDirection[axis]);
+	this.worldAxis.multiplyScalar(this.allGravityTypes[this.worldType])
+	this.el.body.world.gravity.copy(this.worldAxis)
+	this.auxl.player.Notification({message:'World Axis Update', time: 2750});
+//console.log({World: this.worldAxis})
 },
 //Cycle through all axis globaly
 cycleWorldAxis: function () {
@@ -818,7 +854,40 @@ cycleWorldAxis: function () {
 	this.worldAxis.multiplyScalar(this.allGravityTypes[this.worldType])
 	this.el.body.world.gravity.copy(this.worldAxis)
 	this.auxl.player.Notification({message:'World Axis Update', time: 2750});
-console.log({World: this.worldAxis})
+//console.log({World: this.worldAxis})
+},
+//Set Local
+setTypes: function (type) {
+	this.type = Object.keys(this.allGravityTypes)[type]
+	this.auxl.player.Notification({message:'Local Gravity : ' + this.type, time: 2000});
+//console.log(this.type)
+},
+//Cycle through all types locally
+cycleTypes: function () {
+	this.typeCycleCount++;
+	if(this.typeCycleCount >= Object.keys(this.allGravityTypes).length){
+		this.typeCycleCount = 0;
+	}
+	this.type = Object.keys(this.allGravityTypes)[this.typeCycleCount]
+	this.auxl.player.Notification({message:'Local Gravity : ' + this.type, time: 2000});
+//console.log(this.type)
+},
+//Randomly choose any type
+randomTypes: function () {
+	this.typeCycleCount = Math.floor(Math.random()*Object.keys(this.allGravityTypes).length)
+	this.type = Object.keys(this.allGravityTypes)[this.typeCycleCount]
+	this.auxl.player.Notification({message:'Local Gravity : ' + this.type, time: 2000});
+console.log(this.type)
+},
+//Cycle through all types globaly
+setWorldTypes: function (type) {
+	this.worldType = Object.keys(this.allGravityTypes)[type];
+	//Update World Gravity
+	this.worldAxis.copy(this.allGravityDirection[this.worldAxisCycleCount]);
+	this.worldAxis.multiplyScalar(this.allGravityTypes[this.worldType])
+	this.el.body.world.gravity.copy(this.worldAxis)
+	this.auxl.player.Notification({message:'World Gravity : ' + this.worldType, time: 2000});
+//console.log(this.worldType)
 },
 //Cycle through all types globaly
 cycleWorldTypes: function () {
@@ -832,24 +901,7 @@ cycleWorldTypes: function () {
 	this.worldAxis.multiplyScalar(this.allGravityTypes[this.worldType])
 	this.el.body.world.gravity.copy(this.worldAxis)
 	this.auxl.player.Notification({message:'World Gravity : ' + this.worldType, time: 2000});
-console.log(this.worldType)
-},
-//Cycle through all types locally
-cycleTypes: function () {
-	this.typeCycleCount++;
-	if(this.typeCycleCount >= Object.keys(this.allGravityTypes).length){
-		this.typeCycleCount = 0;
-	}
-	this.type = Object.keys(this.allGravityTypes)[this.typeCycleCount]
-	this.auxl.player.Notification({message:'Local Gravity : ' + this.type, time: 2000});
-console.log(this.type)
-},
-//Randomly choose any type
-randomTypes: function () {
-	this.typeCycleCount = Math.floor(Math.random()*Object.keys(this.allGravityTypes).length)
-	this.type = Object.keys(this.allGravityTypes)[this.typeCycleCount]
-	this.auxl.player.Notification({message:'Local Gravity : ' + this.type, time: 2000});
-console.log(this.type)
+//console.log(this.worldType)
 },
 //Clears all current system forces
 clearForces: function () {
@@ -1021,6 +1073,7 @@ if (currentPositionAlongGravity > previousPositionAlongGravity) {
 //console.log(this.planetGravity)
 }
 },
+//World Gravity Offset for Local
 offsetWorldGravity: function() {
 	//Reset Offset
 	this.worldGravityOffset = new THREE.Vector3();
@@ -1033,6 +1086,7 @@ offsetWorldGravity: function() {
 		this.el.body.applyForce(this.worldGravityOffset, this.el.body.position);
 	}
 },
+//Tick
 tick: function (time, timeDelta) {
 	if(this.gravityObject){
 		this.gravityObjectAxis();

@@ -137,7 +137,11 @@ this.systemLoaded = (reset) => {
 const SystemStart = () => {
 	//Init Collision
 	auxl.map = auxl.Collision();
-
+	//System Info
+	console.log({
+		timeSince: this.local.profile.time.span,
+		loadedProfile: auxl.local,
+	})
 }
 //Apply System Settings
 const ApplySettings = () => {
@@ -287,15 +291,16 @@ const newStorage = () => {
 //Load
 const loadStorage = () => {
 	//Return Session, Load Site Wide Settings
-	console.log('Loading previous data.');
+	//console.log('Loading previous data.');
+	console.log('Welcome Back! ^-^');
 	//Overwrite default profile
 	this.local = JSON.parse(window.localStorage.getItem(this.save));
 	ApplySettings();
 	this.local.profile.time.return = this.Time();
 
 	this.local.profile.time.span = this.TimeDif(this.local.profile.time.lastVisit, this.local.profile.time.return);
-	console.log('Time since last visit :');
-	console.log(this.local.profile.time.span);
+	//console.log('Time since last visit :');
+	//console.log(this.local.profile.time.span);
 	//Update new Last Visit Data
 	this.local.profile.time.lastVisit = this.local.profile.time.return;
 	//Flag that we are loading data
@@ -360,7 +365,7 @@ this.saveToProfile = (sync) => {
 }
 //Update from Local
 const UpdateFromLocal = () => {
-	console.log(auxl.local)
+	//console.log(auxl.local)
 	for(let each in auxl.local){
 		if(each === 'profile' || each === 'location'){} else {
 			for(let type in auxl.local[each]){
@@ -463,7 +468,7 @@ this.directionType = 'camera';
 this.locomotionText = 'WASD Keys';
 
 //Joystick Configurations : 1,4,8
-this.joystickLoco = 8;
+this.joystickLoco = 4;
 this.joystickRot = 8;
 this.controlsInfo = {};
 this.controlsText = '';
@@ -619,6 +624,10 @@ this.events = {};
 //Environmental Settings
 //Day|Night Time Length
 this.timeInDay = 360000;
+//Update Day Length
+this.TimeInDayUpdate = () => {
+
+}
 //Physics
 this.worldPhysics = false;
 //EnablePhysics
@@ -1072,6 +1081,25 @@ function changeLocoDirection(){
 }
 vrLocomotionType.addEventListener('click', changeLocoDirection);
 
+//Add System Sounds
+function addSystemAudio(){
+	let sound;
+	for(let each in auxl.playerAudioData.sounds){
+		sound = JSON.parse(JSON.stringify(auxl.playerAudioData.sounds[each]));
+		if(!sound.volume){
+			sound.volume = 1;
+		}
+		sound.volume *= auxl.volume;
+		auxl.playerAudio.ChangeSelf({property: 'auxsound__'+each, value: auxl.playerAudioData.sounds[each]})
+	}
+}
+//Remove System Sounds
+function removeSystemAudio(){
+	for(let each in auxl.playerAudioData.sounds){
+		auxl.playerAudio.removeComponent('auxsound__'+each)
+	}
+}
+
 //
 //Toggle Audio
 function toggleAudio(){
@@ -1079,11 +1107,13 @@ function toggleAudio(){
 		auxl.audioEnabled = false;
 		audioVolume.style.display = 'none';
 		audioButton.innerHTML = 'Sound : Disabled';
+		removeSystemAudio();
 	} else {
 		auxl.audioEnabled = true;
 		audioButton.innerHTML = 'Sound : Enabled';
 		audioVolume.style.display = 'flex';
 		volume.innerHTML = auxl.volume.toFixed(1);
+		addSystemAudio();
 	}
 }
 audioButton.addEventListener('click', toggleAudio);
@@ -1121,12 +1151,24 @@ volDownButton.addEventListener('click', audioDown);
 
 //
 //Toggle Background Audio
-this.ToggleBackgroundAudio = () => {
+this.ToggleBackgroundAudio = (track) => {
 	auxl.backgroundAudio = !auxl.backgroundAudio;
 	if(auxl.backgroundAudio){
-		auxl.playerAudio.SpawnCore(auxl.playerRig);
+		if(!auxl.isFalsey(track)){
+			auxl.currentWorld.MusicPlaylist(track);
+		} else {
+			//XRcade Temp
+			if(['entranceZone', 'xrcadeZone'].includes(auxl.currentZone)){
+				auxl.currentWorld.MusicPlaylist('town3');
+			} else {
+				auxl.currentWorld.MusicPlaylist('spookymusic1');
+			}
+			//Check for scene default first, then zone, then scenario, then world.
+			//World Default
+			//auxl.currentWorld.MusicPlaylist(Object.keys(auxl.currentWorld.world.soundtracks)[0]);
+		}
 	} else {
-		auxl.playerAudio.DespawnCore();
+		auxl.currentWorld.MusicPlaylist(false);
 	}
 }
 
@@ -1198,6 +1240,23 @@ this.ToggleHTML = (id, display) => {
 
 //
 //Support
+
+//
+//Misc
+
+this.isFalsey = (value) => {
+  if (
+    value === null ||
+    value === undefined ||
+    //value === 0 ||
+    value === false ||
+    value === NaN ||
+    value === ""
+  ) {
+    return true;
+  }
+  return false;
+};
 
 //
 //Links

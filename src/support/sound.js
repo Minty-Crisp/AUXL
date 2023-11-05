@@ -7,6 +7,8 @@ const auxsound = AFRAME.registerComponent('auxsound', {
     autoplay: {default: false},
     distanceModel: {default: 'inverse', oneOf: ['linear', 'inverse', 'exponential']},
     loop: {default: false},
+    loopStart: {default: 0},
+    loopEnd: {default: 0},
     maxDistance: {default: 10000},
     on: {default: ''},
     poolSize: {default: 1},
@@ -53,6 +55,15 @@ const auxsound = AFRAME.registerComponent('auxsound', {
         sound.setRolloffFactor(data.rolloffFactor);
       }
       sound.setLoop(data.loop);
+      sound.setLoopStart(data.loopStart);
+
+      // With a loop start specified without a specified loop end, the end of the loop should be the end of the file
+      if (data.loopStart !== 0 && data.loopEnd === 0) {
+        sound.setLoopEnd(sound.buffer.duration);
+      } else {
+        sound.setLoopEnd(data.loopEnd);
+      }
+
       sound.setVolume(data.volume);
       sound.isPaused = false;
     }
@@ -75,7 +86,7 @@ const auxsound = AFRAME.registerComponent('auxsound', {
 
         // Remove this key from cache, otherwise we can't play it again
         THREE.Cache.remove(data.src);
-        if (self.data.autoplay || self.mustPlay) { self.playSound(); }
+        if (self.data.autoplay || self.mustPlay) { self.playSound(self.processSound); }
         self.el.emit('sound-loaded', self.evtDetail, false);
       });
     }
@@ -203,6 +214,7 @@ const auxsound = AFRAME.registerComponent('auxsound', {
     if (!this.loaded) {
       //warn('Sound not loaded yet. It will be played once it finished loading');
       this.mustPlay = true;
+      this.processSound = processSound;
       return;
     }
 
@@ -225,6 +237,7 @@ const auxsound = AFRAME.registerComponent('auxsound', {
     }
 
     this.mustPlay = false;
+    this.processSound = undefined;
   },
 
   /**

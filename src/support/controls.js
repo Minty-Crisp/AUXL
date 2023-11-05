@@ -1053,6 +1053,7 @@ direction: function (e){
 	} else if(e.detail.direction === 'forwardRelease'){
 		this.locomotion.cancelForward();
 	} else if(e.detail.direction === 'leftHit'){
+
 		this.locomotion.movingLeft();
 	} else if(e.detail.direction === 'leftRelease'){
 		this.locomotion.cancelLeft();
@@ -1061,6 +1062,7 @@ direction: function (e){
 	} else if(e.detail.direction === 'backwardRelease'){
 		this.locomotion.cancelReverse();
 	} else if(e.detail.direction === 'rightHit'){
+
 		this.locomotion.movingRight();
 	} else if(e.detail.direction === 'rightRelease'){
 		this.locomotion.cancelRight();
@@ -1434,6 +1436,8 @@ questJoystick8Locomotion: function (e){
 		this.locomotion.clearMovement();
 		//this.updateInput('Locomotion Clear');
 	} else if(this.yNumLoco > this.deadzoneLoco || this.yNumLoco < this.deadzoneLoco*-1 || this.xNumLoco < this.deadzoneLoco*-1 || this.xNumLoco > this.deadzoneLoco) {
+		//Testing Joystick Tweak
+		this.locomotion.clearMovement();
 		if(this.angleDegLoco > -22.5 && this.angleDegLoco < 22.5){
 			//Backward : -22.5 -> 22.5
 			//this.locomotion.clearMovement();
@@ -1613,22 +1617,22 @@ questJoystick4Other: function (e){
 	} else if(this.yNumOther > this.deadzoneOther || this.yNumOther < this.deadzoneOther*-1 || this.xNumOther < this.deadzoneOther*-1 || this.xNumOther > this.deadzoneOther) {
 		if(this.angleDegOther > -45 && this.angleDegOther < 45){
 			//Backward : -45 -> 45
-			//this.updateInput('Duck');
-			this.action5Down();
+			//this.updateInput('Stand');
+			this.action6Down();
 		} else if(this.angleDegOther > 45 && this.angleDegOther < 135){
 			//Right : 45 -> 135
 			//this.updateInput('Rotate Right');
 			//this.snapRightHit();
-			this.action7Down();
+			this.action8Down();
 		} else if(this.angleDegOther > 135 || this.angleDegOther < -135){
 			//Forward : 135 -> 180 or -135 -> -180
-			//this.updateInput('Stand');
-			this.action6Down();
+			//this.updateInput('Duck');
+			this.action5Down();
 		} else if(this.angleDegOther < -45 && this.angleDegOther > -135){
 			//Left : -45 -> -135
 			//this.updateInput('Rotate Left');
 			//this.snapLeftHit();
-			this.action8Down();
+			this.action7Down();
 		}
 	} else {
 		//this.updateInput('Rotation|Duck Clear');

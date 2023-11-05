@@ -762,20 +762,22 @@ const MultiAssetGen = (auxl, multiGenData) => {
 	multiGen.ring4 = [];
 	multiGen.ring5 = [];
 	//Multi Ring Inner/Outer Radius'
-	multiGen.ring = {
-		i0:5,
-		o0:20,
-		i1:15,
-		o1:40,
-		i2:30,
-		o2:60,
-		i3:60,
-		o3:100,
-		i4:80,
-		o4:150,
-		i5:100,
-		o5:200,
-	};
+	if(!multiGenData.hasOwnProperty('ring')){
+		multiGen.ring = {
+			i0:5,
+			o0:20,
+			i1:15,
+			o1:40,
+			i2:30,
+			o2:60,
+			i3:60,
+			o3:100,
+			i4:80,
+			o4:150,
+			i5:100,
+			o5:200,
+		};
+	}
 /*
 	multiGen.ring = {
 		i0:0.5,

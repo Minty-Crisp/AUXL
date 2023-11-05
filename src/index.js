@@ -20,7 +20,7 @@ import {locomotion, teleportation, raycastTeleport, raycastTeleportSelect, telep
 import {clickfunc, clickrun, clickrunfunc, fusingrun, mousedownrun, mouseenterrun, mouseleaverun, mouseuprun, menurun, hoverrun, onspawnrun, onspawnfunc, ondespawnrun, oneventrun, ondelayrun, onintervalrun} from './support/run.js';
 //
 //Misc
-import {syncPos, syncRot, lookAtXYZ, stare, hovertext} from './support/misc.js';
+import {syncPos, syncRot, lookAtXYZ, stare, cameraForward, hovertext} from './support/misc.js';
 //
 //Material
 import {gltfmat, modifyMaterials} from './support/material.js';
@@ -51,6 +51,9 @@ import auxlthirdparty from './external/other.js';
 //
 //Three Grad Shader
 import threeColorGradientShader from './external/threeGradShader.js';
+//
+//Animation Mixed
+import animMixer from './external/animation-mixer.js';
 
 //
 //Load
