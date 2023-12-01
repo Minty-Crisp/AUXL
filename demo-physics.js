@@ -15,25 +15,6 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
-
-//Testing
-auxl.testing1Data = {
-data:'testing1Data',
-id:'testing1',
-sources: false,
-text: {value:'Direction', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
-geometry: {primitive: 'plane', width: 4, height: 2},
-material: {shader: "standard", color: "#39a55a", emissive: '#39a55a', emissiveIntensity: 0.25, opacity: 1, side: 'double'},
-position: new THREE.Vector3(0,15,-5),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations:false,
-mixins: false,
-classes: ['a-ent'],
-components: false,
-};
-auxl.testing1 = auxl.Core(auxl.testing1Data);
-
 //
 //Library
 
@@ -3893,7 +3874,6 @@ auxl.v03PhysTestingScenarioData = {
 	start:{
 		comp:{SpawnComp: null},
 		cloud:{SpawnCore: null},
-		testing1:{SpawnCore: null},
 		skyBox1:{SpawnSkyBox: null},
 		//handsTesting0:{SpawnCore: null},
 		//hills:{SpawnHorizon: null},
