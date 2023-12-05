@@ -2,7 +2,19 @@
 
 ## Web XR World, System, Object Generator Engine & Universal Controller
 
-[View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
+- - -
+### ! Development of AUXL is on Hiatus !
+Dear WebXR A-Frame community,
+
+I want to express my gratitude for the support you've shown for AUXL (A-Frame UX Library). As of 12/05/2023, I regret to inform you that due to budget constraints, the active development of this project is currently on hold. However, I remain optimistic about its future.
+
+With continued public interest and potential funding, I am eager to revive and enhance AUXL. If you or your organization are passionate about advancing this technology, I invite you to reach out to me at minty-crisp@protonmail.com to discuss potential collaborations and future development opportunities.
+
+Thank you for your understanding and support.
+
+Minty Crisp [Justin Ekema]
+https://mintycrisp.com
+- - -
 
 [Launch v0.3 Physics Testing Demo Integration](https://minty-crisp.github.io/AUXL/physics.html)
 
@@ -20,13 +32,15 @@
 [Launch Minty's XRcade](https://mintyxr.com)
 
 ### v0.3 Wiki Update and Starter Coming Soon!!!
+[View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
+
 Learn how to build your first v0.2 AUXL Scenario with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
 
-AUXL Summary : :star2:
+AUXL Summary :star2:
 ---
 AUXL is a javascript engine built to streamline and unify the creation of Web XR experiences based on [A-Frame](https://github.com/aframevr/) & [Three.js](https://threejs.org/). It provides a variety of critical system, object, scene and scenario building tools that allows the user to create XR experiences as if they were making classic 2D HTML websites or game worlds. The types of website styles that can be built with are as endless as the web itself. Anything like a portfolio, gallery, blog, virtual tour, visual novel, video game and more. I envision the system to be a combination of tools like Wordpress and Unity with a long term plan to create 2D/3D admin panel like generation tools to open access to all users in creating their own personal XR content. It is being released under the GPL 3.0 license for all to use and hopefully will help with the adoption of the Web XR ecosystem.
 
-AUXL is built to accomplish a few main goals : :hearts:
+AUXL is built to accomplish a few main goals :hearts:
 ---
 - Dynamic Experiences : Swap through World experiences in a single browser session that each have their own set of Scenario defined builds and navigatable Zone maps of Scenes.
 - System Support : XR profile data with Save/Load/Reset as well as various internal functions and components to add all sorts of functionality to the experience.
@@ -35,7 +49,7 @@ AUXL is built to accomplish a few main goals : :hearts:
 
 [Read more about the System Overview in the Wiki](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
 
-Control Configurations : :eyes:
+Control Configurations :eyes:
 ---
 - Raycaster Interaction : (Complete)
 - Physics Interaction : (In-Progress)
@@ -50,7 +64,7 @@ Control Configurations : :eyes:
 
 [Read more about the controls in the Wiki](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
 
-A few cool features of AUXL to highlight : :first_quarter_moon_with_face:
+A few cool features of AUXL to highlight :first_quarter_moon_with_face:
 ---
 - Reusable & remixable data to build more with less.
 - Generate various types of in-scene entities all with an abundant amount of customizations and controls.
@@ -68,7 +82,7 @@ A few cool features of AUXL to highlight : :first_quarter_moon_with_face:
 
 Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki) to Learn More!!!
 ---
-# v0.3 Brief Overview of Major Updates So Far : :fire:
+# v0.3 Brief Overview of Major Updates So Far :fire:
 ## Highlights
 
 
@@ -182,7 +196,7 @@ Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
 - raycast-teleportation-select : spawn a teleport select button on click.
 - teleportation-to : Use specific XYZ coords to move the player to on specified event such as click object.
 
-# A Few Misc Updates : :zap:
+# A Few Misc Updates :zap:
 - Max scene load time setting for max time under transition animation while assets load in-between scenes.
 - Event and Interaction Instructions now support a relay which links a different auxlObject and methods to run on defined object's event/interaction.
 - Added Save/Load/Reset system to store profile, date/time/visit, location, support of auxl object flags and more.
