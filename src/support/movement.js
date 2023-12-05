@@ -1040,7 +1040,6 @@ movement: function (){
 		}
 	}
 },
-
 //2D Plane Locomotion
 plane2D: function (axis, action, speed) {
 	this.allow = false;
@@ -1251,7 +1250,6 @@ plane2D: function (axis, action, speed) {
 
 	return this.positionNew;
 },
-
 //1st POV Walk along XZ Floor relative to Direction View
 directionXZ: function (action, speed) {
 	this.allow = false;

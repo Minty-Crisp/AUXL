@@ -1462,16 +1462,17 @@ const Player = (auxl, id, layer, data) => {
 		let rayQuat = new THREE.Quaternion();
 		let spawnDistance = dist || 1.5;
 		let direction = dir || new THREE.Vector3(0,0,-1);
+		if (rayEl.id === 'vrController1' || rayEl.id === 'vrController2'){
+			direction = rayEl.getAttribute('raycaster').direction;
+			if(dir){
+				direction.add(dir);
+			}
+		}
+
 		//Ray Rotation
 		rayEl.object3D.getWorldQuaternion(rayQuat);
 		//Apply Rotation to Direction
 		direction.applyQuaternion(rayQuat);
-		//Adjust for Controller Weirdness
-		if(rayEl.id === 'vrController1' || rayEl.id === 'vrController2'){
-			rayEl.object3D.getWorldDirection(direction);
-			//now shoots out of bottom, but ray is 135 degree upward
-			direction.copy(matrixAxisRot(direction, 'x', 120))
-		}
 		//Get Ray Position
 		rayEl.object3D.getWorldPosition(position)
 
@@ -1479,7 +1480,6 @@ const Player = (auxl, id, layer, data) => {
 		position.add( direction.clone().multiplyScalar(spawnDistance));
 		return {position, direction};
 	}
-
 
 	//Determine Ground Floor Gravity Direction
 	//Not working well just yet for either algos. Currently just toggling through all 7, but if I can scan, approx by direction or another workaround like a enviroment cube with clickable
@@ -2503,7 +2503,7 @@ auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = true;
 				ray.power = 0.5;
 			}
 			//RayDir(rayEl, dist, dir)
-			//Bullets spawn 2 meters away to ensure does not conflict with body
+			//Bullets spawn X meters away to ensure does not conflict with body
 			let shootPrep = RayDir(rayEl, 0.35);
 
 			//Add Charge
@@ -4141,7 +4141,7 @@ if(data){
 	sources: false,
 	text: false,
 	geometry: {primitive: 'circle', radius: 1, segments: 32, thetaStart: 0, thetaLength: 360},
-	material: {shader: "flat", src: './assets/img/compass/compass.jpg', repeat: '1 1', color: "#3EB489", opacity: 0.42, side: 'double'},
+	material: {shader: "flat", repeat: '1 1', color: "#3EB489", opacity: 0.42, side: 'double'},
 	position: new THREE.Vector3(0,0.05,0),
 	rotation: new THREE.Vector3(-90,0,0),
 	scale: new THREE.Vector3(1,1,1),

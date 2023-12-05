@@ -17,27 +17,6 @@ init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
-//
-//Bundled Assets
-
-
-//Weather
-//
-
-//Sounds
-//
-
-//Audio by White Noise Meditation | Loop by Minty Crisp
-auxl.weatherStormThunderLoop = './assets/audio/weather/thunder-loop.mp3';
-//Audio by https://freesound.org/people/parnellij/ 
-auxl.weatherStormLightningStrike = './assets/audio/weather/74892__parnellij__lightning-strike.mp3';
-
-//3D Assets
-//
-
-auxl.cloud0 = './assets/3d/weather/cloud1.glb';
-
-
 //Fonts
 //
 //auxl.exo2Bold = './assets/fonts/Exo2Bold.fnt';
@@ -61,108 +40,11 @@ auxl.vaporYellow = '#fffb96';
 //Materials Library
 //
 
-//Tiles
-
-//Kenny
-auxl.pattern01 = './assets/img/tiles/kenny/pattern_01.png';
-auxl.pattern02 = './assets/img/tiles/kenny/pattern_02.png';
-auxl.pattern03 = './assets/img/tiles/kenny/pattern_03.png';
-auxl.pattern04 = './assets/img/tiles/kenny/pattern_04.png';
-auxl.pattern05 = './assets/img/tiles/kenny/pattern_05.png';
-auxl.pattern06 = './assets/img/tiles/kenny/pattern_06.png';
-auxl.pattern07 = './assets/img/tiles/kenny/pattern_07.png';
-auxl.pattern08 = './assets/img/tiles/kenny/pattern_08.png';
-auxl.pattern09 = './assets/img/tiles/kenny/pattern_09.png';
-auxl.pattern10 = './assets/img/tiles/kenny/pattern_10.png';
-auxl.pattern11 = './assets/img/tiles/kenny/pattern_11.png';
-auxl.pattern12 = './assets/img/tiles/kenny/pattern_12.png';
-auxl.pattern13 = './assets/img/tiles/kenny/pattern_13.png';
-auxl.pattern14 = './assets/img/tiles/kenny/pattern_14.png';
-auxl.pattern15 = './assets/img/tiles/kenny/pattern_15.png';
-auxl.pattern16 = './assets/img/tiles/kenny/pattern_16.png';
-auxl.pattern17 = './assets/img/tiles/kenny/pattern_17.png';
-auxl.pattern18 = './assets/img/tiles/kenny/pattern_18.png';
-auxl.pattern19 = './assets/img/tiles/kenny/pattern_19.png';
-auxl.pattern20 = './assets/img/tiles/kenny/pattern_20.png';
-auxl.pattern21 = './assets/img/tiles/kenny/pattern_21.png';
-auxl.pattern22 = './assets/img/tiles/kenny/pattern_22.png';
-auxl.pattern23 = './assets/img/tiles/kenny/pattern_23.png';
-auxl.pattern24 = './assets/img/tiles/kenny/pattern_24.png';
-auxl.pattern25 = './assets/img/tiles/kenny/pattern_25.png';
-auxl.pattern26 = './assets/img/tiles/kenny/pattern_26.png';
-auxl.pattern27 = './assets/img/tiles/kenny/pattern_27.png';
-auxl.pattern28 = './assets/img/tiles/kenny/pattern_28.png';
-auxl.pattern29 = './assets/img/tiles/kenny/pattern_29.png';
-auxl.pattern30 = './assets/img/tiles/kenny/pattern_30.png';
-auxl.pattern31 = './assets/img/tiles/kenny/pattern_31.png';
-auxl.pattern32 = './assets/img/tiles/kenny/pattern_32.png';
-auxl.pattern33 = './assets/img/tiles/kenny/pattern_33.png';
-auxl.pattern34 = './assets/img/tiles/kenny/pattern_34.png';
-auxl.pattern35 = './assets/img/tiles/kenny/pattern_35.png';
-auxl.pattern36 = './assets/img/tiles/kenny/pattern_36.png';
-auxl.pattern37 = './assets/img/tiles/kenny/pattern_37.png';
-auxl.pattern38 = './assets/img/tiles/kenny/pattern_38.png';
-auxl.pattern39 = './assets/img/tiles/kenny/pattern_39.png';
-auxl.pattern40 = './assets/img/tiles/kenny/pattern_40.png';
-auxl.pattern41 = './assets/img/tiles/kenny/pattern_41.png';
-auxl.pattern42 = './assets/img/tiles/kenny/pattern_42.png';
-auxl.pattern43 = './assets/img/tiles/kenny/pattern_43.png';
-auxl.pattern44 = './assets/img/tiles/kenny/pattern_44.png';
-auxl.pattern45 = './assets/img/tiles/kenny/pattern_45.png';
-auxl.pattern46 = './assets/img/tiles/kenny/pattern_46.png';
-auxl.pattern47 = './assets/img/tiles/kenny/pattern_47.png';
-auxl.pattern48 = './assets/img/tiles/kenny/pattern_48.png';
-auxl.pattern49 = './assets/img/tiles/kenny/pattern_49.png';
-auxl.pattern50 = './assets/img/tiles/kenny/pattern_50.png';
-auxl.pattern51 = './assets/img/tiles/kenny/pattern_51.png';
-auxl.pattern52 = './assets/img/tiles/kenny/pattern_52.png';
-auxl.pattern53 = './assets/img/tiles/kenny/pattern_53.png';
-auxl.pattern54 = './assets/img/tiles/kenny/pattern_54.png';
-auxl.pattern55 = './assets/img/tiles/kenny/pattern_55.png';
-auxl.pattern56 = './assets/img/tiles/kenny/pattern_56.png';
-auxl.pattern57 = './assets/img/tiles/kenny/pattern_57.png';
-auxl.pattern58 = './assets/img/tiles/kenny/pattern_58.png';
-auxl.pattern59 = './assets/img/tiles/kenny/pattern_59.png';
-auxl.pattern60 = './assets/img/tiles/kenny/pattern_60.png';
-auxl.pattern61 = './assets/img/tiles/kenny/pattern_61.png';
-auxl.pattern62 = './assets/img/tiles/kenny/pattern_62.png';
-auxl.pattern63 = './assets/img/tiles/kenny/pattern_63.png';
-auxl.pattern64 = './assets/img/tiles/kenny/pattern_64.png';
-auxl.pattern65 = './assets/img/tiles/kenny/pattern_65.png';
-auxl.pattern66 = './assets/img/tiles/kenny/pattern_66.png';
-auxl.pattern67 = './assets/img/tiles/kenny/pattern_67.png';
-auxl.pattern68 = './assets/img/tiles/kenny/pattern_68.png';
-auxl.pattern69 = './assets/img/tiles/kenny/pattern_69.png';
-auxl.pattern70 = './assets/img/tiles/kenny/pattern_70.png';
-auxl.pattern71 = './assets/img/tiles/kenny/pattern_71.png';
-auxl.pattern72 = './assets/img/tiles/kenny/pattern_72.png';
-auxl.pattern73 = './assets/img/tiles/kenny/pattern_73.png';
-auxl.pattern74 = './assets/img/tiles/kenny/pattern_74.png';
-auxl.pattern75 = './assets/img/tiles/kenny/pattern_75.png';
-auxl.pattern76 = './assets/img/tiles/kenny/pattern_76.png';
-auxl.pattern77 = './assets/img/tiles/kenny/pattern_77.png';
-auxl.pattern78 = './assets/img/tiles/kenny/pattern_78.png';
-auxl.pattern79 = './assets/img/tiles/kenny/pattern_79.png';
-auxl.pattern80 = './assets/img/tiles/kenny/pattern_80.png';
-auxl.pattern81 = './assets/img/tiles/kenny/pattern_81.png';
-auxl.pattern82 = './assets/img/tiles/kenny/pattern_82.png';
-auxl.pattern83 = './assets/img/tiles/kenny/pattern_83.png';
-auxl.pattern84 = './assets/img/tiles/kenny/pattern_84.png';
-
-auxl.patterns = [auxl.pattern01,auxl.pattern02,auxl.pattern03,auxl.pattern04,auxl.pattern05,auxl.pattern06,auxl.pattern07,auxl.pattern08,auxl.pattern09,auxl.pattern10,auxl.pattern11,auxl.pattern12,auxl.pattern13,auxl.pattern14,auxl.pattern15,auxl.pattern16,auxl.pattern17,auxl.pattern18,auxl.pattern19,auxl.pattern20,auxl.pattern21,auxl.pattern22,auxl.pattern23,auxl.pattern24,auxl.pattern25,auxl.pattern26,auxl.pattern27,auxl.pattern28,auxl.pattern29,auxl.pattern30,auxl.pattern31,auxl.pattern32,auxl.pattern33,auxl.pattern34,auxl.pattern35,auxl.pattern36,auxl.pattern37,auxl.pattern38,auxl.pattern39,auxl.pattern40,auxl.pattern41,auxl.pattern42,auxl.pattern43,auxl.pattern44,auxl.pattern45,auxl.pattern46,auxl.pattern47,auxl.pattern48,auxl.pattern49,auxl.pattern50,auxl.pattern51,auxl.pattern52,auxl.pattern53,auxl.pattern54,auxl.pattern55,auxl.pattern56,auxl.pattern57,auxl.pattern58,auxl.pattern59,auxl.pattern60,auxl.pattern61,auxl.pattern62,auxl.pattern63,auxl.pattern64,auxl.pattern65,auxl.pattern66,auxl.pattern67,auxl.pattern68,auxl.pattern69,auxl.pattern70,auxl.pattern71,auxl.pattern72,auxl.pattern73,auxl.pattern74,auxl.pattern75,auxl.pattern76,auxl.pattern77,auxl.pattern78,auxl.pattern79,auxl.pattern80,auxl.pattern81,auxl.pattern82,auxl.pattern83,auxl.pattern84];
-
 //Grass Material
 auxl.grassMaterial = {shader: "standard", color: "#55be71", opacity: 1, metalness: 0.1, roughness: 0.9, emissive: "#397e4b", emissiveIntensity: 0.2};
 
 //Water Material
 auxl.waterMaterial = {shader: "standard", color: "#55a5be", opacity: 1, metalness: 0.1, roughness: 0.9, emissive: "#65c3e0", emissiveIntensity: 0.2};
-
-//ImageSwapper Materials
-auxl.mat0 = {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
-auxl.mat1 = {src: './assets/img/vwave/1.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
-auxl.mat2 = {src: './assets/img/vwave/2.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
-auxl.mat3 = {src: './assets/img/vwave/3.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
-auxl.mat4 = {src: './assets/img/vwave/4.jpg', shader: "flat", color: "#FFFFFF", opacity: 1};
 
 //
 //Animations Library
@@ -524,15 +406,14 @@ auxl.playerFloorData = {
 data:'Player Floor',
 id:'playerFloor',
 sources: false,
-text: false,
+text: {value:'N\nW     E\nS', width: 7, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.26, side: 'double'},
 geometry: {primitive: 'circle', radius: 1, segments: 32, thetaStart: 0, thetaLength: 360},
-material: {shader: "flat", src: './assets/img/compass/compass.jpg', repeat: '1 1', color: "#3EB489", opacity: 0.42, side: 'both'},
+material: {shader: "flat", repeat: '1 1', color: "#3EB489", opacity: 0.42, side: 'both'},
 position: new THREE.Vector3(0,0.05,0),
 rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-//classes: ['a-ent','player', 'clickable'],
 classes: ['a-ent','player'],
 components: {
 visible: false,
@@ -543,10 +424,6 @@ auxl.playerFloor = auxl.Core(auxl.playerFloorData);
 auxl.playerAudioData = {
 data:'playerAudioData',
 id:'playerAudio',
-sounds:{
-	thunderstorm: {src: auxl.weatherStormThunderLoop, autoplay: false, loop: true, volume: 0.5, on: 'thunderstorm'},
-	boltsound: {src: auxl.weatherStormLightningStrike, autoplay: false, loop: false, volume: 0.35, on: 'boltHit', poolSize: 2},
-},
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -1274,7 +1151,7 @@ id:'compCube',
 sources:false,
 text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
+material: {shader: "flat", color: "#C14B76", opacity: 1},
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -1316,7 +1193,7 @@ id:'compSphere',
 sources:false,
 text: {value:'Menu', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.26, side: 'double'},
 geometry: {primitive: 'sphere', radius: 0.25},
-material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
+material: {shader: "flat", color: "#C14B76", opacity: 1},
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),

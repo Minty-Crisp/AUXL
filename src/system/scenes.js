@@ -1785,10 +1785,16 @@ const World = (auxl, worldData) => {
 		if(world.data.info.backgroundAudio){
 			world.soundtracks = JSON.parse(JSON.stringify(world.data.info.backgroundAudio));
 			for(let each in world.soundtracks){
-				//auxl.playerAudio.ChangeSelf({property: 'auxauxsound__'+each, value: world.soundtracks[each]})
 				auxl.playerAudio.ChangeSelf({property: 'auxsound__'+each, value: world.soundtracks[each]})
 			}
 			auxl.backgroundAudio = true;
+		}
+		//Sound Effects
+		if(world.data.info.soundEffects){
+			world.soundEffects = JSON.parse(JSON.stringify(world.data.info.soundEffects));
+			for(let each in world.soundEffects){
+				auxl.playerAudio.ChangeSelf({property: 'auxsound__'+each, value: world.soundEffects[each]})
+			}
 		}
 		//Companion Book Update
 		if(world.data.info.compBookUpdate){

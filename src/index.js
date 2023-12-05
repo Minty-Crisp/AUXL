@@ -60,3 +60,8 @@ import animMixer from './external/animation-mixer.js';
 //
 //Import Library
 import library from './load/library.js';
+
+//
+//CSS
+import baseCSS from '../assets/css/mvp.css';
+import moreCSS from '../assets/css/style.css';
