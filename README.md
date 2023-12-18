@@ -3,18 +3,6 @@
 ## Web XR World, System, Object Generator Engine & Universal Controller
 
 - - -
-### ! Development of AUXL has ended !
-Dear WebXR A-Frame community,
-
-I want to express my gratitude for the support you've shown for AUXL (A-Frame UX Library). As of 12/16/2023, I regret to inform you that the active development of this project has come to an end. This has been an exceptional learning opportunity that I will take with me going forward in building more unique projects for the community.
-
-If you or your organization are passionate about advancing this technology, I invite you to reach out to me via email [minty-crisp@protonmail.com](mailto:minty-crisp@protonmail.com) or my socials such as [Mastodon](https://mastodon.social/@mintycrisp) or [Blue Sky](https://bsky.app/profile/mintycrisp.bsky.social) to discuss potential collaborations and future development opportunities.
-
-Thank you for your understanding and support.
-
-Minty Crisp | Justin Ekema
-[MintyCrisp.com](https://mintycrisp.com)
-- - -
 
 [Launch v0.3 Physics Testing Demo Integration](https://minty-crisp.github.io/AUXL/physics.html)
 
