@@ -8,8 +8,6 @@ Dear WebXR A-Frame community,
 
 I want to express my gratitude for the support you've shown for AUXL (A-Frame UX Library). As of 12/16/2023, I regret to inform you that the active development of this project has come to an end. This has been an exceptional learning opportunity that I will take with me going forward in building more unique projects for the community.
 
-The essence of this system however will evolve and live on with my new project coming soon, CAOS XR (Companion App Operating System for eXtended Reality) [repo link](https://github.com/Minty-Crisp/CAOSXR), being built on top of A-Frame and supporting the entire ecosystem. A way to grant developer powers to all end users with any hardware via a 3D UX system inside A-Frame's digital playground while supporting the innovation of all the fantastic developers making components and scenes. The roadmap for this project starts off with smaller scoped features such as building XR scenes to assist in content creation such as videos or be the content itself to be enjoyed in XR, it will culminate to a much larger shared reality akin to a immersive federated metaverse with the freedom to make it your own. Not to replace, but to eXtend your circle of friends, life, influence and play.
-
 If you or your organization are passionate about advancing this technology, I invite you to reach out to me via email [minty-crisp@protonmail.com](mailto:minty-crisp@protonmail.com) or my socials such as [Mastodon](https://mastodon.social/@mintycrisp) or [Blue Sky](https://bsky.app/profile/mintycrisp.bsky.social) to discuss potential collaborations and future development opportunities.
 
 Thank you for your understanding and support.
