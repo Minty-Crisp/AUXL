@@ -1552,6 +1552,7 @@ this.moveForce.applyMatrix4(rotationMatrix);
 			//Free Locomotion No Clip
 			this.player.object3D.position.copy(this.positionNew);
 		}
+		
 	}
 },
 //1st POV Walk with Fly Buttons relative to Direction View

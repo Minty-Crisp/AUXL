@@ -20,7 +20,7 @@ const Core = (auxl, data) => {
 	core.inScene = false;
 	core.el = {};
 	core.dom = false;
-	core.domTimeout;
+	core.domInterval;
 	core.events = {};
 	core.parent = false;
 	if(!core.hasOwnProperty('defaultParent')){
@@ -347,25 +347,29 @@ const Core = (auxl, data) => {
 			}
 			//Loaded Events
 			let loadingEvent = false;
+			//Model
 			if(load3D){
 				core.el.addEventListener('model-loaded', loaded);
 				loadingEvent = true;
 			}
+			//Texture
 			if(loadMat){
 				core.el.addEventListener('loaded', loaded);
 				loadingEvent = true;
 			}
+			//Cannon Physics
 			if(core.el.components && core.el.components.body){
 				core.el.addEventListener('body-loaded', loaded);
 				loadingEvent = true;
 			}
 			if(!loadingEvent){
 				//Link to DOM
-				core.domTimeout = setTimeout(() => {
-					GetEl(true);
-					auxl.el.emit(core.id+'spawned',{});
-					//console.log(core.dom)
-					clearTimeout(core.domTimeout);
+				core.domInterval = setTimeout(() => {
+					if(GetEl(true)){
+						auxl.el.emit(core.id+'spawned',{});
+						//console.log(core.dom)
+						clearInterval(core.domInterval);
+					}
 				}, 100);
 			}
 			core.inScene = true;
@@ -375,7 +379,7 @@ const Core = (auxl, data) => {
 	const DespawnCore = () => {
 		if(core.inScene){
 			//Clear Core Timeout/Intervals
-			clearTimeout(core.domTimeout);
+			clearInterval(core.domInterval);
 			clearTimeout(core.gridPathTimeout);
 			clearInterval(core.gridPathInterval);
 			//Loaded Events

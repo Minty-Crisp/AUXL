@@ -758,14 +758,14 @@ const Player = (auxl, id, layer, data) => {
 
 	//UI
 	//Toggle Belt Text
-	const ToggleBeltText = () => {
-		if(layer.beltDisplay){
-			auxl.playerBeltText.ChangeSelf({property: 'visible', value:false})
-			layer.beltDisplay = false;
-		} else {
+	const ToggleBeltText = (force) => {
+		if(force || !layer.beltDisplay){
 			auxl.playerBeltText.ChangeSelf({property: 'visible', value:true})
 			UpdateBeltText();
 			layer.beltDisplay = true;
+		} else if(layer.beltDisplay){
+			auxl.playerBeltText.ChangeSelf({property: 'visible', value:false})
+			layer.beltDisplay = false;
 		}
 	}
 	//playerFloor.addEventListener('click',ToggleBeltText);
@@ -1980,16 +1980,25 @@ angleXYZ
 		ToggleRayHelp(true);
 	}
 
+	//Pause Physics Simulation for self
+	const TogglePlayerPhysics = (enable) => {
+		if(enable){
+			auxl.playerRig.GetEl().body.wakeUp();
+		} else {
+			auxl.playerRig.GetEl().body.sleep();
+		}
+	}
+
 	//Pause Physics Simulation for all bodies except self if true
 	const PausePhysics = (self) => {
-		auxl.playerRig.body.world.bodies.forEach(body => body.sleep());
+		auxl.playerRig.GetEl().body.world.bodies.forEach(body => body.sleep());
 		if(self){
-			auxl.playerRig.body.wakeUp();
+			auxl.playerRig.GetEl().body.wakeUp();
 		}
 	}
 	//Resume Physics
 	const ResumePhysics = () => {
-		auxl.playerRig.body.world.bodies.forEach(body => body.wakeUp());
+		auxl.playerRig.GetEl().body.world.bodies.forEach(body => body.wakeUp());
 	}
 
 	//Allow Jump
@@ -2783,7 +2792,7 @@ console.log(event.detail.intersection.point)
 		auxl.firingTest.ChangeSelf({property: 'text', value: {value: 'Hit : '+ fired}});
 	}
 
-	return {layer, player, Reset, CameraSwitch, CameraSwitchBack, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, PlayerQuickAnim, PlayerFadeOut, PlayerFadeIn, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, UpdateActions, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot, GetPlayerInfo, ToggleRayHelp, CamRigPoint, RigPoint, RaySpawnPoint, RayDir, RayDistanceDirection, GetRayDirectionRig, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, setAllGravity, setAllGravityAxis, setAllGravityTypes, cycleAllGravityTypes, cycleWorldGravityAxis, ToggleAction, Rubberband, TeleportTo, BoostTo, BackBoost, ChuteUp, ChuteDown, BrakeUp, BrakeDown, RedirectUp, RedirectDown, Redirect, Freeze, UnFreeze, DelinkCore, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, EmitEvent, TestFunc,};
+	return {layer, player, Reset, CameraSwitch, CameraSwitchBack, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, PlayerQuickAnim, PlayerFadeOut, PlayerFadeIn, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, UpdateActions, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot, GetPlayerInfo, ToggleRayHelp, CamRigPoint, RigPoint, RaySpawnPoint, RayDir, RayDistanceDirection, GetRayDirectionRig, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, setAllGravity, setAllGravityAxis, setAllGravityTypes, cycleAllGravityTypes, cycleWorldGravityAxis, ToggleAction, Rubberband, TeleportTo, BoostTo, BackBoost, ChuteUp, ChuteDown, BrakeUp, BrakeDown, RedirectUp, RedirectDown, Redirect, Freeze, UnFreeze, DelinkCore, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, EmitEvent, TestFunc, TogglePlayerPhysics};
 	}
 //
 //Companion
@@ -3349,10 +3358,10 @@ const Companion = (auxl, id, object, inventory) => {
 	}
 	//Face Player
 	const TurnToPlayer = () => {
-		let position = new THREE.Vector3().copy(auxl.playerRig.GetEl().object3D.position);
+		let position = new THREE.Vector3().copy(auxl.camera.GetEl().object3D.position);
 		let up = UpAxis().clone();
 		up.multiplyScalar(auxl.camera.GetEl().object3D.position.y)
-		position.add(up)
+		//position.add(up)
 		auxl.comp.GetEl().object3D.up.copy(up);
 		auxl.comp.GetEl().object3D.lookAt(position);
 	}
@@ -3537,7 +3546,7 @@ const Companion = (auxl, id, object, inventory) => {
 	const SpawnComp = () => {
 		if(comp.inScene){}else{
 			ToggleSpawnClick();
-			auxl.compNPC.SpawnNPC(auxl.playerRig.GetEl());
+			auxl.compNPC.SpawnNPC(auxl.headRig.GetEl());
 			if(comp.avatarType === 'core'){
 				if(comp.firstSpawn){
 					comp.firstSpawn = false;
@@ -3567,6 +3576,8 @@ const Companion = (auxl, id, object, inventory) => {
 				auxl.mainMenu.SpawnMultiMenu();
 				ToggleSpawnClick();
 				comp.inScene = true;
+				auxl.player.ToggleBeltText(true);
+				auxl.build.SpawnBuild();
 				clearTimeout(spawnTimeout);
 			}, 100);
 		}
@@ -3576,6 +3587,7 @@ const Companion = (auxl, id, object, inventory) => {
 		if(comp.inScene){
 			comp.playerQuat0 = auxl.playerRig.GetEl().object3D.quaternion.clone();
 			ToggleSpawnClick();
+			auxl.player.ToggleBeltText();
 			//clearInterval(speechTimeoutB);
 			//clearInterval(speechIntervalB);
 			//auxl.build.DespawnBuild();
@@ -3586,6 +3598,7 @@ const Companion = (auxl, id, object, inventory) => {
 				auxl.RemoveFromTracker(comp.id);
 				comp.inScene = false;
 				ToggleSpawnClick();
+				auxl.build.DespawnBuild();
 				clearTimeout(despawnTimeout);
 			}, 300);
 		}

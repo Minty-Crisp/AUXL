@@ -209,11 +209,10 @@ classes: ['a-ent','player'],
 components: false,
 };
 auxl.playerBody = auxl.Core(auxl.playerBodyData);
-//Camera
-auxl.cameraData = {
-data:'Camera Entity',
-id:'camera',
-entity: 'preAdded',
+//Avatar Head
+auxl.avatarHeadData = {
+data:'Avatar Head',
+id:'avatarHead',
 sources: false,
 text: false,
 geometry: false,
@@ -228,7 +227,68 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-//['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
+['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
+},};
+auxl.avatarHead = auxl.Core(auxl.avatarHeadData);
+
+
+//Player Head
+auxl.playerHeadData = {
+data:'Player Head',
+id:'playerHead',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
+material: {shader: "standard", color: "#4bc166", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bc166", emissiveIntensity: 0.6},
+
+position: new THREE.Vector3(0,1.6,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent','player'],
+components: {
+['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
+['wasd-controls']:{enabled: false},
+},};
+auxl.playerHead = auxl.Core(auxl.playerHeadData);
+
+//Head Rig
+auxl.headRigData = {
+data:'headRigData',
+id:'headRig',
+entity: 'preAdded',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+geometry: false,
+material: false,
+
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent','player'],
+components: false,};
+auxl.headRig = auxl.Core(auxl.headRigData);
+
+//Camera
+auxl.cameraData = {
+data:'Camera Entity',
+id:'camera',
+entity: 'preAdded',
+position: new THREE.Vector3(0,1.6,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent','player'],
+components: {
+['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
 ['wasd-controls']:{enabled: false},
 },};
 auxl.camera = auxl.Core(auxl.cameraData);
@@ -395,7 +455,7 @@ rotation: new THREE.Vector3(-30,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent'],
+classes: ['a-ent', 'clickable'],
 components: {
 visible: false,
 },
@@ -414,7 +474,7 @@ rotation: new THREE.Vector3(-90,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
-classes: ['a-ent','player'],
+classes: ['a-ent','player', 'clickable'],
 components: {
 visible: false,
 },
@@ -583,13 +643,23 @@ parent: {core: auxl.playerRig},
 child0: {
 	parent: {core: auxl.playerBody},
 	child0: {
-		parent: {core: auxl.camera},
-		child0: {core: auxl.mouseController},
-		child1: {core: auxl.cameraUI},
-		child2: {core: auxl.fadeScreen},
-		child3: {core: auxl.sphereScreen},
-		child4: {core: auxl.blink1Screen},
-		child5: {core: auxl.blink2Screen},
+		parent: {core: auxl.playerHead},
+		child0: {
+			parent: {core: auxl.headRig},
+			child0: {
+				parent: {core: auxl.camera},
+				child0: {core: auxl.mouseController},
+				child1: {core: auxl.cameraUI},
+				child2: {core: auxl.fadeScreen},
+				child3: {core: auxl.sphereScreen},
+				child4: {core: auxl.blink1Screen},
+				child5: {core: auxl.blink2Screen},
+			},
+			child1: {
+				parent: {core: auxl.playerBeltUI},
+				child0: {core: auxl.playerBeltText},
+			},
+		},
 	},
 	child1: {
 		parent: {core: auxl.vrController1},
@@ -598,10 +668,6 @@ child0: {
 	child2: {
 		parent: {core: auxl.vrController2},
 		child0: {core: auxl.vrController2UI},
-	},
-	child3: {
-		parent: {core: auxl.playerBeltUI},
-		child0: {core: auxl.playerBeltText},
 	},
 },
 child1: {core: auxl.playerAudio},
@@ -872,8 +938,6 @@ auxl.locomotionUIAllData = {
 }
 auxl.locomotionUILayer = auxl.Layer('locomotionUILayer', auxl.locomotionUIAllData);
 
-
-
 //
 //Companion Shapes
 //Should all be layers with a null parent for which main menu attaches to. This avoids conflicts with NPC events system activating when using the menu
@@ -894,11 +958,11 @@ scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
 classes: ['a-ent'],
-components: false,
-//components: {
+//components: false,
+components: {
 //['stare']:{id: 'playerRig'},
-//['look-at-xyz']:{match: 'playerRig', x:false, y:true, z:false},
-//},
+	['look-at-xyz']:{match: 'camera', x:true, y:true, z:true},
+},
 };
 auxl.ghostParent = auxl.Core(auxl.ghostParentData);
 //All
@@ -959,6 +1023,25 @@ lookdown: {property: 'position', to: new THREE.Vector3(0,0.01,0.07), dur: 100, d
 lookup: {property: 'position', to: new THREE.Vector3(0,0.01,-0.07), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookUp'},
 lookright: {property: 'position', to: new THREE.Vector3(0.05,0.01,0), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookRight'},
 lookleft: {property: 'position', to: new THREE.Vector3(-0.05,0.01,0), dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'lookLeft'},
+
+
+lookloop0: {property: 'position', to: new THREE.Vector3(0,0.01,0), dur: 0, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true},
+lookloop1: {property: 'position', to: new THREE.Vector3(0,0.01,0.07), dur: 1500, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__lookloop0, animationcomplete__lookloop8'},
+lookloop2: {property: 'position', to: new THREE.Vector3(0,0.01,-0.07), dur: 1500, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__lookloop1'},
+lookloop3: {property: 'position', to: new THREE.Vector3(-0.05,0.01,0.07), dur: 1500, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__lookloop2'},
+lookloop4: {property: 'position', to: new THREE.Vector3(0.05,0.01,0.07), dur: 1500, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__lookloop3'},
+
+
+
+lookloop5: {property: 'position', to: new THREE.Vector3(-0.05,0.01,-0.07), dur: 1500, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__lookloop4'},
+lookloop6: {property: 'position', to: new THREE.Vector3(0.05,0.01,-0.07), dur: 1500, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__lookloop5'},
+lookloop7: {property: 'position', to: new THREE.Vector3(0,0.01,0), dur: 1500, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__lookloop6'},
+lookloop8: {property: 'position', to: new THREE.Vector3(0,0.01,0), dur: 1500, delay: 3000, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__lookloop7'},
+
+
+
+
+
 
 powerup1: {property: 'material.color', to: '#fcfafd', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},
 powerup2: {property: 'material.emissive', to: '#fcfafd', dur: 100, delay: 0, loop: false, dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'poweredUp'},

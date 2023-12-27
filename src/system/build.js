@@ -1998,7 +1998,7 @@ const BuildIn3D = (auxl) => {
 	one.building.current = false;
 	one.building.prepped = false;
 	one.building.building = false;
-
+/*
 //Menus to Customize with
 //1x Core
 //1x Layer
@@ -2013,7 +2013,6 @@ const BuildIn3D = (auxl) => {
 	//player.id
 //Spawn a multi-menu
 // w/ various individual options for each type of Core/Layer/Other
-/*
 Build
 Edit
 Delete
@@ -2066,10 +2065,10 @@ components: false,
 		title: 'Build Mode',
 		description: 'Build objects.',
 		layout:'circleUp',
-		posOffset: new THREE.Vector3(0,1.5,-1.5),
+		posOffset: new THREE.Vector3(0.33,0.33,-0.33),
 		offset: -1,
-		parent: 'playerRig',
-		look: {buffer: 0.65, drag: 0.25, match: 'camera', x:false, y:true, z:false},
+		parent: 'ghostParent',
+		look: {buffer: 0.65, drag: 0.25, match: 'camera', x:true, y:true, z:true},
 		stare: false,
 	},
 	menu0:{
@@ -2353,19 +2352,41 @@ components: false,
 	},
 	coreMaterial:{
 		button0:{
-			id: 'action1',
+			id: 'subMenu0',
 			style: false,
-			title: 'Update Material',
-			description: 'Update the cores Material.',
-			subMenu: false,
-			action: {
-				auxlObj: 'build',
-				component: false,
-				method: 'UpdateMaterial',
-				params: null,
-				menu: 'stay',
-			},
+			title: 'Page 0',
+			description: 'Go to Color Page 0',
+			subMenu: 'coreMaterialColorPage0',
+			action: false,
 		},
+		button1:{
+			id: 'subMenu1',
+			style: false,
+			title: 'Page 1',
+			description: 'Go to Color Page 1',
+			subMenu: 'coreMaterialColorPage1',
+			action: false,
+		},
+		button2:{
+			id: 'subMenu2',
+			style: false,
+			title: 'Page 2',
+			description: 'Go to Color Page 2',
+			subMenu: 'coreMaterialColorPage2',
+			action: false,
+		},
+	},
+	coreMaterialColorPage0:{
+
+	},
+	coreMaterialColorPage1:{
+
+	},
+	coreMaterialColorPage2:{
+
+	},
+	coreMaterialColorPage3:{
+
 	},
 	coreText:{
 		button0:{
@@ -2506,7 +2527,63 @@ components: false,
 		},
 	},
 
-	};
+};
+//Color Family Import Options
+function ColorFamilyButtonGen(){
+//color categories : warm,cool,extreme
+	let colorFamilies = ['red','orange','yellow','lime','blue','cyan','magenta','maroon', 'olive','green','purple','teal','navy','silver','grey','black', 'white'];
+	let current = 0;
+	let page = 0;
+	let max = 6;
+	one.buildMenuData['coreMaterialColorPage'+page] = {};
+console.log(one.buildMenuData)
+console.log(one.buildMenuData['coreMaterialColorPage'+page])
+	for (let color in colorFamilies){
+console.log(colorFamilies[color])
+		one.buildMenuData['coreMaterialColorPage'+page]['button'+current] = {};
+		let button = {
+			id: 'action'+current,
+			style: false,
+			title: colorFamilies[color],
+			description: 'Update the core Material to ' + colorFamilies[color],
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateMaterial',
+				params: colorFamilies[color],
+				menu: 'stay',
+			},
+		};
+		let next = {
+			id: 'subMenu'+page,
+			style: false,
+			title: 'Page '+(page+1),
+			description: 'Next Page > '+page,
+			subMenu: 'coreMaterialColorPage'+(page+1),
+			action: false,
+		};
+		if(current >= max){
+			one.buildMenuData['coreMaterialColorPage'+page]['button'+current] = next;
+			page++;
+			current = 0;
+
+		} else {
+			one.buildMenuData['coreMaterialColorPage'+page]['button'+current] = button;
+		}
+		//one.buildMenuData.current['button'+current] = button;
+		current++;
+	}
+}
+ColorFamilyButtonGen();
+console.log(one.buildMenuData)
+
+
+
+
+
+
+	//Build Final Menu
 	auxl.buildMenu = auxl.MultiMenu(one.buildMenuData);
 	//auxl.buildMenu.menuLayer.layer;
 /*
@@ -2546,7 +2623,7 @@ components: false,
 				text: false,
 				geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
 				material: {shader: "standard", color: "#2aad7b", emissive: '#2aad7b', emissiveIntensity: 0.25, opacity: 1},
-				position: new THREE.Vector3(0,1.5,1.5),
+				position: new THREE.Vector3(0,1.6,-2),
 				rotation: new THREE.Vector3(0,0,0),
 				scale: new THREE.Vector3(1,1,1),
 				animations: false,
@@ -2559,7 +2636,7 @@ components: false,
 			one.building.prepped = true;
 			one.building.building = true;
 
-			one.building.current.SpawnCore();
+			one.building.current.SpawnCore(auxl.playerRig.GetEl());
 		}
 	}
 
@@ -2593,10 +2670,28 @@ components: false,
 		//Update Data
 		one.core.data[one.building.current.core.id+'data'].geometry = geometryData;
 		//Update Preview
+		one.building.current.RemoveComponent('geometry');
 		one.building.current.ChangeSelf({property: 'geometry', value: geometryData});
+
 	}
-	const UpdateMaterial = () => {
+	const UpdateMaterial = (color) => {
 		console.log('UpdateMaterial')
+		//Default 
+		let defaultData = {shader: "standard", color: "#2aad7b", emissive: '#2aad7b', emissiveIntensity: 0.25, opacity: 1};
+		//give color family as options and pick a random one on execute, keep menu open.
+		let materialData = (one.building.current.GetEl().material) ?one.building.current.GetEl().material : defaultData;
+		//New Color
+		let newColor = auxl.colorTheoryGen(false, color);
+		materialData.color = newColor.base;
+		if(materialData.emissive){
+			materialData.emissive = newColor.base;
+		}
+
+		//Update Data
+		one.core.data[one.building.current.core.id+'data'].color = newColor.base;
+		one.core.data[one.building.current.core.id+'data'].materialData = newColor;
+		//Update Preview
+		one.building.current.ChangeSelf({property: 'material', value: materialData});
 	}
 	const UpdateText = () => {
 		console.log('UpdateText')

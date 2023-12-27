@@ -472,6 +472,58 @@ this.joystickLoco = 4;
 this.joystickRot = 8;
 this.controlsInfo = {};
 this.controlsText = '';
+
+this.scroll = {};
+this.scroll.current = 1;
+this.scrollMin = new THREE.Vector3(0,-1,0);
+this.scrollHead = new THREE.Vector3(0,0,0);
+this.scrollShoulder = new THREE.Vector3(0.1,0.3,0.6);
+this.scrollMid = new THREE.Vector3(0,1.7,1.6);
+this.scrollMax = new THREE.Vector3(0,4.8,3.2);
+this.scrolls = [
+	this.scrollMin,
+	this.scrollHead,
+	this.scrollShoulder,
+	this.scrollMid,
+	this.scrollMax,
+];
+
+//System Head Scrolling
+this.CycleCameraZoom = (direction) => {
+//console.log('scrolling')
+//console.log(this.scroll.current)
+//console.log(direction)
+
+	if(direction){
+		this.scroll.current--;
+	} else {
+		this.scroll.current++;
+	}
+
+	if(this.scroll.current === this.scrolls.length){
+		this.scroll.current = 0;
+	} else if(this.scroll.current < 0){
+		this.scroll.current = this.scrolls.length-1;
+	}
+	//Position to Move to
+	let newPosition = new THREE.Vector3(0,0,0).copy(this.scrolls[this.scroll.current]);
+	//Set Position
+	this.headRig.GetEl().object3D.position.copy(newPosition);
+
+}
+
+document.addEventListener("keydown", (e) => {
+	if(e.key === 'ArrowUp'){
+		this.CycleCameraZoom(true);
+	} else if( e.key === 'ArrowDown'){
+		this.CycleCameraZoom(false);
+	}
+
+
+});
+
+
+/*************************************************************/
 //Menu
 this.menuOpen = true;
 this.infoOpen = false;
@@ -1241,6 +1293,30 @@ this.ToggleHTML = (id, display) => {
 //
 //Support
 
+//Reading Scene
+
+//Clone Dom
+this.CloneDom = (dom, deep) => {
+	let clone = dom.CloneNode(deep);
+	while(auxl.checkDupeName(clone.id)){
+		clone.id = auxl.ranNameGen(8, clone.id);
+	}
+	return clone;
+}
+
+//Convert a-scene data
+this.ConvertHTMLScene = () => {
+	//grab all children within a-scene
+	//loop through all children
+	//clone each dom element
+	//store assets links seperately as a src collection, each can be linked directly to an entity
+	//read mixins as additional settings to remove from base and combine main data
+	let scene = {};
+	return scene;
+
+}
+
+
 //
 //Misc
 
@@ -1623,6 +1699,7 @@ return {base, light, dark, compl, splitCompl, triadic, tetradic, analog};
 
 }
 /*
+'red','orange','yellow','lime','blue','cyan','magenta','maroon','olive','green','purple','teal','navy','silver','grey','black','white'
 let newColor1 = colorTheoryGen();
 let newColor1 = colorTheoryGen('#00d3d3');
 let newColor1 = colorTheoryGen(false, 'red');
@@ -1661,13 +1738,15 @@ this.checkDupeName = (id) => {
 	}
 }
 //Randomly Generate a Name
-this.ranNameGen = () => {
+this.ranNameGen = (length, prefix) => {
 	let name = '';
 	let alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
-	let nameLength = Math.floor(Math.random()*12)+4;
+	let nameLength = (length)? nameLength = Math.floor(Math.random()*length): nameLength = Math.floor(Math.random()*12)+4;
+
 	for(let letter = 0; letter < nameLength; letter++){
 		name += auxl.randomOfArray(alphabet);
 	}
+	name = (prefix)? prefix+name: name;
 	return name;
 }
 
@@ -1709,8 +1788,8 @@ this.distance = (x1, z1, x2, z2) => {
 }
 //Return a random position within Ring radius
 this.randomPosition = (radius, yPos) => {
-	posX = Math.random() * (radius*2) - radius;
-	posZ = Math.random() * (radius*2) - radius;
+	let posX = Math.random() * (radius*2) - radius;
+	let posZ = Math.random() * (radius*2) - radius;
 	return new THREE.Vector3(posX, yPos, posZ);
 }
 

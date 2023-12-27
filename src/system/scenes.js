@@ -1846,6 +1846,119 @@ const World = (auxl, worldData) => {
 	return {world, SetAsDefault, StartWorld, StopWorld, StartScenario, ClearScenario, NextScenario, LoadScenario, MusicPlaylist}
 }
 
+
+//
+//Scene Node
+const scene = AFRAME.registerComponent('scenenode', {
+dependencies: ['auxl'], multiple: true,
+    schema: {
+        bar: {type: 'number'},
+        baz: {type: 'string'},
+    },
+
+    init: function () {
+        //Do something when component first attached.
+        //Called once when the component is initialized. Used to set up initial state and instantiate variables.
+        this.scene = document.querySelector('a-scene');
+		this.auxl = this.scene.systems.auxl;
+/*
+	info:{
+		id:'zone0Scene1',
+		name: 'Zone 0 | Scene 1',
+		description: 'A connected Scene within Zone 0.',
+		sceneText: true,
+		fog: false,
+		map: {
+			size: 38,
+			height: false,
+			edge: true,
+			spawnEdge: false,
+			edgeUpdate: false,
+		},
+		spawnPos:{x:0,y:0,z:0},
+	},
+
+	start:{
+		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern67, repeat: '150 150',color: "#6f421a", emissive: "#6f421a",},}},
+		indoorWall:{SpawnHorizon:null},
+		indoorCeiling:{SpawnCore:null},
+		npcKeyGiver:{SpawnNPC:null},
+		teleport0:{SpawnTeleport:null},
+	},
+
+	delay:{
+	},
+
+	controls:{
+		action1Down:{auxlObj: 'player', func: 'TestFunc', params: {test1: 1, test2: 2}, name: 'Test Action', info: 'Just a Dev test function.'},
+	},
+
+	map:{
+		data: auxl.zone0Data.zone0Scene1,
+	},
+*/
+    },
+
+    update: function () {
+        //Do something when component's data is updated.
+        //Called both when the component is initialized and whenever any of the component’s properties is updated (e.g, via setAttribute). Used to modify the entity.
+    },
+
+    remove: function () {
+        //Do something the component or its entity is detached.
+        //Called when the component is removed from the entity (e.g., via removeAttribute) or when the entity is detached from the scene. Used to undo all previous modifications to the entity.
+    },
+
+    tick: function (time, timeDelta) {
+        //Do something on every scene tick or frame.
+        //Make a minor random position change to each rain element once it completes it's anim loop.
+        //Run check functions everyframe this.whatever();
+        //Called on each render loop or tick of the scene. Used for continuous changes or checks.
+    },
+
+    tock: function (time, timeDelta, camera) {
+        //Identical to the tick method but invoked after the scene has rendered.
+        //The tock handler is used to run logic that needs access to the drawn scene before it’s pushed into the headset like postprocessing effects.
+        //Called on each render loop or tick of the scene after the scene has rendererd. Used for post processing effects or other logic that needs to happen after the scene has been drawn.
+
+    },
+
+    play: function () {
+        //Play
+        //Called whenever the scene or entity plays to add any background or dynamic behavior. Also called once when the component is initialized. Used to start or resume behavior.
+    },
+
+    pause: function () {
+        //Pause
+        //Called whenever the scene or entity pauses to remove any background or dynamic behavior. Also called when the component is removed from the entity or when the entity is detached from the scene. Used to pause behavior.
+    },
+
+    updateSchema: function () {
+        //updateSchema
+        //Called whenever any of the component’s properties is updated. Can be used to dynamically modify the schema.
+    },
+
+	events: {
+		click: function (e) {
+			//this.auxl[this.data.clickObj].Click(e.target);
+		}
+	},
+
+    whatever: function () {
+        //Whatever
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
 //
 //Export
 export {SceneNode, MapZone, Scenario, World};
