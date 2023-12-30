@@ -2315,6 +2315,276 @@ auxl.testScroll = auxl.ScrollMenu('testScroll');
 
 
 
+//
+//Card
+/*
+
+Title
+Specific
+Background (3) Image, Video, Core or Layer
+Color Palette
+Body & Skills(3) w/ Title, Description & Cost
+Attack(Strength) & Defense(Resiliance)
+Logo
+Number
+Link(3) Icons w/ Hover Info
+Signature
+Flavor Text
+
+
+Rows:
+Title Bar
+
+
+
+
+
+
+*/
+
+//cards
+
+//Parent
+auxl.cardParentData = {
+	data:'cardParentData',
+	id:'cardParent',
+	sources:false,
+	text: false,
+	geometry: false,
+	material: false,
+	position: new THREE.Vector3(0,1.6,-0.21),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(0.1,0.1,0.1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+};
+auxl.cardParent = auxl.Core(auxl.cardParentData);
+//Icon
+auxl.cardIconBaseData = {
+data:'cardIconBaseData',
+id:'cardIconBase',
+sources: false,
+text: false,
+/*
+	geometry: {primitive: 'sphere', radius: 1, segmentsWidth: 36, segmentsHeight: 18, phiLength: 360, phiStart: 0, thetaLength: 360, thetaStart: 0},
+*/
+geometry: {primitive: 'cylinder', radius: 0.175, height: 0.0125, openEnded: false, segmentsHeight: 2, segmentsRadial: 24, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#fcfafd", emissive: '#fcfafd', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(90,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+//auxl.cardIconBase = auxl.Core(auxl.cardIconBaseData);
+//Text
+auxl.cardTextBaseData = {
+	data:'cardTextBaseData',
+	id:'TextBasecard',
+	sources:false,
+	text: {value:'Card', wrapCount: 24, color: "#000000", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+	geometry: {primitive: 'box', width: 2.25, height: 0.25, depth: 0.2,},
+	material: {shader: "standard", color: "#e7fa00", emissive: '#e7fa00', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+	position: new THREE.Vector3(0,0,0),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations:{
+		click:{property: 'object3D.scale.y', to: 1, dur: 250, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true,},
+	},
+	mixins: false,
+	classes: ['a-ent'],
+	components: false,
+};
+
+//Background
+auxl.cardBackgroundData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
+	id: 'cardBackground',
+	position: new THREE.Vector3(0,0,0),
+	text: false,
+	geometry: {primitive: 'box', width: 2.5, height: 3.5, depth: 0.1,},
+	material: {shader: "standard", color: "#6c7138", emissive: '#6c7138', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+
+
+}, true);
+auxl.cardBackground = auxl.Core(auxl.cardBackgroundData);
+
+
+//Display Name & ID
+//Special Cost(6) Icons w/ Hover Info
+auxl.titleBarData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
+	id: 'titleBar',
+	position: new THREE.Vector3(0,1.5,0),
+	text: {value:'Display Name & ID', wrapCount: 24, color: "#000000", font: "exo2bold", zOffset: 0.125, xOffset: 0.05,  side: 'double', align: "left", baseline: 'center'},
+
+
+}, true);
+auxl.titleBar = auxl.Core(auxl.titleBarData);
+
+//Notification
+auxl.notificationBarData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
+	id: 'notificationBar',
+	position: new THREE.Vector3(0,0,0),
+	geometry: {primitive: 'box', width: 2, height: 0.225, depth: 0.15,},
+	text: {value:'!-------!Notification!-------!', wrapCount: 24, color: "#000000", font: "exo2bold", zOffset: 0.125, xOffset: 0,  side: 'double', align: "center", baseline: 'center'},
+	material: {shader: "standard", color: "#d84b21", emissive: '#d84b21', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+
+}, true);
+auxl.notificationBar = auxl.Core(auxl.notificationBarData);
+
+//Title
+//Specific
+//Logo
+auxl.controlBarData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
+	id: 'controlBar',
+	position: new THREE.Vector3(0,-0.225,0),
+	text: {value:'Title - Specific : Logo', wrapCount: 24, color: "#000000", font: "exo2bold", zOffset: 0.125, xOffset: 0.05,  side: 'double', align: "left", baseline: 'center'},
+
+	material: {shader: "standard", color: "#d89921", emissive: '#d89921', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+}, true);
+auxl.controlBar = auxl.Core(auxl.controlBarData);
+
+
+//Body
+auxl.cardTextBodyData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
+	id: 'cardTextBody',
+	position: new THREE.Vector3(0,-0.875,0),
+	text: false,
+	geometry: {primitive: 'box', width: 2.25, height: 1.5, depth: 0.15,},
+	material: {shader: "standard", color: "#899045", emissive: '#899045', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+	text: {value:'Body\n- Wrap :\nMore info...\n- Wrap :\nMore info...\n- Wrap :\nMore info...', wrapCount: 42, color: "#000000", font: "exo2bold", zOffset: 0.125, xOffset: 0.05,  xOffset: 0.05, side: 'double', align: "left", baseline: 'center'},
+
+}, true);
+auxl.cardTextBody = auxl.Core(auxl.cardTextBodyData);
+
+
+//Body
+auxl.cardTextAccentData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
+	id: 'cardTextAccent',
+	position: new THREE.Vector3(1,-1.5,0),
+	text: false,
+	geometry: {primitive: 'box', width: 0.525, height: 0.525, depth: 0.2,},
+	material: {shader: "standard", color: "#d84b21", emissive: '#d84b21', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+	text: {value:'Accent', wrapCount: 8, color: "#000000", font: "exo2bold", zOffset: 0.125, xOffset: 0,  side: 'double', align: "center", baseline: 'center'},
+
+}, true);
+auxl.cardTextAccent = auxl.Core(auxl.cardTextAccentData);
+
+
+
+
+
+
+//Cost 1
+auxl.cardCostIcon1Data = auxl.coreDataFromTemplate(auxl.cardIconBaseData, {
+	id: 'cardCostIcon1',
+	position: new THREE.Vector3(0.95,1.26,0),
+	text: false,
+	geometry: {primitive: 'cylinder', radius: 0.15, height: 0.3, openEnded: false, segmentsHeight: 2, segmentsRadial: 24, thetaStart: 0, thetaLength: 360},
+	material: {shader: "standard", color: "#c8d821", emissive: '#c8d821', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+	text: {value:'A', wrapCount: 8, color: "#000000", font: "exo2bold", zOffset: 0.155, xOffset: 0.05,  side: 'double', align: "center", baseline: 'center'},
+
+}, true);
+auxl.cardCostIcon1 = auxl.Core(auxl.cardCostIcon1Data);
+
+//Cost 2
+auxl.cardCostIcon2Data = auxl.coreDataFromTemplate(auxl.cardCostIcon1Data, {
+	id: 'cardCostIcon2',
+	position: new THREE.Vector3(0.6,1.26,0),
+	text: false,
+	geometry: {primitive: 'cylinder', radius: 0.15, height: 0.3, openEnded: false, segmentsHeight: 2, segmentsRadial: 24, thetaStart: 0, thetaLength: 360},
+	material: {shader: "standard", color: "#d89921", emissive: '#d89921', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+	text: {value:'B', wrapCount: 8, color: "#000000", font: "exo2bold", zOffset: 0.155, xOffset: 0.05,  side: 'double', align: "center", baseline: 'center'},
+
+}, true);
+auxl.cardCostIcon2 = auxl.Core(auxl.cardCostIcon2Data);
+
+//Cost 3
+auxl.cardCostIcon3Data = auxl.coreDataFromTemplate(auxl.cardCostIcon1Data, {
+	id: 'cardCostIcon3',
+	position: new THREE.Vector3(0.25,1.26,0),
+	text: false,
+	geometry: {primitive: 'cylinder', radius: 0.15, height: 0.3, openEnded: false, segmentsHeight: 2, segmentsRadial: 24, thetaStart: 0, thetaLength: 360},
+	material: {shader: "standard", color: "#d84b21", emissive: '#d84b21', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+	text: {value:'B', wrapCount: 8, color: "#000000", font: "exo2bold", zOffset: 0.155, xOffset: 0.05,  side: 'double', align: "center", baseline: 'center'},
+
+}, true);
+auxl.cardCostIcon3 = auxl.Core(auxl.cardCostIcon3Data);
+
+
+
+//Extra 1
+auxl.cardExtraIcon1Data = auxl.coreDataFromTemplate(auxl.cardIconBaseData, {
+	id: 'cardExtraIcon1',
+	position: new THREE.Vector3(1.1,-1.1,0),
+	text: false,
+	geometry: {primitive: 'cylinder', radius: 0.15, height: 0.3, openEnded: false, segmentsHeight: 2, segmentsRadial: 24, thetaStart: 0, thetaLength: 360},
+	material: {shader: "standard", color: "#d84b21", emissive: '#d84b21', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+	text: {value:'A', wrapCount: 8, color: "#000000", font: "exo2bold", zOffset: 0.155, xOffset: 0.05,  side: 'double', align: "center", baseline: 'center'},
+
+}, true);
+auxl.cardExtraIcon1 = auxl.Core(auxl.cardExtraIcon1Data);
+
+//Extra 2
+auxl.cardExtraIcon2Data = auxl.coreDataFromTemplate(auxl.cardIconBaseData, {
+	id: 'cardExtraIcon2',
+	position: new THREE.Vector3(1.1,-0.8,0),
+	text: false,
+	geometry: {primitive: 'cylinder', radius: 0.15, height: 0.3, openEnded: false, segmentsHeight: 2, segmentsRadial: 24, thetaStart: 0, thetaLength: 360},
+	material: {shader: "standard", color: "#d89921", emissive: '#d89921', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+	text: {value:'A', wrapCount: 8, color: "#000000", font: "exo2bold", zOffset: 0.155, xOffset: 0.05,  side: 'double', align: "center", baseline: 'center'},
+
+}, true);
+auxl.cardExtraIcon2 = auxl.Core(auxl.cardExtraIcon2Data);
+
+//Extra 3
+auxl.cardExtraIcon3Data = auxl.coreDataFromTemplate(auxl.cardIconBaseData, {
+	id: 'cardExtraIcon3',
+	position: new THREE.Vector3(1.1,-0.5,0),
+	text: false,
+	geometry: {primitive: 'cylinder', radius: 0.15, height: 0.3, openEnded: false, segmentsHeight: 2, segmentsRadial: 24, thetaStart: 0, thetaLength: 360},
+	material: {shader: "standard", color: "#c8d821", emissive: '#c8d821', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+	text: {value:'A', wrapCount: 8, color: "#000000", font: "exo2bold", zOffset: 0.155, xOffset: 0.05,  side: 'double', align: "center", baseline: 'center'},
+
+}, true);
+auxl.cardExtraIcon3 = auxl.Core(auxl.cardExtraIcon3Data);
+
+
+auxl.cardLayerData = {
+	parent: {core: auxl.cardParent}, 
+	child0: {core: auxl.cardBackground}, 
+	child1: {core: auxl.titleBar}, 
+	child2: {core: auxl.controlBar}, 
+	child3: {core: auxl.notificationBar}, 
+	child4: {core: auxl.cardTextBody}, 
+	child5: {core: auxl.cardTextAccent}, 
+	child6: {core: auxl.cardCostIcon1}, 
+	child7: {core: auxl.cardCostIcon2}, 
+	child8: {core: auxl.cardCostIcon3}, 
+	child9: {core: auxl.cardExtraIcon1}, 
+	child10: {core: auxl.cardExtraIcon2}, 
+	child11: {core: auxl.cardExtraIcon3}, 
+}
+auxl.card = auxl.Layer('card',auxl.cardLayerData);
+
+
+
+//Large View
+auxl.cardLargeLayerData = auxl.layerDataFromTemplate(auxl.cardLayerData, 'cardLarge',{scale: new THREE.Vector3(1,1,1),
+position: new THREE.Vector3(4,1.6,3),
+rotation: new THREE.Vector3(0,270,0),
+}, false, true);
+
+
+auxl.cardLarge = auxl.Layer('cardLarge',auxl.cardLargeLayerData);
+
+
+
+
+
 //Build Scene Library Objects
 auxl.buildSceneLibrary = () => {
 
@@ -2742,15 +3012,15 @@ auxl.v03TestingScenarioData = {
 		},
 	},
 	controls:{
-		action1Down:{auxlObj: 'testHoverMenu', func: 'SpawnHoverMenu', name: 'Quick Menu', info: 'Spawn Quick Menu', params: 'true'},
-		action1Up:{auxlObj: 'testHoverMenu', func: 'DespawnHoverMenu', name: 'Quick Menu', info: 'Despawn Quick Menu'},
-		action2Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
-		action3Down:{auxlObj: 'playerRig', component: 'locomotion', func: 'toggleSpeed', name: 'Toggle Walk/Run', info: 'Change your walking speed between walk and run.'},
 
-		action5Down:{auxlObj: 'player', func: 'ToggleCrouch', name: 'Toggle Crouch/Stand', info: 'Change your position between crouch and standing.'},
-		//action6Down:{auxlObj: 'player', func: 'ToggleSittingMode', name: 'Toggle Roomscale Sit/Stand', info: 'Change your position between crouch and standing.'},
-		action7Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},
-		action8Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
+		action1Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action2Down:{auxlObj: 'player', func: 'RoamCamSwap', name: 'Toggle Cam Swap', info: 'Swap between Head & Roaming Cams.'},
+		action3Down:{auxlObj: 'player', func: 'SnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
+		action4Down:{auxlObj: 'player', func: 'SnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},
+		action5Down:{auxlObj: 'player', func: 'CycleCameraZoom', params: 'true', name: 'Scroll Backward', info: 'Change your ghost position between over the shoulder, above, birds eye or mouse.'},
+		action6Down:{auxlObj: 'player', func: 'CycleCameraZoom', params: 'false', name: 'Scroll Forward', info: 'Change your ghost position between over the shoulder, above, birds eye or mouse.'},
+		action7Down:{auxlObj: 'player', func: 'HeadSnapRight45', name: 'Snap View Right', info: 'Quick snap your view 45 degrees to the right.'},
+		action8Down:{auxlObj: 'player', func: 'HeadSnapLeft45', name: 'Snap View Left', info: 'Quick snap your view 45 degrees to the left.'},
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
@@ -2758,6 +3028,8 @@ auxl.v03TestingScenarioData = {
 		//comp:{SpawnComp: null, AddToInventory:{item:[ auxl.testItem1, auxl.testItem2, auxl.flashlightTool, auxl.testTool1, auxl.testTool2, auxl.testKey1, auxl.testKey2, auxl.testKey3, auxl.testKey4, auxl.testKey5, auxl.testKey6, auxl.testKey7, auxl.testKey8, auxl.testKey9, auxl.testSpecial1, auxl.testSpecial2,], hide: true}},
 		floor:{SpawnCore: null},
 		clouds:{SpawnLayer: null},
+		card:{SpawnLayer: null},
+		cardLarge:{SpawnLayer: null},
 	},
 	delay:{
 		100:{

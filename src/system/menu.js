@@ -153,6 +153,7 @@ const MultiMenu = (auxl, multiMenuData) => {
 	multiMenu.offset = multiMenuData.info.offset || -1;
 	multiMenu.parent = multiMenu.data.info.parent || false;
 	multiMenu.stare = multiMenu.data.info.stare || false;
+	multiMenu.npc = multiMenu.data.info.npc || false;
 
 	//circle
 	//vertical
@@ -458,11 +459,14 @@ const MultiMenu = (auxl, multiMenuData) => {
 		let nullNum = 1;
 		let spawnParent;
 		let spawnTimeout = setTimeout(() => {
+			let directory = '';
 			for(let button in multiMenu.cores[currentMenu]){
 				spawnParent = multiMenu.menuLayer.GetChildEl(multiMenu.id+'null'+nullNum);
 				multiMenu.cores[currentMenu][button].SpawnCore(spawnParent);
 				nullNum++;
+				directory += ' ' + multiMenu.cores[currentMenu][button].core.id;
 			}
+			if(multiMenu.npc){auxl[multiMenu.npc].Speak({role: currentMenu, speech: directory})}
 			clearTimeout(spawnTimeout);
 		}, switchDelay);
 		multiMenu.switchingTimeout = setTimeout(() => {

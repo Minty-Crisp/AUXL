@@ -294,7 +294,42 @@ const Core = (auxl, data) => {
 	const SpawnCore = (parent) => {
 		core.parent = parent || core.defaultParent || false;
 		let preAdded = false;
-		if(core.inScene){}else{
+		if(core.inScene){
+			if(parent){
+				if(core.parent.core){
+					//console.log('Core');
+					if(core.parent.core.inScene){
+						core.parent = core.parent.GetEl();
+					} else {
+						core.parent = false;
+					}
+				} else if(core.parent.layer){
+					//console.log('Layer');
+					if(parent.layer.inScene){
+						core.parent = core.parent.GetParentEl();
+					} else {
+						core.parent = false;
+					}
+				} else if(core.parent.id){
+					//console.log('Entity');
+				} else if(typeof core.parent === 'string'){
+					//console.log('ID');
+					if(document.getElementById(core.parent)){
+						core.parent = document.getElementById(core.parent);
+					} else {
+						core.parent = false;
+					}
+				}
+				if(!core.parent){
+					console.log(id);
+					console.log(core.parent);
+					console.log(document.getElementById(core.parent));
+					console.log('Parent is not in scene!');
+				} else {
+					core.parent.appendChild(core.el);
+				}
+			}
+		}else{
 			//Generate Entity Element
 			Generate();
 			//Loading should only apply to gltf, obj and material textures

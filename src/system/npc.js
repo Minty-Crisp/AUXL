@@ -579,6 +579,11 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 	}
 	//Speaking Controls
 	const DisplaySpeech = ({role,speech}) => {
+		if(core.type === 'core'){
+			if(!core.GetEl(true)){return}
+		} else {
+			if(!core.GetParentEl(true)){return}
+		}
 		Kill();
 		KillBlink();
 		if(!Active()){
@@ -691,7 +696,7 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 				}
 				core.blinking = true;
 			}
-		}, 1000);
+		}, 1500);
 	}
 	//Add Textbubble Timeout, Interval, Interaction & Events to Tracker
 	const AddToTimeIntEvtTracker = ({name,type,id,method,params}) => {

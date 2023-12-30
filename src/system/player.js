@@ -57,7 +57,9 @@ const Player = (auxl, id, layer, data) => {
 	//Rig with camera
 	//Snap Rotation
 	layer.snapRotating = false;
+	layer.headSnapRotating = false;
 	let snapTimeout;
+	let headSnapTimeout;
 	//Rotate 45
 	let anim45Data = {
 		name: 'anim45',
@@ -117,6 +119,60 @@ const Player = (auxl, id, layer, data) => {
 	layer.gridPos.copy(auxl.playerRig.GetEl().getAttribute('position'));
 	layer.gridDirection = 'still';
 	//forwardRight | forwardLeft | reverseRight | reverseLeft | forward | reverse | right | left
+
+
+	//
+	//Raycasters 
+	layer.targetDistance = 50;
+
+	//Toggle Raycaster Helpers
+	//If false, all false, otherwise show config helper
+	const ToggleTargetHelp = (state) => {
+		state = (state === 'toggle')? !layer.raycasters.display : state;
+		layer.raycasters.display = state;
+		if(auxl.controls === 'Desktop' || auxl.controls === 'Mobile'){
+			layer.raycasters.hmdmouse.targetDisplay = state;
+			layer.raycasters.hand1.targetDisplay = (state)?!state:state;
+			layer.raycasters.hand2.targetDisplay = (state)?!state:state;
+			if(state){
+				if(!layer.raycasters.hmdmouse.linkAnchor.core.inScene){
+					layer.raycasters.hmdmouse.linkAnchor.SpawnCore();
+				}
+			} else {
+				if(layer.raycasters.hmdmouse.linkAnchor.core.inScene){
+					layer.raycasters.hmdmouse.linkAnchor.DespawnCore();
+				}
+			}
+			if(layer.raycasters.hand1.linkAnchor.core.inScene){
+				layer.raycasters.hand1.linkAnchor.DespawnCore();
+			}
+			if(layer.raycasters.hand2.linkAnchor.core.inScene){
+				layer.raycasters.hand2.linkAnchor.DespawnCore();
+			}
+		} else if(auxl.controls === 'VR'){
+			layer.raycasters.hmdmouse.targetDisplay = (state)?!state:state;
+			layer.raycasters.hand1.targetDisplay = state;
+			layer.raycasters.hand2.targetDisplay = state;
+			if(state){
+				if(!layer.raycasters.hand1.linkAnchor.core.inScene){
+					layer.raycasters.hand1.linkAnchor.SpawnCore();
+				}
+				if(!layer.raycasters.hand2.linkAnchor.core.inScene){
+					layer.raycasters.hand2.linkAnchor.SpawnCore();
+				}
+			} else {
+				if(layer.raycasters.hand1.linkAnchor.core.inScene){
+					layer.raycasters.hand1.linkAnchor.DespawnCore();
+				}
+				if(layer.raycasters.hand2.linkAnchor.core.inScene){
+					layer.raycasters.hand2.linkAnchor.DespawnCore();
+				}
+			}
+			if(layer.raycasters.hmdmouse.linkAnchor.core.inScene){
+				layer.raycasters.hmdmouse.linkAnchor.DespawnCore();
+			}
+		}
+	}
 
 	//
 	//Raycasters - 14 small
@@ -189,9 +245,9 @@ const Player = (auxl, id, layer, data) => {
 			id: 'hmdLinkCore',
 			sources: false,
 			text: false,
-			geometry: {primitive: 'sphere', radius: 0.2,},
-			material: {shader: "standard", color: "#ebd107", emissive: '#ebd107', emissiveIntensity: 0.25, opacity: 0.75},
-			position: new THREE.Vector3(0,0,0),
+			geometry: {primitive: 'ring', radiusInner: 0.3, radiusOuter: 0.5},
+			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.9},
+			position: new THREE.Vector3(0,0,0.1),
 			rotation: new THREE.Vector3(0,0,0),
 			scale: new THREE.Vector3(1,1,1),
 			animations: false,
@@ -201,9 +257,13 @@ const Player = (auxl, id, layer, data) => {
 				body:{type: 'static', shape: 'none', mass: 0,},
 				//bodymaterial: {friction: 0, restitution: 0},
 			},
-		};
+		}; 
 		layer.raycasters.hmdmouse.linkCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hmdmouse.linkCoreData, false, true));
-		layer.raycasters.hmdmouse.linkAnchor = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hmdmouse.linkCoreData, {id: 'hmdLinkAnchor', geometry: {primitive: 'sphere', radius: 0.2,}, material: {shader: "standard", color: "#2dba74", emissive: '#2dba74', emissiveIntensity: 0.25, opacity: 0.75, blending: 'multiply'}}, true));
+		layer.raycasters.hmdmouse.linkAnchor = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hmdmouse.linkCoreData, {id: 'hmdLinkAnchor',
+			geometry: {primitive: 'ring', radiusInner: 0.3, radiusOuter: 0.5},
+			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.9},
+
+}, true));
 		layer.raycasters.hmdmouse.linkConfig = {
 			type: 'auxspring',
 			to: 'playerRig',
@@ -264,7 +324,10 @@ const Player = (auxl, id, layer, data) => {
 			},
 		};
 		layer.raycasters.hand1.linkCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand1.linkCoreData, false, true));
-		layer.raycasters.hand1.linkAnchor = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand1.linkCoreData, {id: 'hand1LinkAnchor', geometry: {primitive: 'sphere', radius: 0.2,}, material: {shader: "standard", color: "#2dba74", emissive: '#2dba74', emissiveIntensity: 0.25, opacity: 0.75, blending: 'multiply'}}, true));
+		layer.raycasters.hand1.linkAnchor = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand1.linkCoreData, {id: 'hand1LinkAnchor', 
+			geometry: {primitive: 'ring', radiusInner: 0.3, radiusOuter: 0.5},
+			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.9},
+}, true));
 		layer.raycasters.hand1.linkConfig = {
 			type: 'auxspring',
 			to: 'playerRig',
@@ -325,7 +388,10 @@ const Player = (auxl, id, layer, data) => {
 			},
 		};
 		layer.raycasters.hand2.linkCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand2.linkCoreData, false, true));
-		layer.raycasters.hand2.linkAnchor = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand2.linkCoreData, {id: 'hand2LinkAnchor', geometry: {primitive: 'sphere', radius: 0.2,}, material: {shader: "standard", color: "#eb078b", emissive: '#eb078b', emissiveIntensity: 0.25, opacity: 0.75, blending: 'multiply'}}, true));
+		layer.raycasters.hand2.linkAnchor = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand2.linkCoreData, {id: 'hand2LinkAnchor', 
+			geometry: {primitive: 'ring', radiusInner: 0.3, radiusOuter: 0.5},
+			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.9},
+}, true));
 		layer.raycasters.hand2.linkConfig = {
 			type: 'auxspring',
 			to: 'playerRig',
@@ -375,6 +441,8 @@ const Player = (auxl, id, layer, data) => {
 		layer.animating = false;
 		//Snap Rotation
 		layer.snapRotating = false;
+		//Head Snap Rotation
+		layer.headSnapRotating = false;
 		//Belt Inventory, Toggle & Text
 		layer.beltDisplay = true;
 		layer.beltDefaultText = 'Hello World!';
@@ -409,6 +477,93 @@ const Player = (auxl, id, layer, data) => {
 		//Update Current
 		layer.raycasters.previousCamera = layer.raycasters.activeCamera;
 		layer.raycasters.activeCamera = layer.raycasters.previousCamera;
+	}
+
+	layer.scroll = {};
+	layer.scroll.mainCurrent = 1;
+	layer.scroll.roamCurrent = 1;
+	layer.scrollMin = new THREE.Vector3(0,-1,0.3);
+	layer.scrollHead = new THREE.Vector3(0,0,0);
+	layer.scrollHeadBehind = new THREE.Vector3(0,0,0.5);
+	layer.scrollShoulder = new THREE.Vector3(0.1,0.3,0.6);
+	layer.scrollMid = new THREE.Vector3(0,1.7,1.6);
+	layer.scrollMax = new THREE.Vector3(0,4.8,3.2);
+	layer.scrolls = [
+		layer.scrollMin,
+		layer.scrollHead,
+		layer.scrollHeadBehind,
+		layer.scrollShoulder,
+		layer.scrollMid,
+		layer.scrollMax,
+	];
+
+	//System Head Scrolling
+	const CycleCameraZoom = (direction, current) => {
+	//console.log('scrolling')
+	//console.log(layer.scroll.current)
+	//console.log(direction)
+
+
+		if(layer.head.attached){
+
+			if(auxl.isFalsey(direction)){
+				layer.scroll.mainCurrent--;
+			} else {
+				layer.scroll.mainCurrent++;
+			}
+			if(layer.scroll.mainCurrent === layer.scrolls.length){
+				layer.scroll.mainCurrent = 0;
+			} else if(layer.scroll.mainCurrent < 0){
+				layer.scroll.mainCurrent = layer.scrolls.length-1;
+			}
+			//Position to Move to
+			let newPosition = new THREE.Vector3(0,0,0).copy(layer.scrolls[layer.scroll.mainCurrent]);
+			auxl.headRig.GetEl().object3D.position.copy(newPosition);
+		} else {
+
+			if(auxl.isFalsey(direction)){
+				layer.scroll.roamCurrent--;
+			} else {
+				layer.scroll.roamCurrent++;
+			}
+			if(layer.scroll.roamCurrent === layer.scrolls.length){
+				layer.scroll.roamCurrent = 0;
+			} else if(layer.scroll.roamCurrent < 0){
+				layer.scroll.roamCurrent = layer.scrolls.length-1;
+			}
+			//Position to Move to
+			let newPosition = new THREE.Vector3(0,0,0).copy(layer.scrolls[layer.scroll.roamCurrent]);
+			newPosition.z *= -1;
+			auxl.roamCamera.GetEl().object3D.position.copy(newPosition);
+		}
+
+	}
+	//Manual Controls Added for Testing
+	document.addEventListener("keydown", (e) => {
+		if(e.key === 'ArrowUp'){
+			CycleCameraZoom(false);
+		} else if( e.key === 'ArrowDown'){
+			CycleCameraZoom(true);
+		} else if(e.key === 'ArrowLeft'){
+			RoamCamSwap();
+		} else if( e.key === 'ArrowRight'){
+			RoamCamSwap();
+		}
+	});
+
+
+	layer.head = {};
+	layer.head.attached = true;
+	const RoamCamSwap = () => {
+
+		if(layer.head.attached){
+auxl.roamCamera.ChangeSelf({property:'camera', value: {active: true}})
+auxl.camera.ChangeSelf({property:'camera', value: {active: false}})
+		} else {
+auxl.camera.ChangeSelf({property:'camera', value: {active: true}})
+auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
+		}
+		layer.head.attached = !layer.head.attached
 	}
 
 	//Scene & Teleportation Camera Controls
@@ -677,6 +832,41 @@ const Player = (auxl, id, layer, data) => {
 		auxl.playerBody.Animate(camYAnimData)
 	}
 
+	//HeadRig Snap Turning
+	//Quick Snap Camera Rotation
+	//Play Snap View Anim to the Right 45degrees
+	const HeadSnapRight45 = () => {
+		if(layer.headSnapRotating){} else {
+			layer.headSnapRotating = true;
+			let rotY = auxl.playerCamRoam.GetEl().getAttribute('rotation').y;
+			anim45Data.from = rotY;
+			anim45Data.to = rotY - 45;
+			auxl.playerCamRoam.Animate(anim45Data);
+			headSnapTimeout = setTimeout(() => {
+				layer.headSnapRotating = false;
+				clearTimeout(headSnapTimeout);
+			}, anim45Data.dur+10);
+		}
+	}
+	//Play Snap View Anim to the Left 45degrees
+	const HeadSnapLeft45 = () => {
+		if(layer.headSnapRotating){} else {
+			layer.headSnapRotating = true;
+			let rotY = auxl.playerCamRoam.GetEl().getAttribute('rotation').y;
+			anim45Data.from = rotY;
+			anim45Data.to = rotY + 45;
+			auxl.playerCamRoam.Animate(anim45Data);
+			headSnapTimeout = setTimeout(() => {
+				layer.headSnapRotating = false;
+				clearTimeout(headSnapTimeout);
+			}, anim45Data.dur+10);
+		}
+	}
+
+
+
+
+
 	//Height Toggle
 	//Toggle Sitting|Standing View Mode
 	const ToggleSittingMode = () => {
@@ -761,10 +951,12 @@ const Player = (auxl, id, layer, data) => {
 	const ToggleBeltText = (force) => {
 		if(force || !layer.beltDisplay){
 			auxl.playerBeltText.ChangeSelf({property: 'visible', value:true})
+			auxl.playerBeltTitleText.ChangeSelf({property: 'visible', value:true})
 			UpdateBeltText();
 			layer.beltDisplay = true;
 		} else if(layer.beltDisplay){
 			auxl.playerBeltText.ChangeSelf({property: 'visible', value:false})
+			auxl.playerBeltTitleText.ChangeSelf({property: 'visible', value:false})
 			layer.beltDisplay = false;
 		}
 	}
@@ -2792,7 +2984,7 @@ console.log(event.detail.intersection.point)
 		auxl.firingTest.ChangeSelf({property: 'text', value: {value: 'Hit : '+ fired}});
 	}
 
-	return {layer, player, Reset, CameraSwitch, CameraSwitchBack, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, PlayerQuickAnim, PlayerFadeOut, PlayerFadeIn, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, UpdateActions, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot, GetPlayerInfo, ToggleRayHelp, CamRigPoint, RigPoint, RaySpawnPoint, RayDir, RayDistanceDirection, GetRayDirectionRig, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, setAllGravity, setAllGravityAxis, setAllGravityTypes, cycleAllGravityTypes, cycleWorldGravityAxis, ToggleAction, Rubberband, TeleportTo, BoostTo, BackBoost, ChuteUp, ChuteDown, BrakeUp, BrakeDown, RedirectUp, RedirectDown, Redirect, Freeze, UnFreeze, DelinkCore, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, EmitEvent, TestFunc, TogglePlayerPhysics};
+	return {layer, player, Reset, CameraSwitch, CameraSwitchBack, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, PlayerQuickAnim, PlayerFadeOut, PlayerFadeIn, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, UpdateActions, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot, GetPlayerInfo, ToggleRayHelp, CamRigPoint, RigPoint, RaySpawnPoint, RayDir, RayDistanceDirection, GetRayDirectionRig, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, setAllGravity, setAllGravityAxis, setAllGravityTypes, cycleAllGravityTypes, cycleWorldGravityAxis, ToggleAction, Rubberband, TeleportTo, BoostTo, BackBoost, ChuteUp, ChuteDown, BrakeUp, BrakeDown, RedirectUp, RedirectDown, Redirect, Freeze, UnFreeze, DelinkCore, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, EmitEvent, TestFunc, TogglePlayerPhysics, CycleCameraZoom, HeadSnapRight45, HeadSnapLeft45, RoamCamSwap};
 	}
 //
 //Companion
@@ -2847,6 +3039,7 @@ const Companion = (auxl, id, object, inventory) => {
 	comp.specials = {};
 
 	//
+	//Right A
 	//Main Menu
 	comp.mainMenuData = {
 	info:{
@@ -2856,9 +3049,17 @@ const Companion = (auxl, id, object, inventory) => {
 		title: 'Main Menu',
 		description: 'Main menu for travel, system and settings.',
 		layout:'circleUp',
-		offset: -1,
-		parent: comp.menuParentId,
+		//Cube
+		//posOffset: new THREE.Vector3(1.3,0.3,0),
+		//posOffset: new THREE.Vector3(1.3,0.3,0.22),
+		//posOffset: new THREE.Vector3(1.2,0.3,0.22),
+		//offset: -1,
+		offset: -1.25,
+		//posOffset: new THREE.Vector3(1.625,-0.4,0.11),
+		posOffset: new THREE.Vector3(1.625,0.13,0.11),
+		parent: 'ghostParent',
 		stare: false,
+		npc: 'compNPC',
 	},
 	menu0:{
 		button1:{
@@ -2951,6 +3152,20 @@ const Companion = (auxl, id, object, inventory) => {
 				auxlObj: 'player',
 				component: false,
 				method: 'ToggleRayHelp',
+				params: 'toggle',
+				menu: 'close',
+			},
+		},
+		button5:{
+			id: 'TargettingSystem',
+			style: false,
+			title: 'Target Assistant Helper Toggles.',
+			description: 'Toggle between ray helpers on or off.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'ToggleTargetHelp',
 				params: 'toggle',
 				menu: 'close',
 			},

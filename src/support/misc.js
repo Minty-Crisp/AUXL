@@ -88,6 +88,7 @@ dependencies: ['auxl'],
 schema: {
 	buffer: {type: 'number', default: 0},
 	drag: {type: 'number', default: 0},
+	max: {type: 'number', default: 0},
 	match: {type: 'string', default: 'camera'},
 	x: {type: 'boolean', default: false},
 	y: {type: 'boolean', default: false},
@@ -96,14 +97,28 @@ schema: {
 init: function () {
 },
 update: function () {
+	this.startRotation = new THREE.Euler();
 	this.rotation = new THREE.Euler();
 	this.rotation.copy(this.el.object3D.rotation);
+	this.startRotation.copy(this.el.object3D.rotation);
 	this.matchView = document.getElementById(this.data.match);
+	this.maxView = this.data.max;
 	this.matchRotation = new THREE.Euler();
+	this.focusedRotation = new THREE.Euler();
 	this.lookAtXYZThrottled = AFRAME.utils.throttle(this.lookAtXYZ, 30, this);
+
+	this.focused = false;
+
 },
 lookAtXYZ: function () {
+	//Get Current Rotation
 	this.matchRotation.copy(this.matchView.object3D.rotation);
+	if(!this.focused){
+		this.el.object3D.rotation.copy(this.focusedRotation);
+		this.focused = true;
+	}
+	//Check if rotation is allowed
+
 	//Sync X,Y and/or Z
 	if(this.data.x){
 		if(Math.abs(this.matchRotation.x - this.rotation.x) >= this.data.buffer){
@@ -121,25 +136,20 @@ lookAtXYZ: function () {
 			} else {
 				this.rotation.y = this.matchRotation.y;
 			}
-/*
-			if(this.data.buffer > 0){
-				if(this.matchRotation.y > this.rotation.y){
-					this.rotation.y += this.data.buffer/10;
-				} else {
-					this.rotation.y -= this.data.buffer/10;
-				}
-			} else {
-				this.rotation.y = this.matchRotation.y;
-			}
-*/
 		}
 	}
+
+
 	if(this.data.z){
 		if(Math.abs(this.matchRotation.z - this.rotation.z) >= this.data.buffer){
 			this.rotation.z = this.matchRotation.z;
 		}
 	}
+
+
+
 	this.el.object3D.rotation.copy(this.rotation);
+
 },
 tick: function (time, timeDelta) {
 	this.lookAtXYZThrottled();

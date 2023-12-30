@@ -51,6 +51,8 @@ this.worldLoaded = false;
 this.local = {};
 this.local.profile = {};
 this.rebuildObjects = [];
+this.libraries = [];
+this.worlds = [];
 this.volume = 1;
 this.backgroundAudio = false;
 
@@ -195,9 +197,18 @@ const UpdateSystemText = (text) => {
 	this.systemText = text;
 	ApplySystemText()
 }
+//Loaded
+this.Loaded = (library) => {
+	auxl.libraries.push(library);
+}
+//WorldsLoaded
+this.WorldsLoaded = (world) => {
+	auxl.worlds.push(world);
+}
 //Add Component Rebuild Method
 this.toBeRebuilt = (methodName) => {
 	auxl.rebuildObjects.push(methodName);
+	auxl.Loaded(methodName);
 }
 //Rebuild Player and All ObjGens
 const Rebuild = () => {
@@ -472,56 +483,6 @@ this.joystickLoco = 4;
 this.joystickRot = 8;
 this.controlsInfo = {};
 this.controlsText = '';
-
-this.scroll = {};
-this.scroll.current = 1;
-this.scrollMin = new THREE.Vector3(0,-1,0);
-this.scrollHead = new THREE.Vector3(0,0,0);
-this.scrollShoulder = new THREE.Vector3(0.1,0.3,0.6);
-this.scrollMid = new THREE.Vector3(0,1.7,1.6);
-this.scrollMax = new THREE.Vector3(0,4.8,3.2);
-this.scrolls = [
-	this.scrollMin,
-	this.scrollHead,
-	this.scrollShoulder,
-	this.scrollMid,
-	this.scrollMax,
-];
-
-//System Head Scrolling
-this.CycleCameraZoom = (direction) => {
-//console.log('scrolling')
-//console.log(this.scroll.current)
-//console.log(direction)
-
-	if(direction){
-		this.scroll.current--;
-	} else {
-		this.scroll.current++;
-	}
-
-	if(this.scroll.current === this.scrolls.length){
-		this.scroll.current = 0;
-	} else if(this.scroll.current < 0){
-		this.scroll.current = this.scrolls.length-1;
-	}
-	//Position to Move to
-	let newPosition = new THREE.Vector3(0,0,0).copy(this.scrolls[this.scroll.current]);
-	//Set Position
-	this.headRig.GetEl().object3D.position.copy(newPosition);
-
-}
-
-document.addEventListener("keydown", (e) => {
-	if(e.key === 'ArrowUp'){
-		this.CycleCameraZoom(true);
-	} else if( e.key === 'ArrowDown'){
-		this.CycleCameraZoom(false);
-	}
-
-
-});
-
 
 /*************************************************************/
 //Menu
@@ -1327,7 +1288,8 @@ this.isFalsey = (value) => {
     //value === 0 ||
     value === false ||
     value === NaN ||
-    value === ""
+    value === ""||
+    value === "false"
   ) {
     return true;
   }

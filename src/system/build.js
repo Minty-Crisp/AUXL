@@ -2056,19 +2056,99 @@ components: false,
 };
 
 */
-	//attach look-at with buffer
-	one.buildMenuData = {
+
+
+
+//Color Family Import Options
+function ColorFamilyButtonGen(){
+//color categories : warm,cool,extreme
+	let colorFamilies = ['red','orange','yellow','lime','blue','cyan','magenta','maroon', 'olive','green','purple','teal','navy','silver','grey','black', 'white'];
+	let current = 0;
+	let page = 0;
+	let max = 6;
+	one.buildMenuData['coreMaterialColorPage'+page] = {};
+//console.log(one.buildMenuData)
+//console.log(one.buildMenuData['coreMaterialColorPage'+page])
+	for (let color in colorFamilies){
+//console.log(colorFamilies[color])
+		one.buildMenuData['coreMaterialColorPage'+page]['button'+current] = {};
+		let button = {
+			id: 'action'+current,
+			style: false,
+			title: colorFamilies[color],
+			description: 'Update the core Material to ' + colorFamilies[color],
+			subMenu: false,
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdateMaterial',
+				params: colorFamilies[color],
+				menu: 'stay',
+			},
+		};
+		let next = {
+			id: 'subMenu'+page,
+			style: false,
+			title: 'Page '+(page+1),
+			description: 'Next Page > '+page,
+			subMenu: 'coreMaterialColorPage'+(page+1),
+			action: false,
+		};
+		if(current >= max){
+			one.buildMenuData['coreMaterialColorPage'+page]['button'+current] = next;
+			page++;
+			current = 0;
+
+		} else {
+			one.buildMenuData['coreMaterialColorPage'+page]['button'+current] = button;
+		}
+		//one.buildMenuData.current['button'+current] = button;
+		current++;
+	}
+}
+
+//
+//Sub Menus
+
+//Left A
+//PURPLE
+//Build Menu
+one.buildCoreData = {
+data:'buildCoreData',
+id:'buildCore',
+sources:false,
+text: {value:'Menu', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+geometry: {primitive: 'circle', radius: 0.25, segments: 32, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#b011c4", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#b011c4", emissiveIntensity: 0.4, side: 'double',  },
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{
+hoveron:{property: 'components.material.material.emissiveIntensity', from: 0.4, to: 0.6, dur: 125, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
+
+hoveroff:{property: 'components.material.material.emissiveIntensity', from: 0.6, to: 0.4, dur: 125, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
+
+click1:{property: 'scale', from: '1 1 1', to: '1.05 1.05 1.05', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+one.buildMenuData = {
 	info:{
 		id: 'buildMenu',
-		buttonData: auxl.buildCoreData,
+		buttonData: one.buildCoreData,
 		hoverData: auxl.buildHoverData,
 		title: 'Build Mode',
 		description: 'Build objects.',
 		layout:'circleUp',
-		posOffset: new THREE.Vector3(0.33,0.33,-0.33),
-		offset: -1,
+		//posOffset: new THREE.Vector3(-1.4,-0.2,0.11),
+		//posOffset: new THREE.Vector3(-1.5,-0.2,0.22),
+		//posOffset: new THREE.Vector3(-1.5,0.13,0.11),
+		posOffset: new THREE.Vector3(-1.625,0.13,0.11),
+		offset: 1.25,
 		parent: 'ghostParent',
-		look: {buffer: 0.65, drag: 0.25, match: 'camera', x:true, y:true, z:true},
+		//look: {buffer: 0.65, drag: 0.25, match: 'camera', x:true, y:true, z:true},
 		stare: false,
 	},
 	menu0:{
@@ -2419,6 +2499,50 @@ components: false,
 				menu: 'stay',
 			},
 		},
+
+		button0:{
+			id: 'PosX',
+			style: false,
+			title: 'X',
+			description: 'Update the X axis.',
+			subMenu: 'menu1',
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdatePosition',
+				params: 'x',
+				menu: 'stay',
+			},
+		},
+		button1:{
+			id: 'PosY',
+			style: false,
+			title: 'Y',
+			description: 'Update the Y axis.',
+			subMenu: 'menu22',
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdatePosition',
+				params: 'y',
+				menu: 'stay',
+			},
+		},
+		button2:{
+			id: 'PosZ',
+			style: false,
+			title: 'Z',
+			description: 'Update the Z axis.',
+			subMenu: 'menu23',
+			action: {
+				auxlObj: 'build',
+				component: false,
+				method: 'UpdatePosition',
+				params: 'z',
+				menu: 'stay',
+			},
+		},
+
 	},
 	coreRotation:{
 		button0:{
@@ -2528,69 +2652,590 @@ components: false,
 	},
 
 };
-//Color Family Import Options
-function ColorFamilyButtonGen(){
-//color categories : warm,cool,extreme
-	let colorFamilies = ['red','orange','yellow','lime','blue','cyan','magenta','maroon', 'olive','green','purple','teal','navy','silver','grey','black', 'white'];
-	let current = 0;
-	let page = 0;
-	let max = 6;
-	one.buildMenuData['coreMaterialColorPage'+page] = {};
-console.log(one.buildMenuData)
-console.log(one.buildMenuData['coreMaterialColorPage'+page])
-	for (let color in colorFamilies){
-console.log(colorFamilies[color])
-		one.buildMenuData['coreMaterialColorPage'+page]['button'+current] = {};
-		let button = {
-			id: 'action'+current,
-			style: false,
-			title: colorFamilies[color],
-			description: 'Update the core Material to ' + colorFamilies[color],
-			subMenu: false,
-			action: {
-				auxlObj: 'build',
-				component: false,
-				method: 'UpdateMaterial',
-				params: colorFamilies[color],
-				menu: 'stay',
-			},
-		};
-		let next = {
-			id: 'subMenu'+page,
-			style: false,
-			title: 'Page '+(page+1),
-			description: 'Next Page > '+page,
-			subMenu: 'coreMaterialColorPage'+(page+1),
-			action: false,
-		};
-		if(current >= max){
-			one.buildMenuData['coreMaterialColorPage'+page]['button'+current] = next;
-			page++;
-			current = 0;
-
-		} else {
-			one.buildMenuData['coreMaterialColorPage'+page]['button'+current] = button;
-		}
-		//one.buildMenuData.current['button'+current] = button;
-		current++;
-	}
-}
 ColorFamilyButtonGen();
-console.log(one.buildMenuData)
+//console.log(one.buildMenuData)
+//Build Final Menu
+auxl.buildMenu = auxl.MultiMenu(one.buildMenuData);
+//auxl.buildMenu.menuLayer.layer;
+
+//Numbers
+//
 
 
 
+//LEFT TOP
+//Orange
+auxl.numberStyle0Data = {
+data:'numberStyle0Data',
+id:'numberStyle0',
+sources:false,
+text: {value:'Menu', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+geometry: {primitive: 'circle', radius: 0.25, segments: 32, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#d3be1d", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#d3be1d", emissiveIntensity: 0.4, side: 'double',  },
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:{
+hoveron:{property: 'components.material.material.emissiveIntensity', from: 0.4, to: 0.6, dur: 125, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
 
+hoveroff:{property: 'components.material.material.emissiveIntensity', from: 0.6, to: 0.4, dur: 125, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
 
-
-	//Build Final Menu
-	auxl.buildMenu = auxl.MultiMenu(one.buildMenuData);
-	//auxl.buildMenu.menuLayer.layer;
-/*
-	components: {
-		['look-at-xyz']:},
+click1:{property: 'scale', from: '1 1 1', to: '1.05 1.05 1.05', dur: 125, delay: 0, loop: '1', dir: 'alternate', easing: 'easeInOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'click'},
+},
+mixins: false,
+classes: ['clickable','a-ent'],
+components: false,
+};
+one.numberInputs0Data = {
+info:{
+	id: 'numberInputs0',
+	buttonData: auxl.numberStyle0Data,
+	hoverData: auxl.buildHoverData,
+	title: 'Update Number',
+	description: 'Update the Number.',
+	layout:'circleUp',
+	//posOffset: new THREE.Vector3(-0.5,0,-0.11),
+	//posOffset: new THREE.Vector3(0,0,0),
+	//posOffset: new THREE.Vector3(-1.25,0.4,0),
+	//posOffset: new THREE.Vector3(-1.25,0.3,0.11),
+	posOffset: new THREE.Vector3(-1.75,0.13,-0.11),
+	offset: 1,
+	parent: 'ghostParent',
+	//look: {buffer: 0.65, drag: 0.25, match: 'camera', x:true, y:true, z:true},
+	stare: false,
+},
+menu0:{
+	button0:{
+		id: '0',
+		style: false,
+		title: '0',
+		description: 'Zero',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '0',
+			menu: 'stay',
+		},
+	},	
+	button1:{
+		id: '1',
+		style: false,
+		title: '1',
+		description: 'One',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '1',
+			menu: 'stay',
+		},
 	},
-*/
+
+	button2:{
+		id: '2',
+		style: false,
+		title: '2',
+		description: 'Two',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '2',
+			menu: 'stay',
+		},
+	},
+
+	button3:{
+		id: '3',
+		style: false,
+		title: '3',
+		description: 'Three',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '3',
+			menu: 'stay',
+		},
+	},
+
+	button4:{
+		id: '4',
+		style: false,
+		title: '4',
+		description: 'Four',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '4',
+			menu: 'stay',
+		},
+	},
+
+	button5:{
+		id: '5',
+		style: false,
+		title: '5',
+		description: 'Five',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '5',
+			menu: 'stay',
+		},
+	},
+
+	button6:{
+		id: '6',
+		style: false,
+		title: '6',
+		description: 'Six',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '6',
+			menu: 'stay',
+		},
+	},
+
+},
+
+};
+auxl.numberInputs0 = auxl.MultiMenu(one.numberInputs0Data);
+
+
+
+
+
+//RIGHT MID
+//PINK
+auxl.menuStyle4 = auxl.coreDataFromTemplate(auxl.numberStyle0Data, {
+	id: 'menuStyle4',
+	material: {shader: "standard", color: "#d31d9b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#d31d9b", emissiveIntensity: 0.4, side: 'double',  },
+
+}, true);
+one.buildSubMenuData = {
+info:{
+	id: 'buildSubMenu',
+	buttonData: auxl.menuStyle4,
+	hoverData: auxl.buildHoverData,
+	title: 'Update',
+	description: 'Update the selection.',
+	layout:'circleUp',
+	//posOffset: new THREE.Vector3(1,-0.4,0.33),
+	//posOffset: new THREE.Vector3(0,0,0),
+	//posOffset: new THREE.Vector3(1.2,-0.4,0.11),
+	//posOffset: new THREE.Vector3(1.75,-0.1,0.11),
+	//posOffset: new THREE.Vector3(1.5,-0.1,0.11),
+	//posOffset: new THREE.Vector3(1.25,-0.1,0),
+	//posOffset: new THREE.Vector3(-1.2,0.3,0.22),
+	posOffset: new THREE.Vector3(1.75,0.13,-0.11),
+	offset: -1,
+	parent: 'ghostParent',
+	//look: {buffer: 0.65, drag: 0.25, match: 'camera', x:true, y:true, z:true},
+	stare: false,
+},
+menu0:{
+	button0:{
+		id: 'more0',
+		style: false,
+		title: 'More 0',
+		description: '...',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: 'other',
+			menu: 'stay',
+		},
+	},
+	button1:{
+		id: 'more1',
+		style: false,
+		title: 'More 1',
+		description: '...',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: 'other',
+			menu: 'stay',
+		},
+	},
+
+	button2:{
+		id: 'more2',
+		style: false,
+		title: 'More 2',
+		description: '...',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: 'other',
+			menu: 'stay',
+		},
+	},
+
+	button3:{
+		id: 'more3',
+		style: false,
+		title: 'More 3',
+		description: '...',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: 'other',
+			menu: 'stay',
+		},
+	},
+
+	button4:{
+		id: 'more4',
+		style: false,
+		title: 'More 4',
+		description: '...',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: 'other',
+			menu: 'stay',
+		},
+	},
+
+	button5:{
+		id: 'more5',
+		style: false,
+		title: 'More 5',
+		description: '...',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: 'other',
+			menu: 'stay',
+		},
+	},
+
+	button6:{
+		id: 'more',
+		style: false,
+		title: 'More 6',
+		description: '...',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: 'other',
+			menu: 'stay',
+		},
+	},
+
+
+
+
+
+},
+
+};
+auxl.buildSubMenu = auxl.MultiMenu(one.buildSubMenuData);
+
+
+//LEFT BOTTOM
+//RED
+auxl.numberStyle1Data = auxl.coreDataFromTemplate(auxl.numberStyle0Data, {
+	id: 'numberStyle1',
+	material: {shader: "standard", color: "#d3391d", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#d3391d", emissiveIntensity: 0.4, side: 'double',  },
+
+}, true);
+
+
+one.numberInputs1Data = {
+info:{
+	id: 'numberInputs1',
+	buttonData: auxl.numberStyle1Data,
+	hoverData: auxl.buildHoverData,
+	title: 'Update Number',
+	description: 'Update the Number.',
+	layout:'circleUp',
+	//posOffset: new THREE.Vector3(-1,0.4,-0.33),
+	posOffset: new THREE.Vector3(-1.75,0.15,-0.22),
+	//posOffset: new THREE.Vector3(-1.25,-0.4,-0.22),
+	offset: 0.6,
+	parent: 'ghostParent',
+	//look: {buffer: 0.65, drag: 0.25, match: 'camera', x:true, y:true, z:true},
+	stare: false,
+},
+menu0:{
+	button0:{
+		id: '7',
+		style: false,
+		title: '7',
+		description: 'Seven',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '0',
+			menu: 'stay',
+		},
+	},	
+	button1:{
+		id: '8',
+		style: false,
+		title: '8',
+		description: 'Eight',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '1',
+			menu: 'stay',
+		},
+	},
+
+	button2:{
+		id: '9',
+		style: false,
+		title: '9',
+		description: 'Nine',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '2',
+			menu: 'stay',
+		},
+	},
+
+	button3:{
+		id: '10',
+		style: false,
+		title: '10',
+		description: 'Ten',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '10',
+			menu: 'stay',
+		},
+	},
+
+	button4:{
+		id: '25',
+		style: false,
+		title: '25',
+		description: 'Twenty Five',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '25',
+			menu: 'stay',
+		},
+	},
+
+	button5:{
+		id: '50',
+		style: false,
+		title: '50',
+		description: 'Fifty',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '50',
+			menu: 'stay',
+		},
+	},
+
+	button6:{
+		id: '100',
+		style: false,
+		title: '100',
+		description: 'One Hundred',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '100',
+			menu: 'stay',
+		},
+	},
+
+},
+
+};
+auxl.numberInputs1 = auxl.MultiMenu(one.numberInputs1Data);
+
+
+
+
+//RIGHT C
+//GREEN
+auxl.numberStyle2Data = auxl.coreDataFromTemplate(auxl.numberStyle0Data, {
+	id: 'numberStyle2',
+	material: {shader: "standard", color: "#24d31d", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#24d31d", emissiveIntensity: 0.4, side: 'double',  },
+
+}, true);
+one.buildPosMenuData = {
+info:{
+	id: 'buildMenuNumber',
+	buttonData: auxl.numberStyle2Data,
+	hoverData: auxl.buildHoverData,
+	title: 'Update Pos',
+	description: 'Update the position of selection.',
+	layout:'circleUp',
+	//posOffset: new THREE.Vector3(-1.25,-0.4,0.33),
+	//posOffset: new THREE.Vector3(0,0,0),
+	//posOffset: new THREE.Vector3(1.25,-0.4,-0.44),
+	//offset: -1,
+	posOffset: new THREE.Vector3(1.75,0.15,-0.22),
+	offset: -0.6,
+	parent: 'ghostParent',
+	//look: {buffer: 0.65, drag: 0.25, match: 'camera', x:true, y:true, z:true},
+	stare: false,
+},
+menu0:{
+	button0:{
+		id: 'PositiveA',
+		style: false,
+		title: '+Positive',
+		description: 'Flip Amount to Positive',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '+',
+			menu: 'stay',
+		},
+	},
+	button1:{
+		id: 'NegativeA',
+		style: false,
+		title: '-Negative',
+		description: 'Flip Amount to Negative',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: '-',
+			menu: 'stay',
+		},
+	},
+
+	button2:{
+		id: 'AddA',
+		style: false,
+		title: 'Add +A',
+		description: 'Add Amount of units to selection.',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: 'add',
+			menu: 'stay',
+		},
+	},
+
+	button3:{
+		id: 'SubtractA',
+		style: false,
+		title: 'Subtract -A',
+		description: 'Subtract Amount of units.',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: 'subtract',
+			menu: 'stay',
+		},
+	},
+
+	button4:{
+		id: 'DivideA',
+		style: false,
+		title: 'Half A/2',
+		description: 'Divide Amount of units by 2.',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: 'divide',
+			menu: 'stay',
+		},
+	},
+
+	button5:{
+		id: 'DoubleA',
+		style: false,
+		title: 'Double A*2',
+		description: 'Double Amount of units.',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: 'double',
+			menu: 'stay',
+		},
+	},
+	button6:{
+		id: 'Cancel',
+		style: false,
+		title: 'Cancel',
+		description: 'Cancel & Reset.',
+		subMenu: false,
+		action: {
+			auxlObj: 'one',
+			component: false,
+			method: 'UpdateNumber',
+			params: 'cancel',
+			menu: 'close',
+		},
+	},
+},
+};
+auxl.buildMenuNumber = auxl.MultiMenu(one.buildPosMenuData);
+
+
+
+
+
+
 
 	one.building.geometry = {};
 	one.building.geometry.plane = {primitive: 'plane', width: 0.5, height: 0.5};
@@ -2603,10 +3248,20 @@ console.log(one.buildMenuData)
 	const SpawnBuild = () => {
 		//console.log('Spawning');
 		auxl.buildMenu.SpawnMultiMenu();
+
+		auxl.buildSubMenu.SpawnMultiMenu();
+		auxl.numberInputs0.SpawnMultiMenu();
+		auxl.numberInputs1.SpawnMultiMenu();
+		auxl.buildMenuNumber.SpawnMultiMenu();
 	}
 	const DespawnBuild = () => {
 		//console.log('Despawning');
 		auxl.buildMenu.DespawnMultiMenu();
+
+		auxl.buildSubMenu.DespawnMultiMenu();
+		auxl.numberInputs0.DespawnMultiMenu();
+		auxl.numberInputs1.DespawnMultiMenu();
+		auxl.buildMenuNumber.DespawnMultiMenu();
 		//auxl.RemoveFromTracker(one.id);
 	}
 
@@ -2620,7 +3275,7 @@ console.log(one.buildMenuData)
 				data:name+'data',
 				id:name,
 				sources: false,
-				text: false,
+				text: {value:'Hello World!', color: "#FFFFFF", align: "center", font: "exo2bold", width: 0.45, zOffset: 0.275, side: 'front', wrapCount: 16, baseline: 'center'},
 				geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 0.5},
 				material: {shader: "standard", color: "#2aad7b", emissive: '#2aad7b', emissiveIntensity: 0.25, opacity: 1},
 				position: new THREE.Vector3(0,1.6,-2),
@@ -2693,11 +3348,100 @@ console.log(one.buildMenuData)
 		//Update Preview
 		one.building.current.ChangeSelf({property: 'material', value: materialData});
 	}
-	const UpdateText = () => {
-		console.log('UpdateText')
+
+	one.building.text = {};
+	one.building.text.toggle = false;
+	one.building.text.input = '';
+	one.building.text.backups = [];
+	one.building.text.history = [];
+
+	//Input
+	const KeyInput = (e) => {
+		if(!one.building.text.toggle){
+			return;
+		}
+		//console.log(e)
+		//console.log(e.key)
+		let key = e.key;
+		if(key === 'Backspace'){
+console.log(one.building.text.backups)
+			if(one.building.text.backups.length > 0){
+			one.building.text.input = one.building.text.backups[one.building.text.backups.length-1]
+			one.building.text.backups.pop();
+			one.building.text.next = false;
+			if(one.building.text.backups.length <= 0){
+				one.building.text.backups.push(' ');
+			}
+console.log(one.building.text.backups)
+			} else {
+				one.building.text.input = ' ';
+			}
+
+		} else {
+		   //Substitutes
+			if(key === 'Spacebar'){
+				key = ' ';
+			} else if(key === 'Shift'){
+				one.building.text.shift = !one.building.text.shift;
+				return;
+			} else if(key === 'Enter'){
+				key = '\n';
+			} else if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(key)){
+				//Ignore non individual inputs for now.
+				return;
+			} else if(['Alt', 'Control', 'CapsLock', 'Tab', 'Escape', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'].includes(key)){
+				//Ignore non individual inputs for now.
+				return;
+			}
+
+			if(one.building.text.shift){
+				key.toUpperCase();
+				one.building.text.shift = false;
+			}
+
+			one.building.text.input += key;
+			one.building.text.backups.push(one.building.text.input);
+		}
+
+		one.building.text.history.push(key);
+		if(one.building.text.history.length >= one.building.text.history.maxLength){
+			one.building.text.history.shift();
+		}
+
+		auxl.player.UpdateBeltText(one.building.text.input);
+		one.building.current.ChangeSelf({property: 'text', value: {value: one.building.text.input}});
+		console.log(one.building.text.input)
 	}
-	const UpdatePosition = () => {
+
+	const KeyInputHit = (e) => {
+		KeyInput(e);
+	}
+	//Keyboard Input
+	document.addEventListener('keyup', KeyInputHit);
+	const UpdateText = () => {
+		one.building.text.toggle = !one.building.text.toggle;
+		if(one.building.text.toggle){
+			auxl.playerBeltTitleText.ChangeSelf({property: 'text', value:{value:'Write'}})
+		} else {
+			auxl.playerBeltTitleText.ChangeSelf({property: 'text', value:{value:'Read'}})
+		}
+	}
+
+	//These abilities require additional information, so spawn more multi menu nodes with offsets
+
+	const UpdateNumber = (selection) => {
+		console.log('UpdateNumber')
+		console.log(selection)
+
+
+
+	}
+
+	const UpdatePosition = (axis) => {
 		console.log('UpdatePosition')
+
+
+
 	}
 	const UpdateRotation = () => {
 		console.log('UpdateRotation')
@@ -2722,7 +3466,7 @@ console.log(one.buildMenuData)
 		console.log(one)
 	}
 
-	return {one, SpawnBuild, DespawnBuild, StartBuilding, UpdateName, UpdateGeometry, UpdateMaterial, UpdateText, UpdatePosition, UpdateRotation, UpdateScale, UpdateAnimations, UpdateClickable, UpdateComponents, UpdateDone, Testing,}
+	return {one, SpawnBuild, DespawnBuild, StartBuilding, UpdateName, UpdateGeometry, UpdateMaterial, UpdateText, UpdateNumber, UpdatePosition, UpdateRotation, UpdateScale, UpdateAnimations, UpdateClickable, UpdateComponents, UpdateDone, Testing,}
 
 
 }
