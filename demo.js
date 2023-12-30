@@ -1580,7 +1580,7 @@ id:'npcKeyGiver',
 sources: false,
 text: {value:'O_O', width: 3, color: "#FFFFFF", align: "center", font: "exo2bold", zOffset: 0.135, side: 'double'},
 geometry: {primitive: 'box', depth: 0.25, width: 0.25, height: 0.25},
-material: {src: './assets/img/minty/4up.jpg', shader: "flat", color: "#FFFFFF", opacity: 1},
+material: {shader: "standard", color: "#4bb8c1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6, src: auxl.pattern1, repeat: '1 1'},
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -2875,7 +2875,9 @@ auxl.zone0Scene1Data = {
 		spawnPos:{x:0,y:0,z:0},
 	},
 	controls:{
+/*
 		action1Down:{auxlObj: 'player', func: 'TestFunc', params: {test1: 1, test2: 2}, name: 'Test Action', info: 'Just a Dev test function.'},
+*/
 	},
 	start:{
 		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern67, repeat: '150 150',color: "#6f421a", emissive: "#6f421a",},}},
