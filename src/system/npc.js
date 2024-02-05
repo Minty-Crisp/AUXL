@@ -49,6 +49,9 @@ const Book = (auxl, bookData, npc) => {
 				auxl.spawnTracker(object, 'book', npc.id);
 			}
 		}
+		if(!auxl[object][func]){
+console.log({msg: 'npc book func fail', object, func})
+		}
 		auxl[object][func](params);
 	}
 	//Yield Timeline
@@ -365,6 +368,72 @@ page,
 		}
 	}
 	//Jump Menu
+	const BookJumpMenu = (jumpOptions) => {
+		npc.inventoryButtons = {};
+		let buttonTemplate = {};
+		let moreTemplate = {};
+		let currNum = 1;
+		let currPage = 1;
+		let total = jumpOptions.length;
+		let pages = Math.ceil(total/8);
+		let subMenuName = jumpOptions + currPage;
+
+		for(let each in jumpOptions){
+//console.log(jumpOptions[each][0])
+//console.log(jumpOptions[each][1])
+			buttonTemplate = {
+				id: 'action'+currNum,
+				style: false,
+				title: jumpOptions[each][0],
+				description: jumpOptions[each][0],
+				subMenu: false,
+				action: {
+					auxlObj: npc.id,
+					component: false,
+					method: 'JumpClick',
+					params: jumpOptions[each][1],
+					menu: 'close',
+				},
+			};
+			if(jumpOptions[each].action){} else {
+				buttonTemplate.action = false;
+			}
+			moreTemplate = {
+				id: 'action'+currNum,
+				style: false,
+				title: 'More',
+				description: 'Next Page',
+				subMenu: false,
+				action: false,
+			};
+			npc.inventoryButtons['button'+currNum] = buttonTemplate;
+
+
+/*
+			if(currNum === total){
+				auxl.mainMenu.UpdateSubMenu(subMenuName,npc.inventoryButtons);
+			} else {
+				currNum++;
+			}
+			if(pages > 1){
+				if(currNum % 7 === 0){
+					currPage++;
+					//build more button
+					moreTemplate.id = 'action'+currNum;
+					moreTemplate.subMenu = jumpOptions + currPage;
+					npc.inventoryButtons['button'+currNum] = moreTemplate;
+					auxl.mainMenu.UpdateSubMenu(subMenuName,npc.inventoryButtons);
+					npc.inventoryButtons = {};
+					subMenuName = jumpOptions + currPage;
+				}
+			}
+*/
+
+
+
+		}
+	}
+
 	const SelectJump = (jumpOptions) => {
 		let selectedTime;
 		let selectedPage = false;
@@ -381,9 +450,8 @@ page,
 			actions: {},
 			data: auxl.menuBaseData,
 			cursorObj: npc.id,
-			//pos: new THREE.Vector3(1,1.5,-0.5),
 			pos: spawnPos,
-			method: 'Click',
+			method: 'JumpClick', 
 		}
 		for(let a = 1; a < jumpOptions.length; a++){
 			selectJumpData.options['option'+(a-1)] = jumpOptions[a][0];
@@ -391,34 +459,17 @@ page,
 		}
 		npc.selectJumpMenu = auxl.Menu(selectJumpData);
 		npc.selectJumpMenu.SpawnMenu();
-		npc.selectJumpMenu.AddToParentSpawnTracker(npc.selectJumpMenu, npc, 'book');
-		if(npc.bubble.type === 'core'){
-			npc.bubble.GetEl().classList.toggle('clickable', false);
-		} else {
-			npc.bubble.GetParentEl().classList.toggle('clickable', false);
-		}
-		if(npc.avatarType === 'core'){
-			npc.avatar.GetEl().classList.toggle('clickable', false);
-		} else {
-			let all = npc.avatar.GetAllEl();
-			for(let each in all){
-				all[each].classList.toggle('clickable', false);
-			}
-		}
+		npc.selecting = true;
 	}
 
-	return {bookData, book, idleBook, Init, Next, NewPage, Random, IdleInit, IdleNext, RandomIdle, Jump, JumpIdle, SelectJump, readTimeline};
+	return {bookData, book, idleBook, Init, Next, NewPage, Random, IdleInit, IdleNext, RandomIdle, Jump, JumpIdle, SelectJump, readTimeline, BookJumpMenu};
 }
-
-
-//Stop
-//DisplaySpeech
-//Blink
 
 //
 //Speech System
 //Speaking Textbubble
 const SpeechSystem = (auxl, core, npc, fixed) => {
+	core.npc = npc || false;
 	core.on = false;
 	core.speaking = false;
 	core.blinking = false;
@@ -444,40 +495,68 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 		} else {
 			parent = 'layer';
 		}
+	} else {
+		if(core.core){
+			parent = 'core';
+		} else {
+			parent = 'layer';
+		}
 	}
 	//Active Speech Bubble
 	const Active = (refresh) => {
 		//Check if still exists, otherwise end.
 		if(core.type === 'core'){
-			return (core.GetEl(refresh)) ? true : false;
+			return core.GetEl(refresh);
+			//return (core.GetEl(refresh)) ? true : false;
 		} else {
-			return (core.GetParentEl(refresh)) ? true : false;
+			return core.GetParentEl(refresh);
+			//return (core.GetParentEl(refresh)) ? true : false;
 		}
 	}
 
 	//Start Textbubble
 	const Start = () => {
 		let spawnParent = false;
-		if(parent === 'core'){
-			spawnParent = npc.avatar.GetEl();
-		} else if(parent === 'layer'){
-			spawnParent = npc.avatar.GetParentEl();
+		if(core.npc){
+			if(parent === 'core'){
+				spawnParent = npc.avatar.GetEl();
+			} else if(parent === 'layer'){
+				spawnParent = npc.avatar.GetParentEl();
+			}
+		} else {
+			if(parent === 'core'){
+				spawnParent = core.GetEl();
+			} else if(parent === 'layer'){
+				spawnParent = core.GetParentEl();
+			}
 		}
 		if(core.type === 'core'){
 			core.SpawnCore(spawnParent);
 			bubbleSpawnTimeout = setTimeout(() => {
-				core.GetEl().addEventListener('mouseenter', Skip);
+				core.GetEl(true).addEventListener('mouseenter', Skip);
 				core.EmitEvent('loadin');
 				clearTimeout(bubbleDespawnTimeout);
-			}, 25);
+			}, 100);
 		} else {
 			core.SpawnLayer(spawnParent);
-			bubbleSpawnTimeout = setTimeout(() => {
-				StartCloseReset();
-				core.GetParentEl().addEventListener('mouseenter', Skip);
-				core.EmitEventAll('loadin');
-				clearTimeout(bubbleDespawnTimeout);
-			}, 25);
+			//bubbleSpawnTimeout = setTimeout(() => {
+			let bubbleSpawnInterval = setInterval(() => {
+				let checks = 0;
+				if(!core.GetParentEl(true)){
+					//console.log({msg:'Not in Scene, wait', core})
+					checks++;
+					if(checks >= 20){
+						checks = 0;
+						core.SpawnLayer(spawnParent);
+					}
+				} else {
+					core.GetParentEl(true).addEventListener('mouseenter', Skip);
+					StartCloseReset();
+					core.EmitEventAll('loadin');
+					clearInterval(bubbleSpawnInterval);
+				}
+
+			}, 125);
 		}
 		core.on = true;
 	}
@@ -497,26 +576,30 @@ const SpeechSystem = (auxl, core, npc, fixed) => {
 	const Stop = () => {
 		if(core.on){
 			if(!Active()){
-				console.log({core, npc, func: 'Stop()', msg: 'Failed to find speech bubble'})
+				console.log({core, npc, func: 'Stop()', msg: 'Failed to find speech bubble'}) 
 				return;
 			}
 			if(core.type === 'core'){
 				core.GetEl().removeEventListener('mouseenter', Skip);
 				core.EmitEvent('loadout');
+				core.DespawnCore();
+				core.on = false;
 				bubbleDespawnTimeout = setTimeout(() => {
-					core.DespawnCore();
-					core.on = false;
+					//core.DespawnCore();
+					//core.on = false;
 					clearTimeout(bubbleDespawnTimeout);
-				}, 1000);
+				}, 150);
 			} else {
 				core.GetParentEl().removeEventListener('mouseenter', Skip);
 				core.EmitEventAll('loadout');
 				StopCloseReset();
+				core.DespawnLayer();
+				core.on = false;
 				bubbleDespawnTimeout = setTimeout(() => {
-					core.DespawnLayer();
-					core.on = false;
+					//core.DespawnLayer();
+					//core.on = false;
 					clearTimeout(bubbleDespawnTimeout);
-				}, 1000);
+				}, 150);
 			}
 		}
 	}
@@ -865,6 +948,9 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 			clearTimeout(idleTimeout);
 			DisableSpeech();
 			DisableIdleSpeech();
+			if(npc.selecting && npc.selectJumpMenu){
+				npc.selectJumpMenu.DespawnMenu();
+			}
 			if(npc.speaking){
 				if(npc.special){
 					RemoveNPCEventsChildren('mouseenter',NextTimeline);
@@ -1077,7 +1163,7 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 		console.log(bookData.idle)
 	}
 	//NPC Book Jump Menu Click
-	const Click = (el) => {
+	const JumpClick = (el) => {
 		text.Skip();
 		let result = el.getAttribute('result');
 		Jump({timeline: result});
@@ -1098,7 +1184,7 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 		}
 		menuTimeout = setTimeout(function () {
 			npc.selectJumpMenu.DespawnMenu();
-			npc.selectJumpMenu.RemoveMenuFromSceneTracker();
+			npc.selecting = false;
 			clearTimeout(menuTimeout);
 		}, 250);
 	}
@@ -1254,7 +1340,7 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 	}
 
 
-return {npc, GetAllNPCEl, GetMainNPCEl, AddNPCEventsAll, RemoveNPCEventsAll, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextTimeline, NewPage, ResetSpeech, ResetBook, ForceResetBook, ResetBookRandom, IdleNextTimeline, IdleReset, ResetIdleRandom, UpdateBook, Click, Jump, BackwardJump, SelectJump, auxlObjMethod, IfElse, Switch, SetFlag, GetFlag}
+return {npc, GetAllNPCEl, GetMainNPCEl, AddNPCEventsAll, RemoveNPCEventsAll, SpawnNPC, DespawnNPC, ToggleSpawn, EnableSpeech, DisableSpeech, EnableIdleSpeech, DisableIdleSpeech, Speak, NextTimeline, NewPage, ResetSpeech, ResetBook, ForceResetBook, ResetBookRandom, IdleNextTimeline, IdleReset, ResetIdleRandom, UpdateBook, JumpClick, Jump, BackwardJump, SelectJump, auxlObjMethod, IfElse, Switch, SetFlag, GetFlag}
 }
 
 //

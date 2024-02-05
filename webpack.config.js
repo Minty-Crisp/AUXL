@@ -14,4 +14,14 @@ module.exports = {
 		path: path.resolve(__dirname, 'dist'),
 		filename: 'auxl.js',
 	},
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
+    ],
+  },
+
+
 };

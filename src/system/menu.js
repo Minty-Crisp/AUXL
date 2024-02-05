@@ -79,6 +79,10 @@ const Menu = (auxl, menuData) => {
 						menu.data.position.y -= (menu.data.geometry.height*1.15);
 					} else if(menu.layout === 'horizontal'){
 						menu.data.position.x += (menu.data.geometry.width*1.15);
+					} else if(menu.layout === 'loop') {
+						//backup for legacy, classic vertical mode
+						menu.data.position.x -= (menu.data.geometry.width*1.15);
+						menu.data.position.y -= (menu.data.geometry.height*1.15);
 					} else {
 						//backup for legacy, classic vertical mode
 						menu.data.position.y -= (menu.data.geometry.height*1.15);
@@ -161,10 +165,19 @@ const MultiMenu = (auxl, multiMenuData) => {
 	let circleRot = -45;
 	let maxNulls = 0;
 	let switchDelay = 250;
+/*
 
-	multiMenu.buttonData = JSON.parse(JSON.stringify(multiMenu.data.info.buttonData));
+auxl.faceEye2SocketData = auxl.coreDataFromTemplate(auxl.faceEye1SocketData, {id: 'faceEye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)}, true);
+auxl.faceEye2Socket = auxl.Core(auxl.faceEye2SocketData);
+*/
 
-	multiMenu.hoverData = JSON.parse(JSON.stringify(multiMenu.data.info.hoverData));
+
+	//multiMenu.buttonData = JSON.parse(JSON.stringify(multiMenu.data.info.buttonData));
+	//multiMenu.hoverData = JSON.parse(JSON.stringify(multiMenu.data.info.hoverData));
+
+	multiMenu.buttonData = auxl.coreDataFromTemplate(multiMenu.data.info.buttonData, {id: 'buttonData',}, true);
+	multiMenu.hoverData = auxl.coreDataFromTemplate(multiMenu.data.info.hoverData, {id: 'hoverData',}, true);
+
 
 	multiMenu.nullParentData = {
 		data:'nullParentData',
@@ -218,8 +231,8 @@ const MultiMenu = (auxl, multiMenuData) => {
 		//console.log(menu)
 		//console.log(multiMenu.data[menu])
 		if(menu === 'info'){}else{
-			multiMenu.cores[menu] = [];
-			multiMenu.cores.hover[menu] = [];
+			multiMenu.cores[menu] = {};
+			multiMenu.cores.hover[menu] = {};
 			let buttonTotal = 0;
 			for(let button in multiMenu.data[menu]){
 				buttonTotal++;
@@ -363,14 +376,28 @@ const MultiMenu = (auxl, multiMenuData) => {
 	const UpdateSubMenu = (menu,buttons) => {
 		if(multiMenu.currentMenu === menu){}else{
 			//Purge and Rebuild SubMenu
-			multiMenu.cores[menu] = [];
-			multiMenu.cores.hover[menu] = [];
+			multiMenu.cores[menu] = {};
+			multiMenu.cores.hover[menu] = {};
 			let buttonTotal = 0;
+
+//console.log(menu)
+//console.log(buttons)
+
 			for(let button in buttons){
+//console.log('next')
+//console.log(buttons)
+//console.log(button)
+//console.log(buttons[button])
+
 				buttonTotal++;
+//console.log(buttonTotal)
+//console.log(buttons[button].id)
+//console.log(buttons[button].title)
+
 				//Generate Button Core
 				multiMenu.buttonData.id = buttons[button].id;
 				multiMenu.buttonData.text.value = buttons[button].title;
+//console.log(multiMenu.buttonData)
 				//Layout
 				if(multiMenu.layout === 'circleUp'){
 					multiMenu.buttonData.rotation.z = (circleRot*buttonTotal)*-1;
@@ -381,8 +408,10 @@ const MultiMenu = (auxl, multiMenuData) => {
 				} else if(multiMenu.layout === 'horizontal'){
 					multiMenu.buttonData.position.x = buttonTotal*multiMenu.offset;
 				}
+//console.log(multiMenu.buttonData)
 				//Reset Button Actions
 				multiMenu.buttonData.components = {};
+//console.log(multiMenu.buttonData)
 				//Add Button Actions
 				if(buttons[button].action){
 					multiMenu.buttonData.components.clickrun = {};
@@ -439,7 +468,13 @@ const MultiMenu = (auxl, multiMenuData) => {
 				multiMenu.cores.hover[menu][button] = auxl.Core(multiMenu.hoverData);
 
 				//Gen Button
-				multiMenu.cores[menu][button] = auxl.Core(multiMenu.buttonData);
+//console.log(multiMenu.buttonData)
+//console.log(multiMenu.cores)
+//console.log(multiMenu.cores[menu])
+let buttonData = JSON.parse(JSON.stringify(multiMenu.buttonData));
+
+				multiMenu.cores[menu][button] = auxl.Core(buttonData);
+//console.log(multiMenu.cores[menu][button])
 			}
 			if(buttonTotal > maxNulls){
 				maxNulls = buttonTotal;
@@ -590,6 +625,15 @@ const MultiMenu = (auxl, multiMenuData) => {
 	}
 
 	return {multiMenu, SpawnMultiMenu, DespawnMultiMenu, ToggleMenu, UpdateParent, UpdateButtons, UpdateSubMenu, SubMenu, ResetMenu, SpawnDescription, DespawnDescription};
+}
+
+//Mega Menu
+//Multi Sub Menus | Circle/Vertical/Horizontal
+const MegaMenu = (auxl, ...multiMenuData) => {
+//A single left / right / others? / center collection of 3
+
+//state machine for options that include up to 42 per page not including the 6 return/close/cancel center buttons
+
 }
 
 //Quick Hover Menu :
@@ -1322,4 +1366,4 @@ const ScrollMenu = (auxl, id) => {
 
 //
 //Export
-export {Menu, MultiMenu, HoverMenu, ComboLock, ScrollMenu};
+export {Menu, MultiMenu, MegaMenu, HoverMenu, ComboLock, ScrollMenu};

@@ -547,7 +547,7 @@ console.log({object, relay, method, params})
 			let sceneTextTimeout = setTimeout(() => {
 				sceneText.DisplaySpeech({role: core.info.name,speech: core.info.description});
 				clearTimeout(sceneTextTimeout);
-			}, 1250);
+			}, 1150);
 		}
 	}
 	//Load Player Default Position
@@ -593,6 +593,7 @@ const MapZone = (auxl, mapZoneData) => {
 	let core = Object.assign({}, mapZoneData);
 	core.mapMenuData = false;
 	core.mapMainMenuData = false;
+	core.mapWorldsMenuData = false;
 	core.mapMenu;
 	core.nodes = {};
 	//core.info;
@@ -1041,6 +1042,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		auxl[core.currentNode].StartScene();
 		//Main Menu Travel Update
 		MoveMainMenuUpdate();
+		//WorldMainMenuUpdate();
 		//Basic Zone Menu Travel Update
 		if(core.displayBasicTravelMenu){
 			MoveSpawnMenu();
@@ -1051,7 +1053,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	const ClearScene = () => {
 		auxl[core.currentNode].ClearScene();
 	}
-	//Generate & Spawn MapZone Map Menu
+	//Generate & Spawn MapZone Map Menu z
 	const MoveSpawnMenu = () => {
 		core.mapMenuData = {
 			id: 'moveMenu',
@@ -1229,6 +1231,74 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 			core.mapMenu.DespawnMenu();
 		}
 	}
+
+	//Generate & Spawn World List
+	const WorldMainMenuUpdate = () => {
+		core.mapWorldsMenuData = {};
+		let buttonTemplate = {};
+		let moreTemplate = {};
+		//let currNum = 0;
+		let currNum = 1;
+		let currPage = 1;
+		let moveToWorld;
+		let worldName;
+		let total = auxl.worlds.length;
+		let pages = Math.ceil(total/7);
+		let subMenuName = 'worlds' + currPage;
+
+		for(let connect in auxl.worlds){
+			moveToWorld = auxl[auxl.worlds[connect].id];
+
+			worldName = auxl.worlds[connect].name;
+
+			//Update Button
+			buttonTemplate = {
+				id: 'action'+currNum,
+				style: false,
+				title: worldName,
+				description: 'Load the world of '+worldName,
+				subMenu: false,
+				action: {
+					auxlObj: auxl.currentWorld,
+					component: false,
+					method: 'SwapWorld',
+					params: moveToWorld,
+					menu: 'close',
+				},
+			};
+			moreTemplate = {
+				id: 'action'+currNum,
+				style: false,
+				title: 'More',
+				description: 'Next Page',
+				subMenu: false,
+				action: false,
+			};
+			core.mapWorldsMenuData['button'+currNum] = buttonTemplate;
+
+			if(currNum === total){
+				//Update Companion main menu
+				auxl.mainMenu.UpdateSubMenu(subMenuName,core.mapWorldsMenuData);
+			} else {
+				currNum++;
+			}
+
+			if(pages > 1){
+				if(currNum % 7 === 0){
+					currPage++;
+					//build more button
+					moreTemplate.id = 'action'+currNum;
+					moreTemplate.subMenu = 'worlds' + currPage;
+					core.mapWorldsMenuData['button'+currNum] = moreTemplate;
+					//Update Companion main menu
+					auxl.mainMenu.UpdateSubMenu(subMenuName,core.mapWorldsMenuData);
+					core.mapWorldsMenuData = {};
+					subMenuName = 'worlds' + currPage;
+				}
+			}
+		}
+	}
+
 
 	return {core, UpdateMap, StartScene, MoveSpawnMenu, MenuMoveClick, Move, Change, ClearZone};
 }
@@ -1715,25 +1785,44 @@ const World = (auxl, worldData) => {
 	world.soundtrack = false;
 	world.soundtracks = false;
 
+	auxl.WorldsLoaded(world);
+
 	//Set World as Default
 	const SetAsDefault = () => {
 		auxl.defaultWorld = auxl[world.id];
 	}
 	//Start World at Default Scenario
 	const StartWorld = () => {
+		let startDelay = WorldSettings();
+		let startTimeout = setTimeout(() => {
+			StartScenario(world.current);
+			auxl.currentWorld = auxl[world.id];
+			auxl.local.location.world = world.id;
+			auxl.worldLoaded = true;
+			clearTimeout(startTimeout);
+		}, startDelay);
+
+/*
 		WorldSettings();
+//console.log(world)
+//console.log(world.current)
 		StartScenario(world.current);
 		auxl.currentWorld = auxl[world.id];
-		auxl.worldLoaded = true;
 		auxl.local.location.world = world.id;
+		auxl.worldLoaded = true;
+*/
 	}
 	//Stop World
 	const StopWorld = () => {
-		ClearScenario(world.current);
+		auxl.currentWorld = false;
+		auxl.local.location.world = false;
 		auxl.worldLoaded = false;
+		ClearScenario(world.current);
 	}
 	//World Settings
 	const WorldSettings = () => {
+		//Load World Delay
+		let delay = 0;
 		//Max Load Time
 		if(world.data.info.maxLoadtime){
 			auxl.maxLoadTime = world.data.info.maxLoadtime;
@@ -1755,24 +1844,43 @@ const World = (auxl, worldData) => {
 		//Collision
 		if(world.data.info.collision){
 			auxl.collision = true;
-			auxl.compassDisplay = world.data.info.collision.compass || false;
+			//auxl.compassDisplay = world.data.info.collision.compass || false;
 		} else {
 			auxl.collision = false;
-			auxl.compassDisplay = false;
+			//auxl.compassDisplay = false;
 		}
 		//Compass Display
-		auxl.playerFloor.ChangeSelf({property: 'visible', value: auxl.compassDisplay})
+		//auxl.playerFloor.ChangeSelf({property: 'visible', value: auxl.compassDisplay}) 
+
+
+
+
+
 		//Physics
 		if(world.data.info.physics){
-			auxl.worldPhysics = world.data.info.physics;
-			//Apply directly to main player needs to be updated
-			auxl.EnablePhysics();
-			auxl.player.EnablePhysics();
+			if(!auxl.worldPhysics){
+				delay += 500;
+				auxl.worldPhysics = world.data.info.physics;
+				auxl.EnablePhysics();
+			} else if(auxl.worldPhysics && auxl.worldPhysics === world.data.info.physics){
+				//Physics already enabled
+			} else if(auxl.worldPhysics && auxl.worldPhysics !== world.data.info.physics){
+				//Swap Physics
+				delay += 500;
+				auxl.DisablePhysics();
+				auxl.worldPhysics = world.data.info.physics;
+				auxl.EnablePhysics();
+				let physSwapTimeout = setTimeout(() => {
+					clearTimeout(physSwapTimeout);
+				}, 500);
+			}
 		} else {
-			auxl.worldPhysics = false;
-			//auxl.DisablePhysics();
-			//auxl.player.DisablePhysics();
+			if(auxl.worldPhysics){
+				auxl.DisablePhysics();
+				delay += 500;
+			}
 		}
+
 		//Main Menu Style
 		if(world.data.info.menuStyle){
 			auxl.comp.UpdateMainMenuStyle(world.data.info.menuStyle);
@@ -1800,6 +1908,8 @@ const World = (auxl, worldData) => {
 		if(world.data.info.compBookUpdate){
 			auxl.comp.UpdateBook(world.data.info.compBookUpdate);
 		}
+
+		return delay;
 	}
 	//Start a Scenario
 	const StartScenario = (num) => {
@@ -1843,116 +1953,16 @@ const World = (auxl, worldData) => {
 		}
 	}
 
-	return {world, SetAsDefault, StartWorld, StopWorld, StartScenario, ClearScenario, NextScenario, LoadScenario, MusicPlaylist}
+	//Swap World
+	const SwapWorld = (swapWorld) => {
+//console.log(swapWorld)
+//console.log(auxl[swapWorld])
+		auxl.currentWorld.StopWorld()
+		StartWorld();
+	}
+
+	return {world, SetAsDefault, StartWorld, StopWorld, StartScenario, ClearScenario, NextScenario, LoadScenario, MusicPlaylist, SwapWorld}
 }
-
-
-//
-//Scene Node
-const scene = AFRAME.registerComponent('scenenode', {
-dependencies: ['auxl'], multiple: true,
-    schema: {
-        bar: {type: 'number'},
-        baz: {type: 'string'},
-    },
-
-    init: function () {
-        //Do something when component first attached.
-        //Called once when the component is initialized. Used to set up initial state and instantiate variables.
-        this.scene = document.querySelector('a-scene');
-		this.auxl = this.scene.systems.auxl;
-/*
-	info:{
-		id:'zone0Scene1',
-		name: 'Zone 0 | Scene 1',
-		description: 'A connected Scene within Zone 0.',
-		sceneText: true,
-		fog: false,
-		map: {
-			size: 38,
-			height: false,
-			edge: true,
-			spawnEdge: false,
-			edgeUpdate: false,
-		},
-		spawnPos:{x:0,y:0,z:0},
-	},
-
-	start:{
-		floor:{ChangeSelf:{property: 'material', value: {src: auxl.pattern67, repeat: '150 150',color: "#6f421a", emissive: "#6f421a",},}},
-		indoorWall:{SpawnHorizon:null},
-		indoorCeiling:{SpawnCore:null},
-		npcKeyGiver:{SpawnNPC:null},
-		teleport0:{SpawnTeleport:null},
-	},
-
-	delay:{
-	},
-
-	controls:{
-		action1Down:{auxlObj: 'player', func: 'TestFunc', params: {test1: 1, test2: 2}, name: 'Test Action', info: 'Just a Dev test function.'},
-	},
-
-	map:{
-		data: auxl.zone0Data.zone0Scene1,
-	},
-*/
-    },
-
-    update: function () {
-        //Do something when component's data is updated.
-        //Called both when the component is initialized and whenever any of the component’s properties is updated (e.g, via setAttribute). Used to modify the entity.
-    },
-
-    remove: function () {
-        //Do something the component or its entity is detached.
-        //Called when the component is removed from the entity (e.g., via removeAttribute) or when the entity is detached from the scene. Used to undo all previous modifications to the entity.
-    },
-
-    tick: function (time, timeDelta) {
-        //Do something on every scene tick or frame.
-        //Make a minor random position change to each rain element once it completes it's anim loop.
-        //Run check functions everyframe this.whatever();
-        //Called on each render loop or tick of the scene. Used for continuous changes or checks.
-    },
-
-    tock: function (time, timeDelta, camera) {
-        //Identical to the tick method but invoked after the scene has rendered.
-        //The tock handler is used to run logic that needs access to the drawn scene before it’s pushed into the headset like postprocessing effects.
-        //Called on each render loop or tick of the scene after the scene has rendererd. Used for post processing effects or other logic that needs to happen after the scene has been drawn.
-
-    },
-
-    play: function () {
-        //Play
-        //Called whenever the scene or entity plays to add any background or dynamic behavior. Also called once when the component is initialized. Used to start or resume behavior.
-    },
-
-    pause: function () {
-        //Pause
-        //Called whenever the scene or entity pauses to remove any background or dynamic behavior. Also called when the component is removed from the entity or when the entity is detached from the scene. Used to pause behavior.
-    },
-
-    updateSchema: function () {
-        //updateSchema
-        //Called whenever any of the component’s properties is updated. Can be used to dynamically modify the schema.
-    },
-
-	events: {
-		click: function (e) {
-			//this.auxl[this.data.clickObj].Click(e.target);
-		}
-	},
-
-    whatever: function () {
-        //Whatever
-    }
-});
-
-
-
-
-
 
 
 

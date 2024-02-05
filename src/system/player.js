@@ -9,7 +9,6 @@
 //
 //Player
 //Companion
-//UniRay
 
 
 //
@@ -56,6 +55,7 @@ const Player = (auxl, id, layer, data) => {
 
 	//Rig with camera
 	//Snap Rotation
+	layer.snapMode = 45;
 	layer.snapRotating = false;
 	layer.headSnapRotating = false;
 	let snapTimeout;
@@ -109,6 +109,17 @@ const Player = (auxl, id, layer, data) => {
 	//Start Player take over from default.
 	//Spawn Player
 	layer.SpawnLayer();
+	//Spawn Avatar
+	auxl.avatar.SpawnLayer('playerBody');
+	//Spawn Avatar Hands
+	auxl.avatarHand1.SpawnCore('vrController1');
+	auxl.avatarHand2.SpawnCore('vrController2');
+/*
+	let spawnTimeout = setTimeout(() => {
+		//auxl.roamCamera.ChangeSelf({property: 'camera', value:{active: true}})
+		//auxl.camera.ChangeSelf({property: 'camera', value:{active: false}})
+		clearTimeout(spawnTimeout);
+	}, 2000);*/
 	//Get auxcontroller component
 	auxl.controller = auxl.playerRig.GetEl().components['auxcontroller'];
 	//Currently not tracking Player object as it should not be removed
@@ -121,62 +132,21 @@ const Player = (auxl, id, layer, data) => {
 	//forwardRight | forwardLeft | reverseRight | reverseLeft | forward | reverse | right | left
 
 
+
 	//
 	//Raycasters 
-	layer.targetDistance = 50;
-
-	//Toggle Raycaster Helpers
-	//If false, all false, otherwise show config helper
-	const ToggleTargetHelp = (state) => {
-		state = (state === 'toggle')? !layer.raycasters.display : state;
-		layer.raycasters.display = state;
-		if(auxl.controls === 'Desktop' || auxl.controls === 'Mobile'){
-			layer.raycasters.hmdmouse.targetDisplay = state;
-			layer.raycasters.hand1.targetDisplay = (state)?!state:state;
-			layer.raycasters.hand2.targetDisplay = (state)?!state:state;
-			if(state){
-				if(!layer.raycasters.hmdmouse.linkAnchor.core.inScene){
-					layer.raycasters.hmdmouse.linkAnchor.SpawnCore();
-				}
-			} else {
-				if(layer.raycasters.hmdmouse.linkAnchor.core.inScene){
-					layer.raycasters.hmdmouse.linkAnchor.DespawnCore();
-				}
-			}
-			if(layer.raycasters.hand1.linkAnchor.core.inScene){
-				layer.raycasters.hand1.linkAnchor.DespawnCore();
-			}
-			if(layer.raycasters.hand2.linkAnchor.core.inScene){
-				layer.raycasters.hand2.linkAnchor.DespawnCore();
-			}
-		} else if(auxl.controls === 'VR'){
-			layer.raycasters.hmdmouse.targetDisplay = (state)?!state:state;
-			layer.raycasters.hand1.targetDisplay = state;
-			layer.raycasters.hand2.targetDisplay = state;
-			if(state){
-				if(!layer.raycasters.hand1.linkAnchor.core.inScene){
-					layer.raycasters.hand1.linkAnchor.SpawnCore();
-				}
-				if(!layer.raycasters.hand2.linkAnchor.core.inScene){
-					layer.raycasters.hand2.linkAnchor.SpawnCore();
-				}
-			} else {
-				if(layer.raycasters.hand1.linkAnchor.core.inScene){
-					layer.raycasters.hand1.linkAnchor.DespawnCore();
-				}
-				if(layer.raycasters.hand2.linkAnchor.core.inScene){
-					layer.raycasters.hand2.linkAnchor.DespawnCore();
-				}
-			}
-			if(layer.raycasters.hmdmouse.linkAnchor.core.inScene){
-				layer.raycasters.hmdmouse.linkAnchor.DespawnCore();
-			}
-		}
-	}
 
 	//
 	//Raycasters - 14 small
-	layer.linkDistance = 18;
+	layer.linkDistance = 7.33;
+
+	const LinkDistance = ({distance}) => {
+		layer.linkDistance = {distance};
+		layer.raycasters.hmdmouse.distance = layer.linkDistance;
+		layer.raycasters.hand1.distance = layer.linkDistance;
+		layer.raycasters.hand2.distance = layer.linkDistance;
+
+	}
 
 	//Toggle Raycaster Helpers
 	//If false, all false, otherwise show config helper
@@ -227,6 +197,7 @@ const Player = (auxl, id, layer, data) => {
 		}
 	}
 
+	//Move Bullets into their own generators
 	//Build Raycasters
 	const GenRaycasters = () => {
 		layer.raycasters = {};
@@ -235,19 +206,24 @@ const Player = (auxl, id, layer, data) => {
 		layer.raycasters.hmdmouse = {};
 		layer.raycasters.hmdmouse.core = auxl.mouseController;
 		layer.raycasters.hmdmouse.el = auxl.mouseController.GetEl();
+		layer.raycasters.hmdmouse.uiCore = auxl.mouseControllerUI;
+		layer.raycasters.hmdmouse.uiEl = auxl.mouseControllerUI.GetEl();
 		layer.raycasters.hmdmouse.intersection = new THREE.Vector3(0,0,0);
+		layer.raycasters.hmdmouse.intersectionEl = false;
 		//Link
 		layer.raycasters.hmdmouse.distance = layer.linkDistance;
 		layer.raycasters.hmdmouse.linkInterval;
+		layer.raycasters.hmdmouse.hoverInterval;
 		layer.raycasters.hmdmouse.linkDisplay = false;
 		layer.raycasters.hmdmouse.linkCoreData = {
 			data:'linkCoreData',
 			id: 'hmdLinkCore',
 			sources: false,
 			text: false,
-			geometry: {primitive: 'ring', radiusInner: 0.3, radiusOuter: 0.5},
-			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.9},
-			position: new THREE.Vector3(0,0,0.1),
+			geometry: {primitive: 'ring', radiusInner: 0.15, radiusOuter: 0.4},
+//geometry: {primitive: 'torus', arc: 360, radius: 0.25, radiusTubular: 0.01, segmentsRadial: 36, segmentsTubular: 32},
+			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.69, side: 'double'},
+			position: new THREE.Vector3(0,0,0.15),
 			rotation: new THREE.Vector3(0,0,0),
 			scale: new THREE.Vector3(1,1,1),
 			animations: false,
@@ -256,13 +232,13 @@ const Player = (auxl, id, layer, data) => {
 			components: {
 				body:{type: 'static', shape: 'none', mass: 0,},
 				//bodymaterial: {friction: 0, restitution: 0},
+['look-at-xyz']:{match: 'camera', x:true, y:true, z:true},
 			},
 		}; 
 		layer.raycasters.hmdmouse.linkCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hmdmouse.linkCoreData, false, true));
 		layer.raycasters.hmdmouse.linkAnchor = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hmdmouse.linkCoreData, {id: 'hmdLinkAnchor',
-			geometry: {primitive: 'ring', radiusInner: 0.3, radiusOuter: 0.5},
-			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.9},
-
+			geometry: {primitive: 'ring', radiusInner: 0.25, radiusOuter: 0.35},
+			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.69, side: 'double'},
 }, true));
 		layer.raycasters.hmdmouse.linkConfig = {
 			type: 'auxspring',
@@ -277,6 +253,12 @@ const Player = (auxl, id, layer, data) => {
 		//Bullets
 		layer.raycasters.hmdmouse.bullets = [];
 		layer.raycasters.hmdmouse.bulletCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hmdmouse.linkCoreData, {id: 'hmdbulletCore', geometry: {primitive: 'sphere', radius: 0.2,}, material: {shader: "standard", color: "#d8f020", emissive: '#d8f020', emissiveIntensity: 0.25, opacity: 0.75,}, components: { body:{type: 'dynamic', shape: 'sphere', mass: 1,}, bodymaterial: {friction: 1, restitution: 0.01}, }, }, true));
+
+		//Force
+		//Grab List
+		layer.raycasters.hmdmouse.grabbed = [];
+
+		//Bullets
 		//Bullet 0
 		layer.raycasters.hmdmouse.bullet0 = auxl.coreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet0', }, true);
 		layer.raycasters.hmdmouse.bullets.push( layer.raycasters.hmdmouse.bullet0)
@@ -300,18 +282,22 @@ const Player = (auxl, id, layer, data) => {
 		layer.raycasters.hand1 = {};
 		layer.raycasters.hand1.core = auxl.vrController1;
 		layer.raycasters.hand1.el = auxl.vrController1.GetEl();
+		layer.raycasters.hand1.uiCore = auxl.vrController1UI;
+		layer.raycasters.hand1.uiEl = auxl.vrController1UI.GetEl();
 		layer.raycasters.hand1.intersection = new THREE.Vector3(0,0,0);
+		layer.raycasters.hand1.intersectionEl = false;
 		//Link
 		layer.raycasters.hand1.distance = layer.linkDistance;
 		layer.raycasters.hand1.linkInterval;
+		layer.raycasters.hand1.hoverInterval;
 		layer.raycasters.hand1.linkDisplay = false;
 		layer.raycasters.hand1.linkCoreData = {
 			data:'linkCoreData',
 			id: 'hand1LinkCore',
 			sources: false,
 			text: false,
-			geometry: {primitive: 'sphere', radius: 0.2,},
-			material: {shader: "standard", color: "#ebd107", emissive: '#ebd107', emissiveIntensity: 0.25, opacity: 0.75},
+			geometry: {primitive: 'ring', radiusInner: 0.3, radiusOuter: 0.5},
+			material: {shader: "standard", color: "#ebd107", emissive: '#ebd107', emissiveIntensity: 0.25, opacity: 0.75, side: 'double'},
 			position: new THREE.Vector3(0,0,0),
 			rotation: new THREE.Vector3(0,0,0),
 			scale: new THREE.Vector3(1,1,1),
@@ -321,12 +307,13 @@ const Player = (auxl, id, layer, data) => {
 			components: {
 				body:{type: 'static', shape: 'none', mass: 0,},
 				//bodymaterial: {friction: 0, restitution: 0},
+['look-at-xyz']:{match: 'camera', x:true, y:true, z:true},
 			},
 		};
 		layer.raycasters.hand1.linkCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand1.linkCoreData, false, true));
 		layer.raycasters.hand1.linkAnchor = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand1.linkCoreData, {id: 'hand1LinkAnchor', 
-			geometry: {primitive: 'ring', radiusInner: 0.3, radiusOuter: 0.5},
-			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.9},
+			geometry: {primitive: 'ring', radiusInner: 0.25, radiusOuter: 0.35},
+			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.69, side: 'double'},
 }, true));
 		layer.raycasters.hand1.linkConfig = {
 			type: 'auxspring',
@@ -341,6 +328,12 @@ const Player = (auxl, id, layer, data) => {
 		//Bullets
 		layer.raycasters.hand1.bullets = [];
 		layer.raycasters.hand1.bulletCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand1.linkCoreData, {id: 'hmdbulletCore', geometry: {primitive: 'sphere', radius: 0.2,}, material: {shader: "standard", color: "#2dba74", emissive: '#2dba74', emissiveIntensity: 0.25, opacity: 0.5, blending: 'multiply'}, components: { body:{type: 'dynamic', shape: 'sphere', mass: 1,}, bodymaterial: {friction: 1, restitution: 0.01}, }, }, true));
+
+		//Force
+		//Grab List
+		layer.raycasters.hand1.grabbed = [];
+
+		//Bullets
 		//Bullet 0
 		layer.raycasters.hand1.bullet0 = auxl.coreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet0', }, true);
 		layer.raycasters.hand1.bullets.push( layer.raycasters.hand1.bullet0)
@@ -364,18 +357,22 @@ const Player = (auxl, id, layer, data) => {
 		layer.raycasters.hand2 = {};
 		layer.raycasters.hand2.core = auxl.vrController2;
 		layer.raycasters.hand2.el = auxl.vrController2.GetEl();
+		layer.raycasters.hand2.uiCore = auxl.vrController2UI;
+		layer.raycasters.hand2.uiEl = auxl.vrController2UI.GetEl();
 		layer.raycasters.hand2.intersection = new THREE.Vector3(0,0,0);
+		layer.raycasters.hand2.intersectionEl = false;
 		//Link
 		layer.raycasters.hand2.distance = layer.linkDistance;
 		layer.raycasters.hand2.linkInterval;
+		layer.raycasters.hand2.hoverInterval;
 		layer.raycasters.hand2.linkDisplay = false;
 		layer.raycasters.hand2.linkCoreData = {
 			data:'linkCoreData',
 			id: 'hand2LinkCore',
 			sources: false,
 			text: false,
-			geometry: {primitive: 'sphere', radius: 0.2,},
-			material: {shader: "standard", color: "#ebd107", emissive: '#ebd107', emissiveIntensity: 0.25, opacity: 0.75},
+			geometry: {primitive: 'ring', radiusInner: 0.3, radiusOuter: 0.5},
+			material: {shader: "standard", color: "#ebd107", emissive: '#ebd107', emissiveIntensity: 0.25, opacity: 0.75, side: 'double'},
 			position: new THREE.Vector3(0,0,0),
 			rotation: new THREE.Vector3(0,0,0),
 			scale: new THREE.Vector3(1,1,1),
@@ -385,12 +382,13 @@ const Player = (auxl, id, layer, data) => {
 			components: {
 				body:{type: 'static', shape: 'none', mass: 0,},
 				//bodymaterial: {friction: 0, restitution: 0},
+['look-at-xyz']:{match: 'camera', x:true, y:true, z:true},
 			},
 		};
 		layer.raycasters.hand2.linkCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand2.linkCoreData, false, true));
 		layer.raycasters.hand2.linkAnchor = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand2.linkCoreData, {id: 'hand2LinkAnchor', 
-			geometry: {primitive: 'ring', radiusInner: 0.3, radiusOuter: 0.5},
-			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.9},
+			geometry: {primitive: 'ring', radiusInner: 0.25, radiusOuter: 0.35},
+			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.69, side: 'double'},
 }, true));
 		layer.raycasters.hand2.linkConfig = {
 			type: 'auxspring',
@@ -405,6 +403,12 @@ const Player = (auxl, id, layer, data) => {
 		//Bullets
 		layer.raycasters.hand2.bullets = [];
 		layer.raycasters.hand2.bulletCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand2.linkCoreData, {id: 'hand2bulletCore', geometry: {primitive: 'sphere', radius: 0.2,}, material: {shader: "standard", color: "#d02caa", emissive: '#d02caa', emissiveIntensity: 0.25, opacity: 0.5, blending: 'multiply'}, components: { body:{type: 'dynamic', shape: 'sphere', mass: 1,}, bodymaterial: {friction: 1, restitution: 0.01}, }, }, true));
+
+		//Force
+		//Grab List
+		layer.raycasters.hand2.grabbed = [];
+
+		//Bullets
 		//Bullet 0
 		layer.raycasters.hand2.bullet0 = auxl.coreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet0', }, true);
 		layer.raycasters.hand2.bullets.push( layer.raycasters.hand2.bullet0)
@@ -457,7 +461,6 @@ const Player = (auxl, id, layer, data) => {
 	//Camera Support
 	layer.raycasters.activeCamera = 'camera';
 	layer.raycasters.previousCamera = false;
-
 	//Switch to new Cam. ('Camera core string')
 	const CameraSwitch = (auxlCamID) => {
 		//Deactivate Current
@@ -478,34 +481,45 @@ const Player = (auxl, id, layer, data) => {
 		layer.raycasters.previousCamera = layer.raycasters.activeCamera;
 		layer.raycasters.activeCamera = layer.raycasters.previousCamera;
 	}
-
 	layer.scroll = {};
-	layer.scroll.mainCurrent = 1;
-	layer.scroll.roamCurrent = 1;
-	layer.scrollMin = new THREE.Vector3(0,-1,0.3);
-	layer.scrollHead = new THREE.Vector3(0,0,0);
-	layer.scrollHeadBehind = new THREE.Vector3(0,0,0.5);
-	layer.scrollShoulder = new THREE.Vector3(0.1,0.3,0.6);
-	layer.scrollMid = new THREE.Vector3(0,1.7,1.6);
-	layer.scrollMax = new THREE.Vector3(0,4.8,3.2);
+	layer.scroll.mainCurrent = 0;
+	layer.scroll.roamCurrent = 0;
 	layer.scrolls = [
-		layer.scrollMin,
-		layer.scrollHead,
-		layer.scrollHeadBehind,
-		layer.scrollShoulder,
-		layer.scrollMid,
-		layer.scrollMax,
+		new THREE.Vector3(0,-1.6,0),
+		new THREE.Vector3(0,-1.36,1),
+		new THREE.Vector3(0,-1.36,2),
+		new THREE.Vector3(0,-1.36,4),
+		new THREE.Vector3(0,-1.36,8),
+		new THREE.Vector3(0,-1.36,16),
+		new THREE.Vector3(0,-1.36,8),
+		new THREE.Vector3(0,-1.36,4),
+		new THREE.Vector3(0,-1.36,2),
+		new THREE.Vector3(0,-1.36,1),
 	];
 
-	//System Head Scrolling
-	const CycleCameraZoom = (direction, current) => {
+	//System Camera Scrolling
+	const CycleCameraZoom = (direction, camType) => {
 	//console.log('scrolling')
 	//console.log(layer.scroll.current)
 	//console.log(direction)
 
 
-		if(layer.head.attached){
-
+		if(camType === 'roam'){
+			if(auxl.isFalsey(direction)){
+				layer.scroll.roamCurrent--;
+			} else {
+				layer.scroll.roamCurrent++;
+			}
+			if(layer.scroll.roamCurrent === layer.scrolls.length){
+				layer.scroll.roamCurrent = 0;
+			} else if(layer.scroll.roamCurrent < 0){
+				layer.scroll.roamCurrent = layer.scrolls.length-1;
+			}
+			//Position to Move to
+			let newPosition = new THREE.Vector3(0,0,0).copy(layer.scrolls[layer.scroll.roamCurrent]);
+			auxl.roamCameraRig.GetEl().object3D.position.copy(newPosition);
+		} else {
+		//if(camType === 'camera'){}
 			if(auxl.isFalsey(direction)){
 				layer.scroll.mainCurrent--;
 			} else {
@@ -519,51 +533,20 @@ const Player = (auxl, id, layer, data) => {
 			//Position to Move to
 			let newPosition = new THREE.Vector3(0,0,0).copy(layer.scrolls[layer.scroll.mainCurrent]);
 			auxl.headRig.GetEl().object3D.position.copy(newPosition);
-		} else {
-
-			if(auxl.isFalsey(direction)){
-				layer.scroll.roamCurrent--;
-			} else {
-				layer.scroll.roamCurrent++;
-			}
-			if(layer.scroll.roamCurrent === layer.scrolls.length){
-				layer.scroll.roamCurrent = 0;
-			} else if(layer.scroll.roamCurrent < 0){
-				layer.scroll.roamCurrent = layer.scrolls.length-1;
-			}
-			//Position to Move to
-			let newPosition = new THREE.Vector3(0,0,0).copy(layer.scrolls[layer.scroll.roamCurrent]);
-			newPosition.z *= -1;
-			auxl.roamCamera.GetEl().object3D.position.copy(newPosition);
 		}
 
 	}
-	//Manual Controls Added for Testing
-	document.addEventListener("keydown", (e) => {
-		if(e.key === 'ArrowUp'){
-			CycleCameraZoom(false);
-		} else if( e.key === 'ArrowDown'){
-			CycleCameraZoom(true);
-		} else if(e.key === 'ArrowLeft'){
-			RoamCamSwap();
-		} else if( e.key === 'ArrowRight'){
-			RoamCamSwap();
-		}
-	});
 
-
-	layer.head = {};
-	layer.head.attached = true;
-	const RoamCamSwap = () => {
-
-		if(layer.head.attached){
-auxl.roamCamera.ChangeSelf({property:'camera', value: {active: true}})
-auxl.camera.ChangeSelf({property:'camera', value: {active: false}})
+	layer.roamCamViewer = false;
+	//This breaks the canvas streaming of the camera feed
+	const ToggleRoamCamView = () => {
+		layer.roamCamViewer = !layer.roamCamViewer;
+		if(layer.roamCamViewer){
+			auxl.roamCameraViewer.SpawnCore(auxl.camera.GetEl());
 		} else {
-auxl.camera.ChangeSelf({property:'camera', value: {active: true}})
-auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
+			auxl.roamCameraViewer.DespawnCore();
 		}
-		layer.head.attached = !layer.head.attached
+
 	}
 
 	//Scene & Teleportation Camera Controls
@@ -736,14 +719,15 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 	}
 
 	//Quick Snap Camera Rotation
+
 	//Play Snap View Anim to the Right 45degrees
 	const SnapRight45 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
-			let rotY = auxl.playerBody.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
 			anim45Data.from = rotY;
 			anim45Data.to = rotY - 45;
-			auxl.playerBody.Animate(anim45Data);
+			auxl.playerRig.Animate(anim45Data);
 			snapTimeout = setTimeout(() => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
@@ -754,10 +738,10 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 	const SnapLeft45 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
-			let rotY = auxl.playerBody.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
 			anim45Data.from = rotY;
 			anim45Data.to = rotY + 45;
-			auxl.playerBody.Animate(anim45Data);
+			auxl.playerRig.Animate(anim45Data);
 			snapTimeout = setTimeout(() => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
@@ -768,10 +752,10 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 	const SnapRight90 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
-			let rotY = auxl.playerBody.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
 			anim90Data.from = rotY;
 			anim90Data.to = rotY - 90;
-			auxl.playerBody.Animate(anim90Data);
+			auxl.playerRig.Animate(anim90Data);
 			snapTimeout = setTimeout(() => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
@@ -782,14 +766,42 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 	const SnapLeft90 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
-			let rotY = auxl.playerBody.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
 			anim90Data.from = rotY;
 			anim90Data.to = rotY + 90;
-			auxl.playerBody.Animate(anim90Data);
+			auxl.playerRig.Animate(anim90Data);
 			snapTimeout = setTimeout(() => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
 			}, anim90Data.dur+10);
+		}
+	}
+
+	//Snap Mode Toggle
+	const ToggleSnapMode = () => {
+		layer.snapToggle = !layer.snapToggle;
+		if(layer.snapToggle){
+			layer.snapMode = 90;
+		} else {
+			//Defaults to 45
+			layer.snapMode = 45;
+		}
+	}
+
+	//Snap Right
+	const SnapRight = () => {
+		if(layer.snapMode === 45){
+			SnapRight45();
+		} else if(layer.snapMode === 90){
+			SnapRight90();
+		}
+	}
+	//Snap Left
+	const SnapLeft = () => {
+		if(layer.snapMode === 45){
+			SnapLeft45();
+		} else if(layer.snapMode === 90){
+			SnapLeft90();
 		}
 	}
 
@@ -829,7 +841,7 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 			autoplay: true,
 			enabled: true,
 		};
-		auxl.playerBody.Animate(camYAnimData)
+		auxl.playerRig.Animate(camYAnimData)
 	}
 
 	//HeadRig Snap Turning
@@ -838,10 +850,10 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 	const HeadSnapRight45 = () => {
 		if(layer.headSnapRotating){} else {
 			layer.headSnapRotating = true;
-			let rotY = auxl.playerCamRoam.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerHead.GetEl().getAttribute('rotation').y;
 			anim45Data.from = rotY;
 			anim45Data.to = rotY - 45;
-			auxl.playerCamRoam.Animate(anim45Data);
+			auxl.playerHead.Animate(anim45Data);
 			headSnapTimeout = setTimeout(() => {
 				layer.headSnapRotating = false;
 				clearTimeout(headSnapTimeout);
@@ -852,20 +864,16 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 	const HeadSnapLeft45 = () => {
 		if(layer.headSnapRotating){} else {
 			layer.headSnapRotating = true;
-			let rotY = auxl.playerCamRoam.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerHead.GetEl().getAttribute('rotation').y;
 			anim45Data.from = rotY;
 			anim45Data.to = rotY + 45;
-			auxl.playerCamRoam.Animate(anim45Data);
+			auxl.playerHead.Animate(anim45Data);
 			headSnapTimeout = setTimeout(() => {
 				layer.headSnapRotating = false;
 				clearTimeout(headSnapTimeout);
 			}, anim45Data.dur+10);
 		}
 	}
-
-
-
-
 
 	//Height Toggle
 	//Toggle Sitting|Standing View Mode
@@ -947,6 +955,15 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 	}
 
 	//UI
+	//Update Belt Text
+	const UpdateBeltText = (text) => {
+		if(text){
+			layer.beltText = text;
+		}
+		if(layer.beltDisplay){
+			auxl.playerBeltText.ChangeSelf({property: 'text', value:{value: layer.beltText}})
+		}
+	}
 	//Toggle Belt Text
 	const ToggleBeltText = (force) => {
 		if(force || !layer.beltDisplay){
@@ -960,17 +977,40 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 			layer.beltDisplay = false;
 		}
 	}
-	//playerFloor.addEventListener('click',ToggleBeltText);
-	//Update Belt Text
-	const UpdateBeltText = (text) => {
-		if(text){
-			layer.beltText = text;
-		}
-		if(layer.beltDisplay){
-			auxl.playerBeltText.ChangeSelf({property: 'text', value:{value: layer.beltText}})
-		}
 
+	//Update Hover Text
+	const UpdateHoverText = (text) => {
+		if(text){
+			layer.HoverText = text;
+		}
+		if(layer.hoverDisplay){
+			auxl.avatarHover.ChangeSelf({property: 'text', value:{value: layer.HoverText}})
+		}
 	}
+	//Toggle Hover Display
+	const ToggleHoverText = (force) => {
+		if(force || !layer.hoverDisplay){
+			auxl.avatarHover.ChangeSelf({property: 'visible', value:true})
+			UpdateHoverText();
+			layer.hoverDisplay = true;
+		} else if(layer.hoverDisplay){
+			auxl.avatarHover.ChangeSelf({property: 'visible', value:false})
+			layer.hoverDisplay = false;
+		}
+	}
+
+	//Toggle Hover Display
+	const ToggleFloorText = (force) => {
+		if(force || !layer.floorDisplay){
+			auxl.playerFloor.ChangeSelf({property: 'visible', value:true})
+			UpdateHoverText();
+			layer.floorDisplay = true;
+		} else if(layer.floorDisplay){
+			auxl.playerFloor.ChangeSelf({property: 'visible', value:false})
+			layer.floorDisplay = false;
+		}
+	}
+
 	//Toggle UI Text
 	const ToggleVRText = () => {
 		layer.vrUI = !layer.vrUI;
@@ -1236,8 +1276,11 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 		//Configured to non-physics only currently
 		auxl.playerRig.ChangeSelf({property: 'position', value: pos});
 		layer.gridPos.copy(pos);
+		//#return
+		if(layer.playerPhysics){
+			auxl.playerRig.PhysPos(pos);
+		}
 	}
-
 
 	//Item to body sync
 	//Attach to user
@@ -1376,9 +1419,15 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 		if(rayEl === false){
 			rayEl = auxl.camera.GetEl();
 		}
-		let quaternion = new THREE.Quaternion().copy(rayEl.object3D.quaternion);
-		let bodyQuat = new THREE.Quaternion().copy(auxl.playerBody.GetEl().object3D.quaternion);
-		quaternion.multiply(bodyQuat);
+		//let quaternion = new THREE.Quaternion().copy(rayEl.object3D.quaternion);
+		let quaternion = new THREE.Quaternion();
+		rayEl.object3D.getWorldQuaternion(quaternion)
+		//let bodyQuat = new THREE.Quaternion().copy(auxl.playerBody.GetEl().object3D.quaternion);
+		//let bodyHead = new THREE.Quaternion().copy(auxl.playerHead.GetEl().object3D.quaternion);
+		//let playerRig = new THREE.Quaternion().copy(auxl.playerRig.GetEl().object3D.quaternion);
+		//quaternion.multiply(bodyQuat);
+		//quaternion.multiply(bodyHead);
+		//quaternion.multiply(playerRig);
 		let distance = dist || 1;
 		let direction = dir || new THREE.Vector3(0,0,-1);
 		//Rotate Aim
@@ -1525,7 +1574,6 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 	//console.log({rayDir,position,distance})
 		return position;
 	}
-
 	//Return Position Direction of Camera at Axis Height Level
 	const RaySpawnPoint = (rayEl, height, distance) => {
 		//Get the direction vector in world space
@@ -1648,19 +1696,23 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 		return position;
 
 	}
+
 	//Ray Direction ******
 	const RayDir = (rayEl, dist, dir) => {
 		let position = new THREE.Vector3();
 		let rayQuat = new THREE.Quaternion();
 		let spawnDistance = dist || 1.5;
 		let direction = dir || new THREE.Vector3(0,0,-1);
-		if (rayEl.id === 'vrController1' || rayEl.id === 'vrController2'){
-			direction = rayEl.getAttribute('raycaster').direction;
+		if (rayEl.hasAttribute('raycaster')){
+			let rayDirObj = rayEl.getAttribute('raycaster').direction;
+			//Import into Vec3
+			direction.x = rayDirObj.x;
+			direction.y = rayDirObj.y;
+			direction.z = rayDirObj.z;
 			if(dir){
 				direction.add(dir);
 			}
 		}
-
 		//Ray Rotation
 		rayEl.object3D.getWorldQuaternion(rayQuat);
 		//Apply Rotation to Direction
@@ -1668,6 +1720,13 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 		//Get Ray Position
 		rayEl.object3D.getWorldPosition(position)
 
+/*
+		if(rayEl.id === 'camera'){
+			auxl.playerHead.GetEl().object3D.getWorldPosition(position)
+		} else {
+			rayEl.object3D.getWorldPosition(position)
+		}
+*/
 		//Add Direction to Position
 		position.add( direction.clone().multiplyScalar(spawnDistance));
 		return {position, direction};
@@ -1788,45 +1847,48 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 	//Disable Player Selection
 	const DisableClick = () => {
 		if(auxl.controls === 'Desktop' || auxl.controls === 'Mobile'){
-			auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false}});
+			auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.disabled', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false}});
 		} else if(auxl.controls === 'VR'){
 			if(auxl.vrHand === 'bothRight' || auxl.vrHand === 'right'){
-				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
+				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.disabled', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
 			} else if(auxl.vrHand === 'bothLeft' || auxl.vrHand === 'left'){
-				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
+				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.disabled', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
 			} else if(auxl.vrHand === 'both'){
-				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
-				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.disabled', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
+				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.disabled', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
+				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.disabled', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
 			}
 		}
 	}
 	//Enable Player Selection
 	const EnableClick = () => {
 		if(auxl.controls === 'Desktop' || auxl.controls === 'Mobile'){
-			auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false}});
+			auxl.mouseController.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false}});
 		} else if(auxl.controls === 'VR'){
 			if(auxl.vrHand === 'bothRight' || auxl.vrHand === 'right'){
-				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
+				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
 			} else if(auxl.vrHand === 'bothLeft' || auxl.vrHand === 'left'){
-				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
+				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
 			} else if(auxl.vrHand === 'both'){
-				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
-				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
+				auxl.vrController1.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
+				auxl.vrController2.ChangeSelf({property: 'raycaster', value: {enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false}});
 			}
 		}
 	}
 
 //Bring that system controls toggle setup into player
 //Core Method DomClass = (domClasses, wipe)
-/*
-	const RayControls = (controls) => {
-		controls = controls || '.clickable,';
-		auxl.mousecontroller.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: controls, far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-	}
-*/
+//NOT IN USE YET
+const RayControls = (controls) => {
+	controls = controls || '.clickable,';
+	auxl.mousecontroller.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: controls, far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
+}
 
-	//Trigger (UniRay) component Tick
-	const Ticker = () => {
+
+
+
+	//Legacy
+	//Display Link Anchor at Intersection
+	const AnchorAtIntersection = () => {
 		//Check for controller type
 		if(auxl.controls === 'Desktop' || auxl.controls === 'Mobile'){
 			if(layer.raycasters.hmdmouse.linkDisplay){
@@ -1873,24 +1935,78 @@ auxl.roamCamera.ChangeSelf({property:'camera', value: {active: false}})
 				}
 			}
 		}
+
+
+	}
+
+	//Trigger raycaster component Tick
+	//Activated on auxcontroller component Tick
+	const Ticker = () => {
+		//Update Closest Raycast Intersection and Element
+		
+		//Controls Tick
+
 	}
 
 	//Raycaster Event Tick
-	let rayTicking = new THREE.Vector3(0,0,0);
+	//Activated on Ray Enter, Leave, Down & Up
 	const RayTick = (event) => {
+		let intersect = new THREE.Vector3(0,0,0);
 //console.log(event)
 if(event && event.detail && event.detail.intersections && event.detail.intersections[0] && event.detail.intersections[0].point){
-	rayTicking.copy(event.detail.intersections[0].point);
+	intersect.copy(event.detail.intersections[0].point);
 } else if(event && event.detail && event.detail.intersection){
-	rayTicking.copy(event.detail.intersection.point);
+	intersect.copy(event.detail.intersection.point);
 }
 if(event && event.target){
+//console.log(event.detail)
+//intersectedEl
+
+//intersection.distance
+
+//intersection.face
+//intersection.face.a
+//intersection.face.b
+//intersection.face.c
+//intersection.face.materialIndex
+//intersection.face.normal
+//intersection.face.normal.x
+//intersection.face.normal.y
+//intersection.face.normal.z
+
+//intersection.faceIndex
+
+//intersection.object
+//intersection.object[Object3D Property]
+
+//intersection.point
+//intersection.point.x
+//intersection.point.y
+//intersection.point.z
+
+//intersection.uv
+//intersection.uv.x
+//intersection.uv.y
+
+
+//mouseEvent
+//mouseEvent.mousedown
+//mouseEvent.mouseup
+//mouseEvent.mouseup.target
+//mouseEvent.mouseup.clientX
+//mouseEvent.mouseup.clientY
+//mouseEvent.mouseup...
+
+
 	if(event.target.id === 'mouseController'){
-		layer.raycasters.hmdmouse.intersection.copy(rayTicking);
+		layer.raycasters.hmdmouse.intersection.copy(intersect);
+		//layer.raycasters.hmdmouse.lastEvent = JSON.parse(JSON.stringify(event.detail));
 	} else if(event.target.id === 'vrController1'){
-		layer.raycasters.hand1.intersection.copy(rayTicking);
+		//layer.raycasters.hand1.lastEvent = JSON.parse(JSON.stringify(event.detail));
+		layer.raycasters.hand1.intersection.copy(intersect);
 	} else if(event.target.id === 'vrController2'){
-		layer.raycasters.hand2.intersection.copy(rayTicking);
+		//layer.raycasters.hand2.lastEvent = JSON.parse(JSON.stringify(event.detail));
+		layer.raycasters.hand2.intersection.copy(intersect);
 	} else {
 	}
 }
@@ -1936,22 +2052,24 @@ if(layer.raycaster.display){
 	//
 	//Trigger Toggles
 	//Toggles to control which powers type of click main/alt
-
+	layer.playerPowers = true;
 	//Trigger, Click, Mouse Down
 	const TriggerDown = (event) => {
-		if(layer.playerPhysics){
+		if(layer.playerPhysics || layer.playerPowers){
 			PowersDown(event)
 		}
 	}
 	//Trigger, Click, Mouse Up
 	const TriggerUp = (event) => {
-		if(layer.playerPhysics){
+		if(layer.playerPhysics || layer.playerPowers){
 			PowersUp(event)
 		}
 	}
 
+
+
+	//TEMP - Move into Component
 	//Mouse Over Controller Events
-	//Will be moved to UniRay
 	const ControllerEvents = (event) => {
 //technically headcursor/mouse/gyro/trackpad/joystick
 auxl.mouseController.GetEl().addEventListener('mouseleave', TriggerLeave(event));
@@ -1972,6 +2090,10 @@ auxl.vrController2.GetEl().addEventListener('mouseenter', TriggerEnter(event));
 	}
 	ControllerEvents();
 
+
+
+
+
 	//Toggle Actions - Button Down/Up
 	//Need to update DelinkCore selection
 	const ToggleAction = (toggle) => {
@@ -1981,6 +2103,7 @@ auxl.vrController2.GetEl().addEventListener('mouseenter', TriggerEnter(event));
 		layer.toggle3 = false;
 		layer.toggle4 = false;
 		layer.toggle5 = false;
+		layer.toggle6 = false;
 		if(toggle === '0'){
 			layer.toggle0 = true;
 		} else if(toggle === '1'){
@@ -1993,6 +2116,8 @@ auxl.vrController2.GetEl().addEventListener('mouseenter', TriggerEnter(event));
 			layer.toggle4 = true;
 		} else if(toggle === '5'){
 			layer.toggle5 = true;
+		} else if(toggle === '6'){
+			layer.toggle6 = true;
 		} else {
 			//How do I know which trigger is unlinking it
 			DelinkCore(layer.raycasters.hmdmouse.linkCore);
@@ -2004,6 +2129,8 @@ auxl.vrController2.GetEl().addEventListener('mouseenter', TriggerEnter(event));
 
 	//
 	//Physics
+
+	//CANNON Physics
 	layer.playerPhysics = false;
 
 	//Phase out as it is handled by a component, currently used as ref in other methods though
@@ -2095,23 +2222,87 @@ auxl.vrController2.GetEl().addEventListener('mouseenter', TriggerEnter(event));
 	layer.shape = shapeStyles.default;
 
 /*
-	//Hands - These will be UniRays that attach to parent vehicle
+	//Hands -
 	layer.handBody = {type: 'dynamic', shape: 'none', mass: 0.1};
 	//layer.handShape = {shape: 'box', height: 0.01, width: 0.01, depth: 0.01, offset: '0 1 -0.5',};
 	layer.hand1Shape = {shape: 'box', halfExtents: '0.1 0.1 0.1', offset: '0.5 1 -0.5',};
 	layer.hand2Shape = {shape: 'box', halfExtents: '0.1 0.1 0.1', offset: '-0.5 1 -0.5',};
 */
 
-	//Enable Powers
+
+//Abstract standard physics systems to use with various platforms
+//Cannon
+//Ammo
+//Banter
+
+	//
+	//Enable Physics
 	const EnablePhysics = (bodyShape) => {
+		if(auxl.worldPhysics === 'ammo'){
+			EnablePhysicsAmmo(bodyShape)
+		} else if(auxl.worldPhysics === 'cannon'){
+			EnableCannonPhysics(bodyShape);
+		} else {
+console.log({msg: 'Failed to recognize physics engine', engine: auxl.worldPhysics, layer})
+		}
+	}
+	//Disable Physics
+	const DisablePhysics = () => {
+		if(auxl.worldPhysics === 'ammo'){
+			DisablePhysicsAmmo()
+		} else if(auxl.worldPhysics === 'cannon'){
+			DisableCannonPhysics();
+		} else {
+console.log({msg: 'Failed to recognize physics engine', engine: auxl.worldPhysics, layer})
+		}
+	}
+
+	//
+	//AMMO
+
+	//Enable Physics Ammo
+	const EnablePhysicsAmmo = (bodyShape) => {
+
+//Add ammo-body and shape to avatar
+auxl.avatarHand1.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarHand2.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarRig.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarPelvis.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarHead.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarTorso.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarLeftUpperLeg.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarLeftLowerLeg.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarRightUpperLeg.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarLeftUpperArm.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarLeftLowerArm.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarRightUpperArm.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarRightLowerArm.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+
+	}
+
+	//Disable Physics Ammo
+	const DisablePhysicsAmmo = () => {
+		//remove ammo-body and shape from all
+		auxl.avatar.RemoveComponentAll(['ammo-body', 'ammo-shape'])
+	}
+
+
+	//
+	//CANNON
+
+	//Enable
+	const EnableCannonPhysics = (bodyShape) => {
 		if(bodyShape && bodyShape.body){
 			layer.body = bodyShape.body;
 		}
 		if(bodyShape && bodyShape.shape){
 			layer.shape = bodyShape.shape;
 		}
+
 		//Add Avatar Body
 		auxl.playerRig.EnablePhysics({body: layer.body, shape: layer.shape});
+
+
 		//Update Easy Access Body for Changes
 		layer.worldBody = auxl.playerRig.GetEl().body;
 		layer.playerPhysics = true;
@@ -2146,6 +2337,7 @@ angleXYZ
 		//auxl.playerRig.ChangeSelf({property:'gravitycontrol', value: {type: 'float', axis: new THREE.Vector3(0,0,0), customGravity:50, velocityExpo: 1000, gravityObject: 'planet1'}});//125
 		auxl.playerRig.ChangeSelf({property:'gravitycontrol', value: {type: 'float', axis: new THREE.Vector3(0,0,0), customGravity:0.00001, velocityExpo: 1000, gravityObject: 'none'}});
 
+
 		//Disable Rotation for now replace with Gimbal component
 		auxl.playerRig.GetEl().body.fixedRotation = true;
 		auxl.playerRig.GetEl().body.updateMassProperties();
@@ -2157,7 +2349,6 @@ angleXYZ
 		//Bug Workaround
 		//To use Ticker with linkAnchor move to intersection point, need to disable hovering animations otherwise they go haywire.
 		auxl.mouseController.RemoveComponent( ['animation__hoverenter', 'animation__hoverleave']);
-
 /*
 		//Hands
 		//Add Hand
@@ -2168,8 +2359,16 @@ angleXYZ
 		//auxl.playerRig.GetEl().setAttribute('shape__hand2',  layer.hand2Shape);
 */
 
-		//Raycaster Help Link Cores
-		ToggleRayHelp(true);
+		//Enable Raycaster Help Link Cores
+		//ToggleRayHelp(true);
+	}
+
+	//Disable
+	const DisableCannonPhysics = () => {
+		auxl.playerRig.DisablePhysics();
+		auxl.playerRig.RemoveComponent(['gravitycontrol', 'bodymaterial']);
+		layer.worldBody = false;
+		layer.playerPhysics = false;
 	}
 
 	//Pause Physics Simulation for self
@@ -2244,6 +2443,7 @@ angleXYZ
 
 	//Gravity
 	const setAllGravity = (axisType) => {
+		if(!auxl.playerRig.GetEl().components.gravitycontrol){return}
 		if(axisType.type || axisType.type === 0){
 auxl.playerRig.GetEl().components.gravitycontrol.setTypes(axisType.type);
 
@@ -2265,11 +2465,13 @@ auxl.playerRig.GetEl().components.gravitycontrol.setWorldAxis(axisType.axis);
 	}
 	//Cycle All Gravity Types
 	const cycleAllGravityTypes = () => {
+	if(!auxl.playerRig.GetEl().components.gravitycontrol){return}
 auxl.playerRig.GetEl().components.gravitycontrol.cycleTypes();
 auxl.playerRig.GetEl().components.gravitycontrol.cycleWorldTypes();
 	}
 	//Cycle World Gravity Axis
 	const cycleWorldGravityAxis = () => {
+	if(!auxl.playerRig.GetEl().components.gravitycontrol){return}
 auxl.playerRig.GetEl().components.gravitycontrol.cycleWorldAxis();
 	}
 
@@ -2310,7 +2512,9 @@ auxl.playerRig.GetEl().components.gravitycontrol.cycleWorldAxis();
 			BoostDown(event)
 		} else if(layer.toggle5){
 			BackBoostDown(event)
-		} else {
+		} else if(layer.toggle6){
+			HoverTargetDown(event)
+		}  else {
 			//Selection Raycaster Power
 		}
 	}
@@ -2331,14 +2535,17 @@ auxl.playerRig.GetEl().components.gravitycontrol.cycleWorldAxis();
 			BoostUp(event)
 		} else if(layer.toggle5){
 			BackBoostUp(event)
+		} else if(layer.toggle6){
+			HoverTargetUp(event)
 		} else {
 			//Selection Raycaster Power
 		}
+		auxl.mouseControllerUI.EmitEvent('reset')
 	}
 
 	//Raycaster Build Charge - The higher the number the shorter the charge
 	//Display ray ref core in front of raycaster that scales ever bigger to to full power to help demonstrate the charge process and timing.
-	const RayBuildStart = (rayId) => {
+	const RayBuildStart = (rayId, increment, interval) => {
 		let rubberRay = false;
 		if(rayId === 'mouseController'){
 			rubberRay = layer.raycasters.hmdmouse;
@@ -2351,15 +2558,22 @@ auxl.playerRig.GetEl().components.gravitycontrol.cycleWorldAxis();
 		}
 		DelinkCore(rubberRay.linkCore);
 		rubberRay.power = 1000;
+		let speed = 1 || interval;
+		let amount = 15 || increment;
 		clearInterval(rubberRay.linkInterval)
+
+		//Display Charging
+		rubberRay.uiCore.EmitEvent('charge')
+
 		//Get Charge
 		rubberRay.linkInterval = setInterval(() => {
-			if(rubberRay.power >= 15){
-				rubberRay.power -= 15;
+			if(rubberRay.power >= amount){
+				rubberRay.power -= amount;
 			} else {
+				rubberRay.uiCore.EmitEvent('charged');
 				clearInterval(rubberRay.linkInterval);
 			}
-		}, 1);
+		}, speed);
 	}
 
 	//Parachute (Fall without Velocity)
@@ -2448,11 +2662,16 @@ auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = true;
 
 	//Freeze
 	const Freeze = () => {
-		auxl.playerRig.GetEl().body.sleep();
+		if(auxl.playerRig.GetEl(true).body){
+			auxl.playerRig.GetEl().body.sleep();
+		}
+
 	}
 	//UnFreeze
 	const UnFreeze = () => {
-		auxl.playerRig.GetEl().body.wakeUp();
+		if(auxl.playerRig.GetEl(true).body){
+			auxl.playerRig.GetEl().body.wakeUp();
+		}
 	}
 
 	//Brake
@@ -2591,7 +2810,6 @@ auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = true;
 		if(DistanceFromPlayer(ray.intersection) <= linkDistance){
 			position.copy(ray.intersection);
 		} else {
-			//position.copy(RigPoint(linkDistance,rayEl));
 			position.copy(RayDir(rayEl, linkDistance).position);
 		}
 		//Link Length
@@ -2753,6 +2971,573 @@ auxl.playerRig.GetEl().components.gravitycontrol.data.chuteOpen = true;
 		}
 	}
 
+
+//
+//Hover Targets
+//Identify 1 or more objects for action
+//Hover target once to add to list
+//Hover target again to remove from list
+//Last target is dropped when new target is selected
+
+//Engage action toggle, drag on/off targets to add or remove, press grip to cancel or release to trigger action on targets
+
+//Targetting
+//Which raycaster is used on which button?
+//For mobile / desktop : camera
+//For vr : controller 1 or 2
+
+//TODO
+//Target Pool
+//Ammo Pool
+//Targetting Distance Limit
+//Target Adaptations for various shapes sizes
+
+//Add to GenRaycasters
+layer.raycasters.hmdmouse.id = 'mouseController';
+layer.raycasters.hand1.id = 'vrController1';
+layer.raycasters.hand2.id = 'vrController2';
+
+layer.raycasters.hmdmouse.targets = [];
+layer.raycasters.hand1.targets = [];
+layer.raycasters.hand2.targets = [];
+
+layer.raycasters.hmdmouse.maxTargets = 12;
+layer.raycasters.hand1.maxTargets = 12;
+layer.raycasters.hand2.maxTargets = 12;
+
+layer.raycasters.hmdmouse.targetDistance = 50;
+layer.raycasters.hand1.targetDistance = 50;
+layer.raycasters.hand2.targetDistance = 50;
+
+layer.raycasters.hmdmouse.targetChecked = false;
+layer.raycasters.hand1.targetChecked = false;
+layer.raycasters.hand2.targetChecked = false;
+
+//Target
+const BuildTarget = (id, color) => {
+
+	let baseColor = color || "#eb07a5";
+	let linkCoreData = {
+		id: 'target'+id,
+		sources: false,
+		text: false,
+		//geometry: {primitive: 'ring', radiusInner: 0.4, radiusOuter: 0.5},
+		geometry: {primitive: 'torus', arc: 360, radius: 0.4, radiusTubular: 0.01, segmentsRadial: 36, segmentsTubular: 32},
+		material: {shader: "standard", color: baseColor, emissive: baseColor, emissiveIntensity: 0.25, opacity: 1, side: 'double'},
+		position: new THREE.Vector3(0,0,0),
+		rotation: new THREE.Vector3(0,0,0),
+		scale: new THREE.Vector3(1,1,1),
+	animations: {
+		targettedx: {property: 'object3D.scale.x', from: 3, to: 1, dur: 250, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true,},
+		targettedy: {property: 'object3D.scale.y', from: 3, to: 1, dur: 250, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true,},
+		targettedz: {property: 'object3D.scale.z', from: 3, to: 1, dur: 250, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true,},
+
+		hitx: {property: 'object3D.scale.x', from: 1, to: 4, dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fire'},
+		hity: {property: 'object3D.scale.y', from: 1, to: 4, dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fire'},
+		hitz: {property: 'object3D.scale.z', from: 1, to: 4, dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fire'},
+/*
+		hitx2: {property: 'object3D.scale.x', from: 4, to: 0.001, dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__hitx'},
+		hity2: {property: 'object3D.scale.y', from: 1, to: 0.001, dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__hity'},
+		hitz2: {property: 'object3D.scale.z', from: 4, to: 0.001, dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__hitz'},
+*/
+	},
+		mixins: false,
+		classes: ['a-ent'],
+		components: {
+			['look-at-xyz']:{match: 'camera', x:true, y:true, z:true},
+		},
+	}; 
+	let linkAnchor = auxl.Core(linkCoreData);
+	return linkAnchor;
+}
+
+
+const BuildAmmo = (id, offset, lifetime, color) => {
+
+	let offsetPos = offset || new THREE.Vector3(0,0,0);
+	let dur = lifetime || 1000;
+	let baseColor = color || "#eb07a5";
+	let ammoCoreData = {
+		id: 'ammo'+id,
+		sources: false,
+		text: false,
+		geometry: {primitive: 'box', width: 0.25, height: 0.25, depth: 0.25},
+		material: {shader: "standard", color: baseColor, emissive: baseColor, emissiveIntensity: 0.25, opacity: 0.69, side: 'double'},
+		position: offsetPos,
+		rotation: new THREE.Vector3(0,0,0),
+		scale: new THREE.Vector3(1,1,1),
+		animations: {
+hit: {property: 'position', to: new THREE.Vector3(0,0,0), dur, delay: 0, loop: false, dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: true, enabled: true, },
+		},
+		mixins: false,
+		classes: ['a-ent'],
+		components: false,
+	}; 
+	return auxl.Core(ammoCoreData);
+}
+
+
+//Loop through maxTargets amount to build a pool of targets to use instead of creating/destroying each time
+
+
+
+//mouseenter and mouseleave seem to work on a face by face basis, so not the entire object which doesn't work well for
+
+
+//Raycaster Hover On/Off & Confirm/Clear/Cancel
+//mouseenter
+const RayOn = (rayEl, ray) => {
+	//check if the closest ray intersection has a class of target
+	//Check for closest intersection when allowed
+	if(!ray.targetsLocked && !ray.blocked && !ray.targetChecked && rayEl.components.raycaster.intersections.length > 0){
+//console.log({msg: 'on', rayEl, ray})
+
+		ray.intersection = new THREE.Vector3(0,0,0);
+		let targetEl = false;
+
+
+
+		//Loop through intersections and skip all that are self before continuing
+		//rayEl.components.raycaster.intersections.forEach(each =>{
+		rayEl.components.raycaster.intersections.every(each => {
+//console.log(ray.id)
+//console.log(each.object.el.id)
+			if(each.object.el.id === ray.id){
+//console.log({msg: 'bad target', each})
+  				return true;
+			} else {
+				ray.intersection.copy(each.point)
+				ray.intersectionEl = each.object.el;
+				targetEl = each.object.el;
+//console.log({msg: 'good potential target', each})
+				return false;
+			}
+
+		})
+
+//console.log({msg: 'intersections', all : rayEl.components.raycaster.intersections, first: rayEl.components.raycaster.intersections[0], targetEl,})
+
+
+		//Attach to Targets Only not just clickables
+		if(!targetEl || !targetEl.classList.contains('target')){
+			//console.log('Not a Target')
+			return;
+		}
+
+//console.log({msg: 'target', targetEl, classes: targetEl.classList, contains: targetEl.classList.contains('target')})
+		if(ray.targets.includes(targetEl)){
+//disabled as you can click remove or just hover a new one to replace, but changing faces toggles event switches on doesn't work well on full entity
+			//Remove from list
+			//ray.targets.splice(ray.targets.indexOf(targetEl), 1);
+			//let targetIcon = document.getElementById('target'+targetEl.id)
+			//targetEl.removeChild(targetIcon)
+			//Instead of delete, use a pool
+		} else {
+			//check list size
+			if(ray.targets.length >= ray.maxTargets){
+				
+				let targetIcon = document.getElementById('target'+ray.targets[0].id)
+				ray.targets[0].removeChild(targetIcon)
+				ray.targets.shift();
+			}
+			//Add to list
+			ray.targets.push(targetEl);
+			//Spawn Target Icon
+			let targetIconCore = BuildTarget(ray.intersectionEl.id, '#fff500');
+			targetIconCore.SpawnCore(ray.intersectionEl)
+		}
+		//Target Checked
+		ray.targetChecked = true;
+	}
+}
+//mouseleave
+const RayOff = (rayEl, ray) => {
+//console.log({msg: 'off', rayEl, ray})
+	//Clear Targetting
+	ray.targetChecked = false;
+}
+//mousedown
+const TargetsClear = (rayEl, ray) => {
+//console.log({msg: 'off', rayEl, ray})
+	//Clear Targetting
+	ray.targets.forEach(each => {
+		let targetIcon = (document.getElementById('target'+each.id))? document.getElementById('target'+each.id) : false;
+		if(targetIcon){each.removeChild(targetIcon)}
+	})
+	ray.blocked = true;
+}
+//mouseup
+const TargetsReady = (rayEl, ray) => {
+//console.log({msg: 'off', rayEl, ray})
+	ray.targets = [];
+	ray.targetsLocked = false;
+	ray.blocked = false;
+}
+//altmousedown
+const TargetsLock = (rayEl, ray) => {
+//console.log({msg: 'off', rayEl, ray})
+	ray.targetsLocked = true;
+}
+//Ray Event
+const RayHit = (event) => {
+//console.log({msg:'Ray Hit', event})
+
+	//Choose Ray
+	let rayId = event.target.id;
+	let ray = false;
+ 	let rayEl = false;
+	if(rayId === 'mouseController'){
+		ray = layer.raycasters.hmdmouse;
+		rayEl = auxl.mouseController.GetEl();
+	} else if(rayId === 'vrController1'){
+		ray = layer.raycasters.hand1;
+		rayEl = auxl.vrController1.GetEl();
+	} else if(rayId === 'vrController2'){
+		ray = layer.raycasters.hand2;
+		rayEl = auxl.vrController2.GetEl();
+	} else {
+		return;
+	}
+
+//Track which ray is doing which force power, so that on mouseup could instead of clear the targets, but launch them.
+
+//Lock in selection - Hold mouse down to get targets locked in or release to clear. 
+
+	//Ray Event Relay
+	if(event.type === 'raycaster-intersection'){
+		RayOn(rayEl, ray)
+	} else if(event.type === 'raycaster-intersection-cleared'){
+		RayOff(rayEl, ray)
+	} else if(event.type === 'raycaster-closest-entity-changed'){
+		//RayOff(rayEl, ray)
+		//RayOn(rayEl, ray)
+	} else if(event.type === 'mousedown'){
+		TargetsLock(rayEl, ray)
+	} else if(event.type === 'mouseup'){
+		TargetsClear(rayEl, ray)
+		TargetsReady(rayEl, ray)
+	}
+/*
+No Lock in
+mouse down to clear and stop
+mouse up to allow
+
+ else if(event.type === 'mousedown'){
+		TargetsClear(rayEl, ray)
+	} else if(event.type === 'mouseup'){
+		TargetsReady(rayEl, ray)
+	}
+*/
+
+}
+
+//
+//Target Toggles
+
+//ActionDown
+const HoverTargetDown = (actionParams) => {
+//console.log(actionParams)
+	let ray = false;
+	let rayEl = false;
+	let rayId = false;
+	if(auxl.controls === 'Desktop' || auxl.controls === 'Mobile'){
+		ray = layer.raycasters.hmdmouse;
+		rayEl = auxl.mouseController.GetEl();
+	} else if(auxl.controls === 'VR'){
+/*
+if(rayId === 'vrController1'){
+ray = layer.raycasters.hand1;
+rayEl = auxl.vrController1.GetEl();
+} else if(rayId === 'vrController2'){
+ray = layer.raycasters.hand2;
+rayEl = auxl.vrController2.GetEl();
+}
+*/
+	} else {
+		return;
+	}
+	//Ray Helper
+	rayId = rayEl.id;
+
+	//No Hover Targetting
+	if(actionParams === 'launch'){
+
+	}else{
+		//Hover Targetting Ray Event Bindings
+		rayEl.addEventListener('raycaster-intersection',RayHit);
+		rayEl.addEventListener('raycaster-intersection-cleared',RayHit);
+		rayEl.addEventListener('raycaster-closest-entity-changed',RayHit);
+		rayEl.addEventListener('mousedown',RayHit);
+		rayEl.addEventListener('mouseup',RayHit);
+	}
+
+
+	//Animation is at 1sec charge cycle intervals
+	//Starts at 1000, increment is removed each interval.
+	RayBuildStart(rayId, 0.5, 1)
+
+}
+
+//ActionUp
+const HoverTargetUp = (actionParams) => {
+	let ray = false;
+	let rayEl = false;
+	if(auxl.controls === 'Desktop' || auxl.controls === 'Mobile'){
+		ray = layer.raycasters.hmdmouse;
+		rayEl = auxl.mouseController.GetEl();
+	} else if(auxl.controls === 'VR'){
+/*
+if(rayId === 'vrController1'){
+ray = layer.raycasters.hand1;
+rayEl = auxl.vrController1.GetEl();
+} else if(rayId === 'vrController2'){
+ray = layer.raycasters.hand2;
+rayEl = auxl.vrController2.GetEl();
+}
+*/
+	} else {
+		return;
+	}
+
+	//Reset Charge Display
+	clearInterval(ray.linkInterval)
+	ray.uiCore.EmitEvent('reset')
+
+	//Action
+	//Remove
+	//if(!ray.blocked){HoverTargetEnd(rayEl, ray)}
+	//Launch
+	if(!ray.blocked){HoverTargetLaunch(rayEl, ray, actionParams)}
+	//Clear Binding
+	rayEl.removeEventListener('raycaster-intersection',RayHit);
+	rayEl.removeEventListener('raycaster-intersection-cleared',RayHit);
+	rayEl.removeEventListener('raycaster-closest-entity-changed',RayHit);
+	rayEl.removeEventListener('mousedown',RayHit);
+	rayEl.removeEventListener('mouseup',RayHit);
+}
+
+//Hover Target Launch
+const HoverTargetLaunch = (rayEl, ray, type) => {
+	//Clear targets and prevent more until action is complete/ready
+	TargetsClear(rayEl, ray)
+
+	let removeTimeout = setTimeout(() => {
+		//Clear targets and prevent more until action is complete/ready
+		TargetsReady(rayEl, ray)
+		clearTimeout(removeTimeout)
+	}, 500);
+
+//Ways of throwing
+//Free / Raycast Point <-> Object Position Direction
+//Away / forwardDirection
+//Pull / forwardDirection.negate()
+//Throw Up / direction.x & z @ 0
+//Grab / constraint to ray
+//Release / remove constraint
+
+//Launch converts to grabbed targets
+if(ray.grabbed.length > 0){
+	ray.targets = [...ray.grabbed];
+	ray.grabbed.forEach(each => {
+		//attach a constraint to each target instead of impulse
+		each.removeAttribute('ammo-constraint');
+	})
+	ray.grabbed = [];
+}
+
+//Release or Action
+if(type === 'release'){
+	ray.grabbed.forEach(each => {
+		//attach a constraint to each target instead of impulse
+		each.removeAttribute('ammo-constraint');
+	})
+	ray.grabbed = [];
+} else {
+	//Spawn an go home animated Ammo attached to target as player to target offset
+	ray.targets.forEach(each => {
+		//get target pos
+		//get raycast point
+		//get direction from both vec3 & normalize
+		//multiply by power - the time in between targetting and releasing
+
+
+		//Check if target is not dynamic, if so skip
+		if(each.components['ammo-body'].data.type !== 'dynamic'){
+			console.log({msg: 'Target is not dynamic, cannot grab', each, rayEl, ray, type})
+			return;
+		}
+
+
+		//
+		//Free & Up
+
+		//Float Distance between player and target
+		let player = new THREE.Vector3();
+		let obj = new THREE.Vector3();
+		auxl.playerRig.GetEl().object3D.getWorldPosition(player);
+		each.object3D.getWorldPosition(obj);
+		let distance = player.distanceTo(obj);
+		let targetPosition = each.body.getCenterOfMassTransform();
+		let raycastPoint = RayDir(rayEl, distance).direction;
+
+		//Calculate the direction from both vectors and normalize:
+		let direction = new THREE.Vector3().sub(raycastPoint, targetPosition).normalize();
+		direction.negate();
+
+		//Max Power Multiplier
+		let max = 22;
+		//Type Override
+		let flick = type || 'free';
+		if(flick === 'free'){
+		//as is
+		} else if(flick === 'pull'){
+			//Vec3 Distance between target and player
+			direction = new THREE.Vector3();
+			let target = new THREE.Vector3();
+			auxl.playerRig.GetEl().object3D.getWorldPosition(direction);
+			each.object3D.getWorldPosition(target);
+			direction.sub(target)//difference between player and object
+			direction.normalize();
+			direction.add(new THREE.Vector3(0,2,0));
+			//max is the distance between object and player
+			max = 14;
+			distance = (distance > max)? max: distance;
+			distance = (distance < 4)? 4: distance;
+			max = (distance <= max)? distance : max;
+		} else if(flick === 'up'){
+			//Throw Up Limit movement to Y axis only
+			direction.setZ(0);
+			direction.setX(0);
+		} else if(flick === 'grab'){
+			let target = false;
+			if(ray.id === 'mouseController'){
+				target = 'avatarHead';
+			} else if(ray.id === 'vrController1'){
+				target = 'avatarHand1';
+			} else if(ray.id === 'vrController2'){
+				target = 'avatarHand2';
+			}
+			let timing = 0;
+			let destroy = each.hasAttribute('ammo-constraint');
+			if(destroy){
+				console.log({msg: 'ammo-constraint still attached, removing and delaying.', each})
+				each.removeAttribute('ammo-constraint');
+				timing = 25;
+			}
+
+//console.log(each.components['ammo-body'])
+//console.log(auxl.sceneEl.systems.physics)
+			let swapDelay = setTimeout(() => {
+				//Just in Case Bail to avoid Crash
+				let bail = each.hasAttribute('ammo-constraint');
+				if(bail){
+					console.log({msg: 'ammo-constraint still not removed, bailing.', timing, each})
+					TargetsClear(rayEl, ray)
+					TargetsReady(rayEl, ray)
+					return;
+				}
+				//attach a constraint to each target instead of impulse
+//Options: lock, fixed, spring, slider, hinge, coneTwist, pointToPoint.
+				each.setAttribute('ammo-constraint',{type: 'lock', target: '#' + target});
+				ray.grabbed.push(each)
+				clearTimeout(swapDelay)
+			}, timing);
+
+		} else if(flick === 'launch'){
+			ray.grabbed.forEach(each => {
+				//attach a constraint to each target instead of impulse
+				each.removeAttribute('ammo-constraint');
+			})
+			ray.grabbed = [];
+		}
+		//Non-grab 
+		if(flick === 'grab'){
+		} else {
+			//Directional Multiplier of Power (time between targeting and releasing):
+			let power = (1000-ray.power)/1000;
+			power *= max;
+			direction.multiplyScalar(power)
+
+			//Apply Ammo Impulse Force
+			let x = direction.x;
+			let y = direction.y;
+			let z = direction.z;
+			const impulse = new Ammo.btVector3(x, y, z);
+			const pos = new Ammo.btVector3(0, 0, 0);
+			each.body.applyImpulse(impulse, pos);
+			//Ammo Garbage Collection
+			Ammo.destroy(impulse);
+			Ammo.destroy(pos);
+		}
+	})
+}
+
+
+}
+
+//Auto Hit & Remove
+const HoverTargetEnd = (rayEl, ray) => {
+	let lifetime = 1000;
+	let color = '#823cbe';
+	let ammos = [];
+	//Spawn an go home animated Ammo attached to target as player to target offset
+	ray.targets.forEach(each => {
+		let offset = new THREE.Vector3();
+		let target = new THREE.Vector3();
+		auxl.playerRig.GetEl().object3D.getWorldPosition(offset);
+		each.object3D.getWorldPosition(target);
+		offset.sub(target)
+		offset.add(new THREE.Vector3(0,1,0))
+		let ammo = BuildAmmo(each.id, offset, lifetime, color);
+		ammos.push(ammo)
+		ammo.SpawnCore(each)
+	})
+/* NOT WORKING
+	let animTimeout = setTimeout(() => {
+		//Prep Animation Triggers
+		ray.targets.forEach(each => {
+			let targetIcon = (document.getElementById('target'+each.id)) ? document.getElementById('target'+each.id) : false ;
+			if(targetIcon){
+				targetIcon.emit('fire',{bubbles: false})
+				//console.log(targetIcon)
+			}
+		})
+		clearTimeout(animTimeout)
+	}, lifetime);
+*/
+	let removeTimeout = setTimeout(() => {
+		//Clear targets and prevent more until action is complete/ready
+		TargetsClear(rayEl, ray)
+		clearTimeout(removeTimeout)
+	}, lifetime);
+
+	//Remove ammo after use and ready action
+	let shootTimeout = setTimeout(() => {
+		ammos.forEach(each => {
+			each.DespawnCore();
+		})
+		ray.targets.forEach(each => {
+			if(auxl[each.id]){
+				if(auxl[each.id].core){
+					auxl[each.id].DespawnCore();
+				} else if(auxl[each.id].layer){
+					auxl[each.id].DespawnLayer();
+				} 
+			} else {
+				let remove = document.getElementById(each.id);
+				remove.parentNode.removeChild(remove);
+			}
+
+		})
+		TargetsReady(rayEl, ray)
+		clearTimeout(shootTimeout)
+	}, lifetime+100);
+
+}
+
+
+
+	//
 	//Earthbend
 	const EarthbendUp = (event) => {
 		if(layer.toggle3){
@@ -2824,8 +3609,6 @@ Determine
 */
 
 	}
-
-
 
 	//4 directional toggleable light sword. Directions make it go from sword, to claws, to sheild, to dagger.
 
@@ -2984,7 +3767,51 @@ console.log(event.detail.intersection.point)
 		auxl.firingTest.ChangeSelf({property: 'text', value: {value: 'Hit : '+ fired}});
 	}
 
-	return {layer, player, Reset, CameraSwitch, CameraSwitchBack, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, PlayerQuickAnim, PlayerFadeOut, PlayerFadeIn, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, Notification, UpdateActions, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight45, SnapLeft45, SnapRight90, SnapLeft90, ToggleFlashlight, ResetUserPosRot, GetPlayerInfo, ToggleRayHelp, CamRigPoint, RigPoint, RaySpawnPoint, RayDir, RayDistanceDirection, GetRayDirectionRig, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, setAllGravity, setAllGravityAxis, setAllGravityTypes, cycleAllGravityTypes, cycleWorldGravityAxis, ToggleAction, Rubberband, TeleportTo, BoostTo, BackBoost, ChuteUp, ChuteDown, BrakeUp, BrakeDown, RedirectUp, RedirectDown, Redirect, Freeze, UnFreeze, DelinkCore, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, EmitEvent, TestFunc, TogglePlayerPhysics, CycleCameraZoom, HeadSnapRight45, HeadSnapLeft45, RoamCamSwap};
+	//
+	//Fixed Controls
+	//
+	//Main Menu Toggle
+	//
+	//Snap Left
+	//Snap Right
+	//
+	//Main Camera Zoom In
+	//Main Camera Zoom Out
+	//Roam Camera Zoom In
+	//Roam Camera Zoom Out
+
+	//Desktop
+	document.addEventListener("keydown", (e) => {
+//console.log(e.key)
+		if(e.key === '`'){
+			//Main Menu Toggle
+			MainMenuAction()
+		} else if(e.key === '1'){
+			//Snap Rotate Rig Left
+			SnapLeft();
+		} else if(e.key === '2'){
+			//Cycle Zoom Main Camera
+			CycleCameraZoom(false, 'camera');
+		} else if(e.key === '3'){
+			//Cycle Zoom Main Camera
+			CycleCameraZoom(true, 'camera');
+		} else if(e.key === '4'){
+			//Snap Rotate Rig Right
+			SnapRight();
+		} else if(e.key === 'ArrowUp'){
+			//Cycle Zoom Roam Camera
+			//CycleCameraZoom(false, 'roam');
+		} else if(e.key === 'ArrowDown'){
+			//Cycle Zoom Roam Camera
+			//CycleCameraZoom(true, 'roam');
+		} else if(e.key === 'ArrowLeft'){
+			//ToggleRoamCamView();
+		} else if(e.key === 'ArrowRight'){
+			//ToggleRoamCamView();
+		}
+	});
+
+	return {layer, player, Reset, CameraSwitch, CameraSwitchBack, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, PlayerQuickAnim, PlayerFadeOut, PlayerFadeIn, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, ToggleHoverText, UpdateHoverText, ToggleFloorText, Notification, UpdateActions, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft, ToggleFlashlight, ResetUserPosRot, GetPlayerInfo, ToggleRayHelp, CamRigPoint, RigPoint, RaySpawnPoint, RayDir, RayDistanceDirection, GetRayDirectionRig, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, DisablePhysics, setAllGravity, setAllGravityAxis, setAllGravityTypes, cycleAllGravityTypes, cycleWorldGravityAxis, ToggleAction, Rubberband, TeleportTo, BoostTo, BackBoost, ChuteUp, ChuteDown, BrakeUp, BrakeDown, RedirectUp, RedirectDown, Redirect, Freeze, UnFreeze, DelinkCore, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, EmitEvent, TestFunc, TogglePlayerPhysics, CycleCameraZoom, ToggleRoamCamView, HoverTargetDown, HoverTargetUp, ToggleSnapMode, LinkDistance};
 	}
 //
 //Companion
@@ -3018,8 +3845,7 @@ const Companion = (auxl, id, object, inventory) => {
 	comp.infoDisplay = false;
 	comp.pos = auxl.playerRig.GetEl().getAttribute('position');
 	comp.height = 1.5;
-	comp.distance = -2;
-	comp.firstSpawn = true;
+	comp.distance = 2;
 	comp.spawnToggling = false;
 
 	comp.viewConfig = false;
@@ -3049,14 +3875,8 @@ const Companion = (auxl, id, object, inventory) => {
 		title: 'Main Menu',
 		description: 'Main menu for travel, system and settings.',
 		layout:'circleUp',
-		//Cube
-		//posOffset: new THREE.Vector3(1.3,0.3,0),
-		//posOffset: new THREE.Vector3(1.3,0.3,0.22),
-		//posOffset: new THREE.Vector3(1.2,0.3,0.22),
-		//offset: -1,
-		offset: -1.25,
-		//posOffset: new THREE.Vector3(1.625,-0.4,0.11),
-		posOffset: new THREE.Vector3(1.625,0.13,0.11),
+		offset: -1.025,
+		posOffset: new THREE.Vector3(0,0,0),
 		parent: 'ghostParent',
 		stare: false,
 		npc: 'compNPC',
@@ -3092,6 +3912,14 @@ const Companion = (auxl, id, object, inventory) => {
 				menu: 'close',
 			},
 		},
+		button4:{
+			id: 'worldJump',
+			style: false,
+			title: 'World Jump',
+			description: 'Jump into a new World.',
+			subMenu: 'worlds1',
+			action: false,
+		},
 	},
 	travel1:{
 		button0:{
@@ -3110,6 +3938,79 @@ const Companion = (auxl, id, object, inventory) => {
 			subMenu: 'menu5',
 			action: false,
 		},
+	},
+	worlds1:{
+		button0:{
+			id: 'XRcadeWorld',
+			style: false,
+			title: 'XRcade World',
+			description: 'Load the arcade world of XRcade.',
+			subMenu: false,
+			action: {
+				auxlObj: 'xrcadeWorld',
+				component: false,
+				method: 'SwapWorld',
+				params: 'xrcadeWorld',
+				menu: 'close',
+			},
+		},
+		button1:{
+			id: 'GridWorld',
+			style: false,
+			title: 'Grid World',
+			description: 'Load the world of Grid map collision showcase.',
+			subMenu: false,
+			action: {
+				auxlObj: 'gridWorld',
+				component: false,
+				method: 'SwapWorld',
+				params: 'gridWorld',
+				menu: 'close',
+			},
+		},
+		button2:{
+			id: 'AmmoWorld',
+			style: false,
+			title: 'Ammo World',
+			description: 'Load the world of Ammo Physics.',
+			subMenu: false,
+			action: {
+				auxlObj: 'ammoWorld',
+				component: false,
+				method: 'SwapWorld',
+				params: 'ammoWorld',
+				menu: 'close',
+			},
+		},
+		button3:{
+			id: 'CannonWorld',
+			style: false,
+			title: 'Cannon World',
+			description: 'Load the world of Cannon Physics.',
+			subMenu: false,
+			action: {
+				auxlObj: 'cannonWorld',
+				component: false,
+				method: 'SwapWorld',
+				params: 'cannonWorld',
+				menu: 'close',
+			},
+		},
+		button4:{
+			id: 'MascotWorld',
+			style: false,
+			title: 'Mascot World',
+			description: 'Load the world of Mascot',
+			subMenu: false,
+			action: {
+				auxlObj: 'mascotWorld',
+				component: false,
+				method: 'SwapWorld',
+				params: 'mascotWorld',
+				menu: 'close',
+			},
+		},
+
 	},
 	menu2:{
 		button0:{
@@ -3142,6 +4043,21 @@ const Companion = (auxl, id, object, inventory) => {
 				menu: 'stay',
 			},
 		},
+		button01:{
+			id: 'action2',
+			style: false,
+			title: '45/90 Snap Rotation Toggle',
+			description: 'Toggle between 45* or 90* degree snap rotation.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'ToggleSnapMode',
+				params: null,
+				menu: 'stay',
+			},
+		},
+/*
 		button5:{
 			id: 'action5',
 			style: false,
@@ -3170,6 +4086,7 @@ const Companion = (auxl, id, object, inventory) => {
 				menu: 'close',
 			},
 		},
+*/
 		button1:{
 			id: 'subMenu1',
 			style: false,
@@ -3540,24 +4457,49 @@ const Companion = (auxl, id, object, inventory) => {
 
 	//Legacy
 	function cameraDirectionY(){
-		//Get the direction vector in world space
-		//let direction = new THREE.Vector3();
-		//auxl.camera.GetEl().object3D.getWorldDirection(direction);
-
 		let direction = auxl.player.GetRayDirectionRig(auxl.camera.GetEl());
 		//Calculate the position based on the direction and distance
 		let position = new THREE.Vector3().copy(auxl.camera.GetEl().object3D.position).add(new THREE.Vector3(direction.x, 0, direction.z).normalize().multiplyScalar(comp.distance));
 		position.y = comp.height;
 		return position;
 	}
+
+	//Minimum spawning distance
+	let minSpawnDistance = 1.5;
 	//Fixed height Camera Ray
 	function cameraDirection(){
+		let direction = new THREE.Vector3().copy(auxl.player.RayDir(auxl.avatarTorsoRig.GetEl(), comp.distance, new THREE.Vector3(0,0,-2)).direction);
+		direction.setY(comp.height);
+
+		return direction;
+/*
+		let direction = new THREE.Vector3().copy(auxl.player.RayDir(auxl.camera.GetEl(), comp.distance, new THREE.Vector3(0,0,-2)).direction);
+		direction.setY(comp.height);
+		return direction;
+*/
+
+/*
+		//Get the position vector in world space
+		let position = new THREE.Vector3();
+		auxl.camera.GetEl().object3D.getWorldDirection(position);
+		position.multiplyScalar(comp.distance);
+
+		position.setY(comp.height);
+		return position;
+
+		let quaternion = new THREE.Quaternion().copy(auxl.camera.GetEl().object3D.quaternion);
+		position.applyQuaternion(quaternion);
+		let shootPrep = auxl.player.RayDir(rayEl, 0.35);
+
 		let direction = auxl.player.RayDistanceDirection(auxl.camera.GetEl());
+		//let direction = auxl.player.RayDir(auxl.camera.GetEl(), 1).direction
 		direction.negate();
 		let position = new THREE.Vector3();
 		position = direction.clone().multiplyScalar(comp.distance);
 		position.setY(comp.height);
 		return position;
+
+*/
 	}
 	function UpAxis(){
 		//Current Rotation Axis (1of6)
@@ -3573,13 +4515,40 @@ const Companion = (auxl, id, object, inventory) => {
 	}
 	//Face Player
 	const TurnToPlayer = () => {
+		let position = new THREE.Vector3();
+		auxl.playerRig.GetEl().object3D.getWorldPosition(position)
+		let up = UpAxis().clone();
+		up.multiplyScalar(auxl.camera.GetEl().object3D.position.y)
+		position.add(new THREE.Vector3(0,1.6,0))
+		auxl.comp.GetEl().object3D.up.copy(up);
+		auxl.comp.GetEl().object3D.lookAt(position);
+
+/*
+	//Get Position of Stare Object
+	this.idPosition = new THREE.Vector3();
+	this.idPosition.copy(document.getElementById(this.data.id).object3D.position);
+	//If player, add current camera height
+	if(this.data.id === 'playerRig'){
+		this.idPosition.y += (document.getElementById('camera').object3D.position.y + document.getElementById('playerBody').object3D.position.y);
+	}
+	//Twist will not look up or down
+	if(this.data.twist){
+		this.idPosition.y = this.el.object3D.position.y;
+	}
+	this.el.object3D.lookAt(this.idPosition);
+
+auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
+
 		let position = new THREE.Vector3().copy(auxl.camera.GetEl().object3D.position);
 		let up = UpAxis().clone();
 		up.multiplyScalar(auxl.camera.GetEl().object3D.position.y)
 		//position.add(up)
 		auxl.comp.GetEl().object3D.up.copy(up);
 		auxl.comp.GetEl().object3D.lookAt(position);
+*/
+
 	}
+
 
 	//Testing Function
 	const TestFunc = (params) => {
@@ -3727,11 +4696,6 @@ const Companion = (auxl, id, object, inventory) => {
 		clearTimeout(rebuildTimeout);
 		}, 400);
 	}
-	//Toggle playerFloor Clickable Class
-	const ToggleSpawnClick = () => {
-		auxl.playerFloor.GetEl().classList.toggle('clickable');
-//DomClass = (domClasses, wipe) 
-	}
 	//Toggle Companion Display
 	const ToggleComp = () => {
 		if(!comp.spawnToggling){
@@ -3747,8 +4711,6 @@ const Companion = (auxl, id, object, inventory) => {
 			}, 500);
 		}
 	}
-	//Attach Toggle to playerFloor
-	auxl.playerFloor.GetEl().addEventListener('click',ToggleComp);
 	//Update Position
 	const UpdatePosition = () => {
 		if(comp.avatarType === 'core'){
@@ -3757,23 +4719,34 @@ const Companion = (auxl, id, object, inventory) => {
 			comp.avatar.ChangeParent({property: 'position', value: cameraDirection()});
 		}
 	}
-	//Spawn & Start Companion
-	const SpawnComp = () => {
-		if(comp.inScene){}else{
-			ToggleSpawnClick();
-			auxl.compNPC.SpawnNPC(auxl.headRig.GetEl());
-			if(comp.avatarType === 'core'){
-				if(comp.firstSpawn){
-					comp.firstSpawn = false;
-				} else {
+	//Drag To Position
+	let dragInterval;
+	const DragToPosition = (toggle) => {
+		if(auxl.isFalsey(toggle)){
+			clearInterval(dragInterval);
+		} else {
+			clearInterval(dragInterval);
+			dragInterval = setInterval(() => {
+				if(comp.avatarType === 'core'){
 					comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
-				}
-			} else {
-				if(comp.firstSpawn){
-					comp.firstSpawn = false;
 				} else {
 					comp.avatar.ChangeParent({property: 'position', value: cameraDirection()});
 				}
+				let spawnTimeoutTiny = setTimeout(() => {
+					TurnToPlayer();
+					clearTimeout(spawnTimeoutTiny);
+				}, 10);
+			}, 25);
+		}
+	}
+	//Spawn & Start Companion
+	const SpawnComp = () => {
+		if(comp.inScene){}else{
+			auxl.compNPC.SpawnNPC(auxl.playerBody.GetEl());
+			if(comp.avatarType === 'core'){
+				comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
+			} else {
+				comp.avatar.ChangeParent({property: 'position', value: cameraDirection()});
 			}
 			//autoScriptEmoticon();
 			let spawnTimeoutTiny = setTimeout(() => {
@@ -3789,9 +4762,10 @@ const Companion = (auxl, id, object, inventory) => {
 				//Update Main Menu Parent Shape ID
 				auxl.mainMenu.multiMenu.parent = comp.menuParentId;
 				auxl.mainMenu.SpawnMultiMenu();
-				ToggleSpawnClick();
 				comp.inScene = true;
 				auxl.player.ToggleBeltText(true);
+				auxl.player.ToggleHoverText(true);
+				auxl.player.ToggleFloorText(true);
 				auxl.build.SpawnBuild();
 				clearTimeout(spawnTimeout);
 			}, 100);
@@ -3801,18 +4775,17 @@ const Companion = (auxl, id, object, inventory) => {
 	const DespawnComp = () => {
 		if(comp.inScene){
 			comp.playerQuat0 = auxl.playerRig.GetEl().object3D.quaternion.clone();
-			ToggleSpawnClick();
 			auxl.player.ToggleBeltText();
+			auxl.player.ToggleHoverText();
+			auxl.player.ToggleFloorText();
 			//clearInterval(speechTimeoutB);
 			//clearInterval(speechIntervalB);
-			//auxl.build.DespawnBuild();
 			auxl.mainMenu.DespawnMultiMenu();
 			//Delay to let multi-menu complete it's despawn seq
 			let despawnTimeout = setTimeout(() => {
 				auxl.compNPC.DespawnNPC();
 				auxl.RemoveFromTracker(comp.id);
 				comp.inScene = false;
-				ToggleSpawnClick();
 				auxl.build.DespawnBuild();
 				clearTimeout(despawnTimeout);
 			}, 300);
@@ -3990,6 +4963,14 @@ const Companion = (auxl, id, object, inventory) => {
 				params: null,
 				menu: 'close',
 			},
+		},
+		button4:{
+			id: 'worldJump',
+			style: false,
+			title: 'World Jump',
+			description: 'Jump into a new World.',
+			subMenu: 'worlds1',
+			action: false,
 		},
 	};
 		auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
@@ -4175,697 +5156,10 @@ const Companion = (auxl, id, object, inventory) => {
 		UpdateInventoryMenuCategory('specials');
 	}
 
-	return{comp, TestFunc, AddAvatar, UpdateShape, UpdateBook, SpawnComp, DespawnComp, GetEl, SetFlag, GetFlag, TurnToPlayer, UpdatePosition, ToggleControlView, UpdateMainMenu, UpdateMainMenuStyle, EnableInventory, AddToInventory, ClearInventoryNotifications, RemoveFromInventory, CheckInventory, CheckForKey, UpdateInventoryMenu};
+	return{comp, TestFunc, AddAvatar, UpdateShape, UpdateBook, SpawnComp, DespawnComp, GetEl, SetFlag, GetFlag, TurnToPlayer, UpdatePosition, ToggleControlView, UpdateMainMenu, UpdateMainMenuStyle, EnableInventory, AddToInventory, ClearInventoryNotifications, RemoveFromInventory, CheckInventory, CheckForKey, UpdateInventoryMenu, DragToPosition};
 }
 
-//
-//UniRay
-const UniRay = (auxl, id, layer, data) => {
-console.log({auxl, id, layer, data})
-
-	let uniRay = {};
-	uniRay.id = 'uniRayDefault';
-	uniRay.name = 'uniRayDefault';
-	uniRay.pos = new THREE.Vector3(0,0,0);
-	uniRay.intersection = new THREE.Vector3(0,0,0);
-	uniRay.powers = {};
-	uniRay.power = 'select';
-	uniRay.active = false;
-
-if(data){
-	uniRay.id = data.id;
-	uniRay.name = data.name;
-	uniRay.pos = data.pos;
-	uniRay.intersection = new THREE.Vector3(0,0,0);
-	uniRay.powers = data.powers;
-	uniRay.power = data.power
-}
-
-	//AUXL Entities
-
-	//A-Frame requires a camera, so unless one is defined in html, it will inject one.
-	//Remove or simplify html camera that will be taken over
-	//Take over html camera if uniray is the first one to init
-	//SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
-
-	//Ray Rig
-	uniRay.rigData = {
-	data: 'rigData',
-	id: uniRay.id + 'Rig',
-	sources: false,
-	text: false,
-	geometry: false,
-	material: false,
-	position: uniRay.pos,
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent','rig',uniRay.id,],
-	components: {
-	['wasd-controls']:{enabled: true},
-	//['universal-controls']:null,
-	//['locomotion']:{uiid: false, courserid: uniRay.id + 'CameraRay', movetype: 'desktop'},
-	//['gimbal']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
-	light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
-	},};
-	uniRay.rig = auxl.Core(uniRay.rigData);
-
-	//Ray Body
-	uniRay.bodyData = {
-	data: 'bodyData',
-	id:uniRay.id + 'Body',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'box', width: 0.5, height: 0.5, depth: 0.5},
-	material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,1,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: {
-	crouchdownstanding: {property: 'object3D.position.y', from: 0, to: -0.75, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchDownStanding'},
-	crouchupstanding: {property: 'object3D.position.y', from: -0.75, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchUpStanding'},
-
-	crouchdownsitting: {property: 'object3D.position.y', from: 0.75, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchDownSitting'},
-	crouchupsitting: {property: 'object3D.position.y', from: 0, to: 0.75, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'crouchUpSitting'},
-
-	sit: {property: 'object3D.position.y', from: 0, to: 0.75, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sit'},
-	stand: {property: 'object3D.position.y', from: 0.75, to: 0, dur: 750, delay: 0, loop: false, dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'stand'},
-
-	},
-	mixins: false,
-	classes: ['a-ent','body',uniRay.id,],
-	components: false,
-	};
-	uniRay.body = auxl.Core(uniRay.bodyData);
-
-	//Raycaster & Camera
-	uniRay.cameraRayData = {
-	data:'cameraRayData',
-	id:uniRay.id + 'CameraRay',
-	entity: 'a-camera',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'ring', radiusInner: 0.005, radiusOuter: 0.01},
-	material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,0,-0.5),
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent','cameraray',uniRay.id,],
-	components: {
-	active: false,
-
-	['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
-
-	['wasd-controls']:{enabled: false},
-
-	raycaster:{enabled: 'true', autoRefresh: 'true', objects: '.clickable', origin: new THREE.Vector3(0,0,0), direction: new THREE.Vector3(0,0,-1), far: 'Infinity', near: 0, interval: 0, lineColor: 'white', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'},
-	//raycaster:{enabled: 'true', autoRefresh: 'true', objects: '.detect', origin: new THREE.Vector3(0,0,0), direction: new THREE.Vector3(0,0,-1), far: 'Infinity', near: 0, interval: 0, lineColor: 'white', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'},
-
-	cursor: {fuse: 'false', rayOrigin: uniRay.id + 'CameraRay', mouseCursorStylesEnabled: 'true',},
-
-	},};
-	uniRay.cameraRay = auxl.Core(uniRay.cameraRayData);
-	//Ray Camera UI
-	uniRay.rayUIData = {
-	data:'rayUIData',
-	id:uniRay.id + 'RayUI',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'ring', radiusInner: 0.005, radiusOuter: 0.01},
-	material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-	//text: {value:'Message', width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold", side: 'double', opacity: 0},
-	//geometry: {primitive: 'plane', width: 0.3, height: 0.15},
-	//material: {shader: "flat", color: "#ac2d2d", opacity: 0.69, side: 'double'},
-	position: new THREE.Vector3(0,0,-0.5),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: {
-	opacinbk:{property: 'components.material.material.opacity', from: 0, to: 0.82, dur: 750, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',}, 
-	opacoutbk:{property: 'components.material.material.opacity', from: 0.82, to: 0, dur: 750, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',},
-	opacintxt:{property: 'text.opacity', from: 0, to: 0.82, dur: 750, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',}, 
-	opacouttxt:{property: 'text.opacity', from: 0.82, to: 0, dur: 750, delay: 2000, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'cameraMsg',},
-
-	click:{property: 'scale', from: '0.75 0.75 0.75', to: '0.4 0.4 0.4', dur: 100, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mousedown'},
-	clickreset:{property: 'scale', from: '0.4 0.4 0.4', to: '0.75 0.75 0.75', dur: 300, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseup'},
-	hoverenter:{property: 'material.color', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
-	hoverleave:{property: 'material.color', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
-	},
-	mixins: false,
-	classes: ['clickable', 'a-ent','rayui',uniRay.id,],
-	components: {
-	visible: true,
-	},
-	}
-	uniRay.rayUI = auxl.Core(uniRay.rayUIData);
-
-	//update look-at-xyz with specific current camera
-	//Belt UI
-	uniRay.bodyBeltUIData = {
-	data:'bodyBeltUIData',
-	id:uniRay.id + 'BodyBeltUI',
-	sources:false,
-	text: false,
-	geometry: false,
-	material: false,
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent'],
-	components: {
-		['look-at-xyz']:{match: 'camera', x:false, y:true, z:false},
-	},
-	};
-	uniRay.bodyBeltUI = auxl.Core(uniRay.bodyBeltUIData);
-	//Belt Text
-	uniRay.bodyBeltTextData = {
-	data:'bodyBeltTextData',
-	id:uniRay.id + 'bodyBeltText',
-	sources:false,
-	text: {value:'Hello World!', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.9, zOffset: 0.03, side: 'front', wrapCount: 45, baseline: 'center'},
-	geometry: {primitive: 'box', depth: 0.025, width: 1, height: 0.25},
-	material: {shader: "standard", color: "#4bb8c1", opacity: 0.75, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-	position: new THREE.Vector3(0,0.69,-0.8),
-	rotation: new THREE.Vector3(-30,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent'],
-	components: {
-	visible: false,
-	},
-	};
-	uniRay.bodyBeltText = auxl.Core(uniRay.bodyBeltTextData);
-
-	//Player Vehicle
-	uniRay.rayVehicleData = {
-	data:'rayVehicleData',
-	id:uniRay.id + 'RayVehicle',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'circle', radius: 1, segments: 32, thetaStart: 0, thetaLength: 360},
-	material: {shader: "flat", repeat: '1 1', color: "#3EB489", opacity: 0.42, side: 'double'},
-	position: new THREE.Vector3(0,0.05,0),
-	rotation: new THREE.Vector3(-90,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	//classes: ['a-ent','player', 'clickable'],
-	classes: ['a-ent','player'],
-	components: {
-	visible: true,
-	},
-	};
-	uniRay.rayVehicle = auxl.Core(uniRay.rayVehicleData);
-
-	//Raycaster Support
-
-	//Raycaster Configurations
-	//Mouse|Mobile Controller
-	uniRay.mouseControllerData = {
-	data:'mouseControllerData',
-	id:uniRay.id + 'MouseController',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'ring', radiusInner: 0.005, radiusOuter: 0.01},
-	material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,0,-0.5),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(0.75,0.75,0.75),
-	animations: {
-	click:{property: 'scale', from: '0.75 0.75 0.75', to: '0.4 0.4 0.4', dur: 100, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mousedown'},
-	clickreset:{property: 'scale', from: '0.4 0.4 0.4', to: '0.75 0.75 0.75', dur: 300, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseup'},
-	hoverenter:{property: 'material.color', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
-	hoverleave:{property: 'material.color', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
-	},
-	mixins: false,
-	classes: ['clickable', 'a-ent','player'],
-	components: {
-	raycaster:{enabled: 'true', autoRefresh: 'true', objects: '.clickable', origin: new THREE.Vector3(0,0,0), direction: new THREE.Vector3(0,0,-1), far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'},
-	cursor: {fuse: 'false', rayOrigin: uniRay.id + 'MouseController', mouseCursorStylesEnabled: 'true',},
-	},};
-	uniRay.mouseController = auxl.Core(uniRay.mouseControllerData);
-	//VR Controller 1
-	uniRay.vrController1Data = {
-	data:'vrController1Data',
-	id:'vrController1',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'ring', radiusInner: 0.02, radiusOuter: 0.03},
-	material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,0,-1),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(0.15,0.15,0.15),
-	animations: {
-	hoverenter:{property: 'raycaster.lineColor', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
-	hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
-	},
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {
-	//['vr-left-inputs']:{joystickEnabled: true},
-	visible: 'false',
-	},
-	};
-	uniRay.vrController1 = auxl.Core(uniRay.vrController1Data);
-	//VR Controller 1 UI
-	uniRay.vrController1UIData = {
-	data:'vrController1UIData',
-	id:'vrController1UI',
-	sources: false,
-	text: {value:'...', width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold"},
-	geometry: {primitive: 'plane', width: 0.25, height: 0.1},
-	material: {shader: "flat", color: "#ac2d2d", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,-0.25,-0.25),
-	rotation: new THREE.Vector3(-90,0,0),
-	scale: new THREE.Vector3(0.5,0.5,0.5),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {visible: 'false',},
-	};
-	uniRay.vrController1UI = auxl.Core(uniRay.vrController1UIData);
-	//VR Controller 2
-	uniRay.vrController2Data = {
-	data:'vrController2Data',
-	id:'vrController2',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'ring', radiusInner: 0.02, radiusOuter: 0.03},
-	material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,0,-1),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(0.15,0.15,0.15),
-	animations: {
-	hoverenter:{property: 'raycaster.lineColor', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
-	hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
-	},
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {
-	//['vr-right-inputs']:{joystickEnabled: true},
-	visible: 'false',
-	},
-	};
-	uniRay.vrController2 = auxl.Core(uniRay.vrController2Data);
-	//VR Controller 2 UI
-	uniRay.vrController2UIData = {
-	data:'vrController2UIData',
-	id:'vrController2UI',
-	sources: false,
-	text: {value:'...', width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold"},
-	geometry: {primitive: 'plane', width: 0.25, height: 0.1},
-	material: {shader: "flat", color: "#ac2d2d", opacity: 0.75, side: 'double'},
-	position: new THREE.Vector3(0,-0.25,-0.25),
-	rotation: new THREE.Vector3(-90,0,0),
-	scale: new THREE.Vector3(0.5,0.5,0.5),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {visible: 'false',},
-	};
-	uniRay.vrController2UI = auxl.Core(uniRay.vrController2UIData);
-
-
-	//Animation Support
-
-	//Could make them all from 2 geometry changing shapes 
-
-	//Teleportation Fade
-	uniRay.fadeScreenData = {
-	data:'Fade Screen',
-	id:'fadeScreen',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'plane', width: 1, height: 0.5},
-	material: {shader: "flat", color: '#000000', opacity: 0},
-	position: new THREE.Vector3(0,0,-0.15),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: {
-	fadein:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fade'},
-
-	fadeout:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fade'},
-
-
-	fadeinscene:{property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadeScene1'},
-
-	fadeoutscene:{property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'fadeScene2'}, 
-
-	},
-	mixins: false,
-	classes: ['a-ent','player','clickable'],
-	components: {visible: false},
-	};
-	uniRay.fadeScreen = auxl.Core(uniRay.fadeScreenData);
-	//Teleportation Sphere
-	uniRay.sphereScreenData = {
-	data:'Sphere Screen',
-	id:'sphereScreen',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'sphere', radius: 0.125, segmentsWidth: 36, segmentsHeight: 18, phiLength: 360, phiStart: 0, thetaLength: 0, thetaStart: 90},
-	material: {shader: "flat", color: '#000000', opacity: 1, side: 'double'},
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations:{
-	spherein1:{property: 'geometry.thetaLength', from: 0, to: 180, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
-	spherein2: {property: 'geometry.thetaStart', from: 90, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
-
-	sphereout1:{property: 'geometry.thetaLength', from: 180, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
-	sphereout2: {property: 'geometry.thetaStart', from: 0, to: 90, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphere'},
-
-
-	spherein1scene:{property: 'geometry.thetaLength', from: 0, to: 180, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene1'},
-	spherein2scene: {property: 'geometry.thetaStart', from: 90, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene1'},
-
-	sphereout1scene:{property: 'geometry.thetaLength', from: 180, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene2'},
-	sphereout2scene: {property: 'geometry.thetaStart', from: 0, to: 90, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'sphereScene2'},
-	},
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {visible: false},
-	};
-	uniRay.sphereScreen = auxl.Core(uniRay.sphereScreenData);
-	//Teleportation Blink 1
-	uniRay.blink1ScreenData = {
-	data:'Blink 1 Screen',
-	id:'blink1Screen',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'plane', width: 5, height: 2},
-	material: {shader: "flat", color: '#000000', opacity: 0, side: 'double'},
-	position: new THREE.Vector3(0,2.5,-0.15),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations:{
-	blinkin:{property: 'object3D.position.y', from: 2.5, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-	blinkopacin: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-
-	blinkout:{property: 'object3D.position.y', from: 1, to: 2.5, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-	blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-
-
-	blinkinscene:{property: 'object3D.position.y', from: 2.5, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
-	blinkopacinscene: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
-
-	blinkoutscene:{property: 'object3D.position.y', from: 1, to: 2.5, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene2'},
-	blinkopacoutscene: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene2'},
-	},
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {visible: false},
-	};
-	uniRay.blink1Screen = auxl.Core(uniRay.blink1ScreenData);
-	//Teleportation Blink 2
-	uniRay.blink2ScreenData = {
-	data:'Blink 2 Screen',
-	id:'blink2Screen',
-	sources: false,
-	text: false,
-	geometry: {primitive: 'plane', width: 5, height: 2},
-	material: {shader: "flat", color: '#000000', opacity: 0, side: 'double'},
-	position: new THREE.Vector3(0,-2.5,-0.15),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations:{
-	blinkin:{property: 'object3D.position.y', from: -2.5, to: -1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-	blinkopacin: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-
-	blinkout:{property: 'object3D.position.y', from: -1, to: -2.5, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-	blinkopacout: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 800, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blink'},
-
-
-	blinkinscene:{property: 'object3D.position.y', from: -2.5, to: -1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
-	blinkopacinscene: {property: 'components.material.material.opacity', from: 0, to: 1, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene1'},
-
-	blinkoutscene:{property: 'object3D.position.y', from: -1, to: -2.5, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene2'},
-	blinkopacoutscene: {property: 'components.material.material.opacity', from: 1, to: 0, dur: 400, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'blinkScene2'},
-	},
-	mixins: false,
-	classes: ['a-ent','player'],
-	components: {visible: false},
-	};
-	uniRay.blink2Screen = auxl.Core(uniRay.blink2ScreenData);
-
-
-	//Layer
-	uniRay.uniRayAll = {
-	parent: {core: uniRay.rig},
-	child0: {
-		parent: {core: uniRay.body},
-		child0: {
-			parent: {core: uniRay.cameraRay},
-			child0: {core: uniRay.rayUI},
-			//child2: {core: uniRay.fadeScreen},
-			//child3: {core: uniRay.sphereScreen},
-			//child4: {core: uniRay.blink1Screen},
-			//child5: {core: uniRay.blink2Screen},
-		},
-		child1: {
-			parent: {core: uniRay.bodyBeltUI},
-			child0: {core: uniRay.rayBeltText},
-		},
-	},
-	child1: {core: uniRay.rayVehicle},
-	}
-	uniRay.uniRayLayer = auxl.Layer('uniRayLayer', uniRay.uniRayAll);
-
-	//Spawn UniRay
-	const SpawnUniRay = (parent) => {
-		uniRay.uniRayLayer.SpawnLayer(parent);
-	}
-	//Despawn UniRay
-	const DespawnUniRay = () => {
-		uniRay.uniRayLayer.DespawnLayer();
-	}
-	//Set As Active
-	const Activate = (camera) => {
-		//Check for systems currently active camera, to update
-		uniRay.active = true;
-		auxl.camera.ChangeSelf({property: 'active', value: false})
-		uniRay.cameraRay.ChangeSelf({property: 'active', value: true})
-	}
-	//Deactive
-	const Deactivate = (camera) => {
-		//Check for systems currently active camera, to update
-		uniRay.active = false;
-		uniRay.cameraRay.ChangeSelf({property: 'active', value: false})
-		auxl.camera.ChangeSelf({property: 'active', value: true})
-	}
-	//Toggle
-	const Toggle = (camera) => {
-		if(uniRay.active){
-			Deactivate(camera);
-		} else {
-			Activate(camera);
-		}
-	}
-	//Ray Toggle
-	const RayDisable = () => {
-		uniRay.cameraRay.GetEl().setAttribute('visible',false);
-		uniRay.cameraRay.GetEl().removeAttribute('raycaster');
-		uniRay.cameraRay.GetEl().removeAttribute('cursor');
-		controllerBlock.style.display = 'none';
-	}
-	const RayEnable = () => {
-		uniRay.cameraRay.GetEl().setAttribute('visible',true);
-		uniRay.cameraRay.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-		//uniRay.cameraRay.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
-		uniRay.cameraRay.GetEl().setAttribute('cursor',{fuse: 'false', mouseCursorStylesEnabled: 'true', rayOrigin: uniRay.id});
-		controllerBlock.style.display = 'flex';
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 6});
-		auxl.player.EnableMobileLocomotion();
-		auxl.locomotionText = 'Arrow Buttons';
-	}
-
-	//Ray Controls
-	const RayControls = (controls) => {
-		controls = controls || '.clickable,';
-		uniRay.cameraRay.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: controls, far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-	}
-
-//VR
-
-//HMD
-//No Trigger or button inputs, only up to 6DoF  
-
-//VR Right Config
-const ModeVRRight = (el) => {
-	el.setAttribute('laser-controls',{hand: 'right'});
-}
-//VR Left Config
-const ModeVRLeft = (el) => {
-	el.setAttribute('laser-controls',{hand: 'left'});
-}
-//VR Config Off
-const ModeVROff = (el) => {
-	el.removeAttribute('laser-controls');
-}
-
-
-
-
-
-
-//raycaster-intersected
-const RayIntersected = (event) => {
-console.log({event:'raycaster-intersected'})
-}
-//Emitted on the intersected entity. Entity is intersecting with a raycaster. Event detail will contain el, the raycasting entity, and intersection, and .getIntersection (el) function which can be used to obtain current intersection data.
-//raycaster-intersected-cleared
-const RayIntersectCleared = (event) => {
-console.log({event:'raycaster-intersected-cleared'})
-}
-//Emitted on the intersected entity. Entity is no longer intersecting with a raycaster. Event detail will contain el, the raycasting entity.
-//raycaster-intersection
-const RayIntersection = (event) => {
-console.log({event:'raycaster-intersection'})
-}
-//Emitted on the raycasting entity. Raycaster is intersecting with one or more entities. Event detail will contain els, an array with the newly intersected entities, and intersections, and .getIntersection (el) function which can be used to obtain current intersection data. For access to a complete list of intersections (existing & new), see Members intersectedEls.
-//raycaster-intersection-cleared
-const RayIntersectionCleared = (event) => {
-console.log({event:'raycaster-intersection-cleared'})
-}
-//Emitted on the raycasting entity. Raycaster is no longer intersecting with one or more entities. Event detail will contain clearedEls, an array with the formerly intersected entities.
-//raycaster-closest-entity-changed
-const RayIntersectUpdate = (event) => {
-console.log({event:'raycaster-closest-entity-changed'})
-}
-
-
-
-//Most likely requires recent update to main auxl set that fixed a bug
-//VR
-function disableVRControls(){
-	auxl.vrController1.GetEl().setAttribute('visible',false);
-	auxl.vrController2.GetEl().setAttribute('visible',false);
-	auxl.vrController1UI.GetEl().setAttribute('visible',false);
-	auxl.vrController2UI.GetEl().setAttribute('visible',false);
-	auxl.vrController1.GetEl().removeAttribute('cursor');
-	auxl.vrController2.GetEl().removeAttribute('cursor');
-	auxl.vrController1.GetEl().removeAttribute('laser-controls');
-	auxl.vrController2.GetEl().removeAttribute('laser-controls');
-}
-function enableVRControls(){
-	if(auxl.vrHand === 'bothRight'){
-		auxl.vrController1.GetEl().setAttribute('visible',true);
-		auxl.vrController2.GetEl().setAttribute('visible',true);
-		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
-		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
-		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
-		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
-		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
-		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 1});
-		auxl.player.EnableVRLocomotion();
-		auxl.locomotionText = 'Left Controller Joystick';
-	} else if(auxl.vrHand === 'bothLeft'){
-		auxl.vrController1.GetEl().setAttribute('visible',true);
-		auxl.vrController2.GetEl().setAttribute('visible',true);
-		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
-		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
-		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
-		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
-		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
-		auxl.vrController1.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 2});
-		auxl.player.EnableVRLocomotion();
-		auxl.locomotionText = 'Right Controller Joystick';
-	} else if(auxl.vrHand === 'bothRightLoco' || auxl.vrHand === 'bothLeftLoco'){
-		auxl.vrController1.GetEl().setAttribute('visible',true);
-		auxl.vrController2.GetEl().setAttribute('visible',true);
-		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
-		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
-		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
-		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
-		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: 'false'});
-		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		vrController1.setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
-		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 3});
-		auxl.player.EnableVRLocomotion();
-		if(auxl.vrHand === 'bothLeftLoco'){
-			auxl.locomotionText = 'Left Controller Joystick';
-		} else if (auxl.vrHand === 'bothRightLoco'){
-			auxl.locomotionText = 'Right Controller Joystick';
-		}
-	} else if(auxl.vrHand === 'right'){
-		auxl.vrController2.GetEl().setAttribute('visible',true);
-		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
-		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
-		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 4});
-		auxl.player.EnableVRHoverLocomotion('vrController2');
-		auxl.locomotionText = 'Hover on Forward/Backward Belt.';
-	} else if(auxl.vrHand === 'left'){
-		auxl.vrController1.GetEl().setAttribute('visible',true);
-		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
-		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
-		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		auxl.vrController1.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
-		auxl.playerRig.GetEl().setAttribute('uniray',{update: 5});
-		auxl.player.EnableVRHoverLocomotion('vrController1');
-		auxl.locomotionText = 'Hover on Forward/Backward Belt.';
-	}
-}
-//Desktop
-function disableDesktopControls(){
-	uniRay.cameraRay.GetEl().setAttribute('visible',false);
-	uniRay.cameraRay.GetEl().removeAttribute('raycaster');
-	uniRay.cameraRay.GetEl().removeAttribute('cursor');
-}
-function enableDesktopControls(){
-	uniRay.cameraRay.GetEl().setAttribute('visible',true);
-	uniRay.cameraRay.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-	uniRay.cameraRay.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: uniRay.cameraRay.id, mouseCursorStylesEnabled: 'true',});
-	auxl.playerRig.GetEl().setAttribute('uniray',{update: 0});
-	auxl.player.EnableDesktopLocomotion();
-	auxl.locomotionText = 'WASD Keys';
-}
-//Mobile
-function disableMobileControls(){
-	uniRay.cameraRay.GetEl().setAttribute('visible',false);
-	uniRay.cameraRay.GetEl().removeAttribute('raycaster');
-	uniRay.cameraRay.GetEl().removeAttribute('cursor');
-	controllerBlock.style.display = 'none';
-}
-function enableMobileControls(){
-	/*
-	function mobilePermissionGrantedTrue(){
-		auxl.mobilePermissionGranted = true;
-	}
-	function mobilePermissionGrantedFalse(){
-		auxl.mobilePermissionGranted = false;
-	}*/
-	//deviceorientationpermissiongranted
-	//deviceorientationpermissionrejected
-	//deviceorientationpermissionrequested
-	//sceneEl.setAttribute('device-orientation-permission-ui', {enabled: true});
-	//sceneEl.addEventListener('deviceorientationpermissiongranted', mobilePermissionGrantedTrue);
-	//sceneEl.addEventListener('deviceorientationpermissionrejected', mobilePermissionGrantedFalse);
-	uniRay.cameraRay.GetEl().setAttribute('visible',true);
-	uniRay.cameraRay.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
-	uniRay.cameraRay.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: uniRay.cameraRay.id, mouseCursorStylesEnabled: 'true'});
-	controllerBlock.style.display = 'flex';
-	auxl.playerRig.GetEl().setAttribute('uniray',{update: 6});
-	auxl.player.EnableMobileLocomotion();
-	auxl.locomotionText = 'Arrow Buttons';
-}
-
-return {uniRay, SpawnUniRay, DespawnUniRay, Activate, Deactivate, Toggle, RayDisable, RayEnable, RayControls, ModeVRRight, ModeVRLeft, ModeVROff, disableVRControls, enableVRControls, disableDesktopControls, enableDesktopControls, disableMobileControls, enableMobileControls, RayIntersected, RayIntersectCleared, RayIntersection, RayIntersectionCleared, RayIntersectUpdate}
-
-}
 
 //
 //Export
-export {Player, Companion, UniRay};
+export {Player, Companion};

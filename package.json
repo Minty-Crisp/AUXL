@@ -1,7 +1,7 @@
 {
   "name": "auxl",
   "version": "0.3.0",
-  "description": "",
+  "description": "A-Frame based Web XR World, System, Object Generator Engine & Universal Controller.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,6 +11,8 @@
   "author": "Minty Crisp",
   "license": "GPL3",
   "devDependencies": {
+    "css-loader": "^6.8.1",
+    "style-loader": "^3.3.3",
     "webpack": "^5.86.0",
     "webpack-cli": "^5.1.4"
   }

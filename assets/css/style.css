@@ -5,11 +5,12 @@ scroll-behavior: smooth;
 }
 
 body {
-background-color: #C14B76;
+background-color: transparent;
 background-image: none;
 background-repeat: repeat;
 touch-action: manipulation;
 }
+
 
 header {
 padding-bottom: 0;
@@ -57,9 +58,10 @@ position: fixed;
 }
 
 #stickyBar {
+pointer-events: auto;
 padding: 0.25em;
-background-color: transparent;
-height: 2.75em;
+background-color: transparent !Important;
+height: 5%;
 }
 
 #stickyTitle h5 {
@@ -115,22 +117,55 @@ background-color: #C14B76;
 padding: 1.75em;
 display: flex;
 flex-direction: column;
+justify-content: flex-start;
 list-style: none;
 top: 50%;
 left: 50%;
 -ms-transform: translate(-50%, -50%);
 transform: translate(-50%, -50%);
 border-radius: 15%;
+
+width: 80%;
+height: 80%;
+opacity: 80%;
 }
 
 #beginDiv li{
-margin-bottom: 0.5em;
+
+
+}
+
+.menu {
+	width: 100%;
+	font-size: x-large;
+	justify-content: center;
 }
 
 #expInfo{
 display: none;
 position: absolute;
-z-index: 1000;
+z-index: 1001;
+background-color: #C14B76;
+padding: 1.75em;
+flex-direction: column;
+list-style: none;
+top: 50%;
+left: 50%;
+-ms-transform: translate(-50%, -50%);
+transform: translate(-50%, -50%);
+border-radius: 15%;
+
+width: 70%;
+height: 70%;
+opacity: 95%;
+
+font-size: large;
+}
+
+#dataInfo{
+display: none;
+position: absolute;
+z-index: 1002;
 background-color: #C14B76;
 padding: 1.75em;
 flex-direction: column;
@@ -142,20 +177,16 @@ transform: translate(-50%, -50%);
 border-radius: 15%;
 }
 
-#dataInfo{
-display: none;
-position: absolute;
-z-index: 1000;
-background-color: #C14B76;
-padding: 1.75em;
-flex-direction: column;
-list-style: none;
-top: 50%;
-left: 50%;
--ms-transform: translate(-50%, -50%);
-transform: translate(-50%, -50%);
-border-radius: 15%;
+
+#manageData {
+	font-size: large;
 }
+
+#resetData {
+	background-color: red!Important;
+}
+
+
 
 #vrHandButton{
 display: none;
@@ -184,87 +215,175 @@ display: flex;
 
 /* HTML Controller */
 
-/* Controller Block */
-#controllerBlock {
-display: none;
+
+/* Full Screen */
+#fullScreen {
+display: flex;
 position: absolute;
+justify-content: flex-start;
+z-index: 2;
+pointer-events: none;
+
+width: 100%;
+height: 100%;
+
+flex-direction: column;
+}
+
+#screen {
+display: flex;
 justify-content: space-around;
 z-index: 2;
 pointer-events: none;
+
+width: 100%;
+height: 55%;
+}
+
+#screenFooter {
+display: none;
+z-index: 2;
+pointer-events: none;
+
+width: 100%;
+height: 5%;
+}
+
+
+/* Controller Block */
+#controllerBlock {
+display: none;
+justify-content: space-around;
+z-index: 3;
+pointer-events: none;
+
+width: 100%;
+height: 35%;
+
 }
 
 .column {
-width: 33%;
 display: flex;
 flex-direction: column;
 justify-content: space-around;
 }
 
 .col1 {
-justify-content: space-around;
+width: 100%;
+/*justify-content: space-around; */
 }
 
 .col2 {
-justify-content: flex-end;
-margin-bottom: 1rem;
+width: 100%;
+justify-content: flex-start;
 }
 
 .col3 {
-justify-content: center;
+width: 100%;
+/*justify-content: center; */
 }
 
 .directions{
 display: flex;
-justify-content: space-evenly;
+height: 100%;
+/*justify-content: space-evenly; */
 }
+
+.actionCol{
+display: flex;
+height: 100%;
+/*justify-content: space-evenly; */
+}
+
+
 
 .startselect{
 display: flex;
+/*justify-content: space-evenly; */
+}
+
+#a{
+
+/*justify-content: flex-start; */
+}
+
+#b{
+
+/*justify-content: flex-start; */
+}
+
+#c{
+
+/*justify-content: center; */
+}
+
+#d{
+
+/*justify-content: center; */
+}
+
+#e{
+
+/*justify-content: flex-end; */
+}
+
+#f{
+
+/*justify-content: flex-end; */
+}
+
+#h{
+
+/*justify-content: flex-end; */
+}
+
+#h{
+
+/*justify-content: flex-end; */
+}
+
+.directionButtons, .startSelectButtons, .actionButtons button{
+background-color: transparent;
+cursor: pointer;
+-webkit-user-select: none;
+-ms-user-select: none;
+user-select: none;
+
+pointer-events: auto;
+
+width: 100%;
+height: 100%;
+
 justify-content: space-evenly;
-}
+padding: 0;
 
-.abcdef{
-display: flex;
-justify-content: space-evenly;
+font-size: x-large;
 }
+/*
 
-.a{
-display: flex;
-justify-content: flex-start;
-margin-top: 6rem;
-}
+pointer-events: auto;
 
-.d{
-display: flex;
-justify-content: flex-start;
-margin-top: 2rem;
-}
+border-radius: 4px;
+box-shadow: inset 0 0 0 2px #e5e2e2;
+color: #e5e2e2 !important;
 
-.b{
-display: flex;
-justify-content: center;
-margin-top: 4rem;
-}
+display: inline-block;
+font-size: 0.7em;
+font-weight: 900;
 
-.e{
-display: flex;
-justify-content: center;
-margin-top: 2rem;
-}
+letter-spacing: 0.35em;
+overflow: hidden;
+padding: 1rem;
+text-align: center;
+text-decoration: none;
+text-overflow: ellipsis;
+white-space: nowrap;
+height: 3.5em;
 
-.c{
-display: flex;
-justify-content: flex-end;
-margin-top: 2rem;
-}
+*/
 
-.f{
-display: flex;
-justify-content: flex-end;
-margin-top: 2rem;
-}
-
-#center, #start, #select, #a, #b, #c, #d, #e, #f, #l, #r{
+/* TEMP for customizing Mobile UI
+#center, #start, #select, #a, #b, #c, #d, #e, #f, #g, #h, #i, #l, #r{
 display: none;
 }
 
@@ -281,7 +400,15 @@ padding: 0 1.25em 0 1.6em;
 height: 5em;
 }
 
-.directionButtons, .startSelectButtons, .abcdef button{
+.actionCol {
+
+}
+
+.actionDiv {
+
+}
+
+.directionButtons, .startSelectButtons, .actionButtons button{
 pointer-events: auto;
 background-color: transparent;
 border-radius: 4px;
@@ -299,19 +426,23 @@ text-align: center;
 text-decoration: none;
 text-overflow: ellipsis;
 white-space: nowrap;
--webkit-user-select: none; /* Safari */
--ms-user-select: none; /* IE 10+ */
+-webkit-user-select: none;
+-ms-user-select: none;
 user-select: none;
 }
+*/
+ /* Safari -webkit-user-select: none; */
+ /* IE 10+ -ms-user-select: none; */
 
 .snapView {
+pointer-events: none;
 position: absolute;
 display: flex;
 justify-content: space-between;
 width: 100%;
-height: 550%;
-z-index: -1;
-bottom: -50%;
+height: 60%;
+z-index: 1;
+bottom: 40%;
 }
 
 .snapView button{
@@ -320,16 +451,16 @@ background-color: transparent;
 border: 0;
 cursor: pointer;
 display: inline-block;
-font-size: 0.7em;
+font-size: x-large;
 font-weight: 900;
 letter-spacing: 0.35em;
-width: 20vw;
+width: 10vw;
 padding: 1rem;
 text-align: center;
 text-decoration: none;
 text-overflow: ellipsis;
 white-space: nowrap;
--webkit-user-select: none; /* Safari */
+-webkit-user-select: none; /* Safari 0.7em */
 -ms-user-select: none; /* IE 10+ */
 user-select: none;
 }
@@ -340,15 +471,17 @@ user-select: none;
 
 #stickyMenu {
 	background-color: transparent;
+	font-size: x-large;
 }
 
 .stickyButtons {
 	background-color: transparent;
+	font-size: x-large;
 }
 
 
 #menuModeButton {
-	background-color: red!Important;
+	background-color: darkorange!Important;
 }
 
 
@@ -360,21 +493,21 @@ user-select: none;
 	}*/
 
 
-	/* Controller Block */
+	/* Controller Block
 	#controllerBlock {
 		width: 100%;
 		height: 20%;
 		top: 75%;
-	}
-
-	.directionButtons, .startSelectButtons, .abcdef button{
+	} */
+/*
+	.directionButtons, .startSelectButtons, .actionButtons button{
 		font-size: 0.5em;
 	}
 
 	.col2 {
 		margin-bottom: -1rem;
 	}
-
+*/
 }
 
 /* Landscape */
@@ -385,17 +518,17 @@ user-select: none;
 	}*/
 
 
-	/* Controller Block */
+	/* Controller Block
 	#controllerBlock {
 		width: 100%;
 		height: 15%;
 		top: 60%;
-	}
-
+	} */
+/*
 	.col2 {
 		margin-bottom: -5rem;
 	}
-
+*/
 }
 
 

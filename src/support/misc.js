@@ -12,6 +12,56 @@
 //stare
 //hovertext
 
+
+
+
+const lookaround = AFRAME.registerComponent('lookaround', {
+        schema: {
+          target: { type: 'string' },
+          maxRotation: { type: 'number', default: 180 }
+        },
+
+        init: function () {
+          this.target = document.getElementById(this.data.target);
+          this.player = document.getElementById('player');
+          this.rotationAngle = 0;
+
+          this.updateRotation = this.updateRotation.bind(this);
+          this.el.sceneEl.addEventListener('renderstart', this.updateRotation);
+        },
+
+        updateRotation: function () {
+          if (!this.target.object3D || !this.player.object3D) return;
+
+          // Get the positions
+          const targetPosition = new THREE.Vector3();
+          const playerPosition = new THREE.Vector3();
+          this.target.object3D.getWorldPosition(targetPosition);
+          this.player.object3D.getWorldPosition(playerPosition);
+
+          // Calculate the angle between the target and the player
+          const direction = new THREE.Vector3().subVectors(targetPosition, playerPosition);
+          const angle = Math.atan2(direction.x, direction.z);
+
+          // Convert the angle to degrees
+          const degrees = THREE.MathUtils.radToDeg(angle);
+
+          // Rotate the looker entity
+          this.el.object3D.rotation.y = angle;
+
+          // Check if the rotation angle exceeds the maximum allowed
+          if (Math.abs(degrees - this.rotationAngle) > this.data.maxRotation) {
+            this.el.sceneEl.removeEventListener('renderstart', this.updateRotation);
+          } else {
+            this.rotationAngle = degrees;
+          }
+        }
+      });
+
+
+
+
+
 //
 //Sync Pos
 const syncPos = AFRAME.registerComponent('sync-pos', {
@@ -88,11 +138,12 @@ dependencies: ['auxl'],
 schema: {
 	buffer: {type: 'number', default: 0},
 	drag: {type: 'number', default: 0},
-	max: {type: 'number', default: 0},
+	max: {type: 'number', default: 360},
 	match: {type: 'string', default: 'camera'},
 	x: {type: 'boolean', default: false},
 	y: {type: 'boolean', default: false},
 	z: {type: 'boolean', default: false},
+	reverse: {type: 'boolean', default: false},
 },
 init: function () {
 },
@@ -104,27 +155,28 @@ update: function () {
 	this.matchView = document.getElementById(this.data.match);
 	this.maxView = this.data.max;
 	this.matchRotation = new THREE.Euler();
-	this.focusedRotation = new THREE.Euler();
 	this.lookAtXYZThrottled = AFRAME.utils.throttle(this.lookAtXYZ, 30, this);
-
-	this.focused = false;
-
 },
 lookAtXYZ: function () {
 	//Get Current Rotation
 	this.matchRotation.copy(this.matchView.object3D.rotation);
-	if(!this.focused){
-		this.el.object3D.rotation.copy(this.focusedRotation);
-		this.focused = true;
-	}
 	//Check if rotation is allowed
 
-	//Sync X,Y and/or Z
+	//X
 	if(this.data.x){
 		if(Math.abs(this.matchRotation.x - this.rotation.x) >= this.data.buffer){
-			this.rotation.x = this.matchRotation.x;
+			if(this.data.drag > 0){
+				if(this.matchRotation.x > this.rotation.x){
+					this.rotation.x += this.data.drag;
+				} else {
+					this.rotation.x -= this.data.drag;
+				}
+			} else {
+				this.rotation.x = this.matchRotation.x;
+			}
 		}
 	}
+	//Y
 	if(this.data.y){
 		if(Math.abs(this.matchRotation.y - this.rotation.y) >= this.data.buffer){
 			if(this.data.drag > 0){
@@ -138,18 +190,29 @@ lookAtXYZ: function () {
 			}
 		}
 	}
-
-
+	//Z
 	if(this.data.z){
 		if(Math.abs(this.matchRotation.z - this.rotation.z) >= this.data.buffer){
-			this.rotation.z = this.matchRotation.z;
+			if(this.data.drag > 0){
+				if(this.matchRotation.z > this.rotation.z){
+					this.rotation.z += this.data.drag;
+				} else {
+					this.rotation.z -= this.data.drag;
+				}
+			} else {
+				this.rotation.z = this.matchRotation.z;
+			}
 		}
 	}
-
-
-
+	//Reverse
+	if(this.data.reverse){
+		this.rotation.x *= -1;
+		this.rotation.y *= -1;
+		this.rotation.z *= -1;
+		this.rotation.w *= -1;
+	}
+	//Apply
 	this.el.object3D.rotation.copy(this.rotation);
-
 },
 tick: function (time, timeDelta) {
 	this.lookAtXYZThrottled();
@@ -304,4 +367,4 @@ remove: function () {
 
 //
 //Export
-export {syncPos, syncRot, lookAtXYZ, stare, cameraForward, hovertext};
+export {syncPos, syncRot, lookAtXYZ, stare, cameraForward, hovertext, lookaround};

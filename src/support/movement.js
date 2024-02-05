@@ -196,6 +196,13 @@ auxl.playerRig.GetEl().object3D.translateOnAxis(cam, -1);
 	//Movement is always 1 meter, so speed is in ms
 	this.gridSpeed = 400;
 
+	//Joysticks
+	this.joystickLocoPos = false;
+	this.joystickOtherPos = false;
+	this.joystickHistory = 10;
+	this.inputsJoystick1 = [];
+	this.inputsJoystick2 = [];
+
 	//Move into its own thing
 	//3rd Person Config
 	let initDelay = setTimeout(()=> {
@@ -221,6 +228,16 @@ round: function (num){
 roundHalf: function (num){
 	return Math.round(num*2)/2;
 },
+//Joystick
+joystick: function (vec3) {
+	if(!vec3.copy){
+		this.joystickLocoPos = false;
+		return;
+	};
+	this.joystickLocoPos = new THREE.Vector3().copy(vec3);
+
+},
+//Dpad
 //Move Forward
 movingForward: function (){
 	clearTimeout(this.gridForwardTimeout);
@@ -518,12 +535,9 @@ update: function () {
 	},1000)
 
 
-	//LEGACY
+	//Directional Object for Movement
 	//Keyboard Controller Event Listeners
-	if(this.movetype === 'desktop'){
-		//Controlled by Universal Controls
-		this.directionObject = this.camera;
-	} else if(this.movetype === 'mobile'){
+	if(this.movetype === 'desktop' || this.movetype === 'mobile'){
 		//Controlled by Universal Controls
 		this.directionObject = this.camera;
 	} else if(this.movetype === 'vr'){
@@ -804,119 +818,46 @@ togglePOV: function (){
 //Ray Dorection
 rayDirection: function (ray,action,distance){
 //Move angles for yaw, pitch, and roll example...
-/*
-// Define the angles for yaw, pitch, and roll
-const yawAngle = Math.PI / 4;   // 45 degrees
-const pitchAngle = Math.PI / 6; // 30 degrees
-const rollAngle = Math.PI / 3;  // 60 degrees
 
-// Calculate the individual rotation matrices
-const R_yaw = new THREE.Matrix3();
-R_yaw.set(
-  Math.cos(yawAngle), 0, Math.sin(yawAngle),
-  0, 1, 0,
-  -Math.sin(yawAngle), 0, Math.cos(yawAngle)
-);
-
-const R_pitch = new THREE.Matrix3();
-R_pitch.set(
-  1, 0, 0,
-  0, Math.cos(pitchAngle), -Math.sin(pitchAngle),
-  0, Math.sin(pitchAngle), Math.cos(pitchAngle)
-);
-
-const R_roll = new THREE.Matrix3();
-R_roll.set(
-  Math.cos(rollAngle), -Math.sin(rollAngle), 0,
-  Math.sin(rollAngle), Math.cos(rollAngle), 0,
-  0, 0, 1
-);
-
-// Combine the rotation matrices (in the order of roll, pitch, yaw)
-const combinedRotationMatrix = R_yaw.clone().multiply(R_pitch).multiply(R_roll);
-
-*/
 	//Get the direction vector in world space
 	//Calculate the position based on the direction and distance
 	//Support current local axis of uniray to apply height in
 	let rayDir = new THREE.Vector3();
 	ray.object3D.getWorldDirection(rayDir);
 
-	//degrees in radians, starting from behind towards the left around to the front as 180m then to the right back around
-	const angle0 = 0;
-	//const angle30 = Math.PI / 6;
-	const angle45 = Math.PI / 4;
-	//const angle60 = Math.PI / 3;
-	const angle90 = Math.PI / 2;
-	//const angle120 = 2*Math.PI / 3;
-	const angle135 = 3*Math.PI / 4;
-	//const angle150 = 5*Math.PI / 6;
-	const angle180 = Math.PI;
-	//const angle210 = 7*Math.PI / 6;
-	const angle225 = 5*Math.PI / 4;
-	//const angle240 = 4*Math.PI / 3;
-	const angle270 = 3*Math.PI / 2;
-	//const angle300 = 5*Math.PI / 3;
-	const angle315 = 7*Math.PI / 4;
-	//const angle330 = 11*Math.PI / 6;
+	//Joystick or Dpad Controls
+	if(this.joystickLocoPos){
+		//Joystick
+		//take in current joystick vec3 and cross with ray
+		rayDir.multiply(this.joystickLocoPos);
+		//Reset Joystick Use
+		this.joystickLocoPos = false;
+	} else {
+		//Dpad
+		let angle = false;
+		//Adjust Raycaster Angle
+		if(action === 'forwardRight'){
+			angle = 135;
+		} else if(action === 'forwardLeft'){
+			angle = 225;
+		} else if(action === 'reverseRight'){
+			angle = 45;
+		} else if(action === 'reverseLeft'){
+			angle = 315;
+		} else if(action === 'forward'){
+			angle = 180;
+		} else if(action === 'reverse'){
+			angle = 0;
+		} else if(action === 'right'){
+			angle = 90;
+		} else if(action === 'left'){
+			angle = 270;
+		}
 
-	const matrixAxisRot = (axis, angle) => {
-		let rotationMatrix = new THREE.Matrix4();
-		let angleMath = 0;
-		switch (angle) {
-			case 0: angleMath = 0; break;
-			case 30: angleMath = Math.PI/6; break;
-			case 45: angleMath = Math.PI/4; break;
-			case 60: angleMath = Math.PI/3; break;
-			case 90: angleMath = Math.PI/2; break;
-			case 120: angleMath = 2*Math.PI/3; break;
-			case 135: angleMath = 3*Math.PI/4; break;
-			case 150: angleMath = 5*Math.PI/6; break;
-			case 180: angleMath = Math.PI; break;
-			case 210: angleMath = 7*Math.PI/6; break;
-			case 225: angleMath = 5*Math.PI/4; break;
-			case 240: angleMath = 4*Math.PI/3; break;
-			case 270: angleMath = 3*Math.PI/2; break;
-			case 300: angleMath = 5*Math.PI/3; break;
-			case 315: angleMath = 7*Math.PI/4; break;
-			case 330: angleMath = 11*Math.PI/6; break;
-			case 360: angleMath = 2*Math.PI; break;
-			default: angleMath = Math.PI;
-		}
-		if(axis === 'x'){
-			rotationMatrix.makeRotationX(angleMath);
-		} else if(axis === 'y'){
-			rotationMatrix.makeRotationY(angleMath);
-		} else if(axis === 'z'){
-			rotationMatrix.makeRotationZ(angleMath);
-		}
-		return rotationMatrix;
+		// Apply the rotation matrix
+		rayDir = this.auxl.MatrixAxisRot(rayDir, 'y', angle);
 	}
 
-
-	let rotationMatrix = new THREE.Matrix4();
-	//Adjust Raycaster Angle
-	if(action === 'forwardRight'){
-		rotationMatrix = matrixAxisRot('y', angle135);
-	} else if(action === 'forwardLeft'){
-		rotationMatrix = matrixAxisRot('y', angle225);
-	} else if(action === 'reverseRight'){
-		rotationMatrix = matrixAxisRot('y', angle45);
-	} else if(action === 'reverseLeft'){
-		rotationMatrix = matrixAxisRot('y', angle315);
-	} else if(action === 'forward'){
-		rotationMatrix = matrixAxisRot('y', angle180);
-	} else if(action === 'reverse'){
-		rotationMatrix = matrixAxisRot('y', angle0);
-	} else if(action === 'right'){
-		rotationMatrix = matrixAxisRot('y', angle90);
-	} else if(action === 'left'){
-		rotationMatrix = matrixAxisRot('y', angle270);
-	}
-
-	// Apply the rotation matrix
-	let pointM = new THREE.Vector3().copy(rayDir).applyMatrix4(rotationMatrix);
-	rayDir.copy(pointM)
 
 	//Calculate the position based on the direction and distance
 	let position = new THREE.Vector3();
@@ -1040,24 +981,20 @@ movement: function (){
 		}
 	}
 },
-//2D Plane Locomotion
-plane2D: function (axis, action, speed) {
+
+//1st POV Walk along XZ Floor relative to Direction View
+directionXZ: function (action, speed) {
 	this.allow = false;
 	this.velocity = speed;
 	this.directionVector = new THREE.Vector3();
 	this.directionObject.object3D.getWorldDirection(this.directionVector);
-	this.moveForce = new THREE.Vector3();
+	this.moveForce = new THREE.Vector3(speed,speed,speed);
 	this.positionNew = new THREE.Vector3();
 	this.positionPlayer.copy(this.player.object3D.position);
 	//Math out the Angle of Camera
 	this.angle = Math.atan2(this.directionVector.x,this.directionVector.z);
 	//Facing
 	this.face;
-
-	//All configured for
-	//Gravity -Y
-	//Allow the uniRay.localAxis to be used when calc
-
 	//Quadrant 1 : -x, -z
 	//Quadrant 2 : +x, -z
 	//Quadrant 3 : -x, +z
@@ -1080,178 +1017,118 @@ plane2D: function (axis, action, speed) {
 		this.face = 'level';
 	}
 
-	//6 Quadrants
-	//Front Left
-	//Front Right
-	//Back Left
-	//Back Right
-	//Top
-	//Down
+	//Ray Direction (Camera, Controller, Body, Other)
+	//console.log({facing: this.face, action, next: this.positionNew})
+	this.positionNew = new THREE.Vector3();
+	this.positionNew.copy(this.rayDirection(this.directionObject, action, this.velocity));
 
-	//6 Axis to be in
-	let actions = ['forward', 'right', 'up'];
-
-
-	if(action === 'forwardRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-	} else if(action === 'forwardLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-	} else if(action === 'reverseRight'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-	} else if(action === 'reverseLeft'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity) + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity) - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity) - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity) + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-	} else if(action === 'forward'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x;
-			this.positionNew.z = this.positionPlayer.z - this.velocity;
-		}
-	} else if(action === 'reverse'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.sin(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.cos(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x;
-			this.positionNew.z = this.positionPlayer.z + this.velocity;
-		}
-	} else if(action === 'right'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x + this.velocity;
-			this.positionNew.z = this.positionPlayer.z;
-		}
-	} else if(action === 'left'){
-		if(this.face === 'frontLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'frontRight') {
-			this.angle += Math.PI;
-			this.positionNew.x = this.positionPlayer.x + (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z - (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backLeft') {
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else if(this.face === 'backRight') {
-			this.angle += (Math.PI * 2);
-			this.positionNew.x = this.positionPlayer.x - (Math.cos(this.angle) * this.velocity);
-			this.positionNew.z = this.positionPlayer.z + (Math.sin(this.angle) * this.velocity);
-		} else {
-			this.positionNew.x = this.positionPlayer.x - this.velocity;
-			this.positionNew.z = this.positionPlayer.z;
-		}
-	}
 	//Y Height Position is unchanged
 	this.positionNew.y = this.positionPlayer.y;
 
-	return this.positionNew;
+	//Position locked?
+	if(this.auxl.player.layer.move){
+		//Physics, Grid Collision or No Clip
+		if(this.auxl.player.layer.playerPhysics){
+			//Cannon Phys Move
+			if(this.auxl.player.layer.physMove){
+				//gravity based movement
+				this.moveForce.copy(this.positionNew);
+				this.moveForce.sub(this.positionPlayer);
+				//Calculate directional difference
+				if(!this.positionNew.equals(this.positionPlayer)) {
+					this.player.body.applyLocalImpulse(this.moveForce, new THREE.Vector3(0,0,0));
+					//Slow down movement only quick then friction, but limit it so things like slopes can take affect
+				}
+			} else {
+				//position based
+				this.player.body.position.copy(this.positionNew);
+				//Hands
+				//this.mouseController.body.position.copy( this.positionNew);
+			}
+			//Update AABB
+			this.player.body.computeAABB();
+		} else if(this.auxl.collision){
+			//Locomotion with Collision every 0.5 meter on XZ and 1 meter on Y
+			this.newPosRound.x = this.roundHalf(this.positionNew.x);
+			this.newPosRound.y = this.round(this.positionNew.y);
+			this.newPosRound.z = this.roundHalf(this.positionNew.z);
+			this.posRound.x = this.roundHalf(this.positionPlayer.x);
+			this.posRound.y = this.round(this.positionPlayer.y);
+			this.posRound.z = this.roundHalf(this.positionPlayer.z);
+			//Check for Obstacles
+			if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
+				if(!this.auxl.player.layer.bodyCrouch){
+					this.newPosStandRound.copy(this.newPosRound);
+					this.newPosStandRound.y+=1;
+					if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosStandRound, this.posRound)){
+						this.allow = true;
+					} else {
+						this.allow = false;
+					}
+				} else {
+					this.allow = true;
+				}
+			}
+			//Atempt to move parallel
+			if(!this.allow){
+				//Backup
+				this.newPosTemp.copy(this.newPosRound);
+				//Test X
+				this.newPosRound.x = this.posRound.x;
+				if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
+					//X is blocked
+					this.positionNew.x = this.positionPlayer.x;
+					this.allow = true;
+				} else {
+					//Test Z
+					this.newPosRound.z = this.posRound.z;
+					//Reset X
+					this.newPosRound.x = this.newPosTemp.x;
+					if(this.auxl.map.CheckMapObstaclesDiagonal(this.newPosRound, this.posRound)){
+						//Z is blocked
+						this.positionNew.z = this.positionPlayer.z;
+						this.allow = true;
+					} 
+				}
+			}
+			//Move
+			if(this.allow){
+				this.player.object3D.position.copy(this.positionNew);
+				this.auxl.player.layer.gridPos.copy(this.newPosRound);
+
+				let direction = '';
+				if(this.newPosRound.z < this.posRound.z){
+					direction += 'forward'
+				} else if(this.newPosRound.z > this.posRound.z){
+					direction += 'reverse'
+				}
+				if(this.newPosRound.x > this.posRound.x){
+					direction += 'right'
+				} else if(this.newPosRound.x < this.posRound.x){
+					direction += 'left'
+				}
+				this.auxl.player.layer.gridDirection = direction;
+				//Check for Triggers on New Coords
+				if(this.newPosRound.x === this.posRound.x && this.newPosRound.z === this.posRound.z){} else {
+					//Check for Trigger Enter
+					if(this.auxl.map.CheckMapTriggers(this.newPosRound)){
+						this.auxl.map.TriggerEnterHit(this.newPosRound);
+					}
+					//Check for Trigger Exits
+					this.auxl.map.CheckActiveTriggers(this.newPosRound);
+					//Check for Cleared Spawn Collision Conditions
+					this.auxl.map.WaitingToSpawn();
+				}
+			}
+		} else {
+			//Free Locomotion No Clip
+			this.player.object3D.position.copy(this.positionNew);
+		}	
+	}
 },
-//1st POV Walk along XZ Floor relative to Direction View
-directionXZ: function (action, speed) {
+//1st POV Walk with Fly Buttons relative to Direction View
+//1st POV Walk along XZ Floor relative to Direction View OLD
+directionXZOLD: function (action, speed) {
 	this.allow = false;
 	this.velocity = speed;
 	this.directionVector = new THREE.Vector3();
@@ -1441,8 +1318,8 @@ directionXZ: function (action, speed) {
 
 	//rayDirection override testing
 	//console.log({facing: this.face, action, next: this.positionNew})
-	//this.positionNew = new THREE.Vector3();
-	//this.positionNew.copy(this.rayDirection(this.directionObject, action, this.velocity));
+	this.positionNew = new THREE.Vector3();
+	this.positionNew.copy(this.rayDirection(this.directionObject, action, this.velocity));
 
 	//Y Height Position is unchanged
 	this.positionNew.y = this.positionPlayer.y;
@@ -1451,16 +1328,11 @@ directionXZ: function (action, speed) {
 	if(this.auxl.player.layer.move){
 		//Physics, Grid Collision or No Clip
 		if(this.auxl.player.layer.playerPhysics){
+			//Cannon Phys Move
 			if(this.auxl.player.layer.physMove){
 				//gravity based movement
 				this.moveForce.copy(this.positionNew);
 				this.moveForce.sub(this.positionPlayer);
-/*
-let rotationMatrix = new THREE.Matrix4();
-rotationMatrix.makeRotationX(Math.PI);
-this.moveForce.applyMatrix4(rotationMatrix);
-*/
-//#return
 				//Calculate directional difference
 				if(!this.positionNew.equals(this.positionPlayer)) {
 					this.player.body.applyLocalImpulse(this.moveForce, new THREE.Vector3(0,0,0));
@@ -1547,12 +1419,10 @@ this.moveForce.applyMatrix4(rotationMatrix);
 					this.auxl.map.WaitingToSpawn();
 				}
 			}
-
 		} else {
 			//Free Locomotion No Clip
 			this.player.object3D.position.copy(this.positionNew);
-		}
-		
+		}	
 	}
 },
 //1st POV Walk with Fly Buttons relative to Direction View

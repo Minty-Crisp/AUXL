@@ -11,13 +11,15 @@
 //Main : Core, Layer, Templates
 import {Core, coreDataFromTemplate, coreFromTemplate, Layer, layerDataFromTemplate, layerFromTemplate} from './main.js';
 //Player : Player, Companion
-import {Player, Companion, UniRay} from './player.js';
+import {Player, Companion} from './player.js';
+//UniRay : Uniray
+//import UniRay from './uniray.js';
 //Powers
 import Powers from './powers.js';
 //Scenes : SceneNode, MapZone, Scenario, World
 import {SceneNode, MapZone, Scenario, World} from './scenes.js';
-//Menu : Menu, MultiMenu, HoverMenu
-import {Menu, MultiMenu, HoverMenu, ComboLock, ScrollMenu} from './menu.js';
+//Menu : Menu, MultiMenu, MegaMenu, HoverMenu
+import {Menu, MultiMenu, MegaMenu, HoverMenu, ComboLock, ScrollMenu} from './menu.js';
 //Environment : SkyBox, Horizon, ObjsGenRing, MultiAssetGen, Teleport
 import {SkyBox, Horizon, ObjsGenRing, MultiAssetGen, Teleport} from './environment.js';
 //NPC : Book, SpeechSystem, NPC, InfoBubble, Creature
@@ -28,6 +30,8 @@ import {Collision, GridLayout, Gate} from './grid.js';
 import {Constraints, One, BuildIn3D} from './build.js';
 //Images
 import {ImageSwapper, ImageCarousel} from './images.js';
+//Import Pet
+import Pet from '../games/pet.js';
 //AUXL System
 const auxl = AFRAME.registerSystem('auxl', {
 schema: {
@@ -44,9 +48,9 @@ init: function () {
 const auxl = this;
 this.auxl = auxl;
 this.expStarted = false;
-this.defaultWorld;
-this.currentWorld;
-this.currentZone;
+this.defaultWorld = false;
+this.currentWorld = false;
+this.currentZone = false;
 this.worldLoaded = false;
 this.local = {};
 this.local.profile = {};
@@ -65,9 +69,32 @@ this.maxLoadTime = 5000;
 this.jsLoaded = {};
 //JS Scripts Predefined, Ready to be loaded dynamically
 this.jsAll = {
+
+//
+//Relative
+//Not Working
+//draw: './assets/js/aframe-draw-component.js',
+//draw: 'file://assets/js/aframe-draw-component.min.js',
+//draw: 'filetype://./assets/js/aframe-draw-component.min.js',
+//draw: '/assets/js/aframe-draw-component.min.js',
+
+
+//
+//Network
+
+//Look At 1.0.0
 ['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',
-//threeGradShader: 'https://unpkg.com/@tlaukkan/aframe-three-color-gradient-shader@0.0.1/index.js',//Shaders needs it's own checker
+
+//GLTF Morph
 ['gltf-morph']:'https://rawcdn.githack.com/elbobo/aframe-gltf-morph-component/07e9b80bd382cc1c19223468d35c453e7c76e9a2/dist/aframe-gltf-morph-component.js',
+
+
+
+
+
+//Included
+
+//threeGradShader: 'https://unpkg.com/@tlaukkan/aframe-three-color-gradient-shader@0.0.1/index.js',//Shaders needs it's own checker
 };
 
 /*************************************************************/
@@ -98,6 +125,8 @@ const manageData = document.getElementById('manageData');
 const resetData = document.getElementById('resetData');
 const scenarioHeaderTitle = document.getElementById('scenarioHeaderTitle');
 const scenarioMenuTitle = document.getElementById('scenarioMenuTitle');
+const fullScreen = document.getElementById('fullScreen');
+const screenFooter = document.getElementById('screenFooter');
 const controllerBlock = document.getElementById('controllerBlock');
 const vrHandButton = document.getElementById('vrHandButton');
 const vrLocomotionType = document.getElementById('vrLocomotionType');
@@ -119,12 +148,15 @@ const mobileC = document.getElementById('c');
 const mobileD = document.getElementById('d');
 const mobileE = document.getElementById('e');
 const mobileF = document.getElementById('f');
+const mobileG = document.getElementById('g');
+const mobileH = document.getElementById('h');
+const mobileI = document.getElementById('i');
 const mobileL = document.getElementById('l');
 const mobileR = document.getElementById('r');
 
-let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, viewInfo, viewData, expInfo, infoClose, instructions, scenarioMenuTitle, dataInfo, dataClose, manageData, resetData, controllerBlock, vrHandButton, vrLocomotionType];
+let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, viewInfo, viewData, expInfo, infoClose, instructions, scenarioMenuTitle, dataInfo, dataClose, manageData, resetData, fullScreen, controllerBlock, vrHandButton, vrLocomotionType];
 
-let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, controllerBlock, mobileUpLeft, mobileUp, mobileUpRight, mobileLeft, mobileCenter, mobileRight, mobileDownLeft, mobileDown, mobileDownRight, mobileSelect, mobileStart, mobileA, mobileB, mobileC, mobileD, mobileE, mobileF, mobileL, mobileR];
+let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, fullScreen, controllerBlock, mobileUpLeft, mobileUp, mobileUpRight, mobileLeft, mobileCenter, mobileRight, mobileDownLeft, mobileDown, mobileDownRight, mobileSelect, mobileStart, mobileA, mobileB, mobileC, mobileD, mobileE, mobileF, mobileG, mobileH, mobileI, mobileL, mobileR];
 
 // System Configure
 /***********************************************************/
@@ -134,6 +166,8 @@ this.systemLoaded = (reset) => {
 	auxl.player.infoText = 'Player : ' + auxl.local.profile.shortname + '\n';
 	SystemStart();
 	ApplySettings();
+
+console.log({msg: 'Loaded Worlds', worlds: auxl.worlds})
 }
 //System Start
 const SystemStart = () => {
@@ -189,6 +223,9 @@ const ApplySystemText = () => {
 	//Hands
 	auxl.vrController1UI.ChangeSelf({property: 'text', value: {value: this.systemText,}})
 	auxl.vrController2UI.ChangeSelf({property: 'text', value: {value: this.systemText,}})
+	auxl.avatarHover.ChangeSelf({property: 'text', value: {value: this.systemText,}})
+	//Hover
+	auxl.player.UpdateHoverText(this.local.profile.shortname);
 
 	//console.log('System Text Applied');
 }
@@ -477,10 +514,8 @@ this.controls = 'Desktop';
 this.vrHand = 'bothRight';
 this.directionType = 'camera';
 this.locomotionText = 'WASD Keys';
-
-//Joystick Configurations : 1,4,8
-this.joystickLoco = 4;
-this.joystickRot = 8;
+this.joystickLoco = 1;
+this.joystickRot = 1;
 this.controlsInfo = {};
 this.controlsText = '';
 
@@ -642,14 +677,54 @@ this.TimeInDayUpdate = () => {
 
 }
 //Physics
+//Physics Enabled / Type
+this.physics = false;
 this.worldPhysics = false;
+this.physicsDebug = false;
 //EnablePhysics
-this.EnablePhysics = () => {
-	console.log('Enabling Physics')
-	//Physics References
-	auxl.physWorld = auxl.el.systems.physics.driver.world;
-	//auxl.physWorld.allowSleep = true;
-	console.log(auxl.physWorld)
+this.EnablePhysics = (bodyShape) => {
+//console.log({msg: 'Enabling ' + auxl.worldPhysics + ' Physics'})
+	let loaded = true;
+	if(auxl.worldPhysics === 'cannon'){
+		auxl.sceneEl.setAttribute('physics', {driver: 'local', debug: auxl.physicsDebug, debugDrawMode: 1, gravity: '-9.8'})
+	} else if(auxl.worldPhysics === 'ammo'){
+		auxl.sceneEl.setAttribute('physics', {driver: 'ammo', debug: auxl.physicsDebug, debugDrawMode: 1, gravity: '-9.8'})
+	} else {
+		loaded = false;
+console.log({msg: 'Failed to recognize physics engine', engine: auxl.worldPhysics, auxl})
+	}
+
+	if(loaded){
+		//Force reloading of physics system
+		auxl.sceneEl.systems.physics.init();
+		let loadTimeout = setTimeout(() => {
+			//Physics Reference Links
+			auxl.physics = auxl.el.systems.physics;
+
+//console.log({msg: 'Physics Enabling : ' + auxl.worldPhysics, physics: auxl.physics, scene: auxl.el.getAttribute('physics')})
+
+			if(auxl.worldPhysics === 'cannon'){
+				auxl.physWorld = auxl.el.systems.physics.driver.world;
+				//auxl.physWorld.allowSleep = true;
+			} else if(auxl.worldPhysics === 'ammo'){
+				auxl.physWorld = auxl.el.systems.physics.data;
+			}
+
+			//Enable Player Physics
+			auxl.player.EnablePhysics(bodyShape);
+//console.log({msg: 'Physics Enabled : ' + auxl.worldPhysics, physics: auxl.physics, physWorld: auxl.physWorld})
+			clearTimeout(loadTimeout);
+		}, 0);
+	}
+}
+//EnablePhysics
+this.DisablePhysics = () => {
+	auxl.player.DisablePhysics();
+	auxl.sceneEl.removeAttribute('physics');
+	auxl.worldPhysics = false;
+	auxl.physics = false;
+	auxl.physWorld = false;
+	console.log({msg: 'Physics Disabled', physics: auxl.physics, physWorld: auxl.physWorld})
 }
 //Collision Maps
 this.collisionMap = [[],[]];
@@ -658,7 +733,7 @@ this.mapEdge = false;
 
 //
 //HTML Menu
-function toggleMenu(){
+this.ToggleHTMLMenu = () => {
 	if(auxl.menuOpen){
 		beginDiv.style.display = 'none';
 		auxl.menuOpen = false;
@@ -673,7 +748,7 @@ function toggleMenu(){
 		auxl.menuOpen = true;
 	}
 }
-stickyMenu.addEventListener('click', toggleMenu);
+stickyMenu.addEventListener('click', auxl.ToggleHTMLMenu);
 
 //
 //Start Experience
@@ -688,7 +763,7 @@ function startExp(){
 		updateControls();
 		auxl.worldLoaded = true;
 	}
-	toggleMenu();
+	auxl.ToggleHTMLMenu();
 }
 startButton.addEventListener('click', startExp);
 
@@ -715,8 +790,8 @@ function enableVRControls(){
 		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
 		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
 		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
-		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
-		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
+		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0.15, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
+		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
 		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
 		auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 		auxl.player.EnableVRLocomotion();
@@ -728,8 +803,8 @@ function enableVRControls(){
 		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
 		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
 		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
-		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
-		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
+		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
+		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: false, autoRefresh: false, objects: '.disabled', far: 0, near: 0.15, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
 		auxl.vrController1.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
 		auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 		auxl.player.EnableVRLocomotion();
@@ -741,8 +816,8 @@ function enableVRControls(){
 		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
 		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
 		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
-		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: 'false'});
-		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
+		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: 'false'});
+		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: false, useWorldCoordinates: false});
 		auxl.vrController1.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
 		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
 		auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
@@ -758,7 +833,7 @@ function enableVRControls(){
 		auxl.vrController2.GetEl().setAttribute('visible',true);
 		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
 		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
-		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
+		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
 		auxl.vrController2.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'vrController2', mouseCursorStylesEnabled: true});
 		auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 		auxl.player.EnableVRHoverLocomotion('vrController2');
@@ -767,7 +842,7 @@ function enableVRControls(){
 		auxl.vrController1.GetEl().setAttribute('visible',true);
 		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
 		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
-		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
+		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
 		auxl.vrController1.GetEl().setAttribute('cursor',{fuse: false, rayOrigin: 'vrController1', mouseCursorStylesEnabled: true});
 		auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 		auxl.player.EnableVRHoverLocomotion('vrController1');
@@ -783,7 +858,7 @@ function disableDesktopControls(){
 }
 function enableDesktopControls(){
 	auxl.mouseController.GetEl().setAttribute('visible',true);
-	auxl.mouseController.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
+	auxl.mouseController.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 	auxl.mouseController.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true',});
 	auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 	auxl.player.EnableDesktopLocomotion();
@@ -794,6 +869,8 @@ function disableMobileControls(){
 	auxl.mouseController.GetEl().setAttribute('visible',false);
 	auxl.mouseController.GetEl().removeAttribute('raycaster');
 	auxl.mouseController.GetEl().removeAttribute('cursor');
+	//fullScreen.style.display = 'none';
+	screenFooter.style.display = 'none';
 	controllerBlock.style.display = 'none';
 }
 function enableMobileControls(){
@@ -811,8 +888,9 @@ function enableMobileControls(){
 	//sceneEl.addEventListener('deviceorientationpermissiongranted', mobilePermissionGrantedTrue);
 	//sceneEl.addEventListener('deviceorientationpermissionrejected', mobilePermissionGrantedFalse);
 	auxl.mouseController.GetEl().setAttribute('visible',true);
-	auxl.mouseController.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
+	auxl.mouseController.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 	auxl.mouseController.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true'});
+	screenFooter.style.display = 'flex';
 	controllerBlock.style.display = 'flex';
 	auxl.playerRig.GetEl().setAttribute('auxcontroller',{update: Math.random().toFixed(5)});
 	auxl.player.EnableMobileLocomotion();
@@ -1239,12 +1317,12 @@ function resetReload(){
 
 //
 //Toggle HTML
-this.ToggleHTML = (id, display) => {
-	if(display){
-		if(id === 'l' || id === 'r'){
-			document.getElementById(id).style.display = 'block';
+this.ToggleHTML = (id, show, display) => {
+	if(show){
+		if(display){
+			document.getElementById(id).style.display = display;
 		} else {
-			document.getElementById(id).style.display = 'flex';
+			document.getElementById(id).style.display = 'block';
 		}
 	} else {
 		document.getElementById(id).style.display = 'none';
@@ -1289,7 +1367,9 @@ this.isFalsey = (value) => {
     value === false ||
     value === NaN ||
     value === ""||
-    value === "false"
+    value === "false" ||
+    value === "False" ||
+    value === "FALSE"
   ) {
     return true;
   }
@@ -1751,14 +1831,47 @@ this.distance = (x1, z1, x2, z2) => {
 //Return a random position within Ring radius
 this.randomPosition = (radius, yPos) => {
 	let posX = Math.random() * (radius*2) - radius;
+	let posY = (yPos) ? yPos : Math.random() * (radius*2) - radius;
 	let posZ = Math.random() * (radius*2) - radius;
-	return new THREE.Vector3(posX, yPos, posZ);
+	return new THREE.Vector3(posX, posY, posZ);
 }
 
 //
-//Pointing
+//3D Math Helpers
 
-//Add player raycaster functions to be used with all
+//Matrix Rotation on Single Axis
+this.MatrixAxisRot = (dir, axis, angle) => {
+	let rotationMatrix = new THREE.Matrix4();
+	let angleMath = 0;
+	switch (angle) {
+		case 0: angleMath = 0; break;
+		case 30: angleMath = Math.PI/6; break;
+		case 45: angleMath = Math.PI/4; break;
+		case 60: angleMath = Math.PI/3; break;
+		case 90: angleMath = Math.PI/2; break;
+		case 120: angleMath = 2*Math.PI/3; break;
+		case 135: angleMath = 3*Math.PI/4; break;
+		case 150: angleMath = 5*Math.PI/6; break;
+		case 180: angleMath = Math.PI; break;
+		case 210: angleMath = 7*Math.PI/6; break;
+		case 225: angleMath = 5*Math.PI/4; break;
+		case 240: angleMath = 4*Math.PI/3; break;
+		case 270: angleMath = 3*Math.PI/2; break;
+		case 300: angleMath = 5*Math.PI/3; break;
+		case 315: angleMath = 7*Math.PI/4; break;
+		case 330: angleMath = 11*Math.PI/6; break;
+		case 360: angleMath = 2*Math.PI; break;
+		default: angleMath = Math.PI;
+	}
+	if(axis === 'x'){
+		rotationMatrix.makeRotationX(angleMath);
+	} else if(axis === 'y'){
+		rotationMatrix.makeRotationY(angleMath);
+	} else if(axis === 'z'){
+		rotationMatrix.makeRotationZ(angleMath);
+	}
+	return new THREE.Vector3().copy(dir).applyMatrix4(rotationMatrix);
+}
 
 
 //
@@ -1800,12 +1913,12 @@ this.layerFromTemplate = (layer, id, changeParent, layerConfig, assign) => {
 
 //
 //Player
-
+/*
 //UniRay
 this.UniRay = (id, layer, data) => {
 	return UniRay(auxl, id, layer, data);
 }
-
+*/
 
 //
 //Player
@@ -1874,6 +1987,19 @@ this.Menu = (menuData) => {
 this.MultiMenu = (multiMenuData) => {
 	return MultiMenu(auxl, multiMenuData);
 }
+
+
+//
+//MegaMenu
+//6x Combo Keyboard - Multi Sub Menus | Circle/Vertical/Horizontal
+this.MegaMenu = (...multiMenuData) => {
+	return MegaMenu(auxl, ...multiMenuData);
+}
+
+
+
+
+
 
 //
 //Quick Hover Menu
@@ -2022,6 +2148,7 @@ this.BuildIn3D = () => {
 
 //
 //Images
+
 //
 //Image Swapper
 //Main Image and Image Thumbnails Click to Toggle to Main
@@ -2034,6 +2161,17 @@ this.ImageSwapper = (id, mainData, buttonData, ...materials) => {
 //View large set of Images in a set of Frames and Button Controls
 this.ImageCarousel = (carouselData) => {
 	return ImageCarousel(auxl, carouselData);
+}
+
+
+//
+//Games
+
+//
+//Pet
+//View large set of Images in a set of Frames and Button Controls
+this.Pet = (petData) => {
+	return Pet(auxl, petData);
 }
 
 },
@@ -2080,6 +2218,7 @@ checkSceneLoad: function (time, timeDelta) {
 },
 //AUXL Tick - Running Throttled checkSceneLoad()
 tick: function (time, timeDelta) {
+	//Check for movement related assistance such as blink modes as well as preserving the illusion with scene swaps and loads
 	if(this.loadingScene){
 		//Run Throttled checkSceneLoad() after scene was read
 		if(this.sceneReading){} else {

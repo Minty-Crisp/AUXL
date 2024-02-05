@@ -23,49 +23,63 @@
 <script src="./assets/js/aframe-v1.4.2.min.js"></script>
 <!-- A-Frame Orbit Control official release
 <script src="https://unpkg.com/aframe-orbit-controls@1.3.2/dist/aframe-orbit-controls.min.js"></script> -->
+<!-- Ammo.js Physics 
+module='TOTAL_MEMORY: 512 * 1024 * 1024' 
+Module ? Module.TOTAL_MEMORY : null;
+
+<script src="./assets/js/ammo.wasm.js"></script>
+
+-->
+<script src="./assets/js/ammo.js"></script>
+
+<!-- Cannon + Ammo Physics
+<script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
+<script src="./assets/js/aframe-physics-system.js"></script>-->
+<script src="./assets/js/aframe-physics-system.min.js"></script>
+
+
 <!-- local -->
 <script src="./assets/js/aframe-orbit-controls.min.js"></script>
 
 <!-- A-Frame Extras
 <script src="https://cdn.rawgit.com/donmccurdy/aframe-extras/v6.1.1/dist/aframe-extras.min.js"></script> -->
 
-<!-- MVP.css -->
-<link rel="stylesheet" href="./assets/css/mvp.css">
-<!-- CSS -->
-<link rel="stylesheet" href="./assets/css/style.css">
+<!-- A-Frame Draw
+<script src="./assets/js/aframe-draw-component.min.js"></script> -->
+
+<!-- MVP.css
+<link rel="stylesheet" href="./assets/css/mvp.css"> -->
+<!-- CSS
+<link rel="stylesheet" href="./assets/css/style.css"> -->
 </head>
 <!-- A-Frame UX Library Engine v0.3 -->
 <script src="./auxl.js"></script>
-<script src="./demo.js"></script>
+<script type="module" src="./assets/shaders/shaders.js"></script>
+<script src="./demo-grid.js"></script>
+<script src="./demo-cannon.js"></script>
+<script src="./demo-ammo.js"></script>
+<script src="./xrcade.js"></script>
+<script src="./mascot.js"></script>
+
 
 <body id="htmlBody">
-<!-- Sticky -->
-<div id="stickyBar" class="sticky flexRow">
-	<span class="flexRow flexStart">
-		<img id="stickyIcon" src="./assets/img/favicon/favicon-32x32.png" alt="site-icon" / class="flexCol">
-		<span id="stickyTitle" class="flexCol"><h3 id='systemText'> A-Frame UX Library | v0.3</h3></span>
-	</span>
-	<span class="flexRow">
-		<span class="flexCol"><h4 id="scenarioHeaderTitle"></h4></span>
-		<button id="donate" class="stickyButtons flexCol"><a href="https://ko-fi.com/mintycrisp" target="_blank">Ko-fi</a></button>
-		<button id="stickyMenu" class="flexCol">Menu</button>
-	</span>
-</div>
+
 <!-- Begin Experience -->
 <div id="beginDiv">
-<span class="flexCol"><h4 id="scenarioMenuTitle"></h4></span>
+<span class="menu"><h4 id="scenarioMenuTitle"></h4></span>
 <li><button class="menu" id="startButton">Start</button></li>
-<li><button id="menuModeButton" class="flexCol">Mode : Desktop</button></li>
-<li><button id="vrHandButton" class="flexCol">2 Hands : Right Ray | Left Move</button></li>
-<li><button id="vrLocomotionType" class="flexCol">Direction : Camera</button></li>
-<li><button id="audioButton" class="flexCol">Sound : Disabled</button></li>
+<li><button id="menuModeButton" class="menu">Mode : Desktop</button></li>
+<li><button id="vrHandButton" class="menu">2 Hands : Right Ray | Left Move</button></li>
+<li><button id="vrLocomotionType" class="menu">Direction : Camera</button></li>
+<li><button id="audioButton" class="menu">Sound : Disabled</button></li>
 <li><div id='audioVolume' class="flexRow"><button id="volDownButton">-</button><h2 id="volume">1</h2><button id="volUpButton">+</button></div></li>
-<li><button id="viewInfo" class="flexCol">View Instructions</button></li>
-<li><button id="viewData" class="flexCol">Reset Data</button></li>
+<li><button id="viewInfo" class="menu">View Instructions</button></li>
+<li><button id="viewData" class="menu">Reset Data</button></li>
 </div>
+
 <!-- Experience Instructions -->
 <div id="expInfo">
-<li><button id="infoClose" class="flexCol">Close</button></li>
+<li><button id="infoClose" class="menu">Close</button></li>
 <li id="instructions">Scenario Instructions.</li>
 <li>- - - - - - -</li>
 <li>Controls :</li>
@@ -75,21 +89,37 @@
 <li>- - - - - - -</li>
 <li><a href="https://mintycrisp.com">More by Minty Crisp</a></li>
 </div>
+
 <!-- Data -->
 <div id="dataInfo">
-<li><button id="dataClose" class="flexCol">Close</button></li>
+<li><button id="dataClose" class="menu">Close</button></li>
 <li id="manageData">Manage Data</li>
-<li><button id="resetData" class="flexCol">Confirm Reset</button>
+<li><button id="resetData" class="menu">Confirm Reset</button>
 </div>
-<main>
+<div>
 <!--
 extras-controls
+physics="debug: false; gravity: 0"
+physics="driver: ammo; debug: true; debugDrawMode: 1;"
 -->
 <a-scene
+
 auxl
 library
-scene-library
-scenes
+start-library
+start-scenes
+grid-library
+grid-scenes
+cannon-library
+cannon-scenes
+ammo-library
+ammo-scenes
+arcade
+xrcade-library
+xrcade-scenes
+mascot-library
+mascot-scenes
+
 vr-mode-ui="enabled: true;"
 device-orientation-permission-ui="enabled: true; deviceMotionMessage: Allow access to Motion and Orientation?"
 renderer="antialias: true; colorManagement: true; sortObjects: true"
@@ -100,18 +130,47 @@ renderer="antialias: true; colorManagement: true; sortObjects: true"
 <!-- - - - - - - - - - - Import - - - - - - - - - - -->
 
 <!-- - - - - - - - - - - Mixins - - - - - - - - - - -->
-
+<!-- - - - - - - - - - - Canvases - - - - - - - - - - -->
+<canvas id="roamCameraCanvas"></canvas>
+<canvas id="cam0Canvas"></canvas>
 </a-assets>
 
 <!-- - - - - - - - - - - Player Controls - - - - - - - - - - -->
+
+
+<!-- Test
+<a-entity position="0 0 0" wasd-controls="enabled: true;">
+    <a-camera look-controls="enabled: true; reverseMouseDrag: false; reverseTouchDrag: false; touchEnabled: true; mouseEnabled: true; pointerLockEnabled: true; magicWindowTrackingEnabled: true" wasd-controls="enabled: false">
+        <a-entity id="mouseCursor" laser-controls raycaster="objects: .clickable" cursor="fuse: false, mouseCursorStylesEnabled: true,; rayOrigin: mouseCursor;"
+        material="color: grey; shader: flat; side: double"
+        position="0 0 -0.1"
+        scale=".0025 .0025 .0025"
+        geometry="primitive: ring;"
+        ></a-entity>
+    </a-camera>
+</a-entity>
+ -->
 <a-entity id="playerRig" position="0 0 0.5"
 ><a-entity id="playerBody" position="0 0 0"
-><a-entity id="headRig" position="0 0 0"
-><a-camera id="camera"
-position="0 1.6 0"
+><a-entity id="playerHead" position="0 1.6 0"
 look-controls="enabled: true; reverseMouseDrag: false; reverseTouchDrag: false; touchEnabled: true; mouseEnabled: true; pointerLockEnabled: true; magicWindowTrackingEnabled: true"
 wasd-controls="enabled: false;"
-></a-camera></a-entity></a-entity></a-entity>
+><a-entity id="headRig" position="0 -1.6 0"
+><a-camera id="camera"
+position="0 1.6 0"
+look-controls="enabled: false; reverseMouseDrag: false; reverseTouchDrag: false; touchEnabled: true; mouseEnabled: true; pointerLockEnabled: true; magicWindowTrackingEnabled: true"
+wasd-controls="enabled: false;"
+></a-camera></a-entity></a-entity></a-entity></a-entity>
+
+<!-- - - - - - - - - - - 
+<a-entity id="roamCameraRig"
+position="0 0 1"
+><a-camera id="roamCamera"
+position="0 0 0"
+look-controls="enabled: false; reverseMouseDrag: false; reverseTouchDrag: false; touchEnabled: true; mouseEnabled: true; pointerLockEnabled: true; magicWindowTrackingEnabled: true"
+wasd-controls="enabled: false;"
+></a-camera></a-entity>
+ - - - - - - - - - - -->
 <!-- - - - - - - - - - - Lights - - - - - - - - - - -->
 <!-- Directional -->
 <a-entity id="directionalLight"
@@ -145,13 +204,28 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 ></a-text></a-entity> -->
 
 </a-scene>
-</main>
+</div>
 
 <!-- - - - - - - - - - - HTML Controller - - - - - - - - - - -->
-<div id="controllerBlock">
+<div id="fullScreen">
+<!-- Sticky -->
+<div id="stickyBar" class="sticky flexRow">
+	<span class="flexRow flexStart">
+		<img id="stickyIcon" src="./assets/img/favicon/favicon-32x32.png" alt="site-icon" / class="flexCol">
+		<span id="stickyTitle" class="flexCol"><h3 id='systemText'> A-Frame UX Library | v0.3</h3></span>
+	</span>
+	<span class="flexRow">
+		<span class="flexCol"><h4 id="scenarioHeaderTitle"></h4></span>
+		<button id="donate" class="stickyButtons flexCol"><a href="https://ko-fi.com/mintycrisp" target="_blank">Ko-fi</a></button>
+		<button id="stickyMenu" class="flexCol">Menu</button>
+	</span>
+</div>
+<!-- Screen -->
+<div id="screen" class="flexRow"></div>
+<div id="controllerBlock" class="flexRow">
 <!-- Directional Buttons -->
 <!-- Column 1 -->
-<div id="directional-buttons" class="column col1">
+<div id="directional-buttons" class="flexCol col1">
 <!-- Row 1 -->
 <div id="" class="directions">
 <button id="upLeft" class="directionButtons">&#8598;</button>
@@ -177,52 +251,48 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 <button id="l" class="snapButtons">&#8592;</button>
 <button id="r" class="snapButtons">&#8594;</button>
 </div>
+
+<!-- A | B Buttons -->
+<!-- Column 3 -->
+<div id="directional-buttons" class="flexCol col3">
+<!-- Row 1 -->
+<div id="" class="directions">
+<button id="g" class="directionButtons">G</button>
+<button id="h" class="directionButtons">H</button>
+<button id="i" class="directionButtons">I</button>
+</div>
+<!-- Row 2 -->
+<div id="" class="directions">
+<button id="d" class="directionButtons">D</button>
+<button id="e" class="directionButtons">E</button>
+<button id="f" class="directionButtons">F</button>
+</div>
+<!-- Row 3 -->
+<div id="" class="directions">
+<button id="a" class="directionButtons">A</button>
+<button id="b" class="directionButtons">B</button>
+<button id="c" class="directionButtons">C</button>
+</div>
+
+<!-- End ABC Buttons -->
+</div>
+
+<!-- End Controller -->
+</div>
+<!-- Footer -->
+<div id="screenFooter" class="flexRow">
 <!-- Start | Select Buttons -->
 <!-- Column 2 -->
-<div id="start-select-buttons" class="column col2">
+<div id="start-select-buttons" class="flexCol col2">
 <div id="" class="startselect">
 <button id="select" class="startSelectButtons">Select</button>
 <button id="start" class="startSelectButtons">Start</button>
 </div>
 <!-- End Start | Select Buttons -->
 </div>
-<!-- A | B Buttons -->
-<!-- Column 3 -->
-<div id="abc-buttons" class="column col3">
-<div id="" class="abcdef">
-
-<div id="" class="ad">
-<div id="" class="a">
-<button id="a" class="actionButtons">A</button>
-</div>
-<div id="" class="d">
-<button id="d" class="actionButtons">D</button>
-</div>
-</div>
-
-<div id="" class="be">
-<div id="" class="b">
-<button id="b" class="actionButtons">B</button>
-</div>
-<div id="" class="e">
-<button id="e" class="actionButtons">E</button>
-</div>
-</div>
-
-<div id="" class="cf">
-<div id="" class="c">
-<button id="c" class="actionButtons">C</button>
-</div>
-<div id="" class="f">
-<button id="f" class="actionButtons">F</button>
-</div>
-</div>
 
 </div>
-<!-- End ABC Buttons -->
-</div>
-
-<!-- End Controller -->
+<!-- End Full Screen -->
 </div>
 <!-- - - - - - - - - - - End - - - - - - - - - - -->
 </body>

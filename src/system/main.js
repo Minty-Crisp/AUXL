@@ -96,6 +96,32 @@ const Core = (auxl, data) => {
 		await import(response.url);
 		return true;
 	}
+/*
+	
+// Import external JS script
+	async function getJsSrc(url) {
+	  try {
+		// If the URL starts with "file://", it's a local file
+		if (url.startsWith("file://")) {
+		  // Resolve the local file path
+		  const localPath = url.replace("file://", "");
+console.log(localPath)
+		  // Import the local file using the relative path
+		  await import(localPath);
+		} else {
+		  // Fetch and import external script
+		  const response = await fetch(url);
+		  await import(response.url);
+		}
+
+		return true;
+	  } catch (error) {
+		console.error("Error importing JS script:", error);
+		return false;
+	  }
+	}
+
+*/
 	//Loading Asset
 	function loading(){
 		auxl.loadingObjects.set(core.id,true);
@@ -583,6 +609,13 @@ const Core = (auxl, data) => {
 		if(core.inScene){}else{
 			if(grid){
 				core.grid = grid;
+			}
+			if(!core.grid && core.data.grid){
+				//core.grid = core.data.grid;
+			}
+			if(!core.grid){
+console.log({msg: 'Missing grid, unable to spawn', core})  
+				return;
 			}
 			//Collision on by default
 			if(!core.grid.hasOwnProperty('collide') && !core.grid.hasOwnProperty('trigger')){
@@ -1136,8 +1169,38 @@ const Core = (auxl, data) => {
 		}
 	}
 	//Physics
-	//Enable Physics
-	const EnablePhysics = (bodyShape) => {
+	//Ammo Physics
+	const EnablePhysicsAmmo = (bodyShape) => {
+
+		if(bodyShape && bodyShape.body){
+			//core.body = bodyShape.body;
+			if(!core.body.type){
+				core.body.shape = 'dynamic';
+			}
+		} else if(!core.body){
+			//core.body = {type: 'dynamic', shape: 'none', mass: 1};
+		   core.body = {type: 'kinematic',};
+		}
+		if(bodyShape && bodyShape.shape){
+			core.shape = bodyShape.shape;
+		} else {
+			
+			if(core.geometry && ['box, sphere, cone, cylinder, box'].includes(core.geometry.primitive)){
+				core.shape = {type: core.geometry.primitive}
+			} else {
+		   		core.shape = {type: 'box',}
+			}
+		}
+		//Add Physics Body
+		GetEl().setAttribute('ammo-body',core.body);
+		GetEl().setAttribute('ammo-shape__' + core.id,core.shape);
+	}
+	const DisablePhysicsAmmo = () => {
+		GetEl().removeAttribute('ammo-body',core.body);
+		GetEl().removeAttribute('ammo-shape__' + core.id,core.shape);
+	}
+	//Cannon Physics
+	const EnableCannonPhysics = (bodyShape) => {
 		if(bodyShape?.body){
 			core.body = bodyShape.body;
 			if(!core.body.type){
@@ -1169,10 +1232,30 @@ const Core = (auxl, data) => {
 		GetEl().setAttribute('shape__core',core.shape);
 
 		//Disable Rotation
-		//GetEl().body.fixedRotation = true;
-		//GetEl().body.updateMassProperties();
-
-//console.log(auxl.playerRig.GetEl().body)
+		if(bodyShape.fixed){
+			GetEl().body.fixedRotation = true;
+			GetEl().body.updateMassProperties();
+		}
+	}
+	const DisableCannonPhysics = () => {
+		GetEl().removeAttribute('body',core.body);
+		GetEl().removeAttribute('shape__core',core.shape);
+	}
+	//Enable
+	const EnablePhysics = (bodyShape) => {
+		if(auxl.worldPhysics === 'ammo'){
+			EnablePhysicsAmmo(bodyShape)
+		} else if(auxl.worldPhysics === 'cannon'){
+			EnableCannonPhysics(bodyShape);
+		}
+	}
+	//Disable
+	const DisablePhysics = () => {
+		if(auxl.worldPhysics === 'ammo'){
+			DisablePhysicsAmmo()
+		} else if(auxl.worldPhysics === 'cannon'){
+			DisableCannonPhysics();
+		}
 	}
 	//Physics Position
 	const PhysPos = (pos) => {
@@ -1414,7 +1497,7 @@ const Core = (auxl, data) => {
 			GetEl().setAttribute('material', {src});
 		}
 	}
-	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, GetEl, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, ChangeCore, EnablePhysics, PhysPos, Animate, EmitEvent, SetFlag, GetFlag, DomClass, EnableDetail, DisableDetail, ChangeMatSrc};
+	return {core, Generate, SpawnCore, DespawnCore, ToggleSpawn, GetEl, SpawnCoreOnGrid, ToggleCoreGridSpawn, RemoveComponent, GridMove, GridPath, WalkPath, ChangeSelf, ChangeCore, EnablePhysics, DisablePhysics, PhysPos, Animate, EmitEvent, SetFlag, GetFlag, DomClass, EnableDetail, DisableDetail, ChangeMatSrc};
 }
 //
 //Generate new Core Data from Template

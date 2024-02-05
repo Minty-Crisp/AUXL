@@ -2110,6 +2110,7 @@ function ColorFamilyButtonGen(){
 //
 //Sub Menus
 
+
 //Left A
 //PURPLE
 //Build Menu
@@ -2145,8 +2146,11 @@ one.buildMenuData = {
 		//posOffset: new THREE.Vector3(-1.4,-0.2,0.11),
 		//posOffset: new THREE.Vector3(-1.5,-0.2,0.22),
 		//posOffset: new THREE.Vector3(-1.5,0.13,0.11),
-		posOffset: new THREE.Vector3(-1.625,0.13,0.11),
-		offset: 1.25,
+		//posOffset: new THREE.Vector3(-1.625,0.13,0.11),
+		//offset: 1.25,
+		//posOffset: new THREE.Vector3(1.75,0.13,-0.11),
+		posOffset: new THREE.Vector3(0,0,0.11),
+		offset: -1.425,
 		parent: 'ghostParent',
 		//look: {buffer: 0.65, drag: 0.25, match: 'camera', x:true, y:true, z:true},
 		stare: false,
@@ -2652,8 +2656,8 @@ one.buildMenuData = {
 	},
 
 };
-ColorFamilyButtonGen();
 //console.log(one.buildMenuData)
+ColorFamilyButtonGen();
 //Build Final Menu
 auxl.buildMenu = auxl.MultiMenu(one.buildMenuData);
 //auxl.buildMenu.menuLayer.layer;
@@ -2968,8 +2972,6 @@ auxl.numberStyle1Data = auxl.coreDataFromTemplate(auxl.numberStyle0Data, {
 	material: {shader: "standard", color: "#d3391d", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#d3391d", emissiveIntensity: 0.4, side: 'double',  },
 
 }, true);
-
-
 one.numberInputs1Data = {
 info:{
 	id: 'numberInputs1',
@@ -3098,7 +3100,7 @@ auxl.numberInputs1 = auxl.MultiMenu(one.numberInputs1Data);
 
 
 
-
+//Inner
 //RIGHT C
 //GREEN
 auxl.numberStyle2Data = auxl.coreDataFromTemplate(auxl.numberStyle0Data, {
@@ -3118,7 +3120,8 @@ info:{
 	//posOffset: new THREE.Vector3(0,0,0),
 	//posOffset: new THREE.Vector3(1.25,-0.4,-0.44),
 	//offset: -1,
-	posOffset: new THREE.Vector3(1.75,0.15,-0.22),
+	//posOffset: new THREE.Vector3(1.75,0.15,-0.22),
+	posOffset: new THREE.Vector3(0,0,-0.11),
 	offset: -0.6,
 	parent: 'ghostParent',
 	//look: {buffer: 0.65, drag: 0.25, match: 'camera', x:true, y:true, z:true},
@@ -3249,18 +3252,18 @@ auxl.buildMenuNumber = auxl.MultiMenu(one.buildPosMenuData);
 		//console.log('Spawning');
 		auxl.buildMenu.SpawnMultiMenu();
 
-		auxl.buildSubMenu.SpawnMultiMenu();
-		auxl.numberInputs0.SpawnMultiMenu();
-		auxl.numberInputs1.SpawnMultiMenu();
+		//auxl.buildSubMenu.SpawnMultiMenu();
+		//auxl.numberInputs0.SpawnMultiMenu();
+		//auxl.numberInputs1.SpawnMultiMenu();
 		auxl.buildMenuNumber.SpawnMultiMenu();
 	}
 	const DespawnBuild = () => {
 		//console.log('Despawning');
 		auxl.buildMenu.DespawnMultiMenu();
 
-		auxl.buildSubMenu.DespawnMultiMenu();
-		auxl.numberInputs0.DespawnMultiMenu();
-		auxl.numberInputs1.DespawnMultiMenu();
+		//auxl.buildSubMenu.DespawnMultiMenu();
+		//auxl.numberInputs0.DespawnMultiMenu();
+		//auxl.numberInputs1.DespawnMultiMenu();
 		auxl.buildMenuNumber.DespawnMultiMenu();
 		//auxl.RemoveFromTracker(one.id);
 	}

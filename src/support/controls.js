@@ -18,7 +18,7 @@ schema: {
 },
 init: function () {
 
-//Currently configured to have a single instance of the entire scene.
+//Currently configured to have a single instance in the entire scene.
 
 //Controls to Configure for :
 //Desktop : Mouse & Keyboard
@@ -43,21 +43,17 @@ init: function () {
 //Action 7 - Other Joystick Left, Key Z, HTML <-
 //Action 8 - Other Joystick Right, Key X, HTML ->
 
-//Need each (controller, hmd, mouse/keyboard, mobile screen)
-//Listen for events that happen on itself such a main trigger / click, but also buttons, rotation, position, joystick
 
-//Control Actions :
-//Main Click - Triggers, Mouse Click, Screen Tap
-//Alt Click - Grip, Mouse Right Click, HTML Alt, Shoulder Alts
-//Joystick - 2D Points
-//Action 1 - controller button1, Key, HTML DIV
-//Action 2 - controller button1, Key, HTML DIV
-//Action 3 - controller button1, Key, HTML DIV
-//Action 4 - controller button1, Key, HTML DIV
-//Action 5 - controller button1, Key, HTML DIV
-//Action 6 - controller button1, Key, HTML DIV
-//Action 7 - controller button1, Key, HTML DIV
-//Action 8 - controller button1, Key, HTML DIV
+//Default Actions :
+//Main Menu Toggle
+//Player Camera Rotation
+//Player Camera Zoom In
+//Player Camera Zoom Out
+//Player Rig Locomotion
+//Player Rig Snap Turn Left
+//Player Rig Snap Turn Right
+
+//ToDo : Add Button combinations, pressing multiple at the same time, etc... as an action assignable
 
 //Self
 this.id = this.data.id;
@@ -122,6 +118,8 @@ this.mobileC = document.getElementById('c');
 this.mobileD = document.getElementById('d');
 this.mobileE = document.getElementById('e');
 this.mobileF = document.getElementById('f');
+this.mobileG = document.getElementById('g');
+this.mobileH = document.getElementById('h');
 this.mobileL = document.getElementById('l');
 this.mobileR = document.getElementById('r');
 
@@ -577,22 +575,6 @@ this.questLeftAltClickUp = () => {
 	this.altClickDetail.click = 'leftAltClickUp';
 	document.dispatchEvent(this.altClickEvent);
 }
-//Joystick
-this.questJoystickLocomotionEvent = (e) => {
-	if(this.auxl.joystickLoco === 1){
-		//this.questJoystick1Locomotion(e);
-	} else if(this.auxl.joystickLoco === 4){
-		this.questJoystick4Locomotion(e);
-	} else if(this.auxl.joystickLoco === 8){
-		this.questJoystick8Locomotion(e);
-	}
-}
-//Locomotion Joystick
-this.deadzoneLoco = 0.1;
-this.xNumLoco = 0;
-this.yNumLoco = 0;
-this.angleLoco = 0;
-this.angleDegLoco = 0;
 
 //Right
 //Main Trigger
@@ -617,23 +599,20 @@ this.questRightAltClickUp = () => {
 this.questJoystickOtherEvent = (e) => {
 	this.questJoystick4Other(e);
 }
+
+//Joystick Settings
+//Locomotion Joystick
+this.deadzoneLoco = 0.1;
+this.xNumLoco = 0;
+this.yNumLoco = 0;
+this.angleLoco = 0;
+this.angleDegLoco = 0;
 //Other Joystick
 this.deadzoneOther = 0.1;
 this.xNumOther = 0;
 this.yNumOther = 0;
 this.angleOther = 0;
 this.angleDegOther = 0;
-
-//Joystick Rotation
-this.questJoystickRotationEvent = (e) => {
-	if(this.auxl.joystickRotation === 1){
-		//this.questJoystick1Locomotion(e);
-	} else if(this.auxl.joystickRotation === 4){
-		this.questJoystick4Rotation(e);
-	} else if(this.auxl.joystickRotation === 8){
-		this.questJoystick8Rotation(e);
-	}
-}
 //Locomotion Joystick
 this.deadzoneRot = 0.1;
 this.xNumRot = 0;
@@ -712,6 +691,14 @@ let initTimeout = setTimeout(() => {
 
 	//Joysticks
 	this.addJoystickEvents();
+
+	//Delay for access to player
+	this.mobileL.addEventListener('touchstart', this.auxl.player.SnapLeft);
+	this.mobileR.addEventListener('touchstart', this.auxl.player.SnapRight);
+
+	this.mobileSelect.addEventListener('touchstart', this.auxl.ToggleHTMLMenu);
+	this.mobileStart.addEventListener('touchstart', this.auxl.player.MainMenuAction);
+
 	this.initDone = true;
 }, 100);
 
@@ -737,7 +724,7 @@ this.mobileDownRight.addEventListener('touchstart', this.directionBackwardRightD
 this.mobileDownRight.addEventListener('touchend', this.directionBackwardRightUp);
 this.mobileSelect.addEventListener('touchstart', this.blankHit);
 //this.mobileSelect.addEventListener('touchend', this.blankHit);
-this.mobileStart.addEventListener('touchstart', this.blankHit);
+//this.mobileStart.addEventListener('touchstart', this.blankHit);
 //this.mobileStart.addEventListener('touchend', this.blankHit);
 this.mobileA.addEventListener('touchstart', this.action1Down);
 this.mobileA.addEventListener('touchend', this.action1Up);
@@ -751,12 +738,15 @@ this.mobileE.addEventListener('touchstart', this.action5Down);
 this.mobileE.addEventListener('touchend', this.action5Up);
 this.mobileF.addEventListener('touchstart', this.action6Down);
 this.mobileF.addEventListener('touchend', this.action6Up);
-this.mobileL.addEventListener('touchstart', this.action7Down);
-this.mobileL.addEventListener('touchend', this.action7Up);
-this.mobileR.addEventListener('touchstart', this.action8Down);
-this.mobileR.addEventListener('touchend', this.action8Up);
+this.mobileG.addEventListener('touchstart', this.action7Down);
+this.mobileG.addEventListener('touchend', this.action7Up);
+this.mobileH.addEventListener('touchstart', this.action8Down);
+this.mobileH.addEventListener('touchend', this.action8Up);
 
 
+//this.mobileL.addEventListener('touchend', this.action7Up);
+
+//this.mobileR.addEventListener('touchend', this.action8Up);
 //document.addEventListener('mousedown', this.mainClickDown);
 //document.addEventListener('mouseup', this.mainClickUp);
 //Both the mouseCursor and Canvas element fire mousedown and mouseup resulting in 2 events firing at the same time
@@ -856,19 +846,19 @@ updateAction: function (actionObj){
 		} else if(action === 'action7Down'){
 			actionFunc = 'action7DownFunc';
 			actionParams = 'action7DownParams';
-			htmlDisplay = 'l';
+			htmlDisplay = 'g';
 		} else if(action === 'action7Up'){
 			actionFunc = 'action7UpFunc';
 			actionParams = 'action7UpParams';
-			htmlDisplay = 'l';
+			htmlDisplay = 'g';
 		} else if(action === 'action8Down'){
 			actionFunc = 'action8DownFunc';
 			actionParams = 'action8DownParams';
-			htmlDisplay = 'r';
+			htmlDisplay = 'h';
 		} else if(action === 'action8Up'){
 			actionFunc = 'action8UpFunc';
 			actionParams = 'action8UpParams';
-			htmlDisplay = 'r';
+			htmlDisplay = 'h';
 		} else {
 			console.log('Failed to identify action')
 			return;
@@ -918,11 +908,11 @@ disableAction: function (actionObj){
 		if(action === 'altDown'){
 			actionFunc = 'altDownFunc';
 			actionParams = 'altDownParams';
-			htmlDisplay = 'center';
+			htmlDisplay = 'center';//i
 		} else if(action === 'altUp'){
 			actionFunc = 'altUpFunc';
 			actionParams = 'altUpParams';
-			htmlDisplay = 'center';
+			htmlDisplay = 'center';//i
 		} else if(action === 'action1Down'){
 			actionFunc = 'action1DownFunc';
 			actionParams = 'action1DownParams';
@@ -974,19 +964,19 @@ disableAction: function (actionObj){
 		} else if(action === 'action7Down'){
 			actionFunc = 'action7DownFunc';
 			actionParams = 'action7DownParams';
-			htmlDisplay = 'l';
+			htmlDisplay = 'g';
 		} else if(action === 'action7Up'){
 			actionFunc = 'action7UpFunc';
 			actionParams = 'action7UpParams';
-			htmlDisplay = 'l';
+			htmlDisplay = 'g';
 		} else if(action === 'action8Down'){
 			actionFunc = 'action8DownFunc';
 			actionParams = 'action8DownParams';
-			htmlDisplay = 'r';
+			htmlDisplay = 'h';
 		} else if(action === 'action8Up'){
 			actionFunc = 'action8UpFunc';
 			actionParams = 'action8UpParams';
-			htmlDisplay = 'r';
+			htmlDisplay = 'h';
 		} else {
 			console.log('Failed to identify action')
 			console.log(action)
@@ -1380,6 +1370,13 @@ keyboardUp: function (e){
 		this.action8Up();
 	}
 },
+//Joystick 1Locomotion
+questJoystick1Locomotion: function (e){
+	//Update current joystick input
+	this.joystickPos = new THREE.Vector3(e.detail.x,e.detail.y,0);
+	//Inform Locomotion component
+	this.locomotion.joystick(this.joystickPos);
+},
 //Joystick 4 Locomotion
 questJoystick4Locomotion: function (e){
 	//Update this.locomotion.func into this.directionEvent
@@ -1660,35 +1657,23 @@ addJoystickEvents: function (){
 	//Locomotion Type
 	this.questJoystickLocomotionEvent = (e) => {
 		if(this.auxl.joystickLoco === 1){
-			//this.questJoystick1Locomotion(e);
+			this.questJoystick1Locomotion(e);
 		} else if(this.auxl.joystickLoco === 4){
 			this.questJoystick4Locomotion(e);
 		} else if(this.auxl.joystickLoco === 8){
 			this.questJoystick8Locomotion(e);
 		}
 	}
-	//Locomotion Joystick
-	this.deadzoneLoco = 0.1;
-	this.xNumLoco = 0;
-	this.yNumLoco = 0;
-	this.angleLoco = 0;
-	this.angleDegLoco = 0;
 	//Rotation Type
 	this.questJoystickRotationEvent = (e) => {
 		if(this.auxl.joystickRotation === 1){
-			//this.questJoystick1Locomotion(e);
+			this.questJoystick1Locomotion(e);
 		} else if(this.auxl.joystickRotation === 4){
 			this.questJoystick4Rotation(e);
 		} else if(this.auxl.joystickRotation === 8){
 			this.questJoystick8Rotation(e);
 		}
 	}
-	//Other Joystick
-	this.deadzoneOther = 0.1;
-	this.xNumOther = 0;
-	this.yNumOther = 0;
-	this.angleOther = 0;
-	this.angleDegOther = 0;
 },
 //Clear Joystick Listeners
 clearJoystickEvents: function (){
@@ -1717,13 +1702,14 @@ blank: function (e){
 },
 //Update
 update: function () {
-	//Changed. Clear previous joystick sets to ensure no cross overs
+	//#Bug Fix Test
+	//Clear previous joystick sets to ensure no cross overs
 	if(this.initDone){
 		this.clearJoystickEvents();
 		let initTimeout = setTimeout(() => {
 			//Joysticks
 			this.addJoystickEvents();
-		}, 100);
+		}, 250);
 	}
 },
 //Remove
@@ -1802,10 +1788,15 @@ remove: function () {
 	this.mobileE.removeEventListener('mouseup', this.action5Up);
 	this.mobileF.removeEventListener('mousedown', this.action6Down);
 	this.mobileF.removeEventListener('mouseup', this.action6Up);
-	this.mobileL.removeEventListener('touchstart', this.action7Down);
-	this.mobileL.removeEventListener('touchend', this.action7Up);
-	this.mobileR.removeEventListener('touchstart', this.action8Down);
-	this.mobileR.removeEventListener('touchend', this.action8Up);
+	this.mobileG.removeEventListener('touchstart', this.action7Down);
+	this.mobileG.removeEventListener('touchend', this.action7Up);
+	this.mobileH.removeEventListener('touchstart', this.action8Down);
+	this.mobileH.removeEventListener('touchend', this.action8Up);
+
+	this.mobileL.removeEventListener('touchstart', this.auxl.player.SnapLeft);
+	//this.mobileL.removeEventListener('touchend', this.action7Up);
+	this.mobileR.removeEventListener('touchstart', this.auxl.player.SnapRight);
+	//this.mobileR.removeEventListener('touchend', this.action8Up);
 },
 //tick: function (time, timeDelta) {},
 events: {
