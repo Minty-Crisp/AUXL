@@ -3666,6 +3666,7 @@ auxl.gridScenario0Data = {
 	start:{
 		skyBox0:{SpawnSkyBox: null},
 		//build:{SpawnBuild: null},
+		comp:{SpawnComp: null,},
 		//comp:{SpawnComp: null, AddToInventory:{item:[ auxl.testItem1, auxl.testItem2, auxl.flashlightTool, auxl.testTool1, auxl.testTool2, auxl.testKey1, auxl.testKey2, auxl.testKey3, auxl.testKey4, auxl.testKey5, auxl.testKey6, auxl.testKey7, auxl.testKey8, auxl.testKey9, auxl.testSpecial1, auxl.testSpecial2,], hide: true}},
 		floor:{SpawnCore: null},
 		clouds:{SpawnLayer: null},
