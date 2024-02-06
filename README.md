@@ -11,8 +11,8 @@
 - XRcade World
 - Mascot Testing World
 
-### v0.3 Wiki Update and Starter Coming Soon!!!
-Learn how to build your first v0.2 AUXL Scenario with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
+### v0.4 Wiki Update and Starter Coming Soon!!!
+Learn how to build your first AUXL World with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
 
 AUXL Summary : :star2:
 ---

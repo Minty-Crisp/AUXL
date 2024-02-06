@@ -378,7 +378,7 @@ auxl.coreEventTesting = auxl.Core(auxl.coreEventTestingData);
 
 //Assign Core Duplication
 auxl.coreDupeTestAssign = auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTestAssign', position: new THREE.Vector3(-2,2,-1)}, true);
-auxl.coreDupeTestAssign.SpawnCore();
+//auxl.coreDupeTestAssign.SpawnCore();
 
 
 //Individual Core Duplication from Template
@@ -422,7 +422,7 @@ auxl.layerTest = auxl.Layer('layerTest', auxl.layerDataTest);
 
 
 //Collision Spawn Testing
-auxl.collisionTest1 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest1', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:0, z:1}, end: {x:0, z:1}, yOffset: 0.5, collide: true}}, true);
+auxl.collisionTest1 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest1', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:-1, z:1}, end: {x:-1, z:1}, yOffset: 0.5, collide: true}}, true);
 
 
 auxl.collisionTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest2', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:0, y:0, z:3}, end: {x:0.5, y:0, z:3}, yOffset: 0.5, collide: true}}, true);
@@ -2255,7 +2255,7 @@ data:'cube3x3x3Data',
 id:'cube3x3x3',
 sources:false,
 text: false,
-geometry: {primitive: 'box', width: 0.57, height: 0.57, depth: 0.57, thetaLength: 360},
+geometry: {primitive: 'box', width: 0.57, height: 0.57, depth: 0.57,},
 material: {shader: "standard", color: "#571442", opacity: 0.9, metalness: 0.2, roughness: 0.8, emissive: "#571442", emissiveIntensity: 0.4, side: 'back', wireframe: true, wireframeLinewidth: 2},
 position: new THREE.Vector3(0,1,6),
 rotation: new THREE.Vector3(0,0,0),
@@ -2280,7 +2280,7 @@ data:'cube3x0Data',
 id:'cube3x0',
 sources:false,
 text: {value:'A', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
-geometry: {primitive: 'box', width: 0.16, height: 0.16, depth: 0.16, thetaLength: 360},
+geometry: {primitive: 'box', width: 0.16, height: 0.16, depth: 0.16},
 material: {shader: "standard", color: cube3x0Color.base, opacity: 1, metalness: 0.2, roughness: 0.8, emissive: cube3x0Color.base, emissiveIntensity: 0.4, side: 'double',  },
 position: new THREE.Vector3(0,0,0.185),
 rotation: new THREE.Vector3(0,0,0),
@@ -3339,8 +3339,8 @@ auxl.gridZone0Data = {
 	start:{
 		switchCube:{SpawnCore:null},
 		cubeCore:{SpawnCore:null},
-		creatureTesting1:{SpawnCreature:null},
-		creatureTesting2:{SpawnCreature:null},
+		//creatureTesting1:{SpawnCreature:null},
+		//creatureTesting2:{SpawnCreature:null},
 		faceTest:{SpawnLayer:null},
 	},
 	delay:{
@@ -3417,8 +3417,7 @@ auxl.gridZone0Scene0Data = {
 		collisionTest1:{SpawnCoreOnGrid:null},
 		collisionTest2:{SpawnCoreOnGrid:null},
 		collisionTest3:{SpawnCoreOnGrid:null},
-		//collisionTest4:{SpawnCoreOnGrid:null, WalkPath:null},
-		collisionTest4:{SpawnCoreOnGrid:null,},
+		collisionTest4:{SpawnCoreOnGrid:null, WalkPath:null},
 		collisionTest5:{SpawnCoreOnGrid:null},
 		collisionTest6:{SpawnCoreOnGrid:null},
 		collisionTest7:{SpawnCoreOnGrid:null},
@@ -3431,7 +3430,7 @@ auxl.gridZone0Scene0Data = {
 		GridTriggerTest2:{SpawnCoreOnGrid:null},
 		//ghostCollision:{SpawnLayerOnGrid:null, WalkPath: null},
 		testGrid2:{SpawnGridLayout:'grid1'},
-		layerNPC:{SpawnNPC:null},
+		//layerNPC:{SpawnNPC:null},
 	},
 	delay:{
 		3000:{
@@ -3500,9 +3499,6 @@ auxl.gridZone0Scene0Data = {
 	},
 	exit:{
 	},
-	map:{
-		data: auxl.gridZone0Data.gridZone0Scene0,
-	},
 };
 //Zone 0 Scene 1
 auxl.gridZone0Scene1Data = {
@@ -3543,9 +3539,6 @@ auxl.gridZone0Scene1Data = {
 	},
 	exit:{
 
-	},
-	map:{
-		data: auxl.gridZone0Data.gridZone0Scene1,
 	},
 };
 //Zone 0 Scene 0
@@ -3622,9 +3615,6 @@ auxl.gridZone1Scene0Data = {
 		//testScroll:{DespawnScrollMenu:null}
 		floor:{RemoveComponent:'raycast-teleportation'},
 	},
-	map:{
-		data: auxl.gridZone1Data.gridZone1Scene0,
-	},
 };
 //Zone 1 Scene 0
 auxl.gridZone1Scene0 = auxl.SceneNode(auxl.gridZone1Scene0Data);
@@ -3639,7 +3629,7 @@ auxl.gridZone1 = auxl.MapZone(auxl.gridZone1Data);
 auxl.gridScenario0Data = {
 	info:{
 		id: 'gridScenario0',
-		name: 'v03 Testing Scenario',
+		name: 'Grid Scenario',
 		scenarioNum: 0,
 		startZone: 'gridZone0',
 		instructions: 'A scenario testing the new features and functionality of the A-Frame UX Library engine v0.3.',
@@ -3663,6 +3653,9 @@ auxl.gridScenario0Data = {
 	},
 	controls:{
 
+		//
+		//Default Player Controls
+		action1Down:{auxlObj: 'player', func: 'ToggleCrouch', name: 'Toggle Crouch/Stand', info: 'Toggle Crouch or Stand mode.'},
 		//
 		//Default Player Controls
 		action5Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
@@ -3710,7 +3703,7 @@ auxl.gridWorldData = {
 		maxLoadtime: 5000,
 		dayTime: 360000,
 		inventory: true,
-		collision: {compass: true},
+		collision: true,
 		//physics: 'ammo',
 		physics: false,
 		menuStyle: auxl.menuStyleData,

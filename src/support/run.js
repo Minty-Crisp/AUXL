@@ -63,7 +63,6 @@ init: function () {
 },
 run: function(evt){
 	if(this.data.component === 'null'){
-console.log(this.data.cursorObj)
 		if(this.auxl[this.data.cursorObj][this.data.method]){
 			if(this.data.params === 'null'){
 				this.auxl[this.data.cursorObj][this.data.method]();

@@ -114,16 +114,10 @@ const Player = (auxl, id, layer, data) => {
 	//Spawn Avatar Hands
 	auxl.avatarHand1.SpawnCore('vrController1');
 	auxl.avatarHand2.SpawnCore('vrController2');
-/*
-	let spawnTimeout = setTimeout(() => {
-		//auxl.roamCamera.ChangeSelf({property: 'camera', value:{active: true}})
-		//auxl.camera.ChangeSelf({property: 'camera', value:{active: false}})
-		clearTimeout(spawnTimeout);
-	}, 2000);*/
 	//Get auxcontroller component
 	auxl.controller = auxl.playerRig.GetEl().components['auxcontroller'];
 	//Currently not tracking Player object as it should not be removed
-	//Will start using a One instead
+
 	//Collision
 	layer.position = new THREE.Vector3(0,0,0);
 	layer.gridPos = new THREE.Vector3(0,0,0);
@@ -138,10 +132,10 @@ const Player = (auxl, id, layer, data) => {
 
 	//
 	//Raycasters - 14 small
-	layer.linkDistance = 7.33;
+	layer.linkDistance = 8;
 
 	const LinkDistance = ({distance}) => {
-		layer.linkDistance = {distance};
+		layer.linkDistance = distance;
 		layer.raycasters.hmdmouse.distance = layer.linkDistance;
 		layer.raycasters.hand1.distance = layer.linkDistance;
 		layer.raycasters.hand2.distance = layer.linkDistance;
@@ -841,7 +835,7 @@ const Player = (auxl, id, layer, data) => {
 			autoplay: true,
 			enabled: true,
 		};
-		auxl.playerRig.Animate(camYAnimData)
+		auxl.playerBody.Animate(camYAnimData)
 	}
 
 	//HeadRig Snap Turning
@@ -1351,6 +1345,7 @@ const Player = (auxl, id, layer, data) => {
 	//Important Info
 	//Reset User Position/Rotation
 	const ResetUserPosRot = () => {
+//if grid pr physics is enabled, check for collisions
 		//Reset Rotation
 		auxl.playerRig.ChangeSelf({property: 'position', value: new THREE.Vector3(0,0,1)});
 		//Update Grid Position
@@ -1366,12 +1361,11 @@ const Player = (auxl, id, layer, data) => {
 				y = y % 360;
 			}
 		}
-		auxl.playerBody.ChangeSelf({property:'rotation',value:new THREE.Vector3(0,(y*-1)+1,0)});
-
+		auxl.playerRig.ChangeSelf({property:'rotation',value:new THREE.Vector3(0,(y*-1)+1,0)});
 	}
 	//Get user current infomation
 	const GetPlayerInfo = () => {
-		return {layer, id: layer.layer.all.parent.core.core.id, pos: auxl.playerRig.GetEl().object3D.position, bodyRot: auxl.playerBody.GetEl().getAttribute('rotation'), headRot: auxl.camera.GetEl().getAttribute('rotation'), grid:layer.gridPos};
+		return {layer, id: layer.layer.all.parent.core.core.id, pos: auxl.playerRig.GetEl().object3D.position, bodyRot: auxl.playerRig.GetEl().getAttribute('rotation'), headRot: auxl.camera.GetEl().getAttribute('rotation'), grid:layer.gridPos};
 	}
 	//Distance from Player
 	const DistanceFromPlayer = (position) => {
@@ -1692,9 +1686,7 @@ const Player = (auxl, id, layer, data) => {
 		} else if(z === 0){
 			position.z = height * up;
 		}
-
 		return position;
-
 	}
 
 	//Ray Direction ******
@@ -1703,7 +1695,7 @@ const Player = (auxl, id, layer, data) => {
 		let rayQuat = new THREE.Quaternion();
 		let spawnDistance = dist || 1.5;
 		let direction = dir || new THREE.Vector3(0,0,-1);
-		if (rayEl.hasAttribute('raycaster')){
+		if(rayEl.hasAttribute('raycaster')){
 			let rayDirObj = rayEl.getAttribute('raycaster').direction;
 			//Import into Vec3
 			direction.x = rayDirObj.x;
@@ -1717,18 +1709,19 @@ const Player = (auxl, id, layer, data) => {
 		rayEl.object3D.getWorldQuaternion(rayQuat);
 		//Apply Rotation to Direction
 		direction.applyQuaternion(rayQuat);
+
 		//Get Ray Position
 		rayEl.object3D.getWorldPosition(position)
 
-/*
 		if(rayEl.id === 'camera'){
 			auxl.playerHead.GetEl().object3D.getWorldPosition(position)
 		} else {
 			rayEl.object3D.getWorldPosition(position)
 		}
-*/
+
 		//Add Direction to Position
 		position.add( direction.clone().multiplyScalar(spawnDistance));
+
 		return {position, direction};
 	}
 
@@ -3539,6 +3532,7 @@ const HoverTargetEnd = (rayEl, ray) => {
 
 	//
 	//Earthbend
+	//Click spot (quick hold), 1 meter cube slowly rises up lifting anything above it. Click spot, hold and release to launch long cuboid from that spot
 	const EarthbendUp = (event) => {
 		if(layer.toggle3){
 			let ray = false;
@@ -3567,48 +3561,7 @@ const HoverTargetEnd = (rayEl, ray) => {
 			RayBuildStart(event.target.id);
 		}
 	}
-	const Earthbend = (rayEl, ray) => {
-//Click spot (quick hold), 1 meter cube slowly rises up lifting anything above it. Click spot, hold and release to launch long cuboid from that spot
-/*
-		//Prep Power
-		ray.power/=1000
-		//Link Distance
-		let linkDistance = ray.distance || 42;
-		let position = new THREE.Vector3();
-		//Ray Intersection Check
-		if(DistanceFromPlayer(ray.intersection) <= linkDistance){
-			position.copy(ray.intersection);
-		} else {
-			position.copy(RigPoint(linkDistance,rayEl));
-		}
-		//Link Length
-		let linkLength = linkDistance * ray.power + bambooBounce;
-		//Build Effect
-		ray.linkConstraint.Connect({type: 'auxspring', restLength: linkLength, damping: 0.5, stiffness: 0, maxForce: 1e6});
-		//Display Effect Link
-		if(ray.linkCore.core.inScene){
-			ray.linkCore.PhysPos(position);
-		} else {
-			ray.linkCore.core.position = position;
-			ray.linkCore.SpawnCore();
-		}
-*/
-/*
-
-Click and hold on plane, use that intersection point as spawn point
-Continue to hold while dragging and on release
-Rectangular cuboid static, but forced moved
-
-Determine
-- cuboid angle
-- cuboid size
-- launch force and distance
-
-
-
-*/
-
-	}
+	const Earthbend = (rayEl, ray) => {}
 
 	//4 directional toggleable light sword. Directions make it go from sword, to claws, to sheild, to dagger.
 
@@ -4120,6 +4073,20 @@ const Companion = (auxl, id, object, inventory) => {
 			subMenu: 'menu6',
 			action: false,
 		},
+		button5:{
+			id: 'action3',
+			style: false,
+			title: 'Reset Player Pos/Rot',
+			description: 'Reset your Position and Rotation.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'ResetUserPosRot',
+				params: null,
+				menu: 'stay',
+			},
+		},
 	},
 	menu4:{
 		button0:{
@@ -4376,26 +4343,6 @@ const Companion = (auxl, id, object, inventory) => {
 	tools1:{},
 	keys1:{},
 	specials1:{},
-/*
-	menu1:{
-		button0:{
-			id: 'subMenu4',
-			style: false,
-			title: 'Sub Menu 4 Test',
-			description: 'A test sub menu.',
-			subMenu: 'menu4',
-			action: false,
-		},
-		button1:{
-			id: 'subMenu5',
-			style: false,
-			title: 'Sub Menu 5 Test',
-			description: 'A test sub menu.',
-			subMenu: 'menu5',
-			action: false,
-		},
-	},
-*/
 	};
 
 	if(comp.enableInventory){
@@ -4939,7 +4886,7 @@ auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
 			style: false,
 			title: 'Travel to',
 			description: 'Select your next travel destination.',
-			subMenu: 'menu1',
+			subMenu: 'travel1',
 			action: false,
 		},
 		button2:{

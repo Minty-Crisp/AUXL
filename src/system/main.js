@@ -41,6 +41,8 @@ const Core = (auxl, data) => {
 	let loadMat = false;
 	let loadNewMat = false;
 
+	core.physics = false;
+
 	//Build Data Defaults
 	const DataDefaults = () => {
 		//Set defaults on empty data to avoid errors
@@ -443,6 +445,10 @@ console.log(localPath)
 			clearInterval(core.domInterval);
 			clearTimeout(core.gridPathTimeout);
 			clearInterval(core.gridPathInterval);
+			//Physics
+			if(core.physics){
+				DisablePhysics()
+			}
 			//Loaded Events
 			if(load3D){
 				core.el.removeEventListener('model-loaded', loaded);
@@ -1238,24 +1244,27 @@ console.log({msg: 'Missing grid, unable to spawn', core})
 		}
 	}
 	const DisableCannonPhysics = () => {
-		GetEl().removeAttribute('body',core.body);
-		GetEl().removeAttribute('shape__core',core.shape);
+		GetEl().removeAttribute('body');
+		GetEl().removeAttribute('shape__core');
 	}
 	//Enable
 	const EnablePhysics = (bodyShape) => {
-		if(auxl.worldPhysics === 'ammo'){
+		core.physics = auxl.worldPhysics;
+		if(core.physics === 'ammo'){
 			EnablePhysicsAmmo(bodyShape)
-		} else if(auxl.worldPhysics === 'cannon'){
+		} else if(core.physics === 'cannon'){
 			EnableCannonPhysics(bodyShape);
 		}
+
 	}
 	//Disable
 	const DisablePhysics = () => {
-		if(auxl.worldPhysics === 'ammo'){
+		if(core.physics === 'ammo'){
 			DisablePhysicsAmmo()
-		} else if(auxl.worldPhysics === 'cannon'){
+		} else if(core.physics === 'cannon'){
 			DisableCannonPhysics();
 		}
+		core.physics = false;
 	}
 	//Physics Position
 	const PhysPos = (pos) => {

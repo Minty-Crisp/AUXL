@@ -1159,7 +1159,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 					moreTemplate.subMenu = 'travel' + currPage;
 					core.mapMainMenuData['button'+currNum] = moreTemplate;
 					//Update Companion main menu
-					auxl.mainMenu.UpdateSubMenu(subMenuName,core.mapMainMenuData);
+					auxl.mainMenu.UpdateSubMenu(subMenuName, core.mapMainMenuData);
 					core.mapMainMenuData = {};
 					subMenuName = 'travel' + currPage;
 				}
@@ -1794,6 +1794,7 @@ const World = (auxl, worldData) => {
 	//Start World at Default Scenario
 	const StartWorld = () => {
 		let startDelay = WorldSettings();
+		auxl.player.ResetUserPosRot()
 		let startTimeout = setTimeout(() => {
 			StartScenario(world.current);
 			auxl.currentWorld = auxl[world.id];

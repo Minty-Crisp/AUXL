@@ -724,7 +724,7 @@ this.DisablePhysics = () => {
 	auxl.worldPhysics = false;
 	auxl.physics = false;
 	auxl.physWorld = false;
-	console.log({msg: 'Physics Disabled', physics: auxl.physics, physWorld: auxl.physWorld})
+	//console.log({msg: 'Physics Disabled', physics: auxl.physics, physWorld: auxl.physWorld})
 }
 //Collision Maps
 this.collisionMap = [[],[]];

@@ -6178,9 +6178,6 @@ auxl.entranceHomeData = {
 	},
 	exit:{
 	},
-	map:{
-		data: auxl.entranceZoneData.entranceHome,
-	},
 };
 //Build
 auxl.entranceHome = auxl.SceneNode(auxl.entranceHomeData);
@@ -6371,9 +6368,6 @@ auxl.xrcadeHomeData = {
 	},
 	exit:{
 	},
-	map:{
-		data: auxl.xrcadeZoneData.xrcadeHome,
-	},
 };
 //Game 1 - Memory Order
 auxl.game1Data = {
@@ -6409,9 +6403,6 @@ auxl.game1Data = {
 	},
 	exit:{
 		player:{UpdatePlayerPosition: new THREE.Vector3(-3.5,0,-6.75), TwistTo: 90},
-	},
-	map:{
-		data: auxl.xrcadeZoneData.game1,
 	},
 };
 //Game 2 - Swipe Launch
@@ -6449,9 +6440,6 @@ auxl.game2Data = {
 	exit:{
 		player:{UpdatePlayerPosition: new THREE.Vector3(-3.5,0,-8.25), TwistTo: 90},
 	},
-	map:{
-		data: auxl.xrcadeZoneData.game2,
-	},
 };
 //Game 3 - Guess Hit
 auxl.game3Data = {
@@ -6487,9 +6475,6 @@ auxl.game3Data = {
 	},
 	exit:{
 		player:{UpdatePlayerPosition: new THREE.Vector3(-3.5,0,-9.75), TwistTo: 90},
-	},
-	map:{
-		data: auxl.xrcadeZoneData.game3,
 	},
 };
 //Game 4 - Drag Diffuse
@@ -6527,9 +6512,6 @@ auxl.game4Data = {
 	exit:{
 		player:{UpdatePlayerPosition: new THREE.Vector3(-3.5,0,-11.25), TwistTo: 90},
 	},
-	map:{
-		data: auxl.xrcadeZoneData.game4,
-	},
 };
 //Game 5 - Sharp Shooter
 auxl.game5Data = {
@@ -6565,9 +6547,6 @@ auxl.game5Data = {
 	},
 	exit:{
 		player:{UpdatePlayerPosition: new THREE.Vector3(-2.5,0,-12.5), TwistTo: 0},
-	},
-	map:{
-		data: auxl.xrcadeZoneData.game5,
 	},
 };
 //Game 6 - Perfect Scale
@@ -6605,9 +6584,6 @@ auxl.game6Data = {
 	exit:{
 		player:{UpdatePlayerPosition: new THREE.Vector3(-0.75,0,-12.5), TwistTo: 0},
 	},
-	map:{
-		data: auxl.xrcadeZoneData.game6,
-	},
 };
 //Game 7 - Reflex 7
 auxl.game7Data = {
@@ -6643,9 +6619,6 @@ auxl.game7Data = {
 	},
 	exit:{
 		player:{UpdatePlayerPosition: new THREE.Vector3(0.75,0,-12.5), TwistTo: 0},
-	},
-	map:{
-		data: auxl.xrcadeZoneData.game7,
 	},
 };
 //Game 8 - Tap It
@@ -6683,9 +6656,6 @@ auxl.game8Data = {
 	exit:{
 		player:{UpdatePlayerPosition: new THREE.Vector3(2.25,0,-12.5), TwistTo: 0},
 	},
-	map:{
-		data: auxl.xrcadeZoneData.game8,
-	},
 };
 //Game 9 - Pop Pop
 auxl.game9Data = {
@@ -6722,9 +6692,6 @@ auxl.game9Data = {
 	exit:{
 		player:{UpdatePlayerPosition: new THREE.Vector3(3,0,-11.25), TwistTo: -90},
 	},
-	map:{
-		data: auxl.xrcadeZoneData.game9,
-	},
 };
 //Game 10 - Horde Halt
 auxl.game10Data = {
@@ -6760,9 +6727,6 @@ auxl.game10Data = {
 	},
 	exit:{
 		player:{UpdatePlayerPosition: new THREE.Vector3(3,0,-9.75), TwistTo: -90},
-	},
-	map:{
-		data: auxl.xrcadeZoneData.game10,
 	},
 };
 //Build
@@ -6930,9 +6894,6 @@ auxl.spookyHomeData = {
 	},
 	exit:{
 	},
-	map:{
-		data: auxl.spookyZoneData.spookyHome,
-	},
 };
 //Exterior
 auxl.spookyExtData = {
@@ -7034,9 +6995,6 @@ auxl.spookyExtData = {
 		//Weather
 		atmos:{DespawnWeather:null},
 	},
-	map:{
-		data: auxl.spookyZoneData.spookyExt,
-	},
 };
 //Room 1
 auxl.spookyRoom1Data = {
@@ -7125,9 +7083,6 @@ auxl.spookyRoom1Data = {
 	},
 	exit:{
 	},
-	map:{
-		data: auxl.spookyZoneData.spookyRoom1,
-	},
 };
 //Room 1 Alt
 auxl.spookyRoom1AltData = {
@@ -7196,9 +7151,6 @@ auxl.spookyRoom1AltData = {
 		//Unlock Player Movement
 		player:{UnlockLocomotion:null},
 	},
-	map:{
-		data: auxl.spookyZoneData.spookyRoom1Alt,
-	},
 };
 //Room 2
 auxl.spookyRoom2Data = {
@@ -7257,9 +7209,6 @@ auxl.spookyRoom2Data = {
 	exit:{
 		//Unlock Player Movement
 		player:{UnlockLocomotion:null},
-	},
-	map:{
-		data: auxl.spookyZoneData.spookyRoom2Data,
 	},
 };
 //Room 3
@@ -7359,9 +7308,6 @@ auxl.spookyRoom3Data = {
 		directionalLight3:{EmitEvent: 'stop', ChangeSelf: [{property: 'light', value: {intensity: 0.2}}, {property: 'position', value: new THREE.Vector3(0.25,0.75,0.5)}]},
 		ambientLight:{EmitEvent: 'stop', ChangeSelf: {property: 'light', value: {intensity: 0.5}}},
 
-	},
-	map:{
-		data: auxl.spookyZoneData.spookyRoom3Data,
 	},
 };
 

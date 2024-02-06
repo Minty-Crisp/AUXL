@@ -1048,6 +1048,10 @@ directionXZ: function (action, speed) {
 			//Update AABB
 			this.player.body.computeAABB();
 		} else if(this.auxl.collision){
+
+			//Increase player no clip area
+			//Currently checking only the 0,0,0 origin point, to add a small space of no collisions, will need to check ~ 8 points that surround a plane, 4 corners and 4 center. Each one of those will need to be checked for possible collision
+
 			//Locomotion with Collision every 0.5 meter on XZ and 1 meter on Y
 			this.newPosRound.x = this.roundHalf(this.positionNew.x);
 			this.newPosRound.y = this.round(this.positionNew.y);
@@ -1126,6 +1130,8 @@ directionXZ: function (action, speed) {
 		}	
 	}
 },
+
+//Need to rebuild all below
 //1st POV Walk with Fly Buttons relative to Direction View
 //1st POV Walk along XZ Floor relative to Direction View OLD
 directionXZOLD: function (action, speed) {

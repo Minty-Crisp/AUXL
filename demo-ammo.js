@@ -249,7 +249,7 @@ auxl.ammoFloorData = {
 	sources:false,
 	text: false,
 	geometry: {primitive: 'box', width: 40, height: 1, depth: 40},
-	material: {shader: "standard", color: "#28b228", opacity: 1, metalness: 0, roughness: 1, emissive: "#28b228", emissiveIntensity: 0.2, side: 'front',},
+	material: {shader: "standard", color: "#28b228", opacity: 1, metalness: 0, roughness: 1, emissive: "#28b228", emissiveIntensity: 0.2, side: 'front',  src: auxl.pattern49, repeat: '40 40'},
 	position: new THREE.Vector3(0,-0.5,-4),
 	rotation: new THREE.Vector3(0,0,0),
 	scale: new THREE.Vector3(1,1,1),
@@ -270,7 +270,7 @@ auxl.ammoWall1Data = {
 	sources:false,
 	text: false,
 	geometry: {primitive: 'box', width: 1, height: 40, depth: 40},
-	material: {shader: "standard", color: "#28b228", opacity: 0.5, metalness: 0, roughness: 1, emissive: "#28b228", emissiveIntensity: 0.2, side: 'front',},
+	material: {shader: "standard", color: "#1ac6c6", opacity: 0.5, metalness: 0, roughness: 1, emissive: "#1ac6c6", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern34, repeat: '40 40'},
 	position: new THREE.Vector3(20,20,-4),
 	rotation: new THREE.Vector3(0,0,0),
 	scale: new THREE.Vector3(1,1,1),
@@ -586,7 +586,7 @@ auxl.AmmoCubes = (data) => {
 	const GenCubes = () => {
 		for(let a=0; a < ammoCubes.total; a++){
 			let baseColor = auxl.colorTheoryGen();
-			let material = {shader: "standard", color: baseColor.base, opacity: 1, metalness: 0.6, roughness: 0.4, emissive: baseColor.base, emissiveIntensity: 0.2, side: 'front',}
+			let material = {shader: "standard", color: baseColor.base, opacity: 1, metalness: 0.6, roughness: 0.4, emissive: baseColor.base, emissiveIntensity: 0.2, side: 'front',  src: auxl.randomOfArray(auxl.patterns), repeat: '1 1'}
 			let position = auxl.randomPosition(ammoCubes.radius) 
 			position.add(new THREE.Vector3(0,ammoCubes.radius,ammoCubes.radius*-1))
 			auxl[ammoCubes.id+a+'Data'] = auxl.coreDataFromTemplate(ammoCubes.coreData, {id: ammoCubes.id+a, position, material}, true);
@@ -691,8 +691,8 @@ auxl.zoneIntroData = {
 auxl.zoneIntroScene0Data = {
 	info:{
 		id:'zoneIntroScene0',
-		name: 'Zone 0 | Scene 0',
-		description: 'Default scene to load on Scenario/Zone.',
+		name: 'Ammo Playground',
+		description: 'Use your actions to hover target and grab, throw, launch, pull, etc...',
 		sceneText: true,
 		fog: false,
 		map: false,
@@ -880,8 +880,8 @@ auxl.ammoScenarioData = {
 		//shaderTest:{SpawnCore: null},
 		shaderCloud:{SpawnCore: null},
 
-		hoverTarget0:{SpawnCore: null},
-		hoverTarget1:{SpawnCore: null},
+		//hoverTarget0:{SpawnCore: null},
+		//hoverTarget1:{SpawnCore: null},
 		hoverTarget2:{SpawnCore: null},
 
 		ammoFloor:{SpawnCore: null},
@@ -891,20 +891,12 @@ auxl.ammoScenarioData = {
 		ammoWall3:{SpawnCore: null},
 		ammoWall4:{SpawnCore: null},
 
-		ammo1:{SpawnCore: null},
-		ammo2:{SpawnCore: null},
-		ammo3:{SpawnCore: null},
-
-		//drawTesting:{SpawnCore: null},
-		//cam0Viewer:{SpawnCore: null},
-		//cam0:{SpawnCore: null},
-		//cam0Layer:{SpawnLayer: null},
-
-
+		//ammo1:{SpawnCore: null},
+		//ammo2:{SpawnCore: null},
+		//ammo3:{SpawnCore: null},
 
 		//ragdollLayer:{SpawnLayer: null},
 		powerCubes:{SpawnCubes: null},
-
 
 	},
 	delay:{
@@ -914,6 +906,7 @@ auxl.ammoScenarioData = {
 		},
 	},
 	interval:{
+/*
 		3000: {
 			run: {
 				hoverTarget0:{IfElse: {hoverTarget0:{cond: 'inScene',
@@ -933,6 +926,7 @@ auxl.ammoScenarioData = {
 				},}}},
 			 }, loop: 'infinite'
 		},
+*/
 	},
 	event:{
 	},
