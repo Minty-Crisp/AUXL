@@ -1002,11 +1002,13 @@ mainClick: function (e){
 	//console.log(e);
 	//this.updateInput(e.detail.info);
 	if(['clickDown','leftClickDown','rightClickDown'].includes(e.detail.click)){
-//console.log('clickDown')
-		this.auxl.player.TriggerDown(e);
+//console.log('clickDown') 
+		//this.Measure();
+		//this.auxl.player.TriggerDown(e);
 	} else if(['clickUp','leftClickUp','rightClickUp'].includes(e.detail.click)){
 //console.log('clickUp')
-		this.auxl.player.TriggerUp(e);
+		//this.auxl.player.TriggerUp(e);
+		//this.Measure(true);
 	} else {
 //console.log('click')
 	}

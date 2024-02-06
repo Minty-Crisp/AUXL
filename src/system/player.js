@@ -714,14 +714,14 @@ const Player = (auxl, id, layer, data) => {
 
 	//Quick Snap Camera Rotation
 
-	//Play Snap View Anim to the Right 45degrees
+	//Play Snap View Anim to the Right 45degrees 
 	const SnapRight45 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
-			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerBody.GetEl().getAttribute('rotation').y;
 			anim45Data.from = rotY;
 			anim45Data.to = rotY - 45;
-			auxl.playerRig.Animate(anim45Data);
+			auxl.playerBody.Animate(anim45Data);
 			snapTimeout = setTimeout(() => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
@@ -732,10 +732,10 @@ const Player = (auxl, id, layer, data) => {
 	const SnapLeft45 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
-			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerBody.GetEl().getAttribute('rotation').y;
 			anim45Data.from = rotY;
 			anim45Data.to = rotY + 45;
-			auxl.playerRig.Animate(anim45Data);
+			auxl.playerBody.Animate(anim45Data);
 			snapTimeout = setTimeout(() => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
@@ -746,10 +746,10 @@ const Player = (auxl, id, layer, data) => {
 	const SnapRight90 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
-			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerBody.GetEl().getAttribute('rotation').y;
 			anim90Data.from = rotY;
 			anim90Data.to = rotY - 90;
-			auxl.playerRig.Animate(anim90Data);
+			auxl.playerBody.Animate(anim90Data);
 			snapTimeout = setTimeout(() => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
@@ -760,10 +760,10 @@ const Player = (auxl, id, layer, data) => {
 	const SnapLeft90 = () => {
 		if(layer.snapRotating){} else {
 			layer.snapRotating = true;
-			let rotY = auxl.playerRig.GetEl().getAttribute('rotation').y;
+			let rotY = auxl.playerBody.GetEl().getAttribute('rotation').y;
 			anim90Data.from = rotY;
 			anim90Data.to = rotY + 90;
-			auxl.playerRig.Animate(anim90Data);
+			auxl.playerBody.Animate(anim90Data);
 			snapTimeout = setTimeout(() => {
 				layer.snapRotating = false;
 				clearTimeout(snapTimeout);
@@ -2083,6 +2083,30 @@ auxl.vrController2.GetEl().addEventListener('mouseenter', TriggerEnter(event));
 	}
 	ControllerEvents();
 
+/*
+Single Controller
+- Key Button : Init Action
+- Mod Button 1 : Mod 1 Action
+- Mod Button 2 : Mod 2 Action
+- Mod Button 3 : Mod 3 Action
+- Mod Button 1+2 : Mod 4 Action
+- Mod Button 1+3 : Mod 5 Action
+- Mod Button 2+3 : Mod 6 Action
+- Mod Button 1+2+3 : Mod 7 Action
+*/
+	//Modifier Controls
+	layer.raycasters.hmdmouse.mods = {};
+	layer.raycasters.hand1.mods = {};
+	layer.raycasters.hand2.mods = {};
+	const ModControl = ({slot, toggle}) => {
+
+		//TEMP - Select the ray based on event
+		let ray = layer.raycasters.hmdmouse;
+
+		ray.mods[slot] = toggle || false;
+
+
+	}
 
 
 
@@ -4677,7 +4701,7 @@ auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
 	//Spawn & Start Companion
 	const SpawnComp = () => {
 		if(comp.inScene){}else{
-			auxl.compNPC.SpawnNPC(auxl.playerBody.GetEl()); 
+			auxl.compNPC.SpawnNPC(auxl.playerRig.GetEl());  
 			if(comp.avatarType === 'core'){
 				comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
 			} else {
@@ -4697,11 +4721,11 @@ auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
 				//Update Main Menu Parent Shape ID
 				auxl.mainMenu.multiMenu.parent = comp.menuParentId;
 				auxl.mainMenu.SpawnMultiMenu();
+				auxl.build.SpawnBuild();
 				comp.inScene = true;
 				auxl.player.ToggleBeltText(true);
 				auxl.player.ToggleHoverText(true);
 				auxl.player.ToggleFloorText(true);
-				auxl.build.SpawnBuild();
 				clearTimeout(spawnTimeout);
 			}, 100);
 		}
@@ -4716,12 +4740,12 @@ auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
 			//clearInterval(speechTimeoutB);
 			//clearInterval(speechIntervalB);
 			auxl.mainMenu.DespawnMultiMenu();
+			auxl.build.DespawnBuild();
 			//Delay to let multi-menu complete it's despawn seq
 			let despawnTimeout = setTimeout(() => {
 				auxl.compNPC.DespawnNPC();
 				auxl.RemoveFromTracker(comp.id);
 				comp.inScene = false;
-				auxl.build.DespawnBuild();
 				clearTimeout(despawnTimeout);
 			}, 300);
 		}

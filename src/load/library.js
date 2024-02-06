@@ -797,9 +797,8 @@ child0: {
 		parent: {core: auxl.vrController2},
 		child0: {core: auxl.vrController2UI},
 	},
-	child4: {core: auxl.playerFloor},
-
 },
+child1: {core: auxl.playerFloor},
 }
 
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
