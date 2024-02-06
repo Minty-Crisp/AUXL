@@ -3722,18 +3722,8 @@ console.log(event.detail.intersection.point)
 
 	//
 	//Fixed Controls
-	//
-	//Main Menu Toggle
-	//
-	//Snap Left
-	//Snap Right
-	//
-	//Main Camera Zoom In
-	//Main Camera Zoom Out
-	//Roam Camera Zoom In
-	//Roam Camera Zoom Out
 
-	//Desktop
+	//Keyboard
 	document.addEventListener("keydown", (e) => {
 //console.log(e.key)
 		if(e.key === '`'){
@@ -4415,7 +4405,8 @@ const Companion = (auxl, id, object, inventory) => {
 	let minSpawnDistance = 1.5;
 	//Fixed height Camera Ray
 	function cameraDirection(){
-		let direction = new THREE.Vector3().copy(auxl.player.RayDir(auxl.avatarTorsoRig.GetEl(), comp.distance, new THREE.Vector3(0,0,-2)).direction);
+		let direction = new THREE.Vector3().copy(auxl.player.RayDir(auxl.avatarHeadRig.GetEl(), comp.distance, new THREE.Vector3(0,0,-2)).direction);
+		//let direction = new THREE.Vector3().copy(auxl.player.RayDir(auxl.avatarTorsoRig.GetEl(), comp.distance, new THREE.Vector3(0,0,-2)).direction);
 		direction.setY(comp.height);
 
 		return direction;
@@ -4679,17 +4670,14 @@ auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
 				} else {
 					comp.avatar.ChangeParent({property: 'position', value: cameraDirection()});
 				}
-				let spawnTimeoutTiny = setTimeout(() => {
-					TurnToPlayer();
-					clearTimeout(spawnTimeoutTiny);
-				}, 10);
-			}, 25);
+				TurnToPlayer();
+			}, 1);
 		}
 	}
 	//Spawn & Start Companion
 	const SpawnComp = () => {
 		if(comp.inScene){}else{
-			auxl.compNPC.SpawnNPC(auxl.playerBody.GetEl());
+			auxl.compNPC.SpawnNPC(auxl.playerBody.GetEl()); 
 			if(comp.avatarType === 'core'){
 				comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
 			} else {
