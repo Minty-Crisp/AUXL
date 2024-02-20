@@ -120,8 +120,9 @@ this.mobileE = document.getElementById('e');
 this.mobileF = document.getElementById('f');
 this.mobileG = document.getElementById('g');
 this.mobileH = document.getElementById('h');
-this.mobileL = document.getElementById('l');
-this.mobileR = document.getElementById('r');
+this.mobileI = document.getElementById('i');
+//this.mobileL = document.getElementById('l');
+//this.mobileR = document.getElementById('r');
 
 //Customizable Action Controls
 this.altDownFunc = false;
@@ -693,8 +694,8 @@ let initTimeout = setTimeout(() => {
 	this.addJoystickEvents();
 
 	//Delay for access to player
-	this.mobileL.addEventListener('touchstart', this.auxl.player.SnapLeft);
-	this.mobileR.addEventListener('touchstart', this.auxl.player.SnapRight);
+	//this.mobileL.addEventListener('touchstart', this.auxl.player.SnapLeft);
+	//this.mobileR.addEventListener('touchstart', this.auxl.player.SnapRight);
 
 	this.mobileSelect.addEventListener('touchstart', this.auxl.ToggleHTMLMenu);
 	this.mobileStart.addEventListener('touchstart', this.auxl.player.MainMenuAction);
@@ -1375,7 +1376,7 @@ keyboardUp: function (e){
 //Joystick 1Locomotion
 questJoystick1Locomotion: function (e){
 	//Update current joystick input
-	this.joystickPos = new THREE.Vector3(e.detail.x,e.detail.y,0);
+	this.joystickPos = new THREE.Vector3(e.detail.x,0,e.detail.y);
 	//Inform Locomotion component
 	this.locomotion.joystick(this.joystickPos);
 },
@@ -1795,9 +1796,9 @@ remove: function () {
 	this.mobileH.removeEventListener('touchstart', this.action8Down);
 	this.mobileH.removeEventListener('touchend', this.action8Up);
 
-	this.mobileL.removeEventListener('touchstart', this.auxl.player.SnapLeft);
+	//this.mobileL.removeEventListener('touchstart', this.auxl.player.SnapLeft);
 	//this.mobileL.removeEventListener('touchend', this.action7Up);
-	this.mobileR.removeEventListener('touchstart', this.auxl.player.SnapRight);
+	//this.mobileR.removeEventListener('touchstart', this.auxl.player.SnapRight);
 	//this.mobileR.removeEventListener('touchend', this.action8Up);
 },
 //tick: function (time, timeDelta) {},
@@ -1878,8 +1879,50 @@ events: {
 //Rotation
 
 },
+//Measure
+Measure: function (toggle) {
+	this.measure = !toggle;
+},
+//Sync roomscale camera movement to player rig
+cameraSync: function () {
+	//If an entity uses look-controls, in ar/vr mode it will override the rotation/position even if it is not a camera. So instead of using look-controls to sync camera rotation, do it manually.
+
+	//Camera Quaternion Rotation
+	this.auxl.camQuat.copy(this.auxl.camera.GetEl().object3D.getWorldQuaternion(new THREE.Quaternion()))
+	//Mmatch rotation of camera to - this is ignored with look-controls in ar/vr
+	//playerHead
+	this.auxl.playerHead.GetEl().object3D.quaternion.copy(this.auxl.camQuat)
+	//avatarHeadRig
+	this.auxl.avatarHeadRig.GetEl().object3D.quaternion.copy(this.auxl.camQuat)
+
+/*
+    if ((this.auxl.sceneEl.is('vr-mode') || this.auxl.sceneEl.is('ar-mode')) && this.auxl.sceneEl.checkHeadsetConnected()) {
+		//Three is internally syncing camera xyzw rotation & xyz position
+		//look-controls is ignored
+
+//Camera Quaternion Rotation
+this.auxl.camQuat.copy(this.auxl.camera.GetEl().object3D.getWorldQuaternion(new THREE.Quaternion()))
+//Mmatch rotation of camera to - this is ignored with look-controls in ar/vr
+//playerHead
+this.auxl.playerHead.GetEl().object3D.quaternion.copy(this.auxl.camQuat)
+//avatarHeadRig
+this.auxl.avatarHeadRig.GetEl().object3D.quaternion.copy(this.auxl.camQuat)
+
+//Best way to sync roomscale movement to rig?
+//The camera is moving local to the rig. If I update the rig wont that amplify the movement, so the rig moves, but the camera also moves so it moves double.
+//matching position of camera in ar/vr
+//reset camera position XZ and move rig that distance?
+
+    }
+*/
+},
+
 //Tick
 tick: function (time, timeDelta) {
+	//Camera Sync
+	this.cameraSync()
+
+	//Time Measurements
 	if(this.measure){
 		if(this.time > 1){
 			this.time --;
@@ -1891,14 +1934,13 @@ tick: function (time, timeDelta) {
 	} else {
 		this.time = 1;
 	}
-	if(this.auxl[this.id]){
+
+	//AUXL ObjGen Ticker Function Link
+	if(this.auxl[this.id] && this.auxl[this.id].Ticker){
 		this.auxl[this.id].Ticker(this.time, this);
 	}
 },
-//Measure
-Measure: function (toggle) {
-	this.measure = !toggle;
-},
+
 });
 
 //

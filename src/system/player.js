@@ -27,6 +27,9 @@ const Player = (auxl, id, layer, data) => {
 	//UI
 	layer.vrUI = false;
 
+	//Camera Rotation Sync
+	auxl.camQuat = new THREE.Quaternion();
+
 	//Default Transition Settings
 	//instant | fade | sphere | blink | locomotion
 	layer.transition = {};
@@ -109,7 +112,7 @@ const Player = (auxl, id, layer, data) => {
 	//Start Player take over from default.
 	//Spawn Player
 	layer.SpawnLayer();
-	//Spawn Avatar
+	//Spawn Avatar Object
 	auxl.avatar.SpawnLayer('playerBody');
 	//Spawn Avatar Hands
 	auxl.avatarHand1.SpawnCore('vrController1');
@@ -478,6 +481,7 @@ const Player = (auxl, id, layer, data) => {
 	layer.scroll = {};
 	layer.scroll.mainCurrent = 0;
 	layer.scroll.roamCurrent = 0;
+
 	layer.scrolls = [
 		new THREE.Vector3(0,-1.6,0),
 		new THREE.Vector3(0,-1.36,1),
@@ -491,12 +495,18 @@ const Player = (auxl, id, layer, data) => {
 		new THREE.Vector3(0,-1.36,1),
 	];
 
+	layer.allowZoom = true;
 	//System Camera Scrolling
 	const CycleCameraZoom = (direction, camType) => {
 	//console.log('scrolling')
 	//console.log(layer.scroll.current)
 	//console.log(direction)
-
+		if(!layer.allowZoom){return}else{layer.allowZoom = false}
+		//Prevent zoom change happening too quickly like with joysticks
+		let zoomTimeout = setTimeout(() => {
+			layer.allowZoom = true;
+			clearTimeout(zoomTimeout);
+		}, 250);
 
 		if(camType === 'roam'){
 			if(auxl.isFalsey(direction)){
@@ -869,6 +879,7 @@ const Player = (auxl, id, layer, data) => {
 		}
 	}
 
+	//REWORK
 	//Height Toggle
 	//Toggle Sitting|Standing View Mode
 	const ToggleSittingMode = () => {
@@ -878,7 +889,7 @@ const Player = (auxl, id, layer, data) => {
 				layer.animating = false;
 				clearTimeout(sitTimeout);
 			}, 775);
-			let currHeight = auxl.playerBody.GetEl().getAttribute('position').y;
+			let currHeight = auxl.playerHead.GetEl().getAttribute('position').y;
 			if(layer.roomScaleStand){
 				CamYTo(currHeight, currHeight-0.75)
 			} else {
@@ -887,7 +898,8 @@ const Player = (auxl, id, layer, data) => {
 			layer.roomScaleStand = !layer.roomScaleStand;
 		}
 	}
-	//Toggle Player Crouch
+
+	//Toggle Player & Grid Crouch
 	const ToggleCrouch = () => {
 		if(layer.animating){} else {
 			layer.animating = true;
@@ -2061,7 +2073,7 @@ if(layer.raycaster.display){
 
 
 
-	//TEMP - Move into Component
+	//Disabled - Moved into Component. Confirm is working
 	//Mouse Over Controller Events
 	const ControllerEvents = (event) => {
 //technically headcursor/mouse/gyro/trackpad/joystick
@@ -2081,7 +2093,7 @@ auxl.vrController2.GetEl().addEventListener('mouseenter', TriggerEnter(event));
 //auxl.vrController2.GetEl().addEventListener('mouseup', TriggerUp(event));
 
 	}
-	ControllerEvents();
+	//ControllerEvents();
 
 /*
 Single Controller
@@ -2142,7 +2154,6 @@ Single Controller
 			DelinkCore(layer.raycasters.hand2.linkCore);
 		}
 	}
-
 
 	//
 	//Physics
@@ -2283,7 +2294,7 @@ console.log({msg: 'Failed to recognize physics engine', engine: auxl.worldPhysic
 //Add ammo-body and shape to avatar
 auxl.avatarHand1.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
 auxl.avatarHand2.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-auxl.avatarRig.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+//auxl.avatarRig.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
 auxl.avatarPelvis.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
 auxl.avatarHead.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
 auxl.avatarTorso.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
@@ -3279,7 +3290,7 @@ rayEl = auxl.vrController2.GetEl();
 	//No Hover Targetting
 	if(actionParams === 'launch'){
 
-	}else{
+	} else{
 		//Hover Targetting Ray Event Bindings
 		rayEl.addEventListener('raycaster-intersection',RayHit);
 		rayEl.addEventListener('raycaster-intersection-cleared',RayHit);
@@ -3352,9 +3363,8 @@ const HoverTargetLaunch = (rayEl, ray, type) => {
 //Grab / constraint to ray
 //Release / remove constraint
 
-//Launch converts to grabbed targets
-if(ray.grabbed.length > 0){
-	ray.targets = [...ray.grabbed];
+
+function drop(){
 	ray.grabbed.forEach(each => {
 		//attach a constraint to each target instead of impulse
 		each.removeAttribute('ammo-constraint');
@@ -3362,13 +3372,16 @@ if(ray.grabbed.length > 0){
 	ray.grabbed = [];
 }
 
+//Launch converts to grabbed targets
+if(ray.grabbed.length > 0){
+	ray.targets = [...ray.grabbed];
+	drop();
+}
+
+
 //Release or Action
 if(type === 'release'){
-	ray.grabbed.forEach(each => {
-		//attach a constraint to each target instead of impulse
-		each.removeAttribute('ammo-constraint');
-	})
-	ray.grabbed = [];
+	drop();
 } else {
 	//Spawn an go home animated Ammo attached to target as player to target offset
 	ray.targets.forEach(each => {
@@ -3404,10 +3417,10 @@ if(type === 'release'){
 		//Max Power Multiplier
 		let max = 22;
 		//Type Override
-		let flick = type || 'free';
-		if(flick === 'free'){
+		let action = type || 'free';
+		if(action === 'free'){
 		//as is
-		} else if(flick === 'pull'){
+		} else  if(action === 'pull'){
 			//Vec3 Distance between target and player
 			direction = new THREE.Vector3();
 			let target = new THREE.Vector3();
@@ -3421,11 +3434,11 @@ if(type === 'release'){
 			distance = (distance > max)? max: distance;
 			distance = (distance < 4)? 4: distance;
 			max = (distance <= max)? distance : max;
-		} else if(flick === 'up'){
+		} else if(action === 'up'){
 			//Throw Up Limit movement to Y axis only
 			direction.setZ(0);
 			direction.setX(0);
-		} else if(flick === 'grab'){
+		} else if(action === 'grab' || action === 'flick'){
 			let target = false;
 			if(ray.id === 'mouseController'){
 				target = 'avatarHead';
@@ -3460,15 +3473,17 @@ if(type === 'release'){
 				clearTimeout(swapDelay)
 			}, timing);
 
-		} else if(flick === 'launch'){
-			ray.grabbed.forEach(each => {
-				//attach a constraint to each target instead of impulse
-				each.removeAttribute('ammo-constraint');
-			})
-			ray.grabbed = [];
+			if(action === 'flick'){
+				let flickTimeout = setTimeout(() => {
+					drop();
+					clearTimeout(flickTimeout);
+				}, 150);
+			}
+		} else if(action === 'launch'){
+			drop();
 		}
 		//Non-grab 
-		if(flick === 'grab'){
+		if(action === 'grab'){
 		} else {
 			//Directional Multiplier of Power (time between targeting and releasing):
 			let power = (1000-ray.power)/1000;
@@ -3977,7 +3992,20 @@ const Companion = (auxl, id, object, inventory) => {
 				menu: 'close',
 			},
 		},
-
+		button4:{
+			id: 'CaosWorld',
+			style: false,
+			title: 'Caos World',
+			description: 'Load the world of Caos',
+			subMenu: false,
+			action: {
+				auxlObj: 'caosWorld',
+				component: false,
+				method: 'SwapWorld',
+				params: 'caosWorld',
+				menu: 'close',
+			},
+		},
 	},
 	menu2:{
 		button0:{
@@ -3996,6 +4024,8 @@ const Companion = (auxl, id, object, inventory) => {
 		},
 	},
 	menu3:{
+
+/*
 		button0:{
 			id: 'action1',
 			style: false,
@@ -4010,6 +4040,7 @@ const Companion = (auxl, id, object, inventory) => {
 				menu: 'stay',
 			},
 		},
+*/
 		button01:{
 			id: 'action2',
 			style: false,

@@ -44,9 +44,6 @@ import {ammoPush, ammoBounce} from './support/physics-ammo.js';
 //Weather
 import {rain, raindrop, lightningbolt} from './support/weather.js';
 //
-//Modified Sound
-import auxsound from './support/sound.js';
-//
 //Canvas
 import drawtesting from './support/canvas.js';
 
@@ -59,6 +56,12 @@ import arcade from './games/arcade.js';
 //
 //Import RPG
 import rpg from './games/rpg.js';
+
+//
+//Modified A-Frame Components
+//
+//AUXL Sound
+import auxlsound from './modified/auxl-sound.js';
 
 //
 //External

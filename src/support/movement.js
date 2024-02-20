@@ -230,6 +230,14 @@ roundHalf: function (num){
 },
 //Joystick
 joystick: function (vec3) {
+
+
+	//Testing
+	if(this.auxl.playerBeltText.core.inScene){
+		this.auxl.playerBeltText.ChangeSelf({property: 'text', value:{text: 'vec3: ' + vec3}})
+	}
+
+
 	if(!vec3.copy){
 		this.joystickLocoPos = false;
 		return;

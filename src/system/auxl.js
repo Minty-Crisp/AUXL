@@ -151,12 +151,13 @@ const mobileF = document.getElementById('f');
 const mobileG = document.getElementById('g');
 const mobileH = document.getElementById('h');
 const mobileI = document.getElementById('i');
-const mobileL = document.getElementById('l');
-const mobileR = document.getElementById('r');
+//const mobileL = document.getElementById('l');
+//const mobileR = document.getElementById('r');
 
 let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, viewInfo, viewData, expInfo, infoClose, instructions, scenarioMenuTitle, dataInfo, dataClose, manageData, resetData, fullScreen, controllerBlock, vrHandButton, vrLocomotionType];
 
-let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, fullScreen, controllerBlock, mobileUpLeft, mobileUp, mobileUpRight, mobileLeft, mobileCenter, mobileRight, mobileDownLeft, mobileDown, mobileDownRight, mobileSelect, mobileStart, mobileA, mobileB, mobileC, mobileD, mobileE, mobileF, mobileG, mobileH, mobileI, mobileL, mobileR];
+let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, fullScreen, controllerBlock, mobileUpLeft, mobileUp, mobileUpRight, mobileLeft, mobileCenter, mobileRight, mobileDownLeft, mobileDown, mobileDownRight, mobileSelect, mobileStart, mobileA, mobileB, mobileC, mobileD, mobileE, mobileF, mobileG, mobileH, mobileI, ];
+//Disabled - mobileL, mobileR
 
 // System Configure
 /***********************************************************/
@@ -1181,13 +1182,13 @@ function addSystemAudio(){
 			sound.volume = 1;
 		}
 		sound.volume *= auxl.volume;
-		auxl.playerAudio.ChangeSelf({property: 'auxsound__'+each, value: auxl.playerAudioData.sounds[each]})
+		auxl.playerAudio.ChangeSelf({property: 'auxlsound__'+each, value: auxl.playerAudioData.sounds[each]})
 	}
 }
 //Remove System Sounds
 function removeSystemAudio(){
 	for(let each in auxl.playerAudioData.sounds){
-		auxl.playerAudio.removeComponent('auxsound__'+each)
+		auxl.playerAudio.removeComponent('auxlsound__'+each)
 	}
 }
 
@@ -2227,6 +2228,7 @@ tick: function (time, timeDelta) {
 	}
 
 },
+
 });
 
 //

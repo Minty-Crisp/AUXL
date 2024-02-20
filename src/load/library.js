@@ -236,7 +236,7 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
+//['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
 ['wasd-controls']:{enabled: false},
 },
 };
@@ -770,14 +770,6 @@ child0: {
 				child4: {core: auxl.sphereScreen},
 				child5: {core: auxl.blink1Screen},
 				child6: {core: auxl.blink2Screen},
-/*
-				child7: {
-					parent: {core: auxl.roamCameraRig},
-					child0: {core: auxl.roamCamera},
-				},
-
-				child8: {core: auxl.roamCameraViewer},
-*/
 			},
 			child1: {core: auxl.playerAudio},
 			child2: {
@@ -787,15 +779,15 @@ child0: {
 					child0: {core: auxl.playerBeltTitleText},
 				},
 			},
+			child3: {
+				parent: {core: auxl.vrController1},
+				child0: {core: auxl.vrController1UI},
+			},
+			child4: {
+				parent: {core: auxl.vrController2},
+				child0: {core: auxl.vrController2UI},
+			},
 		},
-	},
-	child2: {
-		parent: {core: auxl.vrController1},
-		child0: {core: auxl.vrController1UI},
-	},
-	child3: {
-		parent: {core: auxl.vrController2},
-		child0: {core: auxl.vrController2UI},
 	},
 },
 child1: {core: auxl.playerFloor},
@@ -804,7 +796,15 @@ child1: {core: auxl.playerFloor},
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
 auxl.playerLayer = auxl.Layer('playerLayer', auxl.playerAll);
 
+/*
+Unused Roaming Camera
+	child7: {
+		parent: {core: auxl.roamCameraRig},
+		child0: {core: auxl.roamCamera},
+	},
 
+	child8: {core: auxl.roamCameraViewer},
+*/
 
 //
 //Player Avatar
@@ -921,16 +921,16 @@ data:'avatarRigData',
 id:'avatarRig',
 sources:false,
 text: false,
-geometry: {primitive: 'box', width: 0.025, height: 0.05, depth: 0.025},
-material: {shader: "standard", color: "#d80e92", opacity: 1, metalness: 0, roughness: 1, emissive: "#d80e92", emissiveIntensity: 0.2, side: 'front',},
+//geometry: {primitive: 'box', width: 0.025, height: 0.05, depth: 0.025},
+//material: {shader: "standard", color: "#d80e92", opacity: 1, metalness: 0, roughness: 1, emissive: "#d80e92", emissiveIntensity: 0.2, side: 'front',},
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,1,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
 classes: ['a-ent', 'avatar'],
-components: {
-	light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
+//components: {
+	//light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
 	//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
 	//['ammo-shape']:{type: 'box',},
 /*
@@ -939,7 +939,7 @@ components: {
 		target: '#avatarTorso', 
 	},
 */
-},
+//},
 };
 auxl.avatarRig = auxl.Core(auxl.avatarRigData);
 
@@ -988,9 +988,9 @@ auxl.avatarPelvis = auxl.Core(auxl.avatarPelvisData);
 
 //avatar body rig
 auxl.avatarHeadRigData = auxl.coreDataFromTemplate(auxl.avatarRigData, {id: 'avatarHeadRig', geometry: false, material: false, position: new THREE.Vector3(0,1.6,0), rotation: new THREE.Vector3(0,0,0),
-components: {
-	['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
-},
+//components: {
+	//['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
+//},
 }, true);
 auxl.avatarHeadRig = auxl.Core(auxl.avatarHeadRigData);
 

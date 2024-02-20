@@ -1894,7 +1894,7 @@ const World = (auxl, worldData) => {
 		if(world.data.info.backgroundAudio){
 			world.soundtracks = JSON.parse(JSON.stringify(world.data.info.backgroundAudio));
 			for(let each in world.soundtracks){
-				auxl.playerAudio.ChangeSelf({property: 'auxsound__'+each, value: world.soundtracks[each]})
+				auxl.playerAudio.ChangeSelf({property: 'auxlsound__'+each, value: world.soundtracks[each]})
 			}
 			auxl.backgroundAudio = true;
 		}
@@ -1902,7 +1902,7 @@ const World = (auxl, worldData) => {
 		if(world.data.info.soundEffects){
 			world.soundEffects = JSON.parse(JSON.stringify(world.data.info.soundEffects));
 			for(let each in world.soundEffects){
-				auxl.playerAudio.ChangeSelf({property: 'auxsound__'+each, value: world.soundEffects[each]})
+				auxl.playerAudio.ChangeSelf({property: 'auxlsound__'+each, value: world.soundEffects[each]})
 			}
 		}
 		//Companion Book Update
@@ -1940,7 +1940,7 @@ const World = (auxl, worldData) => {
 	const MusicPlaylist = (track) => {
 		//Stop current
 		if(world.soundtrack){
-			auxl.playerAudio.GetEl().components['auxsound__'+world.soundtrack].stopSound();
+			auxl.playerAudio.GetEl().components['auxlsound__'+world.soundtrack].stopSound();
 			world.soundtrack = false;
 		}
 		if(!auxl.isFalsey(track)){

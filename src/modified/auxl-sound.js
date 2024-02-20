@@ -2,7 +2,7 @@
  * Modified A-Frame 1.4.2 Sound component.
  * Warnings omitted for now, attempting to preload assets
  */
-const auxsound = AFRAME.registerComponent('auxsound', {
+const auxlsound = AFRAME.registerComponent('auxsound', {
   schema: {
     autoplay: {default: false},
     distanceModel: {default: 'inverse', oneOf: ['linear', 'inverse', 'exponential']},
@@ -255,4 +255,4 @@ const auxsound = AFRAME.registerComponent('auxsound', {
   }
 });
 
-export default auxsound;
+export default auxlsound;

@@ -12,7 +12,8 @@
 
 //
 //Replace the following keywords
-//Single Word, No Caps, Project Name : projectname
+//Single Word, No Caps, Project Name : template
+//name : templateZone
 //Start Scene : templateZoneScene0
 //More Scene : templateZoneScene1
 //Start Zone : templateZone
@@ -20,21 +21,20 @@
 //More Zone : templateZone1
 //Scenario : templateScenario
 //World : templateWorld
-//Reloading Library, Start with Caps : Unique
-// - usually use projectname for
+//Reloading Library, Start with Capital : Unique
 
 //auxl-scene-library
 //User Library : User added Library items
-AFRAME.registerComponent('projectname-library', {
+AFRAME.registerComponent('template-library', {
 dependencies: ['auxl'],
 init: function () {
 //AUXL System Connection
 const auxl = document.querySelector('a-scene').systems.auxl;
 
 //Core Template
-auxl.coreTemplateData = {
-	data:'coreTemplateData',
-	id:'coreTemplate',
+auxl.coreUniqueData = {
+	data:'coreUniqueData',
+	id:'coreUnique',
 	sources:false,
 	text: false,
 	geometry: {primitive: 'circle', radius: 340, segments: 32, thetaStart: 0, thetaLength: 360},
@@ -47,7 +47,7 @@ auxl.coreTemplateData = {
 	classes: ['a-ent', 'clickable'],
 	components: false,
 };
-auxl.coreTemplate = auxl.Core(auxl.coreTemplateData);
+auxl.coreUnique = auxl.Core(auxl.coreUniqueData);
 
 //Layer Template
 
@@ -76,7 +76,7 @@ import {ImageSwapper, ImageCarousel} from './images.js';
 */
 //Build Scene Library Objects
 auxl.buildUniqueLibrary = () => {
-	auxl.coreTemplate = auxl.Core(auxl.coreTemplateData);
+	auxl.coreUnique = auxl.Core(auxl.coreUniqueData);
 }
 auxl.toBeRebuilt('buildUniqueLibrary');
 
@@ -85,7 +85,7 @@ auxl.toBeRebuilt('buildUniqueLibrary');
 
 //auxl-project
 //AUXL Scenario : NodeScene and MapZone's Data and Cores
-AFRAME.registerComponent('projectname-scenes', {
+AFRAME.registerComponent('template-scenes', {
 dependencies: ['auxl'],
 init: function () {
 //AUXL System Connection
@@ -95,7 +95,7 @@ const auxl = document.querySelector('a-scene').systems.auxl;
 
 
 //
-//Testing World
+//Template World
 
 //
 //Zone 0
@@ -327,11 +327,14 @@ auxl.templateWorldData = {
 	],
 };
 auxl.templateWorld = auxl.World(auxl.templateWorldData);
-auxl.templateWorld.SetAsDefault();
+
+//Default World
+//auxl.templateWorld.SetAsDefault();
 
 //
 //System Loaded
-auxl.systemLoaded();
+//auxl.systemLoaded();
+console.log({msg: 'template world loaded', world: auxl.templateWorld})
 
     },
 });

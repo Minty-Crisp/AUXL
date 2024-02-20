@@ -590,7 +590,7 @@ animations: false,
 mixins: false,
 classes: ['a-ent'],
 components: {
-['stare']:{id: 'playerRig'},
+['stare']:{id: 'playerRig', twist: true},
 },
 };
 auxl.faceParent = auxl.Core(auxl.faceParentData);
