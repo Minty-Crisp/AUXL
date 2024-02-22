@@ -491,7 +491,6 @@ const Player = (auxl, id, layer, data) => {
 
 	//Camera Rig Height Manual Adjustment
 	layer.CamRigHeight = 0;
-	//The directional position return here is accurate in local space to the camera's rotation, but the playerHead doesn't rotate at all an thus the local xz position return is based off a rotated object.
 
 	//Handle 1st & 3rd Pov Toggle
 	function zoomDirection(zoom){
@@ -503,7 +502,8 @@ const Player = (auxl, id, layer, data) => {
 			//Zoomed Out Additional Height
 			offset += 0.5;
 		}
-		direction.setY(auxl.headRig.GetEl().object3D.position.y + offset);
+		//direction.setY(auxl.headRig.GetEl().object3D.position.y + offset);
+		direction.setY(auxl.playerHead.GetEl().object3D.position.y + offset);
 
 //rotate current direction to match current snap rotation amount
 //matrixAxisRot = (rayDir, axis, angle)
@@ -539,46 +539,10 @@ const Player = (auxl, id, layer, data) => {
 		}
 		let newPosition = new THREE.Vector3(0,0,0).copy(layer.scroll.scrolls[camZoom]);
 		//Update Position
-		auxl.headRig.GetEl().object3D.position.copy(newPosition);
+		//auxl.headRig.GetEl().object3D.position.copy(newPosition);
+		auxl.playerHead.GetEl().object3D.position.copy(newPosition);
 		//Toggle Zoomed
 		layer.scroll.zoomed = !layer.scroll.zoomed;
-/*
-		if(camType === 'roam'){
-			if(auxl.isFalsey(direction)){
-				layer.scroll.roamCurrent--;
-			} else {
-				layer.scroll.roamCurrent++;
-			}
-			if(layer.scroll.roamCurrent === layer.scroll.scrolls.length){
-				layer.scroll.roamCurrent = 0;
-			} else if(layer.scroll.roamCurrent < 0){
-				layer.scroll.roamCurrent = layer.scroll.scrolls.length-1;
-			}
-			//Position to Move to
-			let newPosition = new THREE.Vector3(0,0,0).copy(layer.scroll.scrolls[layer.scroll.roamCurrent]);
-			auxl.roamCameraRig.GetEl().object3D.position.copy(newPosition);
-		} else {
-		//if(camType === 'camera'){}
-			//When at 1st pov, reset scroll position based on avatarRig direction
-			if(layer.scroll.mainCurrent === 0){
-				layer.scroll.scrolls = [];
-				layer.scroll.distances.forEach(each => {
-					layer.scroll.scrolls.push(zoomDirection(each))
-				})
-			}
-
-			if(auxl.isFalsey(direction)){
-				layer.scroll.mainCurrent--;
-			} else {
-				layer.scroll.mainCurrent++;
-			}
-			if(layer.scroll.mainCurrent === layer.scroll.scrolls.length){
-				layer.scroll.mainCurrent = 0;
-			} else if(layer.scroll.mainCurrent < 0){
-				layer.scroll.mainCurrent = layer.scroll.scrolls.length-1;
-			}
-		}
-*/
 	}
 
 	layer.roamCamViewer = false;
@@ -786,6 +750,18 @@ const Player = (auxl, id, layer, data) => {
 			layer.CamRigHeight = 0;
 		} else {
 			layer.CamRigHeight += offset;
+		}
+		//Update Avatar Hand Offsets to match
+ 		if(auxl.worldPhysics === 'cannon'){
+			//TODO
+		} else if(auxl.worldPhysics === 'ammo'){
+//Kinematic Controls
+auxl.avatarHand1.ChangeSelf({property: 'kinsync', value: {offset: new THREE.Vector3(0,layer.CamRigHeight,0)}})
+auxl.avatarHand2.ChangeSelf({property: 'kinsync', value: {offset: new THREE.Vector3(0,layer.CamRigHeight,0)}})
+		} else {
+//Normal Position
+auxl.avatarHand1.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.35,0.6 + layer.CamRigHeight,0)})
+auxl.avatarHand2.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.35,0.6 + layer.CamRigHeight,0)})
 		}
 	}
 
@@ -1446,12 +1422,6 @@ const Player = (auxl, id, layer, data) => {
 		//let quaternion = new THREE.Quaternion().copy(rayEl.object3D.quaternion);
 		let quaternion = new THREE.Quaternion();
 		rayEl.object3D.getWorldQuaternion(quaternion)
-		//let bodyQuat = new THREE.Quaternion().copy(auxl.playerBody.GetEl().object3D.quaternion);
-		//let bodyHead = new THREE.Quaternion().copy(auxl.playerHead.GetEl().object3D.quaternion);
-		//let playerRig = new THREE.Quaternion().copy(auxl.playerRig.GetEl().object3D.quaternion);
-		//quaternion.multiply(bodyQuat);
-		//quaternion.multiply(bodyHead);
-		//quaternion.multiply(playerRig);
 		let distance = dist || 1;
 		let direction = dir || new THREE.Vector3(0,0,-1);
 		//Rotate Aim
@@ -4842,7 +4812,8 @@ auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
 	//Spawn & Start Companion
 	const SpawnComp = () => {
 		if(comp.inScene){}else{
-			auxl.compNPC.SpawnNPC(auxl.headRig.GetEl());  
+			//auxl.compNPC.SpawnNPC(auxl.headRig.GetEl());  
+			auxl.compNPC.SpawnNPC(auxl.playerHead.GetEl());  
 			if(comp.avatarType === 'core'){
 				comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
 			} else {

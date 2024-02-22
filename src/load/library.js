@@ -197,8 +197,6 @@ components: {
 ['locomotion']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
 //['gimbal']:{uiid: false, courserid: 'mouseController', movetype: 'desktop'},
 light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
-
-
 },};
 auxl.playerRig = auxl.Core(auxl.playerRigData);
 //Player Body
@@ -219,6 +217,24 @@ classes: ['a-ent','player'],
 components: false,
 };
 auxl.playerBody = auxl.Core(auxl.playerBodyData);
+
+//Player Head
+auxl.playerHeadData = {
+data:'Player Head',
+id:'playerHead',
+entity: 'preAdded',
+sources: false,
+text: false,
+geometry: false,
+material: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent','player'],
+};
+auxl.playerHead = auxl.Core(auxl.playerHeadData);
 
 //Head Rig
 auxl.headRigData = {
@@ -727,23 +743,33 @@ classes: ['a-ent','player'],
 components: {visible: false},
 };
 auxl.blink2Screen = auxl.Core(auxl.blink2ScreenData);
-
 //Player Layer 
 auxl.playerAll = {
 parent: {core: auxl.playerRig},
 child0: {
 	parent: {core: auxl.playerBody},
 	child0: {
-		parent: {core: auxl.headRig},
+		parent: {core: auxl.playerHead},
 		child0: {
-			parent: {core: auxl.camera},
-			child0: {core: auxl.mouseController},
-			child1: {core: auxl.mouseControllerUI},
-			child2: {core: auxl.cameraUI},
-			child3: {core: auxl.fadeScreen},
-			child4: {core: auxl.sphereScreen},
-			child5: {core: auxl.blink1Screen},
-			child6: {core: auxl.blink2Screen},
+			parent: {core: auxl.headRig},
+			child0: {
+				parent: {core: auxl.camera},
+				child0: {core: auxl.mouseController},
+				child1: {core: auxl.mouseControllerUI},
+				child2: {core: auxl.cameraUI},
+				child3: {core: auxl.fadeScreen},
+				child4: {core: auxl.sphereScreen},
+				child5: {core: auxl.blink1Screen},
+				child6: {core: auxl.blink2Screen},
+			},
+			child1: {
+				parent: {core: auxl.vrController1},
+				child0: {core: auxl.vrController1UI},
+			},
+			child2: {
+				parent: {core: auxl.vrController2},
+				child0: {core: auxl.vrController2UI},
+			},
 		},
 		child1: {core: auxl.playerAudio},
 		child2: {
@@ -752,14 +778,6 @@ child0: {
 				parent: {core: auxl.playerBeltText},
 				child0: {core: auxl.playerBeltTitleText},
 			},
-		},
-		child3: {
-			parent: {core: auxl.vrController1},
-			child0: {core: auxl.vrController1UI},
-		},
-		child4: {
-			parent: {core: auxl.vrController2},
-			child0: {core: auxl.vrController2UI},
 		},
 	},
 },
@@ -775,7 +793,6 @@ Unused Roaming Camera
 		parent: {core: auxl.roamCameraRig},
 		child0: {core: auxl.roamCamera},
 	},
-
 	child8: {core: auxl.roamCameraViewer},
 */
 
@@ -796,7 +813,6 @@ mixins: false,
 classes: ['a-ent', 'avatar'],
 };
 auxl.avatarRig = auxl.Core(auxl.avatarRigData);
-
 //Torso
 auxl.avatarTorsoData = {
 data:'avatarTorsoData',
@@ -817,8 +833,6 @@ mixins: false,
 classes: ['a-ent', 'avatar'],
 };
 auxl.avatarTorso = auxl.Core(auxl.avatarTorsoData);
-
-
 //body 0 Tear
 auxl.avatarBody0Data = {
 data:'avatarBody0Data',
@@ -870,7 +884,6 @@ classes: ['a-ent', 'avatar'],
 components: false,
 };
 auxl.avatarBody2 = auxl.Core(auxl.avatarBody2Data);
-
 //body 3 Tear
 auxl.avatarBody3Data = {
 data:'avatarBody3Data',
@@ -887,7 +900,7 @@ classes: ['a-ent', 'avatar'],
 components: false,
 };
 auxl.avatarBody3 = auxl.Core(auxl.avatarBody3Data);
-
+//body 4 Belt
 auxl.avatarBody4Data = {
 data:'avatarBody4Data',
 id:'avatarBody4',
@@ -904,12 +917,6 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.avatarBody4 = auxl.Core(auxl.avatarBody4Data);
-
-
-
-
-
-
 //Head
 auxl.avatarHeadData = {
 data:'avatarHeadData',
@@ -930,7 +937,6 @@ mixins: false,
 classes: ['a-ent', 'avatar'],
 };
 auxl.avatarHead = auxl.Core(auxl.avatarHeadData);
-
 //Backback
 auxl.avatarBackpackData = {
 data:'avatarBackpackData',
@@ -948,7 +954,6 @@ classes: ['a-ent', 'avatar'],
 components: false,
 };
 auxl.avatarBackpack = auxl.Core(auxl.avatarBackpackData);
-
 //Feet
 auxl.avatarFeetData = {
 data:'avatarFeetData',
@@ -966,7 +971,6 @@ classes: ['a-ent', 'avatar'],
 components: false,
 };
 auxl.avatarFeet = auxl.Core(auxl.avatarFeetData);
-
 //Avatar Hand 1
 auxl.avatarHand1Data = {
 data:'avatarHand1Data',
@@ -984,7 +988,6 @@ classes: ['a-ent','avatar'],
 components: false,
 };
 auxl.avatarHand1 = auxl.Core(auxl.avatarHand1Data);
-
 //Avatar Hand 2
 auxl.avatarHand2Data = {
 data:'avatarHand2Data',
@@ -1002,7 +1005,6 @@ classes: ['a-ent','avatar'],
 components: false,
 };
 auxl.avatarHand2 = auxl.Core(auxl.avatarHand2Data);
-
 //Avatar Hover Above
 auxl.avatarHoverData = {
 data:'avatarHoverData',
@@ -1022,7 +1024,6 @@ visible: false,
 },
 };
 auxl.avatarHover = auxl.Core(auxl.avatarHoverData);
-
 //Avatar
 auxl.avatarData = {
 	parent: {core: auxl.avatarRig},
