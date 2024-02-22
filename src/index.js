@@ -38,7 +38,7 @@ import {clickaddinventory, acceptobject} from './support/inventory.js';
 //Cannon
 import {linkcable, camerasync, staticsync, collision, trigger, bodymaterial, auxconstraint, auxspring, gravitycontrol} from './support/physics-cannon.js';
 //Ammo
-import {ammoPush, ammoBounce} from './support/physics-ammo.js';
+import {kinsync, ammoPush, ammoBounce} from './support/physics-ammo.js';
 
 //
 //Weather

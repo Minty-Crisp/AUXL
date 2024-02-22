@@ -263,18 +263,18 @@ auxl.caosScenarioData = {
 	},
 	controls:{
 
+		//Force Flick
+		action1Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'grab', name: 'Force Flick Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
+		action1Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'flick', name: 'Force Flick Targets', info: 'Force flick targets.'},
+
 		//Force Throw
-		action1Down:{auxlObj: 'player', func: 'HoverTargetDown', params: false, name: 'Force Throw Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
-		action1Up:{auxlObj: 'player', func: 'HoverTargetUp', params: false, name: 'Force Throw Targets', info: 'Force throw targets.'},
+		//action1Down:{auxlObj: 'player', func: 'HoverTargetDown', params: false, name: 'Force Throw Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
+		//action1Up:{auxlObj: 'player', func: 'HoverTargetUp', params: false, name: 'Force Throw Targets', info: 'Force throw targets.'},
 
 		//Force Grab
-		//action2Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'grab', name: 'Force Grab Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
-		//action2Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'grab', name: 'Force Grab Targets', info: 'Force grab targets.'},
+		action2Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'grab', name: 'Force Grab Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
+		action2Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'grab', name: 'Force Grab Targets', info: 'Force grab targets.'},
 
-
-		//Force Flick
-		action2Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'grab', name: 'Force Flick Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
-		action2Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'flick', name: 'Force Flick Targets', info: 'Force flick targets.'},
 
 		//Force Pull
 		action3Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'pull', name: 'Force Pull Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
@@ -288,7 +288,9 @@ auxl.caosScenarioData = {
 		//action5Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'release', name: 'Force Release Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
 		action4Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'release', name: 'Force Release Targets', info: 'Force release targets.'},
 
-		action5Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle to next camera zoom length.'},
+		//System
+		action5Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Press to toggle Zoom. Hold to toggle super Zoom.'},
+		action5Up:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle to next camera zoom length.'},
 		action6Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
 		action7Down:{auxlObj: 'player', func: 'SnapLeft', name: 'Snap View Left', info: 'Quick snap rotate to the left.'},
 		action8Down:{auxlObj: 'player', func: 'SnapRight', name: 'Snap View Right', info: 'Quick snap rotate to the right.'},

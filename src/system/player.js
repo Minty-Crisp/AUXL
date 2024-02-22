@@ -29,6 +29,7 @@ const Player = (auxl, id, layer, data) => {
 
 	//Camera Rotation Sync
 	auxl.camQuat = new THREE.Quaternion();
+	auxl.rigQuat = new THREE.Quaternion();
 
 	//Default Transition Settings
 	//instant | fade | sphere | blink | locomotion
@@ -60,9 +61,7 @@ const Player = (auxl, id, layer, data) => {
 	//Snap Rotation
 	layer.snapMode = 45;
 	layer.snapRotating = false;
-	layer.headSnapRotating = false;
 	let snapTimeout;
-	let headSnapTimeout;
 	//Rotate 45
 	let anim45Data = {
 		name: 'anim45',
@@ -114,9 +113,13 @@ const Player = (auxl, id, layer, data) => {
 	layer.SpawnLayer();
 	//Spawn Avatar Object
 	auxl.avatar.SpawnLayer('playerBody');
+	//auxl.avatar.SpawnLayer('playerRig');
+
 	//Spawn Avatar Hands
-	auxl.avatarHand1.SpawnCore('vrController1');
-	auxl.avatarHand2.SpawnCore('vrController2');
+	//auxl.avatarHand1.SpawnCore('vrController1');
+	//auxl.avatarHand2.SpawnCore('vrController2');
+
+
 	//Get auxcontroller component
 	auxl.controller = auxl.playerRig.GetEl().components['auxcontroller'];
 	//Currently not tracking Player object as it should not be removed
@@ -442,8 +445,6 @@ const Player = (auxl, id, layer, data) => {
 		layer.animating = false;
 		//Snap Rotation
 		layer.snapRotating = false;
-		//Head Snap Rotation
-		layer.headSnapRotating = false;
 		//Belt Inventory, Toggle & Text
 		layer.beltDisplay = true;
 		layer.beltDefaultText = 'Hello World!';
@@ -479,21 +480,36 @@ const Player = (auxl, id, layer, data) => {
 		layer.raycasters.activeCamera = layer.raycasters.previousCamera;
 	}
 	layer.scroll = {};
-	layer.scroll.mainCurrent = 0;
-	layer.scroll.roamCurrent = 0;
-
-	layer.scrolls = [
-		new THREE.Vector3(0,-1.6,0),
-		new THREE.Vector3(0,-1.36,1),
-		new THREE.Vector3(0,-1.36,2),
-		new THREE.Vector3(0,-1.36,4),
-		new THREE.Vector3(0,-1.36,8),
-		new THREE.Vector3(0,-1.36,16),
-		new THREE.Vector3(0,-1.36,8),
-		new THREE.Vector3(0,-1.36,4),
-		new THREE.Vector3(0,-1.36,2),
-		new THREE.Vector3(0,-1.36,1),
+	layer.scroll.zoomed = false;
+	layer.scroll.distances = [0,1];
+	layer.scroll.scrolls = [
+		new THREE.Vector3(0,0,0),
+		new THREE.Vector3(0,0.5,0),
 	];
+	//layer.scroll.mainCurrent = 0;
+	//layer.scroll.roamCurrent = 0;
+
+	//Camera Rig Height Manual Adjustment
+	layer.CamRigHeight = 0;
+	//The directional position return here is accurate in local space to the camera's rotation, but the playerHead doesn't rotate at all an thus the local xz position return is based off a rotated object.
+
+	//Handle 1st & 3rd Pov Toggle
+	function zoomDirection(zoom){
+		let direction = new THREE.Vector3().copy(auxl.player.RayCoord(auxl.camera.GetEl(), 2, new THREE.Vector3(0,0,zoom)).direction);
+		let offset = 0;
+		if(zoom === 0){
+			//offset += layer.CamRigHeight;
+		} else if(zoom === 1){
+			//Zoomed Out Additional Height
+			offset += 0.5;
+		}
+		direction.setY(auxl.headRig.GetEl().object3D.position.y + offset);
+
+//rotate current direction to match current snap rotation amount
+//matrixAxisRot = (rayDir, axis, angle)
+
+		return direction;
+	}
 
 	layer.allowZoom = true;
 	//System Camera Scrolling
@@ -501,44 +517,65 @@ const Player = (auxl, id, layer, data) => {
 	//console.log('scrolling')
 	//console.log(layer.scroll.current)
 	//console.log(direction)
-		if(!layer.allowZoom){return}else{layer.allowZoom = false}
+
 		//Prevent zoom change happening too quickly like with joysticks
+		if(!layer.allowZoom){return}else{layer.allowZoom = false}
 		let zoomTimeout = setTimeout(() => {
 			layer.allowZoom = true;
 			clearTimeout(zoomTimeout);
 		}, 250);
 
+		let camZoom = 0;
+		//When at 1st pov, reset scroll position based on camera direction
+		if(!layer.scroll.zoomed){
+			layer.scroll.scrolls = [];
+			layer.scroll.distances.forEach(each => {
+				layer.scroll.scrolls.push(zoomDirection(each))
+			})
+			camZoom = 1;
+		}
+		let newPosition = new THREE.Vector3(0,0,0).copy(layer.scroll.scrolls[camZoom]);
+		//Update Position
+		auxl.headRig.GetEl().object3D.position.copy(newPosition);
+		//Toggle Zoomed
+		layer.scroll.zoomed = !layer.scroll.zoomed;
+/*
 		if(camType === 'roam'){
 			if(auxl.isFalsey(direction)){
 				layer.scroll.roamCurrent--;
 			} else {
 				layer.scroll.roamCurrent++;
 			}
-			if(layer.scroll.roamCurrent === layer.scrolls.length){
+			if(layer.scroll.roamCurrent === layer.scroll.scrolls.length){
 				layer.scroll.roamCurrent = 0;
 			} else if(layer.scroll.roamCurrent < 0){
-				layer.scroll.roamCurrent = layer.scrolls.length-1;
+				layer.scroll.roamCurrent = layer.scroll.scrolls.length-1;
 			}
 			//Position to Move to
-			let newPosition = new THREE.Vector3(0,0,0).copy(layer.scrolls[layer.scroll.roamCurrent]);
+			let newPosition = new THREE.Vector3(0,0,0).copy(layer.scroll.scrolls[layer.scroll.roamCurrent]);
 			auxl.roamCameraRig.GetEl().object3D.position.copy(newPosition);
 		} else {
 		//if(camType === 'camera'){}
+			//When at 1st pov, reset scroll position based on avatarRig direction
+			if(layer.scroll.mainCurrent === 0){
+				layer.scroll.scrolls = [];
+				layer.scroll.distances.forEach(each => {
+					layer.scroll.scrolls.push(zoomDirection(each))
+				})
+			}
+
 			if(auxl.isFalsey(direction)){
 				layer.scroll.mainCurrent--;
 			} else {
 				layer.scroll.mainCurrent++;
 			}
-			if(layer.scroll.mainCurrent === layer.scrolls.length){
+			if(layer.scroll.mainCurrent === layer.scroll.scrolls.length){
 				layer.scroll.mainCurrent = 0;
 			} else if(layer.scroll.mainCurrent < 0){
-				layer.scroll.mainCurrent = layer.scrolls.length-1;
+				layer.scroll.mainCurrent = layer.scroll.scrolls.length-1;
 			}
-			//Position to Move to
-			let newPosition = new THREE.Vector3(0,0,0).copy(layer.scrolls[layer.scroll.mainCurrent]);
-			auxl.headRig.GetEl().object3D.position.copy(newPosition);
 		}
-
+*/
 	}
 
 	layer.roamCamViewer = false;
@@ -722,6 +759,34 @@ const Player = (auxl, id, layer, data) => {
 		auxl.blink2Screen.ChangeSelf({property: 'material', value:{color: newColor}});
 	}
 
+
+	//Camera Rig Fine Tuning
+	const CamRigAdjust = (dir) => {
+		let offset = 0;
+		if(dir === 'up'){
+			if(layer.CamRigHeight >= 1.8){return} 
+			else{offset = 0.1}
+		} else if(dir === 'down'){
+			if(layer.CamRigHeight <= -0.2){return} 
+			else{offset = -0.1}
+		} else if(dir === 'reset'){
+			offset = layer.CamRigHeight * -1;
+		}
+		//Height Offset
+		let height = offset + auxl.headRig.GetEl().object3D.position.y;
+		//Set new height
+		auxl.headRig.GetEl().object3D.position.setY(height);
+		//Update Scroll Heights
+		layer.scroll.scrolls.forEach(each => each.y += offset)
+		//Update CamRigHeight
+		if(dir === 'reset'){
+			layer.CamRigHeight = 0;
+		} else {
+			layer.CamRigHeight += offset;
+		}
+	}
+
+
 	//Quick Snap Camera Rotation
 
 	//Play Snap View Anim to the Right 45degrees 
@@ -848,57 +913,7 @@ const Player = (auxl, id, layer, data) => {
 		auxl.playerBody.Animate(camYAnimData)
 	}
 
-	//HeadRig Snap Turning
-	//Quick Snap Camera Rotation
-	//Play Snap View Anim to the Right 45degrees
-	const HeadSnapRight45 = () => {
-		if(layer.headSnapRotating){} else {
-			layer.headSnapRotating = true;
-			let rotY = auxl.playerHead.GetEl().getAttribute('rotation').y;
-			anim45Data.from = rotY;
-			anim45Data.to = rotY - 45;
-			auxl.playerHead.Animate(anim45Data);
-			headSnapTimeout = setTimeout(() => {
-				layer.headSnapRotating = false;
-				clearTimeout(headSnapTimeout);
-			}, anim45Data.dur+10);
-		}
-	}
-	//Play Snap View Anim to the Left 45degrees
-	const HeadSnapLeft45 = () => {
-		if(layer.headSnapRotating){} else {
-			layer.headSnapRotating = true;
-			let rotY = auxl.playerHead.GetEl().getAttribute('rotation').y;
-			anim45Data.from = rotY;
-			anim45Data.to = rotY + 45;
-			auxl.playerHead.Animate(anim45Data);
-			headSnapTimeout = setTimeout(() => {
-				layer.headSnapRotating = false;
-				clearTimeout(headSnapTimeout);
-			}, anim45Data.dur+10);
-		}
-	}
-
 	//REWORK
-	//Height Toggle
-	//Toggle Sitting|Standing View Mode
-	const ToggleSittingMode = () => {
-		if(layer.animating){} else {
-			layer.animating = true;
-			sitTimeout = setTimeout(() => {
-				layer.animating = false;
-				clearTimeout(sitTimeout);
-			}, 775);
-			let currHeight = auxl.playerHead.GetEl().getAttribute('position').y;
-			if(layer.roomScaleStand){
-				CamYTo(currHeight, currHeight-0.75)
-			} else {
-				CamYTo(currHeight, currHeight+0.75)
-			}
-			layer.roomScaleStand = !layer.roomScaleStand;
-		}
-	}
-
 	//Toggle Player & Grid Crouch
 	const ToggleCrouch = () => {
 		if(layer.animating){} else {
@@ -1362,7 +1377,7 @@ const Player = (auxl, id, layer, data) => {
 		auxl.playerRig.ChangeSelf({property: 'position', value: new THREE.Vector3(0,0,1)});
 		//Update Grid Position
 		layer.gridPos.copy(auxl.playerRig.GetEl().getAttribute('position'));
-		//Reset Rotation via playerBody
+		//Reset Rotation
 		let y = auxl.camera.GetEl().getAttribute('rotation').y;
 		if(y > 0){
 			if(y<360){
@@ -1701,7 +1716,8 @@ const Player = (auxl, id, layer, data) => {
 		return position;
 	}
 
-	//Ray Direction ******
+	//Ray Direction
+	//Use rotation to determine direction. Breaks with rotated parent
 	const RayDir = (rayEl, dist, dir) => {
 		let position = new THREE.Vector3();
 		let rayQuat = new THREE.Quaternion();
@@ -1719,23 +1735,74 @@ const Player = (auxl, id, layer, data) => {
 		}
 		//Ray Rotation
 		rayEl.object3D.getWorldQuaternion(rayQuat);
-		//Apply Rotation to Direction
-		direction.applyQuaternion(rayQuat);
 
 		//Get Ray Position
-		rayEl.object3D.getWorldPosition(position)
-
 		if(rayEl.id === 'camera'){
-			auxl.playerHead.GetEl().object3D.getWorldPosition(position)
+			//Special Rule for Camera Configuration
+			auxl.headRig.GetEl().object3D.getWorldPosition(position)
 		} else {
 			rayEl.object3D.getWorldPosition(position)
 		}
 
+		//Apply Rotation to Direction
+		direction.applyQuaternion(rayQuat);
 		//Add Direction to Position
 		position.add( direction.clone().multiplyScalar(spawnDistance));
 
 		return {position, direction};
 	}
+
+	//Ray Coordinates ******
+	//Use local/world coords and convert back/forth
+	const RayCoord = (rayEl, dist, dir, parent) => {
+		let position = new THREE.Vector3();
+		let direction = dir || new THREE.Vector3(0, 0, -1);
+		//Raycaster Offset
+		if(rayEl.hasAttribute('raycaster')) {
+			let rayDirObj = rayEl.getAttribute('raycaster').direction;
+			// Import into Vec3
+			direction.x = rayDirObj.x;
+			direction.y = rayDirObj.y;
+			direction.z = rayDirObj.z;
+			if(dir){
+				direction.add(dir);
+				direction.normalize();
+			}
+		}
+
+		// Create a local position vector in front of the entity
+		//let localPosition = new THREE.Vector3(0, 0, dist || 1.5);
+		let localPosition = direction.clone();
+		localPosition.multiplyScalar(dist || 1.5);
+//
+		// Transform the local position vector to world space
+		rayEl.object3D.localToWorld(localPosition);
+
+		//Parent Coordinate Adjustment
+		let parentEl = auxl.findInScene(parent);
+
+		// Get Ray Position
+		if(rayEl.id === 'camera') {
+			//Special Rule for Camera Configuration
+			auxl.headRig.GetEl().object3D.getWorldPosition(position);
+			//Transform the world position vector to local space of parent
+			//parentEl = auxl.playerBody.GetEl();
+			parentEl = auxl.headRig.GetEl();
+			parentEl.object3D.worldToLocal(localPosition);
+		} else {
+			rayEl.object3D.getWorldPosition(position);
+			if(parentEl){
+				//Transform the world position vector to local space of parent
+				parentEl.object3D.worldToLocal(localPosition);
+			}
+		}
+
+		// Set the transformed position
+		position.copy(localPosition);
+		direction.copy(position).normalize().multiplyScalar(dist || 1);
+
+		return {position, direction};
+	};
 
 	//Determine Ground Floor Gravity Direction
 	//Not working well just yet for either algos. Currently just toggling through all 7, but if I can scan, approx by direction or another workaround like a enviroment cube with clickable
@@ -2235,12 +2302,12 @@ Single Controller
 		friction : 0.1,
 		restitution : 1
 	};
-	//Test Shape 1
+	//Test Shape 1 
 	let testShape1 = {
 		shape: 'cylinder',
 		height: 1.7,
-		radiusTop: 0.1,
-		radiusBottom: 0.01,
+		radiusTop: 0.225,
+		radiusBottom: 0.225,
 		offset: '0 0.85 0',
 	};
 	//All
@@ -2292,26 +2359,21 @@ console.log({msg: 'Failed to recognize physics engine', engine: auxl.worldPhysic
 	const EnablePhysicsAmmo = (bodyShape) => {
 
 //Add ammo-body and shape to avatar
-auxl.avatarHand1.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-auxl.avatarHand2.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-//auxl.avatarRig.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-auxl.avatarPelvis.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-auxl.avatarHead.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-auxl.avatarTorso.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-auxl.avatarLeftUpperLeg.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-auxl.avatarLeftLowerLeg.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-auxl.avatarRightUpperLeg.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-auxl.avatarLeftUpperArm.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-auxl.avatarLeftLowerArm.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-auxl.avatarRightUpperArm.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
-auxl.avatarRightLowerArm.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}])
+auxl.avatarHand1.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}, {property: 'kinsync', value: {type: 'other', auxlObj: 'vrController1', offset: new THREE.Vector3(0,0,0), sync: true,}}])
+auxl.avatarHand2.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'box'}}, {property: 'kinsync', value: {type: 'other', auxlObj: 'vrController2', offset: new THREE.Vector3(0,0,0), sync: true,}}])
+auxl.avatarTorso.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'cylinder'}}])
+auxl.avatarHead.ChangeSelf([{property: 'ammo-body', value: {type: 'kinematic', emitCollisionEvents: true,}}, {property: 'ammo-shape', value: {type: 'sphere'}}])
+
+
+
+
 
 	}
 
 	//Disable Physics Ammo
 	const DisablePhysicsAmmo = () => {
 		//remove ammo-body and shape from all
-		auxl.avatar.RemoveComponentAll(['ammo-body', 'ammo-shape'])
+		auxl.avatar.RemoveComponentAll(['ammo-body', 'ammo-shape', 'kinsync'])
 	}
 
 
@@ -3390,13 +3452,11 @@ if(type === 'release'){
 		//get direction from both vec3 & normalize
 		//multiply by power - the time in between targetting and releasing
 
-
 		//Check if target is not dynamic, if so skip
 		if(each.components['ammo-body'].data.type !== 'dynamic'){
 			console.log({msg: 'Target is not dynamic, cannot grab', each, rayEl, ray, type})
 			return;
 		}
-
 
 		//
 		//Free & Up
@@ -3441,7 +3501,7 @@ if(type === 'release'){
 		} else if(action === 'grab' || action === 'flick'){
 			let target = false;
 			if(ray.id === 'mouseController'){
-				target = 'avatarHead';
+				target = 'avatarHead'; 
 			} else if(ray.id === 'vrController1'){
 				target = 'avatarHand1';
 			} else if(ray.id === 'vrController2'){
@@ -3455,30 +3515,29 @@ if(type === 'release'){
 				timing = 25;
 			}
 
-//console.log(each.components['ammo-body'])
-//console.log(auxl.sceneEl.systems.physics)
-			let swapDelay = setTimeout(() => {
-				//Just in Case Bail to avoid Crash
-				let bail = each.hasAttribute('ammo-constraint');
-				if(bail){
-					console.log({msg: 'ammo-constraint still not removed, bailing.', timing, each})
-					TargetsClear(rayEl, ray)
-					TargetsReady(rayEl, ray)
-					return;
-				}
-				//attach a constraint to each target instead of impulse
-//Options: lock, fixed, spring, slider, hinge, coneTwist, pointToPoint.
-				each.setAttribute('ammo-constraint',{type: 'lock', target: '#' + target});
-				ray.grabbed.push(each)
-				clearTimeout(swapDelay)
-			}, timing);
-
 			if(action === 'flick'){
 				let flickTimeout = setTimeout(() => {
 					drop();
 					clearTimeout(flickTimeout);
 				}, 150);
+			} else {
+				let swapDelay = setTimeout(() => {
+					//Just in Case Bail to avoid Crash
+					let bail = each.hasAttribute('ammo-constraint');
+					if(bail){
+						console.log({msg: 'ammo-constraint still not removed, bailing.', timing, each})
+						TargetsClear(rayEl, ray)
+						TargetsReady(rayEl, ray)
+						return;
+					}
+					//attach a constraint to each target instead of impulse
+	//Options: lock, fixed, spring, slider, hinge, coneTwist, pointToPoint.
+					each.setAttribute('ammo-constraint',{type: 'lock', target: '#' + target});
+					ray.grabbed.push(each)
+					clearTimeout(swapDelay)
+				}, timing);
 			}
+
 		} else if(action === 'launch'){
 			drop();
 		}
@@ -3760,26 +3819,26 @@ console.log(event.detail.intersection.point)
 	}
 
 	//
-	//Fixed Controls
+	//Fixed Dev Controls
 
 	//Keyboard
 	document.addEventListener("keydown", (e) => {
 //console.log(e.key)
 		if(e.key === '`'){
 			//Main Menu Toggle
-			MainMenuAction()
+			//MainMenuAction()
 		} else if(e.key === '1'){
 			//Snap Rotate Rig Left
-			SnapLeft();
+			//SnapLeft();
 		} else if(e.key === '2'){
 			//Cycle Zoom Main Camera
-			CycleCameraZoom(false, 'camera');
+			//CycleCameraZoom(false, 'camera');
 		} else if(e.key === '3'){
 			//Cycle Zoom Main Camera
-			CycleCameraZoom(true, 'camera');
+			//CycleCameraZoom(true, 'camera');
 		} else if(e.key === '4'){
 			//Snap Rotate Rig Right
-			SnapRight();
+			//SnapRight();
 		} else if(e.key === 'ArrowUp'){
 			//Cycle Zoom Roam Camera
 			//CycleCameraZoom(false, 'roam');
@@ -3793,7 +3852,7 @@ console.log(event.detail.intersection.point)
 		}
 	});
 
-	return {layer, player, Reset, CameraSwitch, CameraSwitchBack, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, PlayerQuickAnim, PlayerFadeOut, PlayerFadeIn, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, ToggleHoverText, UpdateHoverText, ToggleFloorText, Notification, UpdateActions, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleSittingMode, ToggleCrouch, SnapRight, SnapLeft, ToggleFlashlight, ResetUserPosRot, GetPlayerInfo, ToggleRayHelp, CamRigPoint, RigPoint, RaySpawnPoint, RayDir, RayDistanceDirection, GetRayDirectionRig, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, DisablePhysics, setAllGravity, setAllGravityAxis, setAllGravityTypes, cycleAllGravityTypes, cycleWorldGravityAxis, ToggleAction, Rubberband, TeleportTo, BoostTo, BackBoost, ChuteUp, ChuteDown, BrakeUp, BrakeDown, RedirectUp, RedirectDown, Redirect, Freeze, UnFreeze, DelinkCore, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, EmitEvent, TestFunc, TogglePlayerPhysics, CycleCameraZoom, ToggleRoamCamView, HoverTargetDown, HoverTargetUp, ToggleSnapMode, LinkDistance};
+	return {layer, player, Reset, CameraSwitch, CameraSwitchBack, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, PlayerQuickAnim, PlayerFadeOut, PlayerFadeIn, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, ToggleHoverText, UpdateHoverText, ToggleFloorText, Notification, UpdateActions, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleCrouch, SnapRight, SnapLeft, ToggleFlashlight, ResetUserPosRot, GetPlayerInfo, ToggleRayHelp, CamRigPoint, RigPoint, RaySpawnPoint, RayDir, RayDistanceDirection, GetRayDirectionRig, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, DisablePhysics, setAllGravity, setAllGravityAxis, setAllGravityTypes, cycleAllGravityTypes, cycleWorldGravityAxis, ToggleAction, Rubberband, TeleportTo, BoostTo, BackBoost, ChuteUp, ChuteDown, BrakeUp, BrakeDown, RedirectUp, RedirectDown, Redirect, Freeze, UnFreeze, DelinkCore, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, UpdatePlayerPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, EmitEvent, TestFunc, TogglePlayerPhysics, CycleCameraZoom, ToggleRoamCamView, HoverTargetDown, HoverTargetUp, ToggleSnapMode, LinkDistance, CamRigAdjust, RayCoord};
 	}
 //
 //Companion
@@ -3992,7 +4051,7 @@ const Companion = (auxl, id, object, inventory) => {
 				menu: 'close',
 			},
 		},
-		button4:{
+		button5:{
 			id: 'CaosWorld',
 			style: false,
 			title: 'Caos World',
@@ -4024,37 +4083,6 @@ const Companion = (auxl, id, object, inventory) => {
 		},
 	},
 	menu3:{
-
-/*
-		button0:{
-			id: 'action1',
-			style: false,
-			title: 'Sit/Stand Toggle',
-			description: 'Toggle between sitting or standing mode.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'ToggleSittingMode',
-				params: null,
-				menu: 'stay',
-			},
-		},
-*/
-		button01:{
-			id: 'action2',
-			style: false,
-			title: '45/90 Snap Rotation Toggle',
-			description: 'Toggle between 45* or 90* degree snap rotation.',
-			subMenu: false,
-			action: {
-				auxlObj: 'player',
-				component: false,
-				method: 'ToggleSnapMode',
-				params: null,
-				menu: 'stay',
-			},
-		},
 /*
 		button5:{
 			id: 'action5',
@@ -4085,6 +4113,29 @@ const Companion = (auxl, id, object, inventory) => {
 			},
 		},
 */
+		button0:{
+			id: 'subMenu0',
+			style: false,
+			title: 'Adjust Camera Height',
+			description: 'Manually adjust the camera height.',
+			subMenu: 'camRigMenu',
+			action: false,
+		},
+		button01:{
+			id: 'action2',
+			style: false,
+			title: '45/90 Snap Rotation Toggle',
+			description: 'Toggle between 45* or 90* degree snap rotation.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'ToggleSnapMode',
+				params: null,
+				menu: 'stay',
+			},
+		},
+
 		button1:{
 			id: 'subMenu1',
 			style: false,
@@ -4188,6 +4239,50 @@ const Companion = (auxl, id, object, inventory) => {
 				method: 'UpdateSceneTransitionStyle',
 				params: 'sphere',
 				menu: 'back',
+			},
+		},
+	},	
+	camRigMenu:{
+		button0:{
+			id: 'action1',
+			style: false,
+			title: 'Up',
+			description: 'Adjust rig upward by 0.1 .',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'CamRigAdjust',
+				params: 'up',
+				menu: 'stay',
+			},
+		},
+		button1:{
+			id: 'action2',
+			style: false,
+			title: 'Down',
+			description: 'Adjust rig downward by 0.1 .',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'CamRigAdjust',
+				params: 'down',
+				menu: 'stay',
+			},
+		},
+		button2:{
+			id: 'action3',
+			style: false,
+			title: 'Reset',
+			description: 'Reset camera rig height back to 0.',
+			subMenu: false,
+			action: {
+				auxlObj: 'player',
+				component: false,
+				method: 'CamRigAdjust',
+				params: 'reset',
+				menu: 'stay',
 			},
 		},
 	},
@@ -4458,10 +4553,22 @@ const Companion = (auxl, id, object, inventory) => {
 
 	//Minimum spawning distance
 	let minSpawnDistance = 1.5;
+
+
+	//!!!!!!!!!!!!!!!!!
+	//Move into Player
+	//cameraDirection
+	//UpAxis
+	//TurnToPlayer
+
 	//Fixed height Camera Ray
 	function cameraDirection(){
-		let direction = new THREE.Vector3().copy(auxl.player.RayDir(auxl.avatarHeadRig.GetEl(), comp.distance, new THREE.Vector3(0,0,-2)).direction);
-		//let direction = new THREE.Vector3().copy(auxl.player.RayDir(auxl.avatarTorsoRig.GetEl(), comp.distance, new THREE.Vector3(0,0,-2)).direction);
+		//let direction = new THREE.Vector3().copy(auxl.player.RayDir(auxl.camera.GetEl(), comp.distance, new THREE.Vector3(0,0,-2)).direction);
+		//direction.setY(comp.height);
+		//return direction;
+
+		let direction = new THREE.Vector3().copy(auxl.player.RayCoord(auxl.camera.GetEl(), comp.distance, new THREE.Vector3(0,0,-1)).direction);
+
 		direction.setY(comp.height);
 
 		return direction;
@@ -4509,7 +4616,7 @@ const Companion = (auxl, id, object, inventory) => {
 	//Face Player
 	const TurnToPlayer = () => {
 		let position = new THREE.Vector3();
-		auxl.playerRig.GetEl().object3D.getWorldPosition(position)
+		auxl.headRig.GetEl().object3D.getWorldPosition(position)
 		let up = UpAxis().clone();
 		up.multiplyScalar(auxl.camera.GetEl().object3D.position.y)
 		position.add(new THREE.Vector3(0,1.6,0))
@@ -4732,7 +4839,7 @@ auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
 	//Spawn & Start Companion
 	const SpawnComp = () => {
 		if(comp.inScene){}else{
-			auxl.compNPC.SpawnNPC(auxl.playerRig.GetEl());  
+			auxl.compNPC.SpawnNPC(auxl.headRig.GetEl());  
 			if(comp.avatarType === 'core'){
 				comp.avatar.ChangeSelf({property: 'position', value: cameraDirection()});
 			} else {

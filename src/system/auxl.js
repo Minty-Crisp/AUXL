@@ -513,6 +513,7 @@ this.TimeDif = (start, end) => {
 this.universalControls;
 this.controls = 'Desktop';
 this.vrHand = 'bothRight';
+this.vrHandPrevious = false;
 this.directionType = 'camera';
 this.locomotionText = 'WASD Keys';
 this.joystickLoco = 1;
@@ -1139,6 +1140,7 @@ menuModeButton.addEventListener('click', changeControls);
 //Cycle VR Configurations
 function changeVRHand(){
 	disableVRControls();
+	auxl.vrHandPrevious = auxl.vrHand;
 	if(auxl.vrHand === 'bothRight'){
 		vrHandMenu('bothLeft');
 	} else if(auxl.vrHand === 'bothLeft'){
@@ -1359,7 +1361,6 @@ this.ConvertHTMLScene = () => {
 
 //
 //Misc
-
 this.isFalsey = (value) => {
   if (
     value === null ||
@@ -1394,6 +1395,7 @@ this.OpenLink = (link, newTab) => {
 
 //Find Entity in Scene
 this.findInScene = (item) => {
+	if(auxl.isFalsey(item)){return false}
 	let self = item;
 	if(self.core){
 		//console.log('Core');

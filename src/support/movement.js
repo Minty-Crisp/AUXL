@@ -203,8 +203,8 @@ auxl.playerRig.GetEl().object3D.translateOnAxis(cam, -1);
 	this.inputsJoystick1 = [];
 	this.inputsJoystick2 = [];
 
-	//Move into its own thing
-	//3rd Person Config
+/*
+	//OLD
 	let initDelay = setTimeout(()=> {
 		if(this.pov === '3rd'){
 			this.auxl.avatar.SpawnLayer(true);
@@ -219,6 +219,7 @@ auxl.playerRig.GetEl().object3D.translateOnAxis(cam, -1);
 			},500)
 		}
 	},1000)
+*/
 },
 //1 Increments
 round: function (num){
@@ -1135,7 +1136,7 @@ directionXZ: function (action, speed) {
 		} else {
 			//Free Locomotion No Clip
 			this.player.object3D.position.copy(this.positionNew);
-		}	
+		}
 	}
 },
 

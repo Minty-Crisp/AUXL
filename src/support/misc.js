@@ -14,7 +14,8 @@
 
 
 
-
+//
+//Testing
 const lookaround = AFRAME.registerComponent('lookaround', {
         schema: {
           target: { type: 'string' },
@@ -57,10 +58,6 @@ const lookaround = AFRAME.registerComponent('lookaround', {
           }
         }
       });
-
-
-
-
 
 //
 //Sync Pos

@@ -487,6 +487,61 @@ stats 		Where to output performance stats (if any), panel, console, events (or s
 
 
 */
+
+//Kinematic Sync
+const kinsync = AFRAME.registerComponent('kinsync', {
+dependencies: ['auxl'],
+schema: {
+    type: {type: 'string', default: "self", oneOf: ["self", "other", ,]},
+    auxlObj: {type: 'string', default: 'auxlObj',},
+    offset: {type: 'vec3'},
+    posSync: {type: 'vec3'},
+    sync: {type: 'bool', default: true},
+},
+init: function () {
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.offset = this.data.offset || new THREE.Vector3(0,0,0);
+	this.posSync = new THREE.Vector3(0,0,0);
+},
+update: function () {
+	this.offset = this.data.offset || new THREE.Vector3(0,0,0);
+	this.posSync.copy(this.data.posSync);
+},
+
+tick: function (time, timeDelta) {
+	//this.el.body.quaternion = this.el.object3D.rotation;
+	//this.el.body.quaternion.copy(this.el.object3D.rotation);
+//this.el.body.quaternion.copy(this.el.object3D.getWorldQuaternion(new THREE.Quaternion()));
+
+if(this.data.sync){
+	if(this.el.body){
+		//Self
+		if(this.data.type === 'self'){
+			if(this.el.object3D.position){
+				this.posSync.copy(this.el.object3D.position);
+//console.log({posSync: this.posSync, O3DPos: this.el.object3D.position})
+			}
+		} else if(this.data.type === 'other'){
+			//Other
+			this.posSync.copy(this.auxl[this.data.auxlObj].GetEl().object3D.position);
+//console.log({posSync: this.posSync, O3DPos: this.el.object3D.position})
+		}
+		//Offset
+		this.posSync.add(this.offset);
+		//Physics Body Update
+		//this.el.body.position.copy(this.posSync);
+		this.el.object3D.position.copy(this.posSync);
+//console.log({kinsync: this.posSync, body: this.el.body.position, offset: this.offset})
+
+	}
+}
+//this.el.body.quaternion.setFromEuler(this.el.object3D.rotation);
+//console.log(this.el.object3D.rotation)
+//console.log(this.el.body.quaternion)
+},
+});
+
+
 const ammoPush = AFRAME.registerComponent('ammopush', {
 init: function() {
 	  var el = this.el;
@@ -517,4 +572,4 @@ init: function() {
 });
 //
 //Export
-export {ammoPush, ammoBounce};
+export {kinsync, ammoPush, ammoBounce};

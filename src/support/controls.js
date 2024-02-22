@@ -700,7 +700,7 @@ let initTimeout = setTimeout(() => {
 	this.mobileSelect.addEventListener('touchstart', this.auxl.ToggleHTMLMenu);
 	this.mobileStart.addEventListener('touchstart', this.auxl.player.MainMenuAction);
 
-	this.initDone = true;
+	//this.initDone = true;
 }, 100);
 
 
@@ -1373,6 +1373,11 @@ keyboardUp: function (e){
 		this.action8Up();
 	}
 },
+
+
+
+
+
 //Joystick 1Locomotion
 questJoystick1Locomotion: function (e){
 	//Update current joystick input
@@ -1670,7 +1675,7 @@ addJoystickEvents: function (){
 	//Rotation Type
 	this.questJoystickRotationEvent = (e) => {
 		if(this.auxl.joystickRotation === 1){
-			this.questJoystick1Locomotion(e);
+			this.questJoystick1Rotation(e);
 		} else if(this.auxl.joystickRotation === 4){
 			this.questJoystick4Rotation(e);
 		} else if(this.auxl.joystickRotation === 8){
@@ -1681,12 +1686,12 @@ addJoystickEvents: function (){
 //Clear Joystick Listeners
 clearJoystickEvents: function (){
 	//Joysticks
-	if(['bothRight', 'bothLeftLoco'].includes(this.auxl.vrHand)){
+	if(['bothRight', 'bothLeftLoco'].includes(this.auxl.vrHandPrevious)){
 		//Left Locomotion
 		this.vrController1.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
 		//Right Other
 		this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickOtherEvent);
-	} else if(['bothLeft', 'bothRightLoco'].includes(this.auxl.vrHand)){
+	} else if(['bothLeft', 'bothRightLoco'].includes(this.auxl.vrHandPrevious)){
 		//Right Locomotion
 		this.vrController2.removeEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
 		//Left Other
@@ -1705,14 +1710,21 @@ blank: function (e){
 },
 //Update
 update: function () {
-	//#Bug Fix Test
-	//Clear previous joystick sets to ensure no cross overs
-	if(this.initDone){
+	//Clear previous joystick events
+	//if(this.initDone){
+	if(this.auxl.vrHandPrevious){
 		this.clearJoystickEvents();
+		this.addJoystickEvents();
+/*
+When the clear function runs, the type of joystick controls i.e. bothRight, bothLeft has already been changed, so it is not removing the correct ones
+
+
+
 		let initTimeout = setTimeout(() => {
 			//Joysticks
 			this.addJoystickEvents();
 		}, 250);
+*/
 	}
 },
 //Remove
@@ -1883,45 +1895,9 @@ events: {
 Measure: function (toggle) {
 	this.measure = !toggle;
 },
-//Sync roomscale camera movement to player rig
-cameraSync: function () {
-	//If an entity uses look-controls, in ar/vr mode it will override the rotation/position even if it is not a camera. So instead of using look-controls to sync camera rotation, do it manually.
-
-	//Camera Quaternion Rotation
-	this.auxl.camQuat.copy(this.auxl.camera.GetEl().object3D.getWorldQuaternion(new THREE.Quaternion()))
-	//Mmatch rotation of camera to - this is ignored with look-controls in ar/vr
-	//playerHead
-	this.auxl.playerHead.GetEl().object3D.quaternion.copy(this.auxl.camQuat)
-	//avatarHeadRig
-	this.auxl.avatarHeadRig.GetEl().object3D.quaternion.copy(this.auxl.camQuat)
-
-/*
-    if ((this.auxl.sceneEl.is('vr-mode') || this.auxl.sceneEl.is('ar-mode')) && this.auxl.sceneEl.checkHeadsetConnected()) {
-		//Three is internally syncing camera xyzw rotation & xyz position
-		//look-controls is ignored
-
-//Camera Quaternion Rotation
-this.auxl.camQuat.copy(this.auxl.camera.GetEl().object3D.getWorldQuaternion(new THREE.Quaternion()))
-//Mmatch rotation of camera to - this is ignored with look-controls in ar/vr
-//playerHead
-this.auxl.playerHead.GetEl().object3D.quaternion.copy(this.auxl.camQuat)
-//avatarHeadRig
-this.auxl.avatarHeadRig.GetEl().object3D.quaternion.copy(this.auxl.camQuat)
-
-//Best way to sync roomscale movement to rig?
-//The camera is moving local to the rig. If I update the rig wont that amplify the movement, so the rig moves, but the camera also moves so it moves double.
-//matching position of camera in ar/vr
-//reset camera position XZ and move rig that distance?
-
-    }
-*/
-},
 
 //Tick
 tick: function (time, timeDelta) {
-	//Camera Sync
-	this.cameraSync()
-
 	//Time Measurements
 	if(this.measure){
 		if(this.time > 1){

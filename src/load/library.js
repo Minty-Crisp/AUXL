@@ -220,28 +220,6 @@ components: false,
 };
 auxl.playerBody = auxl.Core(auxl.playerBodyData);
 
-//Player Head
-auxl.playerHeadData = {
-data:'Player Head',
-id:'playerHead',
-entity: 'preAdded',
-sources: false,
-text: false,
-geometry: false,
-material: false,
-position: new THREE.Vector3(0,1.6,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent','player'],
-components: {
-//['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
-['wasd-controls']:{enabled: false},
-},
-};
-auxl.playerHead = auxl.Core(auxl.playerHeadData);
-
 //Head Rig
 auxl.headRigData = {
 data:'headRigData',
@@ -251,7 +229,7 @@ sources: false,
 text: false,
 geometry: false,
 material: false,
-position: new THREE.Vector3(0,-1.6,0),
+position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -273,7 +251,7 @@ animations: false,
 mixins: false,
 classes: ['a-ent','player'],
 components: {
-['look-controls']:{enabled: false, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
+['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
 ['wasd-controls']:{enabled: false},
 },
 };
@@ -390,7 +368,7 @@ id:'mouseControllerUI',
 sources: false,
 //text: {value:'...', width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold"},
 geometry: {primitive: 'ring', radiusInner: 0.005, radiusOuter: 0.01, segmentsPhi: 1, segmentsTheta: 12, thetaStart: 90, thetaLength: 0},
-material: {shader: "flat", color: "#ac2d2d", opacity: 0.69, side: 'double'},
+material: {shader: "flat", color: "#ac2d2d", opacity: 0.8, side: 'double'},
 position: new THREE.Vector3(0,0,-0.25),
 rotation: new THREE.Vector3(0,180,0),
 scale: new THREE.Vector3(0.88, 1, 0.88),
@@ -444,10 +422,9 @@ sources: false,
 text: false,
 geometry: {primitive: 'ring', radiusInner: 0.02, radiusOuter: 0.03},
 material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-position: new THREE.Vector3(-0.15,0.8,0),
+position: new THREE.Vector3(-0.15,0.6,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-//scale: new THREE.Vector3(0.15,0.15,0.15),
 animations: {
 hoverenter:{property: 'raycaster.lineColor', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
 hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
@@ -487,10 +464,9 @@ sources: false,
 text: false,
 geometry: {primitive: 'ring', radiusInner: 0.02, radiusOuter: 0.03},
 material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-position: new THREE.Vector3(0.15,0.8,0),
+position: new THREE.Vector3(0.15,0.6,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-//scale: new THREE.Vector3(0.15,0.15,0.15),
 animations: {
 hoverenter:{property: 'raycaster.lineColor', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
 hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
@@ -549,7 +525,7 @@ sources:false,
 text: {value:'Hello World!', color: "#FFFFFF", align: "left", font: "exo2bold", width: 0.9, zOffset: 0.03, side: 'front', wrapCount: 45, baseline: 'center'},
 geometry: {primitive: 'box', depth: 0.025, width: 1, height: 0.25},
 material: {shader: "standard", color: "#4bb8c1", opacity: 0.75, metalness: 0.2, roughness: 0.8, emissive: "#4bb8c1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,0.69,-0.8),
+position: new THREE.Vector3(0,0.69,-0.6),
 rotation: new THREE.Vector3(-30,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -752,41 +728,38 @@ components: {visible: false},
 };
 auxl.blink2Screen = auxl.Core(auxl.blink2ScreenData);
 
-//Player Layer
+//Player Layer 
 auxl.playerAll = {
 parent: {core: auxl.playerRig},
 child0: {
 	parent: {core: auxl.playerBody},
 	child0: {
-		parent: {core: auxl.playerHead},
+		parent: {core: auxl.headRig},
 		child0: {
-			parent: {core: auxl.headRig},
+			parent: {core: auxl.camera},
+			child0: {core: auxl.mouseController},
+			child1: {core: auxl.mouseControllerUI},
+			child2: {core: auxl.cameraUI},
+			child3: {core: auxl.fadeScreen},
+			child4: {core: auxl.sphereScreen},
+			child5: {core: auxl.blink1Screen},
+			child6: {core: auxl.blink2Screen},
+		},
+		child1: {core: auxl.playerAudio},
+		child2: {
+			parent: {core: auxl.playerBeltUI},
 			child0: {
-				parent: {core: auxl.camera},
-				child0: {core: auxl.mouseController},
-				child1: {core: auxl.mouseControllerUI},
-				child2: {core: auxl.cameraUI},
-				child3: {core: auxl.fadeScreen},
-				child4: {core: auxl.sphereScreen},
-				child5: {core: auxl.blink1Screen},
-				child6: {core: auxl.blink2Screen},
+				parent: {core: auxl.playerBeltText},
+				child0: {core: auxl.playerBeltTitleText},
 			},
-			child1: {core: auxl.playerAudio},
-			child2: {
-				parent: {core: auxl.playerBeltUI},
-				child0: {
-					parent: {core: auxl.playerBeltText},
-					child0: {core: auxl.playerBeltTitleText},
-				},
-			},
-			child3: {
-				parent: {core: auxl.vrController1},
-				child0: {core: auxl.vrController1UI},
-			},
-			child4: {
-				parent: {core: auxl.vrController2},
-				child0: {core: auxl.vrController2UI},
-			},
+		},
+		child3: {
+			parent: {core: auxl.vrController1},
+			child0: {core: auxl.vrController1UI},
+		},
+		child4: {
+			parent: {core: auxl.vrController2},
+			child0: {core: auxl.vrController2UI},
 		},
 	},
 },
@@ -809,15 +782,199 @@ Unused Roaming Camera
 //
 //Player Avatar
 
-//Avatar Sphere Offset
-auxl.avatarSphereData = {
-data:'avatarSphereData',
-id:'avatarSphere',
+//Avatar Rig
+auxl.avatarRigData = {
+data:'avatarRigData',
+id:'avatarRig',
+sources:false,
+text: false,
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,1,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent', 'avatar'],
+};
+auxl.avatarRig = auxl.Core(auxl.avatarRigData);
+
+//Torso
+auxl.avatarTorsoData = {
+data:'avatarTorsoData',
+id:'avatarTorso',
+sources:false,
+text: false,
+//geometry: {primitive: 'box', depth: 0.3, width: 0.3, height: 1.3},
+geometry: {primitive: 'cylinder', radius: 0.15, height: 1.3, openEnded: false, segmentsHeight: 2, segmentsRadial: 16, thetaStart: 0, thetaLength: 360},
+material: {shader: "flat", opacity: 0,},
+position: new THREE.Vector3(0,0.65,0),
+rotation: new THREE.Vector3(0,1,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+components: {
+	['look-at-xyz']:{buffer: 0.25, drag: 0.1, match: 'camera', x:false, y:true, z:false, reverse: false},
+},
+mixins: false,
+classes: ['a-ent', 'avatar'],
+};
+auxl.avatarTorso = auxl.Core(auxl.avatarTorsoData);
+
+
+//body 0 Tear
+auxl.avatarBody0Data = {
+data:'avatarBody0Data',
+id:'avatarBody0',
 sources: false,
 text: false,
-geometry: false,
-material: false,
+geometry: {primitive: 'sphere', radius: 0.25, phiStart: 0, phiLength: 180, segmentsWidth: 16, segmentsHeight: 16, thetaStart: 0, thetaLength: 180},
+material: {shader: "standard", color: "#EF2D5E", emissive: '#EF2D5E', emissiveIntensity: 0.25, opacity: 1, side: 'front', metalness: 0.2, roughness: 0.8},
 position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(90,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent', 'avatar'],
+components: false,
+};
+auxl.avatarBody0 = auxl.Core(auxl.avatarBody0Data);
+//body 1 Tear
+auxl.avatarBody1Data = {
+data:'avatarBody1Data',
+id:'avatarBody1',
+sources: false,
+text: false,
+geometry: {primitive: 'cone', height:0.1, radiusBottom:0.25, radiusTop: 0.2, segmentsHeight:3, segmentsRadial:32, openEnded:false, thetaStart:0, thetaLength:360},
+material: {shader: "standard", color: "#EF2D5E", emissive: '#EF2D5E', emissiveIntensity: 0.25, opacity: 1, side: 'front', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0.05,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent', 'avatar'],
+components: false,
+};
+auxl.avatarBody1 = auxl.Core(auxl.avatarBody1Data);
+//body 2 Tear
+auxl.avatarBody2Data = {
+data:'avatarBody2Data',
+id:'avatarBody2',
+sources: false,
+text: false,
+geometry: {primitive: 'cone', height:0.25, radiusBottom:0.1, radiusTop: 0.2, segmentsHeight:3, segmentsRadial:32, openEnded:false, thetaStart:0, thetaLength:360},
+material: {shader: "standard", color: "#EF2D5E", emissive: '#EF2D5E', emissiveIntensity: 0.25, opacity: 1, side: 'front', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0.225,0),
+rotation: new THREE.Vector3(180,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent', 'avatar'],
+components: false,
+};
+auxl.avatarBody2 = auxl.Core(auxl.avatarBody2Data);
+
+//body 3 Tear
+auxl.avatarBody3Data = {
+data:'avatarBody3Data',
+id:'avatarBody3',
+sources: false,
+text: false,
+geometry: {primitive: 'cone', height:0.275, radiusBottom:0.1, radiusTop: 0, segmentsHeight:3, segmentsRadial:32, openEnded:false, thetaStart:0, thetaLength:360},material: {shader: "standard", color: "#EF2D5E", emissive: '#EF2D5E', emissiveIntensity: 0.25, opacity: 1, side: 'front', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0.487,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent', 'avatar'],
+components: false,
+};
+auxl.avatarBody3 = auxl.Core(auxl.avatarBody3Data);
+
+auxl.avatarBody4Data = {
+data:'avatarBody4Data',
+id:'avatarBody4',
+sources: false,
+text: false,
+geometry: {primitive: 'torus', radius: 0.21, radiusTubular: 0.025, segmentsRadial: 36, segmentsTubular: 32,},
+material: {shader: "standard", color: "#F2E646", emissive: '#F2E646', emissiveIntensity: 0.25, opacity: 1, side: 'front', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(90,0,0),
+scale: new THREE.Vector3(1,1,1.5),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: false,
+};
+auxl.avatarBody4 = auxl.Core(auxl.avatarBody4Data);
+
+
+
+
+
+
+//Head
+auxl.avatarHeadData = {
+data:'avatarHeadData',
+id:'avatarHead',
+sources:false,
+text: false,
+geometry: {primitive: 'dodecahedron', radius: 0.15, detail: 1}, 
+material: {shader: "standard", color: "#c14b6b", opacity: 0.9, metalness: 0.2, roughness: 0.8, emissive: "#c14b6b", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0,1.6,0),
+rotation: new THREE.Vector3(0,1,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+components: {
+	['look-at-xyz']:{match: 'camera', x:true, y:true, z:true, reverse: false},
+},
+mixins: false,
+classes: ['a-ent', 'avatar'],
+};
+auxl.avatarHead = auxl.Core(auxl.avatarHeadData);
+
+//Backback
+auxl.avatarBackpackData = {
+data:'avatarBackpackData',
+id:'avatarBackpack',
+sources: false,
+text: false,
+geometry: {primitive: 'ring', radiusInner: 0.2, radiusOuter: 0.275, segmentsPhi: 8, segmentsTheta: 32, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#F2E646", emissive: '#F2E646', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0.275,-0.25),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent', 'avatar'],
+components: false,
+};
+auxl.avatarBackpack = auxl.Core(auxl.avatarBackpackData);
+
+//Feet
+auxl.avatarFeetData = {
+data:'avatarFeetData',
+id:'avatarFeet',
+sources: false,
+text: false,
+geometry: {primitive: 'ring', radiusInner: 0.2, radiusOuter: 0.275, segmentsPhi: 8, segmentsTheta: 32, thetaStart: 0, thetaLength: 360},
+material: {shader: "standard", color: "#F2E646", emissive: '#F2E646', emissiveIntensity: 0.25, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8},
+position: new THREE.Vector3(0,0.1,0),
+rotation: new THREE.Vector3(90,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent', 'avatar'],
+components: false,
+};
+auxl.avatarFeet = auxl.Core(auxl.avatarFeetData);
+
+//Avatar Hand 1
+auxl.avatarHand1Data = {
+data:'avatarHand1Data',
+id:'avatarHand1',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.07, width: 0.07, height: 0.07},
+material: {shader: "standard", color: "#c14b6b", opacity: 0.75, metalness: 0.2, roughness: 0.8, emissive: "#c14b6b", emissiveIntensity: 0.6},
+position: new THREE.Vector3(-0.35,0.6,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
@@ -825,30 +982,25 @@ mixins: false,
 classes: ['a-ent','avatar'],
 components: false,
 };
-auxl.avatarSphere = auxl.Core(auxl.avatarSphereData);
+auxl.avatarHand1 = auxl.Core(auxl.avatarHand1Data);
 
-
-
-//Avatar
-//Avatar Face
-auxl.avatarFaceData = {
-data:'avatarFaceData',
-id:'avatarFace',
+//Avatar Hand 2
+auxl.avatarHand2Data = {
+data:'avatarHand2Data',
+id:'avatarHand2',
 sources: false,
 text: false,
-geometry: {primitive: 'triangle', vertexA: new THREE.Vector3(0,0.5,0), vertexB: new THREE.Vector3(-0.5,-0.5,0), vertexC: new THREE.Vector3(0.5,-0.5,0),},
-material: {shader: "standard", color: "#1fceac", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#1fceac", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,0.655,0),
-rotation: new THREE.Vector3(-90,0,0),
-scale: new THREE.Vector3(0.25,0.25,0.25),
+geometry: {primitive: 'box', depth: 0.07, width: 0.07, height: 0.07},
+material: {shader: "standard", color: "#4b7dc1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4b7dc1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.35,0.6,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
 animations: false,
 mixins: false,
 classes: ['a-ent','avatar'],
-components: {
-visible: false,
-},
+components: false,
 };
-auxl.avatarFace = auxl.Core(auxl.avatarFaceData);
+auxl.avatarHand2 = auxl.Core(auxl.avatarHand2Data);
 
 //Avatar Hover Above
 auxl.avatarHoverData = {
@@ -870,338 +1022,27 @@ visible: false,
 };
 auxl.avatarHover = auxl.Core(auxl.avatarHoverData);
 
-//Avatar Hand 1
-auxl.avatarHand1Data = {
-data:'avatarHand1Data',
-id:'avatarHand1',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.07, width: 0.07, height: 0.07},
-material: {shader: "standard", color: "#c14b6b", opacity: 0.75, metalness: 0.2, roughness: 0.8, emissive: "#c14b6b", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent','avatar'],
-components: false,
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-//},
-};
-auxl.avatarHand1 = auxl.Core(auxl.avatarHand1Data);
-
-//Avatar Hand 2
-auxl.avatarHand2Data = {
-data:'avatarHand2Data',
-id:'avatarHand2',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.07, width: 0.07, height: 0.07},
-material: {shader: "standard", color: "#4b7dc1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4b7dc1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent','avatar'],
-components: false,
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-//},
-};
-auxl.avatarHand2 = auxl.Core(auxl.avatarHand2Data);
-
-
-//Parent Rig
-auxl.avatarRigData = {
-data:'avatarRigData',
-id:'avatarRig',
-sources:false,
-text: false,
-//geometry: {primitive: 'box', width: 0.025, height: 0.05, depth: 0.025},
-//material: {shader: "standard", color: "#d80e92", opacity: 1, metalness: 0, roughness: 1, emissive: "#d80e92", emissiveIntensity: 0.2, side: 'front',},
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,1,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent', 'avatar'],
-//components: {
-	//light: {type: 'point', intensity: 0.075, distance: 5, decay:0.75},
-	//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-	//['ammo-shape']:{type: 'box',},
-/*
-	['ammo-constraint__body']: {
-		type: 'lock', 
-		target: '#avatarTorso', 
-	},
-*/
-//},
-};
-auxl.avatarRig = auxl.Core(auxl.avatarRigData);
-
-//avatar Pelvis
-auxl.avatarPelvisData = {
-data:'avatarPelvisData',
-id:'avatarPelvis',
-sources:false,
-text: false,
-geometry: {primitive: 'box', width: 0.2, height: 0.1, depth: 0.1},
-material: {shader: "standard", color: "#84897f", opacity: 1, metalness: 0, roughness: 1, emissive: "#84897f", emissiveIntensity: 0.2, side: 'front',},
-position: new THREE.Vector3(0,0.96,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent', 'target'],
-components: false,
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-/*
-	['ammo-constraint__body']: {
-		type: 'coneTwist', 
-		target: '#avatarTorso', 
-		pivot: '0 0.1 0', 
-		targetPivot: '0 -0.3 0', 
-	},
-	['ammo-constraint__leftleg']: {
-		type: 'coneTwist', 
-		target: '#avatarLeftUpperLeg', 
-		pivot: '-0.05 -0.1 0', 
-		targetPivot: '0 0.2 0', 
-	},
-	['ammo-constraint__rightleg']: {
-		type: 'coneTwist', 
-		target: '#avatarRightUpperLeg', 
-		pivot: '0.5 -0.1 0', 
-		targetPivot: '0 0.2 0', 
-	},
-*/
-//},
-};
-auxl.avatarPelvis = auxl.Core(auxl.avatarPelvisData);
-
-
-//avatar body rig
-auxl.avatarHeadRigData = auxl.coreDataFromTemplate(auxl.avatarRigData, {id: 'avatarHeadRig', geometry: false, material: false, position: new THREE.Vector3(0,1.6,0), rotation: new THREE.Vector3(0,0,0),
-//components: {
-	//['look-controls']:{enabled: true, reverseMouseDrag: false, reverseTouchDrag: false, touchEnabled: true, mouseEnabled: true, pointerLockEnabled: true, magicWindowTrackingEnabled: true},
-//},
-}, true);
-auxl.avatarHeadRig = auxl.Core(auxl.avatarHeadRigData);
-
-//avatar body rig
-auxl.avatarHeadOffsetData = auxl.coreDataFromTemplate(auxl.avatarRigData, {id: 'avatarHeadOffset', geometry: false, material: false, position: new THREE.Vector3(0,0,0.085), rotation: new THREE.Vector3(0,0,0),
-components: false,
-}, true);
-auxl.avatarHeadOffset = auxl.Core(auxl.avatarHeadOffsetData);
-
-//avatar Head
-auxl.avatarHeadData = auxl.coreDataFromTemplate(auxl.avatarPelvisData, {id: 'avatarHead', geometry: {primitive: 'dodecahedron', radius: 0.1, detail: 1}, position: new THREE.Vector3(0,0,0), rotation: new THREE.Vector3(0,0,0), scale: new THREE.Vector3(1,1,1),
-components: false,
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-//},
-}, true);
-auxl.avatarHead = auxl.Core(auxl.avatarHeadData);
-
-//avatar body rig
-auxl.avatarTorsoRigData = auxl.coreDataFromTemplate(auxl.avatarRigData, {id: 'avatarTorsoRig', geometry: false, material: false, position: new THREE.Vector3(0,0,0), rotation: new THREE.Vector3(0,0,0),
-components: {
-	['look-at-xyz']:{buffer: 0.3, drag: 0.2, match: 'avatarHeadRig', x:false, y:true, z:false, reverse: false},
-},
-}, true);
-auxl.avatarTorsoRig = auxl.Core(auxl.avatarTorsoRigData);
-
-
-//avatar body rig
-auxl.avatarTorsoOffsetData = auxl.coreDataFromTemplate(auxl.avatarRigData, {id: 'avatarTorsoOffset', geometry: false, material: false, position: new THREE.Vector3(0,0,0.085), rotation: new THREE.Vector3(0,0,0),
-components: false,
-}, true);
-auxl.avatarTorsoOffset = auxl.Core(auxl.avatarTorsoOffsetData);
-
-//avatar torso
-auxl.avatarTorsoData = auxl.coreDataFromTemplate(auxl.avatarPelvisData, {id: 'avatarTorso', geometry: {primitive: 'box', width: 0.2, height: 0.45, depth: 0.085}, position: new THREE.Vector3(0,1.26,0), rotation: new THREE.Vector3(0,0,0),
-components: false,
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-/*
-	['ammo-constraint']: {
-		type: 'fixed', 
-		target: '#avatarHead', 
-	},
-*/
-//},
-}, true);
-auxl.avatarTorso = auxl.Core(auxl.avatarTorsoData);
-
-
-//avatar Left Upper Leg
-auxl.avatarLeftUpperLegData = auxl.coreDataFromTemplate(auxl.avatarPelvisData, {id: 'avatarLeftUpperLeg', geometry: {primitive: 'box', width: 0.07, height: 0.35, depth: 0.08}, position: new THREE.Vector3(-0.05,0.7,0), rotation: new THREE.Vector3(0,0,0),
-components: false,
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-/*
-	['ammo-constraint__leftleg']: {
-		type: 'coneTwist', 
-		target: '#avatarLeftLowerLeg', 
-		pivot: '0 -0.2 0', 
-		targetPivot: '0 0.2 0', 
-	},
-*/
-//},
-}, true);
-auxl.avatarLeftUpperLeg = auxl.Core(auxl.avatarLeftUpperLegData);
-
-//avatar Left Lower Leg
-auxl.avatarLeftLowerLegData = auxl.coreDataFromTemplate(auxl.avatarPelvisData, {id: 'avatarLeftLowerLeg', geometry: {primitive: 'box', width: 0.05, height: 0.45, depth: 0.05}, position: new THREE.Vector3(0.05,0.25,0), rotation: new THREE.Vector3(0,0,0),
-components: false,
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-//},
-}, true);
-auxl.avatarLeftLowerLeg = auxl.Core(auxl.avatarLeftLowerLegData);
-
-//avatar Right Upper Leg
-auxl.avatarRightUpperLegData = auxl.coreDataFromTemplate(auxl.avatarPelvisData, {id: 'avatarRightUpperLeg', geometry: {primitive: 'box', width: 0.07, height: 0.35, depth: 0.08}, position: new THREE.Vector3(0.05,0.7,0), rotation: new THREE.Vector3(0,0,0),
-components: false,
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-/*
-	['ammo-constraint__rightleg']: {
-		type: 'coneTwist', 
-		target: '#avatarRightLowerLeg', 
-		pivot: '0 -0.2 0', 
-		targetPivot: '0 0.2 0', 
-	},
-*/
-//},
-}, true);
-auxl.avatarRightUpperLeg = auxl.Core(auxl.avatarRightUpperLegData);
-
-//avatar Right Lower Leg
-auxl.avatarRightLowerLegData = auxl.coreDataFromTemplate(auxl.avatarPelvisData, {id: 'avatarRightLowerLeg', geometry: {primitive: 'box', width: 0.05, height: 0.45, depth: 0.05}, position: new THREE.Vector3(-0.05,0.25,0), rotation: new THREE.Vector3(0,0,0),
-components: false,
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-//},
-}, true);
-auxl.avatarRightLowerLeg = auxl.Core(auxl.avatarRightLowerLegData);
-
-//avatar Left Upper Arm
-auxl.avatarLeftUpperArmData = auxl.coreDataFromTemplate(auxl.avatarPelvisData, {id: 'avatarLeftUpperArm', geometry: {primitive: 'box', width: 0.05, height: 0.3, depth: 0.07}, position: new THREE.Vector3(-0.15,1.3,0), rotation: new THREE.Vector3(0,0,0), 
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-/*
-	['ammo-constraint__body']: {
-		type: 'coneTwist', 
-		target: '#avatarTorso', 
-		pivot: '0 0.2 0', 
-		targetPivot: '-0.2 0.2 0', 
-	},
-	['ammo-constraint__leftarm']: {
-		type: 'coneTwist', 
-		target: '#avatarLeftLowerArm', 
-		pivot: '0 -0.25 0', 
-		targetPivot: '0 0 0', 
-	},
-*/
-//},
-}, true);
-auxl.avatarLeftUpperArm = auxl.Core(auxl.avatarLeftUpperArmData);
-
-//avatar Left Lower Arm
-auxl.avatarLeftLowerArmData = auxl.coreDataFromTemplate(auxl.avatarPelvisData, {id: 'avatarLeftLowerArm', geometry: {primitive: 'box', width: 0.03, height: 0.25, depth: 0.05}, position: new THREE.Vector3(-0.15,1,0), rotation: new THREE.Vector3(0,0,0),
-components: false,
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-//},
-}, true);
-auxl.avatarLeftLowerArm = auxl.Core(auxl.avatarLeftLowerArmData);
-
-//avatar Right Upper Arm
-auxl.avatarRightUpperArmData = auxl.coreDataFromTemplate(auxl.avatarPelvisData, {id: 'avatarRightUpperArm', geometry: {primitive: 'box', width: 0.05, height: 0.3, depth: 0.07}, position: new THREE.Vector3(0.15,1.3,0), rotation: new THREE.Vector3(0,0,0), 
-components: false,
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-/*
-	['ammo-constraint__body']: {
-		type: 'coneTwist', 
-		target: '#avatarTorso', 
-		pivot: '0 0.2 0', 
-		targetPivot: '0.2 0.2 0', 
-	},
-	['ammo-constraint__leftarm']: {
-		type: 'coneTwist', 
-		target: '#avatarRightLowerArm', 
-		pivot: '0 0 0', 
-		targetPivot: '0 -0.25 0', 
-	},
-*/
-//},
-}, true);
-auxl.avatarRightUpperArm = auxl.Core(auxl.avatarRightUpperArmData);
-//avatar Right Lower Arm
-auxl.avatarRightLowerArmData = auxl.coreDataFromTemplate(auxl.avatarPelvisData, {id: 'avatarRightLowerArm', geometry: {primitive: 'box', width: 0.03, height: 0.25, depth: 0.05}, position: new THREE.Vector3(0.15,1,0), rotation: new THREE.Vector3(0,0,0),
-components: false,
-//components: {
-//['ammo-body']:{type: 'kinematic', emitCollisionEvents: true,},
-//['ammo-shape']:{type: 'box'},
-//},
-}, true);
-auxl.avatarRightLowerArm = auxl.Core(auxl.avatarRightLowerArmData);
-
 //Avatar
 auxl.avatarData = {
-parent: {core: auxl.avatarRig},
-child0: {
-	parent: {core: auxl.avatarHeadRig},
-	child0: {
-		parent: {core: auxl.avatarHeadOffset},
-		child0: {core: auxl.avatarHead},
-		child1: {core: auxl.avatarFace},
+	parent: {core: auxl.avatarRig},
+	child0: {core: auxl.avatarHand1},
+	child1: {core: auxl.avatarHand2},
+	child2: {
+		parent: {core: auxl.avatarTorso},
+		child0: {core: auxl.avatarBody0},
+		child1: {core: auxl.avatarBody1},
+		child2: {core: auxl.avatarBody2},
+		child3: {core: auxl.avatarBody3},
+		child4: {core: auxl.avatarBody4},
 	},
-},
-child1: {
-	parent: {core: auxl.avatarTorsoRig},
-	child0: {
-		parent: {core: auxl.avatarTorsoOffset},
-		child0: {core: auxl.avatarTorso},
-		child1: {core: auxl.avatarPelvis},
-		child2: {core: auxl.avatarLeftUpperLeg},
-		child3: {core: auxl.avatarLeftLowerLeg},
-		child4: {core: auxl.avatarRightUpperLeg},
-		child5: {core: auxl.avatarRightLowerLeg},
-		child6: {core: auxl.avatarLeftUpperArm},
-		child7: {core: auxl.avatarLeftLowerArm},
-		child8: {core: auxl.avatarRightUpperArm},
-		child9: {core: auxl.avatarRightLowerArm},
-	},
-	child1: {core: auxl.avatarHover},
-},
-//child4: {core: auxl.avatarHover},
+	child3: {core: auxl.avatarHead},
+	child4: {core: auxl.avatarFeet},
+	child5: {core: auxl.avatarHover},
 }
 auxl.avatar = auxl.Layer('avatar', auxl.avatarData);
 
 //Player
 auxl.player = auxl.Player('player',auxl.playerLayer);
-//console.log({playerCreated: auxl.player})
-
-
-
 
 
 //
