@@ -533,6 +533,9 @@ const Player = (auxl, id, layer, data) => {
 				layer.scroll.scrolls.push(zoomDirection(each))
 			})
 			camZoom = 1;
+			auxl.avatarHead.ChangeSelf({property: 'visible', value: true});
+		} else {
+			auxl.avatarHead.ChangeSelf({property: 'visible', value: false});
 		}
 		let newPosition = new THREE.Vector3(0,0,0).copy(layer.scroll.scrolls[camZoom]);
 		//Update Position

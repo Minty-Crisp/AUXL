@@ -923,6 +923,7 @@ rotation: new THREE.Vector3(0,1,0),
 scale: new THREE.Vector3(1,1,1),
 animations: false,
 components: {
+	visible: false,
 	['look-at-xyz']:{match: 'camera', x:true, y:true, z:true, reverse: false},
 },
 mixins: false,
