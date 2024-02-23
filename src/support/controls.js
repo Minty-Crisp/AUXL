@@ -1363,8 +1363,8 @@ keyboardUp: function (e){
 //Joystick 1Locomotion
 questJoystick1Locomotion: function (e){
 	//Check for deadzone
-	let x = e.detail.x;
-	let z = e.detail.y * -1;//reverse for correct direction
+	let x = e.detail.x * -1;//reverse for correct direction
+	let z = e.detail.y;
 	let xDead = false;
 	let yDead = false;
 	if((x > 0 && x < this.deadzoneLoco) || (x < 0 && x > this.deadzoneLoco *-1)){
