@@ -618,13 +618,18 @@ tick: function (time, timeDelta) {
 //Free Locomotion Tick
 freeStep: function (time, timeDelta) {
 	//VR Joystick XY Movement
-	if(this.auxl.sceneEl.is('vr-mode') && this.auxl.joystickLoco === 1 && this.joystickLocoMove){
-		if(this.moveBrake){
-			this.move(false, this.moveSpeedSlow);
+	if(this.auxl.sceneEl.is('vr-mode') && this.auxl.joystickLoco === 1){
+		if(this.joystickLocoMove){
+			if(this.moveBrake){
+				this.move(false, this.moveSpeedSlow);
+			} else {
+				this.move(false, this.moveSpeedDefault);
+			}
+			return;
 		} else {
-			this.move(false, this.moveSpeedDefault);
+			//No movement
+			return;
 		}
-		return;
 	}
 
 	//DPAD Movment
