@@ -327,26 +327,16 @@ auxl.mouseController = auxl.Core(auxl.mouseControllerData);
 auxl.mouseControllerUIData = {
 data:'mouseControllerUIData',
 id:'mouseControllerUI',
-sources: false,
-//text: {value:'...', width: 0.5, color: "#FFFFFF", align: "center", font: "exo2bold"},
 geometry: {primitive: 'ring', radiusInner: 0.005, radiusOuter: 0.01, segmentsPhi: 1, segmentsTheta: 12, thetaStart: 90, thetaLength: 0},
 material: {shader: "flat", color: "#ac2d2d", opacity: 0.8, side: 'double'},
 position: new THREE.Vector3(0,0,-0.25),
 rotation: new THREE.Vector3(0,180,0),
 scale: new THREE.Vector3(0.88, 1, 0.88),
 animations: {
+
 charge0:{property: 'start', from: 0, to: 1, dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'charge'},
 
 charge1:{property: 'geometry.thetaLength', from: 360, to: 0, dur: 1000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__charge0, animationcomplete__charge4', pauseEvents: 'charged, reset'},
-
-/*
-geometry="primitive: sphere; radius: 1; phiStart: 0; phiLength: 360; segmentsPhi: 8; segmentsTheta: 32; thetaStart: 0; thetaLength: 360"
-
-
-chargereset0:{property: 'geometry.thetaLength', to: 0, dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset',},
-
-to do this 2nd loop it requires the entity to flip rotate and thus all UI is flipped at that time which seems wasteful, maybe try a new approach like segments of a clock ticking up to 12 
-*/
 
 charge2:{property: 'rotation', from:'0 180 0', to:  '0 0 0', dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__charge1', pauseEvents: 'charged, reset'},
 
@@ -354,16 +344,9 @@ charge3:{property: 'geometry.thetaLength', from: 0, to: 360, dur: 1000, delay: 0
 
 charge4:{property: 'rotation', from:'0 0 0', to:  '0 180 0', dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__charge3', pauseEvents: 'charged, reset'},
 
-
-
-
 charged0:{property: 'geometry.radiusInner', from: 0.005, to: 0, dur: 1000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'charged', pauseEvents: 'reset, charge'},
 
 charged1:{property: 'geometry.thetaLength', from: 360, to: 360, dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'charged', pauseEvents: 'reset, charge'},
-
-
-
-
 
 chargereset0:{property: 'geometry.thetaLength', to: 0, dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset, charge',},
 chargereset1:{property: 'rotation', from:'0 180 0', to:  '0 180 0', dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset, charge',},
@@ -380,23 +363,13 @@ auxl.mouseControllerUI = auxl.Core(auxl.mouseControllerUIData);
 auxl.vrController1Data = {
 data:'vrController1Data',
 id:'vrController1',
-sources: false,
-text: false,
-geometry: {primitive: 'ring', radiusInner: 0.02, radiusOuter: 0.03},
-material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-position: new THREE.Vector3(-0.15,0.6,0),
+position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-animations: {
-hoverenter:{property: 'raycaster.lineColor', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
-hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
-},
-mixins: false,
 classes: ['a-ent','player'],
 components: {
-//['vr-left-inputs']:{joystickEnabled: true},
-camera: {active: false},
-visible: 'false',
+	//camera: {active: false},
+	visible: 'false',
 },
 };
 auxl.vrController1 = auxl.Core(auxl.vrController1Data);
@@ -418,27 +391,52 @@ classes: ['a-ent','player'],
 components: {visible: 'false',},
 };
 auxl.vrController1UI = auxl.Core(auxl.vrController1UIData);
+//VR Controller 1 Cursor
+auxl.vrController1CursorData = {
+data:'vrController1CursorData',
+id:'vrController1Cursor',
+geometry: {primitive: 'ring', radiusInner: 0.005, radiusOuter: 0.01, segmentsPhi: 1, segmentsTheta: 12, thetaStart: 90, thetaLength: 0},
+material: {shader: "flat", color: "#ac2d2d", opacity: 0.8, side: 'double'},
+position: new THREE.Vector3(0,0,-0.25),
+rotation: new THREE.Vector3(0,180,0),
+scale: new THREE.Vector3(0.88, 1, 0.88),
+animations: {
+
+charge0:{property: 'start', from: 0, to: 1, dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'charge'},
+
+charge1:{property: 'geometry.thetaLength', from: 360, to: 0, dur: 1000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__charge0, animationcomplete__charge4', pauseEvents: 'charged, reset'},
+
+charge2:{property: 'rotation', from:'0 180 0', to:  '0 0 0', dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__charge1', pauseEvents: 'charged, reset'},
+
+charge3:{property: 'geometry.thetaLength', from: 0, to: 360, dur: 1000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__charge2', pauseEvents: 'charged, reset'},
+
+charge4:{property: 'rotation', from:'0 0 0', to:  '0 180 0', dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__charge3', pauseEvents: 'charged, reset'},
+
+charged0:{property: 'geometry.radiusInner', from: 0.005, to: 0, dur: 1000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'charged', pauseEvents: 'reset, charge'},
+
+charged1:{property: 'geometry.thetaLength', from: 360, to: 360, dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'charged', pauseEvents: 'reset, charge'},
+
+chargereset0:{property: 'geometry.thetaLength', to: 0, dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset, charge',},
+chargereset1:{property: 'rotation', from:'0 180 0', to:  '0 180 0', dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset, charge',},
+chargereset2:{property: 'geometry.radiusInner', from: 0.005, to: 0.005, dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset, charge',},
+
+},
+mixins: false,
+classes: ['a-ent','player'],
+components: {visible: 'false',},
+};
+auxl.vrController1Cursor = auxl.Core(auxl.vrController1CursorData);
 //VR Controller 2
 auxl.vrController2Data = {
 data:'vrController2Data',
 id:'vrController2',
-sources: false,
-text: false,
-geometry: {primitive: 'ring', radiusInner: 0.02, radiusOuter: 0.03},
-material: {shader: "flat", color: "#228da7", opacity: 0.75, side: 'double'},
-position: new THREE.Vector3(0.15,0.6,0),
+position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
-animations: {
-hoverenter:{property: 'raycaster.lineColor', from: '#228da7', to: '#22a741', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseenter'},
-hoverleave:{property: 'raycaster.lineColor', from: '#22a741', to: '#228da7', dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'easeInCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'mouseleave'},
-},
-mixins: false,
 classes: ['a-ent','player'],
 components: {
-//['vr-right-inputs']:{joystickEnabled: true},
-camera: {active: false},
-visible: 'false',
+	//camera: {active: false},
+	visible: 'false',
 },
 };
 auxl.vrController2 = auxl.Core(auxl.vrController2Data);
@@ -460,6 +458,41 @@ classes: ['a-ent','player'],
 components: {visible: 'false',},
 };
 auxl.vrController2UI = auxl.Core(auxl.vrController2UIData);
+//VR Controller 2 Cursor
+auxl.vrController2CursorData = {
+data:'vrController2CursorData',
+id:'vrController2Cursor',
+geometry: {primitive: 'ring', radiusInner: 0.005, radiusOuter: 0.01, segmentsPhi: 1, segmentsTheta: 12, thetaStart: 90, thetaLength: 0},
+material: {shader: "flat", color: "#ac2d2d", opacity: 0.8, side: 'double'},
+position: new THREE.Vector3(0,0,-0.25),
+rotation: new THREE.Vector3(0,180,0),
+scale: new THREE.Vector3(0.88, 1, 0.88),
+animations: {
+
+charge0:{property: 'start', from: 0, to: 1, dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'charge'},
+
+charge1:{property: 'geometry.thetaLength', from: 360, to: 0, dur: 1000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__charge0, animationcomplete__charge4', pauseEvents: 'charged, reset'},
+
+charge2:{property: 'rotation', from:'0 180 0', to:  '0 0 0', dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__charge1', pauseEvents: 'charged, reset'},
+
+charge3:{property: 'geometry.thetaLength', from: 0, to: 360, dur: 1000, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__charge2', pauseEvents: 'charged, reset'},
+
+charge4:{property: 'rotation', from:'0 0 0', to:  '0 180 0', dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'animationcomplete__charge3', pauseEvents: 'charged, reset'},
+
+charged0:{property: 'geometry.radiusInner', from: 0.005, to: 0, dur: 1000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutCubic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'charged', pauseEvents: 'reset, charge'},
+
+charged1:{property: 'geometry.thetaLength', from: 360, to: 360, dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'charged', pauseEvents: 'reset, charge'},
+
+chargereset0:{property: 'geometry.thetaLength', to: 0, dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset, charge',},
+chargereset1:{property: 'rotation', from:'0 180 0', to:  '0 180 0', dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset, charge',},
+chargereset2:{property: 'geometry.radiusInner', from: 0.005, to: 0.005, dur: 0, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'reset, charge',},
+
+},
+mixins: false,
+classes: ['a-ent','player'],
+components: {visible: 'false',},
+};
+auxl.vrController2Cursor = auxl.Core(auxl.vrController2CursorData);
 //Belt UI
 auxl.playerBeltUIData = {
 data:'playerBeltUIData',
@@ -710,11 +743,13 @@ child0: {
 			},
 			child1: {
 				parent: {core: auxl.vrController1},
-				child0: {core: auxl.vrController1UI},
+				child0: {core: auxl.vrController1Cursor},
+				child1: {core: auxl.vrController1UI},
 			},
 			child2: {
 				parent: {core: auxl.vrController2},
-				child0: {core: auxl.vrController2UI},
+				child0: {core: auxl.vrController2Cursor},
+				child1: {core: auxl.vrController2UI},
 			},
 		},
 		child1: {core: auxl.playerAudio},
@@ -750,6 +785,40 @@ mixins: false,
 classes: ['a-ent', 'avatar'],
 };
 auxl.avatarRig = auxl.Core(auxl.avatarRigData);
+//Avatar Hand 1
+auxl.avatarHand1Data = {
+data:'avatarHand1Data',
+id:'avatarHand1',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.07, width: 0.07, height: 0.07},
+material: {shader: "standard", color: "#c14b6b", opacity: 0.75, metalness: 0.2, roughness: 0.8, emissive: "#c14b6b", emissiveIntensity: 0.6},
+position: new THREE.Vector3(-0.35,0.6,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent','avatar'],
+components: false,
+};
+auxl.avatarHand1 = auxl.Core(auxl.avatarHand1Data);
+//Avatar Hand 2
+auxl.avatarHand2Data = {
+data:'avatarHand2Data',
+id:'avatarHand2',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.07, width: 0.07, height: 0.07},
+material: {shader: "standard", color: "#4b7dc1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4b7dc1", emissiveIntensity: 0.6},
+position: new THREE.Vector3(0.35,0.6,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent','avatar'],
+components: false,
+};
+auxl.avatarHand2 = auxl.Core(auxl.avatarHand2Data);
 //Torso
 auxl.avatarTorsoData = {
 data:'avatarTorsoData',
@@ -908,40 +977,6 @@ classes: ['a-ent', 'avatar'],
 components: false,
 };
 auxl.avatarFeet = auxl.Core(auxl.avatarFeetData);
-//Avatar Hand 1
-auxl.avatarHand1Data = {
-data:'avatarHand1Data',
-id:'avatarHand1',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.07, width: 0.07, height: 0.07},
-material: {shader: "standard", color: "#c14b6b", opacity: 0.75, metalness: 0.2, roughness: 0.8, emissive: "#c14b6b", emissiveIntensity: 0.6},
-position: new THREE.Vector3(-0.35,0.6,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent','avatar'],
-components: false,
-};
-auxl.avatarHand1 = auxl.Core(auxl.avatarHand1Data);
-//Avatar Hand 2
-auxl.avatarHand2Data = {
-data:'avatarHand2Data',
-id:'avatarHand2',
-sources: false,
-text: false,
-geometry: {primitive: 'box', depth: 0.07, width: 0.07, height: 0.07},
-material: {shader: "standard", color: "#4b7dc1", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#4b7dc1", emissiveIntensity: 0.6},
-position: new THREE.Vector3(0.35,0.6,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent','avatar'],
-components: false,
-};
-auxl.avatarHand2 = auxl.Core(auxl.avatarHand2Data);
 //Avatar Hover Above
 auxl.avatarHoverData = {
 data:'avatarHoverData',
@@ -950,7 +985,7 @@ sources: false,
 text: {value:'Avatar', width: 0.95, color: "#FFFFFF", align: "center", font: "exo2bold", wrapCount: 12, zOffset: 0.251},
 geometry: {primitive: 'octahedron', radius: 0.25, detail: 0},
 material: {shader: "standard", color: "#c1664b", opacity: 0.8, metalness: 0.2, roughness: 0.8, emissive: "#c1664b", emissiveIntensity: 0.6, blending: 'subtractive',},
-position: new THREE.Vector3(0,2.6,0),
+position: new THREE.Vector3(0,3.75,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1.5,1),
 animations: false,
@@ -1455,15 +1490,14 @@ animations: false,
 mixins: false,
 classes: ['a-ent', 'clickable'],
 components: {
-	oneventrun__mousedown:{
-		event: 'mousedown',
+	mousedownrun:{
 		cursorObj: 'comp',
 		component: 'null',
 		method: 'DragToPosition',
-		params: 'true',
+		//params: 'true',
+		params: 'other',
 	},
-	oneventrun__mouseup:{
-		event: 'mouseup',
+	mouseuprun:{
 		cursorObj: 'comp',
 		component: 'null',
 		method: 'DragToPosition',

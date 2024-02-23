@@ -848,24 +848,24 @@ auxl.ammoScenarioData = {
 	controls:{
 
 		//Force Throw
-		action1Down:{auxlObj: 'player', func: 'HoverTargetDown', params: false, name: 'Force Throw Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
-		action1Up:{auxlObj: 'player', func: 'HoverTargetUp', params: false, name: 'Force Throw Targets', info: 'Force throw targets.'},
+		action1Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'action1', name: 'Force Throw Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
+		action1Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action1', name: 'Force Throw Targets', info: 'Force throw targets.'},
 
 		//Force Grab
-		action2Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'grab', name: 'Force Grab Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
-		action2Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'grab', name: 'Force Grab Targets', info: 'Force grab targets.'},
+		action2Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'action2grab', name: 'Force Grab Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
+		action2Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action2grab', name: 'Force Grab Targets', info: 'Force grab targets.'},
 
 		//Force Pull
-		action3Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'pull', name: 'Force Pull Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
-		action3Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'pull', name: 'Force Pull Targets', info: 'Force pull targets.'},
+		action3Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'action3pull', name: 'Force Pull Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
+		action3Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action3pull', name: 'Force Pull Targets', info: 'Force pull targets.'},
 
 		//Force Up
 		//action4Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'up', name: 'Force Up Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
 		//action4Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'up', name: 'Force Up Targets', info: 'Force throw up targets.'},
 
 		//Force Release
-		//action5Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'release', name: 'Force Release Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
-		action4Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'release', name: 'Force Release Targets', info: 'Force release targets.'},
+		//action4Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'release', name: 'Force Release Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
+		action4Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action4release', name: 'Force Release Targets', info: 'Force release targets.'},
 
 		//
 		//Default Player Controls

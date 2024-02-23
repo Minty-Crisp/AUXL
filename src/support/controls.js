@@ -1359,8 +1359,7 @@ keyboardUp: function (e){
 		this.action8Up();
 	}
 },
-
-//Joystick 1Locomotion
+//Joystick 1Locomotion - Not Working
 questJoystick1Locomotion: function (e){
 	//Check for deadzone
 	let x = e.detail.x * -1;//reverse for correct direction
@@ -1768,7 +1767,6 @@ events: {
 Measure: function (toggle) {
 	this.measure = !toggle;
 },
-
 //Tick
 tick: function (time, timeDelta) {
 	//Time Measurements

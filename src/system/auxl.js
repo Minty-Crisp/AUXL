@@ -516,7 +516,6 @@ this.vrHand = 'bothRight';
 this.vrHandPrevious = false;
 this.directionType = 'camera';
 this.locomotionText = 'WASD Keys';
-//this.joystickLoco = 1;
 this.joystickLoco = 8;//dpad
 this.controlsInfo = {};
 this.controlsText = '';
@@ -779,6 +778,8 @@ function disableVRControls(){
 	auxl.vrController2.GetEl().setAttribute('visible',false);
 	auxl.vrController1UI.GetEl().setAttribute('visible',false);
 	auxl.vrController2UI.GetEl().setAttribute('visible',false);
+	auxl.vrController1Cursor.GetEl().setAttribute('visible',false);
+	auxl.vrController2Cursor.GetEl().setAttribute('visible',false);
 	auxl.vrController1.GetEl().removeAttribute('cursor');
 	auxl.vrController2.GetEl().removeAttribute('cursor');
 	auxl.vrController1.GetEl().removeAttribute('laser-controls');
@@ -788,6 +789,8 @@ function enableVRControls(){
 	if(auxl.vrHand === 'bothRight'){
 		auxl.vrController1.GetEl().setAttribute('visible',true);
 		auxl.vrController2.GetEl().setAttribute('visible',true);
+		auxl.vrController1Cursor.GetEl().setAttribute('visible',true);
+		auxl.vrController2Cursor.GetEl().setAttribute('visible',true);
 		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
 		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
 		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
@@ -801,6 +804,8 @@ function enableVRControls(){
 	} else if(auxl.vrHand === 'bothLeft'){
 		auxl.vrController1.GetEl().setAttribute('visible',true);
 		auxl.vrController2.GetEl().setAttribute('visible',true);
+		auxl.vrController1Cursor.GetEl().setAttribute('visible',true);
+		auxl.vrController2Cursor.GetEl().setAttribute('visible',true);
 		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
 		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
 		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
@@ -814,6 +819,8 @@ function enableVRControls(){
 	} else if(auxl.vrHand === 'bothRightLoco' || auxl.vrHand === 'bothLeftLoco'){
 		auxl.vrController1.GetEl().setAttribute('visible',true);
 		auxl.vrController2.GetEl().setAttribute('visible',true);
+		auxl.vrController1Cursor.GetEl().setAttribute('visible',true);
+		auxl.vrController2Cursor.GetEl().setAttribute('visible',true);
 		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
 		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
 		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
@@ -833,6 +840,7 @@ function enableVRControls(){
 /*
  else if(auxl.vrHand === 'right'){
 		auxl.vrController2.GetEl().setAttribute('visible',true);
+		auxl.vrController2Cursor.GetEl().setAttribute('visible',true);
 		//auxl.vrController2UI.GetEl().setAttribute('visible',true);
 		auxl.vrController2.GetEl().setAttribute('laser-controls',{hand: 'right'});
 		auxl.vrController2.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});
@@ -842,6 +850,7 @@ function enableVRControls(){
 		auxl.locomotionText = 'Hover on Forward/Backward Belt.';
 	} else if(auxl.vrHand === 'left'){
 		auxl.vrController1.GetEl().setAttribute('visible',true);
+		auxl.vrController1Cursor.GetEl().setAttribute('visible',true);
 		//auxl.vrController1UI.GetEl().setAttribute('visible',true);
 		auxl.vrController1.GetEl().setAttribute('laser-controls',{hand: 'left'});
 		auxl.vrController1.GetEl().setAttribute('raycaster',{enabled: true, autoRefresh: true, objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: '#228da7', lineOpacity: 0.5, showLine: true, useWorldCoordinates: false});

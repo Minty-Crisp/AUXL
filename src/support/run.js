@@ -116,6 +116,12 @@ events: {
 			this.auxl[this.data.method]();
 		} else if(this.data.params === 'target'){
 			this.auxl[this.data.method](evt.target);
+		} else if(this.data.params === 'other'){
+			if(evt.detail.cursorEl){
+				this.auxl[this.data.cursorObj][this.data.method](evt.detail.cursorEl);
+			} else {
+				this.auxl[this.data.cursorObj][this.data.method](evt);
+			}
 		} else {
 			this.auxl[this.data.method](this.data.params);
 		}
@@ -147,6 +153,12 @@ events: {
 					this.auxl[this.data.cursorObj][this.data.method]();
 				} else if(this.data.params === 'target'){
 					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else if(this.data.params === 'other'){
+					if(evt.detail.cursorEl){
+						this.auxl[this.data.cursorObj][this.data.method](evt.detail.cursorEl);
+					} else {
+						this.auxl[this.data.cursorObj][this.data.method](evt);
+					}
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
 				}
@@ -159,6 +171,12 @@ events: {
 					this.domEnt.components[this.data.component][this.data.method]();
 				} else if(this.data.params === 'target'){
 					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else if(this.data.params === 'other'){
+					if(evt.detail.cursorEl){
+						this.domEnt.components[this.data.component][this.data.method](evt.detail.cursorEl);
+					} else {
+						this.domEnt.components[this.data.component][this.data.method](evt);
+					}
 				} else {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);
 				}
@@ -192,6 +210,12 @@ events: {
 					this.auxl[this.data.cursorObj][this.data.method]();
 				} else if(this.data.params === 'target'){
 					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else if(this.data.params === 'other'){
+					if(evt.detail.cursorEl){
+						this.auxl[this.data.cursorObj][this.data.method](evt.detail.cursorEl);
+					} else {
+						this.auxl[this.data.cursorObj][this.data.method](evt);
+					}
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
 				}
@@ -204,6 +228,12 @@ events: {
 					this.domEnt.components[this.data.component][this.data.method]();
 				} else if(this.data.params === 'target'){
 					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else if(this.data.params === 'other'){
+					if(evt.detail.cursorEl){
+						this.domEnt.components[this.data.component][this.data.method](evt.detail.cursorEl);
+					} else {
+						this.domEnt.components[this.data.component][this.data.method](evt);
+					}
 				} else {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);
 				}
@@ -237,6 +267,12 @@ events: {
 					this.auxl[this.data.cursorObj][this.data.method]();
 				} else if(this.data.params === 'target'){
 					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else if(this.data.params === 'other'){
+					if(evt.detail.cursorEl){
+						this.auxl[this.data.cursorObj][this.data.method](evt.detail.cursorEl);
+					} else {
+						this.auxl[this.data.cursorObj][this.data.method](evt);
+					}
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
 				}
@@ -249,6 +285,12 @@ events: {
 					this.domEnt.components[this.data.component][this.data.method]();
 				} else if(this.data.params === 'target'){
 					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else if(this.data.params === 'other'){
+					if(evt.detail.cursorEl){
+						this.domEnt.components[this.data.component][this.data.method](evt.detail.cursorEl);
+					} else {
+						this.domEnt.components[this.data.component][this.data.method](evt);
+					}
 				} else {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);
 				}
@@ -282,6 +324,12 @@ events: {
 					this.auxl[this.data.cursorObj][this.data.method]();
 				} else if(this.data.params === 'target'){
 					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else if(this.data.params === 'other'){
+					if(evt.detail.cursorEl){
+						this.auxl[this.data.cursorObj][this.data.method](evt.detail.cursorEl);
+					} else {
+						this.auxl[this.data.cursorObj][this.data.method](evt);
+					}
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
 				}
@@ -294,6 +342,12 @@ events: {
 					this.domEnt.components[this.data.component][this.data.method]();
 				} else if(this.data.params === 'target'){
 					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else if(this.data.params === 'other'){
+					if(evt.detail.cursorEl){
+						this.domEnt.components[this.data.component][this.data.method](evt.detail.cursorEl);
+					} else {
+						this.domEnt.components[this.data.component][this.data.method](evt);
+					}
 				} else {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);
 				}
@@ -327,6 +381,12 @@ events: {
 					this.auxl[this.data.cursorObj][this.data.method]();
 				} else if(this.data.params === 'target'){
 					this.auxl[this.data.cursorObj][this.data.method](evt.target);
+				} else if(this.data.params === 'other'){
+					if(evt.detail.cursorEl){
+						this.auxl[this.data.cursorObj][this.data.method](evt.detail.cursorEl);
+					} else {
+						this.auxl[this.data.cursorObj][this.data.method](evt);
+					}
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
 				}
@@ -339,6 +399,12 @@ events: {
 					this.domEnt.components[this.data.component][this.data.method]();
 				} else if(this.data.params === 'target'){
 					this.domEnt.components[this.data.component][this.data.method](evt.target);
+				} else if(this.data.params === 'other'){
+					if(evt.detail.cursorEl){
+						this.domEnt.components[this.data.component][this.data.method](evt.detail.cursorEl);
+					} else {
+						this.domEnt.components[this.data.component][this.data.method](evt);
+					}
 				} else {
 					this.domEnt.components[this.data.component][this.data.method](this.data.params);
 				}
