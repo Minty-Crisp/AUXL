@@ -517,7 +517,6 @@ this.vrHandPrevious = false;
 this.directionType = 'camera';
 this.locomotionText = 'WASD Keys';
 this.joystickLoco = 1;
-this.joystickRot = 1;
 this.controlsInfo = {};
 this.controlsText = '';
 

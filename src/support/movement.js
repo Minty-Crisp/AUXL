@@ -202,24 +202,6 @@ auxl.playerRig.GetEl().object3D.translateOnAxis(cam, -1);
 	this.joystickHistory = 10;
 	this.inputsJoystick1 = [];
 	this.inputsJoystick2 = [];
-
-/*
-	//OLD
-	let initDelay = setTimeout(()=> {
-		if(this.pov === '3rd'){
-			this.auxl.avatar.SpawnLayer(true);
-			this.player.object3D.position.copy(new THREE.Vector3(0,5,10));
-			let initDelay = setTimeout(()=> {
-				this.avatar = document.getElementById('avatarRig');
-				this.avatarSphere = document.getElementById('avatarSphere');
-				if(this.axis === 'angleXY'){
-					this.avatar.object3D.position.copy(new THREE.Vector3(0,0,-10));
-					this.player.object3D.position.copy(new THREE.Vector3(0,1.6,2));
-				}
-			},500)
-		}
-	},1000)
-*/
 },
 //1 Increments
 round: function (num){
@@ -231,20 +213,18 @@ roundHalf: function (num){
 },
 //Joystick
 joystick: function (vec3) {
-
-
-	//Testing
+	//TESTING
 	if(this.auxl.playerBeltText.core.inScene){
 		this.auxl.playerBeltText.ChangeSelf({property: 'text', value:{text: 'vec3: ' + vec3}})
 	}
 
-
+	//Verify vec3 is good otherwise reset
 	if(!vec3.copy){
 		this.joystickLocoPos = false;
 		return;
 	};
+	//Update position to be used on tick
 	this.joystickLocoPos = new THREE.Vector3().copy(vec3);
-
 },
 //Dpad
 //Move Forward
@@ -629,15 +609,21 @@ tick: function (time, timeDelta) {
 		} else if(this.style === 'grid'){
 			this.gridStepThrottled();
 		}
-
-		//Sync Belt
-		if(this.movetype === 'vrHover'){
-			this.uiSync();
-		}
 	}
 },
 //Free Locomotion Tick
 freeStep: function (time, timeDelta) {
+	//VR Joystick XY Movement
+	if(this.auxl.sceneEl.is('vr-mode') && this.auxl.joystickLoco === 1){
+		if(this.moveBrake){
+			this.move(false, this.moveSpeedSlow);
+		} else {
+			this.move(false, this.moveSpeedDefault);
+		}
+		return;
+	}
+
+	//DPAD Movment
 	if(this.moveBrake){
 		if(this.moveTo && this.moveRight) {
 			this.move('forwardRight', this.moveSpeedSlow);
@@ -676,7 +662,7 @@ freeStep: function (time, timeDelta) {
 		}
 	}
 },
-//Free Locomotion For Up/Down Button Support
+//Free Locomotion For Up/Down Button Support - Not Working
 freeStepPlus: function (time, timeDelta) {
 
 //Not Working
@@ -750,12 +736,6 @@ gridStep: function (time, timeDelta) {
 distance: function(x1, y1, x2,  y2) {
     //Calculating distance
     return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) * 1.0);
-},
-//Sync Belt UI
-uiSync: function () {
-	this.elPosVec3New.copy(this.el.object3D.position);
-	//No Offsets as UI Parent is at 0 0 0
-	this.ui.object3D.position.copy(this.elPosVec3New);
 },
 //Move
 move: function (direction, speed) {
@@ -888,8 +868,8 @@ rayDirection: function (ray,action,distance){
 
 },
 //Movement
-movement: function (){
 //testing grounds, currently, but extract the finalized movement from RigXZ, modify it to account for x,y,z and apply to all other similar methods
+movement: function (){
 
 	//Position locked?
 	if(this.auxl.player.layer.move){

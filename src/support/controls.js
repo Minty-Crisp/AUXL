@@ -121,8 +121,6 @@ this.mobileF = document.getElementById('f');
 this.mobileG = document.getElementById('g');
 this.mobileH = document.getElementById('h');
 this.mobileI = document.getElementById('i');
-//this.mobileL = document.getElementById('l');
-//this.mobileR = document.getElementById('r');
 
 //Customizable Action Controls
 this.altDownFunc = false;
@@ -651,12 +649,7 @@ let initTimeout = setTimeout(() => {
 	this.auxl.mouseController.GetEl().addEventListener('mouseup', this.mainClickUp);
 
 	//Locomotion Component
-	//this.locomotion = document.getElementById('playerRig').components.locomotion;
 	this.locomotion = this.el.components.locomotion;
-
-	//Gimbal Component
-	//this.gimbal = document.getElementById('playerRig').components.gimbal;	
-	//this.gimbal = this.el.components.gimbal;	
 
 	//Quest
 	this.vrController1 = document.getElementById('vrController1');
@@ -693,15 +686,10 @@ let initTimeout = setTimeout(() => {
 	//Joysticks
 	this.addJoystickEvents();
 
-	//Delay for access to player
-	//this.mobileL.addEventListener('touchstart', this.auxl.player.SnapLeft);
-	//this.mobileR.addEventListener('touchstart', this.auxl.player.SnapRight);
-
 	this.mobileSelect.addEventListener('touchstart', this.auxl.ToggleHTMLMenu);
 	this.mobileStart.addEventListener('touchstart', this.auxl.player.MainMenuAction);
 
-	//this.initDone = true;
-}, 100);
+}, 250);
 
 
 //Mobile
@@ -1046,7 +1034,6 @@ direction: function (e){
 	} else if(e.detail.direction === 'forwardRelease'){
 		this.locomotion.cancelForward();
 	} else if(e.detail.direction === 'leftHit'){
-
 		this.locomotion.movingLeft();
 	} else if(e.detail.direction === 'leftRelease'){
 		this.locomotion.cancelLeft();
@@ -1055,7 +1042,6 @@ direction: function (e){
 	} else if(e.detail.direction === 'backwardRelease'){
 		this.locomotion.cancelReverse();
 	} else if(e.detail.direction === 'rightHit'){
-
 		this.locomotion.movingRight();
 	} else if(e.detail.direction === 'rightRelease'){
 		this.locomotion.cancelRight();
@@ -1374,10 +1360,6 @@ keyboardUp: function (e){
 	}
 },
 
-
-
-
-
 //Joystick 1Locomotion
 questJoystick1Locomotion: function (e){
 	//Update current joystick input
@@ -1501,112 +1483,6 @@ questJoystick8Locomotion: function (e){
 		//this.updateInput('Locomotion Clear');
 	}
 },
-//Joystick 4 Rotation
-questJoystick4Rotation: function (e){
-	//Update this.gimbal.func into this.rotationEvent
-	this.xNumRot = e.detail.x;
-	this.yNumRot = e.detail.y;
-	this.angleRot = Math.atan2(this.xNumRot,this.yNumRot);
-	function radToDeg(rad) {
-	  return rad / (Math.PI / 180);
-	}
-	this.angleDegRot = radToDeg(this.angleRot);
-
-	if(this.yNumRot < this.deadzoneRot && this.yNumRot > this.deadzoneRot*-1 && this.xNumRot > this.deadzoneRot*-1 && this.xNumRot < this.deadzoneRot){
-		this.gimbal.clearMovement();
-		this.updateInput('Rotation Clear');
-	} else if(this.yNumRot > this.deadzoneRot || this.yNumRot < this.deadzoneRot*-1 || this.xNumRot < this.deadzoneRot*-1 || this.xNumRot > this.deadzoneRot) {
-		if(this.angleDegRot > -45 && this.angleDegRot < 45){
-			//Backward : -45 -> 45
-			this.gimbal.clearMovement();
-			this.gimbal.movingReverse();
-			//this.updateInput('Backward');
-		} else if(this.angleDegRot > 45 && this.angleDegRot < 135){
-			//Right : 45 -> 135
-			this.gimbal.clearMovement();
-			this.gimbal.movingRight();
-			//this.updateInput('Right');
-		} else if(this.angleDegRot > 135 || this.angleDegRot < -135){
-			//Forward : 135 -> 180 or -135 -> -180
-			this.gimbal.clearMovement();
-			this.gimbal.movingForward();
-			//this.updateInput('Forward');
-		} else if(this.angleDegRot < -45 && this.angleDegRot > -135){
-			//Left : -45 -> -135
-			this.gimbal.clearMovement();
-			this.gimbal.movingLeft();
-			//this.updateInput('Left');
-		}
-	} else {
-		this.gimbal.clearMovement();
-		//this.updateInput('Locomotion Clear');
-	}
-},
-//Joystick 8 Rotation
-questJoystick8Rotation: function (e){
-	//Update this.gimbal.func into this.rotationEvent
-	this.xNumRot = e.detail.x;
-	this.yNumRot = e.detail.y;
-	this.angleRot = Math.atan2(this.xNumRot,this.yNumRot);
-	function radToDeg(rad) {
-	  return rad / (Math.PI / 180);
-	}
-	this.angleDegRot = radToDeg(this.angleRot);
-
-	if(this.yNumRot < this.deadzoneRot && this.yNumRot > this.deadzoneRot*-1 && this.xNumRot > this.deadzoneRot*-1 && this.xNumRot < this.deadzoneRot){
-		this.gimbal.clearMovement();
-		this.updateInput('Rotation Clear');
-	} else if(this.yNumRot > this.deadzoneRot || this.yNumRot < this.deadzoneRot*-1 || this.xNumRot < this.deadzoneRot*-1 || this.xNumRot > this.deadzoneRot) {
-		if(this.angleDegRot > -22.5 && this.angleDegRot < 22.5){
-			//Backward : -22.5 -> 22.5
-			this.gimbal.clearMovement();
-			this.gimbal.movingReverse();
-			//this.updateInput('Backward');
-		} else if(this.angleDegRot > 22.5 && this.angleDegRot < 67.5){
-			//BackwardRight : 22.5 -> 67.5
-			this.gimbal.clearMovement();
-			this.gimbal.movingReverse();
-			this.gimbal.movingRight();
-			//this.updateInput('Backward Right');
-		} else if(this.angleDegRot > 67.5 && this.angleDegRot < 112.5){
-			//Right : 67.5 -> 112.5
-			this.gimbal.clearMovement();
-			this.gimbal.movingRight();
-			//this.updateInput('Right');
-		} else if(this.angleDegRot > 112.5 && this.angleDegRot < 157.5){
-			//ForwardRight : 112.5 -> 157.5
-			this.gimbal.clearMovement();
-			this.gimbal.movingForward();
-			this.gimbal.movingRight();
-			//this.updateInput('Forward Right');
-		} else if(this.angleDegRot > 157.5 || this.angleDegRot < -157.5){
-			//Forward : 157.5 -> 180 or -157.5 -> -180
-			this.gimbal.clearMovement();
-			this.gimbal.movingForward();
-			//this.updateInput('Forward');
-		} else if(this.angleDegRot < -112.5 && this.angleDegRot > -157.5){
-			//ForwardLeft: -112.5 -> -157.5
-			this.gimbal.clearMovement();
-			this.gimbal.movingForward();
-			this.gimbal.movingLeft();
-			//this.updateInput('Forward Left');
-		} else if(this.angleDegRot < -67.5 && this.angleDegRot > -112.5){
-			//Left : -67.5 -> -112.5
-			this.gimbal.clearMovement();
-			this.gimbal.movingLeft();
-			//this.updateInput('Left');
-		} else if(this.angleDegRot < -22.5 && this.angleDegRot > -67.5){
-			//BackwardLeft: -22.5 -> -67.5 
-			this.gimbal.clearMovement();
-			this.gimbal.movingReverse();
-			this.gimbal.movingLeft();
-			//this.updateInput('Backward Left');
-		}
-	} else {
-		this.gimbal.clearMovement();
-		//this.updateInput('Locomotion Clear');
-	}
-},
 //Joystick 4 Other
 questJoystick4Other: function (e){
 	this.xNumOther = e.detail.x;
@@ -1645,6 +1521,16 @@ questJoystick4Other: function (e){
 },
 //Add Joystick Listeners
 addJoystickEvents: function (){
+	//Locomotion Type
+	this.questJoystickLocomotionEvent = (e) => {
+		if(this.auxl.joystickLoco === 1){
+			this.questJoystick1Locomotion(e);
+		} else if(this.auxl.joystickLoco === 4){
+			this.questJoystick4Locomotion(e);
+		} else if(this.auxl.joystickLoco === 8){
+			this.questJoystick8Locomotion(e);
+		}
+	}
 	//Joysticks
 	if(['bothRight', 'bothLeftLoco'].includes(this.auxl.vrHand)){
 		//Left Locomotion
@@ -1661,26 +1547,6 @@ addJoystickEvents: function (){
 		this.vrController1.addEventListener('thumbstickmoved', this.questJoystickLocomotionEvent);
 		//Right Other
 		this.vrController2.addEventListener('thumbstickmoved', this.questJoystickOtherEvent);
-	}
-	//Locomotion Type
-	this.questJoystickLocomotionEvent = (e) => {
-		if(this.auxl.joystickLoco === 1){
-			this.questJoystick1Locomotion(e);
-		} else if(this.auxl.joystickLoco === 4){
-			this.questJoystick4Locomotion(e);
-		} else if(this.auxl.joystickLoco === 8){
-			this.questJoystick8Locomotion(e);
-		}
-	}
-	//Rotation Type
-	this.questJoystickRotationEvent = (e) => {
-		if(this.auxl.joystickRotation === 1){
-			this.questJoystick1Rotation(e);
-		} else if(this.auxl.joystickRotation === 4){
-			this.questJoystick4Rotation(e);
-		} else if(this.auxl.joystickRotation === 8){
-			this.questJoystick8Rotation(e);
-		}
 	}
 },
 //Clear Joystick Listeners
@@ -1711,20 +1577,9 @@ blank: function (e){
 //Update
 update: function () {
 	//Clear previous joystick events
-	//if(this.initDone){
 	if(this.auxl.vrHandPrevious){
 		this.clearJoystickEvents();
 		this.addJoystickEvents();
-/*
-When the clear function runs, the type of joystick controls i.e. bothRight, bothLeft has already been changed, so it is not removing the correct ones
-
-
-
-		let initTimeout = setTimeout(() => {
-			//Joysticks
-			this.addJoystickEvents();
-		}, 250);
-*/
 	}
 },
 //Remove

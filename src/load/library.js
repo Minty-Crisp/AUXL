@@ -298,60 +298,6 @@ visible: false,
 }
 auxl.cameraUI = auxl.Core(auxl.cameraUIData);
 
-//Player Cam Roam
-auxl.roamCameraRigData = {
-data:'roamCameraRigData',
-id:'roamCameraRig',
-entity: 'preAdded',
-position: new THREE.Vector3(0,0.06,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent','player'],
-components: false
-};
-auxl.roamCameraRig = auxl.Core(auxl.roamCameraRigData);
-
-//Roam Camera
-auxl.roamCameraData = {
-data:'roamCameraData',
-id:'roamCamera',
-entity: 'preAdded',
-position: new THREE.Vector3(0,0,0),
-rotation: new THREE.Vector3(0,0,0),
-scale: new THREE.Vector3(1,1,1),
-animations: false,
-mixins: false,
-classes: ['a-ent','player'],
-components: false,
-/*components: {
-	//camera:{active:true, fov: 80, near: 0.005, far: 10000.00, zoom: 1,},
-	//camrender: "cid: roamCameraCanvas; height: 300; width: 400;",
-	},*/
-};
-auxl.roamCamera = auxl.Core(auxl.roamCameraData);
-
-auxl.roamCameraViewerData = {
-	data:'roamCameraViewerData',
-	id:'roamCameraViewer',
-	sources:false,
-	text: false,
-	geometry: {primitive: 'plane', width: 0.33, height: 0.25,},
-	material: {src: '#roamCameraCanvas', repeat: '1 1', opacity: 0.42, shader: 'flat'},
-	//position: new THREE.Vector3(-0.2,1.4,-0.4),
-	position: new THREE.Vector3(-0.2,-0.2,-0.4),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent'],
-	components: {
-		['canvas-updater']: null,
-	},
-};
-auxl.roamCameraViewer = auxl.Core(auxl.roamCameraViewerData);
-
 //Mouse|Mobile Controller
 auxl.mouseControllerData = {
 data:'Mouse Controller',
@@ -787,15 +733,6 @@ child1: {core: auxl.playerFloor},
 //SPECIAL : Player Base and Child Camera entity are already in HTML and Layer has special exceptions for it
 auxl.playerLayer = auxl.Layer('playerLayer', auxl.playerAll);
 
-/*
-Unused Roaming Camera
-	child7: {
-		parent: {core: auxl.roamCameraRig},
-		child0: {core: auxl.roamCamera},
-	},
-	child8: {core: auxl.roamCameraViewer},
-*/
-
 //
 //Player Avatar
 
@@ -1198,6 +1135,70 @@ auxl.locomotionUIAllData = {
 	child5: {core: auxl.locomotionBrake4UI},
 }
 auxl.locomotionUILayer = auxl.Layer('locomotionUILayer', auxl.locomotionUIAllData);
+
+
+//
+//RC Camera
+
+//Player Cam Roam
+auxl.roamCameraRigData = {
+data:'roamCameraRigData',
+id:'roamCameraRig',
+entity: 'preAdded',
+position: new THREE.Vector3(0,0.06,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent','player'],
+components: false
+};
+auxl.roamCameraRig = auxl.Core(auxl.roamCameraRigData);
+
+//Roam Camera
+auxl.roamCameraData = {
+data:'roamCameraData',
+id:'roamCamera',
+entity: 'preAdded',
+position: new THREE.Vector3(0,0,0),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent','player'],
+components: {
+	camera:{active:true, fov: 80, near: 0.005, far: 10000.00, zoom: 1,},
+	camrender: "cid: roamCameraCanvas; height: 300; width: 400;",
+	},
+};
+auxl.roamCamera = auxl.Core(auxl.roamCameraData);
+
+auxl.roamCameraViewerData = {
+	data:'roamCameraViewerData',
+	id:'roamCameraViewer',
+	sources:false,
+	text: false,
+	geometry: {primitive: 'plane', width: 0.33, height: 0.25,},
+	material: {src: '#roamCameraCanvas', repeat: '1 1', opacity: 0.42, shader: 'flat'},
+	position: new THREE.Vector3(-0.2,-0.2,-0.4),
+	rotation: new THREE.Vector3(0,0,0),
+	scale: new THREE.Vector3(1,1,1),
+	animations: false,
+	mixins: false,
+	classes: ['a-ent'],
+	components: {
+		['canvas-updater']: null,
+	},
+};
+auxl.roamCameraViewer = auxl.Core(auxl.roamCameraViewerData);
+/*
+
+child7: {
+	parent: {core: auxl.roamCameraRig},
+	child0: {core: auxl.roamCamera},
+},
+child8: {core: auxl.roamCameraViewer},
+*/
 
 //
 //Companion Shapes

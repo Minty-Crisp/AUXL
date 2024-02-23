@@ -1071,7 +1071,8 @@ auxl.avatarHand2.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.3
 			clearTimeout(notificationEndTimeout);
 		}, displayTime);
 	}
-	//Controls
+
+	//Action Controls
 	layer.actions = {};
 	const UpdateActions = ({actions, remove, tracker, limit}) => {
 		//Remove or Add
@@ -1351,23 +1352,12 @@ auxl.avatarHand2.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.3
 	//Important Info
 	//Reset User Position/Rotation
 	const ResetUserPosRot = () => {
-//if grid pr physics is enabled, check for collisions
 		//Reset Rotation
-		auxl.playerRig.ChangeSelf({property: 'position', value: new THREE.Vector3(0,0,1)});
+		auxl.playerRig.ChangeSelf({property: 'position', value: new THREE.Vector3(0,0,0)});
 		//Update Grid Position
 		layer.gridPos.copy(auxl.playerRig.GetEl().getAttribute('position'));
 		//Reset Rotation
-		let y = auxl.camera.GetEl().getAttribute('rotation').y;
-		if(y > 0){
-			if(y<360){
-				y = y % 360;
-			}
-		} else if(y < 0){
-			if(y < -360){
-				y = y % 360;
-			}
-		}
-		auxl.playerRig.ChangeSelf({property:'rotation',value:new THREE.Vector3(0,(y*-1)+1,0)});
+		TwistTo(0)
 	}
 	//Get user current infomation
 	const GetPlayerInfo = () => {
