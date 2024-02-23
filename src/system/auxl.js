@@ -516,7 +516,8 @@ this.vrHand = 'bothRight';
 this.vrHandPrevious = false;
 this.directionType = 'camera';
 this.locomotionText = 'WASD Keys';
-this.joystickLoco = 1;
+//this.joystickLoco = 1;
+this.joystickLoco = 8;//dpad
 this.controlsInfo = {};
 this.controlsText = '';
 
