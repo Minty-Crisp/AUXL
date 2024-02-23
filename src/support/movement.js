@@ -215,14 +215,15 @@ roundHalf: function (num){
 //Joystick
 joystick: function (vec3) {
 	//Verify vec3 is good otherwise reset
-	if(!vec3.copy){
+	if(vec3.clone){
+		//Update position to be used on tick 
+		this.joystickLocoPos = vec3.clone();
+		this.joystickLocoMove = true;
+	} else {
 		this.joystickLocoPos = false;
 		this.joystickLocoMove = false;
-		return;
-	};
-	//Update position to be used on tick 
-	this.joystickLocoPos = new THREE.Vector3().copy(vec3);
-	this.joystickLocoMove = true;
+	}
+
 },
 joystickCancel: function () {
 	this.joystickLocoPos = false;

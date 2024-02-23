@@ -1364,19 +1364,19 @@ keyboardUp: function (e){
 questJoystick1Locomotion: function (e){
 	//Check for deadzone
 	let x = e.detail.x * -1;//reverse for correct direction
-	let z = e.detail.y;
+	let z = e.detail.y;//up/down converts to forward/backward
 	let xDead = false;
-	let yDead = false;
+	let zDead = false;
 	if((x > 0 && x < this.deadzoneLoco) || (x < 0 && x > this.deadzoneLoco *-1)){
 		//X in deadzone
 		xDead = true;
 	}
-	if((y > 0 && y < this.deadzoneLoco) || (y < 0 && y > this.deadzoneLoco *-1)){
-		//Y in deadzone
-		yDead = true;
+	if((z > 0 && z < this.deadzoneLoco) || (z < 0 && z > this.deadzoneLoco *-1)){
+		//Z in deadzone
+		zDead = true;
 	}
 	//if both in deadzone, cancel joystick movement
-	if(xDead && yDead){
+	if(xDead && zDead){
 		this.locomotion.joystickCancel();
 	} else {
 		//Update current joystick input
