@@ -94,7 +94,6 @@ const Player = (auxl, id, layer, data) => {
 	};
 
 	//Belt Inventory, Toggle & Text
-	layer.beltDisplay = true;
 	layer.beltDefaultText = 'Hello World!';
 	layer.beltText = 'Hello World!';
 
@@ -446,7 +445,6 @@ const Player = (auxl, id, layer, data) => {
 		//Snap Rotation
 		layer.snapRotating = false;
 		//Belt Inventory, Toggle & Text
-		layer.beltDisplay = true;
 		layer.beltDefaultText = 'Hello World!';
 		layer.beltText = 'Hello World!';
 		//Flashlight
@@ -960,21 +958,19 @@ auxl.avatarHand2.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.3
 		if(text){
 			layer.beltText = text;
 		}
-		if(layer.beltDisplay){
+		if(auxl.playerBeltText.core.inScene){
 			auxl.playerBeltText.ChangeSelf({property: 'text', value:{value: layer.beltText}})
 		}
 	}
 	//Toggle Belt Text
-	const ToggleBeltText = (force) => {
-		if(force || !layer.beltDisplay){
+	const ToggleBeltText = (force, text) => {
+		if(force || !auxl.playerBeltText.core.inScene){
 			auxl.playerBeltText.ChangeSelf({property: 'visible', value:true})
 			auxl.playerBeltTitleText.ChangeSelf({property: 'visible', value:true})
-			UpdateBeltText();
-			layer.beltDisplay = true;
-		} else if(layer.beltDisplay){
+			UpdateBeltText(text);
+		} else if(auxl.playerBeltText.core.inScene){
 			auxl.playerBeltText.ChangeSelf({property: 'visible', value:false})
 			auxl.playerBeltTitleText.ChangeSelf({property: 'visible', value:false})
-			layer.beltDisplay = false;
 		}
 	}
 

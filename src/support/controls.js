@@ -1362,10 +1362,28 @@ keyboardUp: function (e){
 
 //Joystick 1Locomotion
 questJoystick1Locomotion: function (e){
-	//Update current joystick input
-	this.joystickPos = new THREE.Vector3(e.detail.x,0,e.detail.y);
-	//Inform Locomotion component
-	this.locomotion.joystick(this.joystickPos);
+	//Check for deadzone
+	let x = e.detail.x;
+	let z = e.detail.y * -1;//reverse for correct direction
+	let xDead = false;
+	let yDead = false;
+	if((x > 0 && x < this.deadzoneLoco) || (x < 0 && x > this.deadzoneLoco *-1)){
+		//X in deadzone
+		xDead = true;
+	}
+	if((y > 0 && y < this.deadzoneLoco) || (y < 0 && y > this.deadzoneLoco *-1)){
+		//Y in deadzone
+		yDead = true;
+	}
+	//if both in deadzone, cancel joystick movement
+	if(xDead && yDead){
+		this.locomotion.joystickCancel();
+	} else {
+		//Update current joystick input
+		this.joystickPos = new THREE.Vector3(x,0,z);
+		//Inform Locomotion component
+		this.locomotion.joystick(this.joystickPos);
+	}
 },
 //Joystick 4 Locomotion
 questJoystick4Locomotion: function (e){

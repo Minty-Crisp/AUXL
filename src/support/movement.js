@@ -197,6 +197,7 @@ auxl.playerRig.GetEl().object3D.translateOnAxis(cam, -1);
 	this.gridSpeed = 400;
 
 	//Joysticks
+	this.joystickLocoMove = false;
 	this.joystickLocoPos = false;
 	this.joystickOtherPos = false;
 	this.joystickHistory = 10;
@@ -213,19 +214,21 @@ roundHalf: function (num){
 },
 //Joystick
 joystick: function (vec3) {
-	//TESTING
-	if(this.auxl.playerBeltText.core.inScene){
-		this.auxl.playerBeltText.ChangeSelf({property: 'text', value:{text: 'vec3: ' + vec3}})
-	}
-
 	//Verify vec3 is good otherwise reset
 	if(!vec3.copy){
 		this.joystickLocoPos = false;
+		this.joystickLocoMove = false;
 		return;
 	};
-	//Update position to be used on tick
+	//Update position to be used on tick 
 	this.joystickLocoPos = new THREE.Vector3().copy(vec3);
+	this.joystickLocoMove = true;
 },
+joystickCancel: function () {
+	this.joystickLocoPos = false;
+	this.joystickLocoMove = false;
+},
+
 //Dpad
 //Move Forward
 movingForward: function (){
@@ -614,7 +617,7 @@ tick: function (time, timeDelta) {
 //Free Locomotion Tick
 freeStep: function (time, timeDelta) {
 	//VR Joystick XY Movement
-	if(this.auxl.sceneEl.is('vr-mode') && this.auxl.joystickLoco === 1){
+	if(this.auxl.sceneEl.is('vr-mode') && this.auxl.joystickLoco === 1 && this.joystickLocoMove){
 		if(this.moveBrake){
 			this.move(false, this.moveSpeedSlow);
 		} else {
@@ -1118,6 +1121,11 @@ directionXZ: function (action, speed) {
 			this.player.object3D.position.copy(this.positionNew);
 		}
 	}
+
+	//???
+	//Joystick movement is activated by thumbstick movement event. It is unlikely, but possible that if the player keeps the joystick steady outside of the deadzone it would stop until movement is detected with this command. Not ideal, so cancel this to test for now.
+	//Clear Joystick Movement
+	//this.joystickCancel();
 },
 
 //Need to rebuild all below
