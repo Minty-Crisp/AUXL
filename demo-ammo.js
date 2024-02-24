@@ -584,6 +584,7 @@ auxl.AmmoCubes = (data) => {
 	ammoCubes.all = [];
 
 	const GenCubes = () => {
+		ammoCubes.all = [];
 		for(let a=0; a < ammoCubes.total; a++){
 			let baseColor = auxl.ColorTheoryGen();
 			let material = {shader: "standard", color: baseColor.base, opacity: 1, metalness: 0.6, roughness: 0.4, emissive: baseColor.base, emissiveIntensity: 0.2, side: 'front',  src: auxl.RandomOfArray(auxl.patterns), repeat: '1 1'}
@@ -701,6 +702,26 @@ auxl.zoneIntroScene0Data = {
 	controls:{
 	},
 	start:{
+		//shaderTest:{SpawnCore: null},
+		shaderCloud:{SpawnCore: null},
+
+		//hoverTarget0:{SpawnCore: null},
+		//hoverTarget1:{SpawnCore: null},
+		hoverTarget2:{SpawnCore: null},
+
+		ammoFloor:{SpawnCore: null},
+
+		ammoWall1:{SpawnCore: null},
+		ammoWall2:{SpawnCore: null},
+		ammoWall3:{SpawnCore: null},
+		ammoWall4:{SpawnCore: null},
+
+		//ammo1:{SpawnCore: null},
+		//ammo2:{SpawnCore: null},
+		//ammo3:{SpawnCore: null},
+
+		//ragdollLayer:{SpawnLayer: null},
+		powerCubes:{SpawnCubes: null},
 	},
 	delay:{
 	},
@@ -879,33 +900,14 @@ auxl.ammoScenarioData = {
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
-		//comp:{SpawnComp: null,},
-		//shaderTest:{SpawnCore: null},
-		shaderCloud:{SpawnCore: null},
-
-		//hoverTarget0:{SpawnCore: null},
-		//hoverTarget1:{SpawnCore: null},
-		hoverTarget2:{SpawnCore: null},
-
-		ammoFloor:{SpawnCore: null},
-
-		ammoWall1:{SpawnCore: null},
-		ammoWall2:{SpawnCore: null},
-		ammoWall3:{SpawnCore: null},
-		ammoWall4:{SpawnCore: null},
-
-		//ammo1:{SpawnCore: null},
-		//ammo2:{SpawnCore: null},
-		//ammo3:{SpawnCore: null},
-
-		//ragdollLayer:{SpawnLayer: null},
-		powerCubes:{SpawnCubes: null},
-
 	},
 	delay:{
 		100:{
 			//skyBox0:{DayNightCycle: null},
 			skyBox0:{SetTime: 11},
+		},
+		500:{
+			comp:{SpawnComp: null,},
 		},
 	},
 	interval:{
@@ -936,6 +938,7 @@ auxl.ammoScenarioData = {
 	interaction:{
 	},
 	exit:{
+
 	},
 };
 auxl.ammoScenario = auxl.Scenario(auxl.ammoScenarioData);

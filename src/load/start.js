@@ -140,9 +140,12 @@ auxl.scenarioStartData = {
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
+		//comp:{SpawnComp: null},
 	},
 	delay:{
-
+		500:{
+			comp:{SpawnComp: null,},
+		},
 	},
 	interval:{
 	},

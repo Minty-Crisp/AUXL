@@ -7536,13 +7536,16 @@ auxl.xrcadeScenarioData = {
 		action8Down:{auxlObj: 'player', func: 'SnapRight', name: 'Snap View Right', info: 'Quick snap rotate to the right.'},
 	},
 	start:{
-		comp:{SpawnComp: null},
+		//comp:{SpawnComp: null},
 		//Reset Spooky Complete
 		exteriorToRoom1:{SetFlag: {flag: 'done', value: false}},
 		exteriorToRoom2:{SetFlag: {flag: 'done', value: false}},
 		exteriorToRoom3:{SetFlag: {flag: 'done', value: false}},
 	},
 	delay:{
+		500:{
+			comp:{SpawnComp: null,},
+		},
 	},
 	interval:{
 	},

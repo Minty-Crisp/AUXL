@@ -167,8 +167,6 @@ this.SystemLoaded = (reset) => {
 	auxl.player.infoText = 'Player : ' + auxl.local.profile.shortname + '\n';
 	SystemStart();
 	ApplySettings();
-
-console.log({msg: 'Loaded Worlds', worlds: auxl.worlds})
 }
 //System Start
 const SystemStart = () => {

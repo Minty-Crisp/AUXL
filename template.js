@@ -290,12 +290,15 @@ auxl.templateScenarioData = {
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
-		comp:{SpawnComp: null,},
+		//comp:{SpawnComp: null,},
 		floor:{SpawnCore: null},
 	},
 	delay:{
 		100:{
 			skyBox0:{DayNightCycle: null},
+		},
+		500:{
+			comp:{SpawnComp: null,},
 		},
 	},
 	interval:{

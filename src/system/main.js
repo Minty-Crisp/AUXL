@@ -1244,8 +1244,8 @@ console.log({msg: 'Missing grid, unable to spawn', core})
 		}
 	}
 	const DisableCannonPhysics = () => {
-		GetEl().removeAttribute('body');
 		GetEl().removeAttribute('shape__core');
+		GetEl().removeAttribute('body');
 	}
 	//Enable
 	const EnablePhysics = (bodyShape) => {

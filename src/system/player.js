@@ -556,6 +556,12 @@ const Player = (auxl, id, layer, data) => {
 	}
 
 	//Scene & Teleportation Camera Controls
+
+	const ClearTravel = () => {
+		//Clear any manual fade in
+		auxl.player.layer.teleporting = false;
+		auxl.player.layer.faded = false;
+	}
 	//Scene Load Animation Support
 	const PlayerSceneAnim = () => {
 		//Minimum Anim Delay if assets don't need loading
@@ -563,6 +569,7 @@ const Player = (auxl, id, layer, data) => {
 			if(auxl.loadingScene){} else {
 				auxl.loadingScene = true;
 			}
+			ClearTravel()
 			clearTimeout(animTimeout0);
 		}, 800);
 		if(!layer.teleporting){
@@ -605,7 +612,7 @@ const Player = (auxl, id, layer, data) => {
 				animTimeout = setTimeout(() => {
 					auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
 					auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.player.layer.teleporting = false;
+					ClearTravel()
 					clearTimeout(animTimeout);
 				}, 1200);
 			} else if (auxl.player.layer.transition.teleport === 'fade'){
@@ -614,7 +621,7 @@ const Player = (auxl, id, layer, data) => {
 				auxl.fadeScreen.EmitEvent('fade');
 				animTimeout = setTimeout(() => {
 					auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.player.layer.teleporting = false;
+					ClearTravel()
 					clearTimeout(animTimeout);
 				}, 1200);
 			} else if (auxl.player.layer.transition.teleport === 'sphere'){
@@ -623,17 +630,17 @@ const Player = (auxl, id, layer, data) => {
 				auxl.sphereScreen.EmitEvent('sphere');
 				animTimeout = setTimeout(() => {
 					auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.player.layer.teleporting = false;
+					ClearTravel()
 					clearTimeout(animTimeout);
 				}, 1200);
 			} else if (auxl.player.layer.transition.teleport === 'instant'){
 				animTimeout = setTimeout(() => {
-					auxl.player.layer.teleporting = false;
+					ClearTravel()
 					clearTimeout(animTimeout);
 				}, 500);
 			} else if (auxl.player.layer.transition.teleport === 'locomotion'){
 				animTimeout = setTimeout(() => {
-					auxl.player.layer.teleporting = false;
+					ClearTravel()
 					clearTimeout(animTimeout);
 				}, 1000);
 			}
@@ -652,7 +659,7 @@ const Player = (auxl, id, layer, data) => {
 				animTimeout = setTimeout(() => {
 					auxl.blink1Screen.ChangeSelf({property: 'visible', value: 'false'});
 					auxl.blink2Screen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.player.layer.teleporting = false;
+					ClearTravel()
 					clearTimeout(animTimeout);
 				}, 500);
 			} else if (auxl.player.layer.transition.teleport === 'fade'){
@@ -660,7 +667,7 @@ const Player = (auxl, id, layer, data) => {
 				auxl.fadeScreen.EmitEvent('fadequick');
 				animTimeout = setTimeout(() => {
 					auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.player.layer.teleporting = false;
+					ClearTravel()
 					clearTimeout(animTimeout);
 				}, 500);
 			} else if (auxl.player.layer.transition.teleport === 'sphere'){
@@ -668,17 +675,17 @@ const Player = (auxl, id, layer, data) => {
 				auxl.sphereScreen.EmitEvent('spherequick');
 				animTimeout = setTimeout(() => {
 					auxl.sphereScreen.ChangeSelf({property: 'visible', value: 'false'});
-					auxl.player.layer.teleporting = false;
+					ClearTravel()
 					clearTimeout(animTimeout);
 				}, 500);
 			} else if (auxl.player.layer.transition.teleport === 'instant'){
 				animTimeout = setTimeout(() => {
-					auxl.player.layer.teleporting = false;
+					ClearTravel()
 					clearTimeout(animTimeout);
 				}, 50);
 			} else if (auxl.player.layer.transition.teleport === 'locomotion'){
 				animTimeout = setTimeout(() => {
-					auxl.player.layer.teleporting = false;
+					ClearTravel()
 					clearTimeout(animTimeout);
 				}, 500);
 			}
@@ -691,7 +698,7 @@ const Player = (auxl, id, layer, data) => {
 			DisableClick();
 			auxl.player.layer.teleporting = true;
 			auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'true'});
-			auxl.fadeScreen.EmitEvent('fadeout');
+			auxl.fadeScreen.EmitEvent('fadeScene1');
 			animTimeout = setTimeout(() => {
 				auxl.player.layer.faded = true;
 				clearTimeout(animTimeout);
@@ -702,12 +709,11 @@ const Player = (auxl, id, layer, data) => {
 	const PlayerFadeIn = () => {
 		if(auxl.player.layer.faded){
 			let animTimeout;
-			auxl.fadeScreen.EmitEvent('fadein');
+			auxl.fadeScreen.EmitEvent('fadeScene2');
 			animTimeout = setTimeout(() => {
 				EnableClick();
 				auxl.fadeScreen.ChangeSelf({property: 'visible', value: 'false'});
-				auxl.player.layer.teleporting = false;
-				auxl.player.layer.faded = false;
+				ClearTravel();
 				clearTimeout(animTimeout);
 			}, 500);
 		}
@@ -3728,29 +3734,22 @@ console.log(event.detail.intersection.point)
 //console.log(e.key)
 		if(e.key === '`'){
 			//Main Menu Toggle
-			//MainMenuAction()
+			MainMenuAction()
 		} else if(e.key === '1'){
-			//Snap Rotate Rig Left
-			//SnapLeft();
+			//Snap Left
+			SnapLeft();
 		} else if(e.key === '2'){
-			//Cycle Zoom Main Camera
-			//CycleCameraZoom(false, 'camera');
+			//Snap Right
+			SnapRight();
 		} else if(e.key === '3'){
-			//Cycle Zoom Main Camera
-			//CycleCameraZoom(true, 'camera');
+			//Zoom
+			CycleCameraZoom();
 		} else if(e.key === '4'){
-			//Snap Rotate Rig Right
-			//SnapRight();
+			//ToggleRoamCamView();
 		} else if(e.key === 'ArrowUp'){
-			//Cycle Zoom Roam Camera
-			//CycleCameraZoom(false, 'roam');
 		} else if(e.key === 'ArrowDown'){
-			//Cycle Zoom Roam Camera
-			//CycleCameraZoom(true, 'roam');
 		} else if(e.key === 'ArrowLeft'){
-			//ToggleRoamCamView();
 		} else if(e.key === 'ArrowRight'){
-			//ToggleRoamCamView();
 		}
 	});
 
@@ -3894,7 +3893,7 @@ const Companion = (auxl, id, object, inventory) => {
 				auxlObj: 'xrcadeWorld',
 				component: false,
 				method: 'SwapWorld',
-				params: 'xrcadeWorld',
+				params: 'false',
 				menu: 'close',
 			},
 		},
@@ -3908,7 +3907,7 @@ const Companion = (auxl, id, object, inventory) => {
 				auxlObj: 'gridWorld',
 				component: false,
 				method: 'SwapWorld',
-				params: 'gridWorld',
+				params: 'false',
 				menu: 'close',
 			},
 		},
@@ -3922,7 +3921,7 @@ const Companion = (auxl, id, object, inventory) => {
 				auxlObj: 'ammoWorld',
 				component: false,
 				method: 'SwapWorld',
-				params: 'ammoWorld',
+				params: 'true',
 				menu: 'close',
 			},
 		},
@@ -3936,7 +3935,7 @@ const Companion = (auxl, id, object, inventory) => {
 				auxlObj: 'cannonWorld',
 				component: false,
 				method: 'SwapWorld',
-				params: 'cannonWorld',
+				params: 'true',
 				menu: 'close',
 			},
 		},
@@ -3950,7 +3949,7 @@ const Companion = (auxl, id, object, inventory) => {
 				auxlObj: 'mascotWorld',
 				component: false,
 				method: 'SwapWorld',
-				params: 'mascotWorld',
+				params: 'true',
 				menu: 'close',
 			},
 		},
@@ -3964,7 +3963,7 @@ const Companion = (auxl, id, object, inventory) => {
 				auxlObj: 'caosWorld',
 				component: false,
 				method: 'SwapWorld',
-				params: 'caosWorld',
+				params: 'true',
 				menu: 'close',
 			},
 		},

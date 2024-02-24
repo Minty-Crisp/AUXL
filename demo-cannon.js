@@ -3874,7 +3874,9 @@ auxl.cannonScenarioData = {
 		100:{
 			skyBox1:{DayNightCycle: null},
 		},
-
+		500:{
+			comp:{SpawnComp: null,},
+		},
 /*
 
 		100:{

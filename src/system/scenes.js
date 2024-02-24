@@ -1804,24 +1804,16 @@ const World = (auxl, worldData) => {
 			auxl.currentWorld = auxl[world.id];
 			auxl.local.location.world = world.id;
 			auxl.worldLoaded = true;
+			world.loaded = true;
 			clearTimeout(startTimeout);
 		}, startDelay);
-
-/*
-		WorldSettings();
-//console.log(world)
-//console.log(world.current)
-		StartScenario(world.current);
-		auxl.currentWorld = auxl[world.id];
-		auxl.local.location.world = world.id;
-		auxl.worldLoaded = true;
-*/
 	}
 	//Stop World
 	const StopWorld = () => {
 		auxl.currentWorld = false;
 		auxl.local.location.world = false;
 		auxl.worldLoaded = false;
+		world.loaded = false;
 		ClearScenario(world.current);
 	}
 	//World Settings
@@ -1959,20 +1951,28 @@ const World = (auxl, worldData) => {
 	}
 
 	//Swap World
-	const SwapWorld = (swapWorld) => {
-//console.log(swapWorld)
-//console.log(auxl[swapWorld])
-		auxl.currentWorld.StopWorld()
-		StartWorld();
+	const SwapWorld = (force) => {
+		//Check if already loaded or being forcefully reloaded
+		if(world.loaded && auxl.IsFalsey(force)){
+			auxl.player.Notification({time: 2000, message: 'World Loaded'})
+			return;
+		}
+
+		//If the world has SpawnComp in it's starting instructions this will conflict and cause issues. Either omit from start or activate on a delay of at least 500ms
+		auxl.comp.DespawnComp();
+
+		//Delay world stop until player animation is ready.
+		auxl.player.PlayerFadeOut();
+		let swapTimeout = setTimeout(() => {
+				auxl.currentWorld.StopWorld()
+				StartWorld();
+			clearTimeout(swapTimeout);
+		}, 425);
+
 	}
 
 	return {world, SetAsDefault, StartWorld, StopWorld, StartScenario, ClearScenario, NextScenario, LoadScenario, MusicPlaylist, SwapWorld}
 }
-
-
-
-
-
 
 //
 //Export

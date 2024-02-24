@@ -1647,6 +1647,9 @@ auxl.mascotScenarioData = {
 		100:{
 			skyBox0:{SetTime: 12},
 		},
+		500:{
+			comp:{SpawnComp: null,},
+		},
 	},
 	interval:{
 	},
