@@ -377,18 +377,18 @@ auxl.coreEventTesting = auxl.Core(auxl.coreEventTestingData);
 
 
 //Assign Core Duplication
-auxl.coreDupeTestAssign = auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTestAssign', position: new THREE.Vector3(-2,2,-1)}, true);
+auxl.coreDupeTestAssign = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'coreDupeTestAssign', position: new THREE.Vector3(-2,2,-1)}, true);
 //auxl.coreDupeTestAssign.SpawnCore();
 
 
 //Individual Core Duplication from Template
-auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest', position: new THREE.Vector3(0,3,-1)});
-auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest2', position: new THREE.Vector3(-2,3,-1)});
-auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest3', position: new THREE.Vector3(-2,3,-1)});
-auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest4', position: new THREE.Vector3(-2,3,-1)});
-auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest5', position: new THREE.Vector3(-2,3,-1)});
-auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest6', position: new THREE.Vector3(-1,2,-2)});
-auxl.coreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest7', position: new THREE.Vector3(-1,2,-2)});
+auxl.CoreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest', position: new THREE.Vector3(0,3,-1)});
+auxl.CoreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest2', position: new THREE.Vector3(-2,3,-1)});
+auxl.CoreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest3', position: new THREE.Vector3(-2,3,-1)});
+auxl.CoreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest4', position: new THREE.Vector3(-2,3,-1)});
+auxl.CoreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest5', position: new THREE.Vector3(-2,3,-1)});
+auxl.CoreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest6', position: new THREE.Vector3(-1,2,-2)});
+auxl.CoreFromTemplate(auxl.eventTesting,{id: 'coreDupeTest7', position: new THREE.Vector3(-1,2,-2)});
 
 auxl.layerDupeTestData = {
 	parent: {core: auxl.coreDupeTest}, 
@@ -412,44 +412,44 @@ auxl.layerDupeTest = auxl.Layer('layerDupeTest',auxl.layerDupeTestData);
 
 //Layer Duplication from Template
 /*
-auxl.layerFromTemplate(auxl.layerDupeTest, 'layerDupeTest', {position: new THREE.Vector3(0,3,-6)});
+auxl.LayerFromTemplate(auxl.layerDupeTest, 'layerDupeTest', {position: new THREE.Vector3(0,3,-6)});
 auxl.layerDupeTestCopy0.SpawnLayer();
 */
 
-auxl.layerDataTest = auxl.layerDataFromTemplate(auxl.layerDupeTestData, 'layerTest',{position: new THREE.Vector3(0,3,-12)}, false, true);
+auxl.layerDataTest = auxl.LayerDataFromTemplate(auxl.layerDupeTestData, 'layerTest',{position: new THREE.Vector3(0,3,-12)}, false, true);
 auxl.layerTest = auxl.Layer('layerTest', auxl.layerDataTest);
 //auxl.layerTest.SpawnLayer();
 
 
 //Collision Spawn Testing
-auxl.collisionTest1 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest1', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:-1, z:1}, end: {x:-1, z:1}, yOffset: 0.5, collide: true}}, true);
+auxl.collisionTest1 = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'collisionTest1', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:-1, z:1}, end: {x:-1, z:1}, yOffset: 0.5, collide: true}}, true);
 
 
-auxl.collisionTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest2', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:0, y:0, z:3}, end: {x:0.5, y:0, z:3}, yOffset: 0.5, collide: true}}, true);
+auxl.collisionTest2 = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'collisionTest2', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:0, y:0, z:3}, end: {x:0.5, y:0, z:3}, yOffset: 0.5, collide: true}}, true);
 
 
-auxl.collisionTest8 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest8', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:1, z:3.5}, end: {x:1.5, z:3.5}, yOffset: 0.5, collide: true}}, true);
+auxl.collisionTest8 = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'collisionTest8', geometry: {primitive: 'box', depth: 0.5, width: 1, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:1, z:3.5}, end: {x:1.5, z:3.5}, yOffset: 0.5, collide: true}}, true);
 
 
-auxl.collisionTest3 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest3', geometry: {primitive: 'box', depth: 2.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3, z:0}, end: {x:3, z:2}, yOffset: 0.5, collide: true}}, true);
+auxl.collisionTest3 = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'collisionTest3', geometry: {primitive: 'box', depth: 2.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3, z:0}, end: {x:3, z:2}, yOffset: 0.5, collide: true}}, true);
 
 
 
-auxl.collisionTest4 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest4', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:-5, y:0, z:-2}, end: {x:-3.5, y:0, z:-0.5}, yOffset: 0.5, collide: true}}, true);
+auxl.collisionTest4 = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'collisionTest4', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a54a", emissive: '#39a54a', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:-5, y:0, z:-2}, end: {x:-3.5, y:0, z:-0.5}, yOffset: 0.5, collide: true}}, true);
 
 auxl.collisionTest4.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 6, type: 'anim', path:[{z:-2,y:1,x:2,}, {z:2,y:-1,x:-2,},]});
 //auxl.collisionTest4.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'anim', path:[{z:-2,y:1,x:2,}, {z:2,y:-1,x:-2,},]});
 
-auxl.collisionTest5 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest5', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:0, z:-5}, end: {x:0, z:-5}, yOffset: 0.5, collide: true}}, true);
+auxl.collisionTest5 = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'collisionTest5', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:0, z:-5}, end: {x:0, z:-5}, yOffset: 0.5, collide: true}}, true);
 
 
-auxl.collisionTest6 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest6', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:-3, y:0, z:-0.5}, end: {x:-1.5, y:0, z:1}, yOffset: 0.5, collide: true}}, true);
+auxl.collisionTest6 = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'collisionTest6', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:-3, y:0, z:-0.5}, end: {x:-1.5, y:0, z:1}, yOffset: 0.5, collide: true}}, true);
 
 
-auxl.collisionTest7 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest7', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:20, z:-1}, end: {x:21.5, z:0.5}, yOffset: 0.5, collide: true}}, true);
+auxl.collisionTest7 = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'collisionTest7', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:20, z:-1}, end: {x:21.5, z:0.5}, yOffset: 0.5, collide: true}}, true);
 
 
-auxl.collisionTest9 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest9', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:-5, y:1, z:-4.5}, end: {x:-3.5, y:1, z:-3}, yOffset: 0.5, collide: true}}, true);
+auxl.collisionTest9 = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'collisionTest9', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a57739", emissive: '#a57739', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:-5, y:1, z:-4.5}, end: {x:-3.5, y:1, z:-3}, yOffset: 0.5, collide: true}}, true);
 
 
 //GridTriggerTesting 1 
@@ -483,27 +483,27 @@ auxl.GridTriggerTest1 = auxl.Core(auxl.GridTriggerTest1Data);
 
 //GridTriggerTesting 2
 //Trigger In and Out Always
-auxl.GridTriggerTest2 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'GridTriggerTest2', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#f28757", emissive: '#f28757', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), animations: {in: {property: 'object3D.scale.y', from: '1', to: '2', dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'in'}, out: {property: 'object3D.scale.y', from: '2', to: '1', dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'out'},}, components: {oneventrun__triggerin:{event: 'triggerEnter', cursorObj: 'GridTriggerTest2', component: 'null', method: 'EmitEvent', params: 'in',}, oneventrun__triggerout:{event: 'triggerExit', cursorObj: 'GridTriggerTest2', component: 'null', method: 'EmitEvent', params: 'out',},},grid: {start:{x:5, z:6}, yOffset: 0.5, end: {x:6.5, z:7.5}, trigger: true}}, true);
+auxl.GridTriggerTest2 = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'GridTriggerTest2', geometry: {primitive: 'box', depth: 2, width: 2, height: 1}, material: {shader: "standard", src: auxl.pattern15, repeat: '1 1', color: "#f28757", emissive: '#f28757', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), animations: {in: {property: 'object3D.scale.y', from: '1', to: '2', dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeOutElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'in'}, out: {property: 'object3D.scale.y', from: '2', to: '1', dur: 500, delay: 0, loop: false, dir: 'normal', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true, startEvents: 'out'},}, components: {oneventrun__triggerin:{event: 'triggerEnter', cursorObj: 'GridTriggerTest2', component: 'null', method: 'EmitEvent', params: 'in',}, oneventrun__triggerout:{event: 'triggerExit', cursorObj: 'GridTriggerTest2', component: 'null', method: 'EmitEvent', params: 'out',},},grid: {start:{x:5, z:6}, yOffset: 0.5, end: {x:6.5, z:7.5}, trigger: true}}, true);
 
 //
 //Gates
 
 //Gate 1
-auxl.gate1Base = auxl.coreFromTemplate(auxl.eventTesting,{id: 'gate1Base', geometry: {primitive: 'box', depth: 0.5, width: 1.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a58c", emissive: '#39a58c', emissiveIntensity: 0.25, opacity:0}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3.5, y:0, z:-8}, end: {x:5, y:1, z:-7.5}, yOffset: 1, trigger: true}}, true);
+auxl.gate1Base = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'gate1Base', geometry: {primitive: 'box', depth: 0.5, width: 1.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#39a58c", emissive: '#39a58c', emissiveIntensity: 0.25, opacity:0}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3.5, y:0, z:-8}, end: {x:5, y:1, z:-7.5}, yOffset: 1, trigger: true}}, true);
 
 auxl.gate1 = auxl.Gate('gate1', auxl.gate1Base, 'forward');
 
 //Gate Poles
-auxl.collisionTest10 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest10', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3, y:0, z:-8}, end: {x:3.5, y:1, z:-7.5}, yOffset: 1, collide: true}}, true);
+auxl.collisionTest10 = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'collisionTest10', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:3, y:0, z:-8}, end: {x:3.5, y:1, z:-7.5}, yOffset: 1, collide: true}}, true);
 
-auxl.collisionTest11 = auxl.coreFromTemplate(auxl.eventTesting,{id: 'collisionTest11', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:5, y:0, z:-8}, end: {x:5.5, y:1, z:-7.5}, yOffset: 1, collide: true}}, true);
+auxl.collisionTest11 = auxl.CoreFromTemplate(auxl.eventTesting,{id: 'collisionTest11', geometry: {primitive: 'box', depth: 0.5, width: 0.5, height: 2}, material: {shader: "standard", src: auxl.pattern10, repeat: '1 1', color: "#a53939", emissive: '#a53939', emissiveIntensity: 0.25, opacity: 1}, position: new THREE.Vector3(0,0,0), grid: {start:{x:5, y:0, z:-8}, end: {x:5.5, y:1, z:-7.5}, yOffset: 1, collide: true}}, true);
 
 
 
 //copy ghost body, add layer details
 
 //Collision Layer
-auxl.ghostCollisionData = auxl.layerDataFromTemplate(auxl.ghostLayerData, 'ghostCollisionData', {position: new THREE.Vector3(0,0,0)}, {grid: {start:{x:3, y:0, z:-5}, end: {x:4, y:1, z:-4}, yOffset: 1, collide: true},}, true);
+auxl.ghostCollisionData = auxl.LayerDataFromTemplate(auxl.ghostLayerData, 'ghostCollisionData', {position: new THREE.Vector3(0,0,0)}, {grid: {start:{x:3, y:0, z:-5}, end: {x:4, y:1, z:-4}, yOffset: 1, collide: true},}, true);
 auxl.ghostCollision = auxl.Layer('ghostCollision', auxl.ghostCollisionData);
 auxl.ghostCollision.GridPath({route: 'any', loop: 'infinite', speed:1000, wait:500, patience: 3, type: 'anim', path:[{z:-2,y:1,x:2,}, {z:2,y:-1,x:-2,},]});
 
@@ -612,7 +612,7 @@ components: false,
 };
 auxl.faceEye1Socket = auxl.Core(auxl.faceEye1SocketData);
 //Eye2Socket
-auxl.faceEye2SocketData = auxl.coreDataFromTemplate(auxl.faceEye1SocketData, {id: 'faceEye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)}, true);
+auxl.faceEye2SocketData = auxl.CoreDataFromTemplate(auxl.faceEye1SocketData, {id: 'faceEye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)}, true);
 auxl.faceEye2Socket = auxl.Core(auxl.faceEye2SocketData);
 //Eye1Pupil
 auxl.faceEye1PupilData = {
@@ -637,7 +637,7 @@ components: false,
 };
 auxl.faceEye1Pupil = auxl.Core(auxl.faceEye1PupilData);
 //Eye2Pupil
-auxl.faceEye2PupilData = auxl.coreDataFromTemplate(auxl.faceEye1PupilData, {id: 'faceEye2Pupil',}, true);
+auxl.faceEye2PupilData = auxl.CoreDataFromTemplate(auxl.faceEye1PupilData, {id: 'faceEye2Pupil',}, true);
 auxl.faceEye2Pupil = auxl.Core(auxl.faceEye2PupilData);
 
 //Eyebrow
@@ -659,7 +659,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEyebrow1 = auxl.Core(auxl.faceEyebrow1Data);
-auxl.faceEyebrow2Data = auxl.coreDataFromTemplate(auxl.faceEyebrow1Data, {id: 'faceEyebrow2', rotation: new THREE.Vector3(0,-10,0)}, true);
+auxl.faceEyebrow2Data = auxl.CoreDataFromTemplate(auxl.faceEyebrow1Data, {id: 'faceEyebrow2', rotation: new THREE.Vector3(0,-10,0)}, true);
 auxl.faceEyebrow2 = auxl.Core(auxl.faceEyebrow2Data);
 
 //Eyelid Offset
@@ -681,7 +681,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEye1LidOffset = auxl.Core(auxl.faceEye1LidOffsetData);
-auxl.faceEye2LidOffsetData = auxl.coreDataFromTemplate(auxl.faceEye1LidOffsetData, {id: 'faceEye2LidOffset'}, true);
+auxl.faceEye2LidOffsetData = auxl.CoreDataFromTemplate(auxl.faceEye1LidOffsetData, {id: 'faceEye2LidOffset'}, true);
 auxl.faceEye2LidOffset = auxl.Core(auxl.faceEye2LidOffsetData);
 //Eyelid
 auxl.faceEye1LidData = {
@@ -700,7 +700,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEye1Lid = auxl.Core(auxl.faceEye1LidData);
-auxl.faceEye2LidData = auxl.coreDataFromTemplate(auxl.faceEye1LidData, {id: 'faceEye2Lid'}, true);
+auxl.faceEye2LidData = auxl.CoreDataFromTemplate(auxl.faceEye1LidData, {id: 'faceEye2Lid'}, true);
 auxl.faceEye2Lid = auxl.Core(auxl.faceEye2LidData);
 
 //Blink
@@ -725,7 +725,7 @@ visible: false,
 },
 };
 auxl.faceEye1Blink = auxl.Core(auxl.faceEye1BlinkData);
-auxl.faceEye2BlinkData = auxl.coreDataFromTemplate(auxl.faceEye1BlinkData, {id: 'faceEye2Blink'}, true);
+auxl.faceEye2BlinkData = auxl.CoreDataFromTemplate(auxl.faceEye1BlinkData, {id: 'faceEye2Blink'}, true);
 auxl.faceEye2Blink = auxl.Core(auxl.faceEye2BlinkData);
 
 
@@ -746,7 +746,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEar1Offset = auxl.Core(auxl.faceEar1OffsetData);
-auxl.faceEar2OffsetData = auxl.coreDataFromTemplate(auxl.faceEar1OffsetData, {id: 'faceEar2Offset', position: new THREE.Vector3(0.25,0.5,0.4)}, true);
+auxl.faceEar2OffsetData = auxl.CoreDataFromTemplate(auxl.faceEar1OffsetData, {id: 'faceEar2Offset', position: new THREE.Vector3(0.25,0.5,0.4)}, true);
 auxl.faceEar2Offset = auxl.Core(auxl.faceEar2OffsetData);
 //Ear
 auxl.faceEar1Data = {
@@ -767,7 +767,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEar1 = auxl.Core(auxl.faceEar1Data);
-auxl.faceEar2Data = auxl.coreDataFromTemplate(auxl.faceEar1Data, {id: 'faceEar2', rotation: new THREE.Vector3(0,-30,0), animations:{twitch: {property: 'object3D.rotation.y', from: -25, to: -35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},}}, true);
+auxl.faceEar2Data = auxl.CoreDataFromTemplate(auxl.faceEar1Data, {id: 'faceEar2', rotation: new THREE.Vector3(0,-30,0), animations:{twitch: {property: 'object3D.rotation.y', from: -25, to: -35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},}}, true);
 auxl.faceEar2 = auxl.Core(auxl.faceEar2Data);
 
 auxl.faceLayerData = {
@@ -960,11 +960,11 @@ auxl.cloudData = {
 	classes: ['a-ent'],
 	components: false,
 };
-auxl.cloud1Data = auxl.coreDataFromTemplate(auxl.cloudData, {id: 'cloud1', position: new THREE.Vector3(-150,200,-300), scale: new THREE.Vector3(1,0.25,0.75)}, true);
+auxl.cloud1Data = auxl.CoreDataFromTemplate(auxl.cloudData, {id: 'cloud1', position: new THREE.Vector3(-150,200,-300), scale: new THREE.Vector3(1,0.25,0.75)}, true);
 auxl.cloud1 = auxl.Core(auxl.cloudData);
-auxl.cloud2Data = auxl.coreDataFromTemplate(auxl.cloudData, {id: 'cloud2', position: new THREE.Vector3(-150,200,200), scale: new THREE.Vector3(1,0.25,0.75)}, true);
+auxl.cloud2Data = auxl.CoreDataFromTemplate(auxl.cloudData, {id: 'cloud2', position: new THREE.Vector3(-150,200,200), scale: new THREE.Vector3(1,0.25,0.75)}, true);
 auxl.cloud2 = auxl.Core(auxl.cloud2Data);
-auxl.cloud3Data = auxl.coreDataFromTemplate(auxl.cloudData, {id: 'cloud3', position: new THREE.Vector3(100,200,0), scale: new THREE.Vector3(0.5,0.5,0.25)}, true);
+auxl.cloud3Data = auxl.CoreDataFromTemplate(auxl.cloudData, {id: 'cloud3', position: new THREE.Vector3(100,200,0), scale: new THREE.Vector3(0.5,0.5,0.25)}, true);
 auxl.cloud3 = auxl.Core(auxl.cloud3Data);
 auxl.cloudLayerData = {
 	parent: {core: auxl.cloudsParent}, 
@@ -2274,7 +2274,7 @@ components: false,
 };
 auxl.cube3x3x3 = auxl.Core(auxl.cube3x3x3Data);
  
-let cube3x0Color = auxl.colorTheoryGen();
+let cube3x0Color = auxl.ColorTheoryGen();
 auxl.cube3x0Data = {
 data:'cube3x0Data',
 id:'cube3x0',
@@ -2300,8 +2300,8 @@ auxl.cube3x0 = auxl.Core(auxl.cube3x0Data);
 
 
 //cube3x1
-let cube3x1Color = auxl.colorTheoryGen();
-auxl.cube3x1Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x1Color = auxl.ColorTheoryGen();
+auxl.cube3x1Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x1',
 	position: new THREE.Vector3(0.185,0,0.185),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2312,8 +2312,8 @@ auxl.cube3x1 = auxl.Core(auxl.cube3x1Data);
 
 
 //cube3x2
-let cube3x2Color = auxl.colorTheoryGen();
-auxl.cube3x2Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x2Color = auxl.ColorTheoryGen();
+auxl.cube3x2Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x2',
 	position: new THREE.Vector3(-0.185,0,0.185),
 text: {value:'C', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2325,8 +2325,8 @@ auxl.cube3x2 = auxl.Core(auxl.cube3x2Data);
 
 
 //cube3x3
-let cube3x3Color = auxl.colorTheoryGen();
-auxl.cube3x3Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x3Color = auxl.ColorTheoryGen();
+auxl.cube3x3Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x3',
 	position: new THREE.Vector3(0,0.185,0.185),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2336,8 +2336,8 @@ material: {shader: "standard", color: cube3x3Color.base, opacity: 1, metalness: 
 auxl.cube3x3 = auxl.Core(auxl.cube3x3Data);
 
 //cube3x4
-let cube3x4Color = auxl.colorTheoryGen();
-auxl.cube3x4Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x4Color = auxl.ColorTheoryGen();
+auxl.cube3x4Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x4',
 	position: new THREE.Vector3(0.185,0.185,0.185),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2348,8 +2348,8 @@ auxl.cube3x4 = auxl.Core(auxl.cube3x4Data);
 
 
 //cube3x5
-let cube3x5Color = auxl.colorTheoryGen();
-auxl.cube3x5Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x5Color = auxl.ColorTheoryGen();
+auxl.cube3x5Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x5',
 	position: new THREE.Vector3(-0.185,0.185,0.185),
 text: {value:'C', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2360,8 +2360,8 @@ auxl.cube3x5 = auxl.Core(auxl.cube3x5Data);
 
 
 //cube3x6
-let cube3x6Color = auxl.colorTheoryGen();
-auxl.cube3x6Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x6Color = auxl.ColorTheoryGen();
+auxl.cube3x6Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x6',
 	position: new THREE.Vector3(0,-0.185,0.185),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2371,8 +2371,8 @@ material: {shader: "standard", color: cube3x6Color.base, opacity: 1, metalness: 
 auxl.cube3x6 = auxl.Core(auxl.cube3x6Data);
 
 //cube3x7
-let cube3x7Color = auxl.colorTheoryGen();
-auxl.cube3x7Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x7Color = auxl.ColorTheoryGen();
+auxl.cube3x7Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x7',
 	position: new THREE.Vector3(0.185,-0.185,0.185),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2383,8 +2383,8 @@ auxl.cube3x7 = auxl.Core(auxl.cube3x7Data);
 
 
 //cube3x8
-let cube3x8Color = auxl.colorTheoryGen();
-auxl.cube3x8Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x8Color = auxl.ColorTheoryGen();
+auxl.cube3x8Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x8',
 	position: new THREE.Vector3(-0.185,-0.185,0.185),
 text: {value:'C', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2395,8 +2395,8 @@ auxl.cube3x8 = auxl.Core(auxl.cube3x8Data);
 
 
 //cube3x9
-let cube3x9Color = auxl.colorTheoryGen();
-auxl.cube3x9Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x9Color = auxl.ColorTheoryGen();
+auxl.cube3x9Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x9',
 	position: new THREE.Vector3(0.185,0,0),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2409,8 +2409,8 @@ auxl.cube3x9 = auxl.Core(auxl.cube3x9Data);
 
 
 //cube3x1
-let cube3x10Color = auxl.colorTheoryGen();
-auxl.cube3x10Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x10Color = auxl.ColorTheoryGen();
+auxl.cube3x10Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x10',
 	position: new THREE.Vector3(0.185,0,0),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2421,8 +2421,8 @@ auxl.cube3x10 = auxl.Core(auxl.cube3x10Data);
 
 
 //cube3x11
-let cube3x11Color = auxl.colorTheoryGen();
-auxl.cube3x11Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x11Color = auxl.ColorTheoryGen();
+auxl.cube3x11Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x11',
 	position: new THREE.Vector3(-0.185,0,0),
 text: {value:'C', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2434,8 +2434,8 @@ auxl.cube3x11 = auxl.Core(auxl.cube3x11Data);
 
 
 //cube3x12
-let cube3x12Color = auxl.colorTheoryGen();
-auxl.cube3x12Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x12Color = auxl.ColorTheoryGen();
+auxl.cube3x12Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x12',
 	position: new THREE.Vector3(0,0.185,0),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2445,8 +2445,8 @@ material: {shader: "standard", color: cube3x12Color.base, opacity: 1, metalness:
 auxl.cube3x12 = auxl.Core(auxl.cube3x12Data);
 
 //cube3x13
-let cube3x13Color = auxl.colorTheoryGen();
-auxl.cube3x13Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x13Color = auxl.ColorTheoryGen();
+auxl.cube3x13Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x13',
 	position: new THREE.Vector3(0.185,0.185,0),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2457,8 +2457,8 @@ auxl.cube3x13 = auxl.Core(auxl.cube3x13Data);
 
 
 //cube3x14
-let cube3x14Color = auxl.colorTheoryGen();
-auxl.cube3x14Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x14Color = auxl.ColorTheoryGen();
+auxl.cube3x14Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x14',
 	position: new THREE.Vector3(-0.185,0.185,0),
 text: {value:'C', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2469,8 +2469,8 @@ auxl.cube3x14 = auxl.Core(auxl.cube3x14Data);
 
 
 //cube3x15
-let cube3x15Color = auxl.colorTheoryGen();
-auxl.cube3x15Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x15Color = auxl.ColorTheoryGen();
+auxl.cube3x15Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x15',
 	position: new THREE.Vector3(0,-0.185,0),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2480,8 +2480,8 @@ material: {shader: "standard", color: cube3x15Color.base, opacity: 1, metalness:
 auxl.cube3x15 = auxl.Core(auxl.cube3x15Data);
 
 //cube3x16
-let cube3x16Color = auxl.colorTheoryGen();
-auxl.cube3x16Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x16Color = auxl.ColorTheoryGen();
+auxl.cube3x16Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x16',
 	position: new THREE.Vector3(0.185,-0.185,0),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2492,8 +2492,8 @@ auxl.cube3x16 = auxl.Core(auxl.cube3x16Data);
 
 
 //cube3x17
-let cube3x17Color = auxl.colorTheoryGen();
-auxl.cube3x17Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x17Color = auxl.ColorTheoryGen();
+auxl.cube3x17Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x17',
 	position: new THREE.Vector3(-0.185,-0.185,0),
 text: {value:'C', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2504,8 +2504,8 @@ auxl.cube3x17 = auxl.Core(auxl.cube3x17Data);
  
 
 //cube3x18
-let cube3x18Color = auxl.colorTheoryGen();
-auxl.cube3x18Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x18Color = auxl.ColorTheoryGen();
+auxl.cube3x18Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x18',
 	position: new THREE.Vector3(0.185,0,-0.185),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2518,8 +2518,8 @@ auxl.cube3x18 = auxl.Core(auxl.cube3x18Data);
 
 
 //cube3x19
-let cube3x19Color = auxl.colorTheoryGen();
-auxl.cube3x19Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x19Color = auxl.ColorTheoryGen();
+auxl.cube3x19Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x19',
 	position: new THREE.Vector3(0,0,-0.185),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2530,8 +2530,8 @@ auxl.cube3x19 = auxl.Core(auxl.cube3x19Data);
 
 
 //cube3x20
-let cube3x20Color = auxl.colorTheoryGen();
-auxl.cube3x20Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x20Color = auxl.ColorTheoryGen();
+auxl.cube3x20Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x20',
 	position: new THREE.Vector3(-0.185,0,-0.185),
 text: {value:'C', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2543,8 +2543,8 @@ auxl.cube3x20 = auxl.Core(auxl.cube3x20Data);
 
 
 //cube3x21
-let cube3x21Color = auxl.colorTheoryGen();
-auxl.cube3x21Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x21Color = auxl.ColorTheoryGen();
+auxl.cube3x21Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x21',
 	position: new THREE.Vector3(0,0.185,-0.185),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2554,8 +2554,8 @@ material: {shader: "standard", color: cube3x21Color.base, opacity: 1, metalness:
 auxl.cube3x21 = auxl.Core(auxl.cube3x21Data);
 
 //cube3x22
-let cube3x22Color = auxl.colorTheoryGen();
-auxl.cube3x22Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x22Color = auxl.ColorTheoryGen();
+auxl.cube3x22Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x22',
 	position: new THREE.Vector3(0.185,0.185,-0.185),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2566,8 +2566,8 @@ auxl.cube3x22 = auxl.Core(auxl.cube3x22Data);
 
 
 //cube3x23
-let cube3x23Color = auxl.colorTheoryGen();
-auxl.cube3x23Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x23Color = auxl.ColorTheoryGen();
+auxl.cube3x23Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x23',
 	position: new THREE.Vector3(-0.185,0.185,-0.185),
 text: {value:'C', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2578,8 +2578,8 @@ auxl.cube3x23 = auxl.Core(auxl.cube3x23Data);
 
 
 //cube3x24
-let cube3x24Color = auxl.colorTheoryGen();
-auxl.cube3x24Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x24Color = auxl.ColorTheoryGen();
+auxl.cube3x24Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x24',
 	position: new THREE.Vector3(0,-0.185,-0.185),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2589,8 +2589,8 @@ material: {shader: "standard", color: cube3x24Color.base, opacity: 1, metalness:
 auxl.cube3x24 = auxl.Core(auxl.cube3x24Data);
 
 //cube3x25
-let cube3x25Color = auxl.colorTheoryGen();
-auxl.cube3x25Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x25Color = auxl.ColorTheoryGen();
+auxl.cube3x25Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x25',
 	position: new THREE.Vector3(0.185,-0.185,-0.185),
 text: {value:'B', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2601,8 +2601,8 @@ auxl.cube3x25 = auxl.Core(auxl.cube3x25Data);
 
 
 //cube3x26
-let cube3x26Color = auxl.colorTheoryGen();
-auxl.cube3x26Data = auxl.coreDataFromTemplate(auxl.cube3x0Data, {
+let cube3x26Color = auxl.ColorTheoryGen();
+auxl.cube3x26Data = auxl.CoreDataFromTemplate(auxl.cube3x0Data, {
 	id: 'cube3x26',
 	position: new THREE.Vector3(-0.185,-0.185,-0.185),
 text: {value:'C', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
@@ -2722,7 +2722,7 @@ components: false,
 auxl.pinTop = auxl.Core(auxl.pinTopData);
 
 //Pin0
-auxl.pinBase0Data = auxl.coreDataFromTemplate(auxl.pinBaseData
+auxl.pinBase0Data = auxl.CoreDataFromTemplate(auxl.pinBaseData
 , {
 id: 'pinBase0',
 rotation: new THREE.Vector3(0,0,45),
@@ -2730,7 +2730,7 @@ rotation: new THREE.Vector3(0,0,45),
 auxl.pinBase0 = auxl.Core(auxl.pinBase0Data);
 
 //Pin0
-auxl.pin0TopData = auxl.coreDataFromTemplate(auxl.pinTopData, {
+auxl.pin0TopData = auxl.CoreDataFromTemplate(auxl.pinTopData, {
 id: 'pinTop0',
 text: {value:'Q', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.001, side: 'double', align: "center", baseline: 'center', width: 0.05},
 material: {shader: "standard", color: "#982373", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#982373", emissiveIntensity: 0.4, side: 'double',},
@@ -2738,7 +2738,7 @@ material: {shader: "standard", color: "#982373", opacity: 1, metalness: 0.2, rou
 auxl.pinTop0 = auxl.Core(auxl.pin0TopData);
 
 //Pin1
-auxl.pinBase1Data = auxl.coreDataFromTemplate(auxl.pinBaseData
+auxl.pinBase1Data = auxl.CoreDataFromTemplate(auxl.pinBaseData
 , {
 id: 'pinBase1',
 rotation: new THREE.Vector3(0,0,0),
@@ -2746,7 +2746,7 @@ rotation: new THREE.Vector3(0,0,0),
 auxl.pinBase1 = auxl.Core(auxl.pinBase1Data);
 
 //Pin1
-auxl.pineTop1Data = auxl.coreDataFromTemplate(auxl.pinTopData, {
+auxl.pineTop1Data = auxl.CoreDataFromTemplate(auxl.pinTopData, {
 id: 'pinTop1',
 text: {value:'W', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.001, side: 'double', align: "center", baseline: 'center', width: 0.05},
 material: {shader: "standard", color: "#2990be", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#2990be", emissiveIntensity: 0.4, side: 'double',},
@@ -2757,7 +2757,7 @@ auxl.pinTop1 = auxl.Core(auxl.pineTop1Data);
 
 
 //Pin2
-auxl.pinBase2Data = auxl.coreDataFromTemplate(auxl.pinBaseData
+auxl.pinBase2Data = auxl.CoreDataFromTemplate(auxl.pinBaseData
 , {
 id: 'pinBase2',
 rotation: new THREE.Vector3(0,0,-45),
@@ -2765,7 +2765,7 @@ rotation: new THREE.Vector3(0,0,-45),
 auxl.pinBase2 = auxl.Core(auxl.pinBase2Data);
 
 //Pin2
-auxl.pineTo2Data = auxl.coreDataFromTemplate(auxl.pinTopData, {
+auxl.pineTo2Data = auxl.CoreDataFromTemplate(auxl.pinTopData, {
 id: 'pinTop2',
 text: {value:'E', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.001, side: 'double', align: "center", baseline: 'center', width: 0.05},
 material: {shader: "standard", color: "#40be29", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#40be29", emissiveIntensity: 0.4, side: 'double',},
@@ -2817,7 +2817,7 @@ components: false,
 auxl.keyboardParent = auxl.Core(auxl.keyboardParentData);
 
 //key 0
-auxl.key0Data = auxl.coreDataFromTemplate(auxl.pinTopData, {
+auxl.key0Data = auxl.CoreDataFromTemplate(auxl.pinTopData, {
 id: 'key0',
 text: {value:'Q', wrapCount: 3, color: "#FFFFFF", font: "exo2bold", zOffset: 0.001, side: 'double', align: "center", baseline: 'center', width: 0.05},
 material: {shader: "standard", color: "#982373", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#982373", emissiveIntensity: 0.4, side: 'double',},
@@ -3044,7 +3044,7 @@ auxl.cardTextBaseData = {
 };
 
 //Background
-auxl.cardBackgroundData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
+auxl.cardBackgroundData = auxl.CoreDataFromTemplate(auxl.cardTextBaseData, {
 	id: 'cardBackground',
 	position: new THREE.Vector3(0,0,0),
 	text: false,
@@ -3058,7 +3058,7 @@ auxl.cardBackground = auxl.Core(auxl.cardBackgroundData);
 
 //Display Name & ID
 //Special Cost(6) Icons w/ Hover Info
-auxl.titleBarData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
+auxl.titleBarData = auxl.CoreDataFromTemplate(auxl.cardTextBaseData, {
 	id: 'titleBar',
 	position: new THREE.Vector3(0,1.5,0),
 	text: {value:'Display Name & ID', wrapCount: 24, color: "#000000", font: "exo2bold", zOffset: 0.125, xOffset: 0.05,  side: 'double', align: "left", baseline: 'center'},
@@ -3068,7 +3068,7 @@ auxl.titleBarData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
 auxl.titleBar = auxl.Core(auxl.titleBarData);
 
 //Notification
-auxl.notificationBarData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
+auxl.notificationBarData = auxl.CoreDataFromTemplate(auxl.cardTextBaseData, {
 	id: 'notificationBar',
 	position: new THREE.Vector3(0,0,0),
 	geometry: {primitive: 'box', width: 2, height: 0.225, depth: 0.15,},
@@ -3081,7 +3081,7 @@ auxl.notificationBar = auxl.Core(auxl.notificationBarData);
 //Title
 //Specific
 //Logo
-auxl.controlBarData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
+auxl.controlBarData = auxl.CoreDataFromTemplate(auxl.cardTextBaseData, {
 	id: 'controlBar',
 	position: new THREE.Vector3(0,-0.225,0),
 	text: {value:'Title - Specific : Logo', wrapCount: 24, color: "#000000", font: "exo2bold", zOffset: 0.125, xOffset: 0.05,  side: 'double', align: "left", baseline: 'center'},
@@ -3092,7 +3092,7 @@ auxl.controlBar = auxl.Core(auxl.controlBarData);
 
 
 //Body
-auxl.cardTextBodyData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
+auxl.cardTextBodyData = auxl.CoreDataFromTemplate(auxl.cardTextBaseData, {
 	id: 'cardTextBody',
 	position: new THREE.Vector3(0,-0.875,0),
 	text: false,
@@ -3105,7 +3105,7 @@ auxl.cardTextBody = auxl.Core(auxl.cardTextBodyData);
 
 
 //Body
-auxl.cardTextAccentData = auxl.coreDataFromTemplate(auxl.cardTextBaseData, {
+auxl.cardTextAccentData = auxl.CoreDataFromTemplate(auxl.cardTextBaseData, {
 	id: 'cardTextAccent',
 	position: new THREE.Vector3(1,-1.5,0),
 	text: false,
@@ -3122,7 +3122,7 @@ auxl.cardTextAccent = auxl.Core(auxl.cardTextAccentData);
 
 
 //Cost 1
-auxl.cardCostIcon1Data = auxl.coreDataFromTemplate(auxl.cardIconBaseData, {
+auxl.cardCostIcon1Data = auxl.CoreDataFromTemplate(auxl.cardIconBaseData, {
 	id: 'cardCostIcon1',
 	position: new THREE.Vector3(0.95,1.26,0),
 	text: false,
@@ -3134,7 +3134,7 @@ auxl.cardCostIcon1Data = auxl.coreDataFromTemplate(auxl.cardIconBaseData, {
 auxl.cardCostIcon1 = auxl.Core(auxl.cardCostIcon1Data);
 
 //Cost 2
-auxl.cardCostIcon2Data = auxl.coreDataFromTemplate(auxl.cardCostIcon1Data, {
+auxl.cardCostIcon2Data = auxl.CoreDataFromTemplate(auxl.cardCostIcon1Data, {
 	id: 'cardCostIcon2',
 	position: new THREE.Vector3(0.6,1.26,0),
 	text: false,
@@ -3146,7 +3146,7 @@ auxl.cardCostIcon2Data = auxl.coreDataFromTemplate(auxl.cardCostIcon1Data, {
 auxl.cardCostIcon2 = auxl.Core(auxl.cardCostIcon2Data);
 
 //Cost 3
-auxl.cardCostIcon3Data = auxl.coreDataFromTemplate(auxl.cardCostIcon1Data, {
+auxl.cardCostIcon3Data = auxl.CoreDataFromTemplate(auxl.cardCostIcon1Data, {
 	id: 'cardCostIcon3',
 	position: new THREE.Vector3(0.25,1.26,0),
 	text: false,
@@ -3160,7 +3160,7 @@ auxl.cardCostIcon3 = auxl.Core(auxl.cardCostIcon3Data);
 
 
 //Extra 1
-auxl.cardExtraIcon1Data = auxl.coreDataFromTemplate(auxl.cardIconBaseData, {
+auxl.cardExtraIcon1Data = auxl.CoreDataFromTemplate(auxl.cardIconBaseData, {
 	id: 'cardExtraIcon1',
 	position: new THREE.Vector3(1.1,-1.1,0),
 	text: false,
@@ -3172,7 +3172,7 @@ auxl.cardExtraIcon1Data = auxl.coreDataFromTemplate(auxl.cardIconBaseData, {
 auxl.cardExtraIcon1 = auxl.Core(auxl.cardExtraIcon1Data);
 
 //Extra 2
-auxl.cardExtraIcon2Data = auxl.coreDataFromTemplate(auxl.cardIconBaseData, {
+auxl.cardExtraIcon2Data = auxl.CoreDataFromTemplate(auxl.cardIconBaseData, {
 	id: 'cardExtraIcon2',
 	position: new THREE.Vector3(1.1,-0.8,0),
 	text: false,
@@ -3184,7 +3184,7 @@ auxl.cardExtraIcon2Data = auxl.coreDataFromTemplate(auxl.cardIconBaseData, {
 auxl.cardExtraIcon2 = auxl.Core(auxl.cardExtraIcon2Data);
 
 //Extra 3
-auxl.cardExtraIcon3Data = auxl.coreDataFromTemplate(auxl.cardIconBaseData, {
+auxl.cardExtraIcon3Data = auxl.CoreDataFromTemplate(auxl.cardIconBaseData, {
 	id: 'cardExtraIcon3',
 	position: new THREE.Vector3(1.1,-0.5,0),
 	text: false,
@@ -3216,7 +3216,7 @@ auxl.card = auxl.Layer('card',auxl.cardLayerData);
 
 
 //Large View
-auxl.cardLargeLayerData = auxl.layerDataFromTemplate(auxl.cardLayerData, 'cardLarge',{scale: new THREE.Vector3(1,1,1),
+auxl.cardLargeLayerData = auxl.LayerDataFromTemplate(auxl.cardLayerData, 'cardLarge',{scale: new THREE.Vector3(1,1,1),
 position: new THREE.Vector3(4,1.7,3),
 rotation: new THREE.Vector3(0,270,0),
 }, false, true);
@@ -3304,7 +3304,7 @@ auxl.doorway1 = auxl.Core(auxl.doorway1Data);
 auxl.doorway2 = auxl.Core(auxl.doorway2Data);
 
 }
-auxl.toBeRebuilt('buildGridLibrary');
+auxl.ToBeRebuilt('buildGridLibrary');
 
 },
 });
@@ -3658,8 +3658,8 @@ auxl.gridScenario0Data = {
 		action1Down:{auxlObj: 'player', func: 'ToggleCrouch', name: 'Toggle Crouch/Stand', info: 'Toggle Crouch or Stand mode.'},
 		//
 		//Default Player Controls
-		action5Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
-		action6Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action5Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action6Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
 		action7Down:{auxlObj: 'player', func: 'SnapLeft', name: 'Snap View Left', info: 'Quick snap rotate to the left.'},
 		action8Down:{auxlObj: 'player', func: 'SnapRight', name: 'Snap View Right', info: 'Quick snap rotate to the right.'},
 	},
@@ -3719,7 +3719,7 @@ auxl.gridWorld.SetAsDefault();
 
 //
 //System Loaded
-auxl.systemLoaded();
+auxl.SystemLoaded();
 console.log({msg: 'demo grid world loaded', world: auxl.gridWorld})
 
     },

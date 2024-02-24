@@ -251,7 +251,7 @@ components: false,
 };
 auxl.eye1 = auxl.Core(auxl.eye1Data);
 //eye2
-auxl.eye2Data = auxl.coreDataFromTemplate(auxl.eye1Data, {id: 'eye2', position: new THREE.Vector3(0.125,0,0.25),}, true);
+auxl.eye2Data = auxl.CoreDataFromTemplate(auxl.eye1Data, {id: 'eye2', position: new THREE.Vector3(0.125,0,0.25),}, true);
 auxl.eye2 = auxl.Core(auxl.eye2Data);
 //Eye Anims : Wide/Normal/Squint/Tired/Blink/Closed
 
@@ -274,7 +274,7 @@ components: false,
 };
 auxl.ear1 = auxl.Core(auxl.earData);
 //eye2
-auxl.ear2Data = auxl.coreDataFromTemplate(auxl.earData, {id: 'ear2', position: new THREE.Vector3(0.24,0,0),}, true);
+auxl.ear2Data = auxl.CoreDataFromTemplate(auxl.earData, {id: 'ear2', position: new THREE.Vector3(0.24,0,0),}, true);
 auxl.ear2 = auxl.Core(auxl.ear2Data);
 
 //Antennae
@@ -523,7 +523,7 @@ components: false,
 };
 auxl.shoulder1 = auxl.Core(auxl.shoulderData);
 //Shoulder 2
-auxl.shoulder2Data = auxl.coreDataFromTemplate(auxl.shoulderData, {id: 'shoulder2', position: new THREE.Vector3(0.2,0.45,0), rotation: new THREE.Vector3(5,0,-1),
+auxl.shoulder2Data = auxl.CoreDataFromTemplate(auxl.shoulderData, {id: 'shoulder2', position: new THREE.Vector3(0.2,0.45,0), rotation: new THREE.Vector3(5,0,-1),
 animations: {
 idlex: {property: 'object3D.rotation.x', from: 5, to: -5, dur: 2000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'idle, animationcomplete__normal'},
 idlez: {property: 'object3D.rotation.z', from: -1, to: 1, dur: 1750, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: false, enabled: true, startEvents: 'idle, animationcomplete__normal'},
@@ -565,7 +565,7 @@ components: false,
 //arm 1
 auxl.arm1 = auxl.Core(auxl.armData);
 //arm 2
-auxl.arm2Data = auxl.coreDataFromTemplate(auxl.armData, {id: 'arm2', position: new THREE.Vector3(0.04,-0.25,0.05), rotation: new THREE.Vector3(0,0,0), }, true);
+auxl.arm2Data = auxl.CoreDataFromTemplate(auxl.armData, {id: 'arm2', position: new THREE.Vector3(0.04,-0.25,0.05), rotation: new THREE.Vector3(0,0,0), }, true);
 auxl.arm2 = auxl.Core(auxl.arm2Data);
 
 
@@ -590,7 +590,7 @@ components: false,
 //hand 1
 auxl.hand1 = auxl.Core(auxl.handData);
 //hand 2
-auxl.hand2Data = auxl.coreDataFromTemplate(auxl.handData, {id: 'hand2', position: new THREE.Vector3(0,-0.25,0), rotation: new THREE.Vector3(180,0,0), }, true);
+auxl.hand2Data = auxl.CoreDataFromTemplate(auxl.handData, {id: 'hand2', position: new THREE.Vector3(0,-0.25,0), rotation: new THREE.Vector3(180,0,0), }, true);
 auxl.hand2 = auxl.Core(auxl.hand2Data);
 
 //new THREE.Vector3(0,-30,-150)
@@ -631,7 +631,7 @@ components: false,
 };
 auxl.foot1 = auxl.Core(auxl.footData);
 //hand 2
-auxl.foot2Data = auxl.coreDataFromTemplate(auxl.footData, {id: 'foot2', position: new THREE.Vector3(0.1,-0.37,-0.075),
+auxl.foot2Data = auxl.CoreDataFromTemplate(auxl.footData, {id: 'foot2', position: new THREE.Vector3(0.1,-0.37,-0.075),
 rotation: new THREE.Vector3(0,150,90), }, true);
 auxl.foot2 = auxl.Core(auxl.foot2Data);
 
@@ -1028,7 +1028,7 @@ components: false,
 };
 auxl.faceEye1Socket = auxl.Core(auxl.faceEye1SocketData);
 //Eye2Socket
-auxl.faceEye2SocketData = auxl.coreDataFromTemplate(auxl.faceEye1SocketData, {id: 'faceEye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)}, true);
+auxl.faceEye2SocketData = auxl.CoreDataFromTemplate(auxl.faceEye1SocketData, {id: 'faceEye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)}, true);
 auxl.faceEye2Socket = auxl.Core(auxl.faceEye2SocketData);
 //Eye1Pupil
 auxl.faceEye1PupilData = {
@@ -1053,7 +1053,7 @@ components: false,
 };
 auxl.faceEye1Pupil = auxl.Core(auxl.faceEye1PupilData);
 //Eye2Pupil
-auxl.faceEye2PupilData = auxl.coreDataFromTemplate(auxl.faceEye1PupilData, {id: 'faceEye2Pupil',}, true);
+auxl.faceEye2PupilData = auxl.CoreDataFromTemplate(auxl.faceEye1PupilData, {id: 'faceEye2Pupil',}, true);
 auxl.faceEye2Pupil = auxl.Core(auxl.faceEye2PupilData);
 
 //Eyebrow
@@ -1075,7 +1075,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEyebrow1 = auxl.Core(auxl.faceEyebrow1Data);
-auxl.faceEyebrow2Data = auxl.coreDataFromTemplate(auxl.faceEyebrow1Data, {id: 'faceEyebrow2', rotation: new THREE.Vector3(0,-10,0)}, true);
+auxl.faceEyebrow2Data = auxl.CoreDataFromTemplate(auxl.faceEyebrow1Data, {id: 'faceEyebrow2', rotation: new THREE.Vector3(0,-10,0)}, true);
 auxl.faceEyebrow2 = auxl.Core(auxl.faceEyebrow2Data);
 
 //Eyelid Offset
@@ -1097,7 +1097,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEye1LidOffset = auxl.Core(auxl.faceEye1LidOffsetData);
-auxl.faceEye2LidOffsetData = auxl.coreDataFromTemplate(auxl.faceEye1LidOffsetData, {id: 'faceEye2LidOffset'}, true);
+auxl.faceEye2LidOffsetData = auxl.CoreDataFromTemplate(auxl.faceEye1LidOffsetData, {id: 'faceEye2LidOffset'}, true);
 auxl.faceEye2LidOffset = auxl.Core(auxl.faceEye2LidOffsetData);
 //Eyelid
 auxl.faceEye1LidData = {
@@ -1116,7 +1116,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEye1Lid = auxl.Core(auxl.faceEye1LidData);
-auxl.faceEye2LidData = auxl.coreDataFromTemplate(auxl.faceEye1LidData, {id: 'faceEye2Lid'}, true);
+auxl.faceEye2LidData = auxl.CoreDataFromTemplate(auxl.faceEye1LidData, {id: 'faceEye2Lid'}, true);
 auxl.faceEye2Lid = auxl.Core(auxl.faceEye2LidData);
 
 //Blink
@@ -1141,7 +1141,7 @@ visible: false,
 },
 };
 auxl.faceEye1Blink = auxl.Core(auxl.faceEye1BlinkData);
-auxl.faceEye2BlinkData = auxl.coreDataFromTemplate(auxl.faceEye1BlinkData, {id: 'faceEye2Blink'}, true);
+auxl.faceEye2BlinkData = auxl.CoreDataFromTemplate(auxl.faceEye1BlinkData, {id: 'faceEye2Blink'}, true);
 auxl.faceEye2Blink = auxl.Core(auxl.faceEye2BlinkData);
 
 
@@ -1162,7 +1162,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEar1Offset = auxl.Core(auxl.faceEar1OffsetData);
-auxl.faceEar2OffsetData = auxl.coreDataFromTemplate(auxl.faceEar1OffsetData, {id: 'faceEar2Offset', position: new THREE.Vector3(0.25,0.5,0.4)}, true);
+auxl.faceEar2OffsetData = auxl.CoreDataFromTemplate(auxl.faceEar1OffsetData, {id: 'faceEar2Offset', position: new THREE.Vector3(0.25,0.5,0.4)}, true);
 auxl.faceEar2Offset = auxl.Core(auxl.faceEar2OffsetData);
 //Ear
 auxl.faceEar1Data = {
@@ -1183,7 +1183,7 @@ classes: ['a-ent'],
 components: false,
 };
 auxl.faceEar1 = auxl.Core(auxl.faceEar1Data);
-auxl.faceEar2Data = auxl.coreDataFromTemplate(auxl.faceEar1Data, {id: 'faceEar2', rotation: new THREE.Vector3(0,-30,0), animations:{twitch: {property: 'object3D.rotation.y', from: -25, to: -35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},}}, true);
+auxl.faceEar2Data = auxl.CoreDataFromTemplate(auxl.faceEar1Data, {id: 'faceEar2', rotation: new THREE.Vector3(0,-30,0), animations:{twitch: {property: 'object3D.rotation.y', from: -25, to: -35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},}}, true);
 auxl.faceEar2 = auxl.Core(auxl.faceEar2Data);
 
 auxl.faceLayerData = {
@@ -1423,7 +1423,7 @@ auxl.buildMascotLibrary = () => {
 auxl.yTearLayer = auxl.Layer('yTearLayer',auxl.yTearLayerData);
 
 }
-auxl.toBeRebuilt('buildMascotLibrary');
+auxl.ToBeRebuilt('buildMascotLibrary');
 
 },
 });
@@ -1630,11 +1630,10 @@ auxl.mascotScenarioData = {
 		},
 	},
 	controls:{
-
 		//
 		//Default Player Controls
-		action5Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
-		action6Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action5Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action6Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
 		action7Down:{auxlObj: 'player', func: 'SnapLeft', name: 'Snap View Left', info: 'Quick snap rotate to the left.'},
 		action8Down:{auxlObj: 'player', func: 'SnapRight', name: 'Snap View Right', info: 'Quick snap rotate to the right.'},
 	},
@@ -1684,7 +1683,7 @@ auxl.mascotWorld = auxl.World(auxl.mascotWorldData);
 
 //
 //System Loaded
-//auxl.systemLoaded();
+//auxl.SystemLoaded();
 console.log({msg: 'mascot world loaded', world: auxl.mascotWorld})
     },
 });

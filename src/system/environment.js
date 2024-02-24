@@ -148,11 +148,11 @@ const SkyBox = (auxl, skyBoxData) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
 				skyBox[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: skyBox.id, type: 'skyBox', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
+				auxl.SaveToProfile({auxlObject: skyBox.id, type: 'skyBox', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			skyBox[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: skyBox.id, type: 'skyBox', sub: false, name: flagValue.flag, data: flagValue.value});
+			auxl.SaveToProfile({auxlObject: skyBox.id, type: 'skyBox', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -450,11 +450,11 @@ const Horizon = (auxl, horizonData) => {
 		let colorPickBase;
 		if(horizon.texture){
 			if(horizon.baseColor){
-				colorPick = auxl.colorTheoryGen(horizon.baseColor);
+				colorPick = auxl.ColorTheoryGen(horizon.baseColor);
 			} else if(horizon.baseColorFamily){
-				colorPick = auxl.colorTheoryGen(false, horizon.baseColorFamily);
+				colorPick = auxl.ColorTheoryGen(false, horizon.baseColorFamily);
 			} else {
-				colorPick = auxl.colorTheoryGen();
+				colorPick = auxl.ColorTheoryGen();
 			}
 			colorPickBase = colorPick.base;
 			material = {shader: "standard", side: 'double', color: colorPickBase};
@@ -487,19 +487,19 @@ const Horizon = (auxl, horizonData) => {
 			}
 
 		} else if(horizon.baseColor){
-			colorPick = auxl.colorTheoryGen(horizon.baseColor);
+			colorPick = auxl.ColorTheoryGen(horizon.baseColor);
 			mid = colorPick.base;
 			top = colorPick.tetradic[0];
 			bottom = colorPick.tetradic[1];
 			material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
 		} else if(horizon.baseColorFamily){
-			colorPick = auxl.colorTheoryGen(false, horizon.baseColorFamily);
+			colorPick = auxl.ColorTheoryGen(false, horizon.baseColorFamily);
 			mid = colorPick.base;
 			top = colorPick.tetradic[0];
 			bottom = colorPick.tetradic[1];
 			material = {shader: 'threeColorGradientShader', topColor: top, middleColor: mid, bottomColor: bottom, side: 'double'};
 		} else {
-			colorPick = auxl.colorTheoryGen();
+			colorPick = auxl.ColorTheoryGen();
 			mid = colorPick.base;
 			top = colorPick.tetradic[0];
 			bottom = colorPick.tetradic[1];
@@ -547,11 +547,11 @@ const Horizon = (auxl, horizonData) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
 				horizon[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: horizon.id, type: 'horizon', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
+				auxl.SaveToProfile({auxlObject: horizon.id, type: 'horizon', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			horizon[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: horizon.id, type: 'horizon', sub: false, name: flagValue.flag, data: flagValue.value});
+			auxl.SaveToProfile({auxlObject: horizon.id, type: 'horizon', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -607,7 +607,7 @@ const ObjsGenRing = (auxl, objRingData) => {
 			objData.id = ogData.id + a;
 			//Color
 			if(singleGen.ranColor){
-				color = auxl.colorTheoryGen().base;
+				color = auxl.ColorTheoryGen().base;
 				objData.material.color = color;
 				if(objData.material.emissive){
 					objData.material.emissive = color;
@@ -714,11 +714,11 @@ const ObjsGenRing = (auxl, objRingData) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
 				singleGen[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: singleGen.id, type: 'singleGen', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
+				auxl.SaveToProfile({auxlObject: singleGen.id, type: 'singleGen', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			singleGen[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: singleGen.id, type: 'singleGen', sub: false, name: flagValue.flag, data: flagValue.value});
+			auxl.SaveToProfile({auxlObject: singleGen.id, type: 'singleGen', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -1108,7 +1108,7 @@ if(a === 0){
 }*/
 					//Color
 					if(size.ranColor){
-						color = auxl.colorTheoryGen().base;
+						color = auxl.ColorTheoryGen().base;
 						objData.material.color = color;
 						if(objData.material.emissive){
 							objData.material.emissive = color;
@@ -1242,7 +1242,7 @@ if(a === 0){
 
 		//Color
 		if(size.ranColor){
-			color = auxl.colorTheoryGen().base;
+			color = auxl.ColorTheoryGen().base;
 			objData.material.color = color;
 			if(objData.material.emissive){
 				objData.material.emissive = color;
@@ -1419,11 +1419,11 @@ console.log({posY, scaleY})
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
 				multiGen[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: multiGen.id, type: 'multiGen', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
+				auxl.SaveToProfile({auxlObject: multiGen.id, type: 'multiGen', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			multiGen[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: multiGen.id, type: 'multiGen', sub: false, name: flagValue.flag, data: flagValue.value});
+			auxl.SaveToProfile({auxlObject: multiGen.id, type: 'multiGen', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -1464,7 +1464,7 @@ const Teleport = (auxl, id, locations) => {
 
 	//Build Teleport Multi-Interaction Layer
 	for(let spot in locations){
-		spotColor = auxl.colorTheoryGen().base;
+		spotColor = auxl.ColorTheoryGen().base;
 		teleportParentId = 'teleport' + spot + 'Parent';
 		auxl.teleportParentData.id = teleportParentId;
 		auxl.teleportParentData.position = locations[spot];
@@ -1518,11 +1518,11 @@ const Teleport = (auxl, id, locations) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
 				teleport[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: teleport.id, type: 'teleport', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
+				auxl.SaveToProfile({auxlObject: teleport.id, type: 'teleport', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			teleport[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: teleport.id, type: 'teleport', sub: false, name: flagValue.flag, data: flagValue.value});
+			auxl.SaveToProfile({auxlObject: teleport.id, type: 'teleport', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array

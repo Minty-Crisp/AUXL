@@ -966,7 +966,7 @@ if(layer.toggle3){
 			},
 		};
 		//let name = 'magLink' + Object.keys(layer.links).length;
-		layer.linkCore = auxl.Core(auxl.coreDataFromTemplate(linkData, false, true));
+		layer.linkCore = auxl.Core(auxl.CoreDataFromTemplate(linkData, false, true));
 		layer.linkConfig = {
 			type: 'auxspring',
 			to: 'playerRig',
@@ -2824,7 +2824,7 @@ auxl.numberInputs0 = auxl.MultiMenu(one.numberInputs0Data);
 
 //RIGHT MID
 //PINK
-auxl.menuStyle4 = auxl.coreDataFromTemplate(auxl.numberStyle0Data, {
+auxl.menuStyle4 = auxl.CoreDataFromTemplate(auxl.numberStyle0Data, {
 	id: 'menuStyle4',
 	material: {shader: "standard", color: "#d31d9b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#d31d9b", emissiveIntensity: 0.4, side: 'double',  },
 
@@ -2967,7 +2967,7 @@ auxl.buildSubMenu = auxl.MultiMenu(one.buildSubMenuData);
 
 //LEFT BOTTOM
 //RED
-auxl.numberStyle1Data = auxl.coreDataFromTemplate(auxl.numberStyle0Data, {
+auxl.numberStyle1Data = auxl.CoreDataFromTemplate(auxl.numberStyle0Data, {
 	id: 'numberStyle1',
 	material: {shader: "standard", color: "#d3391d", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#d3391d", emissiveIntensity: 0.4, side: 'double',  },
 
@@ -3103,7 +3103,7 @@ auxl.numberInputs1 = auxl.MultiMenu(one.numberInputs1Data);
 //Inner
 //RIGHT C
 //GREEN
-auxl.numberStyle2Data = auxl.coreDataFromTemplate(auxl.numberStyle0Data, {
+auxl.numberStyle2Data = auxl.CoreDataFromTemplate(auxl.numberStyle0Data, {
 	id: 'numberStyle2',
 	material: {shader: "standard", color: "#24d31d", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#24d31d", emissiveIntensity: 0.4, side: 'double',  },
 
@@ -3339,7 +3339,7 @@ auxl.buildMenuNumber = auxl.MultiMenu(one.buildPosMenuData);
 		//give color family as options and pick a random one on execute, keep menu open.
 		let materialData = (one.building.current.GetEl().material) ?one.building.current.GetEl().material : defaultData;
 		//New Color
-		let newColor = auxl.colorTheoryGen(false, color);
+		let newColor = auxl.ColorTheoryGen(false, color);
 		materialData.color = newColor.base;
 		if(materialData.emissive){
 			materialData.emissive = newColor.base;

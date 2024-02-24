@@ -46,7 +46,7 @@ const Book = (auxl, bookData, npc) => {
 		//Check if spawning to add to Tracker
 		for (let types in auxl.objGenTracking) {
 			if(func === auxl.objGenTracking[types].spawn || func === auxl.objGenTracking[types].altSpawn){
-				auxl.spawnTracker(object, 'book', npc.id);
+				auxl.SpawnTracker(object, 'book', npc.id);
 			}
 		}
 		if(!auxl[object][func]){
@@ -985,7 +985,7 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 	}
 	//Clear Book Spawned Objects
 	const ClearBookSpawn = () => {
-		auxl.clearSpawned(auxl.bookSpawned[npc.id]);
+		auxl.ClearSpawned(auxl.bookSpawned[npc.id]);
 		delete auxl.bookSpawned[npc.id];
 	}
 	//Prep & Start NPC Speaking
@@ -1319,11 +1319,11 @@ const NPC = (auxl, id, object, bookData, textDisplay, special) => {
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
 				npc[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: npc.id, type: 'npc', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
+				auxl.SaveToProfile({auxlObject: npc.id, type: 'npc', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			npc[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: npc.id, type: 'npc', sub: false, name: flagValue.flag, data: flagValue.value});
+			auxl.SaveToProfile({auxlObject: npc.id, type: 'npc', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -1943,7 +1943,7 @@ if(creature.custom){
 	}
 }
 //Random All Below
-creature.color = auxl.colorTheoryGen(false, true);
+creature.color = auxl.ColorTheoryGen(false, true);
 //Pupil Material
 creature.pupilColor = creature.color.base;
 creature.pupilMaterial = {shader: "standard", color: creature.pupilColor, emissive: creature.pupilColor, emissiveIntensity: 0.5, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8};
@@ -1951,7 +1951,7 @@ creature.pupilMaterial = {shader: "standard", color: creature.pupilColor, emissi
 creature.skinColor0 = creature.color.splitCompl[1];
 creature.skinMaterial = {shader: "standard", color: creature.skinColor0, emissive: creature.skinColor0, emissiveIntensity: 0.5, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8};
 //Brow Material
-creature.skinColor1 = auxl.colorTheoryGen(creature.skinColor0).base;
+creature.skinColor1 = auxl.ColorTheoryGen(creature.skinColor0).base;
 creature.browMaterial = {shader: "standard", color: creature.skinColor1, emissive: creature.skinColor1, emissiveIntensity: 0.5, opacity: 1, side: 'double', metalness: 0.2, roughness: 0.8};
 //Accent
 //creature.accentColor = creature.color.compl;
@@ -2296,7 +2296,7 @@ components: false,
 };
 creature[eye1SocketId] = auxl.Core(creature.faceEye1SocketData);
 //Eye2Socket
-creature.faceEye2SocketData = auxl.coreDataFromTemplate(creature.faceEye1SocketData, {id: eye2SocketId, position: new THREE.Vector3(0.15,0.1,0.4)}, true);
+creature.faceEye2SocketData = auxl.CoreDataFromTemplate(creature.faceEye1SocketData, {id: eye2SocketId, position: new THREE.Vector3(0.15,0.1,0.4)}, true);
 creature[eye2SocketId] = auxl.Core(creature.faceEye2SocketData);
 //Eye1Pupil
 creature.faceEye1PupilData = {
@@ -2321,7 +2321,7 @@ components: false,
 };
 creature[eye1PupilId] = auxl.Core(creature.faceEye1PupilData);
 //Eye2Pupil
-creature.faceEye2PupilData = auxl.coreDataFromTemplate(creature.faceEye1PupilData, {id: eye2PupilId,}, true);
+creature.faceEye2PupilData = auxl.CoreDataFromTemplate(creature.faceEye1PupilData, {id: eye2PupilId,}, true);
 creature[eye2PupilId] = auxl.Core(creature.faceEye2PupilData);
 //Eye1PupilAccent
 creature.faceEye1PupilAccentData = {
@@ -2342,7 +2342,7 @@ components: false,
 };
 creature[eye1PupilAccentId] = auxl.Core(creature.faceEye1PupilAccentData);
 //Eye2Pupil
-creature.faceEye2PupilAccentData = auxl.coreDataFromTemplate(creature.faceEye1PupilAccentData, {id: eye2PupilAccentId,}, true);
+creature.faceEye2PupilAccentData = auxl.CoreDataFromTemplate(creature.faceEye1PupilAccentData, {id: eye2PupilAccentId,}, true);
 creature[eye2PupilAccentId] = auxl.Core(creature.faceEye2PupilAccentData);
 
 //Eyebrow
@@ -2364,7 +2364,7 @@ classes: ['a-ent'],
 components: false,
 };
 creature[eyebrow1Id] = auxl.Core(creature.faceEyebrow1Data);
-creature.faceEyebrow2Data = auxl.coreDataFromTemplate(creature.faceEyebrow1Data, {id: eyebrow2Id, rotation: new THREE.Vector3(0,-10,0)}, true);
+creature.faceEyebrow2Data = auxl.CoreDataFromTemplate(creature.faceEyebrow1Data, {id: eyebrow2Id, rotation: new THREE.Vector3(0,-10,0)}, true);
 creature[eyebrow2Id] = auxl.Core(creature.faceEyebrow2Data);
 
 //Eyelid Offset
@@ -2390,7 +2390,7 @@ classes: ['a-ent'],
 components: false,
 };
 creature[eye1LidOffsetId] = auxl.Core(creature.faceEye1LidOffsetData);
-creature.faceEye2LidOffsetData = auxl.coreDataFromTemplate(creature.faceEye1LidOffsetData, {id: eye2LidOffsetId}, true);
+creature.faceEye2LidOffsetData = auxl.CoreDataFromTemplate(creature.faceEye1LidOffsetData, {id: eye2LidOffsetId}, true);
 creature[eye2LidOffsetId] = auxl.Core(creature.faceEye2LidOffsetData);
 //Eyelid
 creature.faceEye1LidData = {
@@ -2409,7 +2409,7 @@ classes: ['a-ent'],
 components: false,
 };
 creature[eye1LidId] = auxl.Core(creature.faceEye1LidData);
-creature.faceEye2LidData = auxl.coreDataFromTemplate(creature.faceEye1LidData, {id: eye2LidId}, true);
+creature.faceEye2LidData = auxl.CoreDataFromTemplate(creature.faceEye1LidData, {id: eye2LidId}, true);
 creature[eye2LidId] = auxl.Core(creature.faceEye2LidData);
 //Blink
 creature.faceEye1BlinkData = {
@@ -2435,7 +2435,7 @@ visible: false,
 },
 };
 creature[eye1BlinkId] = auxl.Core(creature.faceEye1BlinkData);
-creature.faceEye2BlinkData = auxl.coreDataFromTemplate(creature.faceEye1BlinkData, {id: eye2BlinkId}, true);
+creature.faceEye2BlinkData = auxl.CoreDataFromTemplate(creature.faceEye1BlinkData, {id: eye2BlinkId}, true);
 creature[eye2BlinkId] = auxl.Core(creature.faceEye2BlinkData);
 
 //Ear Offset
@@ -2455,7 +2455,7 @@ classes: ['a-ent'],
 components: false,
 };
 creature[ear1OffsetId] = auxl.Core(creature.faceEar1OffsetData);
-creature.faceEar2OffsetData = auxl.coreDataFromTemplate(creature.faceEar1OffsetData, {id: ear2OffsetId, position: creature.ear2OffsetPos}, true);
+creature.faceEar2OffsetData = auxl.CoreDataFromTemplate(creature.faceEar1OffsetData, {id: ear2OffsetId, position: creature.ear2OffsetPos}, true);
 creature[ear2OffsetId] = auxl.Core(creature.faceEar2OffsetData);
 //Ear
 creature.faceEar1Data = {
@@ -2476,7 +2476,7 @@ classes: ['a-ent'],
 components: false,
 };
 creature[ear1Id] = auxl.Core(creature.faceEar1Data);
-creature.faceEar2Data = auxl.coreDataFromTemplate(creature.faceEar1Data, {id: ear2Id, rotation: new THREE.Vector3(0,-30,0), animations:{twitch: {property: 'object3D.rotation.y', from: -25, to: -35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},}}, true);
+creature.faceEar2Data = auxl.CoreDataFromTemplate(creature.faceEar1Data, {id: ear2Id, rotation: new THREE.Vector3(0,-30,0), animations:{twitch: {property: 'object3D.rotation.y', from: -25, to: -35, dur: 3000, delay: 0, loop: true, dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},}}, true);
 creature[ear2Id] = auxl.Core(creature.faceEar2Data);
 
 
@@ -2514,16 +2514,16 @@ classes: ['a-ent'],
 components: false,
 };
 //Leg 1
-creature.leg1Data = auxl.coreDataFromTemplate(creature.legData, {id: leg1Id,}, true);
+creature.leg1Data = auxl.CoreDataFromTemplate(creature.legData, {id: leg1Id,}, true);
 creature[leg1Id] = auxl.Core(creature.leg1Data);
 //Leg 2
-creature.leg2Data = auxl.coreDataFromTemplate(creature.legData, {id: leg2Id, position: new THREE.Vector3(0.25,-0.25,0)}, true);
+creature.leg2Data = auxl.CoreDataFromTemplate(creature.legData, {id: leg2Id, position: new THREE.Vector3(0.25,-0.25,0)}, true);
 creature[leg2Id] = auxl.Core(creature.leg2Data);
 //Leg 3
-creature.leg3Data = auxl.coreDataFromTemplate(creature.legData, {id: leg3Id, position: new THREE.Vector3(0,-0.25,-0.25)}, true);
+creature.leg3Data = auxl.CoreDataFromTemplate(creature.legData, {id: leg3Id, position: new THREE.Vector3(0,-0.25,-0.25)}, true);
 creature[leg3Id] = auxl.Core(creature.leg3Data);
 //Leg 4
-creature.leg4Data = auxl.coreDataFromTemplate(creature.legData, {id: leg4Id, position: new THREE.Vector3(0,-0.25,0.25)}, true);
+creature.leg4Data = auxl.CoreDataFromTemplate(creature.legData, {id: leg4Id, position: new THREE.Vector3(0,-0.25,0.25)}, true);
 creature[leg4Id] = auxl.Core(creature.leg4Data);
 
 //Layer

@@ -34,7 +34,7 @@ schema: {
 			if(color){
 				//Base Color
 				if(color === 'random'){
-					this.materials[this.current] = new THREE.MeshStandardMaterial({color: this.auxl.colorTheoryGen().base});
+					this.materials[this.current] = new THREE.MeshStandardMaterial({color: this.auxl.ColorTheoryGen().base});
 				} else {
 					this.materials[this.current] = new THREE.MeshStandardMaterial({color});
 				}
@@ -85,7 +85,7 @@ schema: {
 					//console.log(node.name)
 					if(this.current < 0){} else {
 						if(this.data.random){
-							node.material = new THREE.MeshStandardMaterial({color: this.auxl.colorTheoryGen().base});
+							node.material = new THREE.MeshStandardMaterial({color: this.auxl.ColorTheoryGen().base});
 						} else {
 							if(this.materials[this.current]){
 								node.material = this.materials[this.current];
@@ -107,7 +107,7 @@ apply: function (){
 		//console.log(node.name)
 		if(this.current < 0){} else {
 			if(this.data.random){
-				node.material = new THREE.MeshStandardMaterial({color: this.auxl.colorTheoryGen().base});
+				node.material = new THREE.MeshStandardMaterial({color: this.auxl.ColorTheoryGen().base});
 			} else {
 				if(this.materials[this.current]){
 					node.material = this.materials[this.current];

@@ -1062,10 +1062,10 @@ auxl.kayKitPumpkinOrangeJackoData = {
 	},
 };
 auxl.kayKitPumpkinOrangeJacko = auxl.Core(auxl.kayKitPumpkinOrangeJackoData);
-auxl.kayKitPumpkinOrangeJacko1Data = auxl.coreDataFromTemplate(auxl.kayKitPumpkinOrangeJackoData, {id: 'kayKitPumpkinOrangeJacko1', rotation: new THREE.Vector3(0,45,0),}, true);
-auxl.kayKitPumpkinOrangeJacko2Data = auxl.coreDataFromTemplate(auxl.kayKitPumpkinOrangeJackoData, {id: 'kayKitPumpkinOrangeJacko2', rotation: new THREE.Vector3(0,135,0),}, true);
-auxl.kayKitPumpkinOrangeJacko3Data = auxl.coreDataFromTemplate(auxl.kayKitPumpkinOrangeJackoData, {id: 'kayKitPumpkinOrangeJacko3', rotation: new THREE.Vector3(0,225,0),}, true);
-auxl.kayKitPumpkinOrangeJacko4Data = auxl.coreDataFromTemplate(auxl.kayKitPumpkinOrangeJackoData, {id: 'kayKitPumpkinOrangeJacko4', rotation: new THREE.Vector3(0,315,0),}, true);
+auxl.kayKitPumpkinOrangeJacko1Data = auxl.CoreDataFromTemplate(auxl.kayKitPumpkinOrangeJackoData, {id: 'kayKitPumpkinOrangeJacko1', rotation: new THREE.Vector3(0,45,0),}, true);
+auxl.kayKitPumpkinOrangeJacko2Data = auxl.CoreDataFromTemplate(auxl.kayKitPumpkinOrangeJackoData, {id: 'kayKitPumpkinOrangeJacko2', rotation: new THREE.Vector3(0,135,0),}, true);
+auxl.kayKitPumpkinOrangeJacko3Data = auxl.CoreDataFromTemplate(auxl.kayKitPumpkinOrangeJackoData, {id: 'kayKitPumpkinOrangeJacko3', rotation: new THREE.Vector3(0,225,0),}, true);
+auxl.kayKitPumpkinOrangeJacko4Data = auxl.CoreDataFromTemplate(auxl.kayKitPumpkinOrangeJackoData, {id: 'kayKitPumpkinOrangeJacko4', rotation: new THREE.Vector3(0,315,0),}, true);
 //Pumpkin Orange Small
 auxl.kayKitPumpkinOrangeSmallData = {
 	data:'kayKitPumpkinOrangeSmallData',
@@ -1108,10 +1108,10 @@ auxl.kayKitPumpkinYellowJackoData = {
 	},
 };
 auxl.kayKitPumpkinYellowJacko = auxl.Core(auxl.kayKitPumpkinYellowJackoData);
-auxl.kayKitPumpkinYellowJacko1Data = auxl.coreDataFromTemplate(auxl.kayKitPumpkinYellowJackoData, {id: 'kayKitPumpkinYellowJacko1', rotation: new THREE.Vector3(0,45,0),}, true);
-auxl.kayKitPumpkinYellowJacko2Data = auxl.coreDataFromTemplate(auxl.kayKitPumpkinYellowJackoData, {id: 'kayKitPumpkinYellowJacko2', rotation: new THREE.Vector3(0,0,0),}, true);
-auxl.kayKitPumpkinYellowJacko3Data = auxl.coreDataFromTemplate(auxl.kayKitPumpkinYellowJackoData, {id: 'kayKitPumpkinYellowJacko3', rotation: new THREE.Vector3(0,225,0),}, true);
-auxl.kayKitPumpkinYellowJacko4Data = auxl.coreDataFromTemplate(auxl.kayKitPumpkinYellowJackoData, {id: 'kayKitPumpkinYellowJacko4', rotation: new THREE.Vector3(0,315,0),}, true);
+auxl.kayKitPumpkinYellowJacko1Data = auxl.CoreDataFromTemplate(auxl.kayKitPumpkinYellowJackoData, {id: 'kayKitPumpkinYellowJacko1', rotation: new THREE.Vector3(0,45,0),}, true);
+auxl.kayKitPumpkinYellowJacko2Data = auxl.CoreDataFromTemplate(auxl.kayKitPumpkinYellowJackoData, {id: 'kayKitPumpkinYellowJacko2', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.kayKitPumpkinYellowJacko3Data = auxl.CoreDataFromTemplate(auxl.kayKitPumpkinYellowJackoData, {id: 'kayKitPumpkinYellowJacko3', rotation: new THREE.Vector3(0,225,0),}, true);
+auxl.kayKitPumpkinYellowJacko4Data = auxl.CoreDataFromTemplate(auxl.kayKitPumpkinYellowJackoData, {id: 'kayKitPumpkinYellowJacko4', rotation: new THREE.Vector3(0,315,0),}, true);
 //Pumpkin Yellow Small
 auxl.kayKitPumpkinYellowSmallData = {
 	data:'kayKitPumpkinYellowSmallData',
@@ -1228,9 +1228,9 @@ auxl.kayKitArchGateData = {
 	},
 };
 auxl.kayKitArchGate = auxl.Core(auxl.kayKitArchGateData);
-auxl.kayKitArchGateX1Data = auxl.coreDataFromTemplate(auxl.kayKitArchGateData, {id: 'kayKitArchGateX1', rotation: new THREE.Vector3(0,90,0), gridSize: new THREE.Vector3(0.5,0,4), grid: {start:{x:21, y:0, z:-3.5}, yOffset: 0, collide: true},}, true);
+auxl.kayKitArchGateX1Data = auxl.CoreDataFromTemplate(auxl.kayKitArchGateData, {id: 'kayKitArchGateX1', rotation: new THREE.Vector3(0,90,0), gridSize: new THREE.Vector3(0.5,0,4), grid: {start:{x:21, y:0, z:-3.5}, yOffset: 0, collide: true},}, true);
 auxl.kayKitArchGateX1 = auxl.Core(auxl.kayKitArchGateX1Data);
-auxl.kayKitArchGateX2Data = auxl.coreDataFromTemplate(auxl.kayKitArchGateData, {id: 'kayKitArchGateX2', rotation: new THREE.Vector3(0,90,0), gridSize: new THREE.Vector3(0.5,0,4), grid: {start:{x:-21, y:0, z:-3.5}, yOffset: 0, collide: true},}, true);
+auxl.kayKitArchGateX2Data = auxl.CoreDataFromTemplate(auxl.kayKitArchGateData, {id: 'kayKitArchGateX2', rotation: new THREE.Vector3(0,90,0), gridSize: new THREE.Vector3(0.5,0,4), grid: {start:{x:-21, y:0, z:-3.5}, yOffset: 0, collide: true},}, true);
 auxl.kayKitArchGateX2 = auxl.Core(auxl.kayKitArchGateX2Data);
 
 //Arch Gate Z
@@ -1388,10 +1388,10 @@ auxl.kayKitTreeDeadLargeDecoratedData = {
 	},
 };
 auxl.kayKitTreeDeadLargeDecorated = auxl.Core(auxl.kayKitTreeDeadLargeDecoratedData);
-auxl.kayKitTreeDeadLargeDecorated1Data = auxl.coreDataFromTemplate(auxl.kayKitTreeDeadLargeDecoratedData, {id: 'kayKitTreeDeadLargeDecorated1', rotation: new THREE.Vector3(0,90,0),}, true);
-auxl.kayKitTreeDeadLargeDecorated2Data = auxl.coreDataFromTemplate(auxl.kayKitTreeDeadLargeDecoratedData, {id: 'kayKitTreeDeadLargeDecorated2', rotation: new THREE.Vector3(0,180,0),}, true);
-auxl.kayKitTreeDeadLargeDecorated3Data = auxl.coreDataFromTemplate(auxl.kayKitTreeDeadLargeDecoratedData, {id: 'kayKitTreeDeadLargeDecorated3', rotation: new THREE.Vector3(0,0,0),}, true);
-auxl.kayKitTreeDeadLargeDecorated4Data = auxl.coreDataFromTemplate(auxl.kayKitTreeDeadLargeDecoratedData, {id: 'kayKitTreeDeadLargeDecorated4', rotation: new THREE.Vector3(0,315,0),}, true);
+auxl.kayKitTreeDeadLargeDecorated1Data = auxl.CoreDataFromTemplate(auxl.kayKitTreeDeadLargeDecoratedData, {id: 'kayKitTreeDeadLargeDecorated1', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.kayKitTreeDeadLargeDecorated2Data = auxl.CoreDataFromTemplate(auxl.kayKitTreeDeadLargeDecoratedData, {id: 'kayKitTreeDeadLargeDecorated2', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.kayKitTreeDeadLargeDecorated3Data = auxl.CoreDataFromTemplate(auxl.kayKitTreeDeadLargeDecoratedData, {id: 'kayKitTreeDeadLargeDecorated3', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.kayKitTreeDeadLargeDecorated4Data = auxl.CoreDataFromTemplate(auxl.kayKitTreeDeadLargeDecoratedData, {id: 'kayKitTreeDeadLargeDecorated4', rotation: new THREE.Vector3(0,315,0),}, true);
 
 
 
@@ -2261,22 +2261,22 @@ components: {
 };
 auxl.room1Door1 = auxl.Core(auxl.room1Door1Data);
 //Door 2
-auxl.room1Door2Data = auxl.coreDataFromTemplate(auxl.room1Door1Data, {id: 'room1Door2', position: new THREE.Vector3(0,0,0), gridSize: new THREE.Vector3(1.5,0,3), grid: {start:{x:-5, y:0, z:28.5}, collide: true}, rotation: new THREE.Vector3(0,90,0), components: {['gltf-model']:'./assets/3d/kayKit/doors/door1.glb', ['teleportation-to']:{x:3.5, y:0, z:45, twistTo: true, twist: 90, event: 'click'}, hovertext:{value: '???',  hover: 'top', offset: 1, altOffset: 0.5, twist: true,},},}, true);
+auxl.room1Door2Data = auxl.CoreDataFromTemplate(auxl.room1Door1Data, {id: 'room1Door2', position: new THREE.Vector3(0,0,0), gridSize: new THREE.Vector3(1.5,0,3), grid: {start:{x:-5, y:0, z:28.5}, collide: true}, rotation: new THREE.Vector3(0,90,0), components: {['gltf-model']:'./assets/3d/kayKit/doors/door1.glb', ['teleportation-to']:{x:3.5, y:0, z:45, twistTo: true, twist: 90, event: 'click'}, hovertext:{value: '???',  hover: 'top', offset: 1, altOffset: 0.5, twist: true,},},}, true);
 auxl.room1Door2 = auxl.Core(auxl.room1Door2Data);
 //Door 3
-auxl.room1Door3Data = auxl.coreDataFromTemplate(auxl.room1Door1Data, {id: 'room1Door3', sounds:{open: {src: auxl.soundDoorOpen, autoplay: false, loop: false, volume: 1, on: 'mousedown'}, knife: {src: auxl.soundKnifeSharpening, autoplay: true, loop: true, volume: 1, }, }, position: new THREE.Vector3(0,0,0), gridSize: new THREE.Vector3(1.5,0,3), grid: {start:{x:4, y:0, z:13.5}, collide: true}, rotation: new THREE.Vector3(0,-90,0), components: {['gltf-model']:'./assets/3d/kayKit/doors/door1.glb', ['teleportation-to']:{x:-3.5, y:0, z:30, twistTo: true, twist: -90, event: 'click'}, hovertext:{value: '???',  hover: 'top', offset: 1, altOffset: 0.5, twist: true,},},}, true);
+auxl.room1Door3Data = auxl.CoreDataFromTemplate(auxl.room1Door1Data, {id: 'room1Door3', sounds:{open: {src: auxl.soundDoorOpen, autoplay: false, loop: false, volume: 1, on: 'mousedown'}, knife: {src: auxl.soundKnifeSharpening, autoplay: true, loop: true, volume: 1, }, }, position: new THREE.Vector3(0,0,0), gridSize: new THREE.Vector3(1.5,0,3), grid: {start:{x:4, y:0, z:13.5}, collide: true}, rotation: new THREE.Vector3(0,-90,0), components: {['gltf-model']:'./assets/3d/kayKit/doors/door1.glb', ['teleportation-to']:{x:-3.5, y:0, z:30, twistTo: true, twist: -90, event: 'click'}, hovertext:{value: '???',  hover: 'top', offset: 1, altOffset: 0.5, twist: true,},},}, true);
 auxl.room1Door3 = auxl.Core(auxl.room1Door3Data);
 //Door 4
-auxl.room1Door4Data = auxl.coreDataFromTemplate(auxl.room1Door1Data, {id: 'room1Door4', position: new THREE.Vector3(0,0,0), gridSize: new THREE.Vector3(1.5,0,3), grid: {start:{x:-5, y:0, z:-1.5}, collide: true}, rotation: new THREE.Vector3(0,90,0), components: {['gltf-model']:'./assets/3d/kayKit/doors/door1.glb', ['teleportation-to']:{x:3.5, y:0, z:15, twistTo: true, twist: 90, event: 'click'}, hovertext:{value: '???',  hover: 'top', offset: 1, altOffset: 0.5, twist: true,},},}, true);
+auxl.room1Door4Data = auxl.CoreDataFromTemplate(auxl.room1Door1Data, {id: 'room1Door4', position: new THREE.Vector3(0,0,0), gridSize: new THREE.Vector3(1.5,0,3), grid: {start:{x:-5, y:0, z:-1.5}, collide: true}, rotation: new THREE.Vector3(0,90,0), components: {['gltf-model']:'./assets/3d/kayKit/doors/door1.glb', ['teleportation-to']:{x:3.5, y:0, z:15, twistTo: true, twist: 90, event: 'click'}, hovertext:{value: '???',  hover: 'top', offset: 1, altOffset: 0.5, twist: true,},},}, true);
 auxl.room1Door4 = auxl.Core(auxl.room1Door4Data);
 //Door 5
-auxl.room1Door5Data = auxl.coreDataFromTemplate(auxl.room1Door1Data, {id: 'room1Door5', sounds:{open: {src: auxl.soundDoorOpen, autoplay: false, loop: false, volume: 1, on: 'mousedown'}, drops: {src: auxl.soundWaterDrops, autoplay: true, loop: true, volume: 1,}, },position: new THREE.Vector3(0,0,0), gridSize: new THREE.Vector3(1.5,0,3), grid: {start:{x:4, y:0, z:-16.5}, collide: true}, rotation: new THREE.Vector3(0,-90,0), components: {['gltf-model']:'./assets/3d/kayKit/doors/door1.glb', ['teleportation-to']:{x:-3.5, y:0, z:0, twistTo: true, twist: -90, event: 'click'}, hovertext:{value: '???',  hover: 'top', offset: 1, altOffset: 0.5, twist: true,},},}, true);
+auxl.room1Door5Data = auxl.CoreDataFromTemplate(auxl.room1Door1Data, {id: 'room1Door5', sounds:{open: {src: auxl.soundDoorOpen, autoplay: false, loop: false, volume: 1, on: 'mousedown'}, drops: {src: auxl.soundWaterDrops, autoplay: true, loop: true, volume: 1,}, },position: new THREE.Vector3(0,0,0), gridSize: new THREE.Vector3(1.5,0,3), grid: {start:{x:4, y:0, z:-16.5}, collide: true}, rotation: new THREE.Vector3(0,-90,0), components: {['gltf-model']:'./assets/3d/kayKit/doors/door1.glb', ['teleportation-to']:{x:-3.5, y:0, z:0, twistTo: true, twist: -90, event: 'click'}, hovertext:{value: '???',  hover: 'top', offset: 1, altOffset: 0.5, twist: true,},},}, true);
 auxl.room1Door5 = auxl.Core(auxl.room1Door5Data);
 //Door 6
-auxl.room1Door6Data = auxl.coreDataFromTemplate(auxl.room1Door1Data, {id: 'room1Door6', position: new THREE.Vector3(0,0,0), gridSize: new THREE.Vector3(1.5,0,3), grid: {start:{x:-5, y:0, z:-31.5}, collide: true}, rotation: new THREE.Vector3(0,90,0), components: {['gltf-model']:'./assets/3d/kayKit/doors/door1.glb', ['teleportation-to']:{x:3.5, y:0, z:-15, twistTo: true, twist: 90, event: 'click'}, hovertext:{value: '???',  hover: 'top', offset: 1, altOffset: 0.5, twist: true,},},}, true);
+auxl.room1Door6Data = auxl.CoreDataFromTemplate(auxl.room1Door1Data, {id: 'room1Door6', position: new THREE.Vector3(0,0,0), gridSize: new THREE.Vector3(1.5,0,3), grid: {start:{x:-5, y:0, z:-31.5}, collide: true}, rotation: new THREE.Vector3(0,90,0), components: {['gltf-model']:'./assets/3d/kayKit/doors/door1.glb', ['teleportation-to']:{x:3.5, y:0, z:-15, twistTo: true, twist: 90, event: 'click'}, hovertext:{value: '???',  hover: 'top', offset: 1, altOffset: 0.5, twist: true,},},}, true);
 auxl.room1Door6 = auxl.Core(auxl.room1Door6Data);
 //Door 7
-auxl.room1Door7Data = auxl.coreDataFromTemplate(auxl.room1Door1Data, {id: 'room1Door7', sounds:{open: {src: auxl.soundDoorOpen, autoplay: false, loop: false, volume: 1, on: 'mousedown'}, pendulum: {src: auxl.soundPendulumMachine, autoplay: true, loop: true, volume: 1,}, }, position: new THREE.Vector3(0,0,0), gridSize: new THREE.Vector3(1.5,0,3), grid: {start:{x:4, y:0, z:-46.5}, collide: true}, rotation: new THREE.Vector3(0,-90,0), components: {['gltf-model']:'./assets/3d/kayKit/doors/door1.glb', ['teleportation-to']:{x:-3.5, y:0, z:-30, twistTo: true, twist: -90, event: 'click'}, hovertext:{value: '???',  hover: 'top', offset: 1, altOffset: 0.5, twist: true,},},}, true);
+auxl.room1Door7Data = auxl.CoreDataFromTemplate(auxl.room1Door1Data, {id: 'room1Door7', sounds:{open: {src: auxl.soundDoorOpen, autoplay: false, loop: false, volume: 1, on: 'mousedown'}, pendulum: {src: auxl.soundPendulumMachine, autoplay: true, loop: true, volume: 1,}, }, position: new THREE.Vector3(0,0,0), gridSize: new THREE.Vector3(1.5,0,3), grid: {start:{x:4, y:0, z:-46.5}, collide: true}, rotation: new THREE.Vector3(0,-90,0), components: {['gltf-model']:'./assets/3d/kayKit/doors/door1.glb', ['teleportation-to']:{x:-3.5, y:0, z:-30, twistTo: true, twist: -90, event: 'click'}, hovertext:{value: '???',  hover: 'top', offset: 1, altOffset: 0.5, twist: true,},},}, true);
 auxl.room1Door7 = auxl.Core(auxl.room1Door7Data);
 //Alt Door
 //Door 7
@@ -2312,7 +2312,7 @@ auxl.spookyRoom1Table1Data = {
 		['gltf-model']:'./assets/3d/kayKit/house/cabinet_small.glb',
 	},
 };
-auxl.spookyRoom1Table1AltData = auxl.coreDataFromTemplate(auxl.spookyRoom1Table1Data, {id: 'spookyRoom1Table1Alt',rotation: new THREE.Vector3(0,-90,0), }, true);
+auxl.spookyRoom1Table1AltData = auxl.CoreDataFromTemplate(auxl.spookyRoom1Table1Data, {id: 'spookyRoom1Table1Alt',rotation: new THREE.Vector3(0,-90,0), }, true);
 
 auxl.spookyRoom1Table2Data = {
 	data:'spookyRoom1Table2Data',
@@ -2328,7 +2328,7 @@ auxl.spookyRoom1Table2Data = {
 		['gltf-model']:'./assets/3d/kayKit/house/cabinet_small_decorated.glb',
 	},
 };
-auxl.spookyRoom1Table2AltData = auxl.coreDataFromTemplate(auxl.spookyRoom1Table2Data, {id: 'spookyRoom1Table1Alt',rotation: new THREE.Vector3(0,90,0), }, true);
+auxl.spookyRoom1Table2AltData = auxl.CoreDataFromTemplate(auxl.spookyRoom1Table2Data, {id: 'spookyRoom1Table1Alt',rotation: new THREE.Vector3(0,90,0), }, true);
 //Tables 1 - 7
 auxl.room1TablesGridData = {
 id: 'room1TablesGrid',
@@ -2385,43 +2385,43 @@ auxl.spookyRoom1Painting1Data = {
 };
 auxl.spookyRoom1Painting1 = auxl.Core(auxl.spookyRoom1Painting1Data);
 //Painting 2
-auxl.spookyRoom1Painting2Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting2', sounds:{spookwoosh: {src: auxl.spookWoosh, autoplay: false, loop: false, volume: 0.5, on: 'mouseenter'}, footsteps: {src: auxl.soundFootsteps, autoplay: true, loop: true, volume: 1,},}, position: new THREE.Vector3(4.725,3.25,35), rotation: new THREE.Vector3(0,-90,0),	material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting2Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting2', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting2Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting2', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting2,},},}, true);
+auxl.spookyRoom1Painting2Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting2', sounds:{spookwoosh: {src: auxl.spookWoosh, autoplay: false, loop: false, volume: 0.5, on: 'mouseenter'}, footsteps: {src: auxl.soundFootsteps, autoplay: true, loop: true, volume: 1,},}, position: new THREE.Vector3(4.725,3.25,35), rotation: new THREE.Vector3(0,-90,0),	material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting2Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting2', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting2Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting2', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting2,},},}, true);
 auxl.spookyRoom1Painting2 = auxl.Core(auxl.spookyRoom1Painting2Data);
 //Painting 3
-auxl.spookyRoom1Painting3Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting3', position: new THREE.Vector3(4.725,3.25,25), rotation: new THREE.Vector3(0,-90,0),	material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting3Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting3', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting3Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting3', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting3,},}}, true);
+auxl.spookyRoom1Painting3Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting3', position: new THREE.Vector3(4.725,3.25,25), rotation: new THREE.Vector3(0,-90,0),	material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting3Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting3', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting3Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting3', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting3,},}}, true);
 auxl.spookyRoom1Painting3 = auxl.Core(auxl.spookyRoom1Painting3Data);
 //Painting 4
-auxl.spookyRoom1Painting4Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting4', position: new THREE.Vector3(-4.725,3.25,20), rotation: new THREE.Vector3(0,90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting4Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting4', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting4Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting4', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting4,},}}, true);
+auxl.spookyRoom1Painting4Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting4', position: new THREE.Vector3(-4.725,3.25,20), rotation: new THREE.Vector3(0,90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting4Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting4', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting4Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting4', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting4,},}}, true);
 auxl.spookyRoom1Painting4 = auxl.Core(auxl.spookyRoom1Painting4Data);
 //Painting 5
-auxl.spookyRoom1Painting5Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting5', position: new THREE.Vector3(-4.725,3.25,10), rotation: new THREE.Vector3(0,90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting5Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting5', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting5Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting5', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting5,},}}, true);
+auxl.spookyRoom1Painting5Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting5', position: new THREE.Vector3(-4.725,3.25,10), rotation: new THREE.Vector3(0,90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting5Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting5', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting5Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting5', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting5,},}}, true);
 auxl.spookyRoom1Painting5 = auxl.Core(auxl.spookyRoom1Painting5Data);
 //Painting 6
-auxl.spookyRoom1Painting6Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting6', position: new THREE.Vector3(4.725,3.25,5), rotation: new THREE.Vector3(0,-90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting6Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting6', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting6Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting6', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting6,},}}, true);
+auxl.spookyRoom1Painting6Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting6', position: new THREE.Vector3(4.725,3.25,5), rotation: new THREE.Vector3(0,-90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting6Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting6', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting6Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting6', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting6,},}}, true);
 auxl.spookyRoom1Painting6 = auxl.Core(auxl.spookyRoom1Painting6Data);
 //Painting 7
-auxl.spookyRoom1Painting7Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting7', position: new THREE.Vector3(4.725,3.25,-5), rotation: new THREE.Vector3(0,-90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting13Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting7', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting13Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting7', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting13,},}}, true);
+auxl.spookyRoom1Painting7Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting7', position: new THREE.Vector3(4.725,3.25,-5), rotation: new THREE.Vector3(0,-90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting13Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting7', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting13Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting7', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting13,},}}, true);
 auxl.spookyRoom1Painting7 = auxl.Core(auxl.spookyRoom1Painting7Data);
 //Painting 8
-auxl.spookyRoom1Painting8Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting8', position: new THREE.Vector3(-4.725,3.25,-10), rotation: new THREE.Vector3(0,90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting7Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting8', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting7Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting8', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting7,},}}, true);
+auxl.spookyRoom1Painting8Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting8', position: new THREE.Vector3(-4.725,3.25,-10), rotation: new THREE.Vector3(0,90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting7Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting8', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting7Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting8', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting7,},}}, true);
 auxl.spookyRoom1Painting8 = auxl.Core(auxl.spookyRoom1Painting8Data);
 //Painting 9
-auxl.spookyRoom1Painting9Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting9', position: new THREE.Vector3(-4.725,3.25,-20), rotation: new THREE.Vector3(0,90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting8Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting9', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting8Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting9', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting8,},}}, true);
+auxl.spookyRoom1Painting9Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting9', position: new THREE.Vector3(-4.725,3.25,-20), rotation: new THREE.Vector3(0,90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting8Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting9', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting8Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting9', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting8,},}}, true);
 auxl.spookyRoom1Painting9 = auxl.Core(auxl.spookyRoom1Painting9Data);
 //Painting 10
-auxl.spookyRoom1Painting10Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting10', position: new THREE.Vector3(4.725,3.25,-25), rotation: new THREE.Vector3(0,-90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting9Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting10', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting9Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting10', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting9,},}}, true);
+auxl.spookyRoom1Painting10Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting10', position: new THREE.Vector3(4.725,3.25,-25), rotation: new THREE.Vector3(0,-90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting9Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting10', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting9Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting10', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting9,},}}, true);
 auxl.spookyRoom1Painting10 = auxl.Core(auxl.spookyRoom1Painting10Data);
 //Painting 11
-auxl.spookyRoom1Painting11Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting11', position: new THREE.Vector3(4.725,3.25,-35), rotation: new THREE.Vector3(0,-90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting10Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting11', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting10Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting11', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting10,},}}, true);
+auxl.spookyRoom1Painting11Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting11', position: new THREE.Vector3(4.725,3.25,-35), rotation: new THREE.Vector3(0,-90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting10Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting11', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting10Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting11', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting10,},}}, true);
 auxl.spookyRoom1Painting11 = auxl.Core(auxl.spookyRoom1Painting11Data);
 //Painting 12
-auxl.spookyRoom1Painting12Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting12', position: new THREE.Vector3(-4.725,3.25,-40), rotation: new THREE.Vector3(0,90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting11Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting12', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting11Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting12', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting11,},}}, true);
+auxl.spookyRoom1Painting12Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting12', position: new THREE.Vector3(-4.725,3.25,-40), rotation: new THREE.Vector3(0,90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting11Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting12', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting11Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting12', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting11,},}}, true);
 auxl.spookyRoom1Painting12 = auxl.Core(auxl.spookyRoom1Painting12Data);
 //Painting 13
-auxl.spookyRoom1Painting13Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting13', position: new THREE.Vector3(-4.725,3.25,-50), rotation: new THREE.Vector3(0,90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting12Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting13', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting12Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting13', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting12,},}}, true);
+auxl.spookyRoom1Painting13Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Painting13', position: new THREE.Vector3(-4.725,3.25,-50), rotation: new THREE.Vector3(0,90,0), material: {shader: "standard", color: "#43aece", opacity: 1, metalness: 0.3, roughness: 0.7, src: auxl.spookyPainting12Alt,}, components: {mouseenterrun__spooky:{cursorObj: 'spookyRoom1Painting13', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting12Alt,}, mouseleaverun__normal:{ cursorObj: 'spookyRoom1Painting13', component: 'null', method: 'ChangeMatSrc', params: auxl.spookyPainting12,},}}, true);
 auxl.spookyRoom1Painting13 = auxl.Core(auxl.spookyRoom1Painting13Data);
 //Jump
-auxl.spookyRoom1Jump1Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Jump1', geometry: {primitive: 'box', height: 3.75, width: 2.5, depth: 0.1}, position: new THREE.Vector3(2,0,-15), rotation: new THREE.Vector3(0,0,0), material: {shader: "standard", opacity: 1, src: auxl.spookyJump1,},
+auxl.spookyRoom1Jump1Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Painting1Data, {id: 'spookyRoom1Jump1', geometry: {primitive: 'box', height: 3.75, width: 2.5, depth: 0.1}, position: new THREE.Vector3(2,0,-15), rotation: new THREE.Vector3(0,0,0), material: {shader: "standard", opacity: 1, src: auxl.spookyJump1,},
 sounds:{
 	scare: {src: auxl.soundMonster1, autoplay: false, loop: false, volume: 1, on: 'jump'},
 },
@@ -2465,7 +2465,7 @@ light: {type: 'spot', angle: 60, intensity: 1, distance: 20, decay: 0.5, castSha
 };
 auxl.spookyRoom1Light1 = auxl.Core(auxl.spookyRoom1Light1Data);
 //Light 0
-auxl.spookyRoom1Light0Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light0', position: new THREE.Vector3(0,6.9,59.5), 
+auxl.spookyRoom1Light0Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light0', position: new THREE.Vector3(0,6.9,59.5), 
 animations:{
 blinkstart: {property: 'material.emissiveIntensity', from: 1, to: 1, dur: 1, delay: 0, loop: 'false', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
 blinkmat1: {property: 'material.emissiveIntensity', from: 1, to: 0, dur: 8000, delay: 0, loop: 'false', dir: 'alternate', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true,startEvents: 'animationcomplete__blinkstart, animationcomplete__blinkmat3'},
@@ -2478,7 +2478,7 @@ blinklight3: {property: 'light.intensity', from: 1, to: 0, dur: 2000, delay: 0, 
 }, true);
 auxl.spookyRoom1Light0 = auxl.Core(auxl.spookyRoom1Light0Data);
 //Light 2
-auxl.spookyRoom1Light2Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light2', position: new THREE.Vector3(0,6.9,22.5),
+auxl.spookyRoom1Light2Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light2', position: new THREE.Vector3(0,6.9,22.5),
 animations:{
 matoff: {property: 'material.emissiveIntensity', from: 1, to: 0, dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'off'},
 lightoff: {property: 'light.intensity', from: 1, to: 0, dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'off'},
@@ -2486,7 +2486,7 @@ lightoff: {property: 'light.intensity', from: 1, to: 0, dur: 1, delay: 0, loop: 
 }, true);
 auxl.spookyRoom1Light2 = auxl.Core(auxl.spookyRoom1Light2Data);
 //Light 3
-auxl.spookyRoom1Light3Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light3', position: new THREE.Vector3(0,6.9,7.5),
+auxl.spookyRoom1Light3Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light3', position: new THREE.Vector3(0,6.9,7.5),
 animations:{
 blinkstart: {property: 'material.emissiveIntensity', from: 1, to: 1, dur: 1, delay: 900, loop: 'false', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
 blinkmat1: {property: 'material.emissiveIntensity', from: 1, to: 0, dur: 5000, delay: 900, loop: 'false', dir: 'alternate', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true,startEvents: 'animationcomplete__blinkstart, animationcomplete__blinkmat3'},
@@ -2499,7 +2499,7 @@ blinklight3: {property: 'light.intensity', from: 1, to: 0, dur: 1250, delay: 0, 
 }, true);
 auxl.spookyRoom1Light3 = auxl.Core(auxl.spookyRoom1Light3Data);
 //Light 4
-auxl.spookyRoom1Light4Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light4', position: new THREE.Vector3(0,6.9,-7.5),
+auxl.spookyRoom1Light4Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light4', position: new THREE.Vector3(0,6.9,-7.5),
 animations:{
 matoff: {property: 'material.emissiveIntensity', from: 1, to: 0, dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'off'},
 lightoff: {property: 'light.intensity', from: 1, to: 0, dur: 1, delay: 0, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: false, enabled: true, startEvents: 'off'},
@@ -2507,7 +2507,7 @@ lightoff: {property: 'light.intensity', from: 1, to: 0, dur: 1, delay: 0, loop: 
 }, true);
 auxl.spookyRoom1Light4 = auxl.Core(auxl.spookyRoom1Light4Data);
 //Light 5
-auxl.spookyRoom1Light5Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light5', position: new THREE.Vector3(0,6.9,-22.5),
+auxl.spookyRoom1Light5Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light5', position: new THREE.Vector3(0,6.9,-22.5),
 animations:{
 blinkstart: {property: 'material.emissiveIntensity', from: 1, to: 1, dur: 1, delay: 1500, loop: 'false', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
 blinkmat1: {property: 'material.emissiveIntensity', from: 1, to: 0, dur: 3000, delay: 1500, loop: 'false', dir: 'alternate', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true,startEvents: 'animationcomplete__blinkstart, animationcomplete__blinkmat3'},
@@ -2520,7 +2520,7 @@ blinklight3: {property: 'light.intensity', from: 1, to: 0, dur: 750, delay: 0, l
 }, true);
 auxl.spookyRoom1Light5 = auxl.Core(auxl.spookyRoom1Light5Data);
 //Light 6
-auxl.spookyRoom1Light6Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light6', position: new THREE.Vector3(0,6.9,-37.5),
+auxl.spookyRoom1Light6Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light6', position: new THREE.Vector3(0,6.9,-37.5),
 material: {shader: "standard", color: "#d4e76d", opacity: 1, metalness: 0.3, roughness: 0, emissive: "#d4e76d", emissiveIntensity: 0.25, side: 'front',},
 animations:{
 blinkstart: {property: 'material.emissiveIntensity', from: 0.25, to: 0.25, dur: 1, delay: 300, loop: 'false', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
@@ -2532,7 +2532,7 @@ components: false,
 }, true);
 auxl.spookyRoom1Light6 = auxl.Core(auxl.spookyRoom1Light6Data);
 //Light 7
-auxl.spookyRoom1Light7Data = auxl.coreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light7', position: new THREE.Vector3(0,6.9,-59.5),
+auxl.spookyRoom1Light7Data = auxl.CoreDataFromTemplate(auxl.spookyRoom1Light1Data, {id: 'spookyRoom1Light7', position: new THREE.Vector3(0,6.9,-59.5),
 animations:{
 blinkstart: {property: 'material.emissiveIntensity', from: 1, to: 1, dur: 1, delay: 2100, loop: 'false', dir: 'alternate', easing: 'linear', elasticity: 400, autoplay: true, enabled: true,},
 blinkmat1: {property: 'material.emissiveIntensity', from: 1, to: 0, dur: 1000, delay: 2100, loop: 'false', dir: 'alternate', easing: 'easeInElastic', elasticity: 400, autoplay: false, enabled: true,startEvents: 'animationcomplete__blinkstart, animationcomplete__blinkmat3'},
@@ -3566,7 +3566,7 @@ auxl.spookyRoom3FlareLayerData = {
 auxl.spookyRoom3FlareLayer = auxl.Layer('spookyRoom3FlareLayer',auxl.spookyRoom3FlareLayerData);
 
 //Ghost
-auxl.spookyGhostLayerData = auxl.layerDataFromTemplate(auxl.ghostLayerData, 'spookyGhostLayer', {position: new THREE.Vector3(10.5,-2,-11.75), rotation: new THREE.Vector3(0,-35,0), scale: new THREE.Vector3(3,3,3),
+auxl.spookyGhostLayerData = auxl.LayerDataFromTemplate(auxl.ghostLayerData, 'spookyGhostLayer', {position: new THREE.Vector3(10.5,-2,-11.75), rotation: new THREE.Vector3(0,-35,0), scale: new THREE.Vector3(3,3,3),
 animations:{
 	rotate: {property: 'object3D.rotation.y', from: -35, to: -25, dur: 13000, delay: 0, loop: 'true', dir: 'alternate', easing: 'easeInOutSine', elasticity: 400, autoplay: true, enabled: true},
 	hauntstart: {property: 'object3D.position.y', from: -3, to: -3, dur: 1, delay: 7000, loop: 'false', dir: 'normal', easing: 'linear', elasticity: 400, autoplay: true, enabled: true},
@@ -3986,37 +3986,37 @@ auxl.wallEastWestSegData = {
 	components: false,
 };
 //Wall East Segment 1 (Left)
-auxl.wallEastSeg1Data = auxl.coreDataFromTemplate(auxl.wallEastWestSegData, {id: 'wallEastSeg1', grid: {start:{x:11, y:0, z:-20}, end: {x:11, y:0, z:-16}, yOffset: 5, collide: true}, }, true);
+auxl.wallEastSeg1Data = auxl.CoreDataFromTemplate(auxl.wallEastWestSegData, {id: 'wallEastSeg1', grid: {start:{x:11, y:0, z:-20}, end: {x:11, y:0, z:-16}, yOffset: 5, collide: true}, }, true);
 auxl.wallEastSeg1 = auxl.Core(auxl.wallEastSeg1Data);
 //Wall East Segment 2 (Middle)
-auxl.wallEastSeg2Data = auxl.coreDataFromTemplate(auxl.wallEastWestSegData, {id: 'wallEastSeg2', grid: {start:{x:11, y:0, z:-13.5}, end: {x:11, y:0, z:-4.5}, yOffset: 5, collide: true}, geometry: {primitive: 'box', height: 10, width: 0.5, depth: 9}, material: {shader: "standard", opacity: 1, color: '#a23737', metalness: 0.3, roughness: 0.7, emissive: '#a23737', emissiveIntensity: 0.7, side: 'double', src: auxl.pattern18, repeat: '10 10'}, }, true);
+auxl.wallEastSeg2Data = auxl.CoreDataFromTemplate(auxl.wallEastWestSegData, {id: 'wallEastSeg2', grid: {start:{x:11, y:0, z:-13.5}, end: {x:11, y:0, z:-4.5}, yOffset: 5, collide: true}, geometry: {primitive: 'box', height: 10, width: 0.5, depth: 9}, material: {shader: "standard", opacity: 1, color: '#a23737', metalness: 0.3, roughness: 0.7, emissive: '#a23737', emissiveIntensity: 0.7, side: 'double', src: auxl.pattern18, repeat: '10 10'}, }, true);
 auxl.wallEastSeg2 = auxl.Core(auxl.wallEastSeg2Data);
 //Wall East Segment 3 (Right)
-auxl.wallEastSeg3Data = auxl.coreDataFromTemplate(auxl.wallEastWestSegData, {id: 'wallEastSeg3', grid: {start:{x:11, y:0, z:-2}, end: {x:11, y:0, z:2}, yOffset: 5, collide: true}, }, true);
+auxl.wallEastSeg3Data = auxl.CoreDataFromTemplate(auxl.wallEastWestSegData, {id: 'wallEastSeg3', grid: {start:{x:11, y:0, z:-2}, end: {x:11, y:0, z:2}, yOffset: 5, collide: true}, }, true);
 auxl.wallEastSeg3 = auxl.Core(auxl.wallEastSeg3Data);
 //Wall East Frame 1 (Left)
-auxl.wallEastFrame1Data = auxl.coreDataFromTemplate(auxl.wallFrameData, {id: 'wallEastFrame1', grid: {start:{x:11, y:0, z:-16}, end: {x:11, y:0, z:-13.5}, collide: true}, }, true);
+auxl.wallEastFrame1Data = auxl.CoreDataFromTemplate(auxl.wallFrameData, {id: 'wallEastFrame1', grid: {start:{x:11, y:0, z:-16}, end: {x:11, y:0, z:-13.5}, collide: true}, }, true);
 auxl.wallEastFrame1 = auxl.Core(auxl.wallEastFrame1Data);
 //Wall East Frame 2 (Right)
-auxl.wallEastFrame2Data = auxl.coreDataFromTemplate(auxl.wallFrameData, {id: 'wallEastFrame2', grid: {start:{x:11, y:0, z:-4.5}, end: {x:11, y:0, z:-2}, collide: true}, }, true);
+auxl.wallEastFrame2Data = auxl.CoreDataFromTemplate(auxl.wallFrameData, {id: 'wallEastFrame2', grid: {start:{x:11, y:0, z:-4.5}, end: {x:11, y:0, z:-2}, collide: true}, }, true);
 auxl.wallEastFrame2 = auxl.Core(auxl.wallEastFrame2Data);
 
 //Wall West
 
 //Wall West Segment 1 (Left)
-auxl.wallWestSeg1Data = auxl.coreDataFromTemplate(auxl.wallEastWestSegData, {id: 'wallWestSeg1', grid: {start:{x:-11, y:0, z:-20}, end: {x:-11, y:0, z:-16}, yOffset: 5, collide: true}, }, true);
+auxl.wallWestSeg1Data = auxl.CoreDataFromTemplate(auxl.wallEastWestSegData, {id: 'wallWestSeg1', grid: {start:{x:-11, y:0, z:-20}, end: {x:-11, y:0, z:-16}, yOffset: 5, collide: true}, }, true);
 auxl.wallWestSeg1 = auxl.Core(auxl.wallWestSeg1Data);
 //Wall West Segment 2 (Middle)
-auxl.wallWestSeg2Data = auxl.coreDataFromTemplate(auxl.wallEastWestSegData, {id: 'wallWestSeg2', grid: {start:{x:-11, y:0, z:-13.5}, end: {x:-11, y:0, z:-4.5}, yOffset: 5, collide: true}, geometry: {primitive: 'box', height: 10, width: 0.5, depth: 9}, material: {shader: "standard", opacity: 1, color: '#a23737', metalness: 0.3, roughness: 0.7, emissive: '#a23737', emissiveIntensity: 0.7, side: 'double', src: auxl.pattern18, repeat: '10 10'}, }, true);
+auxl.wallWestSeg2Data = auxl.CoreDataFromTemplate(auxl.wallEastWestSegData, {id: 'wallWestSeg2', grid: {start:{x:-11, y:0, z:-13.5}, end: {x:-11, y:0, z:-4.5}, yOffset: 5, collide: true}, geometry: {primitive: 'box', height: 10, width: 0.5, depth: 9}, material: {shader: "standard", opacity: 1, color: '#a23737', metalness: 0.3, roughness: 0.7, emissive: '#a23737', emissiveIntensity: 0.7, side: 'double', src: auxl.pattern18, repeat: '10 10'}, }, true);
 auxl.wallWestSeg2 = auxl.Core(auxl.wallWestSeg2Data);
 //Wall West Segment 3 (Right)
-auxl.wallWestSeg3Data = auxl.coreDataFromTemplate(auxl.wallEastWestSegData, {id: 'wallWestSeg3', grid: {start:{x:-11, y:0, z:-2}, end: {x:-11, y:0, z:2}, yOffset: 5, collide: true}, rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.wallWestSeg3Data = auxl.CoreDataFromTemplate(auxl.wallEastWestSegData, {id: 'wallWestSeg3', grid: {start:{x:-11, y:0, z:-2}, end: {x:-11, y:0, z:2}, yOffset: 5, collide: true}, rotation: new THREE.Vector3(0,180,0),}, true);
 auxl.wallWestSeg3 = auxl.Core(auxl.wallWestSeg3Data);
 //Wall West Frame 1 (Left)
-auxl.wallWestFrame1Data = auxl.coreDataFromTemplate(auxl.wallFrameData, {id: 'wallWestFrame1', grid: {start:{x:-11, y:0, z:-16}, end: {x:-11, y:0, z:-13.5}, collide: true}, rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.wallWestFrame1Data = auxl.CoreDataFromTemplate(auxl.wallFrameData, {id: 'wallWestFrame1', grid: {start:{x:-11, y:0, z:-16}, end: {x:-11, y:0, z:-13.5}, collide: true}, rotation: new THREE.Vector3(0,180,0),}, true);
 auxl.wallWestFrame1 = auxl.Core(auxl.wallWestFrame1Data);
 //Wall West Frame 2 (Right)
-auxl.wallWestFrame2Data = auxl.coreDataFromTemplate(auxl.wallFrameData, {id: 'wallWestFrame2', grid: {start:{x:-11, y:0, z:-4.5}, end: {x:-11, y:0, z:-2}, collide: true}, rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.wallWestFrame2Data = auxl.CoreDataFromTemplate(auxl.wallFrameData, {id: 'wallWestFrame2', grid: {start:{x:-11, y:0, z:-4.5}, end: {x:-11, y:0, z:-2}, collide: true}, rotation: new THREE.Vector3(0,180,0),}, true);
 auxl.wallWestFrame2 = auxl.Core(auxl.wallWestFrame2Data);
 
 
@@ -4037,19 +4037,19 @@ auxl.wallNorthSegData = {
 	components: false,
 };
 //Wall North Segment 1 (Left)
-auxl.wallNorthSeg1Data = auxl.coreDataFromTemplate(auxl.wallNorthSegData, {id: 'wallNorthSeg1', grid: {start:{x:-11, y:0, z:-20}, end: {x:-7.5, y:0, z:-20}, yOffset: 5, collide: true}, }, true);
+auxl.wallNorthSeg1Data = auxl.CoreDataFromTemplate(auxl.wallNorthSegData, {id: 'wallNorthSeg1', grid: {start:{x:-11, y:0, z:-20}, end: {x:-7.5, y:0, z:-20}, yOffset: 5, collide: true}, }, true);
 auxl.wallNorthSeg1 = auxl.Core(auxl.wallNorthSeg1Data);
 //Wall North Segment 2 (Middle)
-auxl.wallNorthSeg2Data = auxl.coreDataFromTemplate(auxl.wallNorthSegData, {id: 'wallNorthSeg2', grid: {start:{x:-4.5, y:0, z:-20}, end: {x:4.5, y:0, z:-20}, yOffset: 5, collide: true}, geometry: {primitive: 'box', height: 10, width: 9, depth: 0.5}, material: {shader: "standard", opacity: 1, color: '#a23737', metalness: 0.3, roughness: 0.7, emissive: '#a23737', emissiveIntensity: 0.7, side: 'double', src: auxl.pattern18, repeat: '10 10'}, }, true);
+auxl.wallNorthSeg2Data = auxl.CoreDataFromTemplate(auxl.wallNorthSegData, {id: 'wallNorthSeg2', grid: {start:{x:-4.5, y:0, z:-20}, end: {x:4.5, y:0, z:-20}, yOffset: 5, collide: true}, geometry: {primitive: 'box', height: 10, width: 9, depth: 0.5}, material: {shader: "standard", opacity: 1, color: '#a23737', metalness: 0.3, roughness: 0.7, emissive: '#a23737', emissiveIntensity: 0.7, side: 'double', src: auxl.pattern18, repeat: '10 10'}, }, true);
 auxl.wallNorthSeg2 = auxl.Core(auxl.wallNorthSeg2Data);
 //Wall North Segment 3 (Right)
-auxl.wallNorthSeg3Data = auxl.coreDataFromTemplate(auxl.wallNorthSegData, {id: 'wallNorthSeg3', grid: {start:{x:7.5, y:0, z:-20}, end: {x:11, y:0, z:-20}, yOffset: 5, collide: true}, }, true);
+auxl.wallNorthSeg3Data = auxl.CoreDataFromTemplate(auxl.wallNorthSegData, {id: 'wallNorthSeg3', grid: {start:{x:7.5, y:0, z:-20}, end: {x:11, y:0, z:-20}, yOffset: 5, collide: true}, }, true);
 auxl.wallNorthSeg3 = auxl.Core(auxl.wallNorthSeg3Data);
 //Wall North Frame 1 (Left)
-auxl.wallNorthFrame1Data = auxl.coreDataFromTemplate(auxl.wallFrameData, {id: 'wallNorthFrame1', grid: {start:{x:-7, y:0, z:-20}, end: {x:-4.5, y:0, z:-20}, collide: true}, rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.wallNorthFrame1Data = auxl.CoreDataFromTemplate(auxl.wallFrameData, {id: 'wallNorthFrame1', grid: {start:{x:-7, y:0, z:-20}, end: {x:-4.5, y:0, z:-20}, collide: true}, rotation: new THREE.Vector3(0,90,0),}, true);
 auxl.wallNorthFrame1 = auxl.Core(auxl.wallNorthFrame1Data);
 //Wall North Frame 2 (Right)
-auxl.wallNorthFrame2Data = auxl.coreDataFromTemplate(auxl.wallFrameData, {id: 'wallNorthFrame2', grid: {start:{x:4.5, y:0, z:-20}, end: {x:7, y:0, z:-20}, collide: true}, rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.wallNorthFrame2Data = auxl.CoreDataFromTemplate(auxl.wallFrameData, {id: 'wallNorthFrame2', grid: {start:{x:4.5, y:0, z:-20}, end: {x:7, y:0, z:-20}, collide: true}, rotation: new THREE.Vector3(0,90,0),}, true);
 auxl.wallNorthFrame2 = auxl.Core(auxl.wallNorthFrame2Data);
 
 //Wall South
@@ -4069,13 +4069,13 @@ auxl.wallSouthPartData = {
 	components: false,
 };
 //Wall Segment Top
-auxl.wallSouthTopData = auxl.coreDataFromTemplate(auxl.wallSouthPartData, {id: 'wallSouthTop', grid: {start:{x:-11, y:0, z:2}, end: {x:11, y:0, z:2}, yOffset: 7, collide: false}, }, true);
+auxl.wallSouthTopData = auxl.CoreDataFromTemplate(auxl.wallSouthPartData, {id: 'wallSouthTop', grid: {start:{x:-11, y:0, z:2}, end: {x:11, y:0, z:2}, yOffset: 7, collide: false}, }, true);
 auxl.wallSouthTop = auxl.Core(auxl.wallSouthTopData);
 //Wall Segment Partial 1 (Left)
-auxl.wallSouthPart1Data = auxl.coreDataFromTemplate(auxl.wallSouthPartData, {id: 'wallSouthPart1', grid: {start:{x:1.5, y:0, z:2}, end: {x:11, y:0, z:2}, yOffset: 2, collide: true}, geometry: {primitive: 'box', height: 4, width: 9.5, depth: 0.5}, material: {shader: "standard", opacity: 1, color: '#a23737', metalness: 0.3, roughness: 0.7, emissive: '#a23737', emissiveIntensity: 0.7, side: 'double', src: auxl.pattern18, repeat: '9.5 4'},}, true);
+auxl.wallSouthPart1Data = auxl.CoreDataFromTemplate(auxl.wallSouthPartData, {id: 'wallSouthPart1', grid: {start:{x:1.5, y:0, z:2}, end: {x:11, y:0, z:2}, yOffset: 2, collide: true}, geometry: {primitive: 'box', height: 4, width: 9.5, depth: 0.5}, material: {shader: "standard", opacity: 1, color: '#a23737', metalness: 0.3, roughness: 0.7, emissive: '#a23737', emissiveIntensity: 0.7, side: 'double', src: auxl.pattern18, repeat: '9.5 4'},}, true);
 auxl.wallSouthPart1 = auxl.Core(auxl.wallSouthPart1Data);
 //Wall Segment Partial 2 (Right)
-auxl.wallSouthPart2Data = auxl.coreDataFromTemplate(auxl.wallSouthPartData, {id: 'wallSouthPart2', grid: {start:{x:-11, y:0, z:2}, end: {x:-1.5, y:0, z:2}, yOffset: 2, collide: true}, geometry: {primitive: 'box', height: 4, width: 9.5, depth: 0.5}, material: {shader: "standard", opacity: 1, color: '#a23737', metalness: 0.3, roughness: 0.7, emissive: '#a23737', emissiveIntensity: 0.7, side: 'double', src: auxl.pattern18, repeat: '9.5 4'}, }, true);
+auxl.wallSouthPart2Data = auxl.CoreDataFromTemplate(auxl.wallSouthPartData, {id: 'wallSouthPart2', grid: {start:{x:-11, y:0, z:2}, end: {x:-1.5, y:0, z:2}, yOffset: 2, collide: true}, geometry: {primitive: 'box', height: 4, width: 9.5, depth: 0.5}, material: {shader: "standard", opacity: 1, color: '#a23737', metalness: 0.3, roughness: 0.7, emissive: '#a23737', emissiveIntensity: 0.7, side: 'double', src: auxl.pattern18, repeat: '9.5 4'}, }, true);
 auxl.wallSouthPart2 = auxl.Core(auxl.wallSouthPart2Data);
 
 //
@@ -4097,16 +4097,16 @@ auxl.wallPilarData = {
 	classes: ['a-ent'],
 	components: false,
 };
-auxl.wallPilar1Data = auxl.coreDataFromTemplate(auxl.wallPilarData, {id: 'wallPilar1', grid: {start:{x:9, y:0, z:0}, end: {x:13, y:0, z:4}, yOffset: 5, collide: true}}, true);
+auxl.wallPilar1Data = auxl.CoreDataFromTemplate(auxl.wallPilarData, {id: 'wallPilar1', grid: {start:{x:9, y:0, z:0}, end: {x:13, y:0, z:4}, yOffset: 5, collide: true}}, true);
 auxl.wallPilar1 = auxl.Core(auxl.wallPilar1Data);
 //North East
-auxl.wallPilar2Data = auxl.coreDataFromTemplate(auxl.wallPilarData, {id: 'wallPilar2', grid: {start:{x:-13, y:0, z:0}, end: {x:-9, y:0, z:4}, yOffset: 5, collide: true}}, true);
+auxl.wallPilar2Data = auxl.CoreDataFromTemplate(auxl.wallPilarData, {id: 'wallPilar2', grid: {start:{x:-13, y:0, z:0}, end: {x:-9, y:0, z:4}, yOffset: 5, collide: true}}, true);
 auxl.wallPilar2 = auxl.Core(auxl.wallPilar2Data);
 //South West
-auxl.wallPilar3Data = auxl.coreDataFromTemplate(auxl.wallPilarData, {id: 'wallPilar3', grid: {start:{x:9, y:0, z:-22}, end: {x:13, y:0, z:-18}, yOffset: 5, collide: true}}, true);
+auxl.wallPilar3Data = auxl.CoreDataFromTemplate(auxl.wallPilarData, {id: 'wallPilar3', grid: {start:{x:9, y:0, z:-22}, end: {x:13, y:0, z:-18}, yOffset: 5, collide: true}}, true);
 auxl.wallPilar3 = auxl.Core(auxl.wallPilar3Data);
 //South East
-auxl.wallPilar4Data = auxl.coreDataFromTemplate(auxl.wallPilarData, {id: 'wallPilar4', grid: {start:{x:-13, y:0, z:-22}, end: {x:-9, y:0, z:-18}, yOffset: 5, collide: true}}, true);
+auxl.wallPilar4Data = auxl.CoreDataFromTemplate(auxl.wallPilarData, {id: 'wallPilar4', grid: {start:{x:-13, y:0, z:-22}, end: {x:-9, y:0, z:-18}, yOffset: 5, collide: true}}, true);
 auxl.wallPilar4 = auxl.Core(auxl.wallPilar4Data);
 
 
@@ -4129,16 +4129,16 @@ auxl.InnerPilarData = {
 	classes: ['a-ent'],
 	components: false,
 };
-auxl.InnerPilar1Data = auxl.coreDataFromTemplate(auxl.InnerPilarData, {id: 'InnerPilar1', grid: {start:{x:-7, y:0, z:-4.5}, end: {x:-5, y:0, z:-2}, yOffset: 5, collide: true}}, true);
+auxl.InnerPilar1Data = auxl.CoreDataFromTemplate(auxl.InnerPilarData, {id: 'InnerPilar1', grid: {start:{x:-7, y:0, z:-4.5}, end: {x:-5, y:0, z:-2}, yOffset: 5, collide: true}}, true);
 auxl.InnerPilar1 = auxl.Core(auxl.InnerPilar1Data);
 //North East
-auxl.InnerPilar2Data = auxl.coreDataFromTemplate(auxl.InnerPilarData, {id: 'InnerPilar2', grid: {start:{x:5, y:0, z:-4.5}, end: {x:7, y:0, z:-2}, yOffset: 5, collide: true}}, true);
+auxl.InnerPilar2Data = auxl.CoreDataFromTemplate(auxl.InnerPilarData, {id: 'InnerPilar2', grid: {start:{x:5, y:0, z:-4.5}, end: {x:7, y:0, z:-2}, yOffset: 5, collide: true}}, true);
 auxl.InnerPilar2 = auxl.Core(auxl.InnerPilar2Data);
 //South West
-auxl.InnerPilar3Data = auxl.coreDataFromTemplate(auxl.InnerPilarData, {id: 'InnerPilar3', grid: {start:{x:-7, y:0, z:-16}, end: {x:-5, y:0, z:-13.5}, yOffset: 5, collide: true}}, true);
+auxl.InnerPilar3Data = auxl.CoreDataFromTemplate(auxl.InnerPilarData, {id: 'InnerPilar3', grid: {start:{x:-7, y:0, z:-16}, end: {x:-5, y:0, z:-13.5}, yOffset: 5, collide: true}}, true);
 auxl.InnerPilar3 = auxl.Core(auxl.InnerPilar3Data);
 //South East
-auxl.InnerPilar4Data = auxl.coreDataFromTemplate(auxl.InnerPilarData, {id: 'InnerPilar4', grid: {start:{x:5, y:0, z:-16}, end: {x:7, y:0, z:-13.5}, yOffset: 5, collide: true}}, true);
+auxl.InnerPilar4Data = auxl.CoreDataFromTemplate(auxl.InnerPilarData, {id: 'InnerPilar4', grid: {start:{x:5, y:0, z:-16}, end: {x:7, y:0, z:-13.5}, yOffset: 5, collide: true}}, true);
 auxl.InnerPilar4 = auxl.Core(auxl.InnerPilar4Data);
 
 
@@ -4162,16 +4162,16 @@ auxl.dividerData = {
 	components: false,
 };
 //East
-auxl.dividerEastData = auxl.coreDataFromTemplate(auxl.dividerData, {id: 'dividerEast', grid: {start:{x:5.5, y:0, z:-12}, end: {x:6, y:0, z:-6}, yOffset: 0.75, collide: true}, }, true);
+auxl.dividerEastData = auxl.CoreDataFromTemplate(auxl.dividerData, {id: 'dividerEast', grid: {start:{x:5.5, y:0, z:-12}, end: {x:6, y:0, z:-6}, yOffset: 0.75, collide: true}, }, true);
 auxl.dividerEast = auxl.Core(auxl.dividerEastData);
 //West
-auxl.dividerWestData = auxl.coreDataFromTemplate(auxl.dividerData, {id: 'dividerWest', grid: {start:{x:-6, y:0, z:-12}, end: {x:-5.5, y:0, z:-6}, yOffset: 0.75, collide: true}, }, true);
+auxl.dividerWestData = auxl.CoreDataFromTemplate(auxl.dividerData, {id: 'dividerWest', grid: {start:{x:-6, y:0, z:-12}, end: {x:-5.5, y:0, z:-6}, yOffset: 0.75, collide: true}, }, true);
 auxl.dividerWest = auxl.Core(auxl.dividerWestData);
 //North
-auxl.dividerNorthData = auxl.coreDataFromTemplate(auxl.dividerData, {id: 'dividerNorth', grid: {start:{x:-3, y:0, z:-15}, end: {x:3, y:0, z:-14.5}, yOffset: 0.75, collide: true}, geometry: {primitive: 'box', height: 1.5, width: 6, depth: 1},}, true);
+auxl.dividerNorthData = auxl.CoreDataFromTemplate(auxl.dividerData, {id: 'dividerNorth', grid: {start:{x:-3, y:0, z:-15}, end: {x:3, y:0, z:-14.5}, yOffset: 0.75, collide: true}, geometry: {primitive: 'box', height: 1.5, width: 6, depth: 1},}, true);
 auxl.dividerNorth = auxl.Core(auxl.dividerNorthData);
 //South
-auxl.dividerSouthData = auxl.coreDataFromTemplate(auxl.dividerData, {id: 'dividerSouth', grid: {start:{x:-3, y:0, z:-3.5}, end: {x:3, y:0, z:-3}, yOffset: 0.75, collide: true}, geometry: {primitive: 'box', height: 1.5, width: 6, depth: 1},}, true);
+auxl.dividerSouthData = auxl.CoreDataFromTemplate(auxl.dividerData, {id: 'dividerSouth', grid: {start:{x:-3, y:0, z:-3.5}, end: {x:3, y:0, z:-3}, yOffset: 0.75, collide: true}, geometry: {primitive: 'box', height: 1.5, width: 6, depth: 1},}, true);
 auxl.dividerSouth = auxl.Core(auxl.dividerSouthData);
 
 //
@@ -4306,6 +4306,14 @@ components: {
 		method: 'OpenLink',
 		params: 'https://mintycrisp.com',
 	},
+	onspawnfuncdual:{
+		auxlFunc: 'SpawnTracker',
+		params: 'tokenLink1, node',
+	},
+	ondespawnfuncdual:{
+		auxlFunc: 'SpawnTracker',
+		params: 'tokenLink1, node',
+	},
 },
 };
 auxl.tokenLink1 = auxl.Core(auxl.tokenLink1Data);
@@ -4331,6 +4339,14 @@ components: {
 	clickrunfunc__toggleaudio:{
 		method: 'OpenLink',
 		params: 'https://ko-fi.com/mintycrisp',
+	},
+	onspawnfuncdual:{
+		auxlFunc: 'SpawnTracker',
+		params: 'tokenLink2, node',
+	},
+	ondespawnfuncdual:{
+		auxlFunc: 'SpawnTracker',
+		params: 'tokenLink2, node',
 	},
 },
 };
@@ -4358,6 +4374,14 @@ components: {
 		method: 'OpenLink',
 		params: 'https://mintycrisp.itch.io/',
 	},
+	onspawnfuncdual:{
+		auxlFunc: 'SpawnTracker',
+		params: 'tokenLink3, node',
+	},
+	ondespawnfuncdual:{
+		auxlFunc: 'SpawnTracker',
+		params: 'tokenLink3, node',
+	},
 },
 };
 auxl.tokenLink3 = auxl.Core(auxl.tokenLink3Data);
@@ -4384,7 +4408,7 @@ auxl.sponsorData = {
 	},
 };
 */
-//auxl.sponsor1Data = auxl.coreDataFromTemplate(auxl.sponsorData, {id: 'sponsor1', position: new THREE.Vector3(-5.5,6,1.74),}, true);
+//auxl.sponsor1Data = auxl.CoreDataFromTemplate(auxl.sponsorData, {id: 'sponsor1', position: new THREE.Vector3(-5.5,6,1.74),}, true);
 //auxl.sponsor1 = auxl.Core(auxl.sponsor1Data);
 
 //
@@ -4431,7 +4455,7 @@ auxl.cadeSignData = {
 };
 auxl.cadeSign1 = auxl.Core(auxl.cadeSignData);
 
-auxl.cadeSign2Data = auxl.coreDataFromTemplate(auxl.cadeSignData, {id: 'cadeSign2', position: new THREE.Vector3(0,-0.25,-0.1), rotation: new THREE.Vector3(90,180,0)}, true);
+auxl.cadeSign2Data = auxl.CoreDataFromTemplate(auxl.cadeSignData, {id: 'cadeSign2', position: new THREE.Vector3(0,-0.25,-0.1), rotation: new THREE.Vector3(90,180,0)}, true);
 auxl.cadeSign2 = auxl.Core(auxl.cadeSign2Data);
 
 
@@ -4486,7 +4510,7 @@ auxl.wavesSignData = {
 auxl.wavesSign = auxl.Core(auxl.wavesSignData);
 
 //Wave Lines
-auxl.waveLineSignData = auxl.coreDataFromTemplate(auxl.lineSignData, {id: 'waveLineSign', position: new THREE.Vector3(-10.65,8.5,-8.75), rotation: new THREE.Vector3(90,90,0), scale: new THREE.Vector3(1.6,1.6,1.6), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#16aa60, #eddd23', emissives: '1,1'},}}, true);
+auxl.waveLineSignData = auxl.CoreDataFromTemplate(auxl.lineSignData, {id: 'waveLineSign', position: new THREE.Vector3(-10.65,8.5,-8.75), rotation: new THREE.Vector3(90,90,0), scale: new THREE.Vector3(1.6,1.6,1.6), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#16aa60, #eddd23', emissives: '1,1'},}}, true);
 auxl.waveLineSign = auxl.Core(auxl.waveLineSignData);
 
 //West Wall Neon
@@ -4513,7 +4537,7 @@ auxl.treeSignData = {
 };
 auxl.treeSign = auxl.Core(auxl.treeSignData);
 //Tree Lines
-auxl.treeLineSignData = auxl.coreDataFromTemplate(auxl.lineSignData, {id: 'treeLineSign', position: new THREE.Vector3(10.65,8.5,-9.25), rotation: new THREE.Vector3(90,-90,0), scale: new THREE.Vector3(1.6,1.6,1.6), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#05aaf4, #eddd23', emissives: '1,1'},}}, true);
+auxl.treeLineSignData = auxl.CoreDataFromTemplate(auxl.lineSignData, {id: 'treeLineSign', position: new THREE.Vector3(10.65,8.5,-9.25), rotation: new THREE.Vector3(90,-90,0), scale: new THREE.Vector3(1.6,1.6,1.6), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#05aaf4, #eddd23', emissives: '1,1'},}}, true);
 auxl.treeLineSign = auxl.Core(auxl.treeLineSignData);
 
 //South Wall Neon
@@ -4540,7 +4564,7 @@ auxl.heartsSignData = {
 };
 auxl.heartsSign = auxl.Core(auxl.heartsSignData);
 //Geart Lines
-auxl.heartLineSignData = auxl.coreDataFromTemplate(auxl.lineSignData, {id: 'heartLineSign', position: new THREE.Vector3(0,8.5,1.65), rotation: new THREE.Vector3(-90,0,0), scale: new THREE.Vector3(1.6,1.6,1.6), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#eddd23, #f4057c', emissives: '1,1'},}}, true);
+auxl.heartLineSignData = auxl.CoreDataFromTemplate(auxl.lineSignData, {id: 'heartLineSign', position: new THREE.Vector3(0,8.5,1.65), rotation: new THREE.Vector3(-90,0,0), scale: new THREE.Vector3(1.6,1.6,1.6), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#eddd23, #f4057c', emissives: '1,1'},}}, true);
 auxl.heartLineSign = auxl.Core(auxl.heartLineSignData);
 
 //North Wall Neon
@@ -4567,7 +4591,7 @@ auxl.ivxSignData = {
 };
 auxl.ivxSign = auxl.Core(auxl.ivxSignData);
 //IVX Line Sign
-auxl.ivxLineSignData = auxl.coreDataFromTemplate(auxl.lineSignData, {id: 'ivxLineSign', position: new THREE.Vector3(-0.25,8.5,-19.65), rotation: new THREE.Vector3(90,0,0), scale: new THREE.Vector3(1.6,1.6,1.6), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#f4057c, #eddd23', emissives: '1,1'},}}, true);
+auxl.ivxLineSignData = auxl.CoreDataFromTemplate(auxl.lineSignData, {id: 'ivxLineSign', position: new THREE.Vector3(-0.25,8.5,-19.65), rotation: new THREE.Vector3(90,0,0), scale: new THREE.Vector3(1.6,1.6,1.6), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#f4057c, #eddd23', emissives: '1,1'},}}, true);
 auxl.ivxLineSign = auxl.Core(auxl.ivxLineSignData);
 
 
@@ -4575,35 +4599,35 @@ auxl.ivxLineSign = auxl.Core(auxl.ivxLineSignData);
 
 //North West Wall Pilar Lines
 //East
-auxl.nwWallPilarLineEastData = auxl.coreDataFromTemplate(auxl.lineSignData, {id: 'nwWallPilarLineEast', position: new THREE.Vector3(-8.95,4.7,-18.93), rotation: new THREE.Vector3(0,0,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#f4057c, #eddd23', emissives: '1,1'},}}, true);
+auxl.nwWallPilarLineEastData = auxl.CoreDataFromTemplate(auxl.lineSignData, {id: 'nwWallPilarLineEast', position: new THREE.Vector3(-8.95,4.7,-18.93), rotation: new THREE.Vector3(0,0,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#f4057c, #eddd23', emissives: '1,1'},}}, true);
 auxl.nwWallPilarLineEast = auxl.Core(auxl.nwWallPilarLineEastData);
 //South
-auxl.nwWallPilarLineSouthData = auxl.coreDataFromTemplate(auxl.lineSignData, {id: 'nwWallPilarLineSouth', position: new THREE.Vector3(-10.05,4.7,-17.945), rotation: new THREE.Vector3(0,90,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#16aa60, #eddd23', emissives: '1,1'},}}, true);
+auxl.nwWallPilarLineSouthData = auxl.CoreDataFromTemplate(auxl.lineSignData, {id: 'nwWallPilarLineSouth', position: new THREE.Vector3(-10.05,4.7,-17.945), rotation: new THREE.Vector3(0,90,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#16aa60, #eddd23', emissives: '1,1'},}}, true);
 auxl.nwWallPilarLineSouth = auxl.Core(auxl.nwWallPilarLineSouthData);
 
 //South West Wall Pilar Lines
 //West
-auxl.swWallPilarLineWestData = auxl.coreDataFromTemplate(auxl.lineSignData, {id: 'swWallPilarLineWest', position: new THREE.Vector3(-8.95,4.7,0.93), rotation: new THREE.Vector3(0,0,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#f4057c, #eddd23', emissives: '1,1'},}}, true);
+auxl.swWallPilarLineWestData = auxl.CoreDataFromTemplate(auxl.lineSignData, {id: 'swWallPilarLineWest', position: new THREE.Vector3(-8.95,4.7,0.93), rotation: new THREE.Vector3(0,0,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#f4057c, #eddd23', emissives: '1,1'},}}, true);
 auxl.swWallPilarLineWest = auxl.Core(auxl.swWallPilarLineWestData);
 //North
-auxl.swWallPilarLineNorthData = auxl.coreDataFromTemplate(auxl.lineSignData, {id: 'swWallPilarLineNorth', position: new THREE.Vector3(-10.05,4.7,-0.05), rotation: new THREE.Vector3(0,90,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#16aa60, #eddd23', emissives: '1,1'},}}, true);
+auxl.swWallPilarLineNorthData = auxl.CoreDataFromTemplate(auxl.lineSignData, {id: 'swWallPilarLineNorth', position: new THREE.Vector3(-10.05,4.7,-0.05), rotation: new THREE.Vector3(0,90,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#16aa60, #eddd23', emissives: '1,1'},}}, true);
 auxl.swWallPilarLineNorth = auxl.Core(auxl.swWallPilarLineNorthData);
 
 
 //North East Wall Pilar Lines
 //West
-auxl.neWallPilarLineWestData = auxl.coreDataFromTemplate(auxl.lineSignData, {id: 'neWallPilarLineWest', position: new THREE.Vector3(8.95,4.7,-18.93), rotation: new THREE.Vector3(0,0,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#f4057c, #eddd23', emissives: '1,1'},}}, true);
+auxl.neWallPilarLineWestData = auxl.CoreDataFromTemplate(auxl.lineSignData, {id: 'neWallPilarLineWest', position: new THREE.Vector3(8.95,4.7,-18.93), rotation: new THREE.Vector3(0,0,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#f4057c, #eddd23', emissives: '1,1'},}}, true);
 auxl.neWallPilarLineWest = auxl.Core(auxl.neWallPilarLineWestData);
 //South
-auxl.neWallPilarLineSouthData = auxl.coreDataFromTemplate(auxl.lineSignData, {id: 'neWallPilarLineSouth', position: new THREE.Vector3(10.05,4.7,-17.945), rotation: new THREE.Vector3(0,-90,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#05aaf4, #eddd23', emissives: '1,1'},}}, true);
+auxl.neWallPilarLineSouthData = auxl.CoreDataFromTemplate(auxl.lineSignData, {id: 'neWallPilarLineSouth', position: new THREE.Vector3(10.05,4.7,-17.945), rotation: new THREE.Vector3(0,-90,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#05aaf4, #eddd23', emissives: '1,1'},}}, true);
 auxl.neWallPilarLineSouth = auxl.Core(auxl.neWallPilarLineSouthData);
 
 //South East Wall Pilar Lines
 //West
-auxl.seWallPilarLineWestData = auxl.coreDataFromTemplate(auxl.lineSignData, {id: 'seWallPilarLineWest', position: new THREE.Vector3(8.95,4.7,0.93), rotation: new THREE.Vector3(0,180,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#f4057c, #eddd23', emissives: '1,1'},}}, true);
+auxl.seWallPilarLineWestData = auxl.CoreDataFromTemplate(auxl.lineSignData, {id: 'seWallPilarLineWest', position: new THREE.Vector3(8.95,4.7,0.93), rotation: new THREE.Vector3(0,180,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#f4057c, #eddd23', emissives: '1,1'},}}, true);
 auxl.seWallPilarLineWest = auxl.Core(auxl.seWallPilarLineWestData);
 //North
-auxl.seWallPilarLineNorthData = auxl.coreDataFromTemplate(auxl.lineSignData, {id: 'seWallPilarLineNorth', position: new THREE.Vector3(10.05,4.7,-0.05), rotation: new THREE.Vector3(0,-90,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#05aaf4, #eddd23', emissives: '1,1'},}}, true);
+auxl.seWallPilarLineNorthData = auxl.CoreDataFromTemplate(auxl.lineSignData, {id: 'seWallPilarLineNorth', position: new THREE.Vector3(10.05,4.7,-0.05), rotation: new THREE.Vector3(0,-90,90), scale: new THREE.Vector3(1.9,1.9,1.9), components: {['gltf-model']:'./assets/3d/XRcade/line.glb', gltfmat: {colors: '#05aaf4, #eddd23', emissives: '1,1'},}}, true);
 auxl.seWallPilarLineNorth = auxl.Core(auxl.seWallPilarLineNorthData);
 
 
@@ -4675,80 +4699,80 @@ auxl.cabLayer = auxl.Layer('cabLayer', auxl.cabLayerData);
 
 //Left
 //Cab 1
-auxl.cadeCab1LayerData = auxl.layerDataFromTemplate(auxl.cabLayerData, 'cadeCab1LayerData', {rotation: new THREE.Vector3(0,90,0), components:{['gltf-model']:'./assets/3d/XRcade/cabinet.glb', gltfmat: {colors:['random', 'random', 'random', 'random', 'random', 'white', 'random', 'random', 'random', 'random'], textures:[false, false, false, false, false, auxl.game1Preview,],}, hovertext:{value: 'Ready?\nPlayer One', hover: 'top', offset: 5, twist: true,},},}, {grid: {start:{x:-5.5, y:0, z:-7.5}, end: {x:-4, y:0, z:-6}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab1LayerData = auxl.LayerDataFromTemplate(auxl.cabLayerData, 'cadeCab1LayerData', {rotation: new THREE.Vector3(0,90,0), components:{['gltf-model']:'./assets/3d/XRcade/cabinet.glb', gltfmat: {colors:['random', 'random', 'random', 'random', 'random', 'white', 'random', 'random', 'random', 'random'], textures:[false, false, false, false, false, auxl.game1Preview,],}, hovertext:{value: 'Ready?\nPlayer One', hover: 'top', offset: 5, twist: true,},},}, {grid: {start:{x:-5.5, y:0, z:-7.5}, end: {x:-4, y:0, z:-6}, yOffset: 0, collide: true}}, true);
 auxl.cadeCab1Layer = auxl.Layer('cadeCab1Layer', auxl.cadeCab1LayerData);
 auxl.cadeCab1Layer.layer.all.child0.core.core.text.value = 'Memory Order';
 //Cab 2
-auxl.cadeCab2Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab2Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-9}, end: {x:-4, y:0, z:-7.5}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab2Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab2Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-9}, end: {x:-4, y:0, z:-7.5}, yOffset: 0, collide: true}}, true);
 auxl.cadeCab2Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game2Preview,]};
 auxl.cadeCab2Layer.layer.all.child0.core.core.text.value = 'Swipe Launch';
 //Cab 3
-auxl.cadeCab3Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab3Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-10.5}, end: {x:-4, y:0, z:-9}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab3Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab3Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-10.5}, end: {x:-4, y:0, z:-9}, yOffset: 0, collide: true}}, true);
 auxl.cadeCab3Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game3Preview,]};
 auxl.cadeCab3Layer.layer.all.child0.core.core.text.value = 'Guess Hit';
 //Cab 4
-auxl.cadeCab4Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab4Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-12}, end: {x:-4, y:0, z:-10.5}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab4Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab4Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-12}, end: {x:-4, y:0, z:-10.5}, yOffset: 0, collide: true}}, true);
 auxl.cadeCab4Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game4Preview,]};
 auxl.cadeCab4Layer.layer.all.child0.core.core.text.value = 'Drag Diffuse';
 //Cab 5
-auxl.cadeCab5Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab5Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-3, y:0, z:-14.5}, end: {x:-1.5, y:0, z:-13}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab5Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab5Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-3, y:0, z:-14.5}, end: {x:-1.5, y:0, z:-13}, yOffset: 0, collide: true}}, true);
 auxl.cadeCab5Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game5Preview,]};
 auxl.cadeCab5Layer.layer.all.child0.core.core.text.value = 'Sharp Shooter';
 //Cab 6
-auxl.cadeCab6Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab6Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-1.5, y:0, z:-14.5}, end: {x:0, y:0, z:-13}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab6Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab6Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-1.5, y:0, z:-14.5}, end: {x:0, y:0, z:-13}, yOffset: 0, collide: true}}, true);
 auxl.cadeCab6Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game6Preview,]};
 auxl.cadeCab6Layer.layer.all.child0.core.core.text.value = 'Perfect Scale';
 //Cab 7
-auxl.cadeCab7Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab7Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:0, y:0, z:-14.5}, end: {x:1.5, y:0, z:-13}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab7Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab7Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:0, y:0, z:-14.5}, end: {x:1.5, y:0, z:-13}, yOffset: 0, collide: true}}, true);
 auxl.cadeCab7Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game7Preview,]};
 auxl.cadeCab7Layer.layer.all.child0.core.core.text.value = 'Reflex 7';
 //Cab 8
-auxl.cadeCab8Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab8Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:1.5, y:0, z:-14.5}, end: {x:3, y:0, z:-13}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab8Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab8Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:1.5, y:0, z:-14.5}, end: {x:3, y:0, z:-13}, yOffset: 0, collide: true}}, true);
 auxl.cadeCab8Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game8Preview,]};
 auxl.cadeCab8Layer.layer.all.child0.core.core.text.value = 'Tap It';
 //Cab 9
-auxl.cadeCab9Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab9Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-12}, end: {x:5.5, y:0, z:-10.5}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab9Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab9Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-12}, end: {x:5.5, y:0, z:-10.5}, yOffset: 0, collide: true}}, true);
 auxl.cadeCab9Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game9Preview,]};
 auxl.cadeCab9Layer.layer.all.child0.core.core.text.value = 'Pop Pop';
 //Cab 10
-auxl.cadeCab10Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab10Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-10.5}, end: {x:5.5, y:0, z:-9}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab10Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab10Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-10.5}, end: {x:5.5, y:0, z:-9}, yOffset: 0, collide: true}}, true);
 auxl.cadeCab10Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game10Preview,]};
 auxl.cadeCab10Layer.layer.all.child0.core.core.text.value = 'Horde Halt';
 //Cab 11
-auxl.cadeCab11Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab11Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-9}, end: {x:5.5, y:0, z:-7.5}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab11Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab11Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-9}, end: {x:5.5, y:0, z:-7.5}, yOffset: 0, collide: true}}, true);
 //Cab 12
-auxl.cadeCab12Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab12Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-7.5}, end: {x:5.5, y:0, z:-6}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab12Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab12Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-7.5}, end: {x:5.5, y:0, z:-6}, yOffset: 0, collide: true}}, true);
 
 
 
 //Cab 13
-auxl.cadeCab13Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab13Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:8.5, y:0, z:-22}, end: {x:9, y:0, z:-21.5}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab13Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab13Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:8.5, y:0, z:-22}, end: {x:9, y:0, z:-21.5}, yOffset: 0, collide: true}}, true);
 //Cab 14
-auxl.cadeCab14Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab14Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:8.5, y:0, z:-24}, end: {x:9, y:0, z:-23.5}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab14Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab14Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:8.5, y:0, z:-24}, end: {x:9, y:0, z:-23.5}, yOffset: 0, collide: true}}, true);
 
 //Back
 //Cab 15
-auxl.cadeCab15Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab15Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:6, y:0, z:-26.5}, end: {x:6.5, y:0, z:-26}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab15Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab15Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:6, y:0, z:-26.5}, end: {x:6.5, y:0, z:-26}, yOffset: 0, collide: true}}, true);
 //Cab 16
-auxl.cadeCab16Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab16Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:3.5, y:0, z:-26.5}, end: {x:4, y:0, z:-26}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab16Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab16Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:3.5, y:0, z:-26.5}, end: {x:4, y:0, z:-26}, yOffset: 0, collide: true}}, true);
 //Cab 17
-auxl.cadeCab17Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab17Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:1, y:0, z:-26.5}, end: {x:1.5, y:0, z:-26}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab17Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab17Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:1, y:0, z:-26.5}, end: {x:1.5, y:0, z:-26}, yOffset: 0, collide: true}}, true);
 //Cab 18
-auxl.cadeCab18Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab18Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-1.5, y:0, z:-26.5}, end: {x:-1, y:0, z:-26}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab18Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab18Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-1.5, y:0, z:-26.5}, end: {x:-1, y:0, z:-26}, yOffset: 0, collide: true}}, true);
 //Cab 19
-auxl.cadeCab19Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab19Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-4, y:0, z:-26.5}, end: {x:-3.5, y:0, z:-26}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab19Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab19Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-4, y:0, z:-26.5}, end: {x:-3.5, y:0, z:-26}, yOffset: 0, collide: true}}, true);
 //Cab 20
-auxl.cadeCab20Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab20Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-6.5, y:0, z:-26.5}, end: {x:-6, y:0, z:-26}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab20Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab20Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-6.5, y:0, z:-26.5}, end: {x:-6, y:0, z:-26}, yOffset: 0, collide: true}}, true);
 
 //Front
 //Cab 21
-auxl.cadeCab21Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab21Layer', {rotation: new THREE.Vector3(0,180,0)}, {grid: {start:{x:-3.5, y:0, z:-10}, end: {x:-3, y:0, z:-9.5}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab21Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab21Layer', {rotation: new THREE.Vector3(0,180,0)}, {grid: {start:{x:-3.5, y:0, z:-10}, end: {x:-3, y:0, z:-9.5}, yOffset: 0, collide: true}}, true);
 //Cab 22
-auxl.cadeCab22Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab22Layer', {rotation: new THREE.Vector3(0,180,0)}, {grid: {start:{x:-1.5, y:0, z:-10}, end: {x:-1, y:0, z:-9.5}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab22Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab22Layer', {rotation: new THREE.Vector3(0,180,0)}, {grid: {start:{x:-1.5, y:0, z:-10}, end: {x:-1, y:0, z:-9.5}, yOffset: 0, collide: true}}, true);
 //Cab 23
-auxl.cadeCab23Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab23Layer', {rotation: new THREE.Vector3(0,180,0)}, {grid: {start:{x:1, y:0, z:-10}, end: {x:1.5, y:0, z:-9.5}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab23Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab23Layer', {rotation: new THREE.Vector3(0,180,0)}, {grid: {start:{x:1, y:0, z:-10}, end: {x:1.5, y:0, z:-9.5}, yOffset: 0, collide: true}}, true);
 //Cab 24
-auxl.cadeCab24Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab24Layer', {rotation: new THREE.Vector3(0,180,0)}, {grid: {start:{x:3, y:0, z:-10}, end: {x:3.5, y:0, z:-9.5}, yOffset: 0, collide: true}}, true);
+auxl.cadeCab24Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab24Layer', {rotation: new THREE.Vector3(0,180,0)}, {grid: {start:{x:3, y:0, z:-10}, end: {x:3.5, y:0, z:-9.5}, yOffset: 0, collide: true}}, true);
 
 
 
@@ -5719,7 +5743,7 @@ auxl.UpdateBackgroundToggleText = () => {
 		auxl.jukeBoxAudioToggle.ChangeSelf({property: 'text', value:{value: 'Enable Background Audio'}});
 	}
 	//Workaround to ensure toggled spawn of option is removed on scene swap
-	auxl.spawnTracker('jukeBoxAudioToggle', 'node');
+	auxl.SpawnTracker('jukeBoxAudioToggle', 'node');
 }
 //Toggle Text
 auxl.ToggleBackgroundAudioText = () => {
@@ -5819,49 +5843,49 @@ auxl.buildXRcadeLibrary = () => {
 	auxl.comp.AddAvatar('Snow Man','compShape1Layer');
 	//Left
 	//Cab 1
-	auxl.cadeCab1LayerData = auxl.layerDataFromTemplate(auxl.cabLayerData, 'cadeCab1LayerData', {rotation: new THREE.Vector3(0,90,0), components:{['gltf-model']:'./assets/3d/XRcade/cabinet.glb', gltfmat: {colors:['random', 'random', 'random', 'random', 'random', 'white', 'random', 'random', 'random', 'random'], textures:[false, false, false, false, false, auxl.game1Preview,],}, hovertext:{value: 'Ready?\nPlayer One', hover: 'top', offset: 5, twist: true,},},}, {grid: {start:{x:-5.5, y:0, z:-7.5}, end: {x:-4, y:0, z:-6}, yOffset: 0, collide: true}}, true);
+	auxl.cadeCab1LayerData = auxl.LayerDataFromTemplate(auxl.cabLayerData, 'cadeCab1LayerData', {rotation: new THREE.Vector3(0,90,0), components:{['gltf-model']:'./assets/3d/XRcade/cabinet.glb', gltfmat: {colors:['random', 'random', 'random', 'random', 'random', 'white', 'random', 'random', 'random', 'random'], textures:[false, false, false, false, false, auxl.game1Preview,],}, hovertext:{value: 'Ready?\nPlayer One', hover: 'top', offset: 5, twist: true,},},}, {grid: {start:{x:-5.5, y:0, z:-7.5}, end: {x:-4, y:0, z:-6}, yOffset: 0, collide: true}}, true);
 	auxl.cadeCab1Layer = auxl.Layer('cadeCab1Layer', auxl.cadeCab1LayerData);
 	auxl.cadeCab1Layer.layer.all.child0.core.core.text.value = 'Memory Order';
 	//Cab 2
-	auxl.cadeCab2Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab2Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-9}, end: {x:-4, y:0, z:-7.5}, yOffset: 0, collide: true}}, true);
+	auxl.cadeCab2Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab2Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-9}, end: {x:-4, y:0, z:-7.5}, yOffset: 0, collide: true}}, true);
 	auxl.cadeCab2Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game2Preview,]};
 	auxl.cadeCab2Layer.layer.all.child0.core.core.text.value = 'Swipe Launch';
 	//Cab 3
-	auxl.cadeCab3Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab3Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-10.5}, end: {x:-4, y:0, z:-9}, yOffset: 0, collide: true}}, true);
+	auxl.cadeCab3Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab3Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-10.5}, end: {x:-4, y:0, z:-9}, yOffset: 0, collide: true}}, true);
 	auxl.cadeCab3Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game3Preview,]};
 	auxl.cadeCab3Layer.layer.all.child0.core.core.text.value = 'Guess Hit';
 	//Cab 4
-	auxl.cadeCab4Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab4Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-12}, end: {x:-4, y:0, z:-10.5}, yOffset: 0, collide: true}}, true);
+	auxl.cadeCab4Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab4Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-12}, end: {x:-4, y:0, z:-10.5}, yOffset: 0, collide: true}}, true);
 	auxl.cadeCab4Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game4Preview,]};
 	auxl.cadeCab4Layer.layer.all.child0.core.core.text.value = 'Drag Diffuse';
 	//Cab 5
-	auxl.cadeCab5Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab5Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-3, y:0, z:-14.5}, end: {x:-1.5, y:0, z:-13}, yOffset: 0, collide: true}}, true);
+	auxl.cadeCab5Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab5Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-3, y:0, z:-14.5}, end: {x:-1.5, y:0, z:-13}, yOffset: 0, collide: true}}, true);
 	auxl.cadeCab5Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game5Preview,]};
 	auxl.cadeCab5Layer.layer.all.child0.core.core.text.value = 'Sharp Shooter';
 	//Cab 6
-	auxl.cadeCab6Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab6Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-1.5, y:0, z:-14.5}, end: {x:0, y:0, z:-13}, yOffset: 0, collide: true}}, true);
+	auxl.cadeCab6Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab6Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:-1.5, y:0, z:-14.5}, end: {x:0, y:0, z:-13}, yOffset: 0, collide: true}}, true);
 	auxl.cadeCab6Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game6Preview,]};
 	auxl.cadeCab6Layer.layer.all.child0.core.core.text.value = 'Perfect Scale';
 	//Cab 7
-	auxl.cadeCab7Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab7Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:0, y:0, z:-14.5}, end: {x:1.5, y:0, z:-13}, yOffset: 0, collide: true}}, true);
+	auxl.cadeCab7Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab7Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:0, y:0, z:-14.5}, end: {x:1.5, y:0, z:-13}, yOffset: 0, collide: true}}, true);
 	auxl.cadeCab7Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game7Preview,]};
 	auxl.cadeCab7Layer.layer.all.child0.core.core.text.value = 'Reflex 7';
 	//Cab 8
-	auxl.cadeCab8Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab8Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:1.5, y:0, z:-14.5}, end: {x:3, y:0, z:-13}, yOffset: 0, collide: true}}, true);
+	auxl.cadeCab8Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab8Layer', {rotation: new THREE.Vector3(0,0,0)}, {grid: {start:{x:1.5, y:0, z:-14.5}, end: {x:3, y:0, z:-13}, yOffset: 0, collide: true}}, true);
 	auxl.cadeCab8Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game8Preview,]};
 	auxl.cadeCab8Layer.layer.all.child0.core.core.text.value = 'Tap It';
 	//Cab 9
-	auxl.cadeCab9Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab9Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-12}, end: {x:5.5, y:0, z:-10.5}, yOffset: 0, collide: true}}, true);
+	auxl.cadeCab9Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab9Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-12}, end: {x:5.5, y:0, z:-10.5}, yOffset: 0, collide: true}}, true);
 	auxl.cadeCab9Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game9Preview,]};
 	auxl.cadeCab9Layer.layer.all.child0.core.core.text.value = 'Pop Pop';
 	//Cab 10
-	auxl.cadeCab10Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab10Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-10.5}, end: {x:5.5, y:0, z:-9}, yOffset: 0, collide: true}}, true);
+	auxl.cadeCab10Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab10Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-10.5}, end: {x:5.5, y:0, z:-9}, yOffset: 0, collide: true}}, true);
 	auxl.cadeCab10Layer.layer.all.parent.core.core.components.gltfmat = {colors:['random','random','random','random','random','white','random','random','random','random'], textures:[false, false, false, false, false, auxl.game10Preview,]};
 	auxl.cadeCab10Layer.layer.all.child0.core.core.text.value = 'Horde Halt';
 	//Cab 11
-	auxl.cadeCab11Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab11Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-9}, end: {x:5.5, y:0, z:-7.5}, yOffset: 0, collide: true}}, true);
+	auxl.cadeCab11Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab11Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-9}, end: {x:5.5, y:0, z:-7.5}, yOffset: 0, collide: true}}, true);
 	//Cab 12
-	auxl.cadeCab12Layer = auxl.layerFromTemplate(auxl.cabLayer, 'cadeCab12Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-7.5}, end: {x:5.5, y:0, z:-6}, yOffset: 0, collide: true}}, true);
+	auxl.cadeCab12Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab12Layer', {rotation: new THREE.Vector3(0,-90,0)}, {grid: {start:{x:4, y:0, z:-7.5}, end: {x:5.5, y:0, z:-6}, yOffset: 0, collide: true}}, true);
 
 	//Spooky
 	auxl.skyGradSpooky = auxl.Core(auxl.skyGradSpookyData);
@@ -6009,7 +6033,7 @@ auxl.buildXRcadeLibrary = () => {
 	auxl.spookyRoom3FlareLayer = auxl.Layer('spookyRoom3FlareLayer',auxl.spookyRoom3FlareLayerData);
 	auxl.spookyGhostLayer = auxl.Layer('spookyGhostLayer', auxl.spookyGhostLayerData);
 }
-auxl.toBeRebuilt('buildXRcadeLibrary');
+auxl.ToBeRebuilt('buildXRcadeLibrary');
 
 },
 });
@@ -7504,11 +7528,10 @@ auxl.xrcadeScenarioData = {
 		},
 	},
 	controls:{
-
 		//
 		//Default Player Controls
-		action5Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
-		action6Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action5Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action6Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
 		action7Down:{auxlObj: 'player', func: 'SnapLeft', name: 'Snap View Left', info: 'Quick snap rotate to the left.'},
 		action8Down:{auxlObj: 'player', func: 'SnapRight', name: 'Snap View Right', info: 'Quick snap rotate to the right.'},
 	},
@@ -7565,7 +7588,7 @@ auxl.xrcadeWorld = auxl.World(auxl.xrcadeWorldData);
 
 //
 //System Loaded
-//auxl.systemLoaded();
+//auxl.SystemLoaded();
 console.log({msg: 'xrcade world loaded', world: auxl.xrcadeWorld})
     },
 });

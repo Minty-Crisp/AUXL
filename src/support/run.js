@@ -525,7 +525,7 @@ const onspawnfunc = AFRAME.registerComponent('onspawnfunc', {
 dependencies: ['auxl'],
 multiple: true,
 schema: {
-	auxlFunc: {type: 'string', default: 'auxlFunc'},
+	auxlFunc: {type: 'string', default: 'Test'},
 	params: {type: 'string', default: 'null'},
 },
 init: function () {
@@ -536,6 +536,23 @@ init: function () {
 	} else {
 		this.auxl[this.data.auxlFunc](this.data.params);
 	}
+},
+});
+
+//
+//On Spawn Run Func Dual
+//Run AUXL Function with 2 Parameters imported from Array Params
+const onspawnfuncdual = AFRAME.registerComponent('onspawnfuncdual', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	auxlFunc: {type: 'string', default: 'Test'},
+	params: {type: 'array', default: [false, false]},
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+	this.auxl[this.data.auxlFunc](this.data.params[0], this.data.params[1]);
 },
 });
 
@@ -578,6 +595,26 @@ remove: function () {
 			}
 		}
 	}
+},
+});
+
+
+//
+//On Despawn Run Func Dual
+//Run AUXL Function with 2 Parameters imported from Array Params
+const ondespawnfuncdual = AFRAME.registerComponent('ondespawnfuncdual', {
+dependencies: ['auxl'],
+multiple: true,
+schema: {
+	auxlFunc: {type: 'string', default: 'Test'},
+	params: {type: 'array', default: [false, false]},
+},
+init: function () {
+	//AUXL System Connection
+	this.auxl = document.querySelector('a-scene').systems.auxl;
+},
+remove: function () {
+	this.auxl[this.data.auxlFunc](this.data.params[0], this.data.params[1]);
 },
 });
 
@@ -798,4 +835,4 @@ remove: function () {
 
 //
 //Export
-export {clickfunc, clickrun, clickrunfunc, fusingrun, mousedownrun, mouseenterrun, mouseleaverun, mouseuprun, menurun, hoverrun, onspawnrun, onspawnfunc, ondespawnrun, oneventrun, ondelayrun, onintervalrun};
+export {clickfunc, clickrun, clickrunfunc, fusingrun, mousedownrun, mouseenterrun, mouseleaverun, mouseuprun, menurun, hoverrun, onspawnrun, onspawnfunc, onspawnfuncdual, ondespawnrun, ondespawnfuncdual, oneventrun, ondelayrun, onintervalrun};

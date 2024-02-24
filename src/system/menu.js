@@ -54,7 +54,7 @@ const Menu = (auxl, menuData) => {
 			//menu.data.id = menu.id + 'prompt';
 			menu.data.id = menu.id;
 			menu.data.text.value = menu.prompt;
-			menu.data.material.color, menu.data.material.emissive = auxl.colorTheoryGen().base;
+			menu.data.material.color, menu.data.material.emissive = auxl.ColorTheoryGen().base;
 			prompt = auxl.Core(menu.data);
 			menu.layers = {
 			parent: {core: prompt},}
@@ -88,7 +88,7 @@ const Menu = (auxl, menuData) => {
 						menu.data.position.y -= (menu.data.geometry.height*1.15);
 					}
 				}
-				menu.data.material.color, menu.data.material.emissive = auxl.colorTheoryGen().base;
+				menu.data.material.color, menu.data.material.emissive = auxl.ColorTheoryGen().base;
 				menu.data.text.value = menu.options[menuItem];
 				menu.data.id = menu.id + 'option' + menuNum;
 				menu.data.components.result = menu.actions['action'+menuNum];
@@ -167,7 +167,7 @@ const MultiMenu = (auxl, multiMenuData) => {
 	let switchDelay = 250;
 /*
 
-auxl.faceEye2SocketData = auxl.coreDataFromTemplate(auxl.faceEye1SocketData, {id: 'faceEye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)}, true);
+auxl.faceEye2SocketData = auxl.CoreDataFromTemplate(auxl.faceEye1SocketData, {id: 'faceEye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)}, true);
 auxl.faceEye2Socket = auxl.Core(auxl.faceEye2SocketData);
 */
 
@@ -175,8 +175,8 @@ auxl.faceEye2Socket = auxl.Core(auxl.faceEye2SocketData);
 	//multiMenu.buttonData = JSON.parse(JSON.stringify(multiMenu.data.info.buttonData));
 	//multiMenu.hoverData = JSON.parse(JSON.stringify(multiMenu.data.info.hoverData));
 
-	multiMenu.buttonData = auxl.coreDataFromTemplate(multiMenu.data.info.buttonData, {id: 'buttonData',}, true);
-	multiMenu.hoverData = auxl.coreDataFromTemplate(multiMenu.data.info.hoverData, {id: 'hoverData',}, true);
+	multiMenu.buttonData = auxl.CoreDataFromTemplate(multiMenu.data.info.buttonData, {id: 'buttonData',}, true);
+	multiMenu.hoverData = auxl.CoreDataFromTemplate(multiMenu.data.info.hoverData, {id: 'hoverData',}, true);
 
 
 	multiMenu.nullParentData = {
@@ -1103,16 +1103,16 @@ const ComboLock = (auxl, id, display, seq, run, position) => {
 	};
 	comboLock[combo0Id] = auxl.Core(comboLock.combo0Data);
 	//Combo 1
-	comboLock.combo1Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo1Id, text: comboLock.texts[1], position: new THREE.Vector3(-0.2,0,0), material: {shader: "standard", color: "#66e025", emissive: '#66e025', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '1',},},}, true);
+	comboLock.combo1Data = auxl.CoreDataFromTemplate(comboLock.combo0Data,{id: combo1Id, text: comboLock.texts[1], position: new THREE.Vector3(-0.2,0,0), material: {shader: "standard", color: "#66e025", emissive: '#66e025', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '1',},},}, true);
 	comboLock[combo1Id] = auxl.Core(comboLock.combo1Data);
 	//Combo 2
-	comboLock.combo2Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo2Id, text: comboLock.texts[2], position: new THREE.Vector3(0,0,0), material: {shader: "standard", color: "#256de0", emissive: '#256de0', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '2',},},}, true);
+	comboLock.combo2Data = auxl.CoreDataFromTemplate(comboLock.combo0Data,{id: combo2Id, text: comboLock.texts[2], position: new THREE.Vector3(0,0,0), material: {shader: "standard", color: "#256de0", emissive: '#256de0', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '2',},},}, true);
 	comboLock[combo2Id] = auxl.Core(comboLock.combo2Data);
 	//Combo 3
-	comboLock.combo3Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo3Id, text: comboLock.texts[3], position: new THREE.Vector3(0.2,0,0), material: {shader: "standard", color: "#e0e025", emissive: '#e0e025', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '3',},},}, true);
+	comboLock.combo3Data = auxl.CoreDataFromTemplate(comboLock.combo0Data,{id: combo3Id, text: comboLock.texts[3], position: new THREE.Vector3(0.2,0,0), material: {shader: "standard", color: "#e0e025", emissive: '#e0e025', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '3',},},}, true);
 	comboLock[combo3Id] = auxl.Core(comboLock.combo3Data);
 	//Combo 4
-	comboLock.combo4Data = auxl.coreDataFromTemplate(comboLock.combo0Data,{id: combo4Id, text: comboLock.texts[4], position: new THREE.Vector3(0.4,0,0), material: {shader: "standard", color: "#e09825", emissive: '#e09825', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '4',},},}, true);
+	comboLock.combo4Data = auxl.CoreDataFromTemplate(comboLock.combo0Data,{id: combo4Id, text: comboLock.texts[4], position: new THREE.Vector3(0.4,0,0), material: {shader: "standard", color: "#e09825", emissive: '#e09825', emissiveIntensity: 0.25, opacity: 1},components:{clickrun:{cursorObj: comboLock.id, component: 'null', method: 'KeyClick', params: '4',},},}, true);
 	comboLock[combo4Id] = auxl.Core(comboLock.combo4Data);
 
 	comboLock.comboAll = {
@@ -1313,25 +1313,25 @@ const ScrollMenu = (auxl, id) => {
 	};
 	scrollMenu.scroll0 = auxl.Core(scrollMenu.scroll0Data);
 	//Scroll 1
-	scrollMenu.scroll1Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll1', position: new THREE.Vector3(0,-0.4,0.1), material: {shader: "standard", color: "#66e025", emissive: '#66e025', opacity: 1},}, true);
+	scrollMenu.scroll1Data = auxl.CoreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll1', position: new THREE.Vector3(0,-0.4,0.1), material: {shader: "standard", color: "#66e025", emissive: '#66e025', opacity: 1},}, true);
 	scrollMenu.scroll1 = auxl.Core(scrollMenu.scroll1Data);
 	//Scroll 2
-	scrollMenu.scroll2Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll2', position: new THREE.Vector3(0,-0.2,0.1), material: {shader: "standard", color: "#256de0", emissive: '#256de0', opacity: 1},}, true);
+	scrollMenu.scroll2Data = auxl.CoreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll2', position: new THREE.Vector3(0,-0.2,0.1), material: {shader: "standard", color: "#256de0", emissive: '#256de0', opacity: 1},}, true);
 	scrollMenu.scroll2 = auxl.Core(scrollMenu.scroll2Data);
 	//Scroll 3
-	scrollMenu.scroll3Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll3', position: new THREE.Vector3(0,0,0.1), material: {shader: "standard", color: "#e0e025", emissive: '#e0e025', opacity: 1},}, true);
+	scrollMenu.scroll3Data = auxl.CoreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll3', position: new THREE.Vector3(0,0,0.1), material: {shader: "standard", color: "#e0e025", emissive: '#e0e025', opacity: 1},}, true);
 	scrollMenu.scroll3 = auxl.Core(scrollMenu.scroll3Data);
 	//Scroll 4
-	scrollMenu.scroll4Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll4', position: new THREE.Vector3(0,0.2,0.1), material: {shader: "standard", color: "#e09825", emissive: '#e09825', opacity: 1},}, true);
+	scrollMenu.scroll4Data = auxl.CoreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll4', position: new THREE.Vector3(0,0.2,0.1), material: {shader: "standard", color: "#e09825", emissive: '#e09825', opacity: 1},}, true);
 	scrollMenu.scroll4 = auxl.Core(scrollMenu.scroll4Data);
 	//Scroll 5
-	scrollMenu.scroll5Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll5', position: new THREE.Vector3(0,0.4,0.1), material: {shader: "standard", color: "#e02525", emissive: '#e02525', opacity: 1},}, true);
+	scrollMenu.scroll5Data = auxl.CoreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll5', position: new THREE.Vector3(0,0.4,0.1), material: {shader: "standard", color: "#e02525", emissive: '#e02525', opacity: 1},}, true);
 	scrollMenu.scroll5 = auxl.Core(scrollMenu.scroll5Data);
 	//Scroll 6
-	scrollMenu.scroll6Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll6', position: new THREE.Vector3(0,0.6,0.1), material: {shader: "standard", color: "#25e0d9", emissive: '#25e0d9', opacity: 0},}, true);
+	scrollMenu.scroll6Data = auxl.CoreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll6', position: new THREE.Vector3(0,0.6,0.1), material: {shader: "standard", color: "#25e0d9", emissive: '#25e0d9', opacity: 0},}, true);
 	scrollMenu.scroll6 = auxl.Core(scrollMenu.scroll6Data);
 	//Scroll 7
-	scrollMenu.scroll7Data = auxl.coreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll7', position: new THREE.Vector3(0,0.8,0.1), material: {shader: "standard", color: "#ffffff", emissive: '#ffffff', opacity: 0},}, true);
+	scrollMenu.scroll7Data = auxl.CoreDataFromTemplate(scrollMenu.scroll0Data,{id: 'scroll7', position: new THREE.Vector3(0,0.8,0.1), material: {shader: "standard", color: "#ffffff", emissive: '#ffffff', opacity: 0},}, true);
 	scrollMenu.scroll7 = auxl.Core(scrollMenu.scroll7Data);
 
 	scrollMenu.scrollAllData = {

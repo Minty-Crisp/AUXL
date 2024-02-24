@@ -781,7 +781,7 @@ auxl.MemoryGame = (id) => {
 	memory.previewImage = auxl.game1Preview;
 	memory.inScene = false;
 	//Colors
-	auxl.memoryGameColor = auxl.colorTheoryGen(false, 'lime');
+	auxl.memoryGameColor = auxl.ColorTheoryGen(false, 'lime');
 	//High Scores
 	memory.highScores = blankHighScores('Matches', 0);
 
@@ -955,7 +955,7 @@ auxl.MemoryGame = (id) => {
 	memory.layer = auxl.Layer('memory',layerData);
 
 	//UI
-	memory.memoryUIData = auxl.layerDataFromTemplate(auxl.uiGameLayerData, 'memoryUI',{position: new THREE.Vector3(1.25,1.5,-1.5)}, false, true);
+	memory.memoryUIData = auxl.LayerDataFromTemplate(auxl.uiGameLayerData, 'memoryUI',{position: new THREE.Vector3(1.25,1.5,-1.5)}, false, true);
 	memory.memoryUI = auxl.Layer('memoryUI',memory.memoryUIData);
 	//Parent : memoryUI0
 	//Game Status : memoryUI1
@@ -1031,7 +1031,7 @@ auxl.MemoryGame = (id) => {
 		}
 		memory.highScores.text = refreshHighScoreText(memory.highScores);
 		memory.memoryUI.GetChild('memoryUI4').ChangeSelf({property:'text',value:{value:memory.highScores.text}});
-		auxl.saveToProfile({auxlObject: memory.id, type: 'memory', sub: false, name: 'highScores', data: memory.highScores});
+		auxl.SaveToProfile({auxlObject: memory.id, type: 'memory', sub: false, name: 'highScores', data: memory.highScores});
 	}
 	//Handle Game Menu Click
 	const GameMenuClick = () => {
@@ -1203,7 +1203,7 @@ auxl.SwipeLaunchGame = (id) => {
 	swipeLaunch.previewImage = auxl.game2Preview;
 	swipeLaunch.inScene = false;
 	//Colors
-	auxl.swipeLaunchGameColor = auxl.colorTheoryGen(false, 'red');
+	auxl.swipeLaunchGameColor = auxl.ColorTheoryGen(false, 'red');
 	//High Scores
 	swipeLaunch.highScores = blankHighScores('Pts', 2);
 	//Main Core
@@ -1302,7 +1302,7 @@ auxl.SwipeLaunchGame = (id) => {
 	swipeLaunch.displayTime = auxl.Core(swipeLaunch.displayTimeData);
 
 	//UI
-	swipeLaunch.swipeLaunchUIData = auxl.layerDataFromTemplate(auxl.uiGameLayerData, 'swipeLaunchUI',{position: new THREE.Vector3(1,1.5,-0.5)}, false, true);
+	swipeLaunch.swipeLaunchUIData = auxl.LayerDataFromTemplate(auxl.uiGameLayerData, 'swipeLaunchUI',{position: new THREE.Vector3(1,1.5,-0.5)}, false, true);
 	swipeLaunch.swipeLaunchUI = auxl.Layer('swipeLaunchUI',swipeLaunch.swipeLaunchUIData);
 	//Parent : swipeLaunchUI0
 	//Game Status : swipeLaunchUI1
@@ -1358,7 +1358,7 @@ auxl.SwipeLaunchGame = (id) => {
 		}
 		swipeLaunch.highScores.text = refreshHighScoreText(swipeLaunch.highScores);
 		swipeLaunch.swipeLaunchUI.GetChild('swipeLaunchUI4').ChangeSelf({property:'text', value:{value:swipeLaunch.highScores.text}});
-		auxl.saveToProfile({auxlObject: swipeLaunch.id, type: 'swipeLaunch', sub: false, name: 'highScores', data: swipeLaunch.highScores});
+		auxl.SaveToProfile({auxlObject: swipeLaunch.id, type: 'swipeLaunch', sub: false, name: 'highScores', data: swipeLaunch.highScores});
 	}
 	//Reset
 	function reset(){
@@ -1587,7 +1587,7 @@ auxl.GuessHitGame = (id) => {
 	guessHit.previewImage = auxl.game3Preview;
 	guessHit.inScene = false;
 	//Colors
-	auxl.guessHitGameColor = auxl.colorTheoryGen(false, 'yellow');
+	auxl.guessHitGameColor = auxl.ColorTheoryGen(false, 'yellow');
 	//High Scores
 	guessHit.highScores = blankHighScores('Pts', 1);
 
@@ -1667,7 +1667,7 @@ auxl.GuessHitGame = (id) => {
 	guessHit.hit = auxl.Core(guessHit.hitData);
 
 	//UI
-	guessHit.guessHitUIData = auxl.layerDataFromTemplate(auxl.uiGameLayerData, 'guessHitUI',{position: new THREE.Vector3(1,1.5,-0.5)}, false, true);
+	guessHit.guessHitUIData = auxl.LayerDataFromTemplate(auxl.uiGameLayerData, 'guessHitUI',{position: new THREE.Vector3(1,1.5,-0.5)}, false, true);
 	guessHit.guessHitUI = auxl.Layer('guessHitUI',guessHit.guessHitUIData);
 
 	//Parent : guessHitUI0
@@ -1721,7 +1721,7 @@ auxl.GuessHitGame = (id) => {
 		}
 		guessHit.highScores.text = refreshHighScoreText(guessHit.highScores);
 		guessHit.guessHitUI.GetChild('guessHitUI4').ChangeSelf({property:'text',value:{value:guessHit.highScores.text}});
-		auxl.saveToProfile({auxlObject: guessHit.id, type: 'guessHit', sub: false, name: 'highScores', data: guessHit.highScores});
+		auxl.SaveToProfile({auxlObject: guessHit.id, type: 'guessHit', sub: false, name: 'highScores', data: guessHit.highScores});
 	}
 	//Reduce Decimals
 	function reduceDecimal(num, x){
@@ -2002,7 +2002,7 @@ auxl.DragDiffuse = (id) => {
 	dragDiffuse.previewImage = auxl.game4Preview;
 	dragDiffuse.inScene = false;
 	//Colors
-	auxl.dragDiffuseGameColor = auxl.colorTheoryGen(false, 'cyan');
+	auxl.dragDiffuseGameColor = auxl.ColorTheoryGen(false, 'cyan');
 	//High Scores
 	dragDiffuse.highScores = blankHighScores('Pts', 2);
 
@@ -2026,7 +2026,7 @@ auxl.DragDiffuse = (id) => {
 	dragDiffuse.bombsToSpawn = bombsToSpawn;
 
 	//UI
-	dragDiffuse.dragDiffuseUIData = auxl.layerDataFromTemplate(auxl.uiGameLayerData, 'dragDiffuseUI',{position: new THREE.Vector3(1.35,1.5,-0.5)}, false, true);
+	dragDiffuse.dragDiffuseUIData = auxl.LayerDataFromTemplate(auxl.uiGameLayerData, 'dragDiffuseUI',{position: new THREE.Vector3(1.35,1.5,-0.5)}, false, true);
 	dragDiffuse.dragDiffuseUI = auxl.Layer('dragDiffuseUI',dragDiffuse.dragDiffuseUIData);
 	//Parent : dragDiffuseUI0
 	//Game Status : dragDiffuseUI1
@@ -2328,7 +2328,7 @@ auxl.DragDiffuse = (id) => {
 		}
 		dragDiffuse.highScores.text = refreshHighScoreText(dragDiffuse.highScores);
 		dragDiffuse.dragDiffuseUI.GetChild('dragDiffuseUI4').ChangeSelf({property:'text',value:{value:dragDiffuse.highScores.text}});
-		auxl.saveToProfile({auxlObject: dragDiffuse.id, type: 'dragDiffuse', sub: false, name: 'highScores', data: dragDiffuse.highScores});
+		auxl.SaveToProfile({auxlObject: dragDiffuse.id, type: 'dragDiffuse', sub: false, name: 'highScores', data: dragDiffuse.highScores});
 	}
 	//System Reset
 	const Reset = () => {
@@ -2547,7 +2547,7 @@ auxl.SharpShooter = (id) => {
 	sharpShooter.previewImage = auxl.game5Preview;
 	sharpShooter.inScene = false;
 	//Colors
-	auxl.sharpShooterGameColor = auxl.colorTheoryGen('#00ebff');
+	auxl.sharpShooterGameColor = auxl.ColorTheoryGen('#00ebff');
 	//High Scores
 	sharpShooter.highScores = blankHighScores('Pts', 2);
 
@@ -2629,7 +2629,7 @@ auxl.SharpShooter = (id) => {
 	sharpShooter.gameSound = auxl.Core(sharpShooter.gameSoundData);
 
 	//UI
-	sharpShooter.sharpShooterUIData = auxl.layerDataFromTemplate(auxl.uiGameLayerData, 'sharpShooterUI',{position: new THREE.Vector3(1,1.5,0.5)}, false, true);
+	sharpShooter.sharpShooterUIData = auxl.LayerDataFromTemplate(auxl.uiGameLayerData, 'sharpShooterUI',{position: new THREE.Vector3(1,1.5,0.5)}, false, true);
 	sharpShooter.sharpShooterUI = auxl.Layer('sharpShooterUI',sharpShooter.sharpShooterUIData);
 	//Parent : sharpShooterUI0
 	//Game Status : sharpShooterUI1
@@ -2670,7 +2670,7 @@ auxl.SharpShooter = (id) => {
 		}
 		sharpShooter.highScores.text = refreshHighScoreText(sharpShooter.highScores);
 		sharpShooter.sharpShooterUI.GetChild('sharpShooterUI4').ChangeSelf({property:'text',value:{value:sharpShooter.highScores.text}});
-		auxl.saveToProfile({auxlObject: sharpShooter.id, type: 'sharpShooter', sub: false, name: 'highScores', data: sharpShooter.highScores});
+		auxl.SaveToProfile({auxlObject: sharpShooter.id, type: 'sharpShooter', sub: false, name: 'highScores', data: sharpShooter.highScores});
 	}
 	//Game Start
 	const GameStart = () => {
@@ -2841,7 +2841,7 @@ auxl.PerfectScale = (id) => {
 	perfectScale.previewImage = auxl.game6Preview;
 	perfectScale.inScene = false;
 	//Colors
-	auxl.perfectScaleGameColor = auxl.colorTheoryGen('#eb21a5');
+	auxl.perfectScaleGameColor = auxl.ColorTheoryGen('#eb21a5');
 	//High Scores
 	perfectScale.highScores = blankHighScores('Pts', 2);
 	//Game Vars
@@ -3087,7 +3087,7 @@ auxl.PerfectScale = (id) => {
 	perfectScale.scale4 = auxl.Core(perfectScale.scale4Data);
 
 	//UI
-	perfectScale.perfectScaleUIData = auxl.layerDataFromTemplate(auxl.uiGameLayerData, 'perfectScaleUI',{position: new THREE.Vector3(1,1.5,7)}, false, true);
+	perfectScale.perfectScaleUIData = auxl.LayerDataFromTemplate(auxl.uiGameLayerData, 'perfectScaleUI',{position: new THREE.Vector3(1,1.5,7)}, false, true);
 	perfectScale.perfectScaleUI = auxl.Layer('perfectScaleUI',perfectScale.perfectScaleUIData);
 	//Parent : perfectScaleUI0
 	//Game Status : perfectScaleUI1
@@ -3396,7 +3396,7 @@ auxl.PerfectScale = (id) => {
 		}
 		perfectScale.highScores.text = refreshHighScoreText(perfectScale.highScores);
 		perfectScale.perfectScaleUI.GetChild('perfectScaleUI4').ChangeSelf({property:'text',value:{value:perfectScale.highScores.text}});
-		auxl.saveToProfile({auxlObject: perfectScale.id, type: 'perfectScale', sub: false, name: 'highScores', data: perfectScale.highScores});
+		auxl.SaveToProfile({auxlObject: perfectScale.id, type: 'perfectScale', sub: false, name: 'highScores', data: perfectScale.highScores});
 	}
 	//Reset
 	const Reset = () => {
@@ -3778,7 +3778,7 @@ auxl.Reflex7 = (id) => {
 	reflex7.previewImage = auxl.game7Preview;
 	reflex7.inScene = false;
 	//Colors
-	auxl.reflex7GameColor = auxl.colorTheoryGen('#9e22a2');
+	auxl.reflex7GameColor = auxl.ColorTheoryGen('#9e22a2');
 	//High Scores
 	reflex7.highScores = blankHighScores('ms', 2);
 	//Game Vars
@@ -3834,7 +3834,7 @@ auxl.Reflex7 = (id) => {
 	};
 	reflex7.target = auxl.Core(reflex7.targetData);
 	//UI
-	reflex7.reflex7UIData = auxl.layerDataFromTemplate(auxl.uiGameLayerData, 'reflex7UI',{position: new THREE.Vector3(1.5,1.5,0)}, false, true);
+	reflex7.reflex7UIData = auxl.LayerDataFromTemplate(auxl.uiGameLayerData, 'reflex7UI',{position: new THREE.Vector3(1.5,1.5,0)}, false, true);
 	reflex7.reflex7UI = auxl.Layer('reflex7UI',reflex7.reflex7UIData);
 	//Parent : reflex7UI0
 	//Game Status : reflex7UI1
@@ -3877,7 +3877,7 @@ auxl.Reflex7 = (id) => {
 		}
 		reflex7.highScores.text = refreshHighScoreText(reflex7.highScores);
 		reflex7.reflex7UI.GetChild('reflex7UI4').ChangeSelf({property:'text',value:{value:reflex7.highScores.text}});
-		auxl.saveToProfile({auxlObject: reflex7.id, type: 'reflex7', sub: false, name: 'highScores', data: reflex7.highScores});
+		auxl.SaveToProfile({auxlObject: reflex7.id, type: 'reflex7', sub: false, name: 'highScores', data: reflex7.highScores});
 	}
 	//Reset
 	const Reset = () => {
@@ -4023,7 +4023,7 @@ auxl.TapIt = (id) => {
 	tapIt.previewImage = auxl.game8Preview;
 	tapIt.inScene = false;
 	//Colors
-	auxl.tapItGameColor = auxl.colorTheoryGen('#e02020');
+	auxl.tapItGameColor = auxl.ColorTheoryGen('#e02020');
 	//High Scores
 	tapIt.highScores = blankHighScores('Hits', 0);
 
@@ -4218,7 +4218,7 @@ auxl.TapIt = (id) => {
 	tapIt.drag2 = auxl.Core(tapIt.drag2Data);
 
 	//UI
-	tapIt.tapItUIData = auxl.layerDataFromTemplate(auxl.uiGameLayerData, 'tapItUI',{position: new THREE.Vector3(1.5,1.5,0)}, false, true);
+	tapIt.tapItUIData = auxl.LayerDataFromTemplate(auxl.uiGameLayerData, 'tapItUI',{position: new THREE.Vector3(1.5,1.5,0)}, false, true);
 	tapIt.tapItUI = auxl.Layer('tapItUI',tapIt.tapItUIData);
 	//Parent : reflex7UI0
 	//Game Status : reflex7UI1
@@ -4260,7 +4260,7 @@ auxl.TapIt = (id) => {
 		}
 		tapIt.highScores.text = refreshHighScoreText(tapIt.highScores);
 		tapIt.tapItUI.GetChild('tapItUI4').ChangeSelf({property:'text',value:{value:tapIt.highScores.text}});
-		auxl.saveToProfile({auxlObject: tapIt.id, type: 'tapIt', sub: false, name: 'highScores', data: tapIt.highScores});
+		auxl.SaveToProfile({auxlObject: tapIt.id, type: 'tapIt', sub: false, name: 'highScores', data: tapIt.highScores});
 	}
 	//Clear
 	const Clear = () => {
@@ -4474,7 +4474,7 @@ auxl.PopPopGame = (id) => {
 	popPop.previewImage = auxl.game9Preview;
 	popPop.inScene = false;
 	//Colors
-	auxl.popPopGameColor = auxl.colorTheoryGen('#d0621e');
+	auxl.popPopGameColor = auxl.ColorTheoryGen('#d0621e');
 	//High Scores
 	popPop.highScores = blankHighScores('Pts', 0);
 	//Game Vars
@@ -4558,14 +4558,14 @@ auxl.PopPopGame = (id) => {
 		x = (Math.random()*14)-7;
 		y = (Math.random()*7)+7;
 		z = (Math.random()*-6)-15;
-		color = auxl.colorTheoryGen(false, 'yellow').base;
-		popPop.popCores[a] = auxl.coreFromTemplate(popPop.pop,{id: 'pop'+a, material: {shader: "standard", color: color, emissive: color, emissiveIntensity: 0.25, opacity: 1, src: auxl.pattern63, repeat: '2 2'}, position: new THREE.Vector3(x,0,z), components: {mouseenterrun__hit:{cursorObj: popPop.id, component: 'null', method: 'Hit', params: a,},},}, true);
+		color = auxl.ColorTheoryGen(false, 'yellow').base;
+		popPop.popCores[a] = auxl.CoreFromTemplate(popPop.pop,{id: 'pop'+a, material: {shader: "standard", color: color, emissive: color, emissiveIntensity: 0.25, opacity: 1, src: auxl.pattern63, repeat: '2 2'}, position: new THREE.Vector3(x,0,z), components: {mouseenterrun__hit:{cursorObj: popPop.id, component: 'null', method: 'Hit', params: a,},},}, true);
 		popPop.popCores[a].core.animations.pop.to = y;
 		popPop.popCores[a].core.animations.pop.delay = Math.random()*1500;
 	}
 
 	//UI
-	popPop.popPopUIData = auxl.layerDataFromTemplate(auxl.uiGameLayerData, 'popPopUI',{position: new THREE.Vector3(1.5,1.5,0)}, false, true);
+	popPop.popPopUIData = auxl.LayerDataFromTemplate(auxl.uiGameLayerData, 'popPopUI',{position: new THREE.Vector3(1.5,1.5,0)}, false, true);
 	popPop.popPopUI = auxl.Layer('popPopUI',popPop.popPopUIData);
 	//Parent : popPopUI0
 	//Game Status : popPopUI1
@@ -4608,7 +4608,7 @@ auxl.PopPopGame = (id) => {
 		}
 		popPop.highScores.text = refreshHighScoreText(popPop.highScores);
 		popPop.popPopUI.GetChild('popPopUI4').ChangeSelf({property:'text',value:{value:popPop.highScores.text}});
-		auxl.saveToProfile({auxlObject: popPop.id, type: 'popPop', sub: false, name: 'highScores', data: popPop.highScores});
+		auxl.SaveToProfile({auxlObject: popPop.id, type: 'popPop', sub: false, name: 'highScores', data: popPop.highScores});
 	}
 	//Reset
 	const Reset = () => {
@@ -4776,7 +4776,7 @@ auxl.HordeHaltGame = (id) => {
 	hordeHalt.previewImage = auxl.game10Preview;
 	hordeHalt.inScene = false;
 	//Colors
-	auxl.hordeHaltGameColor = auxl.colorTheoryGen('#4cd041');
+	auxl.hordeHaltGameColor = auxl.ColorTheoryGen('#4cd041');
 	//High Scores
 	hordeHalt.highScores = blankHighScores('Kills', 0);
 	//Game Vars
@@ -4920,13 +4920,13 @@ auxl.HordeHaltGame = (id) => {
 		x = (Math.random()*40)-20;
 		y = (Math.random()*20)+0.5;
 		z = (Math.random()*-10)-20;
-		hordeHalt.enemyCores[a] = auxl.coreFromTemplate(hordeHalt.enemy,{id: 'enemy'+a, material: {shader: "standard", color: '#cdef14', emissive: '#cdef14', emissiveIntensity: 0.25, opacity: 1, src: auxl.pattern78, repeat: '2 2'}, position: new THREE.Vector3(x,y,z), components: {mousedownrun__hit:{cursorObj: hordeHalt.id, component: 'null', method: 'Stun', params: a,}, oneventrun__kill:{event: 'kill', cursorObj: hordeHalt.id, component: 'null', method: 'ToggleClick', params: a,}, oneventrun__kill2:{event: 'animationcomplete__killz', cursorObj: hordeHalt.id, component: 'null', method: 'DespawnEnemy', params: a,}, mouseenterrun__slashin:{cursorObj: hordeHalt.id, component: 'null', method: 'SlashIn', params: a,}, mouseenterrun__slashout:{cursorObj: hordeHalt.id, component: 'null', method: 'SlashOut', params: a,}, oneventrun__damage:{event: 'animationcomplete__move', cursorObj: hordeHalt.id, component: 'null', method: 'Damage', params: a,}, },}, true);
+		hordeHalt.enemyCores[a] = auxl.CoreFromTemplate(hordeHalt.enemy,{id: 'enemy'+a, material: {shader: "standard", color: '#cdef14', emissive: '#cdef14', emissiveIntensity: 0.25, opacity: 1, src: auxl.pattern78, repeat: '2 2'}, position: new THREE.Vector3(x,y,z), components: {mousedownrun__hit:{cursorObj: hordeHalt.id, component: 'null', method: 'Stun', params: a,}, oneventrun__kill:{event: 'kill', cursorObj: hordeHalt.id, component: 'null', method: 'ToggleClick', params: a,}, oneventrun__kill2:{event: 'animationcomplete__killz', cursorObj: hordeHalt.id, component: 'null', method: 'DespawnEnemy', params: a,}, mouseenterrun__slashin:{cursorObj: hordeHalt.id, component: 'null', method: 'SlashIn', params: a,}, mouseenterrun__slashout:{cursorObj: hordeHalt.id, component: 'null', method: 'SlashOut', params: a,}, oneventrun__damage:{event: 'animationcomplete__move', cursorObj: hordeHalt.id, component: 'null', method: 'Damage', params: a,}, },}, true);
 		hordeHalt.enemyCores[a].core.animations.move.dur = (Math.random()*5000)+20000;
 		hordeHalt.enemies.push({num: a, stunned: false, health: 4, slashStart: false, resumeTimeout: false, spawnDistance: -20, moveSpeed: 8000, resumeSpeed: hordeHalt.resumeSpeed});
 	}
 
 	//UI
-	hordeHalt.hordeHaltUIData = auxl.layerDataFromTemplate(auxl.uiGameLayerData, 'hordeHaltUI',{position: new THREE.Vector3(1.5,1.5,0)}, false, true);
+	hordeHalt.hordeHaltUIData = auxl.LayerDataFromTemplate(auxl.uiGameLayerData, 'hordeHaltUI',{position: new THREE.Vector3(1.5,1.5,0)}, false, true);
 	hordeHalt.hordeHaltUI = auxl.Layer('hordeHaltUI',hordeHalt.hordeHaltUIData);
 	//Parent : hordeHaltUI0
 	//Game Status : hordeHaltUI1
@@ -4969,7 +4969,7 @@ auxl.HordeHaltGame = (id) => {
 		}
 		hordeHalt.highScores.text = refreshHighScoreText(hordeHalt.highScores);
 		hordeHalt.hordeHaltUI.GetChild('hordeHaltUI4').ChangeSelf({property:'text',value:{value:hordeHalt.highScores.text}});
-		auxl.saveToProfile({auxlObject: hordeHalt.id, type: 'hordeHalt', sub: false, name: 'highScores', data: hordeHalt.highScores});
+		auxl.SaveToProfile({auxlObject: hordeHalt.id, type: 'hordeHalt', sub: false, name: 'highScores', data: hordeHalt.highScores});
 	}
 	//Countdown
 	const Countdown = (count) => {
@@ -5225,7 +5225,7 @@ auxl.BasicGame = (id) => {
 	basic.previewImage = auxl.pattern01;
 	basic.inScene = false;
 	//Colors
-	auxl.basicGameColor = auxl.colorTheoryGen('#0076ff');
+	auxl.basicGameColor = auxl.ColorTheoryGen('#0076ff');
 	//High Scores
 	basic.highScores = blankHighScores('Hits', 0);
 	//Game Vars
@@ -5261,7 +5261,7 @@ auxl.BasicGame = (id) => {
 	basic.basicObj = auxl.Core(basic.basicObjData);
 
 	//UI
-	basic.basicUIData = auxl.layerDataFromTemplate(auxl.uiGameLayerData, 'basicUI',{position: new THREE.Vector3(1.5,1.5,0)}, false, true);
+	basic.basicUIData = auxl.LayerDataFromTemplate(auxl.uiGameLayerData, 'basicUI',{position: new THREE.Vector3(1.5,1.5,0)}, false, true);
 	basic.basicUI = auxl.Layer('basicUI',basic.basicUIData);
 	//Parent : basicUI0
 	//Game Status : basicUI1
@@ -5303,7 +5303,7 @@ auxl.BasicGame = (id) => {
 		}
 		basic.highScores.text = refreshHighScoreText(basic.highScores);
 		basic.basicUI.GetChild('basicUI4').ChangeSelf({property:'text',value:{value:basic.highScores.text}});
-		auxl.saveToProfile({auxlObject: basic.id, type: 'basic', sub: false, name: 'highScores', data: basic.highScores});
+		auxl.SaveToProfile({auxlObject: basic.id, type: 'basic', sub: false, name: 'highScores', data: basic.highScores});
 	}
 	//Reset
 	const Reset = () => {
@@ -5605,7 +5605,7 @@ auxl.buildMiniGames = () => {
 	//Highest Scores Board
 	auxl.highScoresBoard = auxl.HighScoreBoard('highScoresBoard');
 }
-auxl.toBeRebuilt('buildMiniGames');
+auxl.ToBeRebuilt('buildMiniGames');
 
 },
 });

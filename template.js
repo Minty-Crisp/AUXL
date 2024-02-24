@@ -54,7 +54,7 @@ auxl.coreUnique = auxl.Core(auxl.coreUniqueData);
 //Custom AUXLObjGen w/ Add to Scene Tracker
 
 /*
-import {Core, coreDataFromTemplate, coreFromTemplate, Layer, layerDataFromTemplate, layerFromTemplate} from './main.js';
+import {Core, CoreDataFromTemplate, CoreFromTemplate, Layer, LayerDataFromTemplate, LayerFromTemplate} from './main.js';
 //Player : Player, Companion
 import {Player, Companion, UniRay} from './player.js';
 //Powers
@@ -78,7 +78,7 @@ import {ImageSwapper, ImageCarousel} from './images.js';
 auxl.buildUniqueLibrary = () => {
 	auxl.coreUnique = auxl.Core(auxl.coreUniqueData);
 }
-auxl.toBeRebuilt('buildUniqueLibrary');
+auxl.ToBeRebuilt('buildUniqueLibrary');
 
 },
 });
@@ -281,8 +281,10 @@ auxl.templateScenarioData = {
 		},
 	},
 	controls:{
-		action5Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
-		action6Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		//
+		//Default Player Controls
+		action5Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action6Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
 		action7Down:{auxlObj: 'player', func: 'SnapLeft', name: 'Snap View Left', info: 'Quick snap rotate to the left.'},
 		action8Down:{auxlObj: 'player', func: 'SnapRight', name: 'Snap View Right', info: 'Quick snap rotate to the right.'},
 	},
@@ -333,7 +335,7 @@ auxl.templateWorld = auxl.World(auxl.templateWorldData);
 
 //
 //System Loaded
-//auxl.systemLoaded();
+//auxl.SystemLoaded();
 console.log({msg: 'template world loaded', world: auxl.templateWorld})
 
     },

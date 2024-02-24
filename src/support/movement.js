@@ -2657,6 +2657,9 @@ userDirection: function (){
 //Component for Teleportation Points Object
 const teleportation = AFRAME.registerComponent('teleportation',{
 dependencies: ['auxl'],
+schema: {
+	y: {type: 'number', default: 0},
+},
 //Uses Player's Scene Transition Type to Teleport
 //Locomotion Teleportation also supported 
 init: function(){
@@ -2718,8 +2721,16 @@ clickToTeleport: function () {
 		element.nextSibling.emit('reset',{});
 		//Clone current entity's position User
 		newPos.copy(telePos);
-		//Reset User's Y back to 0 - Flat Mode
-		newPos.y = 0;
+		//Don't use intersection height, override with schema or is 0 by default
+		newPos.y = this.data.y;
+	}
+	function move(pos){
+		if(auxl.player.layer.playerPhysics){
+			user.body.position.copy(pos);
+			user.body.computeAABB();
+		} else {
+			user.object3D.position.copy(newPosition);
+		}
 	}
 	//Instantly Reset All Teleportation Points
 	function resetTeleCircles(){
@@ -2760,7 +2771,7 @@ clickToTeleport: function () {
 				resetTeleCircles();
 				prepMove(element, newPosition, teleportPos);
 				posTimeout = setTimeout(function () {
-					user.object3D.position.copy(newPosition);
+					move(newPosition);
 					clearTimeout(posTimeout);
 				}, 250);
 			} else if(teleportType === 'fade') {
@@ -2768,7 +2779,7 @@ clickToTeleport: function () {
 				prepMove(element, newPosition, teleportPos);
 				posTimeout = setTimeout(function () {
 					resetTeleCircles();
-					user.object3D.position.copy(newPosition);
+					move(newPosition);
 					clearTimeout(posTimeout);
 				}, 600);
 			} else if(teleportType === 'locomotion') {
@@ -2794,7 +2805,7 @@ clickToTeleport: function () {
 				prepMove(element, newPosition, teleportPos);
 				posTimeout = setTimeout(function () {
 					resetTeleCircles();
-					user.object3D.position.copy(newPosition);
+					move(newPosition);
 					clearTimeout(posTimeout);
 				}, 600);
 			} else if(teleportType === 'blink') {
@@ -2802,7 +2813,7 @@ clickToTeleport: function () {
 				prepMove(element, newPosition, teleportPos);
 				posTimeout = setTimeout(function () {
 					resetTeleCircles();
-					user.object3D.position.copy(newPosition);
+					move(newPosition);
 					clearTimeout(posTimeout);
 				}, 600);
 			}
@@ -2830,6 +2841,9 @@ const raycastTeleport = AFRAME.registerComponent('raycast-teleportation-select',
 //Uses Player's Scene Transition Type to Teleport
 //Locomotion Teleportation also supported
 dependencies: ['auxl'],
+schema: {
+	y: {type: 'number', default: 0},
+},
 init: function () {
 	this.auxl = document.querySelector('a-scene').systems.auxl;
 	this.hoverSelectData = {
@@ -2890,22 +2904,29 @@ clickToTeleport: function (event) {
 	function prepMove(newPos, telePos){
 		//Clone current entity's position User
 		newPos.copy(telePos);
-		//Reset User's Y back to 0 - Flat Mode
-		newPos.y = 0;
+		//Don't use intersection height, override with schema or is 0 by default
+		newPos.y = this.data.y;
 	}
-
+	function move(pos){
+		if(auxl.player.layer.playerPhysics){
+			user.body.position.copy(pos);
+			user.body.computeAABB();
+		} else {
+			user.object3D.position.copy(newPosition);
+		}
+	}
 	//Teleportation Based on Player Transition Type
 	if(teleportType === 'instant') {
 		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			user.object3D.position.copy(newPosition);
+		posTimeout = setTimeout(() => {
+			move(newPosition);
 			clearTimeout(posTimeout);
 		}, 250);
 	} else if(teleportType === 'fade') {
 		auxl.player.PlayerTeleportAnim();
 		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			user.object3D.position.copy(newPosition);
+		posTimeout = setTimeout(() => {
+			move(newPosition);
 			clearTimeout(posTimeout);
 		}, 600);
 	} else if(teleportType === 'locomotion') {
@@ -2927,15 +2948,15 @@ clickToTeleport: function (event) {
 	} else if(teleportType === 'sphere') {
 		auxl.player.PlayerTeleportAnim();
 		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			user.object3D.position.copy(newPosition);
+		posTimeout = setTimeout(() => {
+			move(newPosition);
 			clearTimeout(posTimeout);
 		}, 600);
 	} else if(teleportType === 'blink') {
 		auxl.player.PlayerTeleportAnim();
 		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			user.object3D.position.copy(newPosition);
+		posTimeout = setTimeout(() => {
+			move(newPosition);
 			clearTimeout(posTimeout);
 		}, 600);
 	}
@@ -2980,22 +3001,27 @@ clickToTeleport: function (event) {
 	function prepMove(newPos, telePos){
 		//Clone current entity's position User
 		newPos.copy(telePos);
-		//Reset User's Y back to 0 - Flat Mode
-		newPos.y = 0;
 	}
-
+	function move(pos){
+		if(auxl.player.layer.playerPhysics){
+			user.body.position.copy(pos);
+			user.body.computeAABB();
+		} else {
+			user.object3D.position.copy(newPosition);
+		}
+	}
 	//Teleportation Based on Player Transition Type
 	if(teleportType === 'instant') {
 		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			user.object3D.position.copy(newPosition);
+		posTimeout = setTimeout(() => {
+			move(newPosition);
 			clearTimeout(posTimeout);
 		}, 250);
 	} else if(teleportType === 'fade') {
 		auxl.player.PlayerTeleportAnim();
 		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			user.object3D.position.copy(newPosition);
+		posTimeout = setTimeout(() => {
+			move(newPosition);
 			clearTimeout(posTimeout);
 		}, 600);
 	} else if(teleportType === 'locomotion') {
@@ -3017,15 +3043,15 @@ clickToTeleport: function (event) {
 	} else if(teleportType === 'sphere') {
 		auxl.player.PlayerTeleportAnim();
 		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			user.object3D.position.copy(newPosition);
+		posTimeout = setTimeout(() => {
+			move(newPosition);
 			clearTimeout(posTimeout);
 		}, 600);
 	} else if(teleportType === 'blink') {
 		auxl.player.PlayerTeleportAnim();
 		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			user.object3D.position.copy(newPosition);
+		posTimeout = setTimeout(() => {
+			move(newPosition);
 			clearTimeout(posTimeout);
 		}, 600);
 	}
@@ -3078,8 +3104,6 @@ eventToTeleport: function (event) {
 	function prepMove(newPos, telePos){
 		//Clone current entity's position User
 		newPos.copy(telePos);
-		//Reset User's Y back to 0 - Flat Mode
-		//newPos.y = 0;
 	}
 	function move(pos){
 		if(auxl.player.layer.playerPhysics){
@@ -3095,52 +3119,44 @@ eventToTeleport: function (event) {
 	//Teleportation Based on Player Transition Type
 	if(teleportType === 'instant') {
 		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			//user.object3D.position.copy(newPosition);
+		posTimeout = setTimeout(() => {
 			move(newPosition);
 			clearTimeout(posTimeout);
 		}, 250);
 	} else if(teleportType === 'fade') {
 		auxl.player.PlayerQuickAnim();
 		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			//user.object3D.position.copy(newPosition);
+		posTimeout = setTimeout(() => {
 			move(newPosition);
 			clearTimeout(posTimeout);
 		}, 225);
 	} else if(teleportType === 'locomotion') {
 		//Create locomotion animation based on teleported Pos
-		if(auxl.player.layer.playerPhysics){
-			console.log('Configure Physics Locomotion Teleportation')
-		} else {
-			let travelParams = {
-				property: 'position',
-				from: {x: userPos.x, y: 0, z: userPos.z},
-				to: {x: teleportPos.x, y: 0, z: teleportPos.z},
-				dur: 1000,
-				delay: 0,
-				loop: 'false',
-				dir: 'normal',
-				easing:'easeInOutSine',
-				elasticity: 400,
-				autoplay: 'true',
-				enabled: 'true',
-				};
-			user.setAttribute('animation__locomotion', travelParams);
-		}
+		let travelParams = {
+			property: 'position',
+			from: {x: userPos.x, y: 0, z: userPos.z},
+			to: {x: teleportPos.x, y: 0, z: teleportPos.z},
+			dur: 1000,
+			delay: 0,
+			loop: 'false',
+			dir: 'normal',
+			easing:'easeInOutSine',
+			elasticity: 400,
+			autoplay: 'true',
+			enabled: 'true',
+			};
+		user.setAttribute('animation__locomotion', travelParams);
 	} else if(teleportType === 'sphere') {
 		auxl.player.PlayerQuickAnim();
 		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			//user.object3D.position.copy(newPosition);
+		posTimeout = setTimeout(() => {
 			move(newPosition);
 			clearTimeout(posTimeout);
 		}, 225);
 	} else if(teleportType === 'blink') {
 		auxl.player.PlayerQuickAnim();
 		prepMove(newPosition, teleportPos);
-		posTimeout = setTimeout(function () {
-			//user.object3D.position.copy(newPosition);
+		posTimeout = setTimeout(() => {
 			move(newPosition);
 			clearTimeout(posTimeout);
 		}, 225);

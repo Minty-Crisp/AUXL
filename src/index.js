@@ -17,7 +17,7 @@ import auxcontroller from './support/controls.js';
 import {locomotion, teleportation, raycastTeleport, raycastTeleportSelect, teleportto} from './support/movement.js';
 //
 //Run
-import {clickfunc, clickrun, clickrunfunc, fusingrun, mousedownrun, mouseenterrun, mouseleaverun, mouseuprun, menurun, hoverrun, onspawnrun, onspawnfunc, ondespawnrun, oneventrun, ondelayrun, onintervalrun} from './support/run.js';
+import {clickfunc, clickrun, clickrunfunc, fusingrun, mousedownrun, mouseenterrun, mouseleaverun, mouseuprun, menurun, hoverrun, onspawnrun, onspawnfunc, onspawnfuncdual, ondespawnfuncdual, ondespawnrun, oneventrun, ondelayrun, onintervalrun} from './support/run.js';
 //
 //Misc
 import {syncPos, syncRot, lookAtXYZ, stare, cameraForward, hovertext, lookaround} from './support/misc.js';

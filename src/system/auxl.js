@@ -9,13 +9,13 @@
 
 //Import ObjGens
 //Main : Core, Layer, Templates
-import {Core, coreDataFromTemplate, coreFromTemplate, Layer, layerDataFromTemplate, layerFromTemplate} from './main.js';
+import {Core, CoreDataFromTemplate, CoreFromTemplate, Layer, LayerDataFromTemplate, LayerFromTemplate} from './main.js';
 //Player : Player, Companion
 import {Player, Companion} from './player.js';
 //UniRay : Uniray
 //import UniRay from './uniray.js';
 //Powers
-import Powers from './powers.js';
+//import Powers from './powers.js';
 //Scenes : SceneNode, MapZone, Scenario, World
 import {SceneNode, MapZone, Scenario, World} from './scenes.js';
 //Menu : Menu, MultiMenu, MegaMenu, HoverMenu
@@ -162,8 +162,8 @@ let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, fullScreen, 
 // System Configure
 /***********************************************************/
 //System Loaded, Runs after World/Scenario/Zone/Scenes loaded
-this.systemLoaded = (reset) => {
-	setStorage(reset);
+this.SystemLoaded = (reset) => {
+	SetStorage(reset);
 	auxl.player.infoText = 'Player : ' + auxl.local.profile.shortname + '\n';
 	SystemStart();
 	ApplySettings();
@@ -244,7 +244,7 @@ this.WorldsLoaded = (world) => {
 	auxl.worlds.push(world);
 }
 //Add Component Rebuild Method
-this.toBeRebuilt = (methodName) => {
+this.ToBeRebuilt = (methodName) => {
 	auxl.rebuildObjects.push(methodName);
 	auxl.Loaded(methodName);
 }
@@ -289,7 +289,7 @@ this.save = 'auxl' + window.location.pathname;
 //console.log(window.location.hostname)
 //console.log(window.location.pathname)
 //Default Save Data
-const newData = () => {
+const NewData = () => {
 	this.local = {};
 	this.local.profile = {};
 	this.local.profile.domain = window.location.hostname;
@@ -300,7 +300,7 @@ const newData = () => {
 	this.local.profile.time = {};
 	this.local.profile.time.creation = auxl.Time();
 	this.local.profile.time.lastVisit = auxl.Time();
-	this.local.profile.colorScheme = auxl.colorTheoryGen();
+	this.local.profile.colorScheme = auxl.ColorTheoryGen();
 	this.local.profile.id = this.local.profile.colorScheme.base;
 	this.local.profile.color = this.local.profile.colorScheme.base;
 	this.local.profile.shortname = this.local.profile.colorScheme.base;
@@ -319,13 +319,13 @@ const newData = () => {
 	this.local.location.scene = '';
 }
 //New
-const newStorage = () => {
+const NewStorage = () => {
 	//Fresh Session, Initiliaze Site Wide Settings
 	console.log('New here. Loading default data.');
 	//Clear Local Storage
 	window.localStorage.clear();
 	//Default Data
-	newData();
+	NewData();
 	//Rebuild All Objects
 	Rebuild();
 	//Assign Completion to Storage
@@ -333,12 +333,12 @@ const newStorage = () => {
 	ApplySettings();
 
 	//Update Controls
-	vrHandMenu(this.local.profile.vrHand)
-	controlsMenu(this.local.profile.controls)
-	updateControls();
+	VRHandMenu(this.local.profile.vrHand)
+	ControlsMenu(this.local.profile.controls)
+	UpdateControls();
 }
 //Load
-const loadStorage = () => {
+const LoadStorage = () => {
 	//Return Session, Load Site Wide Settings
 	//console.log('Loading previous data.');
 	console.log('Welcome Back! ^-^');
@@ -360,29 +360,29 @@ const loadStorage = () => {
 	}
 
 	//Save Last Visit Date
-	auxl.saveToProfile();
+	auxl.SaveToProfile();
 	UpdateFromLocal();
 
 	//Update Controls
-	vrHandMenu(this.local.profile.vrHand)
-	controlsMenu(this.local.profile.controls)
-	updateControls();
+	VRHandMenu(this.local.profile.vrHand)
+	ControlsMenu(this.local.profile.controls)
+	UpdateControls();
 
 	//Update Audio
 	this.volume = this.local.profile.volume;
 }
 //Set
-const setStorage = (reset) => {
+const SetStorage = (reset) => {
   	if(reset){
-		newStorage();
+		NewStorage();
 	} else if(localStorage.getItem(this.save)){
-		loadStorage();
+		LoadStorage();
 	} else {
-		newStorage();
+		NewStorage();
 	}
 }
 //Save to Profile and Local
-this.saveToProfile = (sync) => {
+this.SaveToProfile = (sync) => {
 //sync.auxlObject, sync.type, sync.sub, sync.name, sync.data
 	if(!sync){
 		//Save Profile Only
@@ -512,7 +512,8 @@ this.TimeDif = (start, end) => {
 //Controls
 this.universalControls;
 this.controls = 'Desktop';
-this.vrHand = 'bothRight';
+//this.vrHand = 'bothRight';
+this.vrHand = 'bothLeftLoco';
 this.vrHandPrevious = false;
 this.directionType = 'camera';
 this.locomotionText = 'WASD Keys';
@@ -567,7 +568,7 @@ this.AddObjGenToTracker = (type, spawn, despawn, altSpawn) => {
 	auxl.objGenTracking[type].despawn = despawn;
 }
 //Spawn Tracker
-this.spawnTracker = (obj, spawnLocation, bookName) => {
+this.SpawnTracker = (obj, spawnLocation, bookName) => {
 	//Configure Tracker
 	let tracker;
 	if(spawnLocation === 'scenario'){
@@ -608,7 +609,7 @@ this.spawnTracker = (obj, spawnLocation, bookName) => {
 	}
 }
 //Clear Spawned from Scenario, Zone, Node or Book
-this.clearSpawned = (spawned) => {
+this.ClearSpawned = (spawned) => {
 	for(let spawn in spawned){
 		if(auxl[spawn]){
 			auxl[spawn][auxl.objGenTracking[spawned[spawn].type].despawn]();
@@ -739,7 +740,7 @@ this.ToggleHTMLMenu = () => {
 		beginDiv.style.display = 'none';
 		auxl.menuOpen = false;
 		if(auxl.infoOpen){
-			toggleInfo();
+			ToggleInfo();
 		}
 		if(auxl.backgroundAudio && !auxl.playerAudio.core.inScene){
 			auxl.playerAudio.SpawnCore(auxl.playerRig);
@@ -753,7 +754,7 @@ stickyMenu.addEventListener('click', auxl.ToggleHTMLMenu);
 
 //
 //Start Experience
-function startExp(){
+function StartExp(){
 	if(auxl.worldLoaded){}else{
 		if(auxl.local.location.world === ''){
 			auxl.defaultWorld.StartWorld();
@@ -761,19 +762,19 @@ function startExp(){
 			auxl[auxl.local.location.world].StartWorld();
 		}
 		startButton.innerHTML = 'Resume';
-		updateControls();
+		UpdateControls();
 		auxl.worldLoaded = true;
 	}
 	auxl.ToggleHTMLMenu();
 }
-startButton.addEventListener('click', startExp);
+startButton.addEventListener('click', StartExp);
 
 //
 //Controls
 
 //
 //VR
-function disableVRControls(){
+function DisableVRControls(){
 	auxl.vrController1.GetEl().setAttribute('visible',false);
 	auxl.vrController2.GetEl().setAttribute('visible',false);
 	auxl.vrController1UI.GetEl().setAttribute('visible',false);
@@ -785,7 +786,7 @@ function disableVRControls(){
 	auxl.vrController1.GetEl().removeAttribute('laser-controls');
 	auxl.vrController2.GetEl().removeAttribute('laser-controls');
 }
-function enableVRControls(){
+function EnableVRControls(){
 	if(auxl.vrHand === 'bothRight'){
 		auxl.vrController1.GetEl().setAttribute('visible',true);
 		auxl.vrController2.GetEl().setAttribute('visible',true);
@@ -862,12 +863,12 @@ function enableVRControls(){
 */
 }
 //Desktop
-function disableDesktopControls(){
+function DisableDesktopControls(){
 	auxl.mouseController.GetEl().setAttribute('visible',false);
 	auxl.mouseController.GetEl().removeAttribute('raycaster');
 	auxl.mouseController.GetEl().removeAttribute('cursor');
 }
-function enableDesktopControls(){
+function EnableDesktopControls(){
 	auxl.mouseController.GetEl().setAttribute('visible',true);
 	auxl.mouseController.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 	auxl.mouseController.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true',});
@@ -876,7 +877,7 @@ function enableDesktopControls(){
 	auxl.locomotionText = 'WASD Keys';
 }
 //Mobile
-function disableMobileControls(){
+function DisableMobileControls(){
 	auxl.mouseController.GetEl().setAttribute('visible',false);
 	auxl.mouseController.GetEl().removeAttribute('raycaster');
 	auxl.mouseController.GetEl().removeAttribute('cursor');
@@ -884,7 +885,7 @@ function disableMobileControls(){
 	screenFooter.style.display = 'none';
 	controllerBlock.style.display = 'none';
 }
-function enableMobileControls(){
+function EnableMobileControls(){
 	/*
 	function mobilePermissionGrantedTrue(){
 		auxl.mobilePermissionGranted = true;
@@ -909,37 +910,37 @@ function enableMobileControls(){
 	//console.log(auxl.mouseController.GetEl())
 }
 //Controls Menu
-function controlsMenu(state){
+function ControlsMenu(state){
 
 	//Old
 	if(auxl.controls === 'Desktop'){
-		disableDesktopControls();
+		DisableDesktopControls();
 	} else if(auxl.controls === 'Mobile'){
-		disableMobileControls();
+		DisableMobileControls();
 	} else if(auxl.controls === 'VR'){
 		vrHandButton.style.display = 'none';
 		vrLocomotionType.style.display = 'none';
-		disableVRControls();
+		DisableVRControls();
 	}
 	//New
 	if(state === 'Desktop'){
 		menuModeButton.innerHTML = 'Mode : Desktop'
-		enableDesktopControls();
+		EnableDesktopControls();
 	} else if(state === 'Mobile'){
 		menuModeButton.innerHTML = 'Mode : Mobile';
-		enableMobileControls();
+		EnableMobileControls();
 	} else if(state === 'VR'){
 		menuModeButton.innerHTML = 'Mode : VR';
 		vrHandButton.style.display = 'flex';
 		vrLocomotionType.style.display = 'flex';
-		enableVRControls();
+		EnableVRControls();
 	}
 	//Update State
 	auxl.controls = state;
-	updateControls();
+	UpdateControls();
 }
 //VR Hand Menu
-function vrHandMenu(state){
+function VRHandMenu(state){
 	//New
 	if(state === 'bothRight'){
 		vrHandButton.innerHTML = '2 Hands : Right Ray | Left Move';
@@ -1128,51 +1129,50 @@ this.UpdateControlText = () => {
 	//console.log(auxl.controlsText);
 }
 //Update Controls
-function updateControls(){
+function UpdateControls(){
 	auxl.UpdateControlText();
 	auxl.local.profile.controls = auxl.controls;
 	auxl.local.profile.vrHand = auxl.vrHand;
-	auxl.saveToProfile();
+	auxl.SaveToProfile();
 }
 //Menu Controls Button
 function changeControls(){
 	if(auxl.controls === 'Desktop'){
-		controlsMenu('VR');
+		ControlsMenu('VR');
 	} else if(auxl.controls === 'VR'){
-		controlsMenu('Mobile');
+		ControlsMenu('Mobile');
 	} else if(auxl.controls === 'Mobile'){
-		controlsMenu('Desktop');
+		ControlsMenu('Desktop');
 	}
-	updateControls();
+	UpdateControls();
 }
 menuModeButton.addEventListener('click', changeControls);
 //Cycle VR Configurations
-function changeVRHand(){
-	disableVRControls();
+function ChangeVRHand(){
+	DisableVRControls();
 	auxl.vrHandPrevious = auxl.vrHand;
 	if(auxl.vrHand === 'bothRight'){
-		vrHandMenu('bothLeft');
+		VRHandMenu('bothLeft');
 	} else if(auxl.vrHand === 'bothLeft'){
-		vrHandMenu('bothLeftLoco');
+		VRHandMenu('bothLeftLoco');
 	} else if(auxl.vrHand === 'bothLeftLoco'){
-		vrHandMenu('bothRightLoco');
+		VRHandMenu('bothRightLoco');
 	} else if(auxl.vrHand === 'bothRightLoco'){
-		//vrHandMenu('right');
-		vrHandMenu('bothRight');
+		VRHandMenu('bothRight');
 	}
 /*
  else if(auxl.vrHand === 'right'){
-		vrHandMenu('left');
+		VRHandMenu('left');
 	} else if(auxl.vrHand = 'left') {
-		vrHandMenu('bothRight');
+		VRHandMenu('bothRight');
 	}
 */
-	updateControls();
-	enableVRControls();
+	UpdateControls();
+	EnableVRControls();
 }
-vrHandButton.addEventListener('click', changeVRHand);
+vrHandButton.addEventListener('click', ChangeVRHand);
 //Change Locomotion Direction Type
-function changeLocoDirection(){
+function ChangeLocoDirection(){
 	if(auxl.directionType === 'camera'){
 		auxl.directionType = 'controller';
 		vrLocomotionType.innerHTML = 'Direction : Controller';
@@ -1180,12 +1180,12 @@ function changeLocoDirection(){
 		auxl.directionType = 'camera';
 		vrLocomotionType.innerHTML = 'Direction : Camera';
 	}
-	updateControls();
+	UpdateControls();
 }
-vrLocomotionType.addEventListener('click', changeLocoDirection);
+vrLocomotionType.addEventListener('click', ChangeLocoDirection);
 
 //Add System Sounds
-function addSystemAudio(){
+function AddSystemAudio(){
 	let sound;
 	for(let each in auxl.playerAudioData.sounds){
 		sound = JSON.parse(JSON.stringify(auxl.playerAudioData.sounds[each]));
@@ -1197,7 +1197,7 @@ function addSystemAudio(){
 	}
 }
 //Remove System Sounds
-function removeSystemAudio(){
+function RemoveSystemAudio(){
 	for(let each in auxl.playerAudioData.sounds){
 		auxl.playerAudio.removeComponent('auxlsound__'+each)
 	}
@@ -1210,13 +1210,13 @@ function toggleAudio(){
 		auxl.audioEnabled = false;
 		audioVolume.style.display = 'none';
 		audioButton.innerHTML = 'Sound : Disabled';
-		removeSystemAudio();
+		RemoveSystemAudio();
 	} else {
 		auxl.audioEnabled = true;
 		audioButton.innerHTML = 'Sound : Enabled';
 		audioVolume.style.display = 'flex';
 		volume.innerHTML = auxl.volume.toFixed(1);
-		addSystemAudio();
+		AddSystemAudio();
 	}
 }
 audioButton.addEventListener('click', toggleAudio);
@@ -1224,40 +1224,40 @@ audioButton.addEventListener('click', toggleAudio);
 //
 //Volume Control
 //Up
-function audioUp(){
+function AudioUp(){
 	auxl.volume += 0.1;
 	if(auxl.volume > 2){
 		auxl.volume = 2;
 	}
 	volume.innerHTML = auxl.volume.toFixed(1);
 	auxl.local.profile.volume = auxl.volume;
-	auxl.saveToProfile();
+	auxl.SaveToProfile();
 	if(auxl.playerAudio.core.inScene){
 		auxl.playerAudio.DespawnCore();
 	}
 }
-volUpButton.addEventListener('click', audioUp);
+volUpButton.addEventListener('click', AudioUp);
 //Down
-function audioDown(){
+function AudioDown(){
 	auxl.volume -= 0.1;
 	if(auxl.volume < 0){
 		auxl.volume = 0;
 	}
 	volume.innerHTML = auxl.volume.toFixed(1);
 	auxl.local.profile.volume = auxl.volume;
-	auxl.saveToProfile();
+	auxl.SaveToProfile();
 	if(auxl.playerAudio.core.inScene){
 		auxl.playerAudio.DespawnCore();
 	}
 }
-volDownButton.addEventListener('click', audioDown);
+volDownButton.addEventListener('click', AudioDown);
 
 //
 //Toggle Background Audio
 this.ToggleBackgroundAudio = (track) => {
 	auxl.backgroundAudio = !auxl.backgroundAudio;
 	if(auxl.backgroundAudio){
-		if(!auxl.isFalsey(track)){
+		if(!auxl.IsFalsey(track)){
 			auxl.currentWorld.MusicPlaylist(track);
 		} else {
 			//XRcade Temp
@@ -1277,7 +1277,7 @@ this.ToggleBackgroundAudio = (track) => {
 
 //
 //Toggle Instructions
-function toggleInfo(){
+function ToggleInfo(){
 	if(auxl.infoOpen){
 		expInfo.style.display = 'none';
 		auxl.infoOpen = false;
@@ -1286,12 +1286,12 @@ function toggleInfo(){
 		auxl.infoOpen = true;
 	}
 }
-viewInfo.addEventListener('click', toggleInfo);
-infoClose.addEventListener('click', toggleInfo);
+viewInfo.addEventListener('click', ToggleInfo);
+infoClose.addEventListener('click', ToggleInfo);
 
 //
 //Toggle Data
-function toggleData(){
+function ToggleData(){
 	if(auxl.dataOpen){
 		dataInfo.style.display = 'none';
 		auxl.dataOpen = false;
@@ -1300,10 +1300,10 @@ function toggleData(){
 		auxl.dataOpen = true;
 	}
 }
-viewData.addEventListener('click', toggleData);
-dataClose.addEventListener('click', toggleData);
+viewData.addEventListener('click', ToggleData);
+dataClose.addEventListener('click', ToggleData);
 //Reset Storage
-function resetSystem(){
+function ResetSystem(){
 	//unload current world and reload default world
 	if(auxl.comp.inScene){
 		auxl.comp.DespawnComp();
@@ -1314,18 +1314,18 @@ function resetSystem(){
 			startButton.innerHTML = 'Restart';
 			auxl.worldLoaded = false;
 		}
-		auxl.systemLoaded(true);
-		toggleData();
+		auxl.SystemLoaded(true);
+		ToggleData();
 		clearTimeout(resetTimeout);
 	}, 750);
 }
-resetData.addEventListener('click', resetSystem);
+resetData.addEventListener('click', ResetSystem);
 //Reset and Reload
-function resetReload(){
-	auxl.systemLoaded(true);
+function ResetReload(){
+	auxl.SystemLoaded(true);
 	window.location.reload();
 }
-//resetData.addEventListener('click', resetReload);
+//resetData.addEventListener('click', ResetReload);
 
 //
 //Toggle HTML
@@ -1344,13 +1344,18 @@ this.ToggleHTML = (id, show, display) => {
 //
 //Support
 
+//Test function and default for components
+this.Test = (params) => {
+	console.log(params)
+}
+
 //Reading Scene
 
 //Clone Dom
 this.CloneDom = (dom, deep) => {
 	let clone = dom.CloneNode(deep);
-	while(auxl.checkDupeName(clone.id)){
-		clone.id = auxl.ranNameGen(8, clone.id);
+	while(auxl.CheckDupeName(clone.id)){
+		clone.id = auxl.RanNameGen(8, clone.id);
 	}
 	return clone;
 }
@@ -1370,7 +1375,7 @@ this.ConvertHTMLScene = () => {
 
 //
 //Misc
-this.isFalsey = (value) => {
+this.IsFalsey = (value) => {
   if (
     value === null ||
     value === undefined ||
@@ -1403,8 +1408,8 @@ this.OpenLink = (link, newTab) => {
 //DOM Scene
 
 //Find Entity in Scene
-this.findInScene = (item) => {
-	if(auxl.isFalsey(item)){return false}
+this.FindInScene = (item) => {
+	if(auxl.IsFalsey(item)){return false}
 	let self = item;
 	if(self.core){
 		//console.log('Core');
@@ -1433,11 +1438,11 @@ this.findInScene = (item) => {
 	return self;
 }
 //Parent DOM Ent to other DOM Ent
-this.attach = (child, parent) => {
+this.Attach = (child, parent) => {
 	//Self
-	let item = auxl.findInScene(child);
+	let item = auxl.FindInScene(child);
 	//Parent
-	let to = auxl.findInScene(parent);
+	let to = auxl.FindInScene(parent);
 	//Attach
 	if(!item || !to){
 		console.log('Failed to find Child or Parent');
@@ -1446,9 +1451,9 @@ this.attach = (child, parent) => {
 	}
 }
 //Remove DOM Ent from parent DOM ent
-this.detach = (child) => {
+this.Detach = (child) => {
 	//Self
-	let item = auxl.findInScene(child);
+	let item = auxl.FindInScene(child);
 	//Detach
 	if(!item){
 		console.log('Failed to find Child')
@@ -1459,7 +1464,7 @@ this.detach = (child) => {
 
 //
 //Return Random from an array
-this.randomOfArray = (array) => {
+this.RandomOfArray = (array) => {
 	return array[Math.floor(Math.random()*array.length)];
 }
 
@@ -1477,7 +1482,7 @@ this.ShallowOmit = (obj, ...keys) => {
 //
 //Color Theory Generator
 //Generate a color theory palette from a given color, color family or a random color. Exported object contains Base, Complementary, Split-complementary, Triadic, Tetradic,[ Analagous & Monochrome(]Not Yet)
-this.colorTheoryGen = (color, family) => {
+this.ColorTheoryGen = (color, family) => {
 //color accepts Hex values only at the moment, more options coming soon
 let r;
 let r0;
@@ -1754,9 +1759,9 @@ return {base, light, dark, compl, splitCompl, triadic, tetradic, analog};
 }
 /*
 'red','orange','yellow','lime','blue','cyan','magenta','maroon','olive','green','purple','teal','navy','silver','grey','black','white'
-let newColor1 = colorTheoryGen();
-let newColor1 = colorTheoryGen('#00d3d3');
-let newColor1 = colorTheoryGen(false, 'red');
+let newColor1 = ColorTheoryGen();
+let newColor1 = ColorTheoryGen('#00d3d3');
+let newColor1 = ColorTheoryGen(false, 'red');
 console.log(newColor1.base);
 console.log(newColor1.compl);
 console.log(newColor1.splitCompl[0]);
@@ -1775,7 +1780,7 @@ console.log(newColor1.analog[2]);
 //Name Generator
 
 //Check for Duplicate Object
-this.checkDupeName = (id) => {
+this.CheckDupeName = (id) => {
 	let name = id;
 	let num = -1;
 	idRandomize: while (true){
@@ -1792,13 +1797,13 @@ this.checkDupeName = (id) => {
 	}
 }
 //Randomly Generate a Name
-this.ranNameGen = (length, prefix) => {
+this.RanNameGen = (length, prefix) => {
 	let name = '';
 	let alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
 	let nameLength = (length)? nameLength = Math.floor(Math.random()*length): nameLength = Math.floor(Math.random()*12)+4;
 
 	for(let letter = 0; letter < nameLength; letter++){
-		name += auxl.randomOfArray(alphabet);
+		name += auxl.RandomOfArray(alphabet);
 	}
 	name = (prefix)? prefix+name: name;
 	return name;
@@ -1806,7 +1811,7 @@ this.ranNameGen = (length, prefix) => {
 
 //
 //Pronoun Speech Assist
-this.pronoun = (sex) => {
+this.Pronoun = (sex) => {
 	let you = {};
 		if(sex === 'male'){
 			you.sex = 'male';
@@ -1825,7 +1830,7 @@ this.pronoun = (sex) => {
 
 //
 //Find ObjGen Type/Data Name
-this.objGenType = (auxlObj) => {
+this.ObjGenType = (auxlObj) => {
 	if(typeof auxlObj === 'string'){
 		return Object.keys(auxl[auxlObj])[0];
 	} else {
@@ -1837,11 +1842,11 @@ this.objGenType = (auxlObj) => {
 //Positioning
 
 //Function to calculate distance between two points
-this.distance = (x1, z1, x2, z2) => {
+this.Distance = (x1, z1, x2, z2) => {
 	return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(z2 - z1, 2) * 1.0);
 }
 //Return a random position within Ring radius
-this.randomPosition = (radius, yPos) => {
+this.RandomPosition = (radius, yPos) => {
 	let posX = Math.random() * (radius*2) - radius;
 	let posY = (yPos) ? yPos : Math.random() * (radius*2) - radius;
 	let posZ = Math.random() * (radius*2) - radius;
@@ -1899,12 +1904,12 @@ this.Core = (data) => {
 //Duplicate Core Data, Core, Layer Data or Layer
 
 //Generate new Core Data from Template
-this.coreDataFromTemplate = (data, edit, assign) => {
-	return coreDataFromTemplate(auxl, data, edit, assign);
+this.CoreDataFromTemplate = (data, edit, assign) => {
+	return CoreDataFromTemplate(auxl, data, edit, assign);
 }
 //Generate new Core from Template
-this.coreFromTemplate = (core, edit, assign) => {
-	return coreFromTemplate(auxl, core, edit, assign);
+this.CoreFromTemplate = (core, edit, assign) => {
+	return CoreFromTemplate(auxl, core, edit, assign);
 }
 
 //
@@ -1915,12 +1920,12 @@ this.Layer = (id, all, update) => {
 }
 
 //Generate new Layer from Layer Data Template
-this.layerDataFromTemplate = (layer, coreBaseName, changeParent, layerConfig, assign) => {
-	return layerDataFromTemplate(auxl, layer, coreBaseName, changeParent, layerConfig, assign);
+this.LayerDataFromTemplate = (layer, coreBaseName, changeParent, layerConfig, assign) => {
+	return LayerDataFromTemplate(auxl, layer, coreBaseName, changeParent, layerConfig, assign);
 }
 //Generate new Layer from Layer Template
-this.layerFromTemplate = (layer, id, changeParent, layerConfig, assign) => {
-	return layerFromTemplate(auxl, layer, id, changeParent, layerConfig, assign);
+this.LayerFromTemplate = (layer, id, changeParent, layerConfig, assign) => {
+	return LayerFromTemplate(auxl, layer, id, changeParent, layerConfig, assign);
 }
 
 //
@@ -1946,12 +1951,12 @@ this.Companion = (id, object, inventory) => {
 	return Companion(auxl, id, object, inventory);
 }
 
-
+/*
 //Powers
 this.Powers = (id, data, one, core, layer) => {
 	return Powers(auxl, id, data, one, core, layer);
 }
-
+*/
 //
 //Scenes
 
@@ -2007,11 +2012,6 @@ this.MultiMenu = (multiMenuData) => {
 this.MegaMenu = (...multiMenuData) => {
 	return MegaMenu(auxl, ...multiMenuData);
 }
-
-
-
-
-
 
 //
 //Quick Hover Menu

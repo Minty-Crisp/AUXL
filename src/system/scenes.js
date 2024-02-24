@@ -155,14 +155,14 @@ if(auxl[auxl.running[ran].name].GetEl){
 	const ClearScene = () => {
 		Exit();
 		ClearSceneTimeIntEvt();
-		auxl.clearSpawned(auxl.nodeSpawned);
+		auxl.ClearSpawned(auxl.nodeSpawned);
 	}
 	//Run Object Generator Function within NodeScene w/Scene Tracking
 	const auxlObjMethod = (object, func, params) => {
 		//Check if spawning to add to Tracker
 		for (let types in auxl.objGenTracking) {
 			if(func === auxl.objGenTracking[types].spawn || func === auxl.objGenTracking[types].altSpawn){
-				auxl.spawnTracker(object, 'node');
+				auxl.SpawnTracker(object, 'node');
 			}
 		}
 		auxl[object][func](params);
@@ -581,7 +581,7 @@ console.log({object, relay, method, params})
 			clearTimeout(loadTimeout);
 		}, minLoadTime);
 		auxl.local.location.scene = core.info.id;
-		auxl.saveToProfile();
+		auxl.SaveToProfile();
 		if(auxl.local.location.load){
 			auxl.local.location.load = false;
 		}
@@ -719,7 +719,7 @@ const MapZone = (auxl, mapZoneData) => {
 		//Check if spawning to add to Tracker
 		for (let types in auxl.objGenTracking) {
 			if(func === auxl.objGenTracking[types].spawn || func === auxl.objGenTracking[types].altSpawn){
-				auxl.spawnTracker(object, 'zone');
+				auxl.SpawnTracker(object, 'zone');
 			}
 		}
 		auxl[object][func](params);
@@ -1012,7 +1012,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 	}
 	//Zone Music
 	const ZoneMusic = () => {
-		if(auxl.audioEnabled && auxl.backgroundAudio && !auxl.isFalsey(core.info.backgroundAudio)){
+		if(auxl.audioEnabled && auxl.backgroundAudio && !auxl.IsFalsey(core.info.backgroundAudio)){
 			//core.info.backgroundAudio
 			auxl.currentWorld.MusicPlaylist(core.info.backgroundAudio);
 		} else if(core.info.backgroundAudio === 'none'){
@@ -1230,7 +1230,7 @@ auxlObjMethod(auxl.zoneRunning[ran].object,auxl.zoneRunning[ran].method,auxl.zon
 		Exit();
 		ClearZoneTimeIntEvt();
 		RemoveControls();
-		auxl.clearSpawned(auxl.zoneSpawned);
+		auxl.ClearSpawned(auxl.zoneSpawned);
 		if(core.displayBasicTravelMenu){
 			core.mapMenu.DespawnMenu();
 		}
@@ -1413,7 +1413,7 @@ const Scenario = (auxl, scenarioData) => {
 		//Check if spawning to add to Tracker
 		for (let types in auxl.objGenTracking) {
 			if(func === auxl.objGenTracking[types].spawn || func === auxl.objGenTracking[types].altSpawn){
-				auxl.spawnTracker(object, 'scenario');
+				auxl.SpawnTracker(object, 'scenario');
 			}
 		}
 		auxl[object][func](params);
@@ -1757,7 +1757,7 @@ auxlObjMethod(auxl.scenarioRunning[ran].object,auxl.scenarioRunning[ran].method,
 		Exit();
 		ClearScenarioTimeIntEvt();
 		RemoveControls();
-		auxl.clearSpawned(auxl.scenarioSpawned);
+		auxl.ClearSpawned(auxl.scenarioSpawned);
 
 		core.scenarioLoaded = false;
 	}
@@ -1947,7 +1947,7 @@ const World = (auxl, worldData) => {
 			auxl.playerAudio.GetEl().components['auxlsound__'+world.soundtrack].stopSound();
 			world.soundtrack = false;
 		}
-		if(!auxl.isFalsey(track)){
+		if(!auxl.IsFalsey(track)){
 			//Play new if exists
 			if(world.soundtracks.hasOwnProperty(track)){
 				auxl.playerAudio.EmitEvent(track);

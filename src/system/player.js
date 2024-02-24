@@ -237,8 +237,8 @@ const Player = (auxl, id, layer, data) => {
 ['look-at-xyz']:{match: 'camera', x:true, y:true, z:true},
 			},
 		}; 
-		layer.raycasters.hmdmouse.linkCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hmdmouse.linkCoreData, false, true));
-		layer.raycasters.hmdmouse.linkAnchor = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hmdmouse.linkCoreData, {id: 'hmdLinkAnchor',
+		layer.raycasters.hmdmouse.linkCore = auxl.Core(auxl.CoreDataFromTemplate(layer.raycasters.hmdmouse.linkCoreData, false, true));
+		layer.raycasters.hmdmouse.linkAnchor = auxl.Core(auxl.CoreDataFromTemplate(layer.raycasters.hmdmouse.linkCoreData, {id: 'hmdLinkAnchor',
 			geometry: {primitive: 'ring', radiusInner: 0.25, radiusOuter: 0.35},
 			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.69, side: 'double'},
 }, true));
@@ -254,7 +254,7 @@ const Player = (auxl, id, layer, data) => {
 		layer.raycasters.hmdmouse.linkConstraint = auxl.Constraints(layer.raycasters.hmdmouse.linkCore, layer.raycasters.hmdmouse.linkConfig, false)
 		//Bullets
 		layer.raycasters.hmdmouse.bullets = [];
-		layer.raycasters.hmdmouse.bulletCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hmdmouse.linkCoreData, {id: 'hmdbulletCore', geometry: {primitive: 'sphere', radius: 0.2,}, material: {shader: "standard", color: "#d8f020", emissive: '#d8f020', emissiveIntensity: 0.25, opacity: 0.75,}, components: { body:{type: 'dynamic', shape: 'sphere', mass: 1,}, bodymaterial: {friction: 1, restitution: 0.01}, }, }, true));
+		layer.raycasters.hmdmouse.bulletCore = auxl.Core(auxl.CoreDataFromTemplate(layer.raycasters.hmdmouse.linkCoreData, {id: 'hmdbulletCore', geometry: {primitive: 'sphere', radius: 0.2,}, material: {shader: "standard", color: "#d8f020", emissive: '#d8f020', emissiveIntensity: 0.25, opacity: 0.75,}, components: { body:{type: 'dynamic', shape: 'sphere', mass: 1,}, bodymaterial: {friction: 1, restitution: 0.01}, }, }, true));
 
 		//Force
 		//Grab List
@@ -262,22 +262,22 @@ const Player = (auxl, id, layer, data) => {
 
 		//Bullets
 		//Bullet 0
-		layer.raycasters.hmdmouse.bullet0 = auxl.coreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet0', }, true);
+		layer.raycasters.hmdmouse.bullet0 = auxl.CoreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet0', }, true);
 		layer.raycasters.hmdmouse.bullets.push( layer.raycasters.hmdmouse.bullet0)
 		//Bullet 1
-		layer.raycasters.hmdmouse.bullet1 = auxl.coreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet1', }, true);
+		layer.raycasters.hmdmouse.bullet1 = auxl.CoreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet1', }, true);
 		layer.raycasters.hmdmouse.bullets.push( layer.raycasters.hmdmouse.bullet1)
 		//Bullet 2
-		layer.raycasters.hmdmouse.bullet2 = auxl.coreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet2', }, true);
+		layer.raycasters.hmdmouse.bullet2 = auxl.CoreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet2', }, true);
 		layer.raycasters.hmdmouse.bullets.push( layer.raycasters.hmdmouse.bullet2)
 		//Bullet 3
-		layer.raycasters.hmdmouse.bullet3 = auxl.coreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet3', }, true);
+		layer.raycasters.hmdmouse.bullet3 = auxl.CoreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet3', }, true);
 		layer.raycasters.hmdmouse.bullets.push( layer.raycasters.hmdmouse.bullet3)
 		//Bullet 4
-		layer.raycasters.hmdmouse.bullet4 = auxl.coreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet4', }, true);
+		layer.raycasters.hmdmouse.bullet4 = auxl.CoreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet4', }, true);
 		layer.raycasters.hmdmouse.bullets.push( layer.raycasters.hmdmouse.bullet4)
 		//Bullet 5
-		layer.raycasters.hmdmouse.bullet5 = auxl.coreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet5', }, true);
+		layer.raycasters.hmdmouse.bullet5 = auxl.CoreFromTemplate(layer.raycasters.hmdmouse.bulletCore, {id: 'hmdbullet5', }, true);
 		layer.raycasters.hmdmouse.bullets.push( layer.raycasters.hmdmouse.bullet5)
 
 		//Hand 1
@@ -314,8 +314,8 @@ const Player = (auxl, id, layer, data) => {
 ['look-at-xyz']:{match: 'camera', x:true, y:true, z:true},
 			},
 		};
-		layer.raycasters.hand1.linkCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand1.linkCoreData, false, true));
-		layer.raycasters.hand1.linkAnchor = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand1.linkCoreData, {id: 'hand1LinkAnchor', 
+		layer.raycasters.hand1.linkCore = auxl.Core(auxl.CoreDataFromTemplate(layer.raycasters.hand1.linkCoreData, false, true));
+		layer.raycasters.hand1.linkAnchor = auxl.Core(auxl.CoreDataFromTemplate(layer.raycasters.hand1.linkCoreData, {id: 'hand1LinkAnchor', 
 			geometry: {primitive: 'ring', radiusInner: 0.25, radiusOuter: 0.35},
 			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.69, side: 'double'},
 }, true));
@@ -331,7 +331,7 @@ const Player = (auxl, id, layer, data) => {
 		layer.raycasters.hand1.linkConstraint = auxl.Constraints(layer.raycasters.hand1.linkCore, layer.raycasters.hand1.linkConfig, false)
 		//Bullets
 		layer.raycasters.hand1.bullets = [];
-		layer.raycasters.hand1.bulletCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand1.linkCoreData, {id: 'hmdbulletCore', geometry: {primitive: 'sphere', radius: 0.2,}, material: {shader: "standard", color: "#2dba74", emissive: '#2dba74', emissiveIntensity: 0.25, opacity: 0.5, blending: 'multiply'}, components: { body:{type: 'dynamic', shape: 'sphere', mass: 1,}, bodymaterial: {friction: 1, restitution: 0.01}, }, }, true));
+		layer.raycasters.hand1.bulletCore = auxl.Core(auxl.CoreDataFromTemplate(layer.raycasters.hand1.linkCoreData, {id: 'hmdbulletCore', geometry: {primitive: 'sphere', radius: 0.2,}, material: {shader: "standard", color: "#2dba74", emissive: '#2dba74', emissiveIntensity: 0.25, opacity: 0.5, blending: 'multiply'}, components: { body:{type: 'dynamic', shape: 'sphere', mass: 1,}, bodymaterial: {friction: 1, restitution: 0.01}, }, }, true));
 
 		//Force
 		//Grab List
@@ -339,22 +339,22 @@ const Player = (auxl, id, layer, data) => {
 
 		//Bullets
 		//Bullet 0
-		layer.raycasters.hand1.bullet0 = auxl.coreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet0', }, true);
+		layer.raycasters.hand1.bullet0 = auxl.CoreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet0', }, true);
 		layer.raycasters.hand1.bullets.push( layer.raycasters.hand1.bullet0)
 		//Bullet 1
-		layer.raycasters.hand1.bullet1 = auxl.coreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet1', }, true);
+		layer.raycasters.hand1.bullet1 = auxl.CoreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet1', }, true);
 		layer.raycasters.hand1.bullets.push( layer.raycasters.hand1.bullet1)
 		//Bullet 2
-		layer.raycasters.hand1.bullet2 = auxl.coreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet2', }, true);
+		layer.raycasters.hand1.bullet2 = auxl.CoreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet2', }, true);
 		layer.raycasters.hand1.bullets.push( layer.raycasters.hand1.bullet2)
 		//Bullet 3
-		layer.raycasters.hand1.bullet3 = auxl.coreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet3', }, true);
+		layer.raycasters.hand1.bullet3 = auxl.CoreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet3', }, true);
 		layer.raycasters.hand1.bullets.push( layer.raycasters.hand1.bullet3)
 		//Bullet 4
-		layer.raycasters.hand1.bullet4 = auxl.coreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet4', }, true);
+		layer.raycasters.hand1.bullet4 = auxl.CoreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet4', }, true);
 		layer.raycasters.hand1.bullets.push( layer.raycasters.hand1.bullet4)
 		//Bullet 5
-		layer.raycasters.hand1.bullet5 = auxl.coreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet5', }, true);
+		layer.raycasters.hand1.bullet5 = auxl.CoreFromTemplate(layer.raycasters.hand1.bulletCore, {id: 'hand1bullet5', }, true);
 		layer.raycasters.hand1.bullets.push( layer.raycasters.hand1.bullet5)
 
 		//Hand 2
@@ -391,8 +391,8 @@ const Player = (auxl, id, layer, data) => {
 ['look-at-xyz']:{match: 'camera', x:true, y:true, z:true},
 			},
 		};
-		layer.raycasters.hand2.linkCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand2.linkCoreData, false, true));
-		layer.raycasters.hand2.linkAnchor = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand2.linkCoreData, {id: 'hand2LinkAnchor', 
+		layer.raycasters.hand2.linkCore = auxl.Core(auxl.CoreDataFromTemplate(layer.raycasters.hand2.linkCoreData, false, true));
+		layer.raycasters.hand2.linkAnchor = auxl.Core(auxl.CoreDataFromTemplate(layer.raycasters.hand2.linkCoreData, {id: 'hand2LinkAnchor', 
 			geometry: {primitive: 'ring', radiusInner: 0.25, radiusOuter: 0.35},
 			material: {shader: "standard", color: "#eb07a5", emissive: '#eb07a5', emissiveIntensity: 0.25, opacity: 0.69, side: 'double'},
 }, true));
@@ -408,7 +408,7 @@ const Player = (auxl, id, layer, data) => {
 		layer.raycasters.hand2.linkConstraint = auxl.Constraints(layer.raycasters.hand2.linkCore, layer.raycasters.hand2.linkConfig, false)
 		//Bullets
 		layer.raycasters.hand2.bullets = [];
-		layer.raycasters.hand2.bulletCore = auxl.Core(auxl.coreDataFromTemplate(layer.raycasters.hand2.linkCoreData, {id: 'hand2bulletCore', geometry: {primitive: 'sphere', radius: 0.2,}, material: {shader: "standard", color: "#d02caa", emissive: '#d02caa', emissiveIntensity: 0.25, opacity: 0.5, blending: 'multiply'}, components: { body:{type: 'dynamic', shape: 'sphere', mass: 1,}, bodymaterial: {friction: 1, restitution: 0.01}, }, }, true));
+		layer.raycasters.hand2.bulletCore = auxl.Core(auxl.CoreDataFromTemplate(layer.raycasters.hand2.linkCoreData, {id: 'hand2bulletCore', geometry: {primitive: 'sphere', radius: 0.2,}, material: {shader: "standard", color: "#d02caa", emissive: '#d02caa', emissiveIntensity: 0.25, opacity: 0.5, blending: 'multiply'}, components: { body:{type: 'dynamic', shape: 'sphere', mass: 1,}, bodymaterial: {friction: 1, restitution: 0.01}, }, }, true));
 
 		//Force
 		//Grab List
@@ -416,22 +416,22 @@ const Player = (auxl, id, layer, data) => {
 
 		//Bullets
 		//Bullet 0
-		layer.raycasters.hand2.bullet0 = auxl.coreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet0', }, true);
+		layer.raycasters.hand2.bullet0 = auxl.CoreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet0', }, true);
 		layer.raycasters.hand2.bullets.push( layer.raycasters.hand2.bullet0)
 		//Bullet 1
-		layer.raycasters.hand2.bullet1 = auxl.coreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet1', }, true);
+		layer.raycasters.hand2.bullet1 = auxl.CoreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet1', }, true);
 		layer.raycasters.hand2.bullets.push( layer.raycasters.hand2.bullet1)
 		//Bullet 2
-		layer.raycasters.hand2.bullet2 = auxl.coreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet2', }, true);
+		layer.raycasters.hand2.bullet2 = auxl.CoreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet2', }, true);
 		layer.raycasters.hand2.bullets.push( layer.raycasters.hand2.bullet2)
 		//Bullet 3
-		layer.raycasters.hand2.bullet3 = auxl.coreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet3', }, true);
+		layer.raycasters.hand2.bullet3 = auxl.CoreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet3', }, true);
 		layer.raycasters.hand2.bullets.push( layer.raycasters.hand2.bullet3)
 		//Bullet 4
-		layer.raycasters.hand2.bullet4 = auxl.coreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet4', }, true);
+		layer.raycasters.hand2.bullet4 = auxl.CoreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet4', }, true);
 		layer.raycasters.hand2.bullets.push( layer.raycasters.hand2.bullet4)
 		//Bullet 5
-		layer.raycasters.hand2.bullet5 = auxl.coreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet5', }, true);
+		layer.raycasters.hand2.bullet5 = auxl.CoreFromTemplate(layer.raycasters.hand2.bulletCore, {id: 'hand2bullet5', }, true);
 		layer.raycasters.hand2.bullets.push( layer.raycasters.hand2.bullet5)
 	}
 	GenRaycasters();
@@ -493,9 +493,6 @@ const Player = (auxl, id, layer, data) => {
 	];
 	//layer.scroll.mainCurrent = 0;
 	//layer.scroll.roamCurrent = 0;
-
-	//Camera Rig Height Manual Adjustment
-	layer.CamRigHeight = 0;
 
 	//Handle 1st & 3rd Pov Toggle
 	function zoomDirection(zoom){
@@ -727,6 +724,9 @@ const Player = (auxl, id, layer, data) => {
 		auxl.blink2Screen.ChangeSelf({property: 'material', value:{color: newColor}});
 	}
 
+
+	//Camera Rig Height Manual Adjustment
+	layer.CamRigHeight = 0;
 	//Camera Rig Fine Tuning
 	const CamRigAdjust = (dir) => {
 		let offset = 0;
@@ -763,6 +763,8 @@ auxl.avatarHand2.ChangeSelf({property: 'kinsync', value: {offset: new THREE.Vect
 auxl.avatarHand1.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.35,0.6 + layer.CamRigHeight,0)})
 auxl.avatarHand2.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.35,0.6 + layer.CamRigHeight,0)})
 		}
+		//Update Companion Look Direction
+		auxl.comp.TurnToPlayer();
 	}
 
 	//Quick Snap Rotation
@@ -1733,7 +1735,7 @@ auxl.avatarHand2.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.3
 		rayEl.object3D.localToWorld(localPosition);
 
 		//Parent Coordinate Adjustment
-		let parentEl = auxl.findInScene(parent);
+		let parentEl = auxl.FindInScene(parent);
 
 		// Get Ray Position
 		if(rayEl.id === 'camera') {
@@ -2091,28 +2093,6 @@ if(layer.raycaster.display){
 			PowersUp(event)
 		}
 	}
-
-	//ControllerEvents is Disabled - Moved into Component. Confirm is working
-	//Mouse Over Controller Events
-	const ControllerEvents = (event) => {
-//technically headcursor/mouse/gyro/trackpad/joystick
-auxl.mouseController.GetEl().addEventListener('mouseleave', TriggerLeave(event));
-auxl.mouseController.GetEl().addEventListener('mouseenter', TriggerEnter(event));
-//auxl.mouseController.GetEl().addEventListener('mousedown', TriggerDown(event));
-//auxl.mouseController.GetEl().addEventListener('mouseup', TriggerUp(event));
-
-auxl.vrController1.GetEl().addEventListener('mouseleave', TriggerLeave(event));
-auxl.vrController1.GetEl().addEventListener('mouseenter', TriggerEnter(event));
-//auxl.vrController1.GetEl().addEventListener('mousedown', TriggerDown(event));
-//auxl.vrController1.GetEl().addEventListener('mouseup', TriggerUp(event));
-
-auxl.vrController2.GetEl().addEventListener('mouseleave', TriggerLeave(event));
-auxl.vrController2.GetEl().addEventListener('mouseenter', TriggerEnter(event));
-//auxl.vrController2.GetEl().addEventListener('mousedown', TriggerDown(event));
-//auxl.vrController2.GetEl().addEventListener('mouseup', TriggerUp(event));
-
-	}
-	//ControllerEvents();
 
 	//Modifier Controls
 	layer.raycasters.hmdmouse.mods = {};
@@ -4477,15 +4457,11 @@ const Companion = (auxl, id, object, inventory) => {
 	//Minimum spawning distance
 	let minSpawnDistance = 1.5;
 
-
-	//!!!!!!!!!!!!!!!!!
-	//Move into Player
-	//UpAxis
-	//TurnToPlayer
-
 	//Fixed height Ray direction
 	function rayDirection(ray){
-		let rayEl = ray || auxl.camera.GetEl();
+		//Doesn't work properly with vrController rays most likely due to different rotations and thus different local coordinates between raycaster and headRig which Companion is attached to.
+		//let rayEl = ray || auxl.camera.GetEl();
+		let rayEl = auxl.camera.GetEl();
 
 		let direction = new THREE.Vector3().copy(auxl.player.RayCoord(rayEl, comp.distance, new THREE.Vector3(0,0,-1)).direction);
 
@@ -4509,36 +4485,15 @@ const Companion = (auxl, id, object, inventory) => {
 	const TurnToPlayer = () => {
 		let position = new THREE.Vector3();
 		auxl.headRig.GetEl().object3D.getWorldPosition(position)
+
 		let up = UpAxis().clone();
 		up.multiplyScalar(auxl.camera.GetEl().object3D.position.y)
-		position.add(new THREE.Vector3(0,1.6,0))
+
+		let height = auxl.camera.GetEl().object3D.position.y;
+		position.add(new THREE.Vector3(0,height,0))
+
 		auxl.comp.GetEl().object3D.up.copy(up);
 		auxl.comp.GetEl().object3D.lookAt(position);
-
-/*
-	//Get Position of Stare Object
-	this.idPosition = new THREE.Vector3();
-	this.idPosition.copy(document.getElementById(this.data.id).object3D.position);
-	//If player, add current camera height
-	if(this.data.id === 'playerRig'){
-		this.idPosition.y += (document.getElementById('camera').object3D.position.y + document.getElementById('playerBody').object3D.position.y);
-	}
-	//Twist will not look up or down
-	if(this.data.twist){
-		this.idPosition.y = this.el.object3D.position.y;
-	}
-	this.el.object3D.lookAt(this.idPosition);
-
-auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
-
-		let position = new THREE.Vector3().copy(auxl.camera.GetEl().object3D.position);
-		let up = UpAxis().clone();
-		up.multiplyScalar(auxl.camera.GetEl().object3D.position.y)
-		//position.add(up)
-		auxl.comp.GetEl().object3D.up.copy(up);
-		auxl.comp.GetEl().object3D.lookAt(position);
-*/
-
 	}
 
 
@@ -4714,13 +4669,11 @@ auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
 	//Drag To Position
 	let dragInterval;
 	const DragToPosition = (toggle) => {
-		if(auxl.isFalsey(toggle)){
+		if(auxl.IsFalsey(toggle)){
 			clearInterval(dragInterval);
 		} else {
 			clearInterval(dragInterval);
 			dragInterval = setInterval(() => {
-
-//Check for vr controller clicking and use that to detect direction
 				if(comp.avatarType === 'core'){
 					comp.avatar.ChangeSelf({property: 'position', value: rayDirection(toggle)});
 				} else {
@@ -4796,11 +4749,11 @@ auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
 				comp[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: comp.id, type: 'comp', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
+				auxl.SaveToProfile({auxlObject: comp.id, type: 'comp', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			comp[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: comp.id, type: 'comp', sub: false, name: flagValue.flag, data: flagValue.value});
+			auxl.SaveToProfile({auxlObject: comp.id, type: 'comp', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -4978,7 +4931,7 @@ auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
 			} else {
 				comp[item.category][item.name] = item;
 			}
-			auxl.saveToProfile({auxlObject: comp.id, type: 'comp', sub: item.category, name: item.name, data: item});
+			auxl.SaveToProfile({auxlObject: comp.id, type: 'comp', sub: item.category, name: item.name, data: item});
 		}
 		if(Array.isArray(item)){
 			for(let each in item){
@@ -5025,7 +4978,7 @@ auxl.player.RayDir(auxl.camera.GetEl(), 1.5).position
 			} else {
 				delete comp[item.category][item.name];
 			}
-			auxl.saveToProfile({auxlObject: comp.id, type: 'comp', sub: item.category, name: item.name, data: item});
+			auxl.SaveToProfile({auxlObject: comp.id, type: 'comp', sub: item.category, name: item.name, data: item});
 		}
 		if(Array.isArray(item)){
 			for(let each in item){

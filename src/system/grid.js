@@ -1659,16 +1659,16 @@ original.splice(original.indexOf(each), 1);
 		let length = (grid.size/2) +2.5;
 
 		//North
-		grid.edges.northEdge = auxl.coreFromTemplate(grid.edge,{id: 'northEdge', geometry: {primitive: 'box', depth: 0.5, width: length, height: 0.5}, position: new THREE.Vector3(0,0.25,pos*-1)}, true);
+		grid.edges.northEdge = auxl.CoreFromTemplate(grid.edge,{id: 'northEdge', geometry: {primitive: 'box', depth: 0.5, width: length, height: 0.5}, position: new THREE.Vector3(0,0.25,pos*-1)}, true);
 		grid.edges.northEdge.SpawnCore();
 		//South
-		grid.edges.southEdge = auxl.coreFromTemplate(grid.edge,{id: 'southEdge', geometry: {primitive: 'box', depth: 0.5, width: length, height: 0.5}, position: new THREE.Vector3(0,0.25,pos)}, true);
+		grid.edges.southEdge = auxl.CoreFromTemplate(grid.edge,{id: 'southEdge', geometry: {primitive: 'box', depth: 0.5, width: length, height: 0.5}, position: new THREE.Vector3(0,0.25,pos)}, true);
 		grid.edges.southEdge.SpawnCore();
 		//West
-		grid.edges.westEdge = auxl.coreFromTemplate(grid.edge,{id: 'westEdge', geometry: {primitive: 'box', depth: length, width: 0.5, height: 0.5}, position: new THREE.Vector3(pos*-1,0.25,0)}, true);
+		grid.edges.westEdge = auxl.CoreFromTemplate(grid.edge,{id: 'westEdge', geometry: {primitive: 'box', depth: length, width: 0.5, height: 0.5}, position: new THREE.Vector3(pos*-1,0.25,0)}, true);
 		grid.edges.westEdge.SpawnCore();
 		//East
-		grid.edges.eastEdge = auxl.coreFromTemplate(grid.edge,{id: 'eastEdge', geometry: {primitive: 'box', depth: length, width: 0.5, height: 0.5}, position: new THREE.Vector3(pos,0.25,0)}, true);
+		grid.edges.eastEdge = auxl.CoreFromTemplate(grid.edge,{id: 'eastEdge', geometry: {primitive: 'box', depth: length, width: 0.5, height: 0.5}, position: new THREE.Vector3(pos,0.25,0)}, true);
 		grid.edges.eastEdge.SpawnCore();
 
 		grid.edgeSpawned = true;
@@ -1945,18 +1945,18 @@ const GridLayout = (auxl, gridLayoutData) => {
 			let obj = {};
 
 			if(gridLayout.type === 'coreData'){
-				data = auxl.coreDataFromTemplate(gridLayout.coreData,{id: gridLayout.id+each}, true);
+				data = auxl.CoreDataFromTemplate(gridLayout.coreData,{id: gridLayout.id+each}, true);
 				obj = auxl.Core(data);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'core'){
-				obj = auxl.coreFromTemplate(gridLayout.core,{id: gridLayout.id+each}, true);
+				obj = auxl.CoreFromTemplate(gridLayout.core,{id: gridLayout.id+each}, true);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'layerData'){
-				data = auxl.layerDataFromTemplate(gridLayout.layerData,{id: gridLayout.id+each}, false, true);
+				data = auxl.LayerDataFromTemplate(gridLayout.layerData,{id: gridLayout.id+each}, false, true);
 				obj = auxl.Layer(gridLayout.id+'layer', data);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'layer'){
-				obj = auxl.layerFromTemplate(gridLayout.layer, gridLayout.id+each, {id: gridLayout.id+each}, false, true);
+				obj = auxl.LayerFromTemplate(gridLayout.layer, gridLayout.id+each, {id: gridLayout.id+each}, false, true);
 				gridLayout.objs.push(obj);
 			}
 		}
@@ -1979,18 +1979,18 @@ const GridLayout = (auxl, gridLayoutData) => {
 			let obj = {};
 
 			if(gridLayout.type === 'coreData'){
-				data = auxl.coreDataFromTemplate(gridLayout.coreData[current],{id: gridLayout.id+each}, true);
+				data = auxl.CoreDataFromTemplate(gridLayout.coreData[current],{id: gridLayout.id+each}, true);
 				obj = auxl.Core(data);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'core'){
-				obj = auxl.coreFromTemplate(gridLayout.core[current],{id: gridLayout.id+each}, true);
+				obj = auxl.CoreFromTemplate(gridLayout.core[current],{id: gridLayout.id+each}, true);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'layerData'){
-				data = auxl.layerDataFromTemplate(gridLayout.layerData[current],{id: gridLayout.id+each}, false, true);
+				data = auxl.LayerDataFromTemplate(gridLayout.layerData[current],{id: gridLayout.id+each}, false, true);
 				obj = auxl.Layer(gridLayout.id+'layer', data);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'layer'){
-				obj = auxl.layerFromTemplate(gridLayout.layer[current], gridLayout.id+each, {id: gridLayout.id+each}, false, true);
+				obj = auxl.LayerFromTemplate(gridLayout.layer[current], gridLayout.id+each, {id: gridLayout.id+each}, false, true);
 				gridLayout.objs.push(obj);
 			}
 			current++
@@ -2027,7 +2027,7 @@ const GridLayout = (auxl, gridLayoutData) => {
 
 			//Color
 			if(gridLayout.colorShade){
-				color = auxl.colorTheoryGen(false, gridLayout.colorShade).base;
+				color = auxl.ColorTheoryGen(false, gridLayout.colorShade).base;
 			}
 			//Repeat
 			if(gridLayout.minRepeatX && gridLayout.maxRepeatX){
@@ -2047,7 +2047,7 @@ const GridLayout = (auxl, gridLayoutData) => {
 
 
 			if(gridLayout.type === 'data'){
-				data = auxl.coreDataFromTemplate(gridLayout.data,{id: gridLayout.id+a, grid: gridLayout.grid[a]}, true);
+				data = auxl.CoreDataFromTemplate(gridLayout.data,{id: gridLayout.id+a, grid: gridLayout.grid[a]}, true);
 //Color
 if(color){
 	data.material.color = color;
@@ -2071,10 +2071,10 @@ if(repeatX || repeatZ){
 				obj = auxl.Core(data);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'core'){
-				obj = auxl.coreFromTemplate(gridLayout.core,{id: gridLayout.id+a, grid: gridLayout.grid[a]}, true);
+				obj = auxl.CoreFromTemplate(gridLayout.core,{id: gridLayout.id+a, grid: gridLayout.grid[a]}, true);
 				gridLayout.objs.push(obj);
 			} else if(gridLayout.type === 'layer'){
-				obj = auxl.layerFromTemplate(gridLayout.layer, gridLayout.id+a, {id: gridLayout.id+a}, {grid: gridLayout.grid[a]}, true);
+				obj = auxl.LayerFromTemplate(gridLayout.layer, gridLayout.id+a, {id: gridLayout.id+a}, {grid: gridLayout.grid[a]}, true);
 				gridLayout.objs.push(obj);
 			}
 		}

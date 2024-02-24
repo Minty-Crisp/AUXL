@@ -87,7 +87,7 @@ auxl.dollPelvis = auxl.Core(auxl.dollPelvisData);
 
 
 //Doll Head
-auxl.dollHeadData = auxl.coreDataFromTemplate(auxl.dollPelvisData, {id: 'dollHead', geometry: {primitive: 'dodecahedron', radius: 0.1, detail: 0}, position: new THREE.Vector3(0,1.6,0), rotation: new THREE.Vector3(0,0,0),
+auxl.dollHeadData = auxl.CoreDataFromTemplate(auxl.dollPelvisData, {id: 'dollHead', geometry: {primitive: 'dodecahedron', radius: 0.1, detail: 0}, position: new THREE.Vector3(0,1.6,0), rotation: new THREE.Vector3(0,0,0),
 components: {
 	['ammo-body']:{type: 'dynamic', linearDamping: 0.05, angularDamping: 0.85, linearSleepingThreshold : 0.4, angularSleepingThreshold : 0.5, },
 	['ammo-shape']:{type: 'box',},
@@ -96,7 +96,7 @@ components: {
 auxl.dollHead = auxl.Core(auxl.dollHeadData);
 
 //Doll Torso
-auxl.dollTorsoData = auxl.coreDataFromTemplate(auxl.dollPelvisData, {id: 'dollTorso', geometry: {primitive: 'box', width: 0.2, height: 0.4, depth: 0.1}, position: new THREE.Vector3(0,1.25,0), rotation: new THREE.Vector3(0,0,0),
+auxl.dollTorsoData = auxl.CoreDataFromTemplate(auxl.dollPelvisData, {id: 'dollTorso', geometry: {primitive: 'box', width: 0.2, height: 0.4, depth: 0.1}, position: new THREE.Vector3(0,1.25,0), rotation: new THREE.Vector3(0,0,0),
 components: {
 	['ammo-body']:{type: 'dynamic', linearDamping: 0.05, angularDamping: 0.85, activationState: 'disableDeactivation'},
 	['ammo-shape']:{type: 'box',},
@@ -110,7 +110,7 @@ auxl.dollTorso = auxl.Core(auxl.dollTorsoData);
 
 
 //Doll Left Upper Leg
-auxl.dollLeftUpperLegData = auxl.coreDataFromTemplate(auxl.dollPelvisData, {id: 'dollLeftUpperLeg', geometry: {primitive: 'box', width: 0.07, height: 0.3, depth: 0.1}, position: new THREE.Vector3(-0.05,0.75,0), rotation: new THREE.Vector3(0,0,0),
+auxl.dollLeftUpperLegData = auxl.CoreDataFromTemplate(auxl.dollPelvisData, {id: 'dollLeftUpperLeg', geometry: {primitive: 'box', width: 0.07, height: 0.3, depth: 0.1}, position: new THREE.Vector3(-0.05,0.75,0), rotation: new THREE.Vector3(0,0,0),
 components: {
 	['ammo-body']:{type: 'dynamic', linearDamping: 0.05, angularDamping: 0.85, activationState: 'disableDeactivation'},
 	['ammo-shape']:{type: 'box',},
@@ -125,7 +125,7 @@ components: {
 auxl.dollLeftUpperLeg = auxl.Core(auxl.dollLeftUpperLegData);
 
 //Doll Left Lower Leg
-auxl.dollLeftLowerLegData = auxl.coreDataFromTemplate(auxl.dollPelvisData, {id: 'dollLeftLowerLeg', geometry: {primitive: 'box', width: 0.05, height: 0.375, depth: 0.05}, position: new THREE.Vector3(0.05,0.375,0), rotation: new THREE.Vector3(0,0,0),
+auxl.dollLeftLowerLegData = auxl.CoreDataFromTemplate(auxl.dollPelvisData, {id: 'dollLeftLowerLeg', geometry: {primitive: 'box', width: 0.05, height: 0.375, depth: 0.05}, position: new THREE.Vector3(0.05,0.375,0), rotation: new THREE.Vector3(0,0,0),
 components: {
 	['ammo-body']:{type: 'dynamic', linearDamping: 0.05, angularDamping: 0.85, activationState: 'disableDeactivation'},
 	['ammo-shape']:{type: 'box',},
@@ -134,7 +134,7 @@ components: {
 auxl.dollLeftLowerLeg = auxl.Core(auxl.dollLeftLowerLegData);
 
 //Doll Right Upper Leg
-auxl.dollRightUpperLegData = auxl.coreDataFromTemplate(auxl.dollPelvisData, {id: 'dollRightUpperLeg', geometry: {primitive: 'box', width: 0.07, height: 0.3, depth: 0.1}, position: new THREE.Vector3(0.05,0.75,0), rotation: new THREE.Vector3(0,0,0),
+auxl.dollRightUpperLegData = auxl.CoreDataFromTemplate(auxl.dollPelvisData, {id: 'dollRightUpperLeg', geometry: {primitive: 'box', width: 0.07, height: 0.3, depth: 0.1}, position: new THREE.Vector3(0.05,0.75,0), rotation: new THREE.Vector3(0,0,0),
 components: {
 	['ammo-body']:{type: 'dynamic', linearDamping: 0.05, angularDamping: 0.85, activationState: 'disableDeactivation'},
 	['ammo-shape']:{type: 'box',},
@@ -149,7 +149,7 @@ components: {
 auxl.dollRightUpperLeg = auxl.Core(auxl.dollRightUpperLegData);
 
 //Doll Right Lower Leg
-auxl.dollRightLowerLegData = auxl.coreDataFromTemplate(auxl.dollPelvisData, {id: 'dollRightLowerLeg', geometry: {primitive: 'box', width: 0.05, height: 0.375, depth: 0.05}, position: new THREE.Vector3(-0.05,0.375,0), rotation: new THREE.Vector3(0,0,0),
+auxl.dollRightLowerLegData = auxl.CoreDataFromTemplate(auxl.dollPelvisData, {id: 'dollRightLowerLeg', geometry: {primitive: 'box', width: 0.05, height: 0.375, depth: 0.05}, position: new THREE.Vector3(-0.05,0.375,0), rotation: new THREE.Vector3(0,0,0),
 components: {
 	['ammo-body']:{type: 'dynamic', linearDamping: 0.05, angularDamping: 0.85, activationState: 'disableDeactivation'},
 	['ammo-shape']:{type: 'box',},
@@ -158,7 +158,7 @@ components: {
 auxl.dollRightLowerLeg = auxl.Core(auxl.dollRightLowerLegData);
 
 //Doll Left Upper Arm
-auxl.dollLeftUpperArmData = auxl.coreDataFromTemplate(auxl.dollPelvisData, {id: 'dollLeftUpperArm', geometry: {primitive: 'box', width: 0.05, height: 0.25, depth: 0.05}, position: new THREE.Vector3(-0.15,1.3,0), rotation: new THREE.Vector3(0,0,0), 
+auxl.dollLeftUpperArmData = auxl.CoreDataFromTemplate(auxl.dollPelvisData, {id: 'dollLeftUpperArm', geometry: {primitive: 'box', width: 0.05, height: 0.25, depth: 0.05}, position: new THREE.Vector3(-0.15,1.3,0), rotation: new THREE.Vector3(0,0,0), 
 components: {
 	['ammo-body']:{type: 'dynamic', linearDamping: 0.05, angularDamping: 0.85, activationState: 'disableDeactivation'},
 	['ammo-shape']:{type: 'box',},
@@ -179,7 +179,7 @@ components: {
 auxl.dollLeftUpperArm = auxl.Core(auxl.dollLeftUpperArmData);
 
 //Doll Left Lower Arm
-auxl.dollLeftLowerArmData = auxl.coreDataFromTemplate(auxl.dollPelvisData, {id: 'dollLeftLowerArm', geometry: {primitive: 'box', width: 0.03, height: 0.3, depth: 0.1}, position: new THREE.Vector3(-0.15,1,0), rotation: new THREE.Vector3(0,0,0),
+auxl.dollLeftLowerArmData = auxl.CoreDataFromTemplate(auxl.dollPelvisData, {id: 'dollLeftLowerArm', geometry: {primitive: 'box', width: 0.03, height: 0.3, depth: 0.1}, position: new THREE.Vector3(-0.15,1,0), rotation: new THREE.Vector3(0,0,0),
 components: {
 	['ammo-body']:{type: 'dynamic', linearDamping: 0.05, angularDamping: 0.85, activationState: 'disableDeactivation'},
 	['ammo-shape']:{type: 'box',},
@@ -191,7 +191,7 @@ components: {
 auxl.dollLeftLowerArm = auxl.Core(auxl.dollLeftLowerArmData);
 
 //Doll Right Upper Arm
-auxl.dollRightUpperArmData = auxl.coreDataFromTemplate(auxl.dollPelvisData, {id: 'dollRightUpperArm', geometry: {primitive: 'box', width: 0.05, height: 0.25, depth: 0.05}, position: new THREE.Vector3(0.15,1.3,0), rotation: new THREE.Vector3(0,0,0), 
+auxl.dollRightUpperArmData = auxl.CoreDataFromTemplate(auxl.dollPelvisData, {id: 'dollRightUpperArm', geometry: {primitive: 'box', width: 0.05, height: 0.25, depth: 0.05}, position: new THREE.Vector3(0.15,1.3,0), rotation: new THREE.Vector3(0,0,0), 
 components: {
 	['ammo-body']:{type: 'dynamic', linearDamping: 0.05, angularDamping: 0.85, activationState: 'disableDeactivation'},
 	['ammo-shape']:{type: 'box',},
@@ -212,7 +212,7 @@ components: {
 auxl.dollRightUpperArm = auxl.Core(auxl.dollRightUpperArmData);
 
 //Doll Right Lower Arm
-auxl.dollRightLowerArmData = auxl.coreDataFromTemplate(auxl.dollPelvisData, {id: 'dollRightLowerArm', geometry: {primitive: 'box', width: 0.03, height: 0.3, depth: 0.05}, position: new THREE.Vector3(0.15,1,0), rotation: new THREE.Vector3(0,0,0),
+auxl.dollRightLowerArmData = auxl.CoreDataFromTemplate(auxl.dollPelvisData, {id: 'dollRightLowerArm', geometry: {primitive: 'box', width: 0.03, height: 0.3, depth: 0.05}, position: new THREE.Vector3(0.15,1,0), rotation: new THREE.Vector3(0,0,0),
 components: {
 	['ammo-body']:{type: 'dynamic', linearDamping: 0.05, angularDamping: 0.85, activationState: 'disableDeactivation'},
 	['ammo-shape']:{type: 'box',},
@@ -286,15 +286,15 @@ auxl.ammoWall1 = auxl.Core(auxl.ammoWall1Data);
 
 
 //Ammo Wall 2
-auxl.ammoWall2Data = auxl.coreDataFromTemplate(auxl.ammoWall1Data, {id: 'ammoWall2', position: new THREE.Vector3(-20,20,-4),}, true);
+auxl.ammoWall2Data = auxl.CoreDataFromTemplate(auxl.ammoWall1Data, {id: 'ammoWall2', position: new THREE.Vector3(-20,20,-4),}, true);
 auxl.ammoWall2 = auxl.Core(auxl.ammoWall2Data);
 
 //Ammo Wall 3
-auxl.ammoWall3Data = auxl.coreDataFromTemplate(auxl.ammoWall1Data, {id: 'ammoWall3', position: new THREE.Vector3(0,20,16), geometry: {primitive: 'box', width: 40, height: 40, depth: 1},}, true);
+auxl.ammoWall3Data = auxl.CoreDataFromTemplate(auxl.ammoWall1Data, {id: 'ammoWall3', position: new THREE.Vector3(0,20,16), geometry: {primitive: 'box', width: 40, height: 40, depth: 1},}, true);
 auxl.ammoWall3 = auxl.Core(auxl.ammoWall3Data);
 
 //Ammo Wall 4
-auxl.ammoWall4Data = auxl.coreDataFromTemplate(auxl.ammoWall1Data, {id: 'ammoWall4', position: new THREE.Vector3(0,20,-24), geometry: {primitive: 'box', width: 40, height: 40, depth: 1},}, true);
+auxl.ammoWall4Data = auxl.CoreDataFromTemplate(auxl.ammoWall1Data, {id: 'ammoWall4', position: new THREE.Vector3(0,20,-24), geometry: {primitive: 'box', width: 40, height: 40, depth: 1},}, true);
 auxl.ammoWall4 = auxl.Core(auxl.ammoWall4Data);
 
 
@@ -569,9 +569,9 @@ auxl.hoverhoverTarget0Data = {
 	},
 };
 auxl.hoverTarget0 = auxl.Core(auxl.hoverhoverTarget0Data);
-auxl.hoverTarget1Data = auxl.coreDataFromTemplate(auxl.hoverhoverTarget0Data, {id: 'hoverTarget1', position: new THREE.Vector3(0,3,-2)}, true);
+auxl.hoverTarget1Data = auxl.CoreDataFromTemplate(auxl.hoverhoverTarget0Data, {id: 'hoverTarget1', position: new THREE.Vector3(0,3,-2)}, true);
 auxl.hoverTarget1 = auxl.Core(auxl.hoverTarget1Data);
-auxl.hoverTarget2Data = auxl.coreDataFromTemplate(auxl.hoverhoverTarget0Data, {id: 'hoverTarget2', position: new THREE.Vector3(2,2,-2)}, true);
+auxl.hoverTarget2Data = auxl.CoreDataFromTemplate(auxl.hoverhoverTarget0Data, {id: 'hoverTarget2', position: new THREE.Vector3(2,2,-2)}, true);
 auxl.hoverTarget2 = auxl.Core(auxl.hoverTarget2Data);
 
 auxl.AmmoCubes = (data) => {
@@ -585,11 +585,11 @@ auxl.AmmoCubes = (data) => {
 
 	const GenCubes = () => {
 		for(let a=0; a < ammoCubes.total; a++){
-			let baseColor = auxl.colorTheoryGen();
-			let material = {shader: "standard", color: baseColor.base, opacity: 1, metalness: 0.6, roughness: 0.4, emissive: baseColor.base, emissiveIntensity: 0.2, side: 'front',  src: auxl.randomOfArray(auxl.patterns), repeat: '1 1'}
-			let position = auxl.randomPosition(ammoCubes.radius) 
+			let baseColor = auxl.ColorTheoryGen();
+			let material = {shader: "standard", color: baseColor.base, opacity: 1, metalness: 0.6, roughness: 0.4, emissive: baseColor.base, emissiveIntensity: 0.2, side: 'front',  src: auxl.RandomOfArray(auxl.patterns), repeat: '1 1'}
+			let position = auxl.RandomPosition(ammoCubes.radius) 
 			position.add(new THREE.Vector3(0,ammoCubes.radius,ammoCubes.radius*-1))
-			auxl[ammoCubes.id+a+'Data'] = auxl.coreDataFromTemplate(ammoCubes.coreData, {id: ammoCubes.id+a, position, material}, true);
+			auxl[ammoCubes.id+a+'Data'] = auxl.CoreDataFromTemplate(ammoCubes.coreData, {id: ammoCubes.id+a, position, material}, true);
 			auxl[ammoCubes.id+a] = auxl.Core(auxl[ammoCubes.id+a+'Data']);
 			auxl[ammoCubes.id+a].SpawnCore();
 			ammoCubes.all.push(auxl[ammoCubes.id+a])
@@ -643,7 +643,7 @@ auxl.hoverTarget1 = auxl.Core(auxl.hoverTarget1Data);
 auxl.hoverTarget2 = auxl.Core(auxl.hoverTarget2Data);
 
 }
-auxl.toBeRebuilt('buildAmmoLibrary');
+auxl.ToBeRebuilt('buildAmmoLibrary');
 
 },
 });
@@ -847,30 +847,33 @@ auxl.ammoScenarioData = {
 	},
 	controls:{
 
-		//Force Throw
-		action1Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'action1', name: 'Force Throw Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
-		action1Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action1', name: 'Force Throw Targets', info: 'Force throw targets.'},
-
-		//Force Grab
-		action2Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'action2grab', name: 'Force Grab Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
-		action2Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action2grab', name: 'Force Grab Targets', info: 'Force grab targets.'},
-
 		//Force Pull
-		action3Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'action3pull', name: 'Force Pull Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
-		action3Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action3pull', name: 'Force Pull Targets', info: 'Force pull targets.'},
+		action1Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'action1pull', name: 'Force Pull Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
+		action1Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action1pull', name: 'Force Pull Targets', info: 'Force pull targets.'},
 
 		//Force Up
-		//action4Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'up', name: 'Force Up Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
-		//action4Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'up', name: 'Force Up Targets', info: 'Force throw up targets.'},
+		action2Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'action2up', name: 'Force Up Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
+		action2Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action2up', name: 'Force Up Targets', info: 'Force throw up targets.'},
 
 		//Force Release
-		//action4Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'release', name: 'Force Release Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
-		action4Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action4release', name: 'Force Release Targets', info: 'Force release targets.'},
+		//action2Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action2release', name: 'Force Release Targets', info: 'Force release targets.'},
+
+		//Force Flick - Not working properly, is the same as throw
+		action3Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'action3grab', name: 'Force Flick Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
+		action3Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action3flick', name: 'Force Flick Targets', info: 'Force flick targets.'},
+
+		//Force Throw
+		//action3Down:{auxlObj: 'player', func: 'HoverTargetDown', params: false, name: 'Force Throw Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
+		//action3Up:{auxlObj: 'player', func: 'HoverTargetUp', params: false, name: 'Force Throw Targets', info: 'Force throw targets.'},
+
+		//Force Grab
+		action4Down:{auxlObj: 'player', func: 'HoverTargetDown', params: 'action4grab', name: 'Force Grab Targetting', info: 'Start hovering over targetable entities while holding down, Click to cancel.'},
+		action4Up:{auxlObj: 'player', func: 'HoverTargetUp', params: 'action4grab', name: 'Force Grab Targets', info: 'Force grab targets.'},
 
 		//
 		//Default Player Controls
-		action5Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
-		action6Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action5Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action6Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
 		action7Down:{auxlObj: 'player', func: 'SnapLeft', name: 'Snap View Left', info: 'Quick snap rotate to the left.'},
 		action8Down:{auxlObj: 'player', func: 'SnapRight', name: 'Snap View Right', info: 'Quick snap rotate to the right.'},
 	},
@@ -961,20 +964,7 @@ auxl.ammoWorld = auxl.World(auxl.ammoWorldData);
 
 //
 //System Loaded
-//auxl.systemLoaded();
+//auxl.SystemLoaded();
 console.log({msg: 'demo ammo world loaded', world: auxl.ammoWorld})
-
-//
-//Customize
-//Global World Name : ammo
-//Start Scene : zoneIntroScene0
-//More Scene : zoneIntroScene1
-//Start Zone : zoneIntro
-//More Scene :zoneTrainingScene0
-//More Zone : zoneTraining
-//Scenario : ammoScenario
-//World : ammoWorld
-
-
     },
 });

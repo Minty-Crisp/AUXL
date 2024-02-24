@@ -100,7 +100,7 @@ const Core = (auxl, data) => {
 	}
 /*
 	
-// Import external JS script
+// Import external or internal JS script
 	async function getJsSrc(url) {
 	  try {
 		// If the URL starts with "file://", it's a local file
@@ -503,7 +503,7 @@ console.log(localPath)
 		} else {
 			SpawnCore(core.parent);
 			if(track){
-				auxl.spawnTracker(core.id, track);
+				auxl.SpawnTracker(core.id, track);
 			}
 		}
 	}
@@ -589,7 +589,7 @@ console.log(localPath)
 		return grid;
 	}
 	//Exact Pos from Grid Pos
-	function posOnGrid(grid){
+	function PosOnGrid(grid){
 		let pos = new THREE.Vector3();
 		if(grid.start.x === grid.end.x && grid.start.z === grid.end.z){
 			pos.x = grid.start.x;
@@ -667,7 +667,7 @@ console.log({msg: 'Missing grid, unable to spawn', core})
 				auxl.map.WaitToSpawn({name:core.id, func: 'SpawnCoreOnGrid'});
 			} else {
 				//Grid Position
-				let startPos = posOnGrid(core.grid);
+				let startPos = PosOnGrid(core.grid);
 				core.position.x = core.grid.xOffset + startPos.x;
 				core.position.y = core.grid.yOffset + startPos.y;
 				core.position.z = core.grid.zOffset + startPos.z;
@@ -718,7 +718,7 @@ console.log({msg: 'Missing grid, unable to spawn', core})
 			gridMovement.end.z += move.z;
 		}
 		//Actual Position to Move Into
-		let movePos = posOnGrid(gridMovement);
+		let movePos = PosOnGrid(gridMovement);
 		//movePos.y = core.position.y;
 		//Collision Move Checks
 		if(core.grid.collide){
@@ -800,7 +800,7 @@ console.log({msg: 'Missing grid, unable to spawn', core})
 		//Alternate will walk to end of path and back, if blocked it will reverse to start/end of path and try again. Point A to Point B or Closed loops
 
 		//Ensure Starting Position is Correct
-		let startPos = posOnGrid(core.grid);
+		let startPos = PosOnGrid(core.grid);
 
 		core.position.x = startPos.x;
 		if(startPos.y){
@@ -1354,11 +1354,11 @@ console.log({msg: 'Missing grid, unable to spawn', core})
 		if(Array.isArray(flagValue)){
 			for(let each in flagValue){
 				core[flagValue[each].flag] = flagValue[each].value;
-				auxl.saveToProfile({auxlObject: core.id, type: 'core', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
+				auxl.SaveToProfile({auxlObject: core.id, type: 'core', sub: false, name: flagValue[each].flag, data: flagValue[each].value});
 			}
 		} else {
 			core[flagValue.flag] = flagValue.value;
-			auxl.saveToProfile({auxlObject: core.id, type: 'core', sub: false, name: flagValue.flag, data: flagValue.value});
+			auxl.SaveToProfile({auxlObject: core.id, type: 'core', sub: false, name: flagValue.flag, data: flagValue.value});
 		}
 	}
 	//Retreive Flag Value from Object - Single or Array
@@ -1395,7 +1395,7 @@ console.log({msg: 'Missing grid, unable to spawn', core})
 		}
 	}
 	//Prep Details for Scene Display
-	const prepDetails = (text, position, textColor, windowColor, windowWidth, windowHeight) => {
+	const PrepDetails = (text, position, textColor, windowColor, windowWidth, windowHeight) => {
 		core.isOpen = false;
 		//Main Screen
 		core.detailMain = auxl.Core(auxl.detailMainData);
@@ -1482,7 +1482,7 @@ console.log({msg: 'Missing grid, unable to spawn', core})
 	//Enable Details Window on Click
 	const EnableDetail = (detailInfo) => {
 		if(details){} else {
-			prepDetails(detailInfo.text, detailInfo.position, detailInfo.textColor, detailInfo.windowColor, detailInfo.windowWidth, detailInfo.windowHeight);
+			PrepDetails(detailInfo.text, detailInfo.position, detailInfo.textColor, detailInfo.windowColor, detailInfo.windowWidth, detailInfo.windowHeight);
 		}
 			GetEl().addEventListener('click', openClose);
 	}
@@ -1510,7 +1510,7 @@ console.log({msg: 'Missing grid, unable to spawn', core})
 }
 //
 //Generate new Core Data from Template
-const coreDataFromTemplate = (auxl, data, edit, assign) => {
+const CoreDataFromTemplate = (auxl, data, edit, assign) => {
 	//Omit element & parent data that contains reference to original
 	let newCoreData = auxl.ShallowOmit(data, 'el', 'parent', );
 	newCoreData = JSON.parse(JSON.stringify(newCoreData));
@@ -1523,9 +1523,9 @@ const coreDataFromTemplate = (auxl, data, edit, assign) => {
 	//Prevent Overwritting
 	if(assign){}else{
 		if(!edit.id){
-			newCoreData.id = auxl.ranNameGen();
+			newCoreData.id = auxl.RanNameGen();
 		}
-		newCoreData.id = auxl.checkDupeName(newCoreData.id);
+		newCoreData.id = auxl.CheckDupeName(newCoreData.id);
 	}
 	//Output
 	if(assign){
@@ -1535,20 +1535,20 @@ const coreDataFromTemplate = (auxl, data, edit, assign) => {
 	}
 }
 //Generate new Core from Template
-const coreFromTemplate = (auxl, core, edit, assign) => {
+const CoreFromTemplate = (auxl, core, edit, assign) => {
 	//Prevent Overwritting
 	if(assign){}else{
 		if(edit){
 			if(!edit.id){
-				edit.id = auxl.ranNameGen();
+				edit.id = auxl.RanNameGen();
 			}
 		} else {
 			edit = {};
-			edit.id = auxl.ranNameGen();
+			edit.id = auxl.RanNameGen();
 		}
-		edit.id = auxl.checkDupeName(edit.id);
+		edit.id = auxl.CheckDupeName(edit.id);
 	}
-	let newCoreData = auxl.coreDataFromTemplate(core.core, edit, true);
+	let newCoreData = auxl.CoreDataFromTemplate(core.core, edit, true);
 	//Output
 	if(assign){
 		return auxl.Core(newCoreData)
@@ -1740,7 +1740,7 @@ const Layer = (auxl, id, data, update) => {
 		}
 	}
 	//PosOnGrid
-	function posOnGrid(grid){
+	function PosOnGrid(grid){
 		let pos = new THREE.Vector3(0,0,0);
 		if(grid.start.x === grid.end.x && grid.start.z === grid.end.z){
 			pos.x = grid.start.x;
@@ -1785,7 +1785,7 @@ const Layer = (auxl, id, data, update) => {
 				auxl.map.WaitToSpawn({name:layer.id, func: 'SpawnLayerOnGrid'});
 			} else {
 				//Grid Position
-				let startPos = posOnGrid(layer.grid);
+				let startPos = PosOnGrid(layer.grid);
 				layer.all.parent.core.core.position.x = startPos.x;
 				//layer.all.parent.core.core.position.y = layer.all.parent.core.core.position.y + startPos.y;
 				layer.all.parent.core.core.position.y = layer.grid.yOffset + startPos.y;
@@ -1837,7 +1837,7 @@ const Layer = (auxl, id, data, update) => {
 			gridMovement.end.z += move.z;
 		}
 		//Actual Position to Move Into
-		let movePos = posOnGrid(gridMovement);
+		let movePos = PosOnGrid(gridMovement);
 		movePos.y = layer.all.parent.core.core.position.y + movePos.y;
 		//Collision Move Checks
 		if(layer.grid.collide){
@@ -1917,7 +1917,7 @@ const Layer = (auxl, id, data, update) => {
 		//Alternate will walk to end of path and back, if blocked it will reverse to start/end of path and try again. Point A to Point B or Closed loops
 
 		//Ensure Starting Position is Correct
-		let startPos = posOnGrid(layer.grid);
+		let startPos = PosOnGrid(layer.grid);
 		layer.all.parent.core.core.position.x = startPos.x;
 		if(startPos.y){
 			layer.all.parent.core.core.position.y = layer.all.parent.core.core.position.y + startPos.y;
@@ -2588,9 +2588,9 @@ const Layer = (auxl, id, data, update) => {
 }
 //
 //Generate new Layer from Layer Data Template
-const layerDataFromTemplate = (auxl, data, nameScheme, changeParent, layerConfig, assign) => {
-	let id = nameScheme || auxl.ranNameGen();
-	id = auxl.checkDupeName(id);
+const LayerDataFromTemplate = (auxl, data, nameScheme, changeParent, layerConfig, assign) => {
+	let id = nameScheme || auxl.RanNameGen();
+	id = auxl.CheckDupeName(id);
 	let newStruct = {};
 	let num = 0;
 	//Prep Parent Core Name
@@ -2602,16 +2602,16 @@ const layerDataFromTemplate = (auxl, data, nameScheme, changeParent, layerConfig
 		changeParent = {};
 		changeParent.id = id+num;
 	}
-	changeParent.id = auxl.checkDupeName(changeParent.id);
+	changeParent.id = auxl.CheckDupeName(changeParent.id);
 	//Traverse Layer Data Object
 	function layerTraverse(structure, newStructure){
 		for(let level in structure){
 			if(structure[level].core){
 				newStructure[level] = {};
 				if(num === 0){
-					newStructure[level].core = auxl.coreFromTemplate(structure[level].core, changeParent, true);
+					newStructure[level].core = auxl.CoreFromTemplate(structure[level].core, changeParent, true);
 				} else {
-					newStructure[level].core = auxl.coreFromTemplate(structure[level].core, {id:auxl.checkDupeName(id+num)}, true);
+					newStructure[level].core = auxl.CoreFromTemplate(structure[level].core, {id:auxl.CheckDupeName(id+num)}, true);
 				}
 				num++;
 			} else {
@@ -2639,16 +2639,16 @@ const layerDataFromTemplate = (auxl, data, nameScheme, changeParent, layerConfig
 	}
 }
 //Generate new Layer from Layer Template
-const layerFromTemplate = (auxl, layer, id, changeParent, layerConfig, assign) => {
+const LayerFromTemplate = (auxl, layer, id, changeParent, layerConfig, assign) => {
 	let struct;
 	let newStruct = {};
 	let num = 0;
 	//Prevent Overwritting
 	if(assign){}else{
 		if(!id){
-			id = auxl.ranNameGen();
+			id = auxl.RanNameGen();
 		}
-		id = auxl.checkDupeName(id);
+		id = auxl.CheckDupeName(id);
 	}
 	//Prep Parent Core Name
 	if(changeParent){
@@ -2659,7 +2659,7 @@ const layerFromTemplate = (auxl, layer, id, changeParent, layerConfig, assign) =
 		changeParent = {};
 		changeParent.id = id+num;
 	}
-	changeParent.id = auxl.checkDupeName(changeParent.id);
+	changeParent.id = auxl.CheckDupeName(changeParent.id);
 	//Assign Layout from Existing Layer or Layer Data
 	if(layer.layer){
 		struct = layer.layer.all;
@@ -2672,9 +2672,9 @@ const layerFromTemplate = (auxl, layer, id, changeParent, layerConfig, assign) =
 			if(structure[level].core){
 				newStructure[level] = {};
 				if(num === 0){
-					newStructure[level].core = auxl.coreFromTemplate(structure[level].core, changeParent, true);
+					newStructure[level].core = auxl.CoreFromTemplate(structure[level].core, changeParent, true);
 				} else {
-					newStructure[level].core = auxl.coreFromTemplate(structure[level].core, {id:auxl.checkDupeName(id+num)}, true);
+					newStructure[level].core = auxl.CoreFromTemplate(structure[level].core, {id:auxl.CheckDupeName(id+num)}, true);
 				}
 				num++;
 			} else {
@@ -2704,4 +2704,4 @@ const layerFromTemplate = (auxl, layer, id, changeParent, layerConfig, assign) =
 
 //
 //Export
-export {Core, coreDataFromTemplate, coreFromTemplate, Layer, layerDataFromTemplate, layerFromTemplate};
+export {Core, CoreDataFromTemplate, CoreFromTemplate, Layer, LayerDataFromTemplate, LayerFromTemplate};

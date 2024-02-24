@@ -1300,7 +1300,7 @@ components: false,
 };
 auxl.eye1Socket = auxl.Core(auxl.eye1SocketData);
 //Eye2Socket
-auxl.eye2SocketData = auxl.coreDataFromTemplate(auxl.eye1SocketData, {id: 'eye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)}, true);
+auxl.eye2SocketData = auxl.CoreDataFromTemplate(auxl.eye1SocketData, {id: 'eye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)}, true);
 auxl.eye2Socket = auxl.Core(auxl.eye2SocketData);
 //Eye1Pupil
 auxl.eye1PupilData = {
@@ -1349,7 +1349,7 @@ components: false,
 };
 auxl.eye1Pupil = auxl.Core(auxl.eye1PupilData);
 //Eye2Pupil
-auxl.eye2PupilData = auxl.coreDataFromTemplate(auxl.eye1PupilData, {id: 'eye2Pupil',}, true);
+auxl.eye2PupilData = auxl.CoreDataFromTemplate(auxl.eye1PupilData, {id: 'eye2Pupil',}, true);
 auxl.eye2Pupil = auxl.Core(auxl.eye2PupilData);
 //Mouth
 auxl.mouthData = {
@@ -1464,16 +1464,16 @@ classes: ['a-ent'],
 components: false,
 };
 //Leg 1
-auxl.leg1Data = auxl.coreDataFromTemplate(auxl.legData, {id: 'leg1',}, true);
+auxl.leg1Data = auxl.CoreDataFromTemplate(auxl.legData, {id: 'leg1',}, true);
 auxl.leg1 = auxl.Core(auxl.leg1Data);
 //Leg 2
-auxl.leg2Data = auxl.coreDataFromTemplate(auxl.legData, {id: 'leg2', position: new THREE.Vector3(0.25,-0.25,0)}, true);
+auxl.leg2Data = auxl.CoreDataFromTemplate(auxl.legData, {id: 'leg2', position: new THREE.Vector3(0.25,-0.25,0)}, true);
 auxl.leg2 = auxl.Core(auxl.leg2Data);
 //Leg 3
-auxl.leg3Data = auxl.coreDataFromTemplate(auxl.legData, {id: 'leg3', position: new THREE.Vector3(0,-0.25,-0.25)}, true);
+auxl.leg3Data = auxl.CoreDataFromTemplate(auxl.legData, {id: 'leg3', position: new THREE.Vector3(0,-0.25,-0.25)}, true);
 auxl.leg3 = auxl.Core(auxl.leg3Data);
 //Leg 4
-auxl.leg4Data = auxl.coreDataFromTemplate(auxl.legData, {id: 'leg4', position: new THREE.Vector3(0,-0.25,0.25)}, true);
+auxl.leg4Data = auxl.CoreDataFromTemplate(auxl.legData, {id: 'leg4', position: new THREE.Vector3(0,-0.25,0.25)}, true);
 auxl.leg4 = auxl.Core(auxl.leg4Data);
 //Grabber
 auxl.ghostGrabData = {
@@ -1494,7 +1494,6 @@ components: {
 		cursorObj: 'comp',
 		component: 'null',
 		method: 'DragToPosition',
-		//params: 'true',
 		params: 'other',
 	},
 	mouseuprun:{
@@ -2065,9 +2064,9 @@ components:{
 ['raycast-teleportation']:null,
 },
 };
-auxl.teleportPortal1Data = auxl.coreDataFromTemplate(auxl.teleportPortalData, {id: 'teleportPortal1',}, true);
+auxl.teleportPortal1Data = auxl.CoreDataFromTemplate(auxl.teleportPortalData, {id: 'teleportPortal1',}, true);
 auxl.teleportPortal1 = auxl.Core(auxl.teleportPortal1Data);
-auxl.teleportPortal2Data = auxl.coreDataFromTemplate(auxl.teleportPortalData, {id: 'teleportPortal2', position: new THREE.Vector3(0,5,3)}, true);
+auxl.teleportPortal2Data = auxl.CoreDataFromTemplate(auxl.teleportPortalData, {id: 'teleportPortal2', position: new THREE.Vector3(0,5,3)}, true);
 auxl.teleportPortal2 = auxl.Core(auxl.teleportPortal2Data);
 
 
@@ -2388,7 +2387,7 @@ auxl.skyBox0 = auxl.SkyBox(auxl.skyBox0Data);
 auxl.mapEdgeBasic = auxl.Core(auxl.mapEdgeBasicData);
 
 }
-auxl.toBeRebuilt('buildLibrary');
+auxl.ToBeRebuilt('buildLibrary');
 
 },
 });

@@ -145,57 +145,57 @@ components: {
 };
 auxl.planetBuilding0 = auxl.Core(auxl.planetBuilding0Data);
 //Planet Building 1
-auxl.planetBuilding1Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding1', rotation: new THREE.Vector3(-5,-5,-5)}, true);
+auxl.planetBuilding1Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding1', rotation: new THREE.Vector3(-5,-5,-5)}, true);
 auxl.planetBuilding1 = auxl.Core(auxl.planetBuilding1Data);
 //Planet Building 2
-auxl.planetBuilding2Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding2', rotation: new THREE.Vector3(-15,15,15)}, true);
+auxl.planetBuilding2Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding2', rotation: new THREE.Vector3(-15,15,15)}, true);
 auxl.planetBuilding2 = auxl.Core(auxl.planetBuilding2Data);
 //Planet Building 3
-auxl.planetBuilding3Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding3', rotation: new THREE.Vector3(15,-15,-15)}, true);
+auxl.planetBuilding3Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding3', rotation: new THREE.Vector3(15,-15,-15)}, true);
 auxl.planetBuilding3 = auxl.Core(auxl.planetBuilding3Data);
 //Planet Building 4
-auxl.planetBuilding4Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding4', rotation: new THREE.Vector3(-35,35,35)}, true);
+auxl.planetBuilding4Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding4', rotation: new THREE.Vector3(-35,35,35)}, true);
 auxl.planetBuilding4 = auxl.Core(auxl.planetBuilding4Data);
 //Planet Building 5
-auxl.planetBuilding5Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding5', rotation: new THREE.Vector3(35,-35,-35)}, true);
+auxl.planetBuilding5Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding5', rotation: new THREE.Vector3(35,-35,-35)}, true);
 auxl.planetBuilding5 = auxl.Core(auxl.planetBuilding5Data);
 //Planet Building 6
-auxl.planetBuilding6Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding6', rotation: new THREE.Vector3(55,55,55)}, true);
+auxl.planetBuilding6Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding6', rotation: new THREE.Vector3(55,55,55)}, true);
 auxl.planetBuilding6 = auxl.Core(auxl.planetBuilding6Data);
 //Planet Building 7
-auxl.planetBuilding7Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding7', rotation: new THREE.Vector3(-55,-55,-55)}, true);
+auxl.planetBuilding7Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding7', rotation: new THREE.Vector3(-55,-55,-55)}, true);
 auxl.planetBuilding7 = auxl.Core(auxl.planetBuilding7Data);
 //Planet Building 8
-auxl.planetBuilding8Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding8', rotation: new THREE.Vector3(-60,60,60)}, true);
+auxl.planetBuilding8Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding8', rotation: new THREE.Vector3(-60,60,60)}, true);
 auxl.planetBuilding8 = auxl.Core(auxl.planetBuilding8Data);
 //Planet Building 9
-auxl.planetBuilding9Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding9', rotation: new THREE.Vector3(60,-60,-60)}, true);
+auxl.planetBuilding9Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding9', rotation: new THREE.Vector3(60,-60,-60)}, true);
 auxl.planetBuilding9 = auxl.Core(auxl.planetBuilding9Data);
 //Planet Building 10
-auxl.planetBuilding10Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding10', rotation: new THREE.Vector3(20,-20,20)}, true);
+auxl.planetBuilding10Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding10', rotation: new THREE.Vector3(20,-20,20)}, true);
 auxl.planetBuilding10 = auxl.Core(auxl.planetBuilding10Data);
 //Planet Building 11
-auxl.planetBuilding11Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding11', rotation: new THREE.Vector3(-20,20,-20)}, true);
+auxl.planetBuilding11Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding11', rotation: new THREE.Vector3(-20,20,-20)}, true);
 auxl.planetBuilding11 = auxl.Core(auxl.planetBuilding11Data);
 //Planet Building 12
-auxl.planetBuilding12Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding12', rotation: new THREE.Vector3(45,-45,45)}, true);
+auxl.planetBuilding12Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding12', rotation: new THREE.Vector3(45,-45,45)}, true);
 auxl.planetBuilding12 = auxl.Core(auxl.planetBuilding12Data);
 //Planet Building 13
-auxl.planetBuilding13Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding13', rotation: new THREE.Vector3(-45,45,-45)}, true);
+auxl.planetBuilding13Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding13', rotation: new THREE.Vector3(-45,45,-45)}, true);
 auxl.planetBuilding13 = auxl.Core(auxl.planetBuilding13Data);
 
 
 //Planet Building 14
-auxl.planetBuilding14Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding14', rotation: new THREE.Vector3(25,25,-25)}, true);
+auxl.planetBuilding14Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding14', rotation: new THREE.Vector3(25,25,-25)}, true);
 auxl.planetBuilding14 = auxl.Core(auxl.planetBuilding14Data);
 //Planet Building 15
-auxl.planetBuilding15Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding15', rotation: new THREE.Vector3(-25,-25,25)}, true);
+auxl.planetBuilding15Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding15', rotation: new THREE.Vector3(-25,-25,25)}, true);
 auxl.planetBuilding15 = auxl.Core(auxl.planetBuilding15Data);
 //Planet Building 16
-auxl.planetBuilding16Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding16', rotation: new THREE.Vector3(50,50,-50)}, true);
+auxl.planetBuilding16Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding16', rotation: new THREE.Vector3(50,50,-50)}, true);
 auxl.planetBuilding16 = auxl.Core(auxl.planetBuilding16Data);
 //Planet Building 17
-auxl.planetBuilding17Data = auxl.coreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding17', rotation: new THREE.Vector3(-50,-50,50)}, true);
+auxl.planetBuilding17Data = auxl.CoreDataFromTemplate(auxl.planetBuilding0Data, {id: 'planetBuilding17', rotation: new THREE.Vector3(-50,-50,50)}, true);
 auxl.planetBuilding17 = auxl.Core(auxl.planetBuilding17Data);
 
 
@@ -311,7 +311,7 @@ auxl.oneTest0One = auxl.One(auxl.oneTest0, auxl.phys0Data);
 
 
 //Test 1
-auxl.oneTest1 = auxl.coreFromTemplate(auxl.oneTest0,{id: 'oneTest1', geometry: {primitive: 'sphere', radius: 4}, material: {shader: "standard", color: "#29b479", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b479", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '4 4'}, position: new THREE.Vector3(10,30,0)}, true);
+auxl.oneTest1 = auxl.CoreFromTemplate(auxl.oneTest0,{id: 'oneTest1', geometry: {primitive: 'sphere', radius: 4}, material: {shader: "standard", color: "#29b479", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#29b479", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '4 4'}, position: new THREE.Vector3(10,30,0)}, true);
 auxl.phys1Data = {
 	type : 'dynamic',
 	shape : 'sphere',
@@ -328,7 +328,7 @@ auxl.phys1Data = {
 auxl.oneTest1One = auxl.One(auxl.oneTest1, auxl.phys1Data);
 
 //Test 2
-auxl.oneTest2 = auxl.coreFromTemplate(auxl.oneTest0,{id: 'oneTest2', geometry: {primitive: 'cylinder', height:4, radius:4, segmentsHeight:2, segmentsRadial:32, openEnded:false, side:'double', thetaStart:0, thetaLength:360}, material: {shader: "standard", color: "#1193f2", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#1193f2", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '4 4'}, position: new THREE.Vector3(-10,30,0)}, true);
+auxl.oneTest2 = auxl.CoreFromTemplate(auxl.oneTest0,{id: 'oneTest2', geometry: {primitive: 'cylinder', height:4, radius:4, segmentsHeight:2, segmentsRadial:32, openEnded:false, side:'double', thetaStart:0, thetaLength:360}, material: {shader: "standard", color: "#1193f2", opacity: 1, metalness: 0.6, roughness: 0.4, emissive: "#1193f2", emissiveIntensity: 0.2, side: 'front', src: auxl.pattern49, repeat: '4 4'}, position: new THREE.Vector3(-10,30,0)}, true);
 auxl.phys1Data = {
 	type : 'dynamic',
 	shape : 'cylinder',
@@ -541,11 +541,11 @@ components: {
 };
 auxl.catwalk = auxl.Core(auxl.catwalk0Data);
 
-auxl.catwalk0 = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0', geometry: false, material: false, components: false, position: new THREE.Vector3(-55,199.5,-25)}, true);
-auxl.catwalk0A = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0A', geometry: {primitive: 'box', width: 10, height: 1, depth: 100},position: new THREE.Vector3(-25,0,0)}, true);
-auxl.catwalk0B = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0B', geometry: {primitive: 'box', width: 10, height: 1, depth: 100},position: new THREE.Vector3(25,0,0)}, true);
-auxl.catwalk0C = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0C', geometry: {primitive: 'box', width: 100, height: 1, depth: 10},position: new THREE.Vector3(0,-1,-25)}, true);
-auxl.catwalk0D = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0D', geometry: {primitive: 'box', width: 100, height: 1, depth: 10},position: new THREE.Vector3(0,-1,25)}, true);
+auxl.catwalk0 = auxl.CoreFromTemplate(auxl.catwalk,{id: 'catwalk0', geometry: false, material: false, components: false, position: new THREE.Vector3(-55,199.5,-25)}, true);
+auxl.catwalk0A = auxl.CoreFromTemplate(auxl.catwalk,{id: 'catwalk0A', geometry: {primitive: 'box', width: 10, height: 1, depth: 100},position: new THREE.Vector3(-25,0,0)}, true);
+auxl.catwalk0B = auxl.CoreFromTemplate(auxl.catwalk,{id: 'catwalk0B', geometry: {primitive: 'box', width: 10, height: 1, depth: 100},position: new THREE.Vector3(25,0,0)}, true);
+auxl.catwalk0C = auxl.CoreFromTemplate(auxl.catwalk,{id: 'catwalk0C', geometry: {primitive: 'box', width: 100, height: 1, depth: 10},position: new THREE.Vector3(0,-1,-25)}, true);
+auxl.catwalk0D = auxl.CoreFromTemplate(auxl.catwalk,{id: 'catwalk0D', geometry: {primitive: 'box', width: 100, height: 1, depth: 10},position: new THREE.Vector3(0,-1,25)}, true);
 
 
 auxl.catwalk0LayerData = {
@@ -582,7 +582,7 @@ components: {
 };
 auxl.buildingBase = auxl.Core(auxl.buildingBaseData);
 
-auxl.buildingBaseTest0 = auxl.coreFromTemplate(auxl.buildingBase,{id: 'buildingBaseTest0', position: new THREE.Vector3(-80,50,80)}, true);
+auxl.buildingBaseTest0 = auxl.CoreFromTemplate(auxl.buildingBase,{id: 'buildingBaseTest0', position: new THREE.Vector3(-80,50,80)}, true);
 
 auxl.buildingBaseDoorwayData = {
 data:'buildingBaseDoorwayData',
@@ -603,7 +603,7 @@ components: {
 };
 auxl.buildingBaseDoorway = auxl.Core(auxl.buildingBaseDoorwayData);
 
-auxl.buildingBaseDoorwayTest0 = auxl.coreFromTemplate(auxl.buildingBaseDoorway,{id: 'buildingBaseDoorwayTest0', position: new THREE.Vector3(5.5,-50,0)}, true);
+auxl.buildingBaseDoorwayTest0 = auxl.CoreFromTemplate(auxl.buildingBaseDoorway,{id: 'buildingBaseDoorwayTest0', position: new THREE.Vector3(5.5,-50,0)}, true);
 
 //Trampoline Side
 auxl.slideBaseData = {
@@ -626,10 +626,10 @@ components: {
 };
 auxl.slideBase = auxl.Core(auxl.slideBaseData);
 
-auxl.slideBaseTest0 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', position: new THREE.Vector3(6.35,-49.5,0), rotation: new THREE.Vector3(0,0,-20)}, true);
-auxl.slideBaseTest1 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', position: new THREE.Vector3(-6.35,-49.5,0), rotation: new THREE.Vector3(0,0,20)}, true);
-auxl.slideBaseTest2 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', geometry: {primitive: 'box', width: 10, depth: 3, height: 0.01}, position: new THREE.Vector3(0,-49.5,6.35), rotation: new THREE.Vector3(20,0,0)}, true);
-auxl.slideBaseTest3 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', geometry: {primitive: 'box', width: 10, depth: 3, height: 0.01}, position: new THREE.Vector3(0,-49.5,-6.35), rotation: new THREE.Vector3(-20,0,0)}, true);
+auxl.slideBaseTest0 = auxl.CoreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', position: new THREE.Vector3(6.35,-49.5,0), rotation: new THREE.Vector3(0,0,-20)}, true);
+auxl.slideBaseTest1 = auxl.CoreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', position: new THREE.Vector3(-6.35,-49.5,0), rotation: new THREE.Vector3(0,0,20)}, true);
+auxl.slideBaseTest2 = auxl.CoreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', geometry: {primitive: 'box', width: 10, depth: 3, height: 0.01}, position: new THREE.Vector3(0,-49.5,6.35), rotation: new THREE.Vector3(20,0,0)}, true);
+auxl.slideBaseTest3 = auxl.CoreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', geometry: {primitive: 'box', width: 10, depth: 3, height: 0.01}, position: new THREE.Vector3(0,-49.5,-6.35), rotation: new THREE.Vector3(-20,0,0)}, true);
 
 //Flip Side
 auxl.flipBaseData = {
@@ -652,7 +652,7 @@ components: {
 };
 auxl.flipBase = auxl.Core(auxl.flipBaseData);
 
-auxl.flipBaseTest0 = auxl.coreFromTemplate(auxl.flipBase,{id: 'flipBaseTest0'}, true);
+auxl.flipBaseTest0 = auxl.CoreFromTemplate(auxl.flipBase,{id: 'flipBaseTest0'}, true);
 
 //Trampoline Top 
 auxl.trampolineTwistData = {
@@ -695,8 +695,8 @@ components: {
 };
 auxl.trampolineTopBlock = auxl.Core(auxl.trampolineTopBlockData);
 
-auxl.trampolineTopBlockTest0 = auxl.coreFromTemplate(auxl.trampolineTop,{id: 'trampolineTopBlockTest0'}, true);
-auxl.trampolineTopBlockTest1 = auxl.coreFromTemplate(auxl.trampolineTopBlock,{id: 'trampolineTopBlockTest1'}, true);
+auxl.trampolineTopBlockTest0 = auxl.CoreFromTemplate(auxl.trampolineTop,{id: 'trampolineTopBlockTest0'}, true);
+auxl.trampolineTopBlockTest1 = auxl.CoreFromTemplate(auxl.trampolineTopBlock,{id: 'trampolineTopBlockTest1'}, true);
 
 auxl.baseTest0LayerData = {
 	parent: {core: auxl.buildingBaseTest0},
@@ -1225,7 +1225,7 @@ auxl.balls0RingData = {
 };
 auxl.balls0Ring = auxl.ObjsGenRing(auxl.balls0RingData);
 //Ring
-auxl.cityBallTest0Data = auxl.coreDataFromTemplate(auxl.ballTest0Data, {id: 'cityBallTest0', position: new THREE.Vector3(0,400,0),}, true);
+auxl.cityBallTest0Data = auxl.CoreDataFromTemplate(auxl.ballTest0Data, {id: 'cityBallTest0', position: new THREE.Vector3(0,400,0),}, true);
 auxl.cityBalls0RingData = {
 	id: 'cityBalls0Ring',
 	objData: auxl.cityBallTest0Data,
@@ -1285,7 +1285,7 @@ auxl.balls1RingData = {
 };
 auxl.balls1Ring = auxl.ObjsGenRing(auxl.balls1RingData);
 //Ring
-auxl.cityBallTest1Data = auxl.coreDataFromTemplate(auxl.ballTest1Data, {id: 'cityBallTest1', position: new THREE.Vector3(0,400,0),}, true);
+auxl.cityBallTest1Data = auxl.CoreDataFromTemplate(auxl.ballTest1Data, {id: 'cityBallTest1', position: new THREE.Vector3(0,400,0),}, true);
 auxl.cityBalls1RingData = {
 	id: 'cityBalls1Ring',
 	objData: auxl.cityBallTest1Data,
@@ -1345,7 +1345,7 @@ auxl.balls2RingData = {
 };
 auxl.balls2Ring = auxl.ObjsGenRing(auxl.balls2RingData);
 //Ring
-auxl.cityBallTest2Data = auxl.coreDataFromTemplate(auxl.ballTest2Data, {id: 'cityBallTest2', position: new THREE.Vector3(0,400,0),}, true);
+auxl.cityBallTest2Data = auxl.CoreDataFromTemplate(auxl.ballTest2Data, {id: 'cityBallTest2', position: new THREE.Vector3(0,400,0),}, true);
 auxl.cityBalls2RingData = {
 	id: 'cityBalls2Ring',
 	objData: auxl.cityBallTest2Data,
@@ -1407,7 +1407,7 @@ auxl.boxes0RingData = {
 };
 auxl.boxes0Ring = auxl.ObjsGenRing(auxl.boxes0RingData);
 //Ring
-auxl.cityBoxTest0Data = auxl.coreDataFromTemplate(auxl.boxTest0Data, {id: 'cityBoxTest0', position: new THREE.Vector3(0,400,0),}, true);
+auxl.cityBoxTest0Data = auxl.CoreDataFromTemplate(auxl.boxTest0Data, {id: 'cityBoxTest0', position: new THREE.Vector3(0,400,0),}, true);
 auxl.cityBoxes0RingData = {
 	id: 'cityBoxes0Ring',
 	objData: auxl.cityBoxTest0Data,
@@ -1467,7 +1467,7 @@ auxl.boxes1RingData = {
 };
 auxl.boxes1Ring = auxl.ObjsGenRing(auxl.boxes1RingData);
 //Ring
-auxl.cityBoxTest1Data = auxl.coreDataFromTemplate(auxl.boxTest1Data, {id: 'cityBoxTest1', position: new THREE.Vector3(0,400,0),}, true);
+auxl.cityBoxTest1Data = auxl.CoreDataFromTemplate(auxl.boxTest1Data, {id: 'cityBoxTest1', position: new THREE.Vector3(0,400,0),}, true);
 auxl.cityBoxes1RingData = {
 	id: 'cityBoxes1Ring',
 	objData: auxl.cityBoxTest1Data,
@@ -1527,7 +1527,7 @@ auxl.boxes2RingData = {
 };
 auxl.boxes2Ring = auxl.ObjsGenRing(auxl.boxes2RingData);
 //Ring
-auxl.cityBoxTest2Data = auxl.coreDataFromTemplate(auxl.boxTest2Data, {id: 'cityBoxTest2', position: new THREE.Vector3(0,400,0),}, true);
+auxl.cityBoxTest2Data = auxl.CoreDataFromTemplate(auxl.boxTest2Data, {id: 'cityBoxTest2', position: new THREE.Vector3(0,400,0),}, true);
 auxl.cityBoxes2RingData = {
 	id: 'cityBoxes2Ring',
 	objData: auxl.cityBoxTest2Data,
@@ -2241,10 +2241,10 @@ components: {
 },
 };
 
-auxl.citycube1AData = auxl.coreDataFromTemplate(auxl.citycube1Data, {id: 'citycube1A', rotation: new THREE.Vector3(0,0,0),}, true);
-auxl.citycube1BData = auxl.coreDataFromTemplate(auxl.citycube1Data, {id: 'citycube1B', rotation: new THREE.Vector3(0,90,0),}, true);
-auxl.citycube1CData = auxl.coreDataFromTemplate(auxl.citycube1Data, {id: 'citycube1C', rotation: new THREE.Vector3(0,180,0),}, true);
-auxl.citycube1DData = auxl.coreDataFromTemplate(auxl.citycube1Data, {id: 'citycube1D', rotation: new THREE.Vector3(0,270,0),}, true);
+auxl.citycube1AData = auxl.CoreDataFromTemplate(auxl.citycube1Data, {id: 'citycube1A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube1BData = auxl.CoreDataFromTemplate(auxl.citycube1Data, {id: 'citycube1B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube1CData = auxl.CoreDataFromTemplate(auxl.citycube1Data, {id: 'citycube1C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube1DData = auxl.CoreDataFromTemplate(auxl.citycube1Data, {id: 'citycube1D', rotation: new THREE.Vector3(0,270,0),}, true);
 //2
 auxl.citycube2Data = {
 data:'citycube2Data',
@@ -2272,10 +2272,10 @@ components: {
 },
 };
 
-auxl.citycube2AData = auxl.coreDataFromTemplate(auxl.citycube2Data, {id: 'citycube2A', rotation: new THREE.Vector3(0,0,0),}, true);
-auxl.citycube2BData = auxl.coreDataFromTemplate(auxl.citycube2Data, {id: 'citycube2B', rotation: new THREE.Vector3(0,90,0),}, true);
-auxl.citycube2CData = auxl.coreDataFromTemplate(auxl.citycube2Data, {id: 'citycube2C', rotation: new THREE.Vector3(0,180,0),}, true);
-auxl.citycube2DData = auxl.coreDataFromTemplate(auxl.citycube2Data, {id: 'citycube2D', rotation: new THREE.Vector3(0,270,0),}, true);
+auxl.citycube2AData = auxl.CoreDataFromTemplate(auxl.citycube2Data, {id: 'citycube2A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube2BData = auxl.CoreDataFromTemplate(auxl.citycube2Data, {id: 'citycube2B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube2CData = auxl.CoreDataFromTemplate(auxl.citycube2Data, {id: 'citycube2C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube2DData = auxl.CoreDataFromTemplate(auxl.citycube2Data, {id: 'citycube2D', rotation: new THREE.Vector3(0,270,0),}, true);
 //2
 auxl.citycube3Data = {
 data:'citycube3Data',
@@ -2303,10 +2303,10 @@ components: {
 },
 };
 
-auxl.citycube3AData = auxl.coreDataFromTemplate(auxl.citycube3Data, {id: 'citycube3A', rotation: new THREE.Vector3(0,0,0),}, true);
-auxl.citycube3BData = auxl.coreDataFromTemplate(auxl.citycube3Data, {id: 'citycube3B', rotation: new THREE.Vector3(0,90,0),}, true);
-auxl.citycube3CData = auxl.coreDataFromTemplate(auxl.citycube3Data, {id: 'citycube3C', rotation: new THREE.Vector3(0,180,0),}, true);
-auxl.citycube3DData = auxl.coreDataFromTemplate(auxl.citycube3Data, {id: 'citycube3D', rotation: new THREE.Vector3(0,270,0),}, true);
+auxl.citycube3AData = auxl.CoreDataFromTemplate(auxl.citycube3Data, {id: 'citycube3A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube3BData = auxl.CoreDataFromTemplate(auxl.citycube3Data, {id: 'citycube3B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube3CData = auxl.CoreDataFromTemplate(auxl.citycube3Data, {id: 'citycube3C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube3DData = auxl.CoreDataFromTemplate(auxl.citycube3Data, {id: 'citycube3D', rotation: new THREE.Vector3(0,270,0),}, true);
 //4
 auxl.citycube4Data = {
 data:'citycube4Data',
@@ -2333,10 +2333,10 @@ components: {
 	bodymaterial: {friction: 0.01, restitution: 0.01},
 },
 };
-auxl.citycube4AData = auxl.coreDataFromTemplate(auxl.citycube4Data, {id: 'citycube4A', rotation: new THREE.Vector3(0,0,0),}, true);
-auxl.citycube4BData = auxl.coreDataFromTemplate(auxl.citycube4Data, {id: 'citycube4B', rotation: new THREE.Vector3(0,90,0),}, true);
-auxl.citycube4CData = auxl.coreDataFromTemplate(auxl.citycube4Data, {id: 'citycube4C', rotation: new THREE.Vector3(0,180,0),}, true);
-auxl.citycube4DData = auxl.coreDataFromTemplate(auxl.citycube4Data, {id: 'citycube4D', rotation: new THREE.Vector3(0,270,0),}, true);
+auxl.citycube4AData = auxl.CoreDataFromTemplate(auxl.citycube4Data, {id: 'citycube4A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube4BData = auxl.CoreDataFromTemplate(auxl.citycube4Data, {id: 'citycube4B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube4CData = auxl.CoreDataFromTemplate(auxl.citycube4Data, {id: 'citycube4C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube4DData = auxl.CoreDataFromTemplate(auxl.citycube4Data, {id: 'citycube4D', rotation: new THREE.Vector3(0,270,0),}, true);
 //5
 auxl.citycube5Data = {
 data:'citycube5Data',
@@ -2363,10 +2363,10 @@ components: {
 	bodymaterial: {friction: 0.01, restitution: 0.01},
 },
 };
-auxl.citycube5AData = auxl.coreDataFromTemplate(auxl.citycube5Data, {id: 'citycube5A', rotation: new THREE.Vector3(0,0,0),}, true);
-auxl.citycube5BData = auxl.coreDataFromTemplate(auxl.citycube5Data, {id: 'citycube5B', rotation: new THREE.Vector3(0,90,0),}, true);
-auxl.citycube5CData = auxl.coreDataFromTemplate(auxl.citycube5Data, {id: 'citycube5C', rotation: new THREE.Vector3(0,180,0),}, true);
-auxl.citycube5DData = auxl.coreDataFromTemplate(auxl.citycube5Data, {id: 'citycube5D', rotation: new THREE.Vector3(0,270,0),}, true);
+auxl.citycube5AData = auxl.CoreDataFromTemplate(auxl.citycube5Data, {id: 'citycube5A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube5BData = auxl.CoreDataFromTemplate(auxl.citycube5Data, {id: 'citycube5B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube5CData = auxl.CoreDataFromTemplate(auxl.citycube5Data, {id: 'citycube5C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube5DData = auxl.CoreDataFromTemplate(auxl.citycube5Data, {id: 'citycube5D', rotation: new THREE.Vector3(0,270,0),}, true);
 //6
 auxl.citycube6Data = {
 data:'citycube6Data',
@@ -2393,10 +2393,10 @@ components: {
 	bodymaterial: {friction: 0.01, restitution: 0.01},
 },
 };
-auxl.citycube6AData = auxl.coreDataFromTemplate(auxl.citycube6Data, {id: 'citycube6A', rotation: new THREE.Vector3(0,0,0),}, true);
-auxl.citycube6BData = auxl.coreDataFromTemplate(auxl.citycube6Data, {id: 'citycube6B', rotation: new THREE.Vector3(0,90,0),}, true);
-auxl.citycube6CData = auxl.coreDataFromTemplate(auxl.citycube6Data, {id: 'citycube6C', rotation: new THREE.Vector3(0,180,0),}, true);
-auxl.citycube6DData = auxl.coreDataFromTemplate(auxl.citycube6Data, {id: 'citycube6D', rotation: new THREE.Vector3(0,270,0),}, true);
+auxl.citycube6AData = auxl.CoreDataFromTemplate(auxl.citycube6Data, {id: 'citycube6A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube6BData = auxl.CoreDataFromTemplate(auxl.citycube6Data, {id: 'citycube6B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube6CData = auxl.CoreDataFromTemplate(auxl.citycube6Data, {id: 'citycube6C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube6DData = auxl.CoreDataFromTemplate(auxl.citycube6Data, {id: 'citycube6D', rotation: new THREE.Vector3(0,270,0),}, true);
 //7
 auxl.citycube7Data = {
 data:'citycube7Data',
@@ -2423,10 +2423,10 @@ components: {
 	bodymaterial: {friction: 0.01, restitution: 0.01},
 },
 };
-auxl.citycube7AData = auxl.coreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7A', rotation: new THREE.Vector3(0,0,0),}, true);
-auxl.citycube7BData = auxl.coreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7B', rotation: new THREE.Vector3(0,90,0),}, true);
-auxl.citycube7CData = auxl.coreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7C', rotation: new THREE.Vector3(0,180,0),}, true);
-auxl.citycube7DData = auxl.coreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7D', rotation: new THREE.Vector3(0,270,0),}, true);
+auxl.citycube7AData = auxl.CoreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube7BData = auxl.CoreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube7CData = auxl.CoreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube7DData = auxl.CoreDataFromTemplate(auxl.citycube7Data, {id: 'citycube7D', rotation: new THREE.Vector3(0,270,0),}, true);
 //8
 auxl.citycube8Data = {
 data:'citycube8Data',
@@ -2454,10 +2454,10 @@ components: {
 },
 };
 
-auxl.citycube8AData = auxl.coreDataFromTemplate(auxl.citycube8Data, {id: 'citycube8A', rotation: new THREE.Vector3(0,0,0),}, true);
-auxl.citycube8BData = auxl.coreDataFromTemplate(auxl.citycube8Data, {id: 'citycube8B', rotation: new THREE.Vector3(0,90,0),}, true);
-auxl.citycube8CData = auxl.coreDataFromTemplate(auxl.citycube8Data, {id: 'citycube8C', rotation: new THREE.Vector3(0,180,0),}, true);
-auxl.citycube8DData = auxl.coreDataFromTemplate(auxl.citycube8Data, {id: 'citycube8D', rotation: new THREE.Vector3(0,270,0),}, true);
+auxl.citycube8AData = auxl.CoreDataFromTemplate(auxl.citycube8Data, {id: 'citycube8A', rotation: new THREE.Vector3(0,0,0),}, true);
+auxl.citycube8BData = auxl.CoreDataFromTemplate(auxl.citycube8Data, {id: 'citycube8B', rotation: new THREE.Vector3(0,90,0),}, true);
+auxl.citycube8CData = auxl.CoreDataFromTemplate(auxl.citycube8Data, {id: 'citycube8C', rotation: new THREE.Vector3(0,180,0),}, true);
+auxl.citycube8DData = auxl.CoreDataFromTemplate(auxl.citycube8Data, {id: 'citycube8D', rotation: new THREE.Vector3(0,270,0),}, true);
 
 
 //City
@@ -3230,27 +3230,27 @@ auxl.buildCannonLibrary = () => {
 	auxl.trampoline = auxl.Core(auxl.trampolineData);
 	auxl.wallBase = auxl.Core(auxl.wallBaseData);
 	auxl.catwalk = auxl.Core(auxl.catwalk0Data);
-	auxl.catwalk0 = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0', geometry: false, material: false, components: false, position: new THREE.Vector3(-55,199.5,-25)}, true);
-	auxl.catwalk0A = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0A', geometry: {primitive: 'box', width: 10, height: 1, depth: 100},position: new THREE.Vector3(-25,0,0)}, true);
-	auxl.catwalk0B = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0B', geometry: {primitive: 'box', width: 10, height: 1, depth: 100},position: new THREE.Vector3(25,0,0)}, true);
-	auxl.catwalk0C = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0C', geometry: {primitive: 'box', width: 100, height: 1, depth: 10},position: new THREE.Vector3(0,-1,-25)}, true);
-	auxl.catwalk0D = auxl.coreFromTemplate(auxl.catwalk,{id: 'catwalk0D', geometry: {primitive: 'box', width: 100, height: 1, depth: 10},position: new THREE.Vector3(0,-1,25)}, true);
+	auxl.catwalk0 = auxl.CoreFromTemplate(auxl.catwalk,{id: 'catwalk0', geometry: false, material: false, components: false, position: new THREE.Vector3(-55,199.5,-25)}, true);
+	auxl.catwalk0A = auxl.CoreFromTemplate(auxl.catwalk,{id: 'catwalk0A', geometry: {primitive: 'box', width: 10, height: 1, depth: 100},position: new THREE.Vector3(-25,0,0)}, true);
+	auxl.catwalk0B = auxl.CoreFromTemplate(auxl.catwalk,{id: 'catwalk0B', geometry: {primitive: 'box', width: 10, height: 1, depth: 100},position: new THREE.Vector3(25,0,0)}, true);
+	auxl.catwalk0C = auxl.CoreFromTemplate(auxl.catwalk,{id: 'catwalk0C', geometry: {primitive: 'box', width: 100, height: 1, depth: 10},position: new THREE.Vector3(0,-1,-25)}, true);
+	auxl.catwalk0D = auxl.CoreFromTemplate(auxl.catwalk,{id: 'catwalk0D', geometry: {primitive: 'box', width: 100, height: 1, depth: 10},position: new THREE.Vector3(0,-1,25)}, true);
 	auxl.catwalk0Layer = auxl.Layer('catwalk0Layer', auxl.catwalk0LayerData);
 	auxl.buildingBase = auxl.Core(auxl.buildingBaseData);
-	auxl.buildingBaseTest0 = auxl.coreFromTemplate(auxl.buildingBase,{id: 'buildingBaseTest0', position: new THREE.Vector3(-80,50,80)}, true);
+	auxl.buildingBaseTest0 = auxl.CoreFromTemplate(auxl.buildingBase,{id: 'buildingBaseTest0', position: new THREE.Vector3(-80,50,80)}, true);
 	auxl.buildingBaseDoorway = auxl.Core(auxl.buildingBaseDoorwayData);
-	auxl.buildingBaseDoorwayTest0 = auxl.coreFromTemplate(auxl.buildingBaseDoorway,{id: 'buildingBaseDoorwayTest0', position: new THREE.Vector3(5.5,-50,0)}, true);
+	auxl.buildingBaseDoorwayTest0 = auxl.CoreFromTemplate(auxl.buildingBaseDoorway,{id: 'buildingBaseDoorwayTest0', position: new THREE.Vector3(5.5,-50,0)}, true);
 	auxl.slideBase = auxl.Core(auxl.slideBaseData);
-	auxl.slideBaseTest0 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', position: new THREE.Vector3(6.35,-49.5,0), rotation: new THREE.Vector3(0,0,-20)}, true);
-	auxl.slideBaseTest1 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', position: new THREE.Vector3(-6.35,-49.5,0), rotation: new THREE.Vector3(0,0,20)}, true);
-	auxl.slideBaseTest2 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', geometry: {primitive: 'box', width: 10, depth: 3, height: 0.01}, position: new THREE.Vector3(0,-49.5,6.35), rotation: new THREE.Vector3(20,0,0)}, true);
-	auxl.slideBaseTest3 = auxl.coreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', geometry: {primitive: 'box', width: 10, depth: 3, height: 0.01}, position: new THREE.Vector3(0,-49.5,-6.35), rotation: new THREE.Vector3(-20,0,0)}, true);
+	auxl.slideBaseTest0 = auxl.CoreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', position: new THREE.Vector3(6.35,-49.5,0), rotation: new THREE.Vector3(0,0,-20)}, true);
+	auxl.slideBaseTest1 = auxl.CoreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', position: new THREE.Vector3(-6.35,-49.5,0), rotation: new THREE.Vector3(0,0,20)}, true);
+	auxl.slideBaseTest2 = auxl.CoreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', geometry: {primitive: 'box', width: 10, depth: 3, height: 0.01}, position: new THREE.Vector3(0,-49.5,6.35), rotation: new THREE.Vector3(20,0,0)}, true);
+	auxl.slideBaseTest3 = auxl.CoreFromTemplate(auxl.slideBase,{id: 'slideBaseTest0', geometry: {primitive: 'box', width: 10, depth: 3, height: 0.01}, position: new THREE.Vector3(0,-49.5,-6.35), rotation: new THREE.Vector3(-20,0,0)}, true);
 	auxl.flipBase = auxl.Core(auxl.flipBaseData);
-	auxl.flipBaseTest0 = auxl.coreFromTemplate(auxl.flipBase,{id: 'flipBaseTest0'}, true);
+	auxl.flipBaseTest0 = auxl.CoreFromTemplate(auxl.flipBase,{id: 'flipBaseTest0'}, true);
 	auxl.trampolineTop = auxl.Core(auxl.trampolineTwistData);
 	auxl.trampolineTopBlock = auxl.Core(auxl.trampolineTopBlockData);
-	auxl.trampolineTopBlockTest0 = auxl.coreFromTemplate(auxl.trampolineTop,{id: 'trampolineTopBlockTest0'}, true);
-	auxl.trampolineTopBlockTest1 = auxl.coreFromTemplate(auxl.trampolineTopBlock,{id: 'trampolineTopBlockTest1'}, true);
+	auxl.trampolineTopBlockTest0 = auxl.CoreFromTemplate(auxl.trampolineTop,{id: 'trampolineTopBlockTest0'}, true);
+	auxl.trampolineTopBlockTest1 = auxl.CoreFromTemplate(auxl.trampolineTopBlock,{id: 'trampolineTopBlockTest1'}, true);
 	auxl.baseTest0Layer = auxl.Layer('baseTest0Layer', auxl.baseTest0LayerData);
 	auxl.trampoline0 = auxl.Core(auxl.trampoline0Data);
 	auxl.building1 = auxl.Core(auxl.building1Data);
@@ -3316,7 +3316,7 @@ auxl.buildCannonLibrary = () => {
 	auxl.biome2 = auxl.MultiAssetGen(auxl.biome2Data);
 	auxl.handsTesting0 = auxl.Core(auxl.handsTesting0Data);
 }
-auxl.toBeRebuilt('buildCannonLibrary');
+auxl.ToBeRebuilt('buildCannonLibrary');
 
 },
 });
@@ -3853,8 +3853,8 @@ auxl.cannonScenarioData = {
 
 		//
 		//Default Player Controls
-		action5Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
-		action6Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action5Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action6Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
 		action7Down:{auxlObj: 'player', func: 'SnapLeft', name: 'Snap View Left', info: 'Quick snap rotate to the left.'},
 		action8Down:{auxlObj: 'player', func: 'SnapRight', name: 'Snap View Right', info: 'Quick snap rotate to the right.'},
 	},
@@ -3931,10 +3931,7 @@ auxl.cannonWorld = auxl.World(auxl.cannonWorldData);
 
 //
 //System Loaded
-//auxl.systemLoaded();
+//auxl.SystemLoaded();
 console.log({msg: 'demo cannon world loaded', world: auxl.cannonWorld})
-
-
-
     },
 });

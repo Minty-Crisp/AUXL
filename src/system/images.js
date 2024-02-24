@@ -260,7 +260,7 @@ const ImageCarousel = (auxl,carouselData) => {
 	}
 	let artFrameAllLayer = auxl.Layer('artFrameAllLayer',artFrameAllLayerData);
 	//Main Button Color
-	let mainColor = auxl.colorTheoryGen('#6ab0db');
+	let mainColor = auxl.ColorTheoryGen('#6ab0db');
 	//Button Templates
 	//Button Parent
 	let buttonParentData = {

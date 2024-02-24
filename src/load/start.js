@@ -18,7 +18,7 @@ auxl.buildSceneLibrary = () => {
 
 
 }
-auxl.toBeRebuilt('buildSceneLibrary');
+auxl.ToBeRebuilt('buildSceneLibrary');
 
 },
 });
@@ -131,7 +131,12 @@ auxl.scenarioStartData = {
 		},
 	},
 	controls:{
-
+		//
+		//Default Player Controls
+		action5Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},
+		action6Down:{auxlObj: 'player', func: 'CycleCameraZoom', name: 'Cycle Camera Zoom', info: 'Cycle through various camera zoom lengths.'},
+		action7Down:{auxlObj: 'player', func: 'SnapLeft', name: 'Snap View Left', info: 'Quick snap rotate to the left.'},
+		action8Down:{auxlObj: 'player', func: 'SnapRight', name: 'Snap View Right', info: 'Quick snap rotate to the right.'},
 	},
 	start:{
 		skyBox0:{SpawnSkyBox: null},
@@ -174,7 +179,7 @@ auxl.worldHome = auxl.World(auxl.worldHomeData);
 
 //
 //System Loaded
-//auxl.systemLoaded();
+//auxl.SystemLoaded();
 
     },
 });
