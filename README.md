@@ -10,6 +10,7 @@
 - Ammo Physics Demo World
 - XRcade World
 - Mascot Testing World
+- Caos Testing World
 
 ### v0.4 Wiki Update and Starter Coming Soon!!!
 Learn how to build your first AUXL World with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
@@ -60,10 +61,51 @@ A few cool features of AUXL to highlight : :first_quarter_moon_with_face:
 
 Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki) to Learn More!!!
 ---
-# v0.3 Brief Overview of Major Updates So Far : :fire:
+# Overview of v0.4 Updates So Far : :fire:
+
 ## Highlights
+- Updated World to prevent the same world from being reloaded unless forced to via SwapWorld() world method just in case world has special rules or functions that don't work well such as custom objGen like in Ammo demo.
+- Added player fade out on World swap with a delay of stopping current world, so that it starts in the middle of the transition and the dynamic asset loading system takes over to release player when all assets have loaded or timed out.
+- Changed the fixed 1.6 height value for Companion's TurnToPlayer to get the current camera height instead.
+- Updated camRigAdjustment to recheck Companion's directional height matching current camera height.
+- Fixed an issue with ColorTheoryGen producing incorrect Analogous values and gibberish Monochrome values.
+- Added 2 new components onspawnfuncdual & ondespawnfuncdual that run an auxl.Method() along with 2 parameters imported via a comma seperated string.
+- Fixed an issue with XRcade support links despawning.
+- Adjusted all Auxl system methods to match case style i.e. CaseName
+- Updated default VR mode to dual ray with left locomotion
+- Updated teleportation, raycast-teleportation-select, raycast-teleportation & teleportation-to to support physic bodies.
+- Updated fusingrun, mousedownrun, mouseenterrun, mouseleaverun & mouseuprun components to support the param 'other' which will pass along the other element. When added to an object, it returns the raycaster that clicked it.
+- Added cursor indicators for time based charge animations to both vrControllers.
+- Fixed an issue with Ammo hoverTarget powers to properly identify which vrController is being used via which action.
+- Updated player hover methods when in vr to check the actionParams prefix for action1/2/3/4 to determine which raycaster to assign to and postfix for the actual params command. Added action1/2/3/4 prefix to action1/2/3/4 powers in instruction controls.
+- Updated ammo physics kinsync component to also sync rotation
+- New player method UpdateDefaultPosition which is used by scene automatically to update defined default position which is now checked when resetting the player's position/rotation via method or main menu
+- Increased avatar hover gem height
+- Fixed an issue with player method ResetUserPosRot incorrectly resetting rotation 
+- Avatar head visibility is disabled in 1st POV mode to avoid vr roomscale overlaps where the head blocks the camera view.
+- Seperated Avatar hands from VR controllers and attached to the player rig with support for room tracking camera height adjustments. Linked the controller movements for Ammo physics so when zoomed out can still physically interact within rig local coordinates.
+- Added new RayCoord player method that determines the direction from an entity's local coords and applies that to another entity's different local coords aka rotated differently.
+- Added camera rig height manual adjustment to main menu.
+- Added 1st Pov and 3rd Pov camera switch.
+- Updated Player Avatar
+- Fixed an issue with toggling between various VR control configurations.
+- Added 'opacities' schema array import for gltfmat
+- Fixed an issue with Grid Collision. Added a support function to calculate the Grid End position based on the start position and geometry or defined size of the entity when spawning on grid with the end position is ommitted.
+- Core supports a new Key 'defaultParent' which if no parent is specified during SpawnCore() then that parent id will take over instead of adding directly to the scene
+- World can now import a set of music tracks via key object 'backgroundAudio' and can use world.MusicPlaylist(trackName) to stop current song and start specificied. If false, turns off the song.
+- ZoneData now support the key backgroundAudio with a track name to start new song or 'none' keyword to turn off current music without adding new.
+- World can now import a set of sound effects via key object 'soundEffects' and can be used like normal sounds via events.
+- Updated compass to use text instead of img
+- Moved all assets out of library
+- Bug Fix with companion spawn and stare for all rotations axis. Stare uses the three.js lookAt method which has it's defined up. Fixed by updating object up
+- Bug Fix for button click events firing continously for desktop
+- Added player method UpdateActions that takes in the same data as any scene instruction control key data to assign or remove abilities to the player. If you override a current ability it will be backed up. On the new ability removal, the previous one will be restored. With this, NPC Books can now customize player actions while they are being interacted with.
+- Layer data now supports a config key for which any key/property pairs will be applied to the Layer itself such as the case needed for Grid collision. Layer Data and Layer Template functions have been updated to reflect this.
+- Added support public ShallowOmit(obj, ...keys) function which takes in an object to duplicate from along with a set of keys to omit from the original object and return that new object without those keys.
 
-
+---
+# Brief Overview of v0.3 Major Updates : :snowflake:
+## Highlights
 
 ## Core & Layers
 - Layers now support unlimited depth of parent/child entities.
