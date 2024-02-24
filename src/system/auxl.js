@@ -1344,7 +1344,7 @@ this.ToggleHTML = (id, show, display) => {
 //
 //Support
 
-//Test function and default for components
+//Test function and default for components to log when not configured correctly
 this.Test = (params) => {
 	console.log(params)
 }
@@ -1534,7 +1534,6 @@ function RGBToHex(r,g,b) {
 	g = "0" + g;
 	if (b.length == 1)
 	b = "0" + b;
-
 	return "#" + r + g + b;
 }
 function hexToRGB(h) {
@@ -1729,9 +1728,9 @@ RGBToHex(tetradicRGB[2].r, tetradicRGB[2].g, tetradicRGB[2].b)
 
 //Analagous
 let analogRGB = [
-HSLToRGB(Math.abs((hue + 30) - 360), sat, lum),
-HSLToRGB(Math.abs((hue + 60) - 360), sat, lum),
-HSLToRGB(Math.abs((hue + 90) - 360), sat, lum)
+HSLToRGB(Math.abs((hue + 30) % 360), sat, lum),
+HSLToRGB(Math.abs((hue + 60) % 360), sat, lum),
+HSLToRGB(Math.abs((hue + 90) % 360), sat, lum)
 ];
 let analog = [
 RGBToHex(analogRGB[0].r, analogRGB[0].g, analogRGB[0].b),
@@ -1739,29 +1738,39 @@ RGBToHex(analogRGB[1].r, analogRGB[1].g, analogRGB[1].b),
 RGBToHex(analogRGB[2].r, analogRGB[2].g, analogRGB[2].b)
 ];
 
+//
 //Monochrome (25-60% | 42%)
 let mono = [];
 const spread = 0.42;
-let light = RGBToHex(r*(1+spread),g*(1+spread),b*(1+spread));
+
+//Light color
+//Some edge cases produce NaN
+let lightR = Math.floor(r + (255 - r) * spread, 255);
+let lightG = Math.floor(g + (255 - g) * spread, 255);
+let lightB = Math.floor(b + (255 - b) * spread, 255);
+//Check for NaN and replace with bright 255
+lightR = isNaN(lightR) ? 255 : lightR;
+lightG = isNaN(lightG) ? 255 : lightG;
+lightB = isNaN(lightB) ? 255 : lightB;
+let light = RGBToHex(lightR, lightG, lightB);
 mono.push(light);
-let dark = RGBToHex(r*(1-spread),g*(1-spread),b*(1-spread));
+
+//Dark color
+let dark = RGBToHex(
+  Math.round(r * (1 - spread)),
+  Math.round(g * (1 - spread)),
+  Math.round(b * (1 - spread))
+);
 mono.push(dark);
-//red_light = red_primary * (1 + scaling_factor)
-//green_light = green_primary * (1 + scaling_factor)
-//blue_light = blue_primary * (1 + scaling_factor)
 
-//red_dark = red_primary * (1 - scaling_factor)
-//green_dark = green_primary * (1 - scaling_factor)
-//blue_dark = blue_primary * (1 - scaling_factor)
-
-return {base, light, dark, compl, splitCompl, triadic, tetradic, analog};
+return {base, light, dark, compl, splitCompl, triadic, tetradic, analog, mono};
 
 }
 /*
 'red','orange','yellow','lime','blue','cyan','magenta','maroon','olive','green','purple','teal','navy','silver','grey','black','white'
-let newColor1 = ColorTheoryGen();
-let newColor1 = ColorTheoryGen('#00d3d3');
-let newColor1 = ColorTheoryGen(false, 'red');
+let newColor1 = auxl.ColorTheoryGen();
+let newColor1 = auxl.ColorTheoryGen('#00d3d3');
+let newColor1 = auxl.ColorTheoryGen(false, 'red');
 console.log(newColor1.base);
 console.log(newColor1.compl);
 console.log(newColor1.splitCompl[0]);
@@ -1774,6 +1783,8 @@ console.log(newColor1.tetradic[2]);
 console.log(newColor1.analog[0]);
 console.log(newColor1.analog[1]);
 console.log(newColor1.analog[2]);
+console.log(newColor1.mono[0]);
+console.log(newColor1.mono[1]);
 */
 
 //

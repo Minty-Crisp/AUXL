@@ -296,8 +296,6 @@ auxl.caosScenarioData = {
 	start:{
 		skyBox0:{SpawnSkyBox: null},
 		comp:{SpawnComp: null,},
-
-		building1Door:{SpawnCore: null},
 	},
 	delay:{
 		100:{
