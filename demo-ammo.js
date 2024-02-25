@@ -576,7 +576,7 @@ auxl.hoverTarget2 = auxl.Core(auxl.hoverTarget2Data);
 
 auxl.AmmoCubes = (data) => {
 	let ammoCubes = {};
-	ammoCubes.id = data.id || Math.random();
+	ammoCubes.id = data.id || auxl.RanNameGen();
 	ammoCubes.radius = data.radius || 10;
 	ammoCubes.total = data.total || 42;
 	ammoCubes.coreData = data.coreData || auxl.hoverhoverTarget0Data;

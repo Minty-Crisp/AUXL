@@ -165,19 +165,9 @@ const MultiMenu = (auxl, multiMenuData) => {
 	let circleRot = -45;
 	let maxNulls = 0;
 	let switchDelay = 250;
-/*
-
-auxl.faceEye2SocketData = auxl.CoreDataFromTemplate(auxl.faceEye1SocketData, {id: 'faceEye2Socket', position: new THREE.Vector3(0.15,0.1,0.4)}, true);
-auxl.faceEye2Socket = auxl.Core(auxl.faceEye2SocketData);
-*/
-
-
-	//multiMenu.buttonData = JSON.parse(JSON.stringify(multiMenu.data.info.buttonData));
-	//multiMenu.hoverData = JSON.parse(JSON.stringify(multiMenu.data.info.hoverData));
 
 	multiMenu.buttonData = auxl.CoreDataFromTemplate(multiMenu.data.info.buttonData, {id: 'buttonData',}, true);
 	multiMenu.hoverData = auxl.CoreDataFromTemplate(multiMenu.data.info.hoverData, {id: 'hoverData',}, true);
-
 
 	multiMenu.nullParentData = {
 		data:'nullParentData',

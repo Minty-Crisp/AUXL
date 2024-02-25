@@ -4815,44 +4815,11 @@ const Companion = (auxl, id, object, inventory) => {
 			}, 10);
 		}
 	}
-	//Update Main Menu
-	const UpdateMainMenu = (updates) => {
-		//Building New Menu Resets any Temp things like UpdateSubMenu
-		let restart = false;
-		if(auxl.mainMenu.inScene){
-			auxl.mainMenu.DespawnMultiMenu();
-			restart = true;
-		}
-		Object.keys(updates).forEach(section => {
-			if(comp.mainMenuData[section]){
-				comp.mainMenuData[section][updates[section].id] = updates[section];
-			} else {
-				comp.mainMenuData[section] = updates[section];
-			}
-		});
-		auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
-		UpdateInventoryMenu();
-		BuildAvatarMenu();
-		if(restart){
-			auxl.mainMenu.SpawnMultiMenu();
-		}
-	}
-	//Update Main Menu Style
-	const UpdateMainMenuStyle = (core) => {
-		let restart = false;
-		if(auxl.mainMenu.inScene){
-			auxl.mainMenu.DespawnMultiMenu();
-			restart = true;
-		}
-		comp.mainMenuData.info.buttonData = core;
-		auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
-		UpdateInventoryMenu();
-		BuildAvatarMenu();
-		if(restart){
-			auxl.mainMenu.SpawnMultiMenu();
-		}
-	}
-	//Enable Inventory
+
+	//
+	//Inventory
+
+	//Enable Inventory - Bad : Rebuilds Main Menu, Use AddToMenu when completed
 	const EnableInventory = () => {
 		comp.enableInventory = true;
 		comp.mainMenuData.menu0 = {
@@ -4919,6 +4886,121 @@ const Companion = (auxl, id, object, inventory) => {
 	};
 		auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
 		UpdateInventoryMenu();
+	}
+	//Update Main Menu - Bad : Rebuilds Main Menu, Use AddToMenu when completed
+	const UpdateMainMenu = (updates) => {
+		//Building New Menu Resets any Temp things like UpdateSubMenu
+		let restart = false;
+		if(auxl.mainMenu.inScene){
+			auxl.mainMenu.DespawnMultiMenu();
+			restart = true;
+		}
+		Object.keys(updates).forEach(section => {
+			if(comp.mainMenuData[section]){
+				comp.mainMenuData[section][updates[section].id] = updates[section];
+			} else {
+				comp.mainMenuData[section] = updates[section];
+			}
+		});
+		auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
+		UpdateInventoryMenu();
+		BuildAvatarMenu();
+		if(restart){
+			auxl.mainMenu.SpawnMultiMenu();
+		}
+	}
+	//Update Main Menu Style - Bad : Rebuilds Main Menu, Use AddToMenu when completed
+	const UpdateMainMenuStyle = (core) => {
+		let restart = false;
+		if(auxl.mainMenu.inScene){
+			auxl.mainMenu.DespawnMultiMenu();
+			restart = true;
+		}
+		comp.mainMenuData.info.buttonData = core;
+		auxl.mainMenu = auxl.MultiMenu(comp.mainMenuData);
+		UpdateInventoryMenu();
+		BuildAvatarMenu();
+		if(restart){
+			auxl.mainMenu.SpawnMultiMenu();
+		}
+	}
+
+	//Update Inventory Menu Category
+	const UpdateInventoryMenuCategory = (category) => {
+		comp.inventoryButtons = {};
+		let buttonTemplate = {};
+		let moreTemplate = {};
+		let currNum = 1;
+		let currPage = 1;
+		let total = Object.keys(comp[category]).length;
+		let pages = Math.ceil(total/8);
+		let subMenuName = category + currPage;
+		let menuControl = 'stay';
+
+		for(let each in comp[category]){
+			let name;
+			if(comp[category][each].persist === 'limited'){
+				name = comp[category][each].name+' x'+comp[category][each].amount;
+			} else {
+				name = comp[category][each].name;
+			}
+			if(comp[category][each].menu){
+				menuControl = comp[category][each].menu;
+			} else {
+				menuControl = 'stay';
+			}
+			buttonTemplate = {
+				id: 'action'+currNum,
+				style: comp[category][each].style,
+				title: name,
+				description: comp[category][each].description,
+				subMenu: false,
+				action: {
+					auxlObj: comp[category][each].auxlObj,
+					component: comp[category][each].component,
+					method: comp[category][each].method,
+					params: comp[category][each].params,
+					menu: menuControl,
+				},
+			};
+			if(comp[category][each].action){} else {
+				buttonTemplate.action = false;
+			}
+			moreTemplate = {
+				id: 'action'+currNum,
+				style: false,
+				title: 'More',
+				description: 'Next Page',
+				subMenu: false,
+				action: false,
+			};
+			comp.inventoryButtons['button'+currNum] = buttonTemplate;
+			if(currNum === total){
+				auxl.mainMenu.UpdateSubMenu(subMenuName,comp.inventoryButtons);
+			} else {
+				currNum++;
+			}
+			if(pages > 1){
+				if(currNum % 7 === 0){
+					currPage++;
+					//build more button
+					moreTemplate.id = 'action'+currNum;
+					moreTemplate.subMenu = category + currPage;
+					comp.inventoryButtons['button'+currNum] = moreTemplate;
+					auxl.mainMenu.UpdateSubMenu(subMenuName,comp.inventoryButtons);
+					comp.inventoryButtons = {};
+					subMenuName = category + currPage;
+				}
+			}
+
+		}
+	}
+	//Update Inventory Menu
+	const UpdateInventoryMenu = () => {
+		UpdateInventoryMenuCategory('items');
+		UpdateInventoryMenuCategory('tools');
+		UpdateInventoryMenuCategory('keys');
+		UpdateInventoryMenuCategory('specials');
 	}
 	//Add To Inventory
 	const AddToInventory = ({item, hide}) => {
@@ -5022,83 +5104,7 @@ const Companion = (auxl, id, object, inventory) => {
 		}
 		return match;
 	}
-	//Update Inventory Menu Category
-	const UpdateInventoryMenuCategory = (category) => {
-		comp.inventoryButtons = {};
-		let buttonTemplate = {};
-		let moreTemplate = {};
-		let currNum = 1;
-		let currPage = 1;
-		let total = Object.keys(comp[category]).length;
-		let pages = Math.ceil(total/8);
-		let subMenuName = category + currPage;
-		let menuControl = 'stay';
 
-		for(let each in comp[category]){
-			let name;
-			if(comp[category][each].persist === 'limited'){
-				name = comp[category][each].name+' x'+comp[category][each].amount;
-			} else {
-				name = comp[category][each].name;
-			}
-			if(comp[category][each].menu){
-				menuControl = comp[category][each].menu;
-			} else {
-				menuControl = 'stay';
-			}
-			buttonTemplate = {
-				id: 'action'+currNum,
-				style: comp[category][each].style,
-				title: name,
-				description: comp[category][each].description,
-				subMenu: false,
-				action: {
-					auxlObj: comp[category][each].auxlObj,
-					component: comp[category][each].component,
-					method: comp[category][each].method,
-					params: comp[category][each].params,
-					menu: menuControl,
-				},
-			};
-			if(comp[category][each].action){} else {
-				buttonTemplate.action = false;
-			}
-			moreTemplate = {
-				id: 'action'+currNum,
-				style: false,
-				title: 'More',
-				description: 'Next Page',
-				subMenu: false,
-				action: false,
-			};
-			comp.inventoryButtons['button'+currNum] = buttonTemplate;
-			if(currNum === total){
-				auxl.mainMenu.UpdateSubMenu(subMenuName,comp.inventoryButtons);
-			} else {
-				currNum++;
-			}
-			if(pages > 1){
-				if(currNum % 7 === 0){
-					currPage++;
-					//build more button
-					moreTemplate.id = 'action'+currNum;
-					moreTemplate.subMenu = category + currPage;
-					comp.inventoryButtons['button'+currNum] = moreTemplate;
-					auxl.mainMenu.UpdateSubMenu(subMenuName,comp.inventoryButtons);
-					comp.inventoryButtons = {};
-					subMenuName = category + currPage;
-				}
-			}
-
-		}
-	}
-	//Update Inventory Menu
-	const UpdateInventoryMenu = () => {
-		UpdateInventoryMenuCategory('items');
-		UpdateInventoryMenuCategory('tools');
-		UpdateInventoryMenuCategory('keys');
-		UpdateInventoryMenuCategory('specials');
-	}
 
 	return{comp, TestFunc, AddAvatar, UpdateShape, UpdateBook, SpawnComp, DespawnComp, GetEl, SetFlag, GetFlag, TurnToPlayer, UpdatePosition, ToggleControlView, UpdateMainMenu, UpdateMainMenuStyle, EnableInventory, AddToInventory, ClearInventoryNotifications, RemoveFromInventory, CheckInventory, CheckForKey, UpdateInventoryMenu, DragToPosition};
 }

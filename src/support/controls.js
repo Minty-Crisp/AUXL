@@ -1001,6 +1001,9 @@ mainClick: function (e){
 	} else {
 //console.log('click')
 	}
+
+	//Attempting to prevent 1 vr controller trigger from activating both raycaster intersected objects
+	e.stopPropagation();
 },
 //Alt Click
 altClick: function (e){

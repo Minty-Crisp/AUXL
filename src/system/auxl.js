@@ -30,6 +30,8 @@ import {Collision, GridLayout, Gate} from './grid.js';
 import {Constraints, One, BuildIn3D} from './build.js';
 //Images
 import {ImageSwapper, ImageCarousel} from './images.js';
+//Cards
+import Card from './cards.js';
 //Import Pet
 import Pet from '../games/pet.js';
 //AUXL System
@@ -556,6 +558,7 @@ gate:{type:'gate', spawn: 'SpawnGate', despawn: 'DespawnGate'},
 imageSwapper:{type:'imageSwapper', spawn: 'SpawnImgSwap', despawn: 'DespawnImgSwap'},
 imageCarousel:{type:'imageCarousel', spawn: 'SpawnImgCarousel', despawn: 'DespawnImgCarousel'},
 comboLock:{type:'comboLock', spawn: 'SpawnComboLock', despawn: 'DespawnComboLock'},
+card:{type:'card', spawn: 'SpawnCard', despawn: 'DespawnCard'},
 };
 //Add Custom Built Object to Tracker
 this.AddObjGenToTracker = (type, spawn, despawn, altSpawn) => {
@@ -2182,6 +2185,13 @@ this.ImageSwapper = (id, mainData, buttonData, ...materials) => {
 //View large set of Images in a set of Frames and Button Controls
 this.ImageCarousel = (carouselData) => {
 	return ImageCarousel(auxl, carouselData);
+}
+
+//
+//Cards
+//Build a Trading Card, Business Card, Playing Card, etc...
+this.Card = (cardData) => {
+	return Card(auxl, cardData);
 }
 
 
