@@ -153,13 +153,10 @@ const mobileF = document.getElementById('f');
 const mobileG = document.getElementById('g');
 const mobileH = document.getElementById('h');
 const mobileI = document.getElementById('i');
-//const mobileL = document.getElementById('l');
-//const mobileR = document.getElementById('r');
 
 let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, viewInfo, viewData, expInfo, infoClose, instructions, scenarioMenuTitle, dataInfo, dataClose, manageData, resetData, fullScreen, controllerBlock, vrHandButton, vrLocomotionType];
 
 let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, fullScreen, controllerBlock, mobileUpLeft, mobileUp, mobileUpRight, mobileLeft, mobileCenter, mobileRight, mobileDownLeft, mobileDown, mobileDownRight, mobileSelect, mobileStart, mobileA, mobileB, mobileC, mobileD, mobileE, mobileF, mobileG, mobileH, mobileI, ];
-//Disabled - mobileL, mobileR
 
 // System Configure
 /***********************************************************/
@@ -294,6 +291,7 @@ const NewData = () => {
 	this.local.profile = {};
 	this.local.profile.domain = window.location.hostname;
 	this.local.profile.page = window.location.pathname;
+	this.local.profile.userAgent = window.navigator.userAgent;
 	this.local.profile.controls = this.controls;
 	this.local.profile.vrHand = this.vrHand;
 	this.local.profile.volume = this.volume;
@@ -512,7 +510,6 @@ this.TimeDif = (start, end) => {
 //Controls
 this.universalControls;
 this.controls = 'Desktop';
-//this.vrHand = 'bothRight';
 this.vrHand = 'bothLeftLoco';
 this.vrHandPrevious = false;
 this.directionType = 'camera';
@@ -788,6 +785,8 @@ function DisableVRControls(){
 	auxl.vrController2.GetEl().removeAttribute('laser-controls');
 }
 function EnableVRControls(){
+	//Ensure controller clicks are enabled, will ignore if already setup
+	auxl.controller.swapClick(true);
 	if(auxl.vrHand === 'bothRight'){
 		auxl.vrController1.GetEl().setAttribute('visible',true);
 		auxl.vrController2.GetEl().setAttribute('visible',true);
@@ -870,6 +869,8 @@ function DisableDesktopControls(){
 	auxl.mouseController.GetEl().removeAttribute('cursor');
 }
 function EnableDesktopControls(){
+	//Ensure document click is enabled, will ignore if already setup
+	auxl.controller.swapClick();
 	auxl.mouseController.GetEl().setAttribute('visible',true);
 	auxl.mouseController.GetEl().setAttribute('raycaster',{enabled: 'true', autoRefresh: 'true', objects: '.clickable', far: 'Infinity', near: 0.15, interval: 0, lineColor: 'red', lineOpacity: 0.5, showLine: 'false', useWorldCoordinates: 'false'});
 	auxl.mouseController.GetEl().setAttribute('cursor',{fuse: 'false', rayOrigin: 'mouseController', mouseCursorStylesEnabled: 'true',});
@@ -887,6 +888,8 @@ function DisableMobileControls(){
 	controllerBlock.style.display = 'none';
 }
 function EnableMobileControls(){
+	//Ensure document click is enabled, will ignore if already setup
+	auxl.controller.swapClick();
 	/*
 	function mobilePermissionGrantedTrue(){
 		auxl.mobilePermissionGranted = true;

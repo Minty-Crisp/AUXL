@@ -623,6 +623,7 @@ this.angleDegRot = 0;
 this.toggled = {};
 
 //Universal Events
+this.docClick = true;
 document.addEventListener('mainClick', this.mainClickHit);
 document.addEventListener('altClick', this.altClickHit);
 document.addEventListener('direction', this.directionHit);
@@ -1593,6 +1594,21 @@ clearJoystickEvents: function (){
 blank: function (e){
 	console.log(e);
 	//this.updateInput('Blank Button');
+},
+//Swap Click between Document and VR Controllers
+swapClick: function (vr) {
+	if(vr && this.docClick){
+		document.removeEventListener('mainClick', this.mainClickHit);
+		this.vrController1.addEventListener('mainClick', this.mainClickHit);
+		this.vrController2.addEventListener('mainClick', this.mainClickHit);
+		this.docClick = false;
+	} else if(!vr && !this.docClick){
+		this.vrController1.removeEventListener('mainClick', this.mainClickHit);
+		this.vrController2.removeEventListener('mainClick', this.mainClickHit);
+		document.addEventListener('mainClick', this.mainClickHit);
+		this.docClick = true;
+	}
+
 },
 //Update
 update: function () {
