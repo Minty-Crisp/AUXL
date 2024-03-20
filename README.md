@@ -6,8 +6,8 @@ Overview : :star2:
 ---
 Built on top of the amazing open source [A-Frame](https://github.com/aframevr/) & the underlying renderer [Three.js](https://threejs.org/), AUXL is a system to help streamline the creation of all types of Web XR experiences by providing vital features to ease the creation of complex and dynamic content.
 
-![March Preview 1](https://github.com/Minty-Crisp/AUXL/tree/main/assets/img/previews/mintycrisp-auxl-march-preview1.jpg)
-![March Preview 2](https://github.com/Minty-Crisp/AUXL/tree/main/assets/img/previews/mintycrisp-auxl-march-preview1.jpg)
+![March Preview 1](https://github.com/Minty-Crisp/AUXL/blob/main/assets/img/previews/mintycrisp-auxl-march-preview1.jpg)
+![March Preview 2](https://github.com/Minty-Crisp/AUXL/blob/main/assets/img/previews/mintycrisp-auxl-march-preview2.jpg)
 
 Demo : :zap:
 ---
