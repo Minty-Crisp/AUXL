@@ -4699,8 +4699,7 @@ auxl.cabLayer = auxl.Layer('cabLayer', auxl.cabLayerData);
 
 //Left
 //Cab 1
-auxl.cadeCab1LayerData = auxl.LayerDataFromTemplate(auxl.cabLayerData, 'cadeCab1LayerData', {rotation: new THREE.Vector3(0,90,0), components:{['gltf-model']:'./assets/3d/XRcade/cabinet.glb', gltfmat: {colors:['random', 'random', 'random', 'random', 'random', 'white', 'random', 'random', 'random', 'random'], textures:[false, false, false, false, false, auxl.game1Preview,],}, hovertext:{value: 'Ready?\nPlayer One', hover: 'top', offset: 5, twist: true,},},}, {grid: {start:{x:-5.5, y:0, z:-7.5}, end: {x:-4, y:0, z:-6}, yOffset: 0, collide: true}}, true);
-auxl.cadeCab1Layer = auxl.Layer('cadeCab1Layer', auxl.cadeCab1LayerData);
+auxl.cadeCab1Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab1Layer', {rotation: new THREE.Vector3(0,90,0), components:{['gltf-model']:'./assets/3d/XRcade/cabinet.glb', gltfmat: {colors:['random', 'random', 'random', 'random', 'random', 'white', 'random', 'random', 'random', 'random'], textures:[false, false, false, false, false, auxl.game1Preview,],}, hovertext:{value: 'Ready?\nPlayer One', hover: 'top', offset: 5, twist: true,},},}, {grid: {start:{x:-5.5, y:0, z:-7.5}, end: {x:-4, y:0, z:-6}, yOffset: 0, collide: true}}, true);
 auxl.cadeCab1Layer.layer.all.child0.core.core.text.value = 'Memory Order';
 //Cab 2
 auxl.cadeCab2Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab2Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-9}, end: {x:-4, y:0, z:-7.5}, yOffset: 0, collide: true}}, true);
@@ -5724,10 +5723,10 @@ auxl.compCadeBookData = {
 //Carpet Changes Buttons
 auxl.changeCarpetTexture = (style) => {
 	//Floor is reused everywhere, clear previous material if so
-	let clear = auxl.floor.GetEl().getAttribute('material');
+	let clear = auxl.xrcadeFloor.GetEl().getAttribute('material');
 	if(clear && clear.shader !== 'flat'){auxl.floor.RemoveComponent('material')}
 	
-	auxl.floor.ChangeSelf({property: 'material', value:{shader: 'flat', side: 'front', src: auxl[style], repeat: auxl.floor.core.material.repeat}}, true)
+	auxl.xrcadeFloor.ChangeSelf({property: 'material', value:{shader: 'flat', side: 'front', src: auxl[style], repeat: auxl.xrcadeFloor.core.material.repeat}}, true)
 	auxl.dividerEast.ChangeSelf({property: 'material', value:{shader: 'flat', src: auxl[style], repeat: auxl.dividerEast.core.material.repeat}}, true)
 	auxl.dividerWest.ChangeSelf({property: 'material', value:{shader: 'flat', src: auxl[style], repeat: auxl.dividerWest.core.material.repeat}}, true)
 	auxl.dividerNorth.ChangeSelf({property: 'material', value:{shader: 'flat', src: auxl[style], repeat: auxl.dividerNorth.core.material.repeat}}, true)
@@ -5843,8 +5842,7 @@ auxl.buildXRcadeLibrary = () => {
 	auxl.comp.AddAvatar('Snow Man','compShape1Layer');
 	//Left
 	//Cab 1
-	auxl.cadeCab1LayerData = auxl.LayerDataFromTemplate(auxl.cabLayerData, 'cadeCab1LayerData', {rotation: new THREE.Vector3(0,90,0), components:{['gltf-model']:'./assets/3d/XRcade/cabinet.glb', gltfmat: {colors:['random', 'random', 'random', 'random', 'random', 'white', 'random', 'random', 'random', 'random'], textures:[false, false, false, false, false, auxl.game1Preview,],}, hovertext:{value: 'Ready?\nPlayer One', hover: 'top', offset: 5, twist: true,},},}, {grid: {start:{x:-5.5, y:0, z:-7.5}, end: {x:-4, y:0, z:-6}, yOffset: 0, collide: true}}, true);
-	auxl.cadeCab1Layer = auxl.Layer('cadeCab1Layer', auxl.cadeCab1LayerData);
+	auxl.cadeCab1Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab1Layer', {rotation: new THREE.Vector3(0,90,0), components:{['gltf-model']:'./assets/3d/XRcade/cabinet.glb', gltfmat: {colors:['random', 'random', 'random', 'random', 'random', 'white', 'random', 'random', 'random', 'random'], textures:[false, false, false, false, false, auxl.game1Preview,],}, hovertext:{value: 'Ready?\nPlayer One', hover: 'top', offset: 5, twist: true,},},}, {grid: {start:{x:-5.5, y:0, z:-7.5}, end: {x:-4, y:0, z:-6}, yOffset: 0, collide: true}}, true);
 	auxl.cadeCab1Layer.layer.all.child0.core.core.text.value = 'Memory Order';
 	//Cab 2
 	auxl.cadeCab2Layer = auxl.LayerFromTemplate(auxl.cabLayer, 'cadeCab2Layer', {rotation: new THREE.Vector3(0,90,0)}, {grid: {start:{x:-5.5, y:0, z:-9}, end: {x:-4, y:0, z:-7.5}, yOffset: 0, collide: true}}, true);

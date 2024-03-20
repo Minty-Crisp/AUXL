@@ -38,10 +38,10 @@ init: function () {
 //Action 2 - Button Y, Key E, HTML B
 //Action 3 - Button A, Key R, HTML C
 //Action 4 - Button B, Key T, HTML D
-//Action 5 - Other Joystick Down, Key C, HTML E
-//Action 6 - Other Joystick Up, Key V, HTML F
-//Action 7 - Other Joystick Left, Key Z, HTML <-
-//Action 8 - Other Joystick Right, Key X, HTML ->
+//Action 5 - Other Joystick Down, Key C, HTML F
+//Action 6 - Other Joystick Up, Key V, HTML G
+//Action 7 - Other Joystick Left, Key Z, HTML H
+//Action 8 - Other Joystick Right, Key X, HTML I
 
 
 //Default Actions :
@@ -116,7 +116,7 @@ this.mobileA = document.getElementById('a');
 this.mobileB = document.getElementById('b');
 this.mobileC = document.getElementById('c');
 this.mobileD = document.getElementById('d');
-this.mobileE = document.getElementById('e');
+this.mobileMain = document.getElementById('main');
 this.mobileF = document.getElementById('f');
 this.mobileG = document.getElementById('g');
 this.mobileH = document.getElementById('h');
@@ -607,12 +607,18 @@ this.yNumLoco = 0;
 this.angleLoco = 0;
 this.angleDegLoco = 0;
 //Other Joystick
-this.deadzoneOther = 0.1;
+this.deadzoneOther = 0.3;
 this.xNumOther = 0;
 this.yNumOther = 0;
 this.angleOther = 0;
 this.angleDegOther = 0;
-//Locomotion Joystick
+this.other = {
+	action6Down: false,
+	action8Down: false,
+	action5Down: false,
+	action7Down: false,
+};
+//Rotation Joystick
 this.deadzoneRot = 0.1;
 this.xNumRot = 0;
 this.yNumRot = 0;
@@ -687,8 +693,9 @@ let initTimeout = setTimeout(() => {
 	//Joysticks
 	this.addJoystickEvents();
 
-	this.mobileSelect.addEventListener('touchstart', this.auxl.ToggleHTMLMenu);
-	this.mobileStart.addEventListener('touchstart', this.auxl.player.MainMenuAction);
+	//HTML
+	this.mobileStart.addEventListener('touchstart', this.auxl.ToggleHTMLMenu);
+	this.mobileSelect.addEventListener('touchstart', this.auxl.player.MainMenuAction);
 
 }, 250);
 
@@ -702,8 +709,8 @@ this.mobileUpRight.addEventListener('touchstart', this.directionForwardRightDown
 this.mobileUpRight.addEventListener('touchend', this.directionForwardRightUp);
 this.mobileLeft.addEventListener('touchstart', this.directionLeftDown);
 this.mobileLeft.addEventListener('touchend', this.directionLeftUp);
-this.mobileCenter.addEventListener('touchstart', this.blankHit);
-this.mobileCenter.addEventListener('touchend', this.blankHit);
+//this.mobileCenter.addEventListener('touchstart', this.blankHit);
+//this.mobileCenter.addEventListener('touchend', this.blankHit);
 this.mobileRight.addEventListener('touchstart', this.directionRightDown);
 this.mobileRight.addEventListener('touchend', this.directionRightUp);
 this.mobileDownLeft.addEventListener('touchstart', this.directionBackwardLeftDown);
@@ -712,10 +719,6 @@ this.mobileDown.addEventListener('touchstart', this.directionBackwardDown);
 this.mobileDown.addEventListener('touchend', this.directionBackwardUp);
 this.mobileDownRight.addEventListener('touchstart', this.directionBackwardRightDown);
 this.mobileDownRight.addEventListener('touchend', this.directionBackwardRightUp);
-this.mobileSelect.addEventListener('touchstart', this.blankHit);
-//this.mobileSelect.addEventListener('touchend', this.blankHit);
-//this.mobileStart.addEventListener('touchstart', this.blankHit);
-//this.mobileStart.addEventListener('touchend', this.blankHit);
 this.mobileA.addEventListener('touchstart', this.action1Down);
 this.mobileA.addEventListener('touchend', this.action1Up);
 this.mobileB.addEventListener('touchstart', this.action2Down);
@@ -724,14 +727,14 @@ this.mobileC.addEventListener('touchstart', this.action3Down);
 this.mobileC.addEventListener('touchend', this.action3Up);
 this.mobileD.addEventListener('touchstart', this.action4Down);
 this.mobileD.addEventListener('touchend', this.action4Up);
-this.mobileE.addEventListener('touchstart', this.action5Down);
-this.mobileE.addEventListener('touchend', this.action5Up);
-this.mobileF.addEventListener('touchstart', this.action6Down);
-this.mobileF.addEventListener('touchend', this.action6Up);
-this.mobileG.addEventListener('touchstart', this.action7Down);
-this.mobileG.addEventListener('touchend', this.action7Up);
-this.mobileH.addEventListener('touchstart', this.action8Down);
-this.mobileH.addEventListener('touchend', this.action8Up);
+//this.mobileMain.addEventListener('touchstart', this.mainClickDown);
+//this.mobileMain.addEventListener('touchend', this.mainClickUp);
+this.mobileG.addEventListener('touchstart', this.action6Down);
+this.mobileG.addEventListener('touchend', this.action6Up);
+this.mobileH.addEventListener('touchstart', this.action7Down);
+this.mobileH.addEventListener('touchend', this.action7Up);
+this.mobileI.addEventListener('touchstart', this.action8Down);
+this.mobileI.addEventListener('touchend', this.action8Up);
 
 
 //this.mobileL.addEventListener('touchend', this.action7Up);
@@ -820,35 +823,35 @@ updateAction: function (actionObj){
 		} else if(action === 'action5Down'){
 			actionFunc = 'action5DownFunc';
 			actionParams = 'action5DownParams';
-			htmlDisplay = 'e';
+			htmlDisplay = 'f';
 		} else if(action === 'action5Up'){
 			actionFunc = 'action5UpFunc';
 			actionParams = 'action5UpParams';
-			htmlDisplay = 'e';
+			htmlDisplay = 'f';
 		} else if(action === 'action6Down'){
 			actionFunc = 'action6DownFunc';
 			actionParams = 'action6DownParams';
-			htmlDisplay = 'f';
+			htmlDisplay = 'g';
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
 			actionParams = 'action6UpParams';
-			htmlDisplay = 'f';
+			htmlDisplay = 'g';
 		} else if(action === 'action7Down'){
 			actionFunc = 'action7DownFunc';
 			actionParams = 'action7DownParams';
-			htmlDisplay = 'g';
+			htmlDisplay = 'h';
 		} else if(action === 'action7Up'){
 			actionFunc = 'action7UpFunc';
 			actionParams = 'action7UpParams';
-			htmlDisplay = 'g';
+			htmlDisplay = 'h';
 		} else if(action === 'action8Down'){
 			actionFunc = 'action8DownFunc';
 			actionParams = 'action8DownParams';
-			htmlDisplay = 'h';
+			htmlDisplay = 'i';
 		} else if(action === 'action8Up'){
 			actionFunc = 'action8UpFunc';
 			actionParams = 'action8UpParams';
-			htmlDisplay = 'h';
+			htmlDisplay = 'i';
 		} else {
 			console.log('Failed to identify action')
 			return;
@@ -938,35 +941,35 @@ disableAction: function (actionObj){
 		} else if(action === 'action5Down'){
 			actionFunc = 'action5DownFunc';
 			actionParams = 'action5DownParams';
-			htmlDisplay = 'e';
+			htmlDisplay = 'f';
 		} else if(action === 'action5Up'){
 			actionFunc = 'action5UpFunc';
 			actionParams = 'action5UpParams';
-			htmlDisplay = 'e';
+			htmlDisplay = 'f';
 		} else if(action === 'action6Down'){
 			actionFunc = 'action6DownFunc';
 			actionParams = 'action6DownParams';
-			htmlDisplay = 'f';
+			htmlDisplay = 'g';
 		} else if(action === 'action6Up'){
 			actionFunc = 'action6UpFunc';
 			actionParams = 'action6UpParams';
-			htmlDisplay = 'f';
+			htmlDisplay = 'g';
 		} else if(action === 'action7Down'){
 			actionFunc = 'action7DownFunc';
 			actionParams = 'action7DownParams';
-			htmlDisplay = 'g';
+			htmlDisplay = 'h';
 		} else if(action === 'action7Up'){
 			actionFunc = 'action7UpFunc';
 			actionParams = 'action7UpParams';
-			htmlDisplay = 'g';
+			htmlDisplay = 'h';
 		} else if(action === 'action8Down'){
 			actionFunc = 'action8DownFunc';
 			actionParams = 'action8DownParams';
-			htmlDisplay = 'h';
+			htmlDisplay = 'i';
 		} else if(action === 'action8Up'){
 			actionFunc = 'action8UpFunc';
 			actionParams = 'action8UpParams';
-			htmlDisplay = 'h';
+			htmlDisplay = 'i';
 		} else {
 			console.log('Failed to identify action')
 			console.log(action)
@@ -989,9 +992,9 @@ mainClick: function (e){
 	if(e.target && e.target.URL){
 		return;
 	}
-	//console.log(e);
+	console.log(e);
 	//this.updateInput(e.detail.info);
-	if(['clickDown','leftClickDown','rightClickDown'].includes(e.detail.click)){
+	if(['clickDown','leftClickDown','rightClickDown', 'touchstart'].includes(e.detail.click)){
 //console.log('clickDown') 
 		//this.Measure();
 		//this.auxl.player.TriggerDown(e);
@@ -1004,7 +1007,7 @@ mainClick: function (e){
 	}
 
 	//Attempting to prevent 1 vr controller trigger from activating both raycaster intersected objects
-	e.stopPropagation();
+	//e.stopPropagation();
 },
 //Alt Click
 altClick: function (e){
@@ -1519,25 +1522,53 @@ questJoystick4Other: function (e){
 	} else if(this.yNumOther > this.deadzoneOther || this.yNumOther < this.deadzoneOther*-1 || this.xNumOther < this.deadzoneOther*-1 || this.xNumOther > this.deadzoneOther) {
 		if(this.angleDegOther > -45 && this.angleDegOther < 45){
 			//Backward : -45 -> 45
-			//this.updateInput('Stand');
-			this.action6Down();
+			//this.updateInput('6');
+			if(!this.other.action6Down){
+				this.other.action5Down = false;
+				this.other.action7Down = false;
+				this.other.action8Down = false;
+				this.other.action6Down = true;
+				this.action6Down();
+			}
 		} else if(this.angleDegOther > 45 && this.angleDegOther < 135){
 			//Right : 45 -> 135
-			//this.updateInput('Rotate Right');
+			//this.updateInput('8');
 			//this.snapRightHit();
-			this.action8Down();
+			if(!this.other.action8Down){
+				this.other.action5Down = false;
+				this.other.action6Down = false;
+				this.other.action7Down = false;
+				this.other.action8Down = true;
+				this.action8Down();
+			}
 		} else if(this.angleDegOther > 135 || this.angleDegOther < -135){
 			//Forward : 135 -> 180 or -135 -> -180
-			//this.updateInput('Duck');
-			this.action5Down();
+			//this.updateInput('5');
+			if(!this.other.action5Down){
+				this.other.action6Down = false;
+				this.other.action7Down = false;
+				this.other.action8Down = false;
+				this.other.action5Down = true;
+				this.action5Down();
+			}
 		} else if(this.angleDegOther < -45 && this.angleDegOther > -135){
 			//Left : -45 -> -135
-			//this.updateInput('Rotate Left');
+			//this.updateInput('7');
 			//this.snapLeftHit();
-			this.action7Down();
+			if(!this.other.action7Down){
+				this.other.action5Down = false;
+				this.other.action6Down = false;
+				this.other.action8Down = false;
+				this.other.action7Down = true;
+				this.action7Down();
+			}
 		}
 	} else {
-		//this.updateInput('Rotation|Duck Clear');
+		this.other.action5Down = false;
+		this.other.action6Down = false;
+		this.other.action7Down = false;
+		this.other.action8Down = false;
+		//this.updateInput('Other Clear');
 	}
 },
 //Add Joystick Listeners
@@ -1660,49 +1691,46 @@ remove: function () {
 	this.vrController2.removeEventListener('bbuttonup', this.action4Up);
 	this.clearJoystickEvents();
 	//Mobile
-	this.mobileUpLeft.removeEventListener('mousedown', this.directionForwardLeftDown);
-	this.mobileUpLeft.removeEventListener('mouseup', this.directionForwardLeftUp);
-	this.mobileUp.removeEventListener('mousedown', this.directionForwardDown);
-	this.mobileUp.removeEventListener('mouseup', this.directionForwardUp);
-	this.mobileUpRight.removeEventListener('mousedown', this.directionForwardRightDown);
-	this.mobileUpRight.removeEventListener('mouseup', this.directionForwardRightUp);
-	this.mobileLeft.removeEventListener('mousedown', this.directionLeftDown);
-	this.mobileLeft.removeEventListener('mouseup', this.directionLeftUp);
-	this.mobileCenter.removeEventListener('mousedown', this.blankHit);
-	this.mobileCenter.removeEventListener('mouseup', this.blankHit);
-	this.mobileRight.removeEventListener('mousedown', this.directionRightDown);
-	this.mobileRight.removeEventListener('mouseup', this.directionRightUp);
-	this.mobileDownLeft.removeEventListener('mousedown', this.directionBackwardLeftDown);
-	this.mobileDownLeft.removeEventListener('mouseup', this.directionBackwardLeftUp);
-	this.mobileDown.removeEventListener('mousedown', this.directionBackwardDown);
-	this.mobileDown.removeEventListener('mouseup', this.directionBackwardUp);
-	this.mobileDownRight.removeEventListener('mousedown', this.directionBackwardRightDown);
-	this.mobileDownRight.removeEventListener('mouseup', this.directionBackwardRightUp);
-	this.mobileSelect.removeEventListener('mousedown', this.blankHit);
-	//this.mobileSelect.removeEventListener('mouseup', this.blankHit);
-	this.mobileStart.removeEventListener('mousedown', this.blankHit);
-	//this.mobileStart.removeEventListener('mouseup', this.blankHit);
-	this.mobileA.removeEventListener('mousedown', this.action1Down);
-	this.mobileA.removeEventListener('mouseup', this.action1Up);
-	this.mobileB.removeEventListener('mousedown', this.action2Down);
-	this.mobileB.removeEventListener('mouseup', this.action2Up);
-	this.mobileC.removeEventListener('mousedown', this.action3Down);
-	this.mobileC.removeEventListener('mouseup', this.action3Up);
-	this.mobileD.removeEventListener('mousedown', this.action4Down);
-	this.mobileD.removeEventListener('mouseup', this.action4Up);
-	this.mobileE.removeEventListener('mousedown', this.action5Down);
-	this.mobileE.removeEventListener('mouseup', this.action5Up);
-	this.mobileF.removeEventListener('mousedown', this.action6Down);
-	this.mobileF.removeEventListener('mouseup', this.action6Up);
-	this.mobileG.removeEventListener('touchstart', this.action7Down);
-	this.mobileG.removeEventListener('touchend', this.action7Up);
-	this.mobileH.removeEventListener('touchstart', this.action8Down);
-	this.mobileH.removeEventListener('touchend', this.action8Up);
-
-	//this.mobileL.removeEventListener('touchstart', this.auxl.player.SnapLeft);
-	//this.mobileL.removeEventListener('touchend', this.action7Up);
-	//this.mobileR.removeEventListener('touchstart', this.auxl.player.SnapRight);
-	//this.mobileR.removeEventListener('touchend', this.action8Up);
+	//Directional
+	this.mobileUpLeft.removeEventListener('touchstart', this.directionForwardLeftDown);
+	this.mobileUpLeft.removeEventListener('touchend', this.directionForwardLeftUp);
+	this.mobileUp.removeEventListener('touchstart', this.directionForwardDown);
+	this.mobileUp.removeEventListener('touchend', this.directionForwardUp);
+	this.mobileUpRight.removeEventListener('touchstart', this.directionForwardRightDown);
+	this.mobileUpRight.removeEventListener('touchend', this.directionForwardRightUp);
+	this.mobileLeft.removeEventListener('touchstart', this.directionLeftDown);
+	this.mobileLeft.removeEventListener('touchend', this.directionLeftUp);
+	//this.mobileCenter.removeEventListener('touchstart', this.blankHit);
+	//this.mobileCenter.removeEventListener('touchend', this.blankHit);
+	this.mobileRight.removeEventListener('touchstart', this.directionRightDown);
+	this.mobileRight.removeEventListener('touchend', this.directionRightUp);
+	this.mobileDownLeft.removeEventListener('touchstart', this.directionBackwardLeftDown);
+	this.mobileDownLeft.removeEventListener('touchend', this.directionBackwardLeftUp);
+	this.mobileDown.removeEventListener('touchstart', this.directionBackwardDown);
+	this.mobileDown.removeEventListener('touchend', this.directionBackwardUp);
+	this.mobileDownRight.removeEventListener('touchstart', this.directionBackwardRightDown);
+	this.mobileDownRight.removeEventListener('touchend', this.directionBackwardRightUp);
+	//Actions
+	this.mobileStart.removeEventListener('touchstart', this.auxl.ToggleHTMLMenu);
+	this.mobileSelect.removeEventListener('touchstart', this.auxl.player.MainMenuAction);
+	this.mobileA.removeEventListener('touchstart', this.action1Down);
+	this.mobileA.removeEventListener('touchend', this.action1Up);
+	this.mobileB.removeEventListener('touchstart', this.action2Down);
+	this.mobileB.removeEventListener('touchend', this.action2Up);
+	this.mobileC.removeEventListener('touchstart', this.action3Down);
+	this.mobileC.removeEventListener('touchend', this.action3Up);
+	this.mobileD.removeEventListener('touchstart', this.action4Down);
+	this.mobileD.removeEventListener('touchend', this.action4Up);
+	//this.mobileMain.removeEventListener('touchstart', this.mainClickDown);
+	//this.mobileMain.removeEventListener('touchend', this.mainClickUp);
+	this.mobileF.removeEventListener('touchstart', this.action5Down);
+	this.mobileF.removeEventListener('touchend', this.action5Up);
+	this.mobileG.removeEventListener('touchstart', this.action6Down);
+	this.mobileG.removeEventListener('touchend', this.action6Up);
+	this.mobileH.removeEventListener('touchstart', this.action7Down);
+	this.mobileH.removeEventListener('touchend', this.action7Up);
+	this.mobileI.removeEventListener('touchstart', this.action8Down);
+	this.mobileI.removeEventListener('touchend', this.action8Up);
 },
 //tick: function (time, timeDelta) {},
 events: {

@@ -553,14 +553,14 @@ console.log({object, relay, method, params})
 	//Load Player Default Position 
 	const ScenePlayerPosition = () => {
 		if(core.info.spawnPos === 'other'){
-			//If using other, be sure to manually update default position, otherwise will default back to blank
-			auxl.player.UpdateDefaultPosition(new THREE.Vector3())
+			//If using other, the last manually updated position will be default. So apply new position on exit before loading into this scene.
+			//auxl.player.UpdateDefaultPosition(new THREE.Vector3())
 		} else if(core.info.spawnPos){
 			auxl.player.UpdateDefaultPosition(core.info.spawnPos)
 		} else {
 			auxl.player.UpdateDefaultPosition(new THREE.Vector3())
 		}
-		auxl.player.UpdatePlayerPosition(auxl.player.layer.defaultPosition);
+		auxl.player.UpdatePlayerPosition( auxl.player.layer.defaultPosition);
 	}
 	//NodeScene Start
 	const StartScene = () => {

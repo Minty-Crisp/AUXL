@@ -438,31 +438,6 @@ child0: {core: auxl.cam0},
 }
 auxl.cam0Layer = auxl.Layer('cam0Layer', auxl.cam0LayerData);
 
-/*
-//
-//Draw Testing
-auxl.drawTestingData = {
-	data:'drawTestingData',
-	id:'drawTesting',
-	sources:false,
-	text: false,
-	geometry: {primitive: 'box', width: 1, height: 1, depth: 1},
-	material: false,
-	position: new THREE.Vector3(0,0,0),
-	rotation: new THREE.Vector3(0,0,0),
-	scale: new THREE.Vector3(1,1,1),
-	animations: false,
-	mixins: false,
-	classes: ['a-ent', 'clickable'],
-	components: {
-		draw:{width: 256, height: 256},
-		drawtesting:{text: 'Hello World!', fontColor: '#ffffff', bkgdColor: '#c12eb6',},
-
-	},
-};
-auxl.drawTesting = auxl.Core(auxl.drawTestingData);
-*/
-
 //
 //Shaders Testing
 

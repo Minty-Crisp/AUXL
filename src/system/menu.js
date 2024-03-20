@@ -168,6 +168,7 @@ const MultiMenu = (auxl, multiMenuData) => {
 
 	multiMenu.buttonData = auxl.CoreDataFromTemplate(multiMenu.data.info.buttonData, {id: 'buttonData',}, true);
 	multiMenu.hoverData = auxl.CoreDataFromTemplate(multiMenu.data.info.hoverData, {id: 'hoverData',}, true);
+	multiMenu.hideData = auxl.CoreDataFromTemplate(multiMenu.data.info.hideData || auxl.menuPlaneHideData, {id: 'hideData',}, true);
 
 	multiMenu.nullParentData = {
 		data:'nullParentData',
@@ -212,8 +213,17 @@ const MultiMenu = (auxl, multiMenuData) => {
 	//Layout
 	if(multiMenu.layout === 'circleUp' || multiMenu.layout === 'circleDown' ){
 		multiMenu.buttonData.position.x = multiMenu.offset;
+		multiMenu.hideData.position.x = multiMenu.offset;
 	}
 	multiMenu.cores.main = auxl.Core(multiMenu.buttonData);
+	//Hide Menu
+	multiMenu.hideData.id = multiMenu.data.info.id + 'hide';
+	multiMenu.hideData.components = {};
+	multiMenu.hideData.components.menurun = {};
+	multiMenu.hideData.components.menurun.cursorObj = multiMenu.id;
+	multiMenu.hideData.components.menurun.method = 'HideMenu';
+	multiMenu.hideData.components.menurun.params = null;
+	multiMenu.cores.hide = auxl.Core(multiMenu.hideData);
 	//Sub Button Cores
 
 	//Init each main menu array storage
@@ -267,6 +277,10 @@ const MultiMenu = (auxl, multiMenuData) => {
 							multiMenu.buttonData.components.menurun = {};
 							multiMenu.buttonData.components.menurun.cursorObj = multiMenu.id;
 							multiMenu.buttonData.components.menurun.method = 'ResetMenu';
+						} else if(multiMenu.data[menu][button].action.menu === 'hide'){
+							multiMenu.buttonData.components.menurun = {};
+							multiMenu.buttonData.components.menurun.cursorObj = multiMenu.id;
+							multiMenu.buttonData.components.menurun.method = 'HideMenu';
 						}
 					} else {
 						multiMenu.buttonData.components.menurun = {};
@@ -428,6 +442,10 @@ const MultiMenu = (auxl, multiMenuData) => {
 							multiMenu.buttonData.components.menurun = {};
 							multiMenu.buttonData.components.menurun.cursorObj = multiMenu.id;
 							multiMenu.buttonData.components.menurun.method = 'ResetMenu';
+						} else if(buttons[button].action.menu === 'hide'){
+							multiMenu.buttonData.components.menurun = {};
+							multiMenu.buttonData.components.menurun.cursorObj = multiMenu.id;
+							multiMenu.buttonData.components.menurun.method = 'HideMenu';
 						}
 					} else {
 						multiMenu.buttonData.components.menurun = {};
@@ -480,6 +498,9 @@ let buttonData = JSON.parse(JSON.stringify(multiMenu.buttonData));
 		}
 		multiMenu.menuOpen = true;
 		multiMenu.switching = true;
+		if(!multiMenu.cores.hide.core.inScene){
+			multiMenu.cores.hide.SpawnCore(multiMenu.cores.parent);
+		}
 		let currentMenu = multiMenu.currentMenu;
 		let nullNum = 1;
 		let spawnParent;
@@ -544,6 +565,7 @@ let buttonData = JSON.parse(JSON.stringify(multiMenu.buttonData));
 	}
 	//Default Menu
 	const DefaultMenu = () => {
+		multiMenu.cores.hide.DespawnCore();
 		multiMenu.currentMenu = 'menu0';
 		multiMenu.menuPath = ['menu0'];
 		multiMenu.menuOpen = false;
@@ -580,12 +602,25 @@ let buttonData = JSON.parse(JSON.stringify(multiMenu.buttonData));
 			SpawnMenu();
 		}
 	}
+	//Hide Menu
+	const HideMenu = () => {
+		if(multiMenu.switching){}else{
+			if(multiMenu.menuOpen){
+				//hide
+				DespawnMenu(true);
+			} else {
+				//show
+				SpawnMenu();
+			}
+		}
+	}
 	//Despawn Menu
 	const DespawnMultiMenu = () => {
 		if(multiMenu.inScene){
 			ResetMenu(true);
 			let resetTimeout = setTimeout(() => {
-				multiMenu.menuLayer.GetChildEl(multiMenu.id+'null0').removeEventListener('click',ToggleMenu);
+				let menu = multiMenu.menuLayer.GetChildEl(multiMenu.id+'null0');
+				if(menu){menu.removeEventListener('click',ToggleMenu)}
 				multiMenu.menuLayer.DespawnLayer();
 				multiMenu.inScene = false;
 				auxl.RemoveFromTracker(multiMenu.id);
@@ -614,7 +649,7 @@ let buttonData = JSON.parse(JSON.stringify(multiMenu.buttonData));
 		}
 	}
 
-	return {multiMenu, SpawnMultiMenu, DespawnMultiMenu, ToggleMenu, UpdateParent, UpdateButtons, UpdateSubMenu, SubMenu, ResetMenu, SpawnDescription, DespawnDescription};
+	return {multiMenu, SpawnMultiMenu, DespawnMultiMenu, ToggleMenu, UpdateParent, UpdateButtons, UpdateSubMenu, SubMenu, HideMenu, ResetMenu, SpawnDescription, DespawnDescription};
 }
 
 //Mega Menu
@@ -653,8 +688,11 @@ const HoverMenu = (auxl, hoverMenuData) => {
 	//vertical
 	//horizontal
 	let circleRot = -45;
+	//let sliceRot = 157.5;
 	let maxNulls = 0;
-	let switchDelay = 50;
+	let switchDelay = 5;
+	let loading = false;
+	let respawnTimeout;
 
 	hoverMenu.buttonData = JSON.parse(JSON.stringify(hoverMenu.data.info.buttonData));
 
@@ -971,7 +1009,7 @@ const HoverMenu = (auxl, hoverMenuData) => {
 	const DespawnHoverMenu = () => {
 		if(hoverMenu.inScene){
 			//check which one is hovering if any to activate
-			console.log(hoverMenu.active)
+			//console.log(hoverMenu.active)
 			if(hoverMenu.active){
 				run(hoverMenu.data.menu[hoverMenu.active].action)
 			}

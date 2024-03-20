@@ -313,10 +313,10 @@ auxl.soundTestingData = {
 data:'Sound Testing',
 id:'soundTesting',
 sources: false,
-//sound: {src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
+//sound: {src: './assets/audio/kenney/confirmation_001.mp3', autoplay: false, loop: false, volume: 1, on: 'playSound'},
 sounds: {
-pickup:{src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound'},
-pickup2:{src: './assets/audio/270341__littlerobotsoundfactory__pickup-04.wav', autoplay: false, loop: false, volume: 1, on: 'playSound2'},
+pickup:{src: './assets/audio/kenney/confirmation_001.mp3', autoplay: false, loop: false, volume: 1, on: 'playSound'},
+pickup2:{src: './assets/audio/kenney/confirmation_001.mp3', autoplay: false, loop: false, volume: 1, on: 'playSound2'},
 },
 text: false,
 geometry: false,
@@ -1785,7 +1785,7 @@ auxl.keyGiverBubbleLayerData = {
 auxl.keyGiverBubbleLayer = auxl.Layer('keyGiverBubbleLayer',auxl.keyGiverBubbleLayerData);
 //NPC
 auxl.npcKeyGiver = auxl.NPC('npcKeyGiver', auxl.npcKeyRig, auxl.npcKeyBookData, auxl.keyGiverBubbleLayer, true);
-
+/*
 //Minty NPC
 auxl.npcMintyTextBubbleData = {
 data:'npc text bubble on top',
@@ -1895,8 +1895,8 @@ auxl.npcMintyBookTestData = {
 		page0: auxl.npcMintyIdleData,
 	},
 };
-//auxl.npcMinty = auxl.NPC('npcMinty', auxl.npcMintyCore, auxl.npcMintyBookTestData, auxl.npcMintyTextBubble);
-
+auxl.npcMinty = auxl.NPC('npcMinty', auxl.npcMintyCore, auxl.npcMintyBookTestData, auxl.npcMintyTextBubble);
+*/
 
 //NPC Layer Test
 auxl.testNullData = {
@@ -2105,7 +2105,7 @@ auxl.doorway2 = auxl.Core(auxl.doorway2Data);
 auxl.testHoverMenuData = {
 info:{
 	id: 'testHoverMenu',
-	buttonData: auxl.menuCylinderData,
+	buttonData: auxl.menuCylinderAltData,
 	hoverData: auxl.menuHoverData,
 	title: 'Test Hover Menu',
 	description: 'A test hover menu for quick access.',
@@ -2217,8 +2217,6 @@ menu:{
 },
 };
 auxl.testHoverMenu = auxl.HoverMenu(auxl.testHoverMenuData);
-
-
 
 //
 //CastRay
@@ -2924,9 +2922,9 @@ auxl.menuStyleData = {
 data:'menuStyleData',
 id:'menuStyle',
 sources:false,
-text: {value:'Menu', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+text: {value:'Menu', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center', opacity: 0.9},
 geometry: {primitive: 'circle', radius: 0.25, segments: 32, thetaStart: 0, thetaLength: 360},
-material: {shader: "standard", color: "#2694ce", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#2694ce", emissiveIntensity: 0.6, side: 'double'},
+material: {shader: "standard", color: "#2694ce", opacity: 0.9, metalness: 0.2, roughness: 0.8, emissive: "#2694ce", emissiveIntensity: 0.6, side: 'double'},
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -2965,7 +2963,7 @@ auxl.testScroll = auxl.ScrollMenu('testScroll');
 auxl.cardTest0Data = {
 	id: 'cardTest0',
 	title: 'Card Test #0',
-	position: new THREE.Vector3(1,1.6,-0.21),
+	position: new THREE.Vector3(1,1.6,-1.5),
 	rotation: new THREE.Vector3(0,-30,0),
 	scale: new THREE.Vector3(0.2,0.2,0.2),
 	colors: auxl.ColorTheoryGen(false, 'red'),
@@ -2976,17 +2974,12 @@ auxl.cardTest0 = auxl.Card(auxl.cardTest0Data)
 auxl.cardTest1Data = {
 	id: 'cardTest1',
 	title: 'Card Test #1',
-	position: new THREE.Vector3(-1,1.6,-0.21),
+	position: new THREE.Vector3(-1,1.6,-1.5),
 	rotation: new THREE.Vector3(0,30,0),
 	scale: new THREE.Vector3(0.2,0.2,0.2),
 	colors: auxl.ColorTheoryGen(false, 'green'),
 }
 auxl.cardTest1 = auxl.Card(auxl.cardTest1Data)
-
-
-
-
-
 
 //Build Scene Library Objects
 auxl.buildGridLibrary = () => {
@@ -3417,6 +3410,9 @@ auxl.gridScenario0Data = {
 		//
 		//Default Player Controls
 		action1Down:{auxlObj: 'player', func: 'ToggleCrouch', name: 'Toggle Crouch/Stand', info: 'Toggle Crouch or Stand mode.'},
+		//Hover Menu Test
+		action2Down:{auxlObj: 'testHoverMenu', func: 'SpawnHoverMenu', name: 'Open Test Hover Menu', info: 'Show the test hover menu selections.'},
+		action2Up:{auxlObj: 'testHoverMenu', func: 'DespawnHoverMenu', params: 'false',name: 'Confirm Test Hover Menu', info: 'Confirm hover menu selection or close.'},
 		//
 		//Default Player Controls
 		action5Down:{auxlObj: 'player', func: 'MainMenuAction', name: 'Toggle Main Menu', info: 'Go back in the Main Menu or Spawn/Despawn Companion.'},

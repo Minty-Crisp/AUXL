@@ -17,54 +17,24 @@
 <meta property="og:title" content="A-Frame UX Library | v0.4 Engine Example by Minty Crisp">
 <meta property="og:type" content="XR">
 <meta property="og:url" content="auxlibrary.com">
-<!-- A-Frame official release 1.4.2
-<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script> -->
-<!-- local -->
+<!-- A-Frame official release 1.4.2 -->
 <script src="./assets/js/aframe-v1.4.2.min.js"></script>
-<!-- A-Frame Orbit Control official release
-<script src="https://unpkg.com/aframe-orbit-controls@1.3.2/dist/aframe-orbit-controls.min.js"></script> -->
-<!-- Ammo.js Physics 
-module='TOTAL_MEMORY: 512 * 1024 * 1024' 
-Module ? Module.TOTAL_MEMORY : null;
-
-<script src="./assets/js/ammo.wasm.js"></script>
-
--->
+<!-- Cannon + Ammo Physics -->
 <script src="./assets/js/ammo.js"></script>
-
-<!-- Cannon + Ammo Physics
-<script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
-<script src="./assets/js/aframe-physics-system.js"></script>-->
 <script src="./assets/js/aframe-physics-system.min.js"></script>
-
-
-<!-- local
-<script src="./assets/js/aframe-orbit-controls.min.js"></script>
- -->
-<!-- A-Frame Extras
-<script src="https://cdn.rawgit.com/donmccurdy/aframe-extras/v6.1.1/dist/aframe-extras.min.js"></script> -->
-
-<!-- A-Frame Draw
-<script src="./assets/js/aframe-draw-component.min.js"></script> -->
-
-<!-- MVP.css
-<link rel="stylesheet" href="./assets/css/mvp.css"> -->
-<!-- CSS
-<link rel="stylesheet" href="./assets/css/style.css"> -->
 </head>
-<!-- A-Frame UX Library Engine v0.4 -->
-<script src="./auxl.js"></script>
+<!-- Shader Park Shaders -->
 <script type="module" src="./assets/shaders/shaders.js"></script>
+<!-- A-Frame UX Library -->
+<script src="./auxl.js"></script>
 <script src="./demo-grid.js"></script>
 <script src="./demo-cannon.js"></script>
 <script src="./demo-ammo.js"></script>
 <script src="./xrcade.js"></script>
 <script src="./mascot.js"></script>
 <script src="./caos.js"></script>
-
-
+<!-- HTML -->
 <body id="htmlBody">
-
 <!-- Begin Experience -->
 <div id="beginDiv">
 <span class="menu"><h4 id="scenarioMenuTitle"></h4></span>
@@ -75,6 +45,8 @@ Module ? Module.TOTAL_MEMORY : null;
 <li><button id="audioButton" class="menu">Sound : Disabled</button></li>
 <li><div id='audioVolume' class="flexRow"><button id="volDownButton">-</button><h2 id="volume">1</h2><button id="volUpButton">+</button></div></li>
 <li><button id="viewInfo" class="menu">View Instructions</button></li>
+<li><button id="donateLink" class="menu"><a href="https://ko-fi.com/mintycrisp" target="_blank">Ko-fi Donation</a></button></li>
+<li><button id="repoLink" class="menu"><a href="https://github.com/Minty-Crisp/AUXL" target="_blank">Github Repo</a></button></li>
 <li><button id="viewData" class="menu">Reset Data</button></li>
 </div>
 
@@ -191,7 +163,6 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 	</span>
 	<span class="flexRow">
 		<span class="flexCol"><h4 id="scenarioHeaderTitle"></h4></span>
-		<button id="donate" class="stickyButtons flexCol"><a href="https://ko-fi.com/mintycrisp" target="_blank">Ko-fi</a></button>
 		<button id="stickyMenu" class="flexCol">Menu</button>
 	</span>
 </div>
@@ -210,7 +181,7 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 <!-- Row 2 -->
 <div id="" class="directions">
 <button id="left" class="directionButtons">&#8592;</button>
-<button id="center" class="directionButtons">.</button>
+<button id="center" class="directionButtons"> </button>
 <button id="right" class="directionButtons">&#8594;</button>
 </div>
 <!-- Row 3 -->
@@ -239,7 +210,7 @@ color="white" align="center" width="1.4" position="0 0.225 0"
 <!-- Row 2 -->
 <div id="" class="directions">
 <button id="d" class="directionButtons">D</button>
-<button id="e" class="directionButtons">E</button>
+<button id="main" class="directionButtons"> </button>
 <button id="f" class="directionButtons">F</button>
 </div>
 <!-- Row 3 -->

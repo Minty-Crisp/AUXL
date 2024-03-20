@@ -43,9 +43,6 @@ import {kinsync, ammoPush, ammoBounce} from './support/physics-ammo.js';
 //
 //Weather
 import {rain, raindrop, lightningbolt} from './support/weather.js';
-//
-//Canvas
-import drawtesting from './support/canvas.js';
 
 //
 //Games

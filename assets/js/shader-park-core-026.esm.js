@@ -1,3 +1,6 @@
+/* !!!! Move Out of Src !!!!! */
+
+
 /* Version: 0.2.6 - September 7, 2023 16:28:42 */
 function _AsyncGenerator(e) {
   var r, t;
@@ -97011,8 +97014,8 @@ if ( typeof __THREE_DEVTOOLS__ !== 'undefined' ) {
 if ( typeof window !== 'undefined' ) {
 
 	if ( window.__THREE__ ) {
-
-		console.warn( 'WARNING: Multiple instances of Three.js being imported.' );
+		//Error Ignored
+		//console.warn( 'WARNING: Multiple instances of Three.js being imported.' );
 
 	} else {
 

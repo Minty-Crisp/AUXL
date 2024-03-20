@@ -1,8 +1,8 @@
 //Source : view-source:https://jgbarah.github.io/aframe-playground/camrender-01/camrender.js
-// Code for a component implementing texture coming from a camera
+//Code for a component implementing texture coming from a camera
 //
-// Original code:
-//   https://wirewhiz.com/how-to-use-a-cameras-output-as-a-texture-in-aframe/
+//Original code:
+//https://wirewhiz.com/how-to-use-a-cameras-output-as-a-texture-in-aframe/
 
 //!!! Stops Rendering Camera Feed to Canvas
 //When feed camera becomes active

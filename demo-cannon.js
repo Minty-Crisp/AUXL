@@ -2066,6 +2066,65 @@ components: {
 auxl.coneTwist1b = auxl.Core(auxl.coneTwist1bData);
 
 
+
+
+
+
+
+//Hinge - 5
+auxl.handleHinge1aData = {
+data:'handleHinge1aData',
+id:'handleHinge1a',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.1, width: 1, height: 4},
+material: {shader: "standard", src: auxl.pattern14, repeat: '1 1', color: "#ff0000", emissive: '#ff0000', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0,-8),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations: false,
+mixins: false,
+classes: ['a-ent'],
+components: {
+	body:{type: 'static', shape: 'box', mass: 0,},
+	bodymaterial: {friction: 0, restitution: 0},
+},
+};
+auxl.handleHinge1a = auxl.Core(auxl.handleHinge1aData);
+auxl.handleHinge1bData = {
+data:'handleHinge1bData',
+id:'handleHinge1b',
+sources: false,
+text: false,
+geometry: {primitive: 'box', depth: 0.05, width: 0.1, height: 0.1},
+material: {shader: "standard", src: auxl.pattern14, repeat: '1 1', color: "#89ff00", emissive: '#89ff00', emissiveIntensity: 0.25, opacity: 1},
+position: new THREE.Vector3(0,0,-7.9),
+rotation: new THREE.Vector3(0,0,0),
+scale: new THREE.Vector3(1,1,1),
+animations:false,
+mixins: false,
+classes: ['clickable', 'a-ent'],
+components: {
+	body:{type: 'dynamic', shape: 'box', mass: 0.1, linearDamping: 0.1, angularDamping: 0.1},
+	bodymaterial: {friction: 0, restitution: 0},
+	auxconstraint:{
+		type: 'hinge',
+		connectTo: 'handleHinge1a',
+		pivotA: new THREE.Vector3(0,0,0),
+		pivotB: new THREE.Vector3(0,0,0.1),
+		axisA: new THREE.Vector3(0,0,1),
+		axisB: new THREE.Vector3(0,0,0),
+		maxForce: 1e6,
+	},
+	//linkcable: {type: 'hit'},
+},
+};
+auxl.handleHinge1b = auxl.Core(auxl.handleHinge1bData);
+
+
+
+
+
 //
 //Pickups
 auxl.pickup1Data = {
@@ -3434,6 +3493,11 @@ auxl.cannonZoneSceneBasicData = {
 		//oneTest0One:{SpawnOne:null},
 		//oneTest1One:{SpawnOne:null},
 		//oneTest2One:{SpawnOne:null},
+
+		handleHinge1a:{SpawnCore:null},
+		handleHinge1b:{SpawnCore:null},
+
+
 	},
 	delay:{
 		500:{

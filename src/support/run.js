@@ -71,6 +71,12 @@ run: function(evt){
 			} else {
 				this.auxl[this.data.cursorObj][this.data.method](this.data.params);
 			}
+		} else if(this.data.cursorObj === 'auxl'){
+			if(this.data.params === 'null'){
+				this.auxl[this.data.method](evt.target);
+			} else {
+				this.auxl[this.data.method](this.data.params);
+			}
 		}
 	} else {
 		//object is a dom entity and the component is attached to that object and the func is in that component
@@ -99,6 +105,7 @@ events: {
 
 //
 //Run AUXL Function on Click
+//Legacy - is replaced by making auxlObj data auxl in clickrun
 const clickrunfunc = AFRAME.registerComponent('clickrunfunc', {
 dependencies: ['auxl'],
 multiple: true,
@@ -162,6 +169,12 @@ events: {
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
 				}
+			} else if(this.data.cursorObj === 'auxl'){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.method](this.data.params);
+				}
 			}
 		} else {
 			//object is a dom entity and the component is attached to that object and the func is in that component
@@ -218,6 +231,12 @@ events: {
 					}
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			} else if(this.data.cursorObj === 'auxl'){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.method](this.data.params);
 				}
 			}
 		} else {
@@ -276,6 +295,12 @@ events: {
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
 				}
+			} else if(this.data.cursorObj === 'auxl'){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.method](this.data.params);
+				}
 			}
 		} else {
 			//object is a dom entity and the component is attached to that object and the func is in that component
@@ -332,6 +357,12 @@ events: {
 					}
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+				}
+			} else if(this.data.cursorObj === 'auxl'){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.method](this.data.params);
 				}
 			}
 		} else {
@@ -390,6 +421,12 @@ events: {
 				} else {
 					this.auxl[this.data.cursorObj][this.data.method](this.data.params);
 				}
+			} else if(this.data.cursorObj === 'auxl'){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.method](this.data.params);
+				}
 			}
 		} else {
 			//object is a dom entity and the component is attached to that object and the func is in that component
@@ -435,6 +472,12 @@ events: {
 				this.auxl[this.data.cursorObj][this.data.method](evt.target);
 			} else {
 				this.auxl[this.data.cursorObj][this.data.method](this.data.params);
+			}
+		} else if(this.data.cursorObj === 'auxl'){
+			if(this.data.params === 'null'){
+				this.auxl[this.data.method](evt.target);
+			} else {
+				this.auxl[this.data.method](this.data.params);
 			}
 		}
 	}
@@ -503,6 +546,12 @@ init: function () {
 			} else {
 				this.auxl[this.data.cursorObj][this.data.method](this.data.params);
 			}
+		} else if(this.data.cursorObj === 'auxl'){
+			if(this.data.params === 'null'){
+				this.auxl[this.data.method](evt.target);
+			} else {
+				this.auxl[this.data.method](this.data.params);
+			}
 		}
 	} else {
 		//object is a dom entity and the component is attached to that object and the func is in that component
@@ -521,6 +570,7 @@ init: function () {
 //
 //On Spawn Run Func
 //Run AUXL Function
+//Legacy - is replaced by using auxl for auxlObj in onspawnrun
 const onspawnfunc = AFRAME.registerComponent('onspawnfunc', {
 dependencies: ['auxl'],
 multiple: true,
@@ -542,6 +592,7 @@ init: function () {
 //
 //On Spawn Run Func Dual
 //Run AUXL Function with 2 Parameters imported from Array Params
+//Propegate this feature of multiple params to all other
 const onspawnfuncdual = AFRAME.registerComponent('onspawnfuncdual', {
 dependencies: ['auxl'],
 multiple: true,
@@ -583,6 +634,12 @@ remove: function () {
 			} else {
 				this.auxl[this.data.cursorObj][this.data.method](this.data.params);
 			}
+		} else if(this.data.cursorObj === 'auxl'){
+			if(this.data.params === 'null'){
+				this.auxl[this.data.method](evt.target);
+			} else {
+				this.auxl[this.data.method](this.data.params);
+			}
 		}
 	} else {
 		//object is a dom entity and the component is attached to that object and the func is in that component
@@ -602,6 +659,7 @@ remove: function () {
 //
 //On Despawn Run Func Dual
 //Run AUXL Function with 2 Parameters imported from Array Params
+//Propegate this feature of multiple params to all other
 const ondespawnfuncdual = AFRAME.registerComponent('ondespawnfuncdual', {
 dependencies: ['auxl'],
 multiple: true,
@@ -656,6 +714,12 @@ update: function () {
 					this.auxl[this.cursorObj][this.method]();
 				} else {
 					this.auxl[this.cursorObj][this.method](this.params);
+				}
+			} else if(this.data.cursorObj === 'auxl'){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.method](this.data.params);
 				}
 			}
 		} else {
@@ -715,6 +779,12 @@ update: function () {
 					this.auxl[this.cursorObj][this.method]();
 				} else {
 					this.auxl[this.cursorObj][this.method](this.params);
+				}
+			} else if(this.data.cursorObj === 'auxl'){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.method](this.data.params);
 				}
 			}
 		} else {
@@ -790,6 +860,12 @@ update: function () {
 					this.auxl[this.cursorObj][this.method]();
 				} else {
 					this.auxl[this.cursorObj][this.method](this.params);
+				}
+			} else if(this.data.cursorObj === 'auxl'){
+				if(this.data.params === 'null'){
+					this.auxl[this.data.method](evt.target);
+				} else {
+					this.auxl[this.data.method](this.data.params);
 				}
 			}
 		} else {

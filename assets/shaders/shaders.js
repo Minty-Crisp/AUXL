@@ -1,5 +1,5 @@
 //Required
-import { createSculpture, createSculptureWithGeometry } from './shader-park-core-026.esm.js';
+import { createSculpture, createSculptureWithGeometry } from '../js/shader-park-core-026.esm.js';
 //Shader Coding Template
 import { spCodeTest, spCloud, spRandom0 } from './spCodeTest.js';
 

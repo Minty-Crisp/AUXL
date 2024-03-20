@@ -84,19 +84,9 @@ this.jsAll = {
 //
 //Network
 
-//Look At 1.0.0
-['look-at']:'https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js',
-
+//Example
 //GLTF Morph
-['gltf-morph']:'https://rawcdn.githack.com/elbobo/aframe-gltf-morph-component/07e9b80bd382cc1c19223468d35c453e7c76e9a2/dist/aframe-gltf-morph-component.js',
-
-
-
-
-
-//Included
-
-//threeGradShader: 'https://unpkg.com/@tlaukkan/aframe-three-color-gradient-shader@0.0.1/index.js',//Shaders needs it's own checker
+//['gltf-morph']:'https://rawcdn.githack.com/elbobo/aframe-gltf-morph-component/07e9b80bd382cc1c19223468d35c453e7c76e9a2/dist/aframe-gltf-morph-component.js',
 };
 
 /*************************************************************/
@@ -125,6 +115,8 @@ const dataInfo = document.getElementById('dataInfo');
 const dataClose = document.getElementById('dataClose');
 const manageData = document.getElementById('manageData');
 const resetData = document.getElementById('resetData');
+const donateLink = document.getElementById('donateLink');
+const repoLink = document.getElementById('repoLink');
 const scenarioHeaderTitle = document.getElementById('scenarioHeaderTitle');
 const scenarioMenuTitle = document.getElementById('scenarioMenuTitle');
 const fullScreen = document.getElementById('fullScreen');
@@ -148,15 +140,15 @@ const mobileA = document.getElementById('a');
 const mobileB = document.getElementById('b');
 const mobileC = document.getElementById('c');
 const mobileD = document.getElementById('d');
-const mobileE = document.getElementById('e');
+const mobileMain = document.getElementById('main');
 const mobileF = document.getElementById('f');
 const mobileG = document.getElementById('g');
 const mobileH = document.getElementById('h');
 const mobileI = document.getElementById('i');
 
-let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, viewInfo, viewData, expInfo, infoClose, instructions, scenarioMenuTitle, dataInfo, dataClose, manageData, resetData, fullScreen, controllerBlock, vrHandButton, vrLocomotionType];
+let htmlBackground = [body, beginDiv, startButton, menuModeButton, audioButton, viewInfo, viewData, expInfo, infoClose, instructions, scenarioMenuTitle, dataInfo, dataClose, manageData, resetData, donateLink, repoLink, fullScreen, controllerBlock, vrHandButton, vrLocomotionType];
 
-let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, fullScreen, controllerBlock, mobileUpLeft, mobileUp, mobileUpRight, mobileLeft, mobileCenter, mobileRight, mobileDownLeft, mobileDown, mobileDownRight, mobileSelect, mobileStart, mobileA, mobileB, mobileC, mobileD, mobileE, mobileF, mobileG, mobileH, mobileI, ];
+let htmlForeground = [stickyMenu, stickyTitle, scenarioHeaderTitle, fullScreen, controllerBlock, mobileUpLeft, mobileUp, mobileUpRight, mobileLeft, mobileCenter, mobileRight, mobileDownLeft, mobileDown, mobileDownRight, mobileSelect, mobileStart, mobileA, mobileB, mobileC, mobileD, mobileMain, mobileF, mobileG, mobileH, mobileI, ];
 
 // System Configure
 /***********************************************************/
@@ -195,18 +187,9 @@ const ApplyColorScheme = () => {
 		htmlForeground[element].style.setProperty('color-text', this.local.profile.colorScheme.compl);
 		htmlForeground[element].style.setProperty('border-color', this.local.profile.colorScheme.compl);
 	}
-	//Camera UI
-	auxl.cameraUI.ChangeSelf({property: 'material', value: {color: this.local.profile.colorScheme.base,}})
-	auxl.cameraUI.ChangeSelf({property: 'text', value: {color: this.local.profile.colorScheme.compl,}})
-	//Floor
-	auxl.playerFloor.ChangeSelf({property: 'material', value: {color: this.local.profile.colorScheme.base,}})
-	auxl.playerFloor.ChangeSelf({property: 'text', value: {color: this.local.profile.colorScheme.compl,}})
-	//Hands
-	//Floor
-	auxl.vrController1UI.ChangeSelf({property: 'material', value: {color: this.local.profile.colorScheme.base,}})
-	auxl.vrController1UI.ChangeSelf({property: 'text', value: {color: this.local.profile.colorScheme.compl,}})
-	auxl.vrController2UI.ChangeSelf({property: 'material', value: {color: this.local.profile.colorScheme.base,}})
-	auxl.vrController2UI.ChangeSelf({property: 'text', value: {color: this.local.profile.colorScheme.compl,}})
+
+	//Avatar
+	auxl.player.PlayerColors(this.local.profile.colorScheme.base, this.local.profile.colorScheme.compl)
 
 	//console.log('Color Applied');
 }
@@ -966,6 +949,12 @@ function VRHandMenu(state){
 	auxl.vrHand = state;
 }
 
+//Pointer Lock
+this.PointerLockToggle = () => {
+	let toggle = auxl.camera.GetEl().getAttribute('look-controls').pointerLockEnabled;
+	auxl.camera.ChangeSelf({property:'look-controls', value:{pointerLockEnabled: !toggle}})
+}
+
 //Update Control Info
 this.UpdateControlText = () => {
 	auxl.controlsText = 'Control Configuration : ' + auxl.controls + ' mode\n';
@@ -1058,7 +1047,7 @@ this.UpdateControlText = () => {
 			if(auxl.controls === 'Desktop'){
 				actionCommand = auxl.controlConfig.action5Keys[1] + ' down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'E down';
+				actionCommand = 'F down';
 			} else if(auxl.controls === 'VR'){
 				actionCommand = 'Action Joystick down';
 			}
@@ -1066,7 +1055,7 @@ this.UpdateControlText = () => {
 			if(auxl.controls === 'Desktop'){
 				actionCommand = auxl.controlConfig.action5Keys[1] + ' up';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'E up';
+				actionCommand = 'F up';
 			} else if(auxl.controls === 'VR'){
 				actionCommand = 'Action Joystick reset';
 			}
@@ -1074,7 +1063,7 @@ this.UpdateControlText = () => {
 			if(auxl.controls === 'Desktop'){
 				actionCommand = auxl.controlConfig.action6Keys[1] + ' down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'F down';
+				actionCommand = 'G down';
 			} else if(auxl.controls === 'VR'){
 				actionCommand = 'Action Joystick up';
 			}
@@ -1082,7 +1071,7 @@ this.UpdateControlText = () => {
 			if(auxl.controls === 'Desktop'){
 				actionCommand = auxl.controlConfig.action6Keys[1] + ' up';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = 'F up';
+				actionCommand = 'G up';
 			} else if(auxl.controls === 'VR'){
 				actionCommand = 'Action Joystick reset';
 			}
@@ -1090,7 +1079,7 @@ this.UpdateControlText = () => {
 			if(auxl.controls === 'Desktop'){
 				actionCommand = auxl.controlConfig.action7Keys[1] + ' down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = '<- down';
+				actionCommand = 'H down';
 			} else if(auxl.controls === 'VR'){
 				actionCommand = 'Action Joystick left';
 			}
@@ -1098,7 +1087,7 @@ this.UpdateControlText = () => {
 			if(auxl.controls === 'Desktop'){
 				actionCommand = auxl.controlConfig.action7Keys[1] + ' up';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = '<- up';
+				actionCommand = 'H up';
 			} else if(auxl.controls === 'VR'){
 				actionCommand = 'Action Joystick reset';
 			}
@@ -1106,7 +1095,7 @@ this.UpdateControlText = () => {
 			if(auxl.controls === 'Desktop'){
 				actionCommand = auxl.controlConfig.action8Keys[1] + ' down';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = '-> down';
+				actionCommand = 'I down';
 			} else if(auxl.controls === 'VR'){
 				actionCommand = 'Action Joystick right';
 			}
@@ -1114,7 +1103,7 @@ this.UpdateControlText = () => {
 			if(auxl.controls === 'Desktop'){
 				actionCommand = auxl.controlConfig.action8Keys[1] + ' up';
 			} else if(auxl.controls === 'Mobile'){
-				actionCommand = '-> up';
+				actionCommand = 'I up';
 			} else if(auxl.controls === 'VR'){
 				actionCommand = 'Action Joystick reset';
 			}
@@ -2203,7 +2192,7 @@ this.Card = (cardData) => {
 
 //
 //Pet
-//View large set of Images in a set of Frames and Button Controls
+//A digital pet to take care of
 this.Pet = (petData) => {
 	return Pet(auxl, petData);
 }

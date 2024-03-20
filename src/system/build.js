@@ -2118,9 +2118,9 @@ one.buildCoreData = {
 data:'buildCoreData',
 id:'buildCore',
 sources:false,
-text: {value:'Menu', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+text: {value:'Menu', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center', opacity: 0.9},
 geometry: {primitive: 'circle', radius: 0.25, segments: 32, thetaStart: 0, thetaLength: 360},
-material: {shader: "standard", color: "#b011c4", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#b011c4", emissiveIntensity: 0.4, side: 'double',  },
+material: {shader: "standard", color: "#b011c4", opacity: 0.9, metalness: 0.2, roughness: 0.8, emissive: "#b011c4", emissiveIntensity: 0.4, side: 'double',  },
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -2673,9 +2673,9 @@ auxl.numberStyle0Data = {
 data:'numberStyle0Data',
 id:'numberStyle0',
 sources:false,
-text: {value:'Menu', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center'},
+text: {value:'Menu', wrapCount: 20, color: "#FFFFFF", font: "exo2bold", zOffset: 0.025, side: 'double', align: "center", baseline: 'center', opacity: 0.9},
 geometry: {primitive: 'circle', radius: 0.25, segments: 32, thetaStart: 0, thetaLength: 360},
-material: {shader: "standard", color: "#d3be1d", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#d3be1d", emissiveIntensity: 0.4, side: 'double',  },
+material: {shader: "standard", color: "#d3be1d", opacity: 0.9, metalness: 0.2, roughness: 0.8, emissive: "#d3be1d", emissiveIntensity: 0.4, side: 'double',  },
 position: new THREE.Vector3(0,0,0),
 rotation: new THREE.Vector3(0,0,0),
 scale: new THREE.Vector3(1,1,1),
@@ -2826,7 +2826,7 @@ auxl.numberInputs0 = auxl.MultiMenu(one.numberInputs0Data);
 //PINK
 auxl.menuStyle4 = auxl.CoreDataFromTemplate(auxl.numberStyle0Data, {
 	id: 'menuStyle4',
-	material: {shader: "standard", color: "#d31d9b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#d31d9b", emissiveIntensity: 0.4, side: 'double',  },
+	material: {shader: "standard", color: "#d31d9b", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#d31d9b", emissiveIntensity: 0.4, side: 'double', opacity: 0.9},
 
 }, true);
 one.buildSubMenuData = {
@@ -2969,7 +2969,7 @@ auxl.buildSubMenu = auxl.MultiMenu(one.buildSubMenuData);
 //RED
 auxl.numberStyle1Data = auxl.CoreDataFromTemplate(auxl.numberStyle0Data, {
 	id: 'numberStyle1',
-	material: {shader: "standard", color: "#d3391d", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#d3391d", emissiveIntensity: 0.4, side: 'double',  },
+	material: {shader: "standard", color: "#d3391d", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#d3391d", emissiveIntensity: 0.4, side: 'double', opacity: 0.9},
 
 }, true);
 one.numberInputs1Data = {
@@ -3105,7 +3105,7 @@ auxl.numberInputs1 = auxl.MultiMenu(one.numberInputs1Data);
 //GREEN
 auxl.numberStyle2Data = auxl.CoreDataFromTemplate(auxl.numberStyle0Data, {
 	id: 'numberStyle2',
-	material: {shader: "standard", color: "#24d31d", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#24d31d", emissiveIntensity: 0.4, side: 'double',  },
+	material: {shader: "standard", color: "#24d31d", opacity: 1, metalness: 0.2, roughness: 0.8, emissive: "#24d31d", emissiveIntensity: 0.4, side: 'double', opacity: 0.9},
 
 }, true);
 one.buildPosMenuData = {

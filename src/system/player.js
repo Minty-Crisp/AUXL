@@ -115,12 +115,6 @@ const Player = (auxl, id, layer, data) => {
 	layer.SpawnLayer();
 	//Spawn Avatar Object
 	auxl.avatar.SpawnLayer('playerBody');
-	//auxl.avatar.SpawnLayer('playerRig');
-
-	//Spawn Avatar Hands
-	//auxl.avatarHand1.SpawnCore('vrController1');
-	//auxl.avatarHand2.SpawnCore('vrController2');
-
 
 	//Get auxcontroller component
 	auxl.controller = auxl.playerRig.GetEl().components['auxcontroller'];
@@ -132,6 +126,34 @@ const Player = (auxl, id, layer, data) => {
 	layer.gridPos.copy(auxl.playerRig.GetEl().getAttribute('position'));
 	layer.gridDirection = 'still';
 	//forwardRight | forwardLeft | reverseRight | reverseLeft | forward | reverse | right | left
+
+	//
+	//Avatar Customization
+	const PlayerColors = (color1, color2) => {
+		//Main
+		auxl.avatarHead.ChangeSelf({property: 'material', value: {color: color1, emissive: color1,}})
+		auxl.avatarBody0.ChangeSelf({property: 'material', value: {color: color1, emissive: color1,}})
+		auxl.avatarBody1.ChangeSelf({property: 'material', value: {color: color1, emissive: color1,}})
+		auxl.avatarBody2.ChangeSelf({property: 'material', value: {color: color1, emissive: color1,}})
+		auxl.avatarBody3.ChangeSelf({property: 'material', value: {color: color1, emissive: color1,}})
+		auxl.avatarHover.ChangeSelf({property: 'material', value: {color: color1, emissive: color1,}})
+		//Off
+		auxl.avatarHand1.ChangeSelf({property: 'material', value: {color: color2, emissive: color2,}})
+		auxl.avatarHand2.ChangeSelf({property: 'material', value: {color: color2, emissive: color2,}})
+		auxl.avatarBody4.ChangeSelf({property: 'material', value: {color: color2, emissive: color2,}})
+		auxl.avatarFeet.ChangeSelf({property: 'material', value: {color: color2, emissive: color2,}})
+		//Camera UI
+		auxl.cameraUI.ChangeSelf({property: 'material', value: {color: color1,}})
+		auxl.cameraUI.ChangeSelf({property: 'text', value: {color: color2,}})
+		//VR Controller UI
+		auxl.vrController1UI.ChangeSelf({property: 'material', value: {color: color1,}})
+		auxl.vrController1UI.ChangeSelf({property: 'text', value: {color: color2,}})
+		auxl.vrController2UI.ChangeSelf({property: 'material', value: {color: color1,}})
+		auxl.vrController2UI.ChangeSelf({property: 'text', value: {color: color2,}})
+		//Floor
+		auxl.playerFloor.ChangeSelf({property: 'material', value: {color: color1,}})
+		auxl.playerFloor.ChangeSelf({property: 'text', value: {color: color2,}})
+	}
 
 	//
 	//Raycasters 
@@ -730,7 +752,6 @@ const Player = (auxl, id, layer, data) => {
 		auxl.blink2Screen.ChangeSelf({property: 'material', value:{color: newColor}});
 	}
 
-
 	//Camera Rig Height Manual Adjustment
 	layer.CamRigHeight = 0;
 	//Camera Rig Fine Tuning
@@ -926,9 +947,9 @@ auxl.avatarHand2.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.3
 	layer.flashlight = false;
 	const ToggleFlashlight = (onOff) => {
 		let toggle = layer.flashlight;
-		if(onOff.on){
+		if(onOff && onOff.on){
 			toggle = false;
-		} else if(onOff.off){
+		} else if(onOff && onOff.off){
 			toggle = true;
 		}
 		if(toggle){
@@ -1268,6 +1289,10 @@ auxl.avatarHand2.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.3
 
 
 	}
+	//Default Position to Reset to
+	const UpdateDefaultPosition = (position) => {
+		layer.defaultPosition.copy(position)
+	}
 	//Player Position
 	const UpdatePlayerPosition = (position) => {
 		let pos = new THREE.Vector3(0,0,0);
@@ -1281,11 +1306,8 @@ auxl.avatarHand2.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.3
 		if(layer.playerPhysics){
 			auxl.playerRig.PhysPos(pos);
 		}
+		UpdateDefaultPosition(pos)
 	}
-	const UpdateDefaultPosition = (position) => {
-		layer.defaultPosition.copy(position)
-	}
-
 	//Item to body sync
 	//Attach to user
 	const AttachToPlayer = (element,offset) => {
@@ -1679,6 +1701,7 @@ auxl.avatarHand2.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.3
 		return position;
 	}
 
+	//*****
 	//Ray Direction
 	//Use rotation to determine direction. Breaks with rotated parent
 	const RayDir = (rayEl, dist, dir) => {
@@ -1702,7 +1725,7 @@ auxl.avatarHand2.ChangeSelf({property: 'position', value: new THREE.Vector3(-0.3
 		//Get Ray Position
 		if(rayEl.id === 'camera'){
 			//Special Rule for Camera Configuration
-			auxl.headRig.GetEl().object3D.getWorldPosition(position)
+			auxl.avatarHead.GetEl().object3D.getWorldPosition(position)
 		} else {
 			rayEl.object3D.getWorldPosition(position)
 		}
@@ -3753,7 +3776,7 @@ console.log(event.detail.intersection.point)
 		}
 	});
 
-	return {layer, player, Reset, CameraSwitch, CameraSwitchBack, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, PlayerQuickAnim, PlayerFadeOut, PlayerFadeIn, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, ToggleHoverText, UpdateHoverText, ToggleFloorText, Notification, UpdateActions, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleCrouch, SnapRight, SnapLeft, ToggleFlashlight, ResetUserPosRot, GetPlayerInfo, ToggleRayHelp, CamRigPoint, RigPoint, RaySpawnPoint, RayDir, RayDistanceDirection, GetRayDirectionRig, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, DisablePhysics, setAllGravity, setAllGravityAxis, setAllGravityTypes, cycleAllGravityTypes, cycleWorldGravityAxis, ToggleAction, Rubberband, TeleportTo, BoostTo, BackBoost, ChuteUp, ChuteDown, BrakeUp, BrakeDown, RedirectUp, RedirectDown, Redirect, Freeze, UnFreeze, DelinkCore, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, UpdatePlayerPosition, UpdateDefaultPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, EmitEvent, TestFunc, TogglePlayerPhysics, CycleCameraZoom, ToggleRoamCamView, HoverTargetDown, HoverTargetUp, ToggleSnapMode, LinkDistance, CamRigAdjust, RayCoord};
+	return {layer, player, Reset, PlayerColors, CameraSwitch, CameraSwitchBack, PlayerSceneAnim, UpdateSceneTransitionStyle, PlayerTeleportAnim, PlayerQuickAnim, PlayerFadeOut, PlayerFadeIn, UpdateTeleportTransitionStyle, UpdateTransitionColor, GetCameraDirection, ToggleVRText, UpdateUIText, ToggleBeltText, UpdateBeltText, ToggleHoverText, UpdateHoverText, ToggleFloorText, Notification, UpdateActions, TempDisableClick, DisableClick, EnableClick, UnlockLocomotion, LockLocomotion, EnableVRLocomotion, EnableVRHoverLocomotion, EnableDesktopLocomotion, EnableMobileLocomotion, ChangeLocomotionType, RemoveBelt, ToggleCrouch, SnapRight, SnapLeft, ToggleFlashlight, ResetUserPosRot, GetPlayerInfo, ToggleRayHelp, CamRigPoint, RigPoint, RaySpawnPoint, RayDir, RayDistanceDirection, GetRayDirectionRig, AttachToPlayer, Equip, Unequip, MainMenuAction, DetachFromPlayer, EnablePhysics, DisablePhysics, setAllGravity, setAllGravityAxis, setAllGravityTypes, cycleAllGravityTypes, cycleWorldGravityAxis, ToggleAction, Rubberband, TeleportTo, BoostTo, BackBoost, ChuteUp, ChuteDown, BrakeUp, BrakeDown, RedirectUp, RedirectDown, Redirect, Freeze, UnFreeze, DelinkCore, LinkUp, LinkDown, LinkGrab, LinkDrop, LinkShoot, LinkHit, PhysJump, UpdatePlayerPosition, UpdateDefaultPosition, TwistTo, ToggleBackgroundAudio, Ticker, TriggerEnter, TriggerDown, TriggerUp, TriggerLeave, Track2D, EmitEvent, TestFunc, TogglePlayerPhysics, CycleCameraZoom, ToggleRoamCamView, HoverTargetDown, HoverTargetUp, ToggleSnapMode, LinkDistance, CamRigAdjust, RayCoord};
 	}
 //
 //Companion
@@ -3815,6 +3838,7 @@ const Companion = (auxl, id, object, inventory) => {
 		id: 'mainMenu',
 		buttonData: auxl.menuCylinderData,
 		hoverData: auxl.menuHoverData,
+		hideData: auxl.menuPlaneHideData,
 		title: 'Main Menu',
 		description: 'Main menu for travel, system and settings.',
 		layout:'circleUp',
@@ -3852,7 +3876,7 @@ const Companion = (auxl, id, object, inventory) => {
 				component: false,
 				method: 'ToggleControlView',
 				params: null,
-				menu: 'close',
+				menu: 'stay',
 			},
 		},
 		button4:{
@@ -4037,7 +4061,6 @@ const Companion = (auxl, id, object, inventory) => {
 				menu: 'stay',
 			},
 		},
-
 		button1:{
 			id: 'subMenu1',
 			style: false,
@@ -4072,7 +4095,17 @@ const Companion = (auxl, id, object, inventory) => {
 			action: false,
 		},
 		button5:{
-			id: 'action3',
+			id: 'subMenu5',
+			style: false,
+			title: 'More...',
+			description: 'More settings.',
+			subMenu: 'settings1',
+			action: false,
+		},
+	},
+	settings1:{
+		button0:{
+			id: 'action0',
 			style: false,
 			title: 'Reset Player Pos/Rot',
 			description: 'Reset your Position and Rotation.',
@@ -4085,7 +4118,22 @@ const Companion = (auxl, id, object, inventory) => {
 				menu: 'stay',
 			},
 		},
+		button1:{
+			id: 'action1',
+			style: false,
+			title: 'Toggle Mouse Lock',
+			description: 'Toggle mouse pointer lock.',
+			subMenu: false,
+			action: {
+				auxlObj: 'auxl',
+				component: false,
+				method: 'PointerLockToggle',
+				params: 'null',
+				menu: 'stay',
+			},
+		},
 	},
+
 	menu4:{
 		button0:{
 			id: 'action1',

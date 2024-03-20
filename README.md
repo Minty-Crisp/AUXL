@@ -1,275 +1,124 @@
 # AUXL : A-Frame UX Library :palm_tree: v0.4
 
-## Web XR World, System, Object Generator Engine & Universal Controller
+## A Web XR System, Support Components, World Maps, Object Generators, Universal Controller & Interactive Powers.
 
-[View Wiki](https://github.com/Minty-Crisp/AUXL/wiki)
-
-[Launch v0.4 Beta All-in-One Demo Experience](https://minty-crisp.github.io/AUXL/)
-- Grid Collision Demo World
-- Cannon Physics Demo World
-- Ammo Physics Demo World
-- XRcade World
-- Mascot Testing World
-- Caos Testing World
-
-### v0.4 Wiki Update and Starter Coming Soon!!!
-Learn how to build your first AUXL World with the [Getting Started with AUXL](https://github.com/Minty-Crisp/AUXL/wiki/Getting-Started-with-AUXL) guide using the [Starter Scenario](https://minty-crisp.github.io/AUXL/starter.html).
-
-AUXL Summary : :star2:
+Overview : :star2:
 ---
-AUXL is a javascript engine built to streamline and unify the creation of Web XR experiences based on [A-Frame](https://github.com/aframevr/) & [Three.js](https://threejs.org/). It provides a variety of critical system, object, scene and scenario building tools that allows the user to create XR experiences as if they were making classic 2D HTML websites or game worlds. The types of website styles that can be built with are as endless as the web itself. Anything like a portfolio, gallery, blog, virtual tour, visual novel, video game and more. I envision the system to be a combination of tools like Wordpress and Unity with a long term plan to create 2D/3D admin panel like generation tools to open access to all users in creating their own personal XR content. It is being released under the GPL 3.0 license for all to use and hopefully will help with the adoption of the Web XR ecosystem.
+Built on top of the amazing open source [A-Frame](https://github.com/aframevr/) & the underlying renderer [Three.js](https://threejs.org/), AUXL is a system to help streamline the creation of all types of Web XR experiences by providing vital features to ease the creation of complex and dynamic content.
+
+![March Preview 1](https://github.com/Minty-Crisp/AUXL/tree/main/assets/img/previews/mintycrisp-auxl-march-preview1.jpg)
+![March Preview 2](https://github.com/Minty-Crisp/AUXL/tree/main/assets/img/previews/mintycrisp-auxl-march-preview1.jpg)
+
+Demo : :zap:
+---
+Explore various Worlds, Map Zones & Node Scenes via the companion menu and in-scene actions that showcase the various system features. Use the HTML menu to adjust your input style for Desktop, Mobile or VR along with other vital options. Reference the companion's menu(blue) __Controls__ option to view a list of configured hotkeys and control powers currently loaded.
+- __Grid World__ : AUXL grid collision system, travel, npcs & more custom object generators.
+- __Cannon World__ : Cannon physics system with various travel & action powers.
+- __Ammo World__ : Ammo physics system combined with the grid collision and additional action powers.
+- __XRcade World__ : Arcade with various non-physics mini games and a spooky zone with a few mini experiences.
+- __Mascot World__ : Character avatars build area.
+- __Caos World__ : Testing grounds for a new power based adventure game.
+
+[Launch AUXL v0.4 In-Progress Web XR Experience](https://minty-crisp.github.io/AUXL/)
+
+Note from the Developer : **Minty Crisp** | Justin Ekema :watermelon:
+---
+I am a dedicated Web XR developer with a passion for building unique experiences actively looking for work and collaboration. I have experience developing with many up and coming Web XR ecosystems along with a specialty in A-Frame & Blender. I also have experience in many essential support areas required to create complete interactive products. If any of my past works including this repository peaks your interest, please do not hesitate to get in contact with me. Thank you ^-^.
+
+[Portfolio | MintyCrisp.com](https://mintycrisp.com)
+
+[Mastodon Social | MintyCrisp](https://mastodon.social/@mintycrisp)
+
+[Blue Sky Social | MintyCrisp.bsky.social](https://bsky.app/profile/mintycrisp.bsky.social)
+
+[Discord | MintyCrisp](discordapp.com/users/983857672233304064)
+
+Email : [minty-crisp@protonmail.com](mailto:minty-crisp@protonmail.com)
+
+[Support me on Ko-fi | MintyCrisp](https://ko-fi.com/mintycrisp)
+
+License Updates : :snowflake:
+---
+To better align with my current goals and circumstances, AUXL has updated it's license for all future updates, please see the current LICENSE file for more information.
+
+This change is intended to help me focus on building and sustaining the project as well as ensuring its long-term viability. The new license restricts the use, modification and distribution of the code without explicit permission.
+
+If you are interested in using any part of this codebase or its associated assets built by me, please feel free to reach out for permission and guidance.
+
+Thank you,
+Justin Tyler Ekema (also known as Minty Crisp)
+
+Contact Info : [Portfolio | MintyCrisp.com](https://mintycrisp.com)
+
+Email : [minty-crisp@protonmail.com](mailto:minty-crisp@protonmail.com)
 
 AUXL is built to accomplish a few main goals : :hearts:
 ---
-- Dynamic Experiences : Swap through World experiences in a single browser session that each have their own set of Scenario defined builds and navigatable Zone maps of Scenes.
-- System Support : XR profile data with Save/Load/Reset as well as various internal functions and components to add all sorts of functionality to the experience.
-- Object Generators : All of the various basic and special objects that you would use, view & interact with inside the 3D environment.
-- Universal Controls : The unified hardware input controls for interacting with the 3D content that a browser can communicate with.
-
-[Read more about the System Overview in the Wiki](https://github.com/Minty-Crisp/AUXL/wiki/System-Overview)
+- __System Features__ : Controlling the vast array of features, controls and customization, the AUXL system links together an expansive internal library of functions, components, data & assets while supporting the full A-Frame ecosystem of amazing components.
+- __Support Functions__ : XR profile data for loaded url with Save/Load/Reset as well as various internal functions and components to add all sorts of functionality to the experience.
+- __Dynamic Experiences__ : Swap through World experiences in a single browser session that each have their own set of Scenario defined builds and navigable Zone maps of Node Scenes.
+- __Object Generators__ : All of the various basic and special objects that you would use, view & interact with inside the 3D environment.
+- __Universal Controls__ : Unified hardware input controls for interacting with the 3D content that a browser can communicate with.
+- __User Customization__ : Allow the user to fine tune their experience and how they use this system.
+- __Interactive Powers__ : Do more then just be a passive observer of the virtual world with various controls, powers, abilities & other ways to influence the simulation.
 
 Control Configurations : :eyes:
 ---
-- Raycaster Interaction : (Complete)
-- Physics Interaction : (In-Progress)
-- Desktop : Mouse & Keyboard (Complete)
-- Mobile : Touchscreen (Complete)
-- VR Advanced : Dual 6DoF Controllers (Complete)
-- VR Basic : Single 3DoF Button Controller (In-Progress)
-- VR Mobile : Headset Only (Soon)
-- Game Controller (Soon)
-- Hand Tracking : Dual Hand Movements (Soon)
-- Assitive Technology and Alternative Use of Above Hardware (Designing)
-
-[Read more about the controls in the Wiki](https://github.com/Minty-Crisp/AUXL/wiki/Customizing-AUXL-Controls)
+- __Desktop__ : Mouse & Keyboard
+- __Mobile__ : Gyro & HTML Touchscreen
+- __VR Quest__ : Dual 6DoF Quest Controllers
+- __VR Basic__ : Single 3DoF Button Controller (In-Progress)
+- __VR Gaze__ : Headset Only (In-Progress)
+- __Game-Pad__ Controller (Soon)
+- __Hand Tracking__ : Dual Hand Movements (Soon)
+- __Alternative Controls__ (Soon)
+- __Assistive Technology__ (Soon)
 
 A few cool features of AUXL to highlight : :first_quarter_moon_with_face:
 ---
-- Reusable & remixable data to build more with less.
-- Generate various types of in-scene entities all with an abundant amount of customizations and controls.
-- Map out how the Player moves along the World, Scenario, Zone and Scenes with support for Lock & Keys.
-- Object spawn tracking for each Scenario, Zone, Scene and Book instructions.
-- Scene Swap/Teleportation transition animations with dynamic loading times to account for new asset downloads.
-- Dynamically load in component javascript URLs as needed.
-- Configure unique controls to object methods or component methods within a Scenario, Zone and Scene and view current loadout for specific type (i.e. Mobile, Desktop, VR, etc...).
+- Reusable & re-mixable data to build more with less.
+- Generate various types of in-scene entities all with an abundant amount of customization and controls.
+- Map out how the Player moves along the World, Scenario, Zone and Scenes with support for Lock, Keys & other requirements.
 - Build Scenario, Zone and Scene instructions with on start, delay, interval, interaction, event, exit & if/else conditionals.
+- Track settings & objects for each World, Scenario, Zone, Scene as well as Book instructions to swap when out of scope.
+- Scene Swap/Teleportation transition animation & customization with dynamic loading times to account for new asset downloads.
+- Dynamically load in component javascript URLs as needed.
+- Configure unique controls to object methods or component methods within a Scenario, Zone and Scene and view current load out for specific type (i.e. Mobile, Desktop, VR, etc...).
 - Interactable NPC object with text bubble speech system using their Book as instructions for progression, idle or random timeline.
 - Companion object with access to settings, inventory and more.
+- Built in support for various Physics systems and other third party components.
 - Built in Player Rig with locomotion, teleportation, snap turning, crouching, sitting mode & adjustable walk speed actions.
-- Prebuilt AUXL object library to utilize in addition to your own library.
+- Pre-built AUXL object library to utilize in addition to your own library.
 - Extendable system to build new custom objects that take advantage of AUXL.
 
-Interested!? Browse through the [Wiki](https://github.com/Minty-Crisp/AUXL/wiki) to Learn More!!!
+Recent Updates : :fire:
 ---
-# Overview of v0.4 Updates So Far : :fire:
+- Added window.navigator.userAgent to user profile.
+- Added github repo external link to HTML menu and moved Donation external link to HTML menu.
+- Added error protection to avoid issues with multimenu toggleMenu function and confirmed the listeners are removed when the entity is.
+- Added PlayerColors method to Player which is updated on system init to the color pallete.
+- Adjusted Mobile/Desktop reference of Player RayDir method to the world location of avatarHead.
+- Updated Mobile UI so that both center buttons will click through to the document for normal mouse click. Alt click temporarily disabled and charge actions confirmed not working, working on fix.
+- Adjusted Mobile UI font size and opacity.
+- Added pointerLock toggle option to main menu settings.
+- Updated all run components to support connecting to AUXL system functions.
+- Added new hide button attached to MultiMenu control button that will hide the menu at the current location and on click of either that hide button or the main menu control button will redisplay the menu at the saved location.
+- Added the new hide method to menu options in to compliment stay, back & close.
 
-## Highlights
-- Updated World to prevent the same world from being reloaded unless forced to via SwapWorld() world method just in case world has special rules or functions that don't work well such as custom objGen like in Ammo demo.
-- Added player fade out on World swap with a delay of stopping current world, so that it starts in the middle of the transition and the dynamic asset loading system takes over to release player when all assets have loaded or timed out.
-- Changed the fixed 1.6 height value for Companion's TurnToPlayer to get the current camera height instead.
-- Updated camRigAdjustment to recheck Companion's directional height matching current camera height.
-- Fixed an issue with ColorTheoryGen producing incorrect Analogous values and gibberish Monochrome values.
-- Added 2 new components onspawnfuncdual & ondespawnfuncdual that run an auxl.Method() along with 2 parameters imported via a comma seperated string.
-- Fixed an issue with XRcade support links despawning.
-- Adjusted all Auxl system methods to match case style i.e. CaseName
-- Updated default VR mode to dual ray with left locomotion
-- Updated teleportation, raycast-teleportation-select, raycast-teleportation & teleportation-to to support physic bodies.
-- Updated fusingrun, mousedownrun, mouseenterrun, mouseleaverun & mouseuprun components to support the param 'other' which will pass along the other element. When added to an object, it returns the raycaster that clicked it.
-- Added cursor indicators for time based charge animations to both vrControllers.
-- Fixed an issue with Ammo hoverTarget powers to properly identify which vrController is being used via which action.
-- Updated player hover methods when in vr to check the actionParams prefix for action1/2/3/4 to determine which raycaster to assign to and postfix for the actual params command. Added action1/2/3/4 prefix to action1/2/3/4 powers in instruction controls.
-- Updated ammo physics kinsync component to also sync rotation
-- New player method UpdateDefaultPosition which is used by scene automatically to update defined default position which is now checked when resetting the player's position/rotation via method or main menu
-- Increased avatar hover gem height
-- Fixed an issue with player method ResetUserPosRot incorrectly resetting rotation 
-- Avatar head visibility is disabled in 1st POV mode to avoid vr roomscale overlaps where the head blocks the camera view.
-- Seperated Avatar hands from VR controllers and attached to the player rig with support for room tracking camera height adjustments. Linked the controller movements for Ammo physics so when zoomed out can still physically interact within rig local coordinates.
-- Added new RayCoord player method that determines the direction from an entity's local coords and applies that to another entity's different local coords aka rotated differently.
-- Added camera rig height manual adjustment to main menu.
-- Added 1st Pov and 3rd Pov camera switch.
-- Updated Player Avatar
-- Fixed an issue with toggling between various VR control configurations.
-- Added 'opacities' schema array import for gltfmat
-- Fixed an issue with Grid Collision. Added a support function to calculate the Grid End position based on the start position and geometry or defined size of the entity when spawning on grid with the end position is ommitted.
-- Core supports a new Key 'defaultParent' which if no parent is specified during SpawnCore() then that parent id will take over instead of adding directly to the scene
-- World can now import a set of music tracks via key object 'backgroundAudio' and can use world.MusicPlaylist(trackName) to stop current song and start specificied. If false, turns off the song.
-- ZoneData now support the key backgroundAudio with a track name to start new song or 'none' keyword to turn off current music without adding new.
-- World can now import a set of sound effects via key object 'soundEffects' and can be used like normal sounds via events.
-- Updated compass to use text instead of img
-- Moved all assets out of library
-- Bug Fix with companion spawn and stare for all rotations axis. Stare uses the three.js lookAt method which has it's defined up. Fixed by updating object up
-- Bug Fix for button click events firing continously for desktop
-- Added player method UpdateActions that takes in the same data as any scene instruction control key data to assign or remove abilities to the player. If you override a current ability it will be backed up. On the new ability removal, the previous one will be restored. With this, NPC Books can now customize player actions while they are being interacted with.
-- Layer data now supports a config key for which any key/property pairs will be applied to the Layer itself such as the case needed for Grid collision. Layer Data and Layer Template functions have been updated to reflect this.
-- Added support public ShallowOmit(obj, ...keys) function which takes in an object to duplicate from along with a set of keys to omit from the original object and return that new object without those keys.
-
+Third Party Credits : :pray:
 ---
-# Brief Overview of v0.3 Major Updates : :snowflake:
-## Highlights
-
-## Core & Layers
-- Layers now support unlimited depth of parent/child entities.
-- The connected parent for a Core/Layer can now be identified via a core, name of a core, html element or string name of the element.
-- Some new support methods and lots of various optimizations and improvements.
-
-## World, Scenario, Zone, Scene and Books
-- Instructions now support Switch statements.
-- Scenes now support Fog configuration.
-- Zone maps have been moved into Scenario objects and can be dynamically updated.
-- New ObjGen World : Main system loader that holds Scenarios. Allows for dynamically loading and unloading of the current Scenario with all of its attached Zones and Scenes as well as progressing to the next or a specific Scenario. It is also used to handle global controls for things like max load time, speed of the day/night cycle, enable an inventory, enable grid collision, enable physics, update companion and main menu as well as background audio. 
-
-## Player
-- New player body entity added to the player rig.
-- Method to dynamically change player locomotion types.
-- Can lock/unlock player locomotion.
-- Player body rotation reset to forward on new scene.
-- Player flashlight attached to dominant hand or camera(mobile/desktop).
-- Player floor compass texture for better direction awareness.
-- Player body 45 & 90 degree snap turning.
-- Player movement is locked until world is loaded, locked when scene is changes and unlocked when scene is loaded
-- VR Controller UI turned off by default and is toggleable via player method.
-
-## Companion
-- Updated main menu with Inventory, Fast Travel, Settings and View Current Control Configuration.
-- - Inventory holds Items, Tools, Keys and Special Objects added via companion methods. Objects can be permenant or have limited uses.
-- - Fast Travel menu for all connected areas in the scene.
-- - Settings menu to toggle Sit/Stand mode, change Companion Avatar shape, change Scene Transistion style, change Teleportation Transistion style and change Transistion color.
-- - Control Configuration option to display an information window of all currently configured actions from the Scenario, Zone or Scene as well as the specific interactions for the current control type (i.e. Mobile, Desktop or VR).
-- Combined NPC Book functions into Companion.
-- Toggle spawn still configured to player floor, but can be repositioned without toggling via clicking on the Belt Text UI.
-- Added companion UpdateMainMenu method to dynamically update the Main Menu and added to World Info via menuOption
-- Added companion UpdateMainMenuStyle method to dynamically update the Main Menu style and added to World Info via menuStyle
-- Add custom Avatar Core/Layers to Settings menu via auxl.comp.AddAvatar('Display Name','auxlObjectName');
-- Action to control companion and menu. If menu if open, will go back 1 level. If menu is closed will despawn companion. If companion is despawned, will spawn companion.
-
-## NPC
-- Now accepts an idle speech page to be displayed if not interacted for specified amount of time.
-- Book Timelines now supports multiple pages, page jumps and reading in a randomized order.
-- Added speech progression blink notification to continue book or indicate book end.
-- Configured the keyword 'self' to be used in place of an auxlObj name which runs any assigned action on the NPC reading the book.
-- Textbubble options such as close and reset added. Used with NPC layer and parent rig for body avatar.
-- Textbubbles emit a loadin/loadout event for animation support.
-- Various other minor improvements.
-
-## Inventory
-- clickaddinventory component to add an auxl object item/tool/special/etc... on click. Can be configured to use only once, despawn and delay to allow animation to play.
-- Player equipping and unequipping inventory objects with the acceptobject component to use player equipped object on entity
-
-## Tile Map Grid Collision System
-- Scenes can now build blank collision based tile map grids of defined size for each scene at 0.5m increments xz and 1m increments y direction.
-- Define the size of the map, block or allow movement beyond size edges and spawn customizable cores to indicate edges for each scene map.
-- Grid objects can take up multiple height sections at a time. Player while standing will hit 2 height levels, but crouching will only hit 1 height level. When crouching under a collision object, player cannot stand until cleared.
-- Spawn Core/Layers on the grid coordinate system with SpawnCoreOnGrid() or SpawnLayerOnGrid() that uses the object.grid info such as {start: {x:1, z:1}, end: {x:2, z:2}, collide: true,} to define the area for which the object occupies. Each 0.5 increment is a single grid square.
-- Objects can be spawned with collision (collide: true) which will block the player and other collision objects from spawning/moving into that grid space. Any colliding object attempting to spawn in a location which is occupied will wait until the space is cleared before adding itself.
-- Objects can be spawned with a trigger (trigger: true) which will allow the player to collide and will fire an event upon entering the grid area 'triggerEnter' on the grid object as well as fire an event upon exiting the grid area 'triggerExit' on the grid object. Can be combined with the new support component oneventrun for further control of the trigger process to run any AUXL or component method on any object. Can always be set to (once: true) to only allow the trigger to fire In/Out one time.
-- Objects can be spawned without collision or trigger as well to utilize grid coordination system such as foley and decor.
-- Grid spawned objects can also walk along a defined path built with  GridPath() and started with WalkPath(). Paths are built with +/- XZ directions from it's current position. Many path attributes can be customized such as animation or jump to each 0.5 step position, how long each step takes, how long to pause in-between each step, how long to wait if path is blocked to reverse direction or to stubbornly wait, if path should be looped in a specific direction, any direction or to alternate back and forth from start to finish.
-- Movement on collision now continues by skimming walls and floor/ceilings instead of stopping when at edge/collision including when flying.
-- GridLayout ObjGen : Spawn objects from a single or array of Core Data, Core, Layer Data or Layer templates and generate various defined Grid layouts. Spawn individual grid layouts in each scene using the same pool of prebuilt objects that all support the various Tile Map Grid Collision features.
-- New ObjGen Gate. Allow pass through in a specific direction to close the gate behind the user. Can otherwise trigger close or opening of Gate.
-
-## Physics Support
-- Basic Physics integration from c-frame/aframe-physics-system using CANNON.js
-- Physics support components added such as camerasync, staticsync, collision, trigger, bodymaterial, auxconstraint, auxspring and gravitycontrol
-- One ObjGen : Still in progress, universal physics objGen to hold and control all physics based info and functions as well as connections.
-- Constraints ObjGen : Create a physic based constraint, connect, disconnect, update, etc...
-- Player Physic Powers : Displayed in Physics Demo
-- - Personal Gravity Axis(Rotation) & Planet Type(Amount) w/ Velocity or Off/Float
-- - World Gravity Axis & Planet Type(Amount) w/ Velocity or Off/Float
-- - Jump
-- - Parachute
-- - Charge Boost Ray Forward
-- - Charge Boost Ray Reverse
-- - Freeze|UnFreeze
-- - Braking
-- - Charge Rubberband[Web Sling] (Pogo, Swing, Launch)
-- - Charge Teleport
-- - Charge Shoot
-
-
-## Other New Object Generators
-- Multi-Menu : Generates a navigatable menu from a main button with multiple generations of parent/child sub menus all containing actions to jump to a specific menu, run an AUXL Object Method w/Parameters or an AUXL Object Component Method w/Parameters. Button description texts are toggled on hover with Circle Up, Circle Down, Vertical and Horizontal Layouts. Menu can be dynamically updated as well.
-- Quick Hover Menu : Hold down button to spawn circle menu, hover on option and let go of button. Active hover selection on button up happens
-- InfoBubble : A bubble object that attaches to a parent object to act as either an Emote or Alert prompted by an event called on the parent. Emotes are temporarily displayed, while Alerts require interaction to dismiss. Preconfigured and custom text emote/alerts supported.
-- Color Lock Combination ObjGen. Generate a lock and combination to run an AUXL Obj Method on correct input. Can also display a string over each color input from an imported array. The lock waits till full password length input to display correct/incorrect animation and open/reset.
-
-## In-Progress Object Generators
-- Infinite Scroll Multi Menu
-- Mirror
-- Creature
-- UniRay
-- One
-- Powers
-- Vehicle
-- Build In 3D
-
-
-## New Support Components
-- hovertext : on mouse hover of attached object will display configured text either on top or in front of the object and rotates with user view.
-- doorway : assign a zone's scene connection travel point to an object with movement activated upon click.
-- stare : have one object rotate to watch another object's movement. In addition to ID of object to watch, can also enable twist which only rotates on the y axis.
-- onspawnrun : Run auxl object method on spawn.
-- ondespawnrun : Run auxl object method on despawn.
-- oneventrun : Run auxl object method on event.
-- ondelayrun : Run auxl object method on delay.
-- onintervalrun : Run auxl object method on interval.
-- raycast-teleportation-select : spawn a teleport select button on click.
-- teleportation-to : Use specific XYZ coords to move the player to on specified event such as click object.
-
-# A Few Misc Updates : :zap:
-- Max scene load time setting for max time under transition animation while assets load in-between scenes.
-- Event and Interaction Instructions now support a relay which links a different auxlObject and methods to run on defined object's event/interaction.
-- Added Save/Load/Reset system to store profile, date/time/visit, location, support of auxl object flags and more.
-- Generate new Core Data, Core or Layer from a previously existing object with overwrite protection and customization support via auxl.coreDataFromTemplate(), auxl.coreFromTemplate() and auxl.layerFromTemplate().
-- Added pagenation to support more than 7 options in the Quick Travel Menu
-- Scene Info can now take in a spawnPos object to set the default spawn position when loading into the scene
-- doorway component now accepts a delay amount to postpone before swapping scenes in-case an animation needs to play like a door that opens.
-- doorway-trigger component to activate scene transition on trigger collision
-- Updated save data to load data on same domain only
-- Updated HTML menu to a state machine and synced control configuration to save profile
-- Added volume control to html system menu and syncing to profile
-- EdgeUpdate now accepts a new material to be used on Edges
-- Mobile HTML UI will be hidden unless actions are assigned to them
-- Organized all scripts and utilized webpack to export into a single used script. Base assets will now also include A-Frame min.js and C-Frame Physics min.js for locally linked reference.
-- Each object generator component has a rebuild function to regenerate all defined objects upon system reset without reloading the webpage.
-- Support to add custom Object Generators to Scenario, Zone, Scene and Book trackers via auxl.AddObjGenToTracker('objectCoreName', 'SpawnMethodName', 'DespawnMethodName');
-
-
-# v0.4+ Features
-- Grid Enhancements & Features
-- Large & Personal Vehicle Modes
-- Infinite Scroll Menu
-- Locomotion movements such as flying, 3rd Person POV & more
-- Dungeon Wall Maze Generator
-- Creature Generator
-- In 3D Object Builder
-- VRM Asset Support for NPC's with Reaction Animations
-- Additional Locomotion Styles and Gimbal Player Control
-- Enhanced Cannon JS Physics Integration
-- Physics Based Movement & Unique Power System
-- System Function, Component & ObjGen Updates
-- Additional Control Configurations and Enhancements
-- Companion Improvements & Customizations
-- Scenario, Zone, Scene & Object builds via DOM components
-- New AUXL ObjGen's Emulating Traditional Web Objects
-- Scene Layouts : Venue, Stage, Forum, Class, Meeting, Museum, Bubbles, etc...
-- Variety of Gallery Asset Designs
-- 3D Object Inspection
-- Endless Scene Asset Spawning
-- Enhanced Scenary : Horizon, Foley, Weather, SkyBox, etc...
-- Quiz, Question, Polls & Feedback Form Submissions
-- Home Area, Widgets & Themes
-- RSS Support for Browsing Experiences, Rooms and Components
-- 2D/3D Creation & Editing Tools
-- AR Background & GPS Support
-
-# Minty Crisp ^-^ :watermelon: 
-
-If you have made it this far, let me just say Thank You! AUXL has been a dream of mine and a labor of love. I still have so much more to accomplish and it will far easier if I can get others to test, play with, contribute, donate or just offer words of encouragement to keep going. This all wouldn't be possible without the open source work of so many others as well especially the teams that have made A-Frame and Three.js! If you are interested in discussing AUXL further, have any questions or even interested in collaborating with me please reach out to me. You can find all my contact info on my [website](https://mintycrisp.com) or even my Github profile here. Thank You ^_^
-
-- If you want to see more work of mine playing with A-Frame, check out my site [mintycrisp.com](https://mintycrisp.com) and my [Itch Store](https://mintycrisp.itch.io/).
-- You may also be interested in an arcade I built using AUXL as it's foundation filled with XR mini games called [Minty's XRcade](https://mintyxr.com).
-- You can also check me out on a few other places like [Mastodon](https://mastodon.social/@mintycrisp) or [dev.to](https://dev.to/mintycrisp).
-- I am available for Web XR work if you are interested in hiring me or collaborating on future projects.
-- You can reach me via socials or email : minty-crisp @ proton . me
-- If you really enjoy my work and want to support me making more of these types of projects, you can help me out with any kind of donation at [ko-fi](https://ko-fi.com/mintycrisp) or just by sharing my work.
+- A-Frame Three Color Gradient Shader by [tlaukkan](https://github.com/tlaukkan/)
+- A-Frame Physics System by [c-frame](https://github.com/c-frame)
+- A-Frame Animation Mixer by [c-frame](https://github.com/c-frame)
+- A-Frame GLTF Morph by [elbobo](https://github.com/elbobo)
+- A-Frame Cam Render by [jgbarah](https://github.com/jgbarah)
+- A-Frame Shader Park Component [shader park](https://github.com/shader-park)
+- Shader Park Templates [shader park community](https://shaderpark.com/explore)
+- CSS Template [andybrewer](https://github.com/andybrewer)
+- Various Audio & Visual Assets by [kenney](https://kenney.nl/)
+- Various Visual Assets by [kaylousberg](https://kaylousberg.com/)
+- Town III Song by [silverNimbus](https://silvernimbus.itch.io/)
+- Lightning Strike SFX by [parnellij](https://freesound.org/people/parnellij/)
+- Additional Misc SFX by lukas tvrdon, anttis instrumentals, sound ex machina, sonic bat, sound rangers, david fienup, soundjay via (gamesounds)[https://gamesounds.xyz/]
+- Thunderstorm Audio by White Noise Meditation, will find link.
+- XRcade Tiles, Shark & Squid Assets by unknown, will find attribution.
