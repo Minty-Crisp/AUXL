@@ -2963,7 +2963,7 @@ auxl.testScroll = auxl.ScrollMenu('testScroll');
 auxl.cardTest0Data = {
 	id: 'cardTest0',
 	title: 'Card Test #0',
-	position: new THREE.Vector3(1,1.6,-1.5),
+	position: new THREE.Vector3(1,1.6,-2.5),
 	rotation: new THREE.Vector3(0,-30,0),
 	scale: new THREE.Vector3(0.2,0.2,0.2),
 	colors: auxl.ColorTheoryGen(false, 'red'),
@@ -2974,7 +2974,7 @@ auxl.cardTest0 = auxl.Card(auxl.cardTest0Data)
 auxl.cardTest1Data = {
 	id: 'cardTest1',
 	title: 'Card Test #1',
-	position: new THREE.Vector3(-1,1.6,-1.5),
+	position: new THREE.Vector3(-1,1.6,-2.5),
 	rotation: new THREE.Vector3(0,30,0),
 	scale: new THREE.Vector3(0.2,0.2,0.2),
 	colors: auxl.ColorTheoryGen(false, 'green'),
